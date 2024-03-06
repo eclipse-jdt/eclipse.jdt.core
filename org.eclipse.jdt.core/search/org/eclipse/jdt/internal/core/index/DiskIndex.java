@@ -176,8 +176,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 	// first category table or if the first category tables doesn't have any results.
 	boolean prevResults = false;
 	if (key == null) {
-		for (char[] element : categories) {
-			HashtableOfObject wordsToDocNumbers = readCategoryTable(element, true); // cache if key is null since its a definite match
+		for (char[] category : categories) {
+			HashtableOfObject wordsToDocNumbers = readCategoryTable(category, true); // cache if key is null since its a definite match
 			if (wordsToDocNumbers != null) {
 				char[][] words = wordsToDocNumbers.keyTable;
 				Object[] values = wordsToDocNumbers.valueTable;
@@ -194,8 +194,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 	} else {
 		switch (matchRule) {
 			case SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE:
-				for (char[] element : categories) {
-					HashtableOfObject wordsToDocNumbers = readCategoryTable(element, false);
+				for (char[] category : categories) {
+					HashtableOfObject wordsToDocNumbers = readCategoryTable(category, false);
 					Object value;
 					if (wordsToDocNumbers != null && (value = wordsToDocNumbers.get(key)) != null)
 						results = addQueryResult(results, key, value, memoryIndex, prevResults);
@@ -203,8 +203,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 				}
 				break;
 			case SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE:
-				for (char[] element : categories) {
-					HashtableOfObject wordsToDocNumbers = readCategoryTable(element, false);
+				for (char[] category : categories) {
+					HashtableOfObject wordsToDocNumbers = readCategoryTable(category, false);
 					if (wordsToDocNumbers != null) {
 						char[][] words = wordsToDocNumbers.keyTable;
 						Object[] values = wordsToDocNumbers.valueTable;
@@ -219,8 +219,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 				break;
 			case SearchPattern.R_REGEXP_MATCH:
 				Pattern pattern = Pattern.compile(new String(key));
-				for (char[] element : categories) {
-					HashtableOfObject wordsToDocNumbers = readCategoryTable(element, false);
+				for (char[] category : categories) {
+					HashtableOfObject wordsToDocNumbers = readCategoryTable(category, false);
 					if (wordsToDocNumbers != null) {
 						char[][] words = wordsToDocNumbers.keyTable;
 						Object[] values = wordsToDocNumbers.valueTable;
@@ -234,8 +234,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 				}
 				break;
 			default:
-				for (char[] element : categories) {
-					HashtableOfObject wordsToDocNumbers = readCategoryTable(element, false);
+				for (char[] category : categories) {
+					HashtableOfObject wordsToDocNumbers = readCategoryTable(category, false);
 					if (wordsToDocNumbers != null) {
 						char[][] words = wordsToDocNumbers.keyTable;
 						Object[] values = wordsToDocNumbers.valueTable;
@@ -288,9 +288,9 @@ private String[] computeDocumentNames(String[] onDiskNames, int[] positions, Sim
 		String[] newDocNames = new String[indexedDocuments.elementSize];
 		int count = 0;
 		Object[] added = indexedDocuments.keyTable;
-		for (Object element : added)
-			if (element != null)
-				newDocNames[count++] = (String) element;
+		for (Object newDocName : added)
+			if (newDocName != null)
+				newDocNames[count++] = (String) newDocName;
 		Util.sort(newDocNames);
 		for (int i = 0, l = newDocNames.length; i < l; i++)
 			indexedDocuments.put(newDocNames[i], Integer.valueOf(i));
@@ -331,9 +331,9 @@ private String[] computeDocumentNames(String[] onDiskNames, int[] positions, Sim
 			if (positions[i] >= RE_INDEXED)
 				newDocNames[count++] = onDiskNames[i]; // keep each unchanged document
 		Object[] added = indexedDocuments.keyTable;
-		for (Object element : added)
-			if (element != null)
-				newDocNames[count++] = (String) element; // add each new document
+		for (Object newDocName : added)
+			if (newDocName != null)
+				newDocNames[count++] = (String) newDocName; // add each new document
 		Util.sort(newDocNames);
 		for (int i = 0, l = newDocNames.length; i < l; i++)
 			if (indexedDocuments.containsKey(newDocNames[i]))

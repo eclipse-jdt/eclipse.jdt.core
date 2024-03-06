@@ -364,9 +364,9 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 							requestor.acceptPackage(exportName);
 					}
 				}
-				for (IModuleReference moduleRef2 : requiredModule.getRequiredModules()) {
-					if (moduleRef2.isTransitive())
-						findPackagesFromRequires(prefix, isMatchAllPrefix, requestor, moduleRef2, clientModuleName);
+				for (IModuleReference ref : requiredModule.getRequiredModules()) {
+					if (ref.isTransitive())
+						findPackagesFromRequires(prefix, isMatchAllPrefix, requestor, ref, clientModuleName);
 				}
 			}
 		} catch (JavaModelException e) {

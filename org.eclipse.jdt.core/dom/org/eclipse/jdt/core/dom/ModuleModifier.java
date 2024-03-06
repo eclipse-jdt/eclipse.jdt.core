@@ -79,8 +79,8 @@ public final class ModuleModifier extends ASTNode {
 		 * @see #toFlagValue()
 		 */
 		public static ModuleModifierKeyword fromFlagValue(int flagValue) {
-			for (Object element : KEYWORDS.values()) {
-				ModuleModifierKeyword k = (ModuleModifierKeyword) element;
+			for (Object o : KEYWORDS.values()) {
+				ModuleModifierKeyword k = (ModuleModifierKeyword) o;
 				if (k.toFlagValue() == flagValue) {
 					return k;
 				}

@@ -57,8 +57,8 @@ public class SourceRangeVerifier extends ASTVisitor {
 		ASTNode previous = null;
 
 		List properties = node.structuralPropertiesForType();
-		for (Object property2 : properties) {
-			StructuralPropertyDescriptor property = (StructuralPropertyDescriptor) property2;
+		for (Object p : properties) {
+			StructuralPropertyDescriptor property = (StructuralPropertyDescriptor) p;
 			if (property.isChildProperty()) {
 				ASTNode child = (ASTNode) node.getStructuralProperty(property);
 				if (child != null) {
@@ -71,8 +71,8 @@ public class SourceRangeVerifier extends ASTVisitor {
 				}
 			} else if (property.isChildListProperty()) {
 				List children = (List) node.getStructuralProperty(property);
-				for (Object child2 : children) {
-					ASTNode child = (ASTNode) child2;
+				for (Object c : children) {
+					ASTNode child = (ASTNode) c;
 					boolean ok = checkChild(node, previous, child);
 					if (ok) {
 						previous = child;

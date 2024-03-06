@@ -321,16 +321,16 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements ISourceMod
 		}
 		if (this.usedServices != null && this.usedServices.length > 0) {
 			buffer.append('\n');
-			for (char[] element : this.usedServices) {
+			for (char[] usedService : this.usedServices) {
 				buffer.append("\tuses "); //$NON-NLS-1$
-				buffer.append(element).append('\n');
+				buffer.append(usedService).append('\n');
 			}
 		}
 		if (this.services != null && this.services.length > 0) {
 			buffer.append('\n');
-			for (ServiceInfo element : this.services) {
+			for (ServiceInfo service : this.services) {
 				buffer.append("\tprovides "); //$NON-NLS-1$
-				buffer.append(element.toString()).append('\n');
+				buffer.append(service.toString()).append('\n');
 			}
 		}
 		if (this.opens != null && this.opens.length > 0) {

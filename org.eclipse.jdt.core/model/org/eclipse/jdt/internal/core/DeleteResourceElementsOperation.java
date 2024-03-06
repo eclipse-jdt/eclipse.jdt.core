@@ -59,8 +59,8 @@ private void deletePackageFragment(IPackageFragment frag)
 		// Discard non-java resources
 		Object[] nonJavaResources = frag.getNonJavaResources();
 		int actualResourceCount = 0;
-		for (Object element : nonJavaResources) {
-			if (element instanceof IResource) actualResourceCount++;
+		for (Object resource : nonJavaResources) {
+			if (resource instanceof IResource) actualResourceCount++;
 		}
 		IResource[] actualNonJavaResources = new IResource[actualResourceCount];
 		for (int i = 0, max = nonJavaResources.length, index = 0; i < max; i++){

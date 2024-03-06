@@ -76,9 +76,8 @@ private void rehash() {
 @Override
 public String toString() {
 	String s = ""; //$NON-NLS-1$
-	String value;
-	for (String value2 : this.values)
-		if ((value = value2) != null)
+	for (String value : this.values)
+		if (value != null)
 			s += value + "\n"; //$NON-NLS-1$
 	return s;
 }

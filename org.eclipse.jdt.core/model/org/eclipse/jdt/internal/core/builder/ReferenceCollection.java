@@ -595,20 +595,20 @@ private boolean debugIncludes(char[][][] qualifiedNames, char[][] simpleNames, c
 }
 
 private boolean debugInsideRoot(char[] rootName) {
-	for (char[] element : this.rootReferences)
-		if (rootName == element) return true;
+	for (char[] name : this.rootReferences)
+		if (rootName == name) return true;
 	return false;
 }
 
 private boolean debugIncludes(char[] simpleName) {
-	for (char[] element : this.simpleNameReferences)
-		if (simpleName == element) return true;
+	for (char[] name : this.simpleNameReferences)
+		if (simpleName == name) return true;
 	return false;
 }
 
 private boolean debugIncludes(char[][] qualifiedName) {
-	for (char[][] element : this.qualifiedNameReferences)
-		if (qualifiedName == element) return true;
+	for (char[][] name : this.qualifiedNameReferences)
+		if (qualifiedName == name) return true;
 	return false;
 }
 

@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.core.search.PatternSearchJob;
  * Initially done in JavaCore.initializeDefaultPreferences which was deprecated
  * with new eclipse preferences mechanism.
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
 public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer {
 
 	/**
@@ -42,10 +41,10 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		// If modified, also modify the method JavaModelManager#getDefaultOptionsNoInitialization()
 		// and also consider updating org.eclipse.jdt.internal.compiler.batch.Main#initializeWarnings(String)
 		// Get options names set
-		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
+		HashSet<String> optionNames = JavaModelManager.getJavaModelManager().optionNames;
 
 		// Compiler settings
-		Map defaultOptionsMap = new CompilerOptions().getMap(); // compiler defaults
+		Map<String, String> defaultOptionsMap = new CompilerOptions().getMap(); // compiler defaults
 
 		String testDefaults = System.getProperty("jdt.default.test.compliance"); //$NON-NLS-1$
 		if (testDefaults != null) {
@@ -85,10 +84,9 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		optionNames.add(JavaCore.CORE_ENCODING);
 
 		// Formatter settings
-		Map codeFormatterOptionsMap = DefaultCodeFormatterConstants.getEclipseDefaultSettings(); // code formatter defaults
-		for (Object element : codeFormatterOptionsMap.entrySet()) {
-			Map.Entry entry = (Map.Entry) element;
-			String optionName = (String) entry.getKey();
+		Map<String, String> codeFormatterOptionsMap = DefaultCodeFormatterConstants.getEclipseDefaultSettings(); // code formatter defaults
+		for (Map.Entry<String, String> entry : codeFormatterOptionsMap.entrySet()) {
+			String optionName = entry.getKey();
 			defaultOptionsMap.put(optionName, entry.getValue());
 			optionNames.add(optionName);
 		}
@@ -120,10 +118,9 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 
 		// Store default values to default preferences
 	 	IEclipsePreferences defaultPreferences = DefaultScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
-		for (Object element : defaultOptionsMap.entrySet()) {
-			Map.Entry entry = (Map.Entry) element;
-			String optionName = (String) entry.getKey();
-			defaultPreferences.put(optionName, (String)entry.getValue());
+		for (Map.Entry<String, String> entry : defaultOptionsMap.entrySet()) {
+			String optionName = entry.getKey();
+			defaultPreferences.put(optionName, entry.getValue());
 			optionNames.add(optionName);
 		}
 
@@ -138,7 +135,7 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 	 * @deprecated As using deprecated options
 	 */
 	private void initializeDeprecatedOptions() {
-		Map deprecatedOptions = JavaModelManager.getJavaModelManager().deprecatedOptions;
+		Map<String, String[]> deprecatedOptions = JavaModelManager.getJavaModelManager().deprecatedOptions;
 		deprecatedOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER,
 			new String[] {
 				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD,

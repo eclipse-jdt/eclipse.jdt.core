@@ -208,8 +208,8 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			addBinaryAnnotation((IBinaryAnnotation) pairValue);
 		} else if (pairValue instanceof Object[]) {
 			Object[] objects = (Object[]) pairValue;
-			for (Object object2 : objects) {
-				addPairValue(object2);
+			for (Object o : objects) {
+				addPairValue(o);
 			}
 		}
 	}
@@ -644,8 +644,8 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 
 					// also add a simple reference on each segment of the qualification (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=24741)
 					char[][] qualification = CharOperation.splitOn('.', name);
-					for (char[] element : qualification) {
-						addNameReference(element);
+					for (char[] nr : qualification) {
+						addNameReference(nr);
 					}
 					break;
 			}
@@ -921,8 +921,8 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 	private void indexTypeReferences(char[][] ref) {
 		if (ref == null || ref == CharOperation.NO_CHAR_CHAR)
 			return;
-		for (char[] element : ref) {
-			addTypeReference(element);
+		for (char[] name : ref) {
+			addTypeReference(name);
 		}
 	}
 	private void indexTypeReference(char[] ref) {

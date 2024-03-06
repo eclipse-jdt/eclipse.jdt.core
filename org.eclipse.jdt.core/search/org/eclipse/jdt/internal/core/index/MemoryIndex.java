@@ -74,8 +74,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 		nextPath : for (int i = 0, l = referenceTables.length; i < l; i++) {
 			HashtableOfObject categoryToWords = (HashtableOfObject) referenceTables[i];
 			if (categoryToWords != null) {
-				for (char[] element : categories) {
-					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(element);
+				for (char[] category : categories) {
+					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(category);
 					if (wordSet != null && wordSet.includes(key)) {
 						if (results == null)
 							results = new HashtableOfObject(13);
@@ -92,8 +92,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 		for (int i = 0, l = referenceTables.length; i < l; i++) {
 			HashtableOfObject categoryToWords = (HashtableOfObject) referenceTables[i];
 			if (categoryToWords != null) {
-				for (char[] element : categories) {
-					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(element);
+				for (char[] category : categories) {
+					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(category);
 					if (wordSet != null) {
 						char[][] words = wordSet.words;
 						for (char[] word : words) {

@@ -188,8 +188,8 @@ protected void addAffectedChild(JavaElementDelta child) {
 						return;
 					case CHANGED: // child was changed then changed -> it is changed
 						IJavaElementDelta[] children = child.getAffectedChildren();
-						for (IJavaElementDelta child2 : children) {
-							JavaElementDelta childsChild = (JavaElementDelta) child2;
+						for (IJavaElementDelta c : children) {
+							JavaElementDelta childsChild = (JavaElementDelta) c;
 							existingChild.addAffectedChild(childsChild);
 						}
 
@@ -331,8 +331,8 @@ protected JavaElementDelta createDeltaTree(IJavaElement element, JavaElementDelt
 			this.movedFromHandle = delta.movedFromHandle;
 		}
 	} else {
-		for (Object ancestor2 : ancestors) {
-			IJavaElement ancestor = (IJavaElement) ancestor2;
+		for (Object a : ancestors) {
+			IJavaElement ancestor = (IJavaElement) a;
 			JavaElementDelta ancestorDelta = new JavaElementDelta(ancestor);
 			ancestorDelta.addAffectedChild(childDelta);
 			childDelta = ancestorDelta;

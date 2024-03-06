@@ -490,8 +490,8 @@ class ASTConverter {
 		// Build comment table
 		this.commentsTable = new Comment[comments.length];
 		int nbr = 0;
-		for (int[] comment2 : comments) {
-			Comment comment = createComment(comment2);
+		for (int[] c : comments) {
+			Comment comment = createComment(c);
 			if (comment != null) {
 				comment.setAlternateRoot(compilationUnit);
 				this.commentsTable[nbr++] = comment;
@@ -2733,8 +2733,8 @@ class ASTConverter {
 
 		org.eclipse.jdt.internal.compiler.ast.MemberValuePair[] memberValuePairs = annotation.memberValuePairs;
 		if (memberValuePairs != null) {
-			for (org.eclipse.jdt.internal.compiler.ast.MemberValuePair memberValuePair2 : memberValuePairs) {
-				MemberValuePair memberValuePair = convert(memberValuePair2);
+			for (org.eclipse.jdt.internal.compiler.ast.MemberValuePair pair : memberValuePairs) {
+				MemberValuePair memberValuePair = convert(pair);
 				int memberValuePairEnd = memberValuePair.getStartPosition() + memberValuePair.getLength() - 1;
 				if (end == memberValuePairEnd) {
 					normalAnnotation.setFlags(normalAnnotation.getFlags() | ASTNode.RECOVERED);
@@ -3451,13 +3451,13 @@ class ASTConverter {
 		if (superInterfaces != null) {
 			switch(this.ast.apiLevel) {
 				case AST.JLS2_INTERNAL :
-					for (TypeReference element : superInterfaces) {
-						typeDecl.internalSuperInterfaces().add(convert(element));
+					for (TypeReference superInterface : superInterfaces) {
+						typeDecl.internalSuperInterfaces().add(convert(superInterface));
 					}
 					break;
 				default :
-					for (TypeReference element : superInterfaces) {
-						typeDecl.superInterfaceTypes().add(convertType(element));
+					for (TypeReference superInterface : superInterfaces) {
+						typeDecl.superInterfaceTypes().add(convertType(superInterface));
 					}
 			}
 		}
@@ -3748,8 +3748,8 @@ class ASTConverter {
 
 		org.eclipse.jdt.internal.compiler.ast.TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
 		if (superInterfaces != null) {
-			for (TypeReference element : superInterfaces) {
-				enumDeclaration2.superInterfaceTypes().add(convertType(element));
+			for (TypeReference superInterface : superInterfaces) {
+				enumDeclaration2.superInterfaceTypes().add(convertType(superInterface));
 			}
 		}
 		buildBodyDeclarations(typeDeclaration, enumDeclaration2);
@@ -4126,8 +4126,8 @@ class ASTConverter {
 		if (annotationsOnDimensions == null) return;
 		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = annotationsOnDimensions[dimension];
 		if (annotations != null) {
-			for (org.eclipse.jdt.internal.compiler.ast.Annotation annotation2 : annotations) {
-				Annotation annotation = convert(annotation2);
+			for (org.eclipse.jdt.internal.compiler.ast.Annotation a : annotations) {
+				Annotation annotation = convert(a);
 				currentDimension.annotations().add(annotation);
 			}
 		}
@@ -4526,8 +4526,8 @@ class ASTConverter {
 					default:
 						// union type reference
 						final UnionType unionType = new UnionType(this.ast);
-						for (TypeReference element : typeReferences) {
-							unionType.types().add(this.convertType(element));
+						for (TypeReference ref : typeReferences) {
+							unionType.types().add(this.convertType(ref));
 						}
 						type = unionType;
 						List types = unionType.types();
@@ -4554,8 +4554,8 @@ class ASTConverter {
 					default:
 						// intersection type reference
 						final IntersectionType castType = new IntersectionType(this.ast);
-						for (TypeReference element : typeReferences) {
-							castType.types().add(this.convertType(element));
+						for (TypeReference ref : typeReferences) {
+							castType.types().add(this.convertType(ref));
 						}
 						type = castType;
 						List types = castType.types();
@@ -4998,14 +4998,14 @@ class ASTConverter {
 	}
 	private void lookupForScopes() {
 		if (this.pendingNameScopeResolution != null) {
-			for (Object element : this.pendingNameScopeResolution) {
-				Name name = (Name) element;
+			for (Object o : this.pendingNameScopeResolution) {
+				Name name = (Name) o;
 				this.ast.getBindingResolver().recordScope(name, lookupScope(name));
 			}
 		}
 		if (this.pendingThisExpressionScopeResolution != null) {
-			for (Object element : this.pendingThisExpressionScopeResolution) {
-				ThisExpression thisExpression = (ThisExpression) element;
+			for (Object o : this.pendingThisExpressionScopeResolution) {
+				ThisExpression thisExpression = (ThisExpression) o;
 				this.ast.getBindingResolver().recordScope(thisExpression, lookupScope(thisExpression));
 			}
 		}

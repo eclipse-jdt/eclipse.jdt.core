@@ -85,10 +85,10 @@ private ReferenceBinding getMatchingSuper(ReferenceBinding binding) {
 	// matches interfaces
 	ReferenceBinding[] interfaces = binding.superInterfaces();
 	if (interfaces == null) return null;
-	for (ReferenceBinding element : interfaces) {
-		level = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, element);
-		if (level != IMPOSSIBLE_MATCH) return element;
-		superBinding = getMatchingSuper(element);
+	for (ReferenceBinding ref : interfaces) {
+		level = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, ref);
+		if (level != IMPOSSIBLE_MATCH) return ref;
+		superBinding = getMatchingSuper(ref);
 		if (superBinding != null) return superBinding;
 	}
 	return null;
@@ -96,12 +96,10 @@ private ReferenceBinding getMatchingSuper(ReferenceBinding binding) {
 
 private MethodBinding getMethodBinding(ReferenceBinding type, char[] methodName, TypeBinding[] argumentTypes) {
 	MethodBinding[] methods = type.getMethods(methodName);
-	MethodBinding method = null;
-	methodsLoop: for (MethodBinding method2 : methods) {
-		method = method2;
+	methodsLoop: for (MethodBinding method : methods) {
 		TypeBinding[] parameters = method.parameters;
 		if (argumentTypes.length == parameters.length) {
-			for (int j=0,l=parameters.length; j<l; j++) {
+			for (int j = 0, l = parameters.length; j < l; j++) {
 				if (TypeBinding.notEquals(parameters[j].erasure(), argumentTypes[j].erasure())) {
 					continue methodsLoop;
 				}
@@ -907,8 +905,8 @@ protected int resolveLevelAsSubtype(char[] simplePattern, char[] qualifiedPatter
 	// matches interfaces
 	ReferenceBinding[] interfaces = type.superInterfaces();
 	if (interfaces == null) return INACCURATE_MATCH;
-	for (ReferenceBinding element : interfaces) {
-		level = resolveLevelAsSubtype(simplePattern, qualifiedPattern, element, methodName, null, packageName, isDefault);
+	for (ReferenceBinding ref : interfaces) {
+		level = resolveLevelAsSubtype(simplePattern, qualifiedPattern, ref, methodName, null, packageName, isDefault);
 		if (level != IMPOSSIBLE_MATCH) {
 			if (!type.isAbstract() && !type.isInterface()) { // if concrete class, then method is overridden
 				level |= OVERRIDDEN_METHOD_FLAVOR;
@@ -956,8 +954,8 @@ private boolean resolveLevelAsSuperInvocation(ReferenceBinding type, TypeBinding
 	if (type.isInterface()) {
 		ReferenceBinding[] interfaces = type.superInterfaces();
 		if (interfaces == null) return false;
-		for (ReferenceBinding element : interfaces) {
-			if (resolveLevelAsSuperInvocation(element, argumentTypes, superTypeNames, false)) {
+		for (ReferenceBinding ref : interfaces) {
+			if (resolveLevelAsSuperInvocation(ref, argumentTypes, superTypeNames, false)) {
 				return true;
 			}
 		}

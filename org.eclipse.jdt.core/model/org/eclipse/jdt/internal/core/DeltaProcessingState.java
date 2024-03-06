@@ -322,8 +322,8 @@ public class DeltaProcessingState implements IResourceChangeListener {
 			// nothing can be done
 			return null;
 		}
-		for (IJavaProject project2 : projects) {
-			JavaProject project = (JavaProject) project2;
+		for (IJavaProject p : projects) {
+			JavaProject project = (JavaProject) p;
 			IClasspathEntry[] classpath;
 			try {
 				if (usePreviousSession) {
@@ -629,11 +629,10 @@ public class DeltaProcessingState implements IResourceChangeListener {
 
 				List<RootInfo> rootList = otherUpdatedRoots.get(path);
 				if (rootList != null) {
-					for (RootInfo element : rootList) {
-						rootInfo = element;
+					for (RootInfo ri : rootList) {
 						if (!containerIsProject
-								|| !rootInfo.project.getPath().isPrefixOf(path)) { // only consider folder roots that are not included in the container
-							deltaProcessor.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootInfo);
+								|| !ri.project.getPath().isPrefixOf(path)) { // only consider folder roots that are not included in the container
+							deltaProcessor.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, ri);
 						}
 					}
 				}

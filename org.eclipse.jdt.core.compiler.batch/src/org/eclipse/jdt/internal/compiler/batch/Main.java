@@ -757,8 +757,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				});
 				HashMap<String, Object> parameters = new HashMap<>();
 				for (Entry<String, String> entry : entries) {
-					String key = entry.getKey();
-					parameters.put(Logger.KEY, key);
+					parameters.put(Logger.KEY, entry.getKey());
 					parameters.put(Logger.VALUE, entry.getValue());
 					printTag(Logger.OPTION, parameters, true, true);
 				}
@@ -3561,9 +3560,7 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 		if (this.destinationPath == null) {
 			addPendingErrors(this.bind("configure.missingDestinationPath"));//$NON-NLS-1$
 		}
-		String[] paths = new String[modulePaths.size()];
-		modulePaths.toArray(paths);
-		for (String path : paths) {
+		for (String path : modulePaths) {
 			File dir = new File(path);
 			if (dir.isDirectory()) {
 				// 1. Create FileSystem.Classpath for each module

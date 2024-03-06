@@ -951,9 +951,9 @@ public class DeltaProcessor {
 					IClasspathEntry[] classpath;
 					try {
 						classpath = javaProject.getResolvedClasspath();
-						for (IClasspathEntry element2 : classpath) {
-							if (element2.getEntryKind() == IClasspathEntry.CPE_LIBRARY){
-								archivePathsToRefresh.add(element2.getPath());
+						for (IClasspathEntry cpe : classpath) {
+							if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY){
+								archivePathsToRefresh.add(cpe.getPath());
 							}
 						}
 					} catch (JavaModelException e) {
@@ -970,9 +970,9 @@ public class DeltaProcessor {
 						javaProject = (JavaProject) JavaCore.create(project);
 						try {
 							classpath = javaProject.getResolvedClasspath();
-							for (IClasspathEntry element2 : classpath) {
-								if (element2.getEntryKind() == IClasspathEntry.CPE_LIBRARY){
-									archivePathsToRefresh.add(element2.getPath());
+							for (IClasspathEntry cpe : classpath) {
+								if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY){
+									archivePathsToRefresh.add(cpe.getPath());
 								}
 							}
 						} catch (JavaModelException e2) {
@@ -1712,8 +1712,8 @@ public class DeltaProcessor {
 				}
 				IResourceDelta[] resourceDeltas = delta.getResourceDeltas();
 				if (resourceDeltas != null) {
-					for (IResourceDelta element2 : resourceDeltas) {
-						rootDelta.addResourceDelta(element2);
+					for (IResourceDelta rd : resourceDeltas) {
+						rootDelta.addResourceDelta(rd);
 						insertedTree = true;
 					}
 				}
@@ -1840,10 +1840,9 @@ public class DeltaProcessor {
 		List<RootInfo> oldInfos = this.state.oldOtherRoots.get(path);
 		if (oldInfos == null)
 			return null;
-		for (RootInfo element : oldInfos) {
-			oldInfo = element;
-			if (oldInfo.project.equals(project))
-				return oldInfo;
+		for (RootInfo rootInfo : oldInfos) {
+			if (rootInfo.project.equals(project))
+				return rootInfo;
 		}
 		return null;
 	}
@@ -2420,10 +2419,9 @@ public class DeltaProcessor {
 				// if the child is a package fragment root of one or several other projects
 				List<RootInfo> rootList;
 				if ((rootList = otherRootsInfo(childPath, childKind)) != null) {
-					for (RootInfo element : rootList) {
-						originalChildRootInfo = element;
+					for (RootInfo ri : rootList) {
 						this.currentElement = null; // ensure that 2 roots refering to the same resource don't share the current element (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=210746 )
-						traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, originalChildRootInfo, null); // binary output of childRootInfo.project cannot be this root
+						traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, ri, null); // binary output of childRootInfo.project cannot be this root
 					}
 				}
 			}

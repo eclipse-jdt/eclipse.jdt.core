@@ -246,8 +246,8 @@ public class AddJrtToIndex extends BinaryContainer {
 					boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
 					if (!needToReindex) {
 						Object[] valueTable = indexedFileNames.valueTable;
-						for (Object element : valueTable) {
-							if (element == FILE_INDEX_STATE.DELETED) {
+						for (Object v : valueTable) {
+							if (v == FILE_INDEX_STATE.DELETED) {
 								needToReindex = true; // a file was deleted so re-index
 								break;
 							}

@@ -388,8 +388,8 @@ public class HandleFactory {
 					|| !project.hasNature(JavaCore.NATURE_ID)) continue;
 				IJavaProject javaProject= this.javaModel.getJavaProject(project);
 				IPackageFragmentRoot[] roots= javaProject.getPackageFragmentRoots();
-				for (IPackageFragmentRoot root2 : roots) {
-					PackageFragmentRoot root= (PackageFragmentRoot)root2;
+				for (IPackageFragmentRoot r : roots) {
+					PackageFragmentRoot root= (PackageFragmentRoot)r;
 					if (root.internalPath().isPrefixOf(path) && !Util.isExcluded(path, root.fullInclusionPatternChars(), root.fullExclusionPatternChars(), false)) {
 						return root;
 					}

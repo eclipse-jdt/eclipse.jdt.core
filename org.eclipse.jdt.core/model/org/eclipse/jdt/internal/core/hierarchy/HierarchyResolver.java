@@ -966,8 +966,8 @@ private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBin
 	if (subTypeOfType(superclass, typeBinding)) return true;
 	ReferenceBinding[] superInterfaces = subType.superInterfaces();
 	if (superInterfaces != null) {
-		for (ReferenceBinding element : superInterfaces) {
-			ReferenceBinding superInterface = (ReferenceBinding) element.erasure();
+		for (ReferenceBinding si : superInterfaces) {
+			ReferenceBinding superInterface = (ReferenceBinding) si.erasure();
 			if (superInterface.isHierarchyInconsistent()) return false;
 			if (subTypeOfType(superInterface, typeBinding)) return true;
 		}

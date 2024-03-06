@@ -183,8 +183,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		JavaElementDelta previousDelta = (JavaElementDelta)reconcileDeltas.get(workingCopy);
 		if (previousDelta != null) {
 			IJavaElementDelta[] children = delta.getAffectedChildren();
-			for (IJavaElementDelta child2 : children) {
-				JavaElementDelta child = (JavaElementDelta)child2;
+			for (IJavaElementDelta d : children) {
+				JavaElementDelta child = (JavaElementDelta)d;
 				previousDelta.insertDeltaTree(child.getElement(), child);
 			}
 			// note that the last delta's AST always takes precedence over the existing delta's AST

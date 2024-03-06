@@ -157,8 +157,8 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 		 * @see #toFlagValue()
 		 */
 		public static ModifierKeyword fromFlagValue(int flagValue) {
-			for (Object element : KEYWORDS.values()) {
-				ModifierKeyword k = (ModifierKeyword) element;
+			for (Object o : KEYWORDS.values()) {
+				ModifierKeyword k = (ModifierKeyword) o;
 				if (k.toFlagValue() == flagValue) {
 					return k;
 				}

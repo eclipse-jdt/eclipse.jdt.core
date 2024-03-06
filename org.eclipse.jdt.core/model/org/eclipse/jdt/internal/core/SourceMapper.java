@@ -159,7 +159,7 @@ public class SourceMapper
 	 * the zip (empty specifies the default root). <code>null</code> is
 	 * not a valid root path.
 	 */
-	protected ArrayList rootPaths;
+	protected ArrayList<String> rootPaths;
 
 	/**
 	 * The binary type or module source is being mapped for
@@ -681,8 +681,8 @@ public class SourceMapper
 		}
 		int size = tempRoots.size();
 		if (this.rootPaths != null) {
-			for (Object element : this.rootPaths) {
-				tempRoots.add(new Path((String) element));
+			for (String path : this.rootPaths) {
+				tempRoots.add(new Path(path));
 			}
 			this.rootPaths.clear();
 		} else {
@@ -711,8 +711,8 @@ public class SourceMapper
 			trace("Spent " + (System.currentTimeMillis() - time) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 			trace("Found " + size + " root paths");	//$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
-			for (Object element : this.rootPaths) {
-				trace("root[" + i + "]=" + ((String) element));//$NON-NLS-1$ //$NON-NLS-2$
+			for (String path : this.rootPaths) {
+				trace("root[" + i + "]=" + (path));//$NON-NLS-1$ //$NON-NLS-2$
 				i++;
 			}
 		}
@@ -1170,8 +1170,7 @@ public class SourceMapper
 				if (!(typeOrModule.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT) instanceof JrtPackageFragmentRoot)) {
 					computeAllRootPaths(typeOrModule);
 					if (this.rootPaths != null) {
-						loop: for (Object element : this.rootPaths) {
-							String currentRootPath = (String) element;
+						loop: for (String currentRootPath : this.rootPaths) {
 							if (!currentRootPath.equals(this.rootPath)) {
 								source = getSourceForRootPath(currentRootPath, name);
 								if (source != null) {

@@ -503,9 +503,9 @@ private Set<IType> getAllSupertypes0(IType type, Set<IType> supers) {
 	if (superinterfaces == null) {// type is not part of the hierarchy
 		return supers;
 	}
-	for (IType element : superinterfaces) {
-		if (supers.add(element)) {
-			supers = getAllSuperInterfaces0(element, supers);
+	for (IType superinterface : superinterfaces) {
+		if (supers.add(superinterface)) {
+			supers = getAllSuperInterfaces0(superinterface, supers);
 		}
 	}
 	IType superclass = this.classToSuperclass.get(type);
@@ -618,10 +618,10 @@ public IType[] getRootInterfaces() {
 	IType[] allInterfaces = getAllInterfaces();
 	IType[] roots = new IType[allInterfaces.length];
 	int rootNumber = 0;
-	for (IType element : allInterfaces) {
-		IType[] superInterfaces = getSuperInterfaces(element);
+	for (IType anInterface : allInterfaces) {
+		IType[] superInterfaces = getSuperInterfaces(anInterface);
 		if (superInterfaces == null || superInterfaces.length == 0) {
-			roots[rootNumber++] = element;
+			roots[rootNumber++] = anInterface;
 		}
 	}
 	IType[] result = new IType[rootNumber];
@@ -893,9 +893,9 @@ private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement el
 			try {
 				// if the added project is on the classpath, then the hierarchy has changed
 				IClasspathEntry[] classpath = ((JavaProject)javaProject()).getExpandedClasspath();
-				for (IClasspathEntry element2 : classpath) {
-					if (element2.getEntryKind() == IClasspathEntry.CPE_PROJECT
-							&& element2.getPath().equals(element.getPath())) {
+				for (IClasspathEntry cpe : classpath) {
+					if (cpe.getEntryKind() == IClasspathEntry.CPE_PROJECT
+							&& cpe.getPath().equals(element.getPath())) {
 						return true;
 					}
 				}
@@ -903,9 +903,9 @@ private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement el
 					// if the hierarchy's project is on the added project classpath, then the hierarchy has changed
 					classpath = ((JavaProject)element).getExpandedClasspath();
 					IPath hierarchyProject = javaProject().getPath();
-					for (IClasspathEntry element2 : classpath) {
-						if (element2.getEntryKind() == IClasspathEntry.CPE_PROJECT
-								&& element2.getPath().equals(hierarchyProject)) {
+					for (IClasspathEntry cpe : classpath) {
+						if (cpe.getEntryKind() == IClasspathEntry.CPE_PROJECT
+								&& cpe.getPath().equals(hierarchyProject)) {
 							return true;
 						}
 					}
@@ -966,8 +966,8 @@ private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaEl
 					IPackageFragmentRoot root = (IPackageFragmentRoot)element;
 					IPath rootPath = root.getPath();
 					IJavaElement[] elements = this.projectRegion.getElements();
-					for (IJavaElement element2 : elements) {
-						JavaProject javaProject = (JavaProject)element2;
+					for (IJavaElement p : elements) {
+						JavaProject javaProject = (JavaProject)p;
 						try {
 							IClasspathEntry entry = javaProject.getClasspathEntryFor(rootPath);
 							if (entry != null) {
@@ -1244,8 +1244,8 @@ public static ITypeHierarchy load(IType type, InputStream input, WorkingCopyOwne
  */
 protected boolean packageRegionContainsSamePackageFragment(PackageFragment element) {
 	IJavaElement[] pkgs = this.packageRegion.getElements();
-	for (IJavaElement pkg2 : pkgs) {
-		PackageFragment pkg = (PackageFragment) pkg2;
+	for (IJavaElement e : pkgs) {
+		PackageFragment pkg = (PackageFragment) e;
 		if (Util.equalArraysOrNull(pkg.names, element.names))
 			return true;
 	}

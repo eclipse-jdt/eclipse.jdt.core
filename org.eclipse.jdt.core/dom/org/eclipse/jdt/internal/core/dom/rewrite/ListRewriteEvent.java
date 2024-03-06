@@ -72,8 +72,8 @@ public class ListRewriteEvent extends RewriteEvent {
 	@Override
 	public int getChangeKind() {
 		if (this.listEntries != null) {
-			for (Object element : this.listEntries) {
-				RewriteEvent curr= (RewriteEvent) element;
+			for (Object event : this.listEntries) {
+				RewriteEvent curr= (RewriteEvent) event;
 				if (curr.getChangeKind() != UNCHANGED) {
 					return CHILDREN_CHANGED;
 				}

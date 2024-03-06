@@ -74,16 +74,16 @@ public class ChangeCollector {
 			case IJavaElementDelta.ADDED:
 				ArrayList allTypes = new ArrayList();
 				getAllTypesFromElement(cu, allTypes);
-				for (Object type2 : allTypes) {
-					IType type = (IType)type2;
+				for (Object t : allTypes) {
+					IType type = (IType)t;
 					addTypeAddition(type, (SimpleDelta)this.changes.get(type));
 				}
 				break;
 			case IJavaElementDelta.REMOVED:
 				allTypes = new ArrayList();
 				getAllTypesFromHierarchy((JavaElement)cu, allTypes);
-				for (Object type2 : allTypes) {
-					IType type = (IType)type2;
+				for (Object t : allTypes) {
+					IType type = (IType)t;
 					addTypeRemoval(type, (SimpleDelta)this.changes.get(type));
 				}
 				break;
@@ -180,8 +180,8 @@ public class ChangeCollector {
 			case IJavaElementDelta.REMOVED:
 				allTypes = new ArrayList();
 				getAllTypesFromHierarchy((JavaElement)member, allTypes);
-				for (Object type2 : allTypes) {
-					IType type = (IType)type2;
+				for (Object t : allTypes) {
+					IType type = (IType)t;
 					addTypeRemoval(type, (SimpleDelta)this.changes.get(type));
 				}
 				break;
@@ -202,8 +202,8 @@ public class ChangeCollector {
 				addTypeAddition(type, existingDelta);
 				ArrayList allTypes = new ArrayList();
 				getAllTypesFromElement(type, allTypes);
-				for (Object type2 : allTypes) {
-					IType innerType = (IType)type2;
+				for (Object t : allTypes) {
+					IType innerType = (IType)t;
 					addTypeAddition(innerType, (SimpleDelta)this.changes.get(innerType));
 				}
 				break;
@@ -211,8 +211,8 @@ public class ChangeCollector {
 				addTypeRemoval(type, existingDelta);
 				allTypes = new ArrayList();
 				getAllTypesFromHierarchy((JavaElement)type, allTypes);
-				for (Object type2 : allTypes) {
-					IType innerType = (IType)type2;
+				for (Object t : allTypes) {
+					IType innerType = (IType)t;
 					addTypeRemoval(innerType, (SimpleDelta)this.changes.get(innerType));
 				}
 				break;

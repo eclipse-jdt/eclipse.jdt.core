@@ -218,9 +218,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		public void flush() {
 			Thread currentThread = Thread.currentThread();
-			for (ZipFile element : this.map.values()) {
+			for (ZipFile zf : this.map.values()) {
 				String zipFileName = null;
-				try (ZipFile zipFile = element) {
+				try (ZipFile zipFile = zf) {
 					zipFileName= zipFile.getName();
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
 						trace("(" + currentThread + ") [ZipCache[" + this.owner //$NON-NLS-1$//$NON-NLS-2$
@@ -540,8 +540,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			final ArrayList<IConfigurationElement> others = new ArrayList<>();
 			IExtension[] extensions = extension.getExtensions();
 			// for all extensions of this point...
-			for (IExtension extension2 : extensions) {
-				IConfigurationElement[] configElements = extension2.getConfigurationElements();
+			for (IExtension ext : extensions) {
+				IConfigurationElement[] configElements = ext.getConfigurationElements();
 				// for all config elements named "compilationParticipant"
 				for (final IConfigurationElement configElement : configElements) {
 					String elementName =configElement.getName();
@@ -1083,8 +1083,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				} catch (JavaModelException e) {
 					return null;
 				}
-				for (IJavaProject project2 : projects) {
-					project = project2;
+				for (IJavaProject p : projects) {
+					project = p;
 					element = determineIfOnClasspath(folder, project);
 					if (element != null)
 						break;
@@ -1565,9 +1565,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (this.rawClasspath == null) {
 				buffer.append("  <null>\n"); //$NON-NLS-1$
 			} else {
-				for (IClasspathEntry element : this.rawClasspath) {
+				for (IClasspathEntry cpe : this.rawClasspath) {
 					buffer.append("  "); //$NON-NLS-1$
-					buffer.append(element);
+					buffer.append(cpe);
 					buffer.append('\n');
 				}
 			}
@@ -1576,9 +1576,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (resolvedCP == null) {
 				buffer.append("  <null>\n"); //$NON-NLS-1$
 			} else {
-				for (IClasspathEntry element : resolvedCP) {
+				for (IClasspathEntry cpe : resolvedCP) {
 					buffer.append("  "); //$NON-NLS-1$
-					buffer.append(element);
+					buffer.append(cpe);
 					buffer.append('\n');
 				}
 			}
@@ -2730,8 +2730,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPVARIABLE_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
-			for (IExtension extension2 : extensions) {
-				IConfigurationElement [] configElements = extension2.getConfigurationElements();
+			for (IExtension ext : extensions) {
+				IConfigurationElement [] configElements = ext.getConfigurationElements();
 				for (IConfigurationElement configElement : configElements) {
 					String varAttribute = configElement.getAttribute("variable"); //$NON-NLS-1$
 					if (varAttribute != null) variableList.add(varAttribute);
@@ -2755,8 +2755,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPCONTAINER_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
-			for (IExtension extension2 : extensions) {
-				IConfigurationElement [] configElements = extension2.getConfigurationElements();
+			for (IExtension ext : extensions) {
+				IConfigurationElement [] configElements = ext.getConfigurationElements();
 				for (IConfigurationElement configElement : configElements) {
 					String idAttribute = configElement.getAttribute("id"); //$NON-NLS-1$
 					if (idAttribute != null) containerIDList.add(idAttribute);
@@ -2922,8 +2922,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				if (index != primaryLength)
 					System.arraycopy(result, 0, result = new ICompilationUnit[index+size], 0, index);
 			}
-			for (PerWorkingCopyInfo element : workingCopyToInfos.values()) {
-				result[index++] = element.getWorkingCopy();
+			for (PerWorkingCopyInfo info : workingCopyToInfos.values()) {
+				result[index++] = info.getWorkingCopy();
 			}
 			return result;
 		}
@@ -5060,13 +5060,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 			// Add all indexing file secondary types in given secondary types cache
 			Map<String, Map<String, IType>> fileSecondaryTypes = entry.getValue();
-			for (Entry<String, Map<String, IType>> entry2 : fileSecondaryTypes.entrySet()) {
-				String packageName = entry2.getKey();
+			for (Entry<String, Map<String, IType>> e : fileSecondaryTypes.entrySet()) {
+				String packageName = e.getKey();
 				Map<String, IType> cachedTypes = secondaryTypes.get(packageName);
 				if (cachedTypes == null) {
-					secondaryTypes.put(packageName, entry2.getValue());
+					secondaryTypes.put(packageName, e.getValue());
 				} else {
-					Map<String, IType> types = entry2.getValue();
+					Map<String, IType> types = e.getValue();
 					for (Entry<String, IType> entry3 : types.entrySet()) {
 						String typeName = entry3.getKey();
 						cachedTypes.put(typeName, entry3.getValue());
@@ -5229,9 +5229,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			Set<Entry<String, IType>> nameEntries = types.entrySet();
 			int namesSize = nameEntries.size(), removedNamesCount = 0;
 			String[] removedNames = null;
-			for (Entry<String, IType> entry2 : nameEntries) {
-				String typeName = entry2.getKey();
-				JavaElement type = (JavaElement) entry2.getValue();
+			for (Entry<String, IType> e : nameEntries) {
+				String typeName = e.getKey();
+				JavaElement type = (JavaElement) e.getValue();
 				if (file.equals(type.resource())) {
 					if (removedNames == null) removedNames = new String[namesSize];
 					namesSize--;
@@ -5614,13 +5614,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public synchronized String[] variableNames(){
-		int length = this.variables.size();
-		String[] result = new String[length];
-		int index = 0;
-		for (String element : this.variables.keySet()) {
-			result[index++] = element;
-		}
-		return result;
+		return this.variables.keySet().toArray(String[]::new);
 	}
 
 	public synchronized void variablePut(String variableName, IPath variablePath){

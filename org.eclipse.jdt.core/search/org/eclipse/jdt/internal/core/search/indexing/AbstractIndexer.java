@@ -68,8 +68,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 			SuperTypeReferencePattern.createIndexKey(
 				modifiers, packageName, name, enclosingTypeNames, typeParameterSignatures, CLASS_SUFFIX, superclass, CLASS_SUFFIX));
 		if (superinterfaces != null) {
-			for (char[] element : superinterfaces) {
-				char[] superinterface = erasure(element);
+			for (char[] si : superinterfaces) {
+				char[] superinterface = erasure(si);
 				addTypeReference(superinterface, true);
 				addIndexEntry(
 					SUPER_REF,
@@ -142,8 +142,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addIndexMetaQualification(superclass, true);
 
 		if (superinterfaces != null) {
-			for (char[] element : superinterfaces) {
-				char[] superinterface = erasure(element);
+			for (char[] si : superinterfaces) {
+				char[] superinterface = erasure(si);
 				addTypeReference(superinterface, true);
 				addIndexEntry(
 					SUPER_REF,
@@ -169,8 +169,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, secondary);
 
 		if (superinterfaces != null) {
-			for (char[] element : superinterfaces) {
-				char[] superinterface = erasure(element);
+			for (char[] si : superinterfaces) {
+				char[] superinterface = erasure(si);
 				addTypeReference(superinterface, true);
 				addIndexEntry(
 					SUPER_REF,

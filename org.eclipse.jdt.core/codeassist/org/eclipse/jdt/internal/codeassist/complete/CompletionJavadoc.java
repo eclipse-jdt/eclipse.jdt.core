@@ -106,11 +106,11 @@ public class CompletionJavadoc extends Javadoc {
 		printIndent(indent, output).append("/**\n"); //$NON-NLS-1$
 		boolean nodePrinted = false;
 		if (this.paramReferences != null) {
-			for (JavadocSingleNameReference element : this.paramReferences) {
+			for (JavadocSingleNameReference ref : this.paramReferences) {
 				printIndent(indent, output).append(" * @param "); //$NON-NLS-1$
-				element.print(indent, output).append('\n');
+				ref.print(indent, output).append('\n');
 				if (!nodePrinted && this.completionNode != null) {
-					nodePrinted =  this.completionNode == element;
+					nodePrinted =  this.completionNode == ref;
 				}
 			}
 		}
@@ -128,20 +128,20 @@ public class CompletionJavadoc extends Javadoc {
 			this.returnStatement.print(indent, output).append('\n');
 		}
 		if (this.exceptionReferences != null) {
-			for (TypeReference element : this.exceptionReferences) {
+			for (TypeReference ref : this.exceptionReferences) {
 				printIndent(indent, output).append(" * @throws "); //$NON-NLS-1$
-				element.print(indent, output).append('\n');
+				ref.print(indent, output).append('\n');
 				if (!nodePrinted && this.completionNode != null) {
-					nodePrinted =  this.completionNode == element;
+					nodePrinted =  this.completionNode == ref;
 				}
 			}
 		}
 		if (this.seeReferences != null) {
-			for (Expression element : this.seeReferences) {
+			for (Expression ref : this.seeReferences) {
 				printIndent(indent, output).append(" * @see "); //$NON-NLS-1$
-				element.print(indent, output).append('\n');
+				ref.print(indent, output).append('\n');
 				if (!nodePrinted && this.completionNode != null) {
-					nodePrinted =  this.completionNode == element;
+					nodePrinted =  this.completionNode == ref;
 				}
 			}
 		}

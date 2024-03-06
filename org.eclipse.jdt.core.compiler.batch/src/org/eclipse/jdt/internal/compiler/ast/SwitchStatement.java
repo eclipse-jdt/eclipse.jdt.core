@@ -1373,8 +1373,8 @@ public class SwitchStatement extends Expression {
 		}
 		if (ref.isRecord()) {
 			boolean isRecordPattern = false;
-			for (Pattern element : this.caseLabelElements) {
-				if (element instanceof RecordPattern) {
+			for (Pattern pattern : this.caseLabelElements) {
+				if (pattern instanceof RecordPattern) {
 					isRecordPattern = true;
 					break;
 				}
@@ -1424,8 +1424,8 @@ public class SwitchStatement extends Expression {
 		}
 		// non-zero components
 		RNode head = new RNode(ref);
-		for (Pattern element : this.caseLabelElements) {
-			head.addPattern(element);
+		for (Pattern pattern : this.caseLabelElements) {
+			head.addPattern(pattern);
 		}
 		CoverageCheckerVisitor ccv = new CoverageCheckerVisitor();
 		head.traverse(ccv);

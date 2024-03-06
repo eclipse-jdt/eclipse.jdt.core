@@ -203,8 +203,8 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(AnnotationTypeDeclaration annotationTypeDeclaration) {
 				List bodyDeclarations = annotationTypeDeclaration.bodyDeclarations();
 				boolean contains_malformed_nodes = false;
-				for (Object bodyDeclaration2 : bodyDeclarations) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclaration2;
+				for (Object decl : bodyDeclarations) {
+					BodyDeclaration bodyDeclaration = (BodyDeclaration) decl;
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(bodyDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(bodyDeclaration);
 				}
@@ -216,8 +216,8 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(AnonymousClassDeclaration anonymousClassDeclaration) {
 				List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 				boolean contains_malformed_nodes = false;
-				for (Object bodyDeclaration2 : bodyDeclarations) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclaration2;
+				for (Object decl : bodyDeclarations) {
+					BodyDeclaration bodyDeclaration = (BodyDeclaration) decl;
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(bodyDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(bodyDeclaration);
 				}
@@ -229,8 +229,8 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(TypeDeclaration typeDeclaration) {
 				List bodyDeclarations = typeDeclaration.bodyDeclarations();
 				boolean contains_malformed_nodes = false;
-				for (Object bodyDeclaration2 : bodyDeclarations) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclaration2;
+				for (Object decl : bodyDeclarations) {
+					BodyDeclaration bodyDeclaration = (BodyDeclaration) decl;
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(bodyDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(bodyDeclaration);
 				}
@@ -242,8 +242,8 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(EnumDeclaration enumDeclaration) {
 				List bodyDeclarations = enumDeclaration.bodyDeclarations();
 				boolean contains_malformed_nodes = false;
-				for (Object bodyDeclaration2 : bodyDeclarations) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclaration2;
+				for (Object decl : bodyDeclarations) {
+					BodyDeclaration bodyDeclaration = (BodyDeclaration) decl;
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(bodyDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(bodyDeclaration);
 				}
