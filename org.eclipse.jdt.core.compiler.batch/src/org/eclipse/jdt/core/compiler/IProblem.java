@@ -502,6 +502,8 @@ void setSourceStart(int sourceStart);
 	int ExceptionParameterIsNeverUsed = Internal + 85;
 	/** @since 3.17 */
 	int BytecodeExceeds64KLimitForSwitchTable = Internal + 86;
+	/** @since 3.38 */
+	int OperandStackExceeds64KLimit = Internal + 87;
 
 	// variable hiding
 	/** @since 3.0 */
