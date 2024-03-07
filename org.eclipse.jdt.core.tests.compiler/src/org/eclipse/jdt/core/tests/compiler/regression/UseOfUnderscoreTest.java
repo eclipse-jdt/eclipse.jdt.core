@@ -1,3 +1,19 @@
+/*******************************************************************************
+ * Copyright (c) 2024 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -25,6 +41,9 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 			errorLevel = "WARNING";
 		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
+			errorLevel = "ERROR";
+		} else if (options.sourceLevel == ClassFileConstants.JDK22) {
+			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 			errorLevel = "ERROR";
 		} else {
 			message = "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable";
@@ -59,6 +78,9 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
+		} else if (options.sourceLevel == ClassFileConstants.JDK22) {
+			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
+			errorLevel = "ERROR";
 		} else {
 			message =  "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable";
 			errorLevel = "ERROR";
@@ -90,6 +112,9 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 			errorLevel = "WARNING";
 		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
+			errorLevel = "ERROR";
+		} else if (options.sourceLevel == ClassFileConstants.JDK22) {
+			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 			errorLevel = "ERROR";
 		} else {
 			message =  "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable";
@@ -124,6 +149,9 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 			errorLevel = "WARNING";
 		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
+			errorLevel = "ERROR";
+		} else if (options.sourceLevel == ClassFileConstants.JDK22) {
+			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 			errorLevel = "ERROR";
 		} else {
 			message =  "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable";
@@ -181,15 +209,8 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 					----------
 					""");
 		} else {
-			runNegativeTest(new String[] { "A.java", SOURCE_CODE },
-					"""
-					----------
-					1. ERROR in A.java (at line 3)
-						int \\u005F = 12;
-						    ^^^^^^
-					Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable
-					----------
-					""");
+			runConformTest(new String[] { "A.java", SOURCE_CODE },
+					"hello, world");
 		}
 	}
 

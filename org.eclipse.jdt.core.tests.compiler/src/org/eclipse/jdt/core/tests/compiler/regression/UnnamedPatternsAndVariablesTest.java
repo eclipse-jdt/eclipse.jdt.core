@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Red Hat, Inc. and others.
+ * Copyright (c) 2023, 2024 Red Hat, Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -692,7 +692,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				1. ERROR in X.java (at line 3)
 					public int _;
 					           ^
-				As of release 21, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters
+				As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters
 				----------
 				""");
 	}
