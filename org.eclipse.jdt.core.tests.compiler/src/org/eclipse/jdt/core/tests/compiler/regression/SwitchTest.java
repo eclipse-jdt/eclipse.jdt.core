@@ -239,17 +239,22 @@ public void test010() {
 			"	       ^^^^\n" +
 			"Cannot switch on a value of type X. Only convertible int values, strings or enum variables are permitted\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	switch(this){\n" +
+			"	       ^^^^\n" +
+		    "An enhanced switch statement should be exhaustive; a default label expected\n" +
+		    "----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
 			"	Zork z;\n" +
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 11)\n" +
+			"4. ERROR in X.java (at line 11)\n" +
 			"	switch(x){\n" +
 			"	       ^\n" +
 			"x cannot be resolved to a variable\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 13)\n" +
+			"5. ERROR in X.java (at line 13)\n" +
 			"	Zork z;\n" +
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
@@ -261,17 +266,22 @@ public void test010() {
 			"	       ^^^^\n" +
 			"Cannot switch on a value of type X. Only convertible int values or enum variables are permitted\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	switch(this){\n" +
+			"	       ^^^^\n" +
+		    "An enhanced switch statement should be exhaustive; a default label expected\n" +
+		    "----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
 			"	Zork z;\n" +
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 11)\n" +
+			"4. ERROR in X.java (at line 11)\n" +
 			"	switch(x){\n" +
 			"	       ^\n" +
 			"x cannot be resolved to a variable\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 13)\n" +
+			"5. ERROR in X.java (at line 13)\n" +
 			"	Zork z;\n" +
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
