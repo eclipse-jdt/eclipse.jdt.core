@@ -1598,7 +1598,16 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (localContentsOffset + 20 >= this.contents.length) {
 			resizeContents(20);
 		}
+
 		int max_stack = this.codeStream.stackMax;
+		// JVMS 4.11 limits max stack to 65535
+		if (max_stack > 65535) {
+			if (this.codeStream.methodDeclaration != null) {
+				this.codeStream.methodDeclaration.scope.problemReporter().operandStackExceeds64KLimit(this.codeStream.methodDeclaration);
+			} else {
+				this.codeStream.lambdaExpression.scope.problemReporter().operandStackExceeds64KLimit(this.codeStream.lambdaExpression);
+			}
+		}
 		this.contents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
 		this.contents[codeAttributeOffset + 7] = (byte) max_stack;
 		int max_locals = this.codeStream.maxLocals;

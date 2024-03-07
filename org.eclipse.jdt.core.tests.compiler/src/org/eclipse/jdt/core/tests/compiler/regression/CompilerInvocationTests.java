@@ -1339,6 +1339,8 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("UnderscoreCannotBeUsedHere", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("NamedPatternVariablesDisallowedHere", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("OperandStackExceeds64KLimit", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+
 	    StringBuilder failures = new StringBuilder();
 		StringBuilder correctResult = new StringBuilder(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2451,6 +2453,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("UnderscoreCannotBeUsedHere", SKIP);
 	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", SKIP);
 	    expectedProblemAttributes.put("NamedPatternVariablesDisallowedHere", SKIP);
+	    expectedProblemAttributes.put("OperandStackExceeds64KLimit", SKIP);
 
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
