@@ -133,8 +133,8 @@ public void analyseCode() {
 		return;
 	try {
 		if (this.types != null) {
-			for (int i = 0, count = this.types.length; i < count; i++) {
-				this.types[i].analyseCode(this.scope);
+			for (TypeDeclaration t : this.types) {
+				t.analyseCode(this.scope);
 			}
 		}
 		if (this.moduleDeclaration != null) {
@@ -154,8 +154,8 @@ public void analyseCode() {
  */
 public void cleanUp() {
 	if (this.types != null) {
-		for (int i = 0, max = this.types.length; i < max; i++) {
-			cleanUp(this.types[i]);
+		for (TypeDeclaration t : this.types) {
+			cleanUp(t);
 		}
 		for (LocalTypeBinding localType : this.localTypes.values()) {
 			// null out the type's scope backpointers
@@ -172,9 +172,8 @@ public void cleanUp() {
 	this.compilationResult.recoveryScannerData = null; // recovery is already done
 
 	ClassFile[] classFiles = this.compilationResult.getClassFiles();
-	for (int i = 0, max = classFiles.length; i < max; i++) {
+	for (ClassFile classFile : classFiles) {
 		// clear the classFile back pointer to the bindings
-		ClassFile classFile = classFiles[i];
 		// null out the classfile backpointer to a type binding
 		classFile.referenceBinding = null;
 		classFile.innerClassesBindings = null;
@@ -191,8 +190,8 @@ public void cleanUp() {
 
 private void cleanUp(TypeDeclaration type) {
 	if (type.memberTypes != null) {
-		for (int i = 0, max = type.memberTypes.length; i < max; i++){
-			cleanUp(type.memberTypes[i]);
+		for (TypeDeclaration memberType : type.memberTypes) {
+			cleanUp(memberType);
 		}
 	}
 	if (type.binding != null && type.binding.isAnnotationType())
@@ -205,8 +204,7 @@ private void cleanUp(TypeDeclaration type) {
 
 public void checkUnusedImports(){
 	if (this.scope.imports != null){
-		for (int i = 0, max = this.scope.imports.length; i < max; i++){
-			ImportBinding importBinding = this.scope.imports[i];
+		for (ImportBinding importBinding : this.scope.imports) {
 			ImportReference importReference = importBinding.reference;
 			if (importReference != null && ((importReference.bits & ASTNode.Used) == 0)){
 				this.scope.problemReporter().unusedImport(importReference);
@@ -235,8 +233,8 @@ public void createPackageInfoType() {
  * e.g. if we're looking for X.A.B then a type name would be {X, A, B}
  */
 public TypeDeclaration declarationOfType(char[][] typeName) {
-	for (int i = 0; i < this.types.length; i++) {
-		TypeDeclaration typeDecl = this.types[i].declarationOfType(typeName);
+	for (TypeDeclaration t : this.types) {
+		TypeDeclaration typeDecl = t.declarationOfType(typeName);
 		if (typeDecl != null) {
 			return typeDecl;
 		}
@@ -410,8 +408,8 @@ public void generateCode() {
 	}
 	try {
 		if (this.types != null) {
-			for (int i = 0, count = this.types.length; i < count; i++)
-				this.types[i].generateCode(this.scope);
+			for (TypeDeclaration t : this.types)
+				t.generateCode(this.scope);
 		}
 		if (this.moduleDeclaration != null) {
 			this.moduleDeclaration.generateCode();
@@ -494,9 +492,8 @@ public StringBuilder print(int indent, StringBuilder output) {
 		this.currentPackage.print(0, output, false).append(";\n"); //$NON-NLS-1$
 	}
 	if (this.imports != null)
-		for (int i = 0; i < this.imports.length; i++) {
+		for (ImportReference currentImport : this.imports) {
 			printIndent(indent, output).append("import "); //$NON-NLS-1$
-			ImportReference currentImport = this.imports[i];
 			if (currentImport.isStatic()) {
 				output.append("static "); //$NON-NLS-1$
 			}
@@ -505,8 +502,8 @@ public StringBuilder print(int indent, StringBuilder output) {
 	if (this.moduleDeclaration != null) {
 		this.moduleDeclaration.print(indent, output).append("\n"); //$NON-NLS-1$
 	} else if (this.types != null) {
-		for (int i = 0; i < this.types.length; i++) {
-			this.types[i].print(indent, output).append("\n"); //$NON-NLS-1$
+		for (TypeDeclaration t : this.types) {
+			t.print(indent, output).append("\n"); //$NON-NLS-1$
 		}
 	}
 	return output;

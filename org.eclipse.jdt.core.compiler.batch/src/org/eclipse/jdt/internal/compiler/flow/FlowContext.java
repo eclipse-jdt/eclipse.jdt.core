@@ -288,44 +288,41 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 			ReferenceBinding[] caughtExceptions;
 			if ((caughtExceptions = exceptionContext.handledExceptions) != Binding.NO_EXCEPTIONS) {
 				boolean definitelyCaught = false;
-				for (int caughtIndex = 0, caughtCount = caughtExceptions.length;
-					caughtIndex < caughtCount;
-					caughtIndex++) {
-					ReferenceBinding caughtException = caughtExceptions[caughtIndex];
-					FlowInfo exceptionFlow = flowInfo;
-				    int state = caughtException == null
-				    	? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
-				        : Scope.compareTypes(raisedException, caughtException);
-				    if (abruptlyExitedLoops != null && caughtException != null && state != Scope.NOT_RELATED) {
-				    	for (int i = 0, abruptlyExitedLoopsCount = abruptlyExitedLoops.size(); i < abruptlyExitedLoopsCount; i++) {
-							LoopingFlowContext loop = (LoopingFlowContext) abruptlyExitedLoops.get(i);
-							loop.recordCatchContextOfEscapingException(exceptionContext, caughtException, flowInfo);
-						}
-				    	exceptionFlow = FlowInfo.DEAD_END; // don't use flow info on first round, flow info will be evaluated during loopback simulation
+				for (ReferenceBinding caughtException : caughtExceptions) {
+				FlowInfo exceptionFlow = flowInfo;
+				int state = caughtException == null
+					? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
+				    : Scope.compareTypes(raisedException, caughtException);
+				if (abruptlyExitedLoops != null && caughtException != null && state != Scope.NOT_RELATED) {
+					for (Object abruptlyExitedLoop : abruptlyExitedLoops) {
+						LoopingFlowContext loop = (LoopingFlowContext) abruptlyExitedLoop;
+						loop.recordCatchContextOfEscapingException(exceptionContext, caughtException, flowInfo);
 					}
-					switch (state) {
-						case Scope.EQUAL_OR_MORE_SPECIFIC :
-							exceptionContext.recordHandlingException(
-								caughtException,
-								exceptionFlow.unconditionalInits(),
-								raisedException,
-								raisedException, // precise exception that will be caught
-								location,
-								definitelyCaught);
-							// was it already definitely caught ?
-							definitelyCaught = true;
-							break;
-						case Scope.MORE_GENERIC :
-							exceptionContext.recordHandlingException(
-								caughtException,
-								exceptionFlow.unconditionalInits(),
-								raisedException,
-								caughtException,
-								location,
-								false);
-							// was not caught already per construction
-					}
+					exceptionFlow = FlowInfo.DEAD_END; // don't use flow info on first round, flow info will be evaluated during loopback simulation
 				}
+				switch (state) {
+					case Scope.EQUAL_OR_MORE_SPECIFIC :
+						exceptionContext.recordHandlingException(
+							caughtException,
+							exceptionFlow.unconditionalInits(),
+							raisedException,
+							raisedException, // precise exception that will be caught
+							location,
+							definitelyCaught);
+						// was it already definitely caught ?
+						definitelyCaught = true;
+						break;
+					case Scope.MORE_GENERIC :
+						exceptionContext.recordHandlingException(
+							caughtException,
+							exceptionFlow.unconditionalInits(),
+							raisedException,
+							caughtException,
+							location,
+							false);
+						// was not caught already per construction
+				}
+}
 				if (definitelyCaught)
 					return;
 			}
@@ -426,8 +423,8 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 						    	? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
 						        : Scope.compareTypes(raisedException, caughtException);
 						    if (abruptlyExitedLoops != null && caughtException != null && state != Scope.NOT_RELATED) {
-						    	for (int i = 0, abruptlyExitedLoopsCount = abruptlyExitedLoops.size(); i < abruptlyExitedLoopsCount; i++) {
-									LoopingFlowContext loop = (LoopingFlowContext) abruptlyExitedLoops.get(i);
+						    	for (Object abruptlyExitedLoop : abruptlyExitedLoops) {
+									LoopingFlowContext loop = (LoopingFlowContext) abruptlyExitedLoop;
 									loop.recordCatchContextOfEscapingException(exceptionContext, caughtException, flowInfo);
 								}
 						    	exceptionFlow = FlowInfo.DEAD_END; // don't use flow info on first round, flow info will be evaluated during loopback simulation

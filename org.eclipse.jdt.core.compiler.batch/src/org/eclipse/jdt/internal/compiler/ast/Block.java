@@ -44,8 +44,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	int complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
 	CompilerOptions compilerOptions = currentScope.compilerOptions();
 	boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
-	for (int i = 0, max = this.statements.length; i < max; i++) {
-		Statement stat = this.statements[i];
+	for (Statement stat : this.statements) {
 		if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 			flowInfo = stat.analyseCode(this.scope, flowContext, flowInfo);
 		}
@@ -101,8 +100,8 @@ public boolean isEmptyBlock() {
 
 public StringBuilder printBody(int indent, StringBuilder output) {
 	if (this.statements == null) return output;
-	for (int i = 0; i < this.statements.length; i++) {
-		this.statements[i].printStatement(indent + 1, output);
+	for (Statement statement : this.statements) {
+		statement.printStatement(indent + 1, output);
 		output.append('\n');
 	}
 	return output;
@@ -145,8 +144,8 @@ public void resolveUsing(BlockScope givenScope) {
 public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
 		if (this.statements != null) {
-			for (int i = 0, length = this.statements.length; i < length; i++)
-				this.statements[i].traverse(visitor, this.scope);
+			for (Statement statement : this.statements)
+				statement.traverse(visitor, this.scope);
 		}
 	}
 	visitor.endVisit(this, blockScope);

@@ -92,8 +92,8 @@ public class InferenceSubstitution extends Scope.Substitutor implements Substitu
 	}
 
 	private boolean isInSites(InvocationSite otherSite) {
-		for (int i = 0; i < this.sites.length; i++)
-			if (InferenceContext18.isSameSite(this.sites[i], otherSite))
+		for (InvocationSite site : this.sites)
+			if (InferenceContext18.isSameSite(site, otherSite))
 				return true;
 		return false;
 	}

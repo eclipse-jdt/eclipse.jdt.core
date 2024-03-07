@@ -1257,9 +1257,9 @@ InstanceofClassic ::= 'instanceof' Modifiersopt Type
 /.$putCase consumeInstanceOfClassic(); $break ./
 /:$readableName InstanceofClassic:/
 
-InstanceofPattern -> 'instanceof' Pattern
+InstanceofPattern ::=  'instanceof' Pattern
+/.$putCase consumeInstanceofPattern(); $break ./
 /:$readableName InstanceofPattern:/
-
 
 Pattern -> TypePattern
 Pattern -> RecordPattern

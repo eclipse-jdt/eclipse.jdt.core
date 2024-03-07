@@ -86,7 +86,6 @@ package org.eclipse.jdt.internal.compiler.problem;
 
 import java.io.CharConversionException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -4872,9 +4871,9 @@ public void invalidType(ASTNode location, TypeBinding type) {
 			List<TypeBinding> missingTypes = type.collectMissingTypes(null);
 			if (missingTypes != null) {
 				ReferenceContext savedContext = this.referenceContext;
-				for (Iterator<TypeBinding> iterator = missingTypes.iterator(); iterator.hasNext(); ) {
+				for (TypeBinding missingType : missingTypes) {
 					try {
-						invalidType(location, iterator.next());
+						invalidType(location, missingType);
 					} finally {
 						this.referenceContext = savedContext; // nested reporting will have reset referenceContext
 					}
@@ -5285,8 +5284,8 @@ private boolean isRecoveredName(char[] simpleName) {
 
 private boolean isRecoveredName(char[][] qualifiedName) {
 	if(qualifiedName == null) return false;
-	for (int i = 0; i < qualifiedName.length; i++) {
-		if(qualifiedName[i] == RecoveryScanner.FAKE_IDENTIFIER) return true;
+	for (char[] segment : qualifiedName) {
+		if(segment == RecoveryScanner.FAKE_IDENTIFIER) return true;
 	}
 	return false;
 }
@@ -10477,8 +10476,7 @@ public void nullityMismatchVariableIsFreeTypeVariable(VariableBinding variable, 
 public void illegalRedefinitionToNonNullParameter(Argument argument, ReferenceBinding declaringClass, char[][] inheritedAnnotationName) {
 	int sourceStart = argument.type.sourceStart;
 	if (argument.annotations != null) {
-		for (int i=0; i<argument.annotations.length; i++) {
-			Annotation annotation = argument.annotations[i];
+		for (Annotation annotation : argument.annotations) {
 			if (annotation.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)) {
 				sourceStart = annotation.sourceStart;
 				break;
@@ -10534,8 +10532,7 @@ public void inheritedParameterLackingNonnullAnnotation(MethodBinding currentMeth
 public void illegalParameterRedefinition(Argument argument, ReferenceBinding declaringClass, TypeBinding inheritedParameter) {
 	int sourceStart = argument.type.sourceStart;
 	if (argument.annotations != null) {
-		for (int i=0; i<argument.annotations.length; i++) {
-			Annotation annotation = argument.annotations[i];
+		for (Annotation annotation : argument.annotations) {
 			if (annotation.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)) {
 				sourceStart = annotation.sourceStart;
 				break;

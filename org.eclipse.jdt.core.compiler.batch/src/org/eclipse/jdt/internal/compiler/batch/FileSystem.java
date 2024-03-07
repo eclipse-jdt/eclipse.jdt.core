@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -149,8 +148,7 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 		public static ArrayList<Classpath> normalize(ArrayList<Classpath> classpaths) {
 			ArrayList<Classpath> normalizedClasspath = new ArrayList<>();
 			HashSet<Classpath> cache = new HashSet<>();
-			for (Iterator<Classpath> iterator = classpaths.iterator(); iterator.hasNext(); ) {
-				FileSystem.Classpath classpath = iterator.next();
+			for (Classpath classpath : classpaths) {
 				if (!cache.contains(classpath)) {
 					normalizedClasspath.add(classpath);
 					cache.add(classpath);
@@ -416,17 +414,17 @@ private void initializeKnownFileNames(String[] initialFileNames) {
 }
 /** TESTS ONLY */
 public void scanForModules(Parser parser) {
-	for (int i = 0, max = this.classpaths.length; i < max; i++) {
-		File file = new File(this.classpaths[i].getPath());
-		IModule iModule = ModuleFinder.scanForModule(this.classpaths[i], file, parser, false, null);
+	for (Classpath classpath : this.classpaths) {
+		File file = new File(classpath.getPath());
+		IModule iModule = ModuleFinder.scanForModule(classpath, file, parser, false, null);
 		if (iModule != null)
-			this.moduleLocations.put(String.valueOf(iModule.name()), this.classpaths[i]);
+			this.moduleLocations.put(String.valueOf(iModule.name()), classpath);
 	}
 }
 @Override
 public void cleanup() {
-	for (int i = 0, max = this.classpaths.length; i < max; i++)
-		this.classpaths[i].reset();
+	for (Classpath classpath : this.classpaths)
+		classpath.reset();
 }
 private static String convertPathSeparators(String path) {
 	return File.separatorChar == '/'
@@ -437,8 +435,7 @@ private static String convertPathSeparators(String path) {
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, boolean asBinaryOnly, /*NonNull*/char[] moduleName) {
 	NameEnvironmentAnswer answer = internalFindClass(qualifiedTypeName, typeName, asBinaryOnly, moduleName);
 	if (this.annotationsFromClasspath && answer != null && answer.getBinaryType() instanceof ClassFileReader) {
-		for (int i = 0, length = this.classpaths.length; i < length; i++) {
-			Classpath classpathEntry = this.classpaths[i];
+		for (Classpath classpathEntry : this.classpaths) {
 			if (classpathEntry.hasAnnotationFileFor(qualifiedTypeName)) {
 				// in case of 'this.annotationsFromClasspath' we indeed search for .eea entries inside the main zipFile of the entry:
 				ZipFile zip = classpathEntry instanceof ClasspathJar ? ((ClasspathJar) classpathEntry).zipFile : null;
@@ -490,10 +487,10 @@ private NameEnvironmentAnswer internalFindClass(String qualifiedTypeName, char[]
 	String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
 	NameEnvironmentAnswer suggestedAnswer = null;
 	if (qualifiedPackageName == qp2) {
-		for (int i = 0, length = this.classpaths.length; i < length; i++) {
-			if (!strategy.matches(this.classpaths[i], Classpath::hasModule))
+		for (Classpath classpath : this.classpaths) {
+			if (!strategy.matches(classpath, Classpath::hasModule))
 				continue;
-			NameEnvironmentAnswer answer = this.classpaths[i].findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly);
+			NameEnvironmentAnswer answer = classpath.findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly);
 			if (answer != null) {
 				if (answer.moduleName() != null && !this.moduleLocations.containsKey(String.valueOf(answer.moduleName())))
 					continue; // type belongs to an unobservable module
@@ -507,8 +504,7 @@ private NameEnvironmentAnswer internalFindClass(String qualifiedTypeName, char[]
 		}
 	} else {
 		String qb2 = qualifiedBinaryFileName.replace('/', File.separatorChar);
-		for (int i = 0, length = this.classpaths.length; i < length; i++) {
-			Classpath p = this.classpaths[i];
+		for (Classpath p : this.classpaths) {
 			if (!strategy.matches(p, Classpath::hasModule))
 				continue;
 			NameEnvironmentAnswer answer = !(p instanceof ClasspathDirectory)
@@ -545,8 +541,8 @@ public char[][][] findTypeNames(char[][] packageName) {
 		String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
 		String qualifiedPackageName2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
 		if (qualifiedPackageName == qualifiedPackageName2) {
-			for (int i = 0, length = this.classpaths.length; i < length; i++) {
-				char[][][] answers = this.classpaths[i].findTypeNames(qualifiedPackageName, null);
+			for (Classpath classpath : this.classpaths) {
+				char[][][] answers = classpath.findTypeNames(qualifiedPackageName, null);
 				if (answers != null) {
 					// concat with previous answers
 					if (result == null) {
@@ -560,8 +556,7 @@ public char[][][] findTypeNames(char[][] packageName) {
 				}
 			}
 		} else {
-			for (int i = 0, length = this.classpaths.length; i < length; i++) {
-				Classpath p = this.classpaths[i];
+			for (Classpath p : this.classpaths) {
 				char[][][] answers = !(p instanceof ClasspathDirectory) ? p.findTypeNames(qualifiedPackageName, null)
 						: p.findTypeNames(qualifiedPackageName2, null);
 				if (answers != null) {
@@ -676,8 +671,7 @@ public boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleNa
 			}
 			return false;
 		default:
-			for (int i = 0; i < this.classpaths.length; i++) {
-				Classpath location = this.classpaths[i];
+			for (Classpath location : this.classpaths) {
 				if (strategy.matches(location, Classpath::hasModule))
 					if (location.hasCompilationUnit(qPackageName, moduleNameString))
 						return true;
@@ -717,9 +711,9 @@ public IModule getModuleFromEnvironment(char[] name) {
 @Override
 public char[][] getAllAutomaticModules() {
 	Set<char[]> set = new HashSet<>();
-	for (int i = 0, l = this.classpaths.length; i < l; i++) {
-		if (this.classpaths[i].isAutomaticModule()) {
-			set.add(this.classpaths[i].getModule().name());
+	for (Classpath classpath : this.classpaths) {
+		if (classpath.isAutomaticModule()) {
+			set.add(classpath.getModule().name());
 		}
 	}
 	return set.toArray(new char[set.size()][]);

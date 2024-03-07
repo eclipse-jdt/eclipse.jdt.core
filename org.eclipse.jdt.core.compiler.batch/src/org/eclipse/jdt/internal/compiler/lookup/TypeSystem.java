@@ -82,10 +82,10 @@ public class TypeSystem {
 					if (type instanceof UnresolvedReferenceBinding)
 						((UnresolvedReferenceBinding) type).addWrapper(this, environment);
 					if (arguments != null) {
-						for (int i = 0, l = arguments.length; i < l; i++) {
-							if (arguments[i] instanceof UnresolvedReferenceBinding)
-								((UnresolvedReferenceBinding) arguments[i]).addWrapper(this, environment);
-							if (arguments[i].hasNullTypeAnnotations())
+						for (TypeBinding argument : arguments) {
+							if (argument instanceof UnresolvedReferenceBinding)
+								((UnresolvedReferenceBinding) argument).addWrapper(this, environment);
+							if (argument.hasNullTypeAnnotations())
 								this.tagBits |= TagBits.HasNullTypeAnnotation;
 						}
 					}

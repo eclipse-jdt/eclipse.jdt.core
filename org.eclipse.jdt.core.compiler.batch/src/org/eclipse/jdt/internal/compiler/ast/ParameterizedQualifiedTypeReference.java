@@ -112,11 +112,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	    	if (this.resolvedType != null && !this.resolvedType.hasNullTypeAnnotations())
 	    		return false; // shortcut
 	    	if (this.typeArguments != null) {
-	    		for (int i = 0; i < this.typeArguments.length; i++) {
-	    			TypeReference[] arguments = this.typeArguments[i];
+	    		for (TypeReference[] arguments : this.typeArguments) {
 	    			if (arguments != null) {
-		    			for (int j = 0; j < arguments.length; j++) {
-		    				if (arguments[j].hasNullTypeAnnotation(position))
+		    			for (TypeReference argument : arguments) {
+		    				if (argument.hasNullTypeAnnotation(position))
 		    					return true;
 		    			}
 					}
@@ -483,18 +482,17 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			}
 			Annotation [][] annotationsOnDimensions = getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
-				for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = annotationsOnDimensions[i];
-					for (int j = 0, max2 = annotations2 == null ? 0 : annotations2.length; j < max2; j++) {
-						Annotation annotation = annotations2[j];
+				for (Annotation[] annotationsOnDimension : annotationsOnDimensions) {
+					for (int j = 0, max2 = annotationsOnDimension == null ? 0 : annotationsOnDimension.length; j < max2; j++) {
+						Annotation annotation = annotationsOnDimension[j];
 						annotation.traverse(visitor, scope);
 					}
 				}
 			}
-			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
-				if (this.typeArguments[i] != null) {
-					for (int j = 0, max2 = this.typeArguments[i].length; j < max2; j++) {
-						this.typeArguments[i][j].traverse(visitor, scope);
+			for (TypeReference[] typeArgument : this.typeArguments) {
+				if (typeArgument != null) {
+					for (TypeReference typeReference : typeArgument) {
+						typeReference.traverse(visitor, scope);
 					}
 				}
 			}
@@ -515,18 +513,17 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			}
 			Annotation [][] annotationsOnDimensions = getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
-				for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = annotationsOnDimensions[i];
-					for (int j = 0, max2 = annotations2 == null ? 0 : annotations2.length; j < max2; j++) {
-						Annotation annotation = annotations2[j];
+				for (Annotation[] annotationsOnDimension : annotationsOnDimensions) {
+					for (int j = 0, max2 = annotationsOnDimension == null ? 0 : annotationsOnDimension.length; j < max2; j++) {
+						Annotation annotation = annotationsOnDimension[j];
 						annotation.traverse(visitor, scope);
 					}
 				}
 			}
-			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
-				if (this.typeArguments[i] != null) {
-					for (int j = 0, max2 = this.typeArguments[i].length; j < max2; j++) {
-						this.typeArguments[i][j].traverse(visitor, scope);
+			for (TypeReference[] typeArgument : this.typeArguments) {
+				if (typeArgument != null) {
+					for (TypeReference argument : typeArgument) {
+						argument.traverse(visitor, scope);
 					}
 				}
 			}

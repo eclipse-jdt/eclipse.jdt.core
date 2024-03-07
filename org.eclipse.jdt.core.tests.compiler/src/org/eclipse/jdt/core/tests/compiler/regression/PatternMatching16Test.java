@@ -4812,4 +4812,32 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"for\n"
 				+ "!for");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2104
+	// [Patterns] Missing boxing conversion after instanceof leads to verify error
+	public void testBoxing() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+
+							public static void foo(Boolean b) {
+								System.out.println(b);
+							}
+
+							public static void main(String [] args) {
+								Object o = new Object();
+								foo(o instanceof String);
+								foo("Hello" instanceof String);
+								foo(o instanceof String s);
+								foo("Hello" instanceof String s);
+							}
+						}
+						""",
+				},
+				"false\n"
+				+ "true\n"
+				+ "false\n"
+				+ "true");
+	}
 }

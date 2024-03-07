@@ -205,8 +205,8 @@ public abstract class FunctionalExpression extends Expression {
 		if (skipKosherCheck || kosherDescriptor(blockScope, sam, true)) {
 			if (this.expectedType instanceof IntersectionTypeBinding18) {
 				ReferenceBinding[] intersectingTypes =  ((IntersectionTypeBinding18)this.expectedType).intersectingTypes;
-				for (int t = 0, max = intersectingTypes.length; t < max; t++) {
-					if (intersectingTypes[t].findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
+				for (ReferenceBinding intersectingType : intersectingTypes) {
+					if (intersectingType.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
 						this.isSerializable = true;
 						break;
 					}

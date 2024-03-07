@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -1445,10 +1444,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		}
 		boolean hasReported = false;
 		if (this.recordedLocations != null) {
-			Iterator<Map.Entry<ASTNode,Integer>> locations = this.recordedLocations.entrySet().iterator();
 			int reportFlags = 0;
-			while (locations.hasNext()) {
-				Entry<ASTNode, Integer> entry = locations.next();
+			for (Entry<ASTNode, Integer> entry : this.recordedLocations.entrySet()) {
 				reportFlags |= reportError(scope.problemReporter(), entry.getKey(), entry.getValue().intValue());
 				hasReported = true;
 			}

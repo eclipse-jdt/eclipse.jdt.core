@@ -290,8 +290,8 @@ public class CaptureBinding extends TypeVariableBinding {
 	public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 		if (enterRecursiveProjectionFunction()) {
 			try {
-				for (int i = 0; i < mentionedTypeVariables.length; ++i) {
-					if (TypeBinding.equalsEquals(this, mentionedTypeVariables[i])) {
+				for (TypeBinding mentionedTypeVariable : mentionedTypeVariables) {
+					if (TypeBinding.equalsEquals(this, mentionedTypeVariable)) {
 						TypeBinding upperBoundForProjection = this.upperBoundForProjection();
 						if (upperBoundForProjection == null)
 							upperBoundForProjection = scope.getJavaLangObject();
@@ -541,8 +541,8 @@ public class CaptureBinding extends TypeVariableBinding {
 	public ReferenceBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 		ReferenceBinding result = null;
 		if (enterRecursiveProjectionFunction()) {
-			for (int i = 0; i < mentionedTypeVariables.length; ++i) {
-				if (TypeBinding.equalsEquals(this, mentionedTypeVariables[i])) {
+			for (TypeBinding mentionedTypeVariable : mentionedTypeVariables) {
+				if (TypeBinding.equalsEquals(this, mentionedTypeVariable)) {
 					if (this.lowerBound != null) {
 						result = (ReferenceBinding) this.lowerBound.downwardsProjection(scope, mentionedTypeVariables);
 					}

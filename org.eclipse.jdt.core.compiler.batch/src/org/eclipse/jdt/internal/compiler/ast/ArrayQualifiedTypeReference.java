@@ -171,10 +171,9 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 				}
 			}
 			if (this.annotationsOnDimensions != null) {
-				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = this.annotationsOnDimensions[i];
-					for (int j = 0, max2 = annotations2 == null ? 0 : annotations2.length; j < max2; j++) {
-						Annotation annotation = annotations2[j];
+				for (Annotation[] annotationsOnDimension : this.annotationsOnDimensions) {
+					for (int j = 0, max2 = annotationsOnDimension == null ? 0 : annotationsOnDimension.length; j < max2; j++) {
+						Annotation annotation = annotationsOnDimension[j];
 						annotation.traverse(visitor, scope);
 					}
 				}
@@ -195,10 +194,9 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 				}
 			}
 			if (this.annotationsOnDimensions != null) {
-				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = this.annotationsOnDimensions[i];
-					for (int j = 0, max2 = annotations2 == null ? 0 : annotations2.length; j < max2; j++) {
-						Annotation annotation = annotations2[j];
+				for (Annotation[] annotationsOnDimension : this.annotationsOnDimensions) {
+					for (int j = 0, max2 = annotationsOnDimension == null ? 0 : annotationsOnDimension.length; j < max2; j++) {
+						Annotation annotation = annotationsOnDimension[j];
 						annotation.traverse(visitor, scope);
 					}
 				}

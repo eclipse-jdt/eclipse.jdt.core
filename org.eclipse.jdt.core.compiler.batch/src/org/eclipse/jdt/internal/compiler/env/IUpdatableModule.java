@@ -73,8 +73,8 @@ public interface IUpdatableModule {
 		public int hashCode() {
 			int hash = CharOperation.hashCode(this.name);
 			if (this.targets != null) {
-				for (int i = 0; i < this.targets.length; i++) {
-					hash += 17 * CharOperation.hashCode(this.targets[i]);
+				for (char[] target : this.targets) {
+					hash += 17 * CharOperation.hashCode(target);
 				}
 			}
 			return hash;

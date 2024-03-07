@@ -180,8 +180,8 @@ public int hashCode() {
 	result = prime * result + this.info;
 	result = prime * result + this.info2;
 	if (this.typePath != null) {
-		for (int i = 0, max = this.typePath.length; i < max; i++) {
-			result = prime * result + this.typePath[i];
+		for (int p : this.typePath) {
+			result = prime * result + p;
 		}
 	}
 	return result;
