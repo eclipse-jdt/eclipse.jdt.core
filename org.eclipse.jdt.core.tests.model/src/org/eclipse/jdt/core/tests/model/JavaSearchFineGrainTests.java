@@ -13,20 +13,27 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.Test;
-
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IProblemRequestor;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
+
+import junit.framework.Test;
 
 
 /**
  * Specific test suite for fine grained search.
  *
- * @bug 155013: [search] [DCR] More finegrained options for Java search
- * @test Several tests sets trying to cover as many cases as possible.
+ * bug 155013: [search] [DCR] More finegrained options for Java search
+ * test Several tests sets trying to cover as many cases as possible.
  * <p>
  * Each set is organize the same way:
  * <ul>
@@ -442,8 +449,8 @@ public void testTypeRef_Variable() throws CoreException {
 }
 
 /**
- * @bug 221130: [search] No fine-grain search for instanceof criteria
- * @test Verify that type references are only reported in instanceof pattern when
+ * bug 221130: [search] No fine-grain search for instanceof criteria
+ * test Verify that type references are only reported in instanceof pattern when
  * 	corresponding fine grain flag is set.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=221130"
  */
@@ -1676,8 +1683,8 @@ public void testTypeRefGenericAllG6_TypeVariableBounds() throws CoreException {
 	assertSearchResults("");
 }
 /**
- * @bug 561268: [search] fine grained search for return type references should include generic methods
- * @test Ensure that generic methods are found when searching for return type fine grain references
+ * bug 561268: [search] fine grained search for return type references should include generic methods
+ * test Ensure that generic methods are found when searching for return type fine grain references
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=561268"
  */
 public void testBug561268() throws CoreException {
@@ -2091,8 +2098,8 @@ public void testTypeRefGenericsTest15_ClassInstanceCreation() throws CoreExcepti
 }
 
 /**
- * @bug 212599: [search] fine grained search must not report matches in Javadoc
- * @test Ensure that fine grain references are not found in javadoc
+ * bug 212599: [search] fine grained search must not report matches in Javadoc
+ * test Ensure that fine grain references are not found in javadoc
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212599"
  */
 public void testBug212599() throws CoreException {

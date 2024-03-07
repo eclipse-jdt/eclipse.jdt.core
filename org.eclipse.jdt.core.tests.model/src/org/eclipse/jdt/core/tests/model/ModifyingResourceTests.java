@@ -140,11 +140,13 @@ protected void assertStatus(String message, String expected, IStatus status) {
 	assertEquals(message, expected, actual);
 }
 /**
- * E.g. <code>
+ * E.g.
+ * <pre>{@code
  * org.eclipse.jdt.tests.core.ModifyingResourceTests.generateClassFile(
  *   "A",
  *   "public class A {\n" +
  *   "}")
+ * }</pre>
  */
 public static void generateClassFile(String className, String javaSource) throws IOException {
 	String cu = "d:/temp/" + className + ".java";

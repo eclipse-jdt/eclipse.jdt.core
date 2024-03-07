@@ -499,7 +499,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * i &= 2 ==> ExpressionStatement(Assignment)
+	 * {@code i &= 2} ==> ExpressionStatement(Assignment)
 	 */
 	public void test0020() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0020", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -571,7 +571,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * i <<= 2; ==> ExpressionStatement(Assignment)
+	 * {@code i <<= 2;} ==> ExpressionStatement(Assignment)
 	 */
 	public void test0024() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0024", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1377,7 +1377,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * BinaryExpression (&) ==> InfixExpression
+	 * BinaryExpression {@code (&)} ==> InfixExpression
 	 * @deprecated using deprecated code
 	 */
 	public void test0063() throws JavaModelException {
@@ -1429,7 +1429,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * BinaryExpression (<) ==> InfixExpression
+	 * BinaryExpression {@code (<)} ==> InfixExpression
 	 * @deprecated using deprecated code
 	 */
 	public void test0065() throws JavaModelException {
@@ -1455,7 +1455,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * BinaryExpression (<=) ==> InfixExpression
+	 * BinaryExpression {@code (<=)} ==> InfixExpression
 	 * @deprecated using deprecated code
 	 */
 	public void test0066() throws JavaModelException {

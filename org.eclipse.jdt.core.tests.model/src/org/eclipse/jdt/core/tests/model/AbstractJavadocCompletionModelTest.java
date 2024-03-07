@@ -18,14 +18,14 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaModelCompletionTests implements JavadocTagConstants {
@@ -88,7 +88,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 	// Inline tag relevance values
 	/** R_DEFAULT+R_INTERESTING+R_NON_RESTRICTED<br>+R_INLINE_TAG<br>= 39 */
 	protected static final int JAVADOC_RELEVANCE_IT = JAVADOC_RELEVANCE+R_INLINE_TAG;
-	/** R_DEFAULT+R_RESOLVED<br+R_INTERESTING+R_NON_RESTRICTED<br>+R_INLINE_TAG<br>= 40 */
+	/** R_DEFAULT+R_RESOLVED<br>+R_INTERESTING+R_NON_RESTRICTED<br>+R_INLINE_TAG<br>= 40 */
 	protected static final int R_DRINRIT = R_DRINR+R_INLINE_TAG;
 	/** R_DEFAULT+R_RESOLVED<br>+R_INTERESTING+R_CASE<br>+R_NON_RESTRICTED+R_INLINE_TAG<br>= 50 */
 	protected static final int R_DRICNRIT = R_DRICNR+R_INLINE_TAG;

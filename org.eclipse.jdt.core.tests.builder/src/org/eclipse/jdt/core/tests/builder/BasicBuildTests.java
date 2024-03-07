@@ -376,8 +376,8 @@ public class BasicBuildTests extends BuilderTests {
 	}
 
 	/**
-	 * @bug 164707: ArrayIndexOutOfBoundsException in JavaModelManager if source level == 6.0
-	 * @test Ensure that AIIOB does not longer happen with invalid source level string
+	 * bug 164707: ArrayIndexOutOfBoundsException in JavaModelManager if source level == 6.0
+	 * test Ensure that AIIOB does not longer happen with invalid source level string
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=164707"
 	 */
 	public void testBug164707() throws JavaModelException {
@@ -390,8 +390,8 @@ public class BasicBuildTests extends BuilderTests {
 	}
 
 	/**
-	 * @bug 75471: [prefs] no re-compile when loading settings
-	 * @test Ensure that changing project preferences is well taking into account while rebuilding project
+	 * bug 75471: [prefs] no re-compile when loading settings
+	 * test Ensure that changing project preferences is well taking into account while rebuilding project
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=75471"
 	 */
 	public void _testUpdateProjectPreferences() throws JavaModelException {

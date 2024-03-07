@@ -72,7 +72,6 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringDialogField;
  * Preference pane for most APT (Java annotation processing) settings.
  * see org.eclipse.jdt.ui.internal.preferences.TodoTaskConfigurationBlock
  * for the conceptual source of some of this code.
- * <p>
  */
 public class AptConfigurationBlock extends BaseConfigurationBlock {
 

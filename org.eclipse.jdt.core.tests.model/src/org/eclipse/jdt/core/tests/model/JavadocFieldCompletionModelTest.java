@@ -495,7 +495,7 @@ public void test028() throws JavaModelException {
 	);
 }
 /**
- * @tests Tests for camel case completion
+ * tests Tests for camel case completion
  */
 public void test030() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();

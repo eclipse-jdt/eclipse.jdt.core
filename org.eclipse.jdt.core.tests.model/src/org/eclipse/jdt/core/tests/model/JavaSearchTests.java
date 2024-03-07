@@ -1266,8 +1266,8 @@ public void testLocalVariableDeclaration2() throws CoreException {
 		this.resultCollector);
 }
 /**
- * @bug 207257: [search] SearchEngine returns incorrectly typed SearchMatch when searching for local variable declarations
- * @test The accepted match should be a {@link LocalVariableDeclarationMatch}
+ * bug 207257: [search] SearchEngine returns incorrectly typed SearchMatch when searching for local variable declarations
+ * test The accepted match should be a {@link LocalVariableDeclarationMatch}
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=207257"
  */
 public void testLocalVariableDeclaration_Bug207257() throws CoreException {
@@ -4170,8 +4170,8 @@ public void testStaticImportPackage02() throws CoreException {
 }
 
 /**
- * @test Bug 110060: [plan][search] Add support for Camel Case search pattern
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110060"
+ * test Bug 110060: [plan][search] Add support for Camel Case search pattern
+ * see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110060"
  *
  * These tests are not really duplicates of {@link JavaSearchBugsTests} ones
  * as they also test camel case in indexes...
@@ -4469,8 +4469,8 @@ public void testCamelCaseTypePattern13_CamelCaseSamePartCount() throws CoreExcep
 }
 
 /**
- * @bug 160323: [search] TypeNameMatch: support hashCode/equals
- * @test Ensure that match equals and hashCode methods return same values than those of stored {@link IType}.
+ * bug 160323: [search] TypeNameMatch: support hashCode/equals
+ * test Ensure that match equals and hashCode methods return same values than those of stored {@link IType}.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=160323"
  */
 public void testBug160323() throws CoreException {

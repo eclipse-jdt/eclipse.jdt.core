@@ -99,6 +99,7 @@ import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.QualifierQuery;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -583,7 +584,7 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 		}
 	}
 
-	return createMethodHandle(type, new String(method.selector), parameterTypeSignatures);
+	return createMethodHandle(type, DeduplicationUtil.toString(method.selector), parameterTypeSignatures);
 }
 /*
  * Create binary method handle
@@ -610,7 +611,7 @@ IMethod createBinaryMethodHandle(IType type, char[] methodSelector, char[][] arg
 							parameterTypes[j] = parameterTypeName;
 						}
 					}
-					return (IMethod) createMethodHandle(type, new String(selector), CharOperation.toStrings(parameterTypes));
+					return (IMethod) createMethodHandle(type,DeduplicationUtil.toString(selector), CharOperation.toStrings(parameterTypes));
 				}
 			}
 		}
@@ -641,7 +642,7 @@ protected IJavaElement createHandle(FieldDeclaration fieldDeclaration, TypeDecla
 	switch (fieldDeclaration.getKind()) {
 		case AbstractVariableDeclaration.FIELD :
 		case AbstractVariableDeclaration.ENUM_CONSTANT :
-			return ((IType) parent).getField(new String(fieldDeclaration.name));
+			return ((IType) parent).getField(DeduplicationUtil.toString(fieldDeclaration.name));
 	}
 	if (type.isBinary()) {
 		// do not return initializer for binary types
@@ -677,7 +678,7 @@ protected IJavaElement createHandle(AbstractVariableDeclaration variableDeclarat
 					variableDeclaration.declarationSourceEnd,
 					variableDeclaration.sourceStart,
 					variableDeclaration.sourceEnd,
-					new String(variableDeclaration.type.resolvedType.signature()),
+					DeduplicationUtil.toString(variableDeclaration.type.resolvedType.signature()),
 					variableDeclaration.annotations,
 					variableDeclaration.modifiers,
 					isParameter,
@@ -3147,15 +3148,15 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	// create type handle
 	IJavaElement enclosingElement = parent;
 	if (enclosingElement == null) {
-		enclosingElement = createTypeHandle(new String(type.name));
+		enclosingElement = createTypeHandle(DeduplicationUtil.toString(type.name));
 	} else if (enclosingElement instanceof IType) {
-		enclosingElement = ((IType) parent).getType(new String(type.name));
+		enclosingElement = ((IType) parent).getType(DeduplicationUtil.toString(type.name));
 	} else if (enclosingElement instanceof IMember) {
 	    IMember member = (IMember) parent;
 		if (member.isBinary())  {
 			enclosingElement = ((IOrdinaryClassFile)this.currentPossibleMatch.openable).getType();
 		} else {
-			enclosingElement = member.getType(new String(type.name), occurrenceCount);
+			enclosingElement = member.getType(DeduplicationUtil.toString(type.name), occurrenceCount);
 		}
 	}
 	if (enclosingElement == null) return;

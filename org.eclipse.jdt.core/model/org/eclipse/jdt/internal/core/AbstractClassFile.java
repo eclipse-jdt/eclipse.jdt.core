@@ -138,7 +138,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 
 	/**
 	 * Finds the deepest <code>IJavaElement</code> in the hierarchy of
-	 * <code>elt</elt>'s children (including <code>elt</code> itself)
+	 * <code>elt</code>'s children (including <code>elt</code> itself)
 	 * which has a source range that encloses <code>position</code>
 	 * according to <code>mapper</code>.
 	 */

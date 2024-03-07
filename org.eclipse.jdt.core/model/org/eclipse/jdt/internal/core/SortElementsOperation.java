@@ -343,8 +343,8 @@ public class SortElementsOperation extends JavaModelOperation {
 	/**
 	 * Possible failures:
 	 * <ul>
-	 *  <li>NO_ELEMENTS_TO_PROCESS - the compilation unit supplied to the operation is <code>null</code></li>.
-	 *  <li>INVALID_ELEMENT_TYPES - the supplied elements are not an instance of IWorkingCopy</li>.
+	 *  <li>NO_ELEMENTS_TO_PROCESS - the compilation unit supplied to the operation is <code>null</code>.</li>
+	 *  <li>INVALID_ELEMENT_TYPES - the supplied elements are not an instance of IWorkingCopy.</li>
 	 * </ul>
 	 * @return IJavaModelStatus
 	 */

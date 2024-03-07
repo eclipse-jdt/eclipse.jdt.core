@@ -743,10 +743,10 @@ public class JavaProject
 				if (target instanceof IResource){
 					// internal target
 					root = getPackageFragmentRoot((IResource) target, entryPath, resolvedEntry.getExtraAttributes());
-				} else if (target instanceof File) {
+				} else if (target instanceof File tf) {
 					// external target
-					if (JavaModel.isFile(target)) {
-						if (JavaModel.isJimage((File) target)) {
+					if (JavaModel.isFile(tf)) {
+						if (JavaModel.isJimage(tf)) {
 							PerProjectInfo info = getPerProjectInfo();
 							ObjectVector imageRoots;
 							if (info.jrtRoots == null || !info.jrtRoots.containsKey(entryPath)) {
@@ -770,13 +770,13 @@ public class JavaProject
 								}
 							}
 							accumulatedRoots.addAll(imageRoots);
-						} else if (JavaModel.isJmod((File) target)) {
+						} else if (JavaModel.isJmod(tf)) {
 							root = new JModPackageFragmentRoot(entryPath, this, resolvedEntry.getExtraAttributes());
 						}
 						else {
 							root = new JarPackageFragmentRoot(null, entryPath, this, resolvedEntry.getExtraAttributes());
 						}
-					} else if (((File) target).isDirectory()) {
+					} else if ((tf).isDirectory()) {
 						root = new ExternalPackageFragmentRoot(entryPath, this);
 					}
 				}
@@ -2278,7 +2278,7 @@ public class JavaProject
 			return this.new JImageModuleFragmentBridge(externalLibraryPath, extraAttributes);
 		}
 		Object target = JavaModel.getTarget(externalLibraryPath, true/*check existency*/);
-		if (target instanceof File && JavaModel.isFile(target)) {
+		if (target instanceof File tf && JavaModel.isFile(tf)) {
 			if (JavaModel.isJmod((File) target)) {
 				return new JModPackageFragmentRoot(externalLibraryPath, this, extraAttributes);
 			}

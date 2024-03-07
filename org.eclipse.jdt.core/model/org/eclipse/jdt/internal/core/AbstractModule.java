@@ -96,7 +96,7 @@ public interface AbstractModule extends IModuleDescription {
 			}
 			return result.toArray(new String[result.size()]);
 		}
-		return new String[0];
+		return JavaElement.NO_STRINGS;
 	}
 	@Override
 	default String[] getOpenedPackageNames(IModuleDescription targetModule) throws JavaModelException {
@@ -112,7 +112,7 @@ public interface AbstractModule extends IModuleDescription {
 			}
 			return result.toArray(new String[result.size()]);
 		}
-		return new String[0];
+		return JavaElement.NO_STRINGS;
 	}
 	default IModuleReference[] getRequiredModules() throws JavaModelException {
 		return getModuleInfo().requires();
@@ -130,7 +130,7 @@ public interface AbstractModule extends IModuleDescription {
 		for (IService service : services) {
 			results.add(new String(service.name()));
 		}
-		return results.toArray(new String[0]);
+		return results.toArray(String[]::new);
 
 	}
 	default char[][] getUsedServices() throws JavaModelException {
@@ -144,7 +144,7 @@ public interface AbstractModule extends IModuleDescription {
 			char[] service = services[i];
 			results.add(new String(service));
 		}
-		return results.toArray(new String[0]);
+		return results.toArray(String[]::new);
 	}
 	default IPackageExport[] getOpenedPackages() throws JavaModelException {
 		return getModuleInfo().opens();

@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryModule;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 public class BinaryModule extends BinaryMember implements AbstractModule {
 
@@ -39,7 +40,7 @@ public class BinaryModule extends BinaryMember implements AbstractModule {
 	}
 	/** For creating a populated handle from a class file. */
 	public BinaryModule(JavaElement parent, IBinaryModule info) {
-		super(parent, String.valueOf(info.name()));
+		super(parent, DeduplicationUtil.toString(info.name()));
 		this.info = info;
 	}
 	@Override

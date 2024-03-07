@@ -390,8 +390,8 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	*/
 
 	/**
-	 * @bug 161621: enum is a Keyword for Java5 and cannot be used as a Enum name
-	 * @test Ensure that 'assert' identifier is rejected when source level greater than 1.3
+	 * bug161621: enum is a Keyword for Java5 and cannot be used as a Enum name
+	 * test Ensure that 'assert' identifier is rejected when source level greater than 1.3
 	 * 	and that 'enum' identifier is rejected when source level greater than 1.4
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=161621"
 	 */

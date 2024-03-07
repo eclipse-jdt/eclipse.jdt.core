@@ -103,7 +103,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public static final char JEM_MODULE = '`';
 
 	/**
-	 * Before ')', '&' and '"' became the newest additions as delimiters, the former two
+	 * Before ')', {@code '&'} and '"' became the newest additions as delimiters, the former two
 	 * were allowed as part of element attributes and possibly stored. Trying to recreate
 	 * elements from such memento would cause undesirable results. Consider the following
 	 * valid project name: (abc)
@@ -130,7 +130,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/** cached result */
 	private int hashCode;
 
-	protected static final String[] NO_STRINGS = new String[0];
+	public static final String[] NO_STRINGS = new String[0];
 	protected static final JavaElement[] NO_ELEMENTS = new JavaElement[0];
 	protected static final Object NO_INFO = new Object();
 

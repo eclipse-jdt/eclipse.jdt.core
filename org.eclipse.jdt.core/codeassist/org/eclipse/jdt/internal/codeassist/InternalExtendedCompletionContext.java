@@ -69,6 +69,7 @@ import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.CompilationUnitElementInfo;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class InternalExtendedCompletionContext {
@@ -282,7 +283,7 @@ public class InternalExtendedCompletionContext {
 
 		return new LocalVariable(
 				parent,
-				new String(local.name),
+				DeduplicationUtil.toString(local.name),
 				local.declarationSourceStart,
 				local.declarationSourceEnd,
 				local.sourceStart,

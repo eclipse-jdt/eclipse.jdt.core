@@ -73,6 +73,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 import org.eclipse.jdt.internal.core.index.DiskIndex;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.w3c.dom.DOMException;
@@ -149,15 +150,15 @@ public class ClasspathEntry implements IClasspathEntry {
 	 *		path to the corresponding project resource.</li>
 	 *  <li>A variable entry (<code>CPE_VARIABLE</code>) - the first segment of the path
 	 *      is the name of a classpath variable. If this classpath variable
-	 *		is bound to the path <it>P</it>, the path of the corresponding classpath entry
-	 *		is computed by appending to <it>P</it> the segments of the returned
+	 *		is bound to the path <code>P</code>, the path of the corresponding classpath entry
+	 *		is computed by appending to <code>P</code> the segments of the returned
 	 *		path without the variable.</li>
 	 *  <li> A container entry (<code>CPE_CONTAINER</code>) - the first segment of the path is denoting
 	 *     the unique container identifier (for which a <code>ClasspathContainerInitializer</code> could be
 	 * 	registered), and the remaining segments are used as additional hints for resolving the container entry to
-	 * 	an actual <code>IClasspathContainer</code>.</li>
+	 * 	an actual <code>IClasspathContainer</code>.</li></ul>
 	 */
-	public IPath path;
+	public final IPath path;
 
 	/**
 	 * Patterns allowing to include/exclude portions of the resource tree denoted by this entry path.
@@ -311,17 +312,16 @@ public class ClasspathEntry implements IClasspathEntry {
 			System.arraycopy(accessRules, 0, rules, 0, length);
 			byte classpathEntryType;
 			String classpathEntryName;
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			if (this.entryKind == CPE_PROJECT || this.entryKind == CPE_SOURCE) { // can be remote source entry when reconciling
 				classpathEntryType = AccessRestriction.PROJECT;
-				classpathEntryName = manager.intern(getPath().segment(0));
+				classpathEntryName = DeduplicationUtil.intern(getPath().segment(0));
 			} else {
 				classpathEntryType = AccessRestriction.LIBRARY;
 				Object target = JavaModel.getWorkspaceTarget(path);
 				if (target == null) {
-					classpathEntryName = manager.intern(path.toOSString());
+					classpathEntryName = DeduplicationUtil.intern(path.toOSString());
 				} else {
-					classpathEntryName = manager.intern(path.makeRelative().toString());
+					classpathEntryName = DeduplicationUtil.intern(path.makeRelative().toString());
 				}
 			}
 			this.accessRuleSet = new AccessRuleSet(rules, classpathEntryType, classpathEntryName);
@@ -1839,7 +1839,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 *  <p>
 	 *  This validation is intended to anticipate classpath issues prior to assigning it to a project. In particular, it will automatically
 	 *  be performed during the classpath setting operation (if validation fails, the classpath setting will not complete).
-	 *  <p>
+	 *
 	 * @param javaProject the given java project
 	 * @param rawClasspath a given classpath
 	 * @param projectOutputLocation a given output location
@@ -2496,8 +2496,8 @@ public class ClasspathEntry implements IClasspathEntry {
 							}
 						}
 				}
-			} else if (target instanceof File){
-				File file = JavaModel.getFile(target);
+			} else if (target instanceof File tf){
+				File file = JavaModel.getFile(tf);
 				if (file == null) {
 					if (container != null) {
 						return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalExternalFolderInContainer, new String[] {path.toOSString(), container}));

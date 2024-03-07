@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 public class LambdaFactory {
 
@@ -40,24 +41,23 @@ public class LambdaFactory {
 
 	public static LambdaMethod createLambdaMethod(JavaElement parent, org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
 		int length;
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		String [] parameterTypes = new String[length = lambdaExpression.descriptor.parameters.length];
 		for (int i = 0; i < length; i++)
-			parameterTypes[i] = getTypeSignature(manager, lambdaExpression.descriptor.parameters[i]);
+			parameterTypes[i] = getTypeSignature(lambdaExpression.descriptor.parameters[i]);
 		String [] parameterNames = new String[length];
 		for (int i = 0; i < length; i++)
-			parameterNames[i] = manager.intern(new String(lambdaExpression.arguments[i].name));
-		String returnType = getTypeSignature(manager, lambdaExpression.descriptor.returnType);
-		String selector = manager.intern(new String(lambdaExpression.descriptor.selector));
-		String key = new String(lambdaExpression.descriptor.computeUniqueKey());
+			parameterNames[i] = DeduplicationUtil.toString(lambdaExpression.arguments[i].name);
+		String returnType = getTypeSignature(lambdaExpression.descriptor.returnType);
+		String selector = DeduplicationUtil.toString(lambdaExpression.descriptor.selector);
+		String key = DeduplicationUtil.toString(lambdaExpression.descriptor.computeUniqueKey());
 		LambdaMethod lambdaMethod = createLambdaMethod(parent, selector, key, lambdaExpression.sourceStart, lambdaExpression.sourceEnd, lambdaExpression.arrowPosition, parameterTypes, parameterNames, returnType);
 		ILocalVariable [] parameters = new ILocalVariable[length = lambdaExpression.arguments.length];
 		for (int i = 0; i < length; i++) {
 			Argument argument = lambdaExpression.arguments[i];
-			String signature = manager.intern(new String(lambdaExpression.descriptor.parameters[i].signature()));
+			String signature = DeduplicationUtil.toString(lambdaExpression.descriptor.parameters[i].signature());
 			parameters[i] = new LocalVariable(
 					lambdaMethod,
-					new String(argument.name),
+					DeduplicationUtil.toString(argument.name),
 					argument.declarationSourceStart,
 					argument.declarationSourceEnd,
 					argument.sourceStart,
@@ -80,13 +80,12 @@ public class LambdaFactory {
 		info.setFlags(0);
 		info.setNameSourceStart(sourceStart);
 		info.setNameSourceEnd(arrowPosition);
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		int length;
 		char[][] argumentNames = new char[length = parameterNames.length][];
 		for (int i = 0; i < length; i++)
-			argumentNames[i] = manager.intern(parameterNames[i].toCharArray());
+			argumentNames[i] = DeduplicationUtil.intern(parameterNames[i].toCharArray());
 		info.setArgumentNames(argumentNames);
-		info.setReturnType(manager.intern(Signature.toCharArray(returnType.toCharArray())));
+		info.setReturnType(DeduplicationUtil.intern(Signature.toCharArray(returnType.toCharArray())));
 		info.setExceptionTypeNames(CharOperation.NO_CHAR_CHAR);
 		info.arguments = null; // will be updated shortly, parent has to come into existence first.
 
@@ -94,10 +93,10 @@ public class LambdaFactory {
 				new LambdaMethod(parent, selector, key, sourceStart, parameterTypes, parameterNames, returnType, info);
 	}
 
-	private static String getTypeSignature(JavaModelManager manager, TypeBinding type) {
+	private static String getTypeSignature(TypeBinding type) {
 		char[] signature = type.genericTypeSignature();
 		signature = CharOperation.replaceOnCopy(signature, '/', '.');
-		return manager.intern(new String(signature));
+		return DeduplicationUtil.toString(signature);
 	}
 
 	private static boolean isBinaryMember(JavaElement element) {

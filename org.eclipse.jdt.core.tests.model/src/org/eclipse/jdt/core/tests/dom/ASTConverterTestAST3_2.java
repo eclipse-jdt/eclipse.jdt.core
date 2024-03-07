@@ -7946,7 +7946,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	}
 
 	/**
-	 * @bug 149126: IllegalArgumentException in ASTConverter
+	 * bug149126: IllegalArgumentException in ASTConverter
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=149126"
 	 */
 	public void test0652() throws CoreException {

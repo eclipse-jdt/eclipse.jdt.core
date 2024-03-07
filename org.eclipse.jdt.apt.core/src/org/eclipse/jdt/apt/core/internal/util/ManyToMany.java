@@ -21,12 +21,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Manage a Map<T1, Set<T2>>, with reverse links so that it is possible to
+ * Manage a {@code Map<T1, Set<T2>>}, with reverse links so that it is possible to
  * efficiently find all T1s that have a particular T2 associated with them.
  * Access to the map is synchronized, so that it is possible to read and
  * write simultaneously from multiple threads.  Set semantics are preserved
  * in both directions, so there is no distinction between calling this a
- * Map<T1, Set<T2>> versus a Map<T2, Set<T1>>.  It is symmetric.
+ * {@code Map<T1, Set<T2>> versus a Map<T2, Set<T1>>}.  It is symmetric.
  * <p>
  * The map permits the null value for keys and for value elements.
  * <p>
@@ -38,6 +38,7 @@ import java.util.Set;
  * <li> If a value exists, it has at least one key associated with it; that is,
  * for all v such that null != containsValue(v), getKeys(v) returns a non-empty
  * set.</li>
+ * </ul>
  */
 public class ManyToMany<T1, T2> {
 

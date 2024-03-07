@@ -15,8 +15,6 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -41,6 +39,8 @@ import org.eclipse.jdt.internal.core.LambdaMethod;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.AndPattern;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
+
+import junit.framework.Test;
 
 /**
  * Non-regression tests for bugs fixed in Java Search engine.
@@ -149,8 +149,8 @@ protected void setUp () throws Exception {
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  *	FieldDeclaration ::= Modifiersopt Type VariableDeclarators ';'
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -181,8 +181,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * TYPE:   MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -213,8 +213,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * FormalParameter ::= Modifiersopt Type VariableDeclaratorIdOrThis
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -245,8 +245,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * FormalParameter ::= Modifiersopt Type PushZeroTypeAnnotations '...' VariableDeclaratorIdOrThis
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -277,8 +277,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * FormalParameter ::= Modifiersopt Type @308... TypeAnnotations '...' VariableDeclaratorIdOrThis
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -310,8 +310,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * UnionType ::= Type
  * UnionType ::= UnionType '|' Type
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
@@ -349,8 +349,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * LocalVariableDeclaration ::= Type PushModifiers VariableDeclarators
  * LocalVariableDeclaration ::= Modifiers Type PushRealModifiers VariableDeclarators
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
@@ -389,8 +389,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following:
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following:
  * Resource ::= Type PushModifiers VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization
  * Resource ::= Modifiers Type PushRealModifiers VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
@@ -428,8 +428,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following:
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following:
  * EnhancedForStatementHeaderInit ::= 'for' '(' Type PushModifiers Identifier Dimsopt
  * EnhancedForStatementHeaderInit ::= 'for' '(' Modifiers Type PushRealModifiers Identifier Dimsopt
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
@@ -468,8 +468,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * AnnotationMethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
  * AnnotationMethodHeaderName ::= Modifiersopt Type 'Identifier' '('
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
@@ -506,8 +506,8 @@ assertSearchResults(
 
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -544,8 +544,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
  * ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
@@ -583,8 +583,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression UnaryExpression
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -620,8 +620,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * InstanceofExpression ::= InstanceofExpression 'instanceof' ReferenceType
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -655,8 +655,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * TypeArgument ::= ReferenceType
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -687,8 +687,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ReferenceType1 ::= ReferenceType '>'
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -719,8 +719,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ReferenceType2 ::= ReferenceType '>>'
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -754,8 +754,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * WildcardBounds ::= 'extends' ReferenceType
  * WildcardBounds ::= 'super' ReferenceType
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
@@ -796,11 +796,13 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
+ * <pre>{@code
  * TypeParameter ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList
  * AdditionalBound ::= '&' ReferenceType
  * TypeParameter1 ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList1
+ * }</pre>
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
 public void testBug400899g22() throws CoreException {
@@ -843,8 +845,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * InstanceofExpression_NotName ::= Name 'instanceof' ReferenceType
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -880,8 +882,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * InstanceofExpression_NotName ::= InstanceofExpression_NotName 'instanceof' ReferenceType
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -914,8 +916,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments '.' ClassOrInterfaceType Dimsopt
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -952,8 +954,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
  * ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
@@ -991,8 +993,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType Dimsopt PushRPAREN InsideCastExpressionWithQualifiedGenerics UnaryExpressionNotPlusMinus
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -1025,9 +1027,11 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
+ * <pre>{@code
  * ReferenceType1 ::= ClassOrInterface '<' TypeArgumentList2
+ * }</pre>
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
 public void testBug400899g28() throws CoreException {
@@ -1059,9 +1063,11 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
+ * <pre>{@code
  * ReferenceType2 ::= ClassOrInterface '<' TypeArgumentList3
+ * }</pre>
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
 public void testBug400899g29() throws CoreException {
@@ -1095,8 +1101,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ClassHeaderExtends ::= 'extends' ClassType
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -1126,8 +1132,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ClassInstanceCreationExpression ::= 'new' OnlyTypeArguments ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' UnqualifiedClassBodyopt
  * ClassInstanceCreationExpression ::= 'new' ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' UnqualifiedClassBodyopt
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
@@ -1161,8 +1167,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ClassInstanceCreationExpression ::= Primary '.' 'new' OnlyTypeArguments ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
  * ClassInstanceCreationExpression ::= Primary '.' 'new' ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
@@ -1200,8 +1206,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
  * ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' OnlyTypeArguments ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
@@ -1238,8 +1244,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * MethodHeaderThrowsClause ::= 'throws' ClassTypeList
  * ClassTypeList -> ClassTypeElt
  * ClassTypeList ::= ClassTypeList ',' ClassTypeElt
@@ -1274,8 +1280,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ClassHeaderImplements ::= 'implements' InterfaceTypeList
  * InterfaceHeaderExtends ::= 'extends' InterfaceTypeList
  * InterfaceTypeList -> InterfaceType
@@ -1316,8 +1322,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ReferenceExpression ::= Name Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -1356,8 +1362,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * ReferenceExpression ::= Name BeginTypeArguments ReferenceExpressionTypeArgumentsAndTrunk '::' NonWildTypeArgumentsopt IdentifierOrNew
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
@@ -1412,8 +1418,8 @@ assertSearchResults(
 }
 
 /**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
+ * bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
+ * test Ensures that the search for type use annotation finds matches in the following
  * CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
  * CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
  * CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression Dimsopt PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
@@ -1456,8 +1462,8 @@ assertSearchResults(
 }
 
 /**
-	 * @bug 402902:  [1.8][search] Search engine fails to annotation matches in extends/implements clauses
-	 * @test Ensures that the search for type use annotation finds matches
+	 * bug402902:  [1.8][search] Search engine fails to annotation matches in extends/implements clauses
+	 * test Ensures that the search for type use annotation finds matches
 	 * in extends and implements clauses.
 	 *
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=402902"
@@ -1498,8 +1504,8 @@ public void testBug400902() throws CoreException {
 }
 
 /**
- * @bug 424119:  [1.8][search] CCE in search for references to TYPE_USE annotation on array dimension
- * @test Ensures that the search for type use annotation finds matches
+ * bug 424119:  [1.8][search] CCE in search for references to TYPE_USE annotation on array dimension
+ * test Ensures that the search for type use annotation finds matches
  * in local variable declaration dimensions.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=424119"
@@ -1541,8 +1547,8 @@ public void testBug424119_001() throws CoreException {
 }
 
 /**
- * @bug 424119:  [1.8][search] CCE in search for references to TYPE_USE annotation on array dimension
- * @test Ensures that the search for type use single variable annotation finds matches
+ * bug 424119:  [1.8][search] CCE in search for references to TYPE_USE annotation on array dimension
+ * test Ensures that the search for type use single variable annotation finds matches
  * in local variable declaration inside initializer - ref bug 424119 comment 1
  * - checks for non-existence of CCE.
  *
@@ -1577,8 +1583,8 @@ public void testBug424119_002() throws CoreException {
 		"src/b424119/X.java b424119.X.{} [Annot] EXACT_MATCH");
 }
 /**
- * @bug 424119:  [1.8][search] CCE in search for references to TYPE_USE annotation on array dimension
- * @test Ensures that the search for type use single variable annotation finds matches
+ * bug 424119:  [1.8][search] CCE in search for references to TYPE_USE annotation on array dimension
+ * test Ensures that the search for type use single variable annotation finds matches
  * in local variable declaration inside initializer - ref bug 424119 comment 1 - checks
  * for indexing issue (ie not finding the references as mentioned in comment 1)
  *
@@ -1620,8 +1626,8 @@ public void testBug424119_003() throws CoreException {
 	}
 }
 /**
- * @bug 427537:  [1.8][search] CCE with search match location set to cast type and intersection casts
- * @test Ensures that the search for type use annotation does not cause CCE and returns correct results
+ * bug 427537:  [1.8][search] CCE with search match location set to cast type and intersection casts
+ * test Ensures that the search for type use annotation does not cause CCE and returns correct results
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=427537"
  */
@@ -1657,8 +1663,8 @@ public void testBug427537a() throws CoreException {
 	);
 }
 /**
- * @bug 427677: [1.8][search] NPE in MatchLocator.reportMatching with unresolved NameQualifiedType qualifier
- * @test test
+ * bug 427677: [1.8][search] NPE in MatchLocator.reportMatching with unresolved NameQualifiedType qualifier
+ * test test
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=427677"
  */
 public void testBug427677() throws CoreException {
@@ -1682,8 +1688,8 @@ public void testBug427677() throws CoreException {
 	assertSearchResults("src/b427677/X.java b427677.X [Marker1] EXACT_MATCH");
 }
 /**
- * @bug 400904
- * @test tests search for Reference expression - super:: form, without type arguments
+ * bug 400904
+ * test tests search for Reference expression - super:: form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -1746,8 +1752,8 @@ public void testBug400904_0001a() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - super:: form, with type arguments
+ * bug 400904
+ * test tests search for Reference expression - super:: form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -1781,8 +1787,8 @@ public void testBug400904_0002() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - SimpleName:: form, without type arguments.
+ * bug 400904
+ * test tests search for Reference expression - SimpleName:: form, without type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -1819,8 +1825,8 @@ public void testBug400904_0003() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - SimpleName:: form, with type arguments.
+ * bug 400904
+ * test tests search for Reference expression - SimpleName:: form, with type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -1851,8 +1857,8 @@ public void testBug400904_0004() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - QualifiedName:: form, without type arguments.
+ * bug 400904
+ * test tests search for Reference expression - QualifiedName:: form, without type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -1885,8 +1891,8 @@ public void testBug400904_0005() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - QualifiedName:: form, with type arguments.
+ * bug 400904
+ * test tests search for Reference expression - QualifiedName:: form, with type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -1919,8 +1925,8 @@ public void testBug400904_0006() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - Primary:: form, without type arguments.
+ * bug 400904
+ * test tests search for Reference expression - Primary:: form, without type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -1951,8 +1957,8 @@ public void testBug400904_0007() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - Primary:: form, with type arguments.
+ * bug 400904
+ * test tests search for Reference expression - Primary:: form, with type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -1983,8 +1989,8 @@ public void testBug400904_0008() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - X<T>:: form, without type arguments
+ * bug 400904
+ * test tests search for Reference expression - {@code X<T>::} form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -2022,8 +2028,8 @@ public void testBug400904_0009() throws CoreException {
 
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - X<T>:: form, with type arguments
+ * bug 400904
+ * test tests search for Reference expression - {@code X<T>::} form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -2060,8 +2066,8 @@ public void testBug400904_0010() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - X<T>.Name :: form, without type arguments
+ * bug 400904
+ * test tests search for Reference expression - {@code X<T>.Name ::} form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -2097,8 +2103,8 @@ public void testBug400904_0011() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - X<T>.Name :: form, with type arguments
+ * bug 400904
+ * test tests search for Reference expression - {@code X<T>.Name ::} form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -2134,8 +2140,8 @@ public void testBug400904_0012() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - X<T>.Y<K> :: form, without type arguments
+ * bug 400904
+ * test tests search for Reference expression - {@code X<T>.Y<K> ::} form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -2170,8 +2176,8 @@ public void testBug400904_0013() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - X<T>.Y<K> :: form, with type arguments
+ * bug 400904
+ * test tests search for Reference expression - {@code X<T>.Y<K> ::} form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -2206,8 +2212,8 @@ public void testBug400904_0014() throws CoreException {
 }
 
 /**
- * @bug 400904
- * @test tests search for Reference expression - X<T>.Y<K> :: new form, with type arguments
+ * bug 400904
+ * test tests search for Reference expression - {@code X<T>.Y<K> ::} new form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
  */
@@ -2243,8 +2249,8 @@ public void testBug400904_0015() throws CoreException {
 	);
 }
 /**
- * @bug 400905
- * @test lambda expression search on a) field b)parameter
+ * bug 400905
+ * test lambda expression search on a) field b)parameter
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
  */
@@ -2273,8 +2279,8 @@ public void testBug400905_0001() throws CoreException {
 			"src/b400905/X.java int void b400905.X.doit():<lambda #1>.foo() [() ->] EXACT_MATCH");
 }
 /**
- * @bug 400905
- * @test  lambda expression search on a set of contexts with
+ * bug 400905
+ * test  lambda expression search on a set of contexts with
  * interface declaration and usage being in different files.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
@@ -2315,8 +2321,8 @@ public void testBug400905_0002() throws CoreException {
 			"src/b400905/X.java int I b400905.X.bar():<lambda #1>.foo() [() ->] EXACT_MATCH");
 }
 /**
- * @bug 400905
- * @test  lambda expression search on a set of contexts with the
+ * bug 400905
+ * test  lambda expression search on a set of contexts with the
  * interface declaration and usage being in different files.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
@@ -2351,8 +2357,8 @@ public void testBug400905_0003() throws CoreException {
 	);
 }
 /**
- * @bug 400905
- * @test  lambda expression search on a set of contexts with the
+ * bug 400905
+ * test  lambda expression search on a set of contexts with the
  * interface declaration and usage being in different files.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
@@ -2388,8 +2394,8 @@ public void testBug400905_0004() throws CoreException {
 	);
 }
 /**
- * @bug 400905
- * @test  lambda expression search on a set of contexts with the
+ * bug 400905
+ * test  lambda expression search on a set of contexts with the
  * interface declaration and usage being in different files.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
@@ -2421,8 +2427,8 @@ public void testBug400905_0005() throws CoreException {
 	);
 }
 /**
- * @bug 400905
- * @test  lambda expression search on a set of contexts with the
+ * bug 400905
+ * test  lambda expression search on a set of contexts with the
  * interface declaration and usage being in different files.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
@@ -2467,8 +2473,8 @@ public void testBug400905_0006() throws CoreException {
 }
 
 /**
- * @bug 400905
- * @test  lambda expression search on a set of contexts with the
+ * bug 400905
+ * test  lambda expression search on a set of contexts with the
  * interface declaration and usage being in different files.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
@@ -3675,8 +3681,8 @@ public void test430159d() throws CoreException {
 	);
 }
 /**
- * @bug 429012
- * @test tests search for Reference expression - super:: form, without type arguments
+ * bug 429012
+ * test tests search for Reference expression - super:: form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -3711,8 +3717,8 @@ public void testBug429012_0001() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - super:: form, with type arguments
+ * bug 429012
+ * test tests search for Reference expression - super:: form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -3747,8 +3753,8 @@ public void testBug429012_0002() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - SimpleName:: form, without type arguments.
+ * bug 429012
+ * test tests search for Reference expression - SimpleName:: form, without type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -3784,8 +3790,8 @@ public void testBug429012_0003() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - SimpleName:: form, with type arguments.
+ * bug 429012
+ * test tests search for Reference expression - SimpleName:: form, with type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -3817,8 +3823,8 @@ public void testBug429012_0004() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - QualifiedName:: form, without type arguments.
+ * bug 429012
+ * test tests search for Reference expression - QualifiedName:: form, without type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -3852,8 +3858,8 @@ public void testBug429012_0005() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - QualifiedName:: form, with type arguments.
+ * bug 429012
+ * test tests search for Reference expression - QualifiedName:: form, with type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -3887,8 +3893,8 @@ public void testBug429012_0006() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - Primary:: form, without type arguments.
+ * bug 429012
+ * test tests search for Reference expression - Primary:: form, without type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -3920,8 +3926,8 @@ public void testBug429012_0007() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - Primary:: form, with type arguments.
+ * bug 429012
+ * test tests search for Reference expression - Primary:: form, with type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -3953,8 +3959,8 @@ public void testBug429012_0008() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - X<T>:: form, without type arguments
+ * bug 429012
+ * test tests search for Reference expression - {@code X<T>::} form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -3993,8 +3999,8 @@ public void testBug429012_0009() throws CoreException {
 
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - X<T>:: form, with type arguments
+ * bug 429012
+ * test tests search for Reference expression - {@code X<T>::} form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -4032,8 +4038,8 @@ public void testBug429012_0010() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - X<T>.Name :: form, without type arguments
+ * bug 429012
+ * test tests search for Reference expression - {@code X<T>.Name ::} form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -4070,8 +4076,8 @@ public void testBug429012_0011() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - X<T>.Name :: form, with type arguments
+ * bug 429012
+ * test tests search for Reference expression - {@code X<T>.Name ::} form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -4108,8 +4114,8 @@ public void testBug429012_0012() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - X<T>.Y<K> :: form, without type arguments
+ * bug 429012
+ * test tests search for Reference expression - {@code X<T>.Y<K> ::} form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -4145,8 +4151,8 @@ public void testBug429012_0013() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - X<T>.Y<K> :: form, with type arguments
+ * bug 429012
+ * test tests search for Reference expression - {@code X<T>.Y<K> ::} form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -4182,8 +4188,8 @@ public void testBug429012_0014() throws CoreException {
 }
 
 /**
- * @bug 429012
- * @test tests search for Reference expression - X<T>.Y<K> :: new form, with type arguments
+ * bug 429012
+ * test tests search for Reference expression - {@code X<T>.Y<K> ::} new form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
  */
@@ -4339,7 +4345,7 @@ public void testBug431716() throws CoreException {
 			null);
 }
 /**
- * @bug 432541:  Stack Overflow in Java Search - type inference issue?
+ * bug 432541:  Stack Overflow in Java Search - type inference issue?
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=432541"
  */
 public void testBug432541() throws CoreException {

@@ -50,7 +50,7 @@ protected void setUp() throws Exception {
 }
 
 /**
- * @tests Tests for tag names completion
+ * tests Tests for tag names completion
  */
 public void test001() throws JavaModelException {
 	String source =
@@ -203,7 +203,7 @@ public void test007() throws JavaModelException {
 }
 
 /**
- * @tests Tests for types completion
+ * tests Tests for types completion
  */
 public void test010() throws JavaModelException {
 	String source =
@@ -368,7 +368,7 @@ public void test016() throws JavaModelException {
 }
 
 /**
- * @tests Tests for fields completion
+ * tests Tests for fields completion
  */
 public void test020() throws JavaModelException {
 	String source =
@@ -450,7 +450,7 @@ public void test023() throws JavaModelException {
 }
 
 /**
- * @tests Tests for methods completion
+ * tests Tests for methods completion
  */
 public void test030() throws JavaModelException {
 	String source =
@@ -1118,7 +1118,7 @@ public void _test062() throws JavaModelException {
 }
 
 /**
- * @tests Tests for method parameters completion
+ * tests Tests for method parameters completion
  */
 public void test070() throws JavaModelException {
 	String source =
@@ -1511,7 +1511,7 @@ public void test090() throws JavaModelException {
 }
 
 /**
- * @tests Tests for type parameters completion
+ * tests Tests for type parameters completion
  */
 public void test100() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
@@ -1932,7 +1932,7 @@ public void test123() throws JavaModelException {
 }
 
 /**
- * @tests Tests for constructors completion
+ * tests Tests for constructors completion
  */
 public void test130() throws JavaModelException {
 	String source =
@@ -2492,7 +2492,7 @@ public void test157() throws JavaModelException {
 	);
 }
 /**
- * @tests Tests for camel case completion
+ * tests Tests for camel case completion
  */
 public void test160() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();

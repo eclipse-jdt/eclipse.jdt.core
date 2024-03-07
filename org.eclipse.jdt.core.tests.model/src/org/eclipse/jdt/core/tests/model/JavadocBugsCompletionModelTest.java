@@ -13,11 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 /**
  * Test class for completion in Javadoc comment of a field declaration.
@@ -261,8 +261,8 @@ public void testBug68757b() throws JavaModelException {
 
 /**
  * Bug 75551: [javadoc][assist] javadoc completion for links to method with inner classes as argument is not correct
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=75551"
  * TODO (frederic) fix while fixing bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=96237
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=75551"
  */
 public void _testBug75551() throws JavaModelException {
 	String[] sources = {
@@ -690,7 +690,7 @@ public void testBug118105() throws JavaModelException {
 }
 
 /**
- * Bug 118092: [javadoc][assist] Eclipse hangs on code assist when writing \u00B8<c
+ * Bug 118092: [javadoc][assist] Eclipse hangs on code assist when writing {@code \u00B8<c}
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118092"
  */
 public void testBug118092() throws JavaModelException {
@@ -802,8 +802,8 @@ public void testBug118397d() throws JavaModelException {
 }
 
 /**
- * @bug 139621: [javadoc][assist] No Javadoc completions if there's no member below
- * @test Ensure that completion happens in an orphan javadoc (ie. a javadoc comment not attached to a declaration
+ * bug 139621: [javadoc][assist] No Javadoc completions if there's no member below
+ * test Ensure that completion happens in an orphan javadoc (ie. a javadoc comment not attached to a declaration
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=139621"
  */
 public void testBug139621a() throws JavaModelException {
@@ -1005,8 +1005,8 @@ public void testBug144866() throws JavaModelException {
 }
 
 /**
- * @bug 171016: [javadoc][assist] No completion for tag when uppercase is used
- * @test Ensure that tag is proposed when prefix match a tag case insensitive
+ * bug 171016: [javadoc][assist] No completion for tag when uppercase is used
+ * test Ensure that tag is proposed when prefix match a tag case insensitive
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=171016"
  */
 public void testBug171016() throws JavaModelException {
@@ -1045,8 +1045,8 @@ public void testBug171016b() throws JavaModelException {
 }
 
 /**
- * @bug 171031: [javadoc][assist] 'inheritDoc' tag is proposed while completing even if the method does not override any
- * @test Ensure that no 'inheritDoc' tag is proposed when method does not override any
+ * bug 171031: [javadoc][assist] 'inheritDoc' tag is proposed while completing even if the method does not override any
+ * test Ensure that no 'inheritDoc' tag is proposed when method does not override any
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=171031"
  */
 // TODO (eric) enable when bug will be fixed
@@ -1064,8 +1064,8 @@ public void _testBug171031() throws JavaModelException {
 }
 
 /**
- * @bug 185576: [javadoc][assist] Type parameters should not be proposed while completing in @link or @see reference
- * @test Do not include type params in Javadoc content assist proposals
+ * bug 185576: [javadoc][assist] Type parameters should not be proposed while completing in @link or @see reference
+ * test Do not include type params in Javadoc content assist proposals
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=185576"
  */
 public void testBug185576a() throws JavaModelException {
@@ -1134,8 +1134,8 @@ public void testBug249785a() throws JavaModelException {
 	);
 }
 /**
- * @bug 255752 [javadoc][assist] Inappropriate completion proposals for javadoc at compilation unit level
- * @test that there are no tag completions offered at the compilation unit level for a non package-info.java
+ * bug 255752 [javadoc][assist] Inappropriate completion proposals for javadoc at compilation unit level
+ * test that there are no tag completions offered at the compilation unit level for a non package-info.java
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=255752"
  */
 public void testBug255752() throws JavaModelException {
@@ -1151,7 +1151,7 @@ public void testBug255752() throws JavaModelException {
 }
 /**
  * Additional tests for bug 255752
- * @test whether an orphan Javadoc comment gets all the possible tags applicable to the class level.
+ * test whether an orphan Javadoc comment gets all the possible tags applicable to the class level.
  */
 public void testBug255752a() throws JavaModelException {
 	String source =

@@ -28,18 +28,22 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
  * - methods
  *
  * If reference information is requested, then all source constructs are
- * investigated and type, field & method references are provided as well.
+ * investigated and type, field and method references are provided as well.
  *
  * Any (parsing) problem encountered is also provided.
  *
  * All positions are relative to the exact source fed to the parser.
  *
  * Elements which are complex are notified in two steps:
+ * <pre>{@code
  * - enter<Element> : once the element header has been identified
  * - exit<Element> : once the element has been fully consumed
+ * }</pre>
  *
  * other simpler elements (package, import) are read all at once:
+ * <pre>{@code
  * - accept<Element>
+ * }</pre>
  */
 
 public interface IDocumentElementRequestor {
@@ -80,7 +84,7 @@ void acceptImport(
  * The array is equals to null if there are no javadoc comments
  * @param modifiers - the modifiers for this initializer
  * @param modifiersStart - a source position corresponding to the start
- *  of the textual modifiers, is < 0 if there are no textual modifiers
+ *  of the textual modifiers, is {@code < 0} if there are no textual modifiers
  * @param bodyStart - the position of the '{'
  * @param bodyEnd - the position of the '}'
  */
@@ -135,7 +139,7 @@ void acceptProblem(CategorizedProblem problem);
  * The array is equals to null if there are no javadoc comments
  * @param modifiers - the modifiers for this class
  * @param modifiersStart - a source position corresponding to the start
- *  of the textual modifiers, is < 0 if there are no textual modifiers
+ *  of the textual modifiers, is {@code < 0} if there are no textual modifiers
  * @param classStart - a source position corresponding to the start
  *  of the keyword 'class'
  * @param name - the name of the class
@@ -271,7 +275,7 @@ void enterField(
  * The array is equals to null if there are no javadoc comments
  * @param modifiers - the modifiers for this class
  * @param modifiersStart - a source position corresponding to the start
- *  of the textual modifiers, is < 0 if there are no textual modifiers
+ *  of the textual modifiers, is {@code < 0} if there are no textual modifiers
  * @param interfaceStart - a source position corresponding to the start
  *  of the keyword 'interface'
  * @param name - the name of the class

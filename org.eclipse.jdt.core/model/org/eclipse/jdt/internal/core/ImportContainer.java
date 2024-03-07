@@ -98,7 +98,7 @@ public String readableName() {
 	return null;
 }
 /**
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toString(int tab, StringBuilder buffer) {
@@ -111,7 +111,7 @@ protected void toString(int tab, StringBuilder buffer) {
 	}
 }
 /**
- *  Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
