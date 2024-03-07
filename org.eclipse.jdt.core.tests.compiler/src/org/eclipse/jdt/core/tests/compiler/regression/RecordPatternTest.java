@@ -1943,8 +1943,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
-	// TODO: failing
-	public void _testRecordPatternTypeInference_009() {
+	public void testRecordPatternTypeInference_009() {
 		runNegativeTest(new String[] {
 				"X.java",
 				"interface I {\n" +
@@ -1964,15 +1963,10 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"}"
 				},
 				"----------\n" +
-				"1. WARNING in X.java (at line 10)\n" +
-				"	if (p instanceof R(String a)) {\n" +
-				"	                 ^^^^^^^^^^^\n" +
-				"You are using a preview language feature that may or may not be supported in a future release\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 10)\n" +
+				"1. ERROR in X.java (at line 7)\n" +
 				"	if (p instanceof R(String a)) {\n" +
 				"	                   ^^^^^^^^\n" +
-				"Pattern of type ? extends I is not compatible with type java.lang.String\n" +
+				"Record component with type capture#2-of ? extends I is not compatible with type java.lang.String\n" +
 				"----------\n");
 	}
 	public void testRecordPatternTypeInference_010() {
@@ -2544,7 +2538,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"PASS");
 	}
 	public void testIssue1224_6() {
-		runNegativeTest(new String[] {
+		runConformTest(new String[] {
 			"X.java",
 			"record Record(String s){}\n"
 			+ "public class X {\n"
@@ -2563,12 +2557,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			+ "	}\n"
 			+ "}"
 			},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	default -> {}        }\n" +
-				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
-				"----------\n");
+				"PASS");
 	}
 	public void testIssue1224_7() {
 		runConformTest(new String[] {
@@ -3932,8 +3921,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
 	// [Patterns][records] ECJ generated code fails to raise MatchException properly
-	// Fails due to https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
-	public void _testGH1977_instance_field() {
+	// javac reports ArithmeticException but that looks wrong
+	public void testGH1977_instance_field() {
 		runConformTest(
 				new String[] {
 				"X.java",
@@ -4030,8 +4019,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
 	// [Patterns][records] ECJ generated code fails to raise MatchException properly
-	// Fails due to https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
-	public void _testGH1977_static_field() {
+	// javac reports ExceptionInInitializerError caused by java.lang.ArithmeticException but that looks wrong
+	public void testGH1977_static_field() {
 		runConformTest(
 				new String[] {
 				"X.java",
@@ -4386,5 +4375,197 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" },
 				"java.lang.MatchException");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2001
+	// [Patterns][records] ECJ fails to reject incompatible pattern types.
+	public void testIssue2001() {
+		runNegativeTest(new String[] { "X.java",
+				"""
+				public class X {
+					record R1(Long color) {}
+					record R2(short color) {}
+
+					public static void main(String[] args) {
+						Object o = new R1(10L);
+						if (o instanceof R1(long d)) {
+							System.out.println(d);
+						}
+						if (o instanceof R2(Short d)) {
+							System.out.println(d);
+						}
+						if (o instanceof R2(int d)) {
+							System.out.println(d);
+						}
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	if (o instanceof R1(long d)) {\n" +
+				"	                    ^^^^^^\n" +
+				"Record component with type Long is not compatible with type long\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 10)\n" +
+				"	if (o instanceof R2(Short d)) {\n" +
+				"	                    ^^^^^^^\n" +
+				"Record component with type short is not compatible with type java.lang.Short\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 13)\n" +
+				"	if (o instanceof R2(int d)) {\n" +
+				"	                    ^^^^^\n" +
+				"Record component with type short is not compatible with type int\n" +
+				"----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1999
+	// [Patterns][records] Instanceof with record deconstruction patterns should never be flagged as unnecessary
+	public void testIssue1999() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				interface I {
+				}
+
+				final class A implements I {
+				}
+
+				final class B implements I {
+				}
+
+				record R(I x, I y) {
+				}
+
+				public class X {
+					public static boolean foo(R r) {
+						if (r instanceof R(A a1, A a2))  // don't warn here.
+							return true;
+						A a = null;
+						if (a instanceof A) {} // warn here
+						if (a instanceof A a1) {} // don't warn here
+						return false;
+					}
+
+					public static void main(String argv[]) {
+						System.out.println(X.foo(new R(new A(), new A())));
+						System.out.println(X.foo(new R(new A(), new B())));
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 18)\n" +
+				"	if (a instanceof A) {} // warn here\n" +
+				"	    ^^^^^^^^^^^^^^\n" +
+				"The expression of type A is already an instance of type A\n" +
+				"----------\n",
+				null, true, options);
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				        return (r instanceof R<?>(X x));
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007_2() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				         return (r instanceof R<? extends T>(X x));
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007_3() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				    	return switch (r) {
+				    		case R<?>(X x) -> true;
+				    		default -> false;
+				    	};
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007_4() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				    	return switch (r) {
+				    		case R<? extends T>(X x) -> true;
+				    		default -> false;
+				    	};
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007_5() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				    	return switch (r) {
+				    		case R<? extends T>(Integer i) -> true;
+				    		default -> false;
+				    	};
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"false");
+	}
+
+	public void testIllegalFallThrough() {
+		runNegativeTest(new String[] { "X.java", """
+				public class X {
+					record Point (int x, int y) {}
+
+				  static void foo(Object o) {
+				    switch (o) {
+				      case Integer i_1: System.out.println("Integer");
+				      case Point(int a, int b) : System.out.println("String");
+				      default: System.out.println("Object");
+				    }
+				  }
+				}
+				""" },
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case Point(int a, int b) : System.out.println(\"String\");\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern\n" +
+				"----------\n");
 	}
 }

@@ -206,7 +206,7 @@ private void buildMoreCompletionContext(Expression expression) {
 				thenStat = elseStat = null;
 				break;
 			case K_BETWEEN_CASE_AND_COLONORARROW:
-				parentNode = orphan = new CaseStatement((Expression) orphan, orphan.sourceStart, orphan.sourceEnd);
+				parentNode = orphan = new CaseStatement( new Expression [] { (Expression) orphan }, orphan.sourceStart, orphan.sourceEnd);
 				break;
 			case K_INSIDE_WHEN:
 				if (this.astPtr >=0 && this.astStack[this.astPtr] instanceof Pattern && orphan instanceof Expression) {

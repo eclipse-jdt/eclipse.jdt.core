@@ -152,7 +152,6 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	 * @param scope used to determine source level
 	 */
 	public boolean isUnnamed(BlockScope scope) {
-		return this.name.length == 1 && this.name[0] == '_'
-				&& JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(scope.compilerOptions());
+		return this.name.length == 1 && this.name[0] == '_' && JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(scope.compilerOptions().sourceLevel, scope.compilerOptions().enablePreviewFeatures);
 	}
 }

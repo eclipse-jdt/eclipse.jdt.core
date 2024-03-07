@@ -21,9 +21,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Test;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTMatcher;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
-import org.eclipse.jdt.core.dom.*;
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {

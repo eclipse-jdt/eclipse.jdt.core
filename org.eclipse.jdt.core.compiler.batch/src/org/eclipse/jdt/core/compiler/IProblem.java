@@ -2579,6 +2579,11 @@ void setSourceStart(int sourceStart);
 	/**
 	 * @since 3.37
 	 */
+	int NamedPatternVariablesDisallowedHere = Internal + 1942;
+
+	/**
+	 * @since 3.37
+	 */
 	int ImplicitClassMissingMainMethod = PreviewRelated + 1950;
 
 	/**

@@ -1456,6 +1456,21 @@ public class NaiveASTFlattener extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(EitherOrMultiPattern node) {
+		if (DOMASTUtil.isEitherOrMultiPatternSupported(node.getAST())) {
+			int size = 1;
+			for (Pattern pattern : node.patterns()) {
+				visitPattern(pattern);
+				if (size < node.patterns().size()) {
+					this.buffer.append(", ");//$NON-NLS-1$
+				}
+				size++;
+			}
+		}
+		return false;
+	}
+
 	private boolean visitPattern(Pattern node) {
 		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
 			return false;
@@ -1468,6 +1483,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		if (node instanceof TypePattern) {
 			return visit((TypePattern) node);
+		}
+		if (node instanceof EitherOrMultiPattern) {
+			return visit((EitherOrMultiPattern) node);
 		}
 		return false;
 	}

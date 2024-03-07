@@ -4904,9 +4904,7 @@ private VanguardScanner getNewVanguardScanner() {
 	return vs;
 }
 protected final boolean mayBeAtCasePattern(int token) {
-	return ((token == TokenNamecase || this.multiCaseLabelComma)
-			&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled))
-			&& !isInModuleDeclaration();
+	return (token == TokenNamecase || this.multiCaseLabelComma) && !isInModuleDeclaration();
 }
 protected final boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now herald a lambda parameter list or a cast expression ? (the possible locations for both are identical.)
 
@@ -5211,9 +5209,6 @@ int disambiguatedRestrictedIdentifierWhen(int restrictedIdentifierToken) {
 	// and here's the kludge
 	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierWhen)
 		return restrictedIdentifierToken;
-	if (!JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled))
-		return TokenNameIdentifier;
-
 	return this.activeParser == null || !this.activeParser.automatonWillShift(TokenNameRestrictedIdentifierWhen) ?
 					TokenNameIdentifier : TokenNameRestrictedIdentifierWhen;
 }
@@ -5357,9 +5352,7 @@ protected boolean mayBeAtCaseLabelExpr() {
 	if (isInModuleDeclaration() || this.caseStartPosition <= 0)
 		return false;
 	if (this.lookBack[1] == TokenNamedefault) {
-		return JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled) ?
-				(this.lookBack[0] == TerminalTokens.TokenNamecase || this.lookBack[0] == TerminalTokens.TokenNameCOMMA)
-				: false;
+		return this.lookBack[0] == TerminalTokens.TokenNamecase || this.lookBack[0] == TerminalTokens.TokenNameCOMMA;
 	}
 	return true;
 }

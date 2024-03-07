@@ -1479,8 +1479,7 @@ class ASTConverter {
 			}
 		} else {
 			org.eclipse.jdt.internal.compiler.ast.Expression[] constantExpressions = statement.constantExpressions;
-			org.eclipse.jdt.internal.compiler.ast.Expression constantExpression =
-					constantExpressions != null && constantExpressions.length > 0 ? constantExpressions[0] : null;
+			org.eclipse.jdt.internal.compiler.ast.Expression constantExpression = constantExpressions.length > 0 ? constantExpressions[0] : null;
 			if (constantExpression == null) {
 				internalSetExpression(switchCase, null);
 			} else {
@@ -2348,7 +2347,7 @@ class ASTConverter {
 		int startPosition = pattern.sourceStart;
 		int sourceEnd = pattern.sourceEnd;
 		guardedPattern.setSourceRange(startPosition, sourceEnd - startPosition + 1);
-		guardedPattern.setRestrictedIdentifierStartPosition(pattern.restrictedIdentifierStart);
+		guardedPattern.setRestrictedIdentifierStartPosition(pattern.whenSourceStart);
 		return guardedPattern;
 	}
 
@@ -2360,12 +2359,7 @@ class ASTConverter {
 		int startPosition = pattern.sourceStart;
 		int sourceEnd= pattern.sourceEnd;
 		recordPattern.setSourceRange(startPosition, sourceEnd - startPosition + 1);
-		if (pattern.local != null) {
-			recordPattern.setPatternType(convertType(pattern.local.type));
-			SimpleName patternName = new SimpleName(this.ast);
-			patternName.internalSetIdentifier(new String(pattern.local.name));
-			patternName.setSourceRange(pattern.local.nameSourceStart(), pattern.local.nameSourceEnd() - pattern.local.nameSourceStart() + 1);
-		} else if (pattern.type != null) {
+		if (pattern.type != null) {
 			recordPattern.setPatternType(convertType(pattern.type));
 		}
 		List<Pattern> patterns = recordPattern.patterns();
@@ -2373,6 +2367,21 @@ class ASTConverter {
 			patterns.add(convert(nestedPattern));
 		}
 		return recordPattern;
+	}
+
+	public Pattern convert(org.eclipse.jdt.internal.compiler.ast.EitherOrMultiPattern pattern) {
+		EitherOrMultiPattern eitherOrPattern = new EitherOrMultiPattern(this.ast);
+		if (this.resolveBindings) {
+			recordNodes(eitherOrPattern, pattern);
+		}
+		int startPosition = pattern.sourceStart;
+		int sourceEnd= pattern.sourceEnd;
+		eitherOrPattern.setSourceRange(startPosition, sourceEnd - startPosition + 1);
+		List<Pattern> patterns = eitherOrPattern.patterns();
+		for (org.eclipse.jdt.internal.compiler.ast.Pattern alternative : pattern.getAlternatives()) {
+			patterns.add(convert(alternative));
+		}
+		return eitherOrPattern;
 	}
 
 	public IfStatement convert(org.eclipse.jdt.internal.compiler.ast.IfStatement statement) {
@@ -2422,8 +2431,9 @@ class ASTConverter {
 		if (this.ast.apiLevel >= AST.JLS21) {
 			patternInstanceOfExpression.setPattern(convert(expression.pattern));
 		} else {
-			if (expression.elementVariable != null) {
-				patternInstanceOfExpression.setRightOperand(convertToSingleVariableDeclaration(expression.elementVariable));
+			LocalDeclaration elementVariable = expression.pattern instanceof org.eclipse.jdt.internal.compiler.ast.TypePattern tp ? tp.local : null;
+			if (elementVariable != null) {
+				patternInstanceOfExpression.setRightOperand(convertToSingleVariableDeclaration(elementVariable));
 			} else if (expression.pattern != null){
 				// Let's recover a bit and create a SVD, even though what we have is a record pattern.
 				SingleVariableDeclaration rightOperand = patternInstanceOfExpression.getRightOperand();
@@ -2932,6 +2942,9 @@ class ASTConverter {
 			}
 			if (pattern instanceof org.eclipse.jdt.internal.compiler.ast.RecordPattern) {
 				return convert((org.eclipse.jdt.internal.compiler.ast.RecordPattern) pattern);
+			}
+			if (pattern instanceof org.eclipse.jdt.internal.compiler.ast.EitherOrMultiPattern) {
+				return convert((org.eclipse.jdt.internal.compiler.ast.EitherOrMultiPattern) pattern);
 			}
 			if (pattern instanceof org.eclipse.jdt.internal.compiler.ast.GuardedPattern) {
 				return convert((org.eclipse.jdt.internal.compiler.ast.GuardedPattern) pattern);

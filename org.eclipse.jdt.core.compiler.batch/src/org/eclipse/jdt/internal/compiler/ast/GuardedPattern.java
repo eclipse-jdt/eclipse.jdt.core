@@ -19,7 +19,6 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -29,20 +28,13 @@ public class GuardedPattern extends Pattern {
 
 	public Pattern primaryPattern;
 	public Expression condition;
-	int thenInitStateIndex1 = -1;
-	int thenInitStateIndex2 = -1;
-	public int restrictedIdentifierStart = -1; // used only for 'when' restricted keyword.
+	public int whenSourceStart = -1;
 
-	public GuardedPattern(Pattern primaryPattern, Expression conditionalAndExpression) {
+	public GuardedPattern(Pattern primaryPattern, Expression condition) {
 		this.primaryPattern = primaryPattern;
-		this.condition = conditionalAndExpression;
+		this.condition = condition;
 		this.sourceStart = primaryPattern.sourceStart;
-		this.sourceEnd = conditionalAndExpression.sourceEnd;
-	}
-
-	@Override
-	public LocalDeclaration getPatternVariable() {
-		return this.primaryPattern.getPatternVariable();
+		this.sourceEnd = condition.sourceEnd;
 	}
 
 	@Override
@@ -54,64 +46,52 @@ public class GuardedPattern extends Pattern {
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		flowInfo = this.primaryPattern.analyseCode(currentScope, flowContext, flowInfo);
-		this.thenInitStateIndex1 = currentScope.methodScope().recordInitializationStates(flowInfo);
 		FlowInfo mergedFlow = this.condition.analyseCode(currentScope, flowContext, flowInfo);
-		mergedFlow = mergedFlow.safeInitsWhenTrue();
-		this.thenInitStateIndex2 = currentScope.methodScope().recordInitializationStates(mergedFlow);
-		return mergedFlow;
+		return mergedFlow.safeInitsWhenTrue();
 	}
 
 	@Override
-	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		this.thenTarget = new BranchLabel(codeStream);
-		this.elseTarget = new BranchLabel(codeStream);
-		this.primaryPattern.generateOptimizedBoolean(currentScope, codeStream, this.thenTarget, this.elseTarget);
-		Constant cst =  this.condition.optimizedBooleanConstant();
-
-		setGuardedElseTarget(currentScope, this.elseTarget);
-		this.condition.generateOptimizedBoolean(
-				currentScope,
-				codeStream,
-				this.thenTarget,
-				null,
-				cst == Constant.NotAConstant);
-		if (this.thenInitStateIndex2 != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
-			codeStream.addDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
-		}
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel) {
+		BranchLabel guardCheckLabel = new BranchLabel(codeStream);
+		this.primaryPattern.generateCode(currentScope, codeStream, guardCheckLabel, matchFailLabel);
+		guardCheckLabel.place();
+		this.condition.generateOptimizedBoolean(currentScope, codeStream, null, matchFailLabel, true);
 	}
 
-	private void setGuardedElseTarget(BlockScope currentScope, BranchLabel guardedElseTarget) {
-		class PatternsCollector extends ASTVisitor {
-			BranchLabel guardedElseTarget1;
-
-			public PatternsCollector(BranchLabel guardedElseTarget1) {
-				this.guardedElseTarget1 = guardedElseTarget1;
-			}
-			@Override
-			public boolean visit(RecordPattern recordPattern, BlockScope scope1) {
-				recordPattern.guardedElseTarget = this.guardedElseTarget1;
-				return true;
-			}
-		}
-		PatternsCollector patCollector =  new PatternsCollector(guardedElseTarget);
-		this.condition.traverse(patCollector, currentScope);
-	}
 	@Override
-	public boolean isAlwaysTrue() {
+	public boolean matchFailurePossible() {
+		return !isUnguarded() || this.primaryPattern.matchFailurePossible();
+	}
+
+	@Override
+	public boolean isUnconditional(TypeBinding t) {
+		return isUnguarded() && this.primaryPattern.isUnconditional(t);
+	}
+
+	@Override
+	public boolean isUnguarded() {
 		Constant cst = this.condition.optimizedBooleanConstant();
-		return cst != Constant.NotAConstant && cst.booleanValue() == true;
+		return cst != null && cst != Constant.NotAConstant && cst.booleanValue() == true;
 	}
+
+	@Override
+	public void setIsEitherOrPattern() {
+		this.primaryPattern.setIsEitherOrPattern();
+	}
+
 	@Override
 	public boolean coversType(TypeBinding type) {
-		return this.primaryPattern.coversType(type) && isAlwaysTrue();
+		return isUnguarded() && this.primaryPattern.coversType(type);
 	}
 
 	@Override
 	public boolean dominates(Pattern p) {
-		if (isAlwaysTrue())
-			return this.primaryPattern.dominates(p);
-		return false;
+		return isUnguarded() && this.primaryPattern.dominates(p);
+	}
+
+	@Override
+	public Pattern[] getAlternatives() {
+		return this.primaryPattern.getAlternatives();
 	}
 
 	@Override
@@ -119,35 +99,20 @@ public class GuardedPattern extends Pattern {
 		if (this.resolvedType != null || this.primaryPattern == null)
 			return this.resolvedType;
 		this.resolvedType = this.primaryPattern.resolveType(scope);
-		// The following call (as opposed to resolveType() ensures that
-		// the implicitConversion code is set properly and thus the correct
-		// unboxing calls are generated.
-		this.condition.resolveTypeExpectingWithBindings(this.primaryPattern.bindingsWhenTrue(), scope, TypeBinding.BOOLEAN);
+		try {
+			scope.resolvingGuardExpression = true; // as guards cannot nest in the same scope, no save & restore called for
+			this.condition.resolveTypeExpectingWithBindings(this.primaryPattern.bindingsWhenTrue(), scope, TypeBinding.BOOLEAN);
+		} finally {
+			scope.resolvingGuardExpression = false;
+		}
 		Constant cst = this.condition.optimizedBooleanConstant();
 		if (cst.typeID() == TypeIds.T_boolean && cst.booleanValue() == false) {
 			scope.problemReporter().falseLiteralInGuard(this.condition);
 		}
-		this.condition.traverse(new ASTVisitor() {
-			@Override
-			public boolean visit(
-					SingleNameReference ref,
-					BlockScope skope) {
-				LocalVariableBinding local = ref.localVariableBinding();
-				if (local != null) {
-					ref.bits |= ASTNode.IsUsedInPatternGuard;
-				}
-				return false;
-			}
-			@Override
-			public boolean visit(
-					QualifiedNameReference ref,
-					BlockScope skope) {
-				if ((ref.bits & ASTNode.RestrictiveFlagMASK) == Binding.LOCAL) {
-					ref.bits |= ASTNode.IsUsedInPatternGuard;
-				}
-				return false;
-			}
-		}, scope);
+
+		if (!isUnguarded())
+			this.primaryPattern.setIsGuarded();
+
 		return this.resolvedType = this.primaryPattern.resolvedType;
 	}
 
@@ -160,25 +125,14 @@ public class GuardedPattern extends Pattern {
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
-			if (this.primaryPattern != null)
-				this.primaryPattern.traverse(visitor, scope);
-			if (this.condition != null)
-				this.condition.traverse(visitor, scope);
+			this.primaryPattern.traverse(visitor, scope);
+			this.condition.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}
+
 	@Override
-	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
-		codeStream.removeNotDefinitelyAssignedVariables(scope, this.thenInitStateIndex1);
-		this.primaryPattern.suspendVariables(codeStream, scope);
-	}
-	@Override
-	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
-		codeStream.addDefinitelyAssignedVariables(scope, this.thenInitStateIndex2);
-		this.primaryPattern.resumeVariables(codeStream, scope);
-	}
-	@Override
-	protected boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope) {
-		return this.primaryPattern.isPatternTypeCompatible(other, scope);
+	protected boolean isApplicable(TypeBinding other, BlockScope scope) {
+		return this.primaryPattern.isApplicable(other, scope);
 	}
 }

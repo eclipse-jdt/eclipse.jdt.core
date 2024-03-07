@@ -262,16 +262,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		this.elseStatement.generateCode(currentScope, codeStream);
 	} else {
 		// generate condition side-effects
-		if (this.condition.containsPatternVariable()) {
-			this.condition.generateOptimizedBoolean(
-				currentScope,
-				codeStream,
-				endifLabel,
-				null,
-				cst == Constant.NotAConstant);
-		} else {
-			this.condition.generateCode(currentScope, codeStream, false);
-		}
+		this.condition.generateCode(currentScope, codeStream, false);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	// May loose some local variable initializations : affecting the local variable attributes
@@ -303,7 +294,7 @@ public StringBuilder printStatement(int indent, StringBuilder output) {
 
 @Override
 public LocalVariableBinding[] bindingsWhenComplete() {
-	if (!this.condition.containsPatternVariable() || doesNotCompleteNormally())
+	if (doesNotCompleteNormally())
 		return NO_VARIABLES;
 	if (this.thenStatement != null && this.thenStatement.doesNotCompleteNormally())
 		return this.condition.bindingsWhenFalse();
@@ -322,11 +313,6 @@ public void resolve(BlockScope scope) {
 	if (this.elseStatement != null) {
 		this.elseStatement.resolveWithBindings(this.condition.bindingsWhenFalse(), scope);
 	}
-}
-
-@Override
-public boolean containsPatternVariable() {
-	return this.condition.containsPatternVariable();
 }
 
 @Override

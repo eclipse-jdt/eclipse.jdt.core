@@ -20,6 +20,8 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.NameQualifiedType;
+import org.eclipse.jdt.core.dom.QualifiedType;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -113,6 +115,12 @@ public class UtilTests extends AbstractJavaModelTests {
 		AST ast = AST.newAST(AST.getJLSLatest(), false);
 		NameQualifiedType type = ast.newNameQualifiedType(ast.newName("qualifier"), ast.newSimpleName("id"));
 		assertEquals("Qqualifier.id;", Util.getSignature(type));
+	}
+	public void testQualifiedTypeTypeSignature() {
+		AST ast = AST.newAST(AST.getJLSLatest(), false);
+		SimpleType parentType = ast.newSimpleType(ast.newName("ParentType"));
+		QualifiedType qualifiedType = ast.newQualifiedType(parentType, ast.newSimpleName("ChildType"));
+		assertEquals("QParentType.ChildType;", Util.getSignature(qualifiedType));
 	}
 
 }

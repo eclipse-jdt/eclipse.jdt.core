@@ -678,7 +678,7 @@ public void testBug553149_3() throws JavaModelException {
 		elements
 	);
 }
-public void _testBug553149_4() throws JavaModelException {
+public void testBug553149_4() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
 			"public class X {\n"
 					+ "    protected Object x_ = \"FIELD X\";\n"
@@ -690,17 +690,17 @@ public void _testBug553149_4() throws JavaModelException {
 					+ "    }\n"
 					+ "}");
 	String str = this.wc.getSource();
-	String selection = "x_ instanceof";
+	String selection = "x_";
 	int start = str.lastIndexOf(selection);
 	int length = "x_".length();
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"x_ [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		"x_ [in f(Object, boolean) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
 		elements
 	);
 }
-public void _testBug553149_5() throws JavaModelException {
+public void testBug553149_5() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
 			"public class X {\n"
 					+ "    protected Object x_ = \"FIELD X\";\n"

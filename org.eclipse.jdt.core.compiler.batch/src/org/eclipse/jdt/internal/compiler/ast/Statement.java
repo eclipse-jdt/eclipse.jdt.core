@@ -511,9 +511,30 @@ public void resolveWithBindings(LocalVariableBinding[] bindings, BlockScope scop
 public TypeBinding resolveExpressionType(BlockScope scope) {
 	return null;
 }
+
 public boolean containsPatternVariable() {
-	return false;
+	return containsPatternVariable(false);
 }
+
+public boolean containsPatternVariable(boolean includeUnnamedOnes) {
+	return new ASTVisitor() {
+
+		public boolean declaresVariable = false;
+
+		@Override
+		public boolean visit(TypePattern typePattern, BlockScope blockScope) {
+			 if (typePattern.local != null && (includeUnnamedOnes || (typePattern.local.name.length != 1 || typePattern.local.name[0] != '_')))
+				 this.declaresVariable = true;
+			 return !this.declaresVariable;
+		}
+
+		public boolean containsPatternVariable() {
+			Statement.this.traverse(this, null);
+			return this.declaresVariable;
+		}
+	}.containsPatternVariable();
+}
+
 /**
  * Implementation of {@link org.eclipse.jdt.internal.compiler.lookup.InvocationSite#invocationTargetType}
  * suitable at this level. Subclasses should override as necessary.

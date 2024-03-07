@@ -76,7 +76,7 @@ public class SwitchStatement extends Expression {
 
 	public boolean containsPatterns;
 	public boolean containsNull;
-	private boolean nullProcessed = false;
+	boolean nullProcessed = false;
 	BranchLabel switchPatternRestartTarget;
 	/* package */ public Pattern totalPattern;
 
@@ -110,8 +110,8 @@ public class SwitchStatement extends Expression {
 	Statement[] duplicateCases = null;
 	int duplicateCaseCounter = 0;
 	private LocalVariableBinding dispatchStringCopy = null;
-	private LocalVariableBinding dispatchPatternCopy = null;
-	private LocalVariableBinding restartIndexLocal = null;
+	LocalVariableBinding dispatchPatternCopy = null;
+	LocalVariableBinding restartIndexLocal = null;
 
 	/* package */ boolean isNonTraditional = false;
 	/* package */ List<Pattern> caseLabelElements = new ArrayList<>(0);//TODO: can we remove this?
@@ -734,11 +734,12 @@ public class SwitchStatement extends Expression {
 	{
 		for (int i = 0, j = 0, max = this.caseCount; i < max; i++) {
 			CaseStatement stmt = this.cases[i];
-			int l = stmt.constantExpressions.length;
+			final Expression[] peeledLabelExpressions = stmt.peeledLabelExpressions();
+			int l = peeledLabelExpressions.length;
 			BranchLabel[] targetLabels = new BranchLabel[l];
 			int count = 0;
 			for (int k = 0; k < l; ++k) {
-				Expression e = stmt.constantExpressions[k];
+				Expression e = peeledLabelExpressions[k];
 				if (e instanceof FakeDefaultLiteral) continue;
 				targetLabels[count++] = (caseLabels[j] = newLabel.apply(codeStream));
 				if (e == this.totalPattern)
@@ -853,8 +854,8 @@ public class SwitchStatement extends Expression {
 							codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSwitchInitStateIndex);
 						}
 						caseStatement = (CaseStatement) statement;
-						patternCaseExitPreviousCaseScope(codeStream, caseIndex);
 						caseIndex++;
+						caseStatement.typeSwitchIndex = typeSwitchIndex;
 						typeSwitchIndex += caseStatement.constantExpressions.length;
 					} else {
 						if (statement == this.defaultCase) { // statements[i] is a case or a default case
@@ -864,11 +865,11 @@ public class SwitchStatement extends Expression {
 							}
 						} else if (statement instanceof CaseStatement) {
 							caseStatement = (CaseStatement) statement;
+							caseStatement.typeSwitchIndex = typeSwitchIndex;
 							typeSwitchIndex += caseStatement.constantExpressions.length;
 						}
 					}
 					statementGenerateCode(currentScope, codeStream, statement);
-					generateCodePatternCaseEpilogue(codeStream, typeSwitchIndex, caseStatement);
 				}
 			}
 
@@ -971,33 +972,7 @@ public class SwitchStatement extends Expression {
 			codeStream.removeVariable(this.restartIndexLocal);
 		}
 	}
-	private void patternCaseExitPreviousCaseScope(CodeStream codeStream, int caseIndex) {
-		if (caseIndex > 0) {
-			CaseStatement caseStatement = this.cases[caseIndex];
-			if (caseStatement.containsPatternVariable()) {
-				caseStatement.patternCaseRemovePatternLocals(codeStream);
-			}
-		}
-	}
-	private void generateCodePatternCaseEpilogue(CodeStream codeStream, int caseIndex, CaseStatement caseStatement) {
-		if (this.switchPatternRestartTarget != null && caseStatement != null
-				&& caseStatement.patternIndex != -1 // for null
-				) {
-			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
-			pattern.elseTarget.place();
-			pattern.suspendVariables(codeStream, this.scope);
-			caseIndex = this.nullProcessed ? caseIndex - 1 : caseIndex;
-			if (!pattern.isAlwaysTrue()) {
-				codeStream.loadInt(caseIndex);
-				codeStream.store(this.restartIndexLocal, false);
-				codeStream.goto_(this.switchPatternRestartTarget);
-			}
-			pattern.thenTarget.place();
-			pattern.resumeVariables(codeStream, this.scope);
-		} else if (this.containsNull && caseStatement != null) {
-			this.nullProcessed |= caseStatement.patternIndex == -1;
-		}
-	}
+
 	private void generateCodeSwitchPatternPrologue(BlockScope currentScope, CodeStream codeStream) {
 		this.expression.generateCode(currentScope, codeStream, true);
 		if ((this.switchBits & NullCase) == 0) {
@@ -1090,7 +1065,7 @@ public class SwitchStatement extends Expression {
 		for (int i = 0, l = this.statements.length; i < l; ++i) {
 			final Statement statement = this.statements[i];
 			if (statement instanceof CaseStatement)  {
-				Expression[] exprs = ((CaseStatement) statement).constantExpressions;
+				Expression[] exprs = ((CaseStatement) statement).peeledLabelExpressions();
 				int count = 0;
 				if (exprs != null) {
 					for (Expression e : exprs) {
@@ -1201,76 +1176,74 @@ public class SwitchStatement extends Expression {
 					if (statement instanceof CaseStatement caseStmt) {
 						caseNullDefaultFound = caseNullDefaultFound ? caseNullDefaultFound
 								: isCaseStmtNullDefault(caseStmt);
-						defaultFound |= caseStmt.constantExpressions == null;
+						defaultFound |= caseStmt.constantExpressions == Expression.NO_EXPRESSIONS;
 						constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
 						patternVariables = statement.bindingsWhenTrue();
-						if (constantsList != ResolvedCase.UnresolvedCase) {
-							for (ResolvedCase c : constantsList) {
-								Constant con = c.c;
-								if (con == Constant.NotAConstant)
-									continue;
-								this.otherConstants[counter] = c;
-							    final int c1 = this.containsPatterns ? (c.intValue() == -1 ? -1 : counter) : c.intValue();
-								this.constants[counter] = c1;
-								if (counter == 0 && defaultFound) {
-									if (c.isPattern() || isCaseStmtNullOnly(caseStmt))
-										this.scope.problemReporter().patternDominatedByAnother(c.e);
-								}
-								for (int j = 0; j < counter; j++) {
-									IntPredicate check = idx -> {
-										Constant c2 = this.otherConstants[idx].c;
-										if (con.typeID() == TypeIds.T_JavaLangString) {
-											return c2.stringValue().equals(con.stringValue());
-										} else {
-											if (c2.typeID() == TypeIds.T_JavaLangString)
-												return false;
-											if (con.intValue() == c2.intValue())
-												return true;
-											return this.constants[idx] == c1;
-										}
-									};
-									TypeBinding type = c.e.resolvedType;
-									if (!type.isValidBinding())
-										continue;
-									if ((caseNullDefaultFound || defaultFound) && (c.isPattern() || isCaseStmtNullOnly(caseStmt))) {
-										this.scope.problemReporter().patternDominatedByAnother(c.e);
-										break;
+						for (ResolvedCase c : constantsList) {
+							Constant con = c.c;
+							if (con == Constant.NotAConstant)
+								continue;
+							this.otherConstants[counter] = c;
+						    final int c1 = this.containsPatterns ? (c.intValue() == -1 ? -1 : counter) : c.intValue();
+							this.constants[counter] = c1;
+							if (counter == 0 && defaultFound) {
+								if (c.isPattern() || isCaseStmtNullOnly(caseStmt))
+									this.scope.problemReporter().patternDominatedByAnother(c.e);
+							}
+							for (int j = 0; j < counter; j++) {
+								IntPredicate check = idx -> {
+									Constant c2 = this.otherConstants[idx].c;
+									if (con.typeID() == TypeIds.T_JavaLangString) {
+										return c2.stringValue().equals(con.stringValue());
+									} else {
+										if (c2.typeID() == TypeIds.T_JavaLangString)
+											return false;
+										if (con.intValue() == c2.intValue())
+											return true;
+										return this.constants[idx] == c1;
 									}
-									Pattern p1 = patterns[j];
-									if (p1 != null) {
-										if (c.isPattern()) {
-											if (p1.dominates((Pattern) c.e)) {
-												this.scope.problemReporter().patternDominatedByAnother(c.e);
-											}
-										} else {
-											if (type.id != TypeIds.T_null) {
-												if (type.isBaseType()) {
-													type = this.scope.environment().computeBoxingType(type);
-												}
-												if (p1.coversType(type))
-													this.scope.problemReporter().patternDominatedByAnother(c.e);
-											}
+								};
+								TypeBinding type = c.e.resolvedType;
+								if (!type.isValidBinding())
+									continue;
+								if ((caseNullDefaultFound || defaultFound) && (c.isPattern() || isCaseStmtNullOnly(caseStmt))) {
+									this.scope.problemReporter().patternDominatedByAnother(c.e);
+									break;
+								}
+								Pattern p1 = patterns[j];
+								if (p1 != null) {
+									if (c.isPattern()) {
+										if (p1.dominates((Pattern) c.e)) {
+											this.scope.problemReporter().patternDominatedByAnother(c.e);
 										}
 									} else {
-										if (!c.isPattern() && check.test(j)) {
-											if (this.isNonTraditional) {
-											if (c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral) {
-													reportDuplicateCase(c.e, this.otherConstants[j].e, length);
-												}
-											} else {
-												reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
+										if (type.id != TypeIds.T_null) {
+											if (type.isBaseType()) {
+												type = this.scope.environment().computeBoxingType(type);
 											}
+											if (p1.coversType(type))
+												this.scope.problemReporter().patternDominatedByAnother(c.e);
+										}
+									}
+								} else {
+									if (!c.isPattern() && check.test(j)) {
+										if (this.isNonTraditional) {
+										if (c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral) {
+												reportDuplicateCase(c.e, this.otherConstants[j].e, length);
+											}
+										} else {
+											reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
 										}
 									}
 								}
-								this.constMapping[counter] = counter;
-								caseIndex[counter] = caseCounter;
-								// Only the pattern expressions count for dominance check
-								if (c.e instanceof Pattern) {
-									patterns[counter] = (Pattern) c.e;
-								}
-								counter++;
 							}
+							this.constMapping[counter] = counter;
+							caseIndex[counter] = caseCounter;
+							// Only the pattern expressions count for dominance check
+							if (c.e instanceof Pattern) {
+								patterns[counter] = (Pattern) c.e;
+							}
+							counter++;
 						}
 						caseCounter++;
 					} else {
@@ -1345,14 +1318,12 @@ public class SwitchStatement extends Expression {
 	}
 	private boolean isCaseStmtNullDefault(CaseStatement caseStmt) {
 		return caseStmt != null
-				&& caseStmt.constantExpressions != null
 				&& caseStmt.constantExpressions.length == 2
 				&& caseStmt.constantExpressions[0] instanceof NullLiteral
 				&& caseStmt.constantExpressions[1] instanceof FakeDefaultLiteral;
 	}
 	private boolean isCaseStmtNullOnly(CaseStatement caseStmt) {
 		return caseStmt != null
-				&& caseStmt.constantExpressions != null
 				&& caseStmt.constantExpressions.length == 1
 				&& caseStmt.constantExpressions[0] instanceof NullLiteral;
 	}
@@ -1481,7 +1452,8 @@ public class SwitchStatement extends Expression {
 				continue;
 			}
 			for (TypeBinding type : listedTypes) {
-				if (pt.isCompatibleWith(type)) {
+				// permits specifies classes, not parameterizations
+				if (pt.erasure().isCompatibleWith(type.erasure())) {
 					--pendingTypes;
 					break;
 				}

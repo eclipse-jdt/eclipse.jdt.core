@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2023 Advantest Europe GmbH and others.
+* Copyright (c) 2024 Advantest Europe GmbH and others.
 *
 * This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License 2.0
@@ -17,24 +17,17 @@ package org.eclipse.jdt.core.tests;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
-import org.eclipse.jdt.core.tests.compiler.parser.PatternMatchingSelectionTest;
 import org.eclipse.jdt.core.tests.compiler.regression.InstanceofPrimaryPatternTest;
-import org.eclipse.jdt.core.tests.compiler.regression.NullAnnotationTests21;
 import org.eclipse.jdt.core.tests.compiler.regression.PatternMatching16Test;
 import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchExpressionsYieldTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest21;
+import org.eclipse.jdt.core.tests.compiler.regression.SwitchTest;
 import org.eclipse.jdt.core.tests.compiler.regression.UnnamedPatternsAndVariablesTest;
-import org.eclipse.jdt.core.tests.dom.ASTConverter_GuardedPattern_Test;
-import org.eclipse.jdt.core.tests.dom.ASTConverter_RecordPattern_Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
-import org.eclipse.jdt.core.tests.model.CompletionTestsForRecordPattern;
-import org.eclipse.jdt.core.tests.model.JavaSearchBugs19Tests;
-import org.eclipse.jdt.core.tests.model.ResolveTests12To15;
-import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingInstanceOfPatternExpressionTest;
-import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingRecordPatternTest;
+import org.eclipse.jdt.core.tests.model.JavaSearchBugs14SwitchExpressionTests;
+import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingSwitchExpressionsTest;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingSwitchPatternTest;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
@@ -43,36 +36,33 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class RunVariousPatternsTests extends TestCase {
+public class RunVariousSwitchTests extends TestCase {
 
-	public RunVariousPatternsTests(String name) {
+	public RunVariousSwitchTests(String name) {
 		super(name);
 	}
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
-				RecordPatternTest.class,
+
 				SwitchPatternTest.class,
+				SwitchPatternTest21.class,
+				SwitchTest.class,
+				SwitchExpressionsYieldTest.class,
+
+				RecordPatternTest.class,
 				InstanceofPrimaryPatternTest.class,
 				PatternMatching16Test.class,
-				SwitchExpressionsYieldTest.class,
-				ASTConverter_RecordPattern_Test.class,
-				PatternMatchingSelectionTest.class,
 				UnnamedPatternsAndVariablesTest.class,
-				ASTConverter_GuardedPattern_Test.class,
-				ASTRewritingRecordPatternTest.class,
-				ASTRewritingInstanceOfPatternExpressionTest.class,
+
+				JavaSearchBugs14SwitchExpressionTests.class,
+				ASTRewritingSwitchExpressionsTest.class,
 				ASTRewritingSwitchPatternTest.class,
-				ResolveTests12To15.class,
-				SwitchPatternTest21.class,
-				JavaSearchBugs19Tests.class,
-				CompletionTestsForRecordPattern.class,
-				NullAnnotationTests21.class,
-				ComplianceDiagnoseTest.class,
+
 		};
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunVariousPatternsTests.class.getName());
+		TestSuite ts = new TestSuite(RunVariousSwitchTests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);

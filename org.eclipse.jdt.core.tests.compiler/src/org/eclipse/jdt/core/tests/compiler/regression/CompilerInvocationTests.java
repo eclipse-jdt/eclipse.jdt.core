@@ -1345,6 +1345,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("ExpressionInPreConstructorContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("DisallowedStatementInPrologue", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("NamedPatternVariablesDisallowedHere", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    StringBuilder failures = new StringBuilder();
 		StringBuilder correctResult = new StringBuilder(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2459,6 +2460,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", SKIP);
 	    expectedProblemAttributes.put("ExpressionInPreConstructorContext",  SKIP);
 	    expectedProblemAttributes.put("DisallowedStatementInPrologue",  SKIP);
+	    expectedProblemAttributes.put("NamedPatternVariablesDisallowedHere", SKIP);
 
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();

@@ -3192,7 +3192,7 @@ public void illegalModifierForMethod(AbstractMethodDeclaration methodDecl) {
 }
 public void illegalModifierForVariable(LocalDeclaration localDecl, boolean complainAsArgument) {
 	String[] arguments = new String[] {new String(localDecl.name)};
-	int problemId = ((localDecl.modifiers & ExtraCompilerModifiers.AccOutOfFlowScope) != 0) ?
+	int problemId = localDecl.binding.isPatternVariable() ?
 			IProblem.IllegalModifierForPatternVariable :
 			(complainAsArgument
 					? IProblem.IllegalModifierForArgument
@@ -12422,6 +12422,14 @@ public void illegalFallthroughFromAPattern(Statement statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 	}
+public void namedPatternVariablesDisallowedHere(LocalDeclaration variableDeclaration) {
+	this.handle(
+		IProblem.NamedPatternVariablesDisallowedHere,
+		NoArgument,
+		NoArgument,
+		variableDeclaration.sourceStart,
+		variableDeclaration.sourceEnd);
+}
 public void illegalCaseConstantCombination(Expression element) {
 	this.handle(
 			IProblem.ConstantWithPatternIncompatible,
