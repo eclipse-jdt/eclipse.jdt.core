@@ -706,6 +706,130 @@ public void testBug525469() throws JavaModelException {
 	expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2", "p1.package-info", "p2.OtherClass", "p2.package-info" });
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/803
+// [BUG] Syntax error, modifiers are not allowed here on a @deprecated javadoc tag in package-info.java
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=569780
+public void testIssue803() throws JavaModelException {
+	IPath projectPath = env.addProject("Project", "1.5");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+	IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+	env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+	env.addClass(src, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+		"package p;\n"+ //$NON-NLS-1$
+		"public class A {}" //$NON-NLS-1$
+	);
+
+	env.addClass(src, "p", "package-info", //$NON-NLS-1$ //$NON-NLS-2$
+		"/**\n"
+		+ " * @deprecated\n"
+		+ " */\n"
+		+ "@java.lang.Deprecated\n"
+		+ "package p;" //$NON-NLS-1$
+	);
+
+	fullBuild();
+	expectingNoProblems();
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/803
+// [BUG] Syntax error, modifiers are not allowed here on a @deprecated javadoc tag in package-info.java
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=569780
+public void testIssue803_2() throws JavaModelException {
+	IPath projectPath = env.addProject("Project", "1.5");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+	IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+	env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+	env.addClass(src, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+		"package p;\n"+ //$NON-NLS-1$
+		"public class A {}" //$NON-NLS-1$
+	);
+
+	env.addClass(src, "p", "package-info", //$NON-NLS-1$ //$NON-NLS-2$
+		"/**\n"
+		+ " * @deprecated\n"
+		+ " */\n"
+		+ "package p;" //$NON-NLS-1$
+	);
+
+	fullBuild();
+	expectingNoProblems();
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/803
+// [BUG] Syntax error, modifiers are not allowed here on a @deprecated javadoc tag in package-info.java
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=569780
+public void testIssue803_3() throws JavaModelException {
+	IPath projectPath = env.addProject("Project", "1.5");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+	IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+	env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+	env.addClass(src, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+		"package p;\n"+ //$NON-NLS-1$
+		"public class A {}" //$NON-NLS-1$
+	);
+
+	env.addClass(src, "p", "package-info", //$NON-NLS-1$ //$NON-NLS-2$
+			"@java.lang.Deprecated\n"
+			+ "package p;"
+	);
+
+	fullBuild();
+	expectingNoProblems();
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/803
+// [BUG] Syntax error, modifiers are not allowed here on a @deprecated javadoc tag in package-info.java
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=569780
+public void testIssue803_4() throws JavaModelException {
+	IPath projectPath = env.addProject("Project", "1.5");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+	IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+	env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+	env.addClass(src, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+		"package p;\n"+ //$NON-NLS-1$
+		"public class A {}" //$NON-NLS-1$
+	);
+
+	env.addClass(src, "p", "package-info", //$NON-NLS-1$ //$NON-NLS-2$
+		"/**\n"
+		+ " * @deprecated\n"
+		+ " */\n"
+		+ "public package p;" //$NON-NLS-1$
+	);
+
+	fullBuild();
+	expectingProblemsFor(projectPath,
+			"Problem : Syntax error, modifiers are not allowed here [ resource : </Project/src/p/package-info.java> range : <23,29> category : <60> severity : <2>]");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/803
+// [BUG] Syntax error, modifiers are not allowed here on a @deprecated javadoc tag in package-info.java
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=569780
+public void testIssue803_5() throws JavaModelException {
+	IPath projectPath = env.addProject("Project", "1.5");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+	IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+	env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+	env.addClass(src, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+		"package p;\n"+ //$NON-NLS-1$
+		"public class A {}" //$NON-NLS-1$
+	);
+
+	env.addClass(src, "p", "package-info", //$NON-NLS-1$ //$NON-NLS-2$
+		"public package p;" //$NON-NLS-1$
+	);
+
+	fullBuild();
+	expectingProblemsFor(projectPath,
+			"Problem : Syntax error, modifiers are not allowed here [ resource : </Project/src/p/package-info.java> range : <0,6> category : <60> severity : <2>]");
+}
+
 void setupProjectForNullAnnotations(IPath projectPath) throws JavaModelException {
 	// add the org.eclipse.jdt.annotation library (bin/ folder or jar) to the project:
 	File bundleFile = FileLocator.getBundleFileLocation(Platform.getBundle("org.eclipse.jdt.annotation")).get();

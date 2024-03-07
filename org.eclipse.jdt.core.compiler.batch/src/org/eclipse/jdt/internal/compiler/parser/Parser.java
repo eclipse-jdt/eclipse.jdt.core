@@ -6340,7 +6340,7 @@ protected void consumePackageDeclarationNameWithModifiers() {
 		}
 	}
 
-	if (packageModifiers != 0) {
+	if ((packageModifiers & ~ClassFileConstants.AccDeprecated) != 0) {
 		problemReporter().illegalModifiers(packageModifiersSourceStart, packageModifiersSourceEnd);
 	}
 
