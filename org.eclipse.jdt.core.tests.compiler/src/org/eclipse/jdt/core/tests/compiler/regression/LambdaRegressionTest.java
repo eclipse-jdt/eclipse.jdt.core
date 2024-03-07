@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 import junit.framework.Test;
 @SuppressWarnings({ "rawtypes" })
@@ -1207,6 +1208,54 @@ public void test572873b() {
 			},
 			"test T"
 			);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1507
+// Errors when referencing a var inside lambda
+public void testIssue1507() {
+	if (this.complianceLevel < ClassFileConstants.JDK10)
+		return;
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+
+				    private void makeBug() {
+				        String nonBuggyLambda = getString(() -> {
+				            assert "Goodbye World".equals(nonBuggyLambda);
+				            System.out.println("No popup errors, but there is an error marker as expected");
+				        });
+
+				        var buggyLambda = getString(() -> {
+				            assert "Goodbye World".equals(buggyLambda);
+				            System.out.println("Now using var, this entire project can no longer build due to errors.");
+				            System.out.println("There will be error popups and countless error log entries.");
+				        });
+
+				    }
+
+				    private String getString(Runnable r) {
+				        return "Goodbye World";
+				    }
+				}
+				""",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	private void makeBug() {\n" +
+			"	             ^^^^^^^^^\n" +
+			"The method makeBug() from the type X is never used locally\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	assert \"Goodbye World\".equals(nonBuggyLambda);\n" +
+			"	                              ^^^^^^^^^^^^^^\n" +
+			"The local variable nonBuggyLambda may not have been initialized\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 10)\n" +
+			"	assert \"Goodbye World\".equals(buggyLambda);\n" +
+			"	                              ^^^^^^^^^^^\n" +
+			"The local variable buggyLambda may not have been initialized\n" +
+			"----------\n");
 }
 public static Class testClass() {
 	return LambdaRegressionTest.class;

@@ -29,14 +29,17 @@ public class UnlikelyArgumentCheck {
 	public final TypeBinding expectedType;
 	public final TypeBinding typeToReport;
 
-	private UnlikelyArgumentCheck(DangerousMethod dangerousMethod, TypeBinding typeToCheck, TypeBinding expectedType,
-			TypeBinding typeToReport) {
+	// don't call, use the factory.
+	private UnlikelyArgumentCheck(DangerousMethod dangerousMethod, TypeBinding typeToCheck, TypeBinding expectedType, TypeBinding typeToReport) {
 		this.dangerousMethod = dangerousMethod;
 		this.typeToCheck = typeToCheck;
 		this.expectedType = expectedType;
 		this.typeToReport = typeToReport;
 	}
 
+	public static UnlikelyArgumentCheck createUnlikelyArgumentCheck(DangerousMethod dangerousMethod, TypeBinding typeToCheck, TypeBinding expectedType, TypeBinding typeToReport) {
+		return typeToCheck == null ? null : new UnlikelyArgumentCheck(dangerousMethod, typeToCheck, expectedType, typeToReport);
+	}
 	/**
 	 * Check if the invocation is likely a bug.
 	 * @return false, if the typeToCheck does not seem to related to the expectedType
@@ -93,14 +96,14 @@ public class UnlikelyArgumentCheck {
 						ReferenceBinding mapType = actualReceiverType
 								.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilMap, false);
 						if (mapType != null && mapType.isParameterizedType())
-							return new UnlikelyArgumentCheck(suspect, argumentType,
+							return createUnlikelyArgumentCheck(suspect, argumentType,
 									((ParameterizedTypeBinding) mapType).typeArguments()[0], mapType);
 						break;
 					case ContainsValue:
 						// map operation taking a value
 						mapType = actualReceiverType.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilMap, false);
 						if (mapType != null && mapType.isParameterizedType())
-							return new UnlikelyArgumentCheck(suspect, argumentType,
+							return createUnlikelyArgumentCheck(suspect, argumentType,
 									((ParameterizedTypeBinding) mapType).typeArguments()[1], mapType);
 						break;
 					default: // no other suspects are detected in java.util.Map
@@ -116,7 +119,7 @@ public class UnlikelyArgumentCheck {
 						ReferenceBinding collectionType = actualReceiverType
 								.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilCollection, false);
 						if (collectionType != null && collectionType.isParameterizedType())
-							return new UnlikelyArgumentCheck(suspect, argumentType,
+							return createUnlikelyArgumentCheck(suspect, argumentType,
 									((ParameterizedTypeBinding) collectionType).typeArguments()[0], collectionType);
 						break;
 					default: // no other suspects with Object-parameter are detected in java.util.Collection
@@ -134,7 +137,7 @@ public class UnlikelyArgumentCheck {
 						if (collectionType != null && argumentCollectionType != null
 								&& argumentCollectionType.isParameterizedTypeWithActualArguments()
 								&& collectionType.isParameterizedTypeWithActualArguments()) {
-							return new UnlikelyArgumentCheck(suspect,
+							return createUnlikelyArgumentCheck(suspect,
 									((ParameterizedTypeBinding) argumentCollectionType).typeArguments()[0],
 									((ParameterizedTypeBinding) collectionType).typeArguments()[0], collectionType);
 						}
@@ -151,7 +154,7 @@ public class UnlikelyArgumentCheck {
 							ReferenceBinding listType = actualReceiverType
 									.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilList, false);
 							if (listType != null && listType.isParameterizedType())
-								return new UnlikelyArgumentCheck(suspect, argumentType,
+								return createUnlikelyArgumentCheck(suspect, argumentType,
 										((ParameterizedTypeBinding) listType).typeArguments()[0], listType);
 							break;
 						default: // no other suspects are detected in java.util.List
@@ -160,7 +163,7 @@ public class UnlikelyArgumentCheck {
 			}
 		}
 		if (paramTypeId == TypeIds.T_JavaLangObject && suspect == DangerousMethod.Equals) {
-			return new UnlikelyArgumentCheck(suspect, argumentType, actualReceiverType, actualReceiverType);
+			return createUnlikelyArgumentCheck(suspect, argumentType, actualReceiverType, actualReceiverType);
 		}
 		return null; // not replacing
 	}
@@ -182,7 +185,7 @@ public class UnlikelyArgumentCheck {
 			return null;
 
 		if (actualReceiverType.id == TypeIds.T_JavaUtilObjects && suspect == DangerousMethod.Equals) {
-			return new UnlikelyArgumentCheck(suspect, secondParameter, firstParameter, firstParameter);
+			return createUnlikelyArgumentCheck(suspect, secondParameter, firstParameter, firstParameter);
 		}
 		return null;
 	}
