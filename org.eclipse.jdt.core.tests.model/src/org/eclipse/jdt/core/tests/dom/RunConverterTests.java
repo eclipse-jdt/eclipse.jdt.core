@@ -61,6 +61,7 @@ public static Class[] getAllTestClasses() {
 		ASTConverter_GuardedPattern_Test.class,
 		ASTConverter_RecordPattern_Test.class,
 		ASTConverterStringTemplateTest.class,
+		ASTConverterSuperAfterStatements.class,
 	};
 }
 public static Test suite() {

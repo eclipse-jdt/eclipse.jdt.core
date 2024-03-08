@@ -801,7 +801,7 @@ class ASTConverter {
 				methodDecl.setBody(block);
 			}
 			if (block != null && (statements != null || explicitConstructorCall != null)) {
-				if (explicitConstructorCall != null && explicitConstructorCall.accessMode != org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall.ImplicitSuper) {
+				if (explicitConstructorCall != null && explicitConstructorCall.accessMode != org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall.ImplicitSuper && explicitConstructorCall.firstStatement) {
 					block.statements().add(convert(explicitConstructorCall));
 				}
 				int statementsLength = statements == null ? 0 : statements.length;
