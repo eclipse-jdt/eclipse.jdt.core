@@ -31,6 +31,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.LambdaExpression;
+import org.eclipse.jdt.internal.core.LambdaFactory;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -305,7 +307,7 @@ class MethodBinding implements IMethodBinding {
 		return element.resolved(this.binding);
 	}
 
-	private JavaElement getUnresolvedJavaElement() {
+	protected JavaElement getUnresolvedJavaElement() {
 		if (JavaCore.getPlugin() == null) {
 			return null;
 		}
@@ -602,6 +604,32 @@ class MethodBinding implements IMethodBinding {
 
 		public  void setSyntheticOuterLocals(IVariableBinding[] syntheticOuterLocalVariables) {
 			this.syntheticOuterLocalVariables = syntheticOuterLocalVariables;
+		}
+
+		@Override
+		protected JavaElement getUnresolvedJavaElement() {
+			if (JavaCore.getPlugin() == null) {
+				return null;
+			}
+			if (!(this.resolver instanceof DefaultBindingResolver)) return null;
+	
+			DefaultBindingResolver defaultBindingResolver = (DefaultBindingResolver) this.resolver;
+			if (!defaultBindingResolver.fromJavaProject) return null;
+			ASTNode domNode = (ASTNode)defaultBindingResolver.bindingsToAstNodes.get(this);
+			// resolving all parent lambdas is necessary for proper resolution
+			// as it populates newAstToOldAst.
+			ASTNode current = domNode;
+			while (current != null) {
+				if (current instanceof org.eclipse.jdt.core.dom.LambdaExpression domLambda) {
+					defaultBindingResolver.resolveMethod(domLambda);
+				}
+				current = current.getParent();
+			}
+			if (defaultBindingResolver.newAstToOldAst.get(domNode) instanceof org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
+				LambdaExpression expr = LambdaFactory.createLambdaExpression((JavaElement)getDeclaringMember().getJavaElement(), lambdaExpression);
+				return LambdaFactory.createLambdaMethod(expr, lambdaExpression);
+			}
+			return super.getUnresolvedJavaElement();
 		}
 	}
 
