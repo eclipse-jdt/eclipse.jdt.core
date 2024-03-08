@@ -2450,6 +2450,10 @@ void setSourceStart(int sourceStart);
 	 */
 	int PatternVariableRedeclared = Internal + 1784;
 
+	/** @since 3.37
+	 */
+	int DimensionsIllegalOnRecordPattern = Internal + 1785;
+
 	/** @since 3.28
 	 */
 	int DiscouragedValueBasedTypeSynchronization = Internal + 1820;

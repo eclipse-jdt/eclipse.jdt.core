@@ -1340,6 +1340,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("ImplicitClassMissingMainMethod", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("ClassExtendFinalRecord", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 	    expectedProblemAttributes.put("RecordErasureIncompatibilityInCanonicalConstructor", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+	    expectedProblemAttributes.put("DimensionsIllegalOnRecordPattern", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("JavadocInvalidModule", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("UnderscoreCannotBeUsedHere", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
@@ -2454,6 +2455,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("IllegalRecordPattern", SKIP);
 	    expectedProblemAttributes.put("ImplicitClassMissingMainMethod", SKIP);
 	    expectedProblemAttributes.put("ClassExtendFinalRecord", SKIP);
+	    expectedProblemAttributes.put("DimensionsIllegalOnRecordPattern", SKIP);
 	    expectedProblemAttributes.put("RecordErasureIncompatibilityInCanonicalConstructor", SKIP);
 	    expectedProblemAttributes.put("JavadocInvalidModule", SKIP);
 	    expectedProblemAttributes.put("UnderscoreCannotBeUsedHere", SKIP);

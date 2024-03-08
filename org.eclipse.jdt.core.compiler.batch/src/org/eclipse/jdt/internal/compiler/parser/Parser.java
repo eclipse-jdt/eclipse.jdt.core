@@ -10454,6 +10454,14 @@ protected void consumeRecordPattern() {
 			length);
 	}
 
+	int sourceEnd = this.intStack[this.intPtr--];  // ')' position
+	this.intPtr--;  // pop '(' position
+
+	int dimension = this.intStack[this.intPtr--];
+
+	int modifierStart = this.intStack[this.intPtr--];
+	int modifier = this.intStack[this.intPtr--];
+
 	TypeReference type = getTypeReference(0);
 
 	if (typeAnnotations != null) {
@@ -10465,8 +10473,6 @@ protected void consumeRecordPattern() {
 		type.bits |= ASTNode.HasTypeAnnotations;
 	}
 
-	int sourceEnd = this.intStack[this.intPtr--];
-	this.intPtr--;
 	RecordPattern recPattern = new RecordPattern(type, type.sourceStart, sourceEnd);
 
 	length = this.astLengthPtr == -1 ? 0 : this.astLengthStack[this.astLengthPtr--];
@@ -10489,8 +10495,13 @@ protected void consumeRecordPattern() {
 	} else {
 		recPattern.patterns = ASTNode.NO_TYPE_PATTERNS;
 	}
+	if (dimension != 0) {
+		problemReporter().dimensionsIllegalOnRecordPattern(type.sourceStart, sourceEnd);
+	}
+	if (modifier != 0) {
+		problemReporter().illegalModifiers(modifierStart, type.sourceStart - 2);
+	}
 	checkForDiamond(recPattern.type);
-	this.intPtr -= 3; // 2 for '(' and ')' and one for the 0 pushed by consumeReferenceType()
 	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORD_PATTERNS, type.sourceStart, sourceEnd);
 	pushOnAstStack(recPattern);
 }
