@@ -12564,6 +12564,13 @@ public void implicitClassMissingMainMethod(TypeDeclaration typeDeclaration) {
 			typeDeclaration.sourceStart,
 			typeDeclaration.sourceStart);
 }
+public void dimensionsIllegalOnRecordPattern(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.DimensionsIllegalOnRecordPattern,
+			NoArgument,
+			NoArgument,
+			sourceStart,
+			sourceEnd);
+}
 public boolean scheduleProblemForContext(Runnable problemComputation) {
 	if (this.referenceContext != null) {
 		CompilationResult result = this.referenceContext.compilationResult();
