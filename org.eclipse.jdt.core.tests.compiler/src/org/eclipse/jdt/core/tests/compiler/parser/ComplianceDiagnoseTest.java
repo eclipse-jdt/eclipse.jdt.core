@@ -3256,75 +3256,126 @@ public void testBug399781() {
 		"   }\n" +
 		"}\n",
 	};
-	String usLevel = this.complianceLevel < ClassFileConstants.JDK9 ? "WARNING" : "ERROR";
-	String errorMessage = this.complianceLevel < ClassFileConstants.JDK9 ? "\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" : "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n";
-	if (this.complianceLevel >= ClassFileConstants.JDK22) {
-		errorMessage = "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable\n";
+	String problemLog = null;
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		problemLog = """
+						----------
+						1. WARNING in X.java (at line 4)
+							int _   = 3;
+							    ^
+						The local variable _ is hiding a field from type X
+						----------
+						2. WARNING in X.java (at line 8)
+							void goo(int _) {}
+							             ^
+						The parameter _ is hiding a field from type X
+						----------
+						3. WARNING in X.java (at line 11)
+							} catch (Exception _) {
+							                   ^
+						The parameter _ is hiding a field from type X
+						----------
+						""";
+	} else if (this.complianceLevel == ClassFileConstants.JDK1_8) {
+		problemLog = """
+					----------
+					1. WARNING in X.java (at line 2)
+						int _;
+						    ^
+					'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
+					----------
+					2. WARNING in X.java (at line 4)
+						int _   = 3;
+						    ^
+					'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
+					----------
+					3. WARNING in X.java (at line 4)
+						int _   = 3;
+						    ^
+					The local variable _ is hiding a field from type X
+					----------
+					4. WARNING in X.java (at line 8)
+						void goo(int _) {}
+						             ^
+					'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
+					----------
+					5. WARNING in X.java (at line 8)
+						void goo(int _) {}
+						             ^
+					The parameter _ is hiding a field from type X
+					----------
+					6. WARNING in X.java (at line 11)
+						} catch (Exception _) {
+						                   ^
+					'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
+					----------
+					7. WARNING in X.java (at line 11)
+						} catch (Exception _) {
+						                   ^
+					The parameter _ is hiding a field from type X
+					----------
+					""";
+	} else if (this.complianceLevel < ClassFileConstants.JDK22) {
+		problemLog = """
+					----------
+					1. ERROR in X.java (at line 2)
+						int _;
+						    ^
+					'_' is a keyword from source level 9 onwards, cannot be used as identifier
+					----------
+					2. ERROR in X.java (at line 4)
+						int _   = 3;
+						    ^
+					'_' is a keyword from source level 9 onwards, cannot be used as identifier
+					----------
+					3. WARNING in X.java (at line 4)
+						int _   = 3;
+						    ^
+					The local variable _ is hiding a field from type X
+					----------
+					4. ERROR in X.java (at line 8)
+						void goo(int _) {}
+						             ^
+					'_' is a keyword from source level 9 onwards, cannot be used as identifier
+					----------
+					5. WARNING in X.java (at line 8)
+						void goo(int _) {}
+						             ^
+					The parameter _ is hiding a field from type X
+					----------
+					6. ERROR in X.java (at line 11)
+						} catch (Exception _) {
+						                   ^
+					'_' is a keyword from source level 9 onwards, cannot be used as identifier
+					----------
+					7. WARNING in X.java (at line 11)
+						} catch (Exception _) {
+						                   ^
+					The parameter _ is hiding a field from type X
+					----------
+					""";
+	} else {
+		problemLog = """
+				----------
+				1. ERROR in X.java (at line 2)
+					int _;
+					    ^
+				As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters
+				----------
+				2. ERROR in X.java (at line 8)
+					void goo(int _) {}
+					             ^
+				As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters
+				----------
+				3. WARNING in X.java (at line 8)
+					void goo(int _) {}
+					             ^
+				The parameter _ is hiding a field from type X
+				----------
+				""";
 	}
-	String expectedProblemLog =
-			"----------\n" +
-			"1. " + usLevel +" in X.java (at line 2)\n" +
-			"	int _;\n" +
-			"	    ^\n" +
-			errorMessage +
-			"----------\n" +
-			"2. " + usLevel +" in X.java (at line 4)\n" +
-			"	int _   = 3;\n" +
-			"	    ^\n" +
-			errorMessage +
-			"----------\n" +
-			"3. WARNING in X.java (at line 4)\n" +
-			"	int _   = 3;\n" +
-			"	    ^\n" +
-			"The local variable _ is hiding a field from type X\n" +
-			"----------\n" +
-			"4. " + usLevel +" in X.java (at line 8)\n" +
-			"	void goo(int _) {}\n" +
-			"	             ^\n" +
-			errorMessage +
-			"----------\n" +
-			"5. WARNING in X.java (at line 8)\n" +
-			"	void goo(int _) {}\n" +
-			"	             ^\n" +
-			"The parameter _ is hiding a field from type X\n" +
-			"----------\n" +
-			"6. " + usLevel +" in X.java (at line 11)\n" +
-			"	} catch (Exception _) {\n" +
-			"	                   ^\n" +
-			errorMessage +
-			"----------\n" +
-			"7. WARNING in X.java (at line 11)\n" +
-			"	} catch (Exception _) {\n" +
-			"	                   ^\n" +
-			"The parameter _ is hiding a field from type X\n" +
-			"----------\n";
-	String expected13ProblemLog =
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	int _   = 3;\n" +
-			"	    ^\n" +
-			"The local variable _ is hiding a field from type X\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 8)\n" +
-			"	void goo(int _) {}\n" +
-			"	             ^\n" +
-			"The parameter _ is hiding a field from type X\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 11)\n" +
-			"	} catch (Exception _) {\n" +
-			"	                   ^\n" +
-			"The parameter _ is hiding a field from type X\n" +
-			"----------\n";
-
-	runComplianceParserTest(
-			testFiles,
-			expected13ProblemLog,
-			expected13ProblemLog,
-			expected13ProblemLog,
-			expected13ProblemLog,
-			expected13ProblemLog,
-			expectedProblemLog
-	);
+//	(this.complianceLevel < ClassFileConstants.JDK22) ? "" : "";
+	runNegativeTest(testFiles, problemLog);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406846:  [1.8] compiler NPE for method reference/lambda code compiled with < 1.8 compliance
 public void test406846() {
@@ -3731,24 +3782,27 @@ public void testIssue2008() {
 			""";
 
 	String expected22ProblemLog = """
-			----------
-			1. ERROR in X.java (at line 4)
-				void _() {
-				     ^
-			Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable
-			----------
-			2. ERROR in X.java (at line 5)
-				_();
-				^
-			Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable
-			----------
-			3. ERROR in X.java (at line 10)
-				class _ {
-				      ^
-			Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable
-			----------
-			""";
-
+					----------
+					1. ERROR in X.java (at line 4)
+						void _() {
+						     ^
+					Syntax error on token "_", Identifier expected
+					----------
+					2. ERROR in X.java (at line 4)
+						void _() {
+						     ^
+					void is an invalid type for the variable _
+					----------
+					3. ERROR in X.java (at line 5)
+						_();
+						^
+					Syntax error on token "_", this expected
+					----------
+					4. ERROR in X.java (at line 10)
+						class _ {
+						      ^
+					Syntax error on token "_", Identifier expected
+					----------\n""";
 
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
 		runConformTest(

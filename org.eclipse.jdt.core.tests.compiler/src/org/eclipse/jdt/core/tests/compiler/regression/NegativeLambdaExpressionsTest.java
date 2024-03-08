@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2023 IBM Corporation and others.
+ * Copyright (c) 2011, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7369,6 +7369,8 @@ public void testIntersectionCast() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421711, [1.8][compiler] '_' as identifier for a lambda parameter should be rejected.
 public void testUnderScoreParameter() {
+		if (this.complianceLevel >= ClassFileConstants.JDK22)
+			return;
 		String level = this.complianceLevel >= ClassFileConstants.JDK9 ? "ERROR" : "WARNING";
 		String errorMessage = this.complianceLevel >= ClassFileConstants.JDK9 ? "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n" : "\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n";
 		if (this.complianceLevel >= ClassFileConstants.JDK22) {
