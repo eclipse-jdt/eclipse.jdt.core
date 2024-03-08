@@ -19,6 +19,7 @@ package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -266,7 +267,7 @@ class VariableBinding implements IVariableBinding {
 			}
 		}
 		int sourceEnd = sourceStart+sourceLength-1;
-		char[] typeSig = this.binding.type.genericTypeSignature();
+		char[] typeSig = Signature.createTypeSignature(this.binding.type.signableName(), true).toCharArray();
 		JavaElement parent = null;
 		IMethodBinding declaringMethod = getDeclaringMethod();
 		if (this.binding instanceof RecordComponentBinding) {

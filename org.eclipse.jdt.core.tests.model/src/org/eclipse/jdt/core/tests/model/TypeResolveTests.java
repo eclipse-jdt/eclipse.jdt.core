@@ -35,6 +35,12 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.LambdaExpression;
@@ -1420,6 +1426,46 @@ public void test531046h() throws CoreException, IOException {
 		ILocalVariable variable = (ILocalVariable) elements[0];
 		assertEquals("incorrect type", "&QCharSequence;:QComparable<QString;>;", variable.getTypeSignature());
 	} finally {
+		deleteProject("P");
+	}
+}
+// derived from test531046a, verifying we get same value from codeSelect or bindings
+public void testJavaElementViaBindings() throws CoreException, IOException {
+	if (!isJRE9) return;
+	org.eclipse.jdt.internal.core.CompilationUnit unit = null;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", "");
+		waitForAutoBuild();
+
+		unit = (org.eclipse.jdt.internal.core.CompilationUnit)getCompilationUnit("/P/src/p/X.java");
+		unit.becomeWorkingCopy(new ProblemRequestor(), null);
+		unit.getBuffer().setContents("""
+			package p;
+			public class X {
+			  public static void main(java.lang.String[] args) {
+			    var s1 = args[0];
+			    System.out.println(s1);
+			  }
+			}
+			""");
+		CompilationUnit dom = unit.makeConsistent(AST.getJLSLatest(), true, 0, null, null);
+		VariableDeclarationFragment domVariable = (VariableDeclarationFragment)
+			((VariableDeclarationStatement)
+				((TypeDeclaration)dom.types().get(0)).getMethods()[0].getBody().statements().get(0))
+			.fragments().get(0);
+		ILocalVariable variable = (ILocalVariable)domVariable.resolveBinding().getJavaElement();
+		assertEquals("incorrect type", "Ljava.lang.String;", variable.getTypeSignature());
+
+		SingleVariableDeclaration parameterVar = (SingleVariableDeclaration)
+				((TypeDeclaration)dom.types().get(0)).getMethods()[0].parameters().get(0);
+		variable = (ILocalVariable)parameterVar.resolveBinding().getJavaElement();
+		assertEquals("incorrect type", "[Ljava.lang.String;", variable.getTypeSignature());
+	} finally {
+		if (unit != null) {
+			unit.discardWorkingCopy();
+		}
 		deleteProject("P");
 	}
 }
