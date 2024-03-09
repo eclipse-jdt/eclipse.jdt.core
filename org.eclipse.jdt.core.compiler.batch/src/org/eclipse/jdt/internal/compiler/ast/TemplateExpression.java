@@ -80,6 +80,8 @@ public class TemplateExpression extends Expression {
 		codeStream.checkcast(this.invocation.binding.returnType);
 		if (!valueRequired) {
 			codeStream.pop();
+		} else {
+			codeStream.generateImplicitConversion(this.implicitConversion);
 		}
 	}
 	@Override
