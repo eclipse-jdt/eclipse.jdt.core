@@ -17,11 +17,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
+import java.util.List;
+
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -30,8 +36,10 @@ import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 import junit.framework.Test;
 
@@ -150,5 +158,52 @@ public class ASTRewritingSuperAfterStatementsTest extends ASTRewritingTest{
 		buf.append("}\n");
 
 		assertEqualString(compilationUnit.toString(), buf.toString());
+	}
+
+	public void test002() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder buf = new StringBuilder();
+		buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("class X {\n");
+		buf.append("  int i;\n");
+		buf.append("  X() {\n");
+		buf.append("    this.i++;\n");
+		buf.append("    this.hashCode();\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+        CompilationUnit astRoot= createAST(this.apiLevel, cu);
+        ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+        AST ast= astRoot.getAST();
+
+        assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "X");
+		Block block= methodDecl.getBody();
+		List<Statement> blockStatements = block.statements();
+		assertEquals("Incorrect number of statements", 2, blockStatements.size());
+		{
+			//replace the hashCode() with super()
+			ExpressionStatement	hashCodeStatement = (ExpressionStatement) blockStatements.get(1);
+			SuperConstructorInvocation superInvocation = ast.newSuperConstructorInvocation();
+
+			rewrite.replace(hashCodeStatement, superInvocation, null);
+			System.out.println();
+		}
+		String preview = evaluateRewrite(cu, rewrite);
+		buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("class X {\n");
+		buf.append("  int i;\n");
+		buf.append("  X() {\n");
+		buf.append("    this.i++;\n");
+		buf.append("    super();\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
 	}
 }
