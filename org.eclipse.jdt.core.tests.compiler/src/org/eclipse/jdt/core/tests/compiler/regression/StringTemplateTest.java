@@ -1908,4 +1908,72 @@ s
 				\\{} plus \\{} equals \\{}
 				[10, 20, 30]""");
 	}
+	public void testIssue2121_01() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+						interface TemplateProcessor extends java.lang.StringTemplate.Processor<Boolean, RuntimeException> {
+						    Boolean process(StringTemplate st);
+						}
+
+						public class X {
+						    public static void main(String argv[]) {
+						        TemplateProcessor STR = st -> st.interpolate().equals("abc");
+						        if (STR."abc") {
+						        	System.out.println("hello");
+						        }
+						    }
+						}
+					"""
+				},
+				"hello"
+		);
+	}
+	public void testIssue2121_02() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+						interface TemplateProcessor extends java.lang.StringTemplate.Processor<Boolean, RuntimeException> {
+						    Boolean process(StringTemplate st);
+						}
+
+						public class X {
+						    public static void main(String argv[]) {
+						        TemplateProcessor STR = st -> st.interpolate().equals("abc");
+					   			int  i = 0;
+					   			while ((STR."abc") && i < 1) {
+					   				i++;
+						        	System.out.println("hello");
+						        }
+						    }
+						}
+					"""
+				},
+				"hello"
+		);
+	}
+	public void testIssue2121_03() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+						interface TemplateProcessor extends java.lang.StringTemplate.Processor<Boolean, RuntimeException> {
+						    Boolean process(StringTemplate st);
+						}
+
+						public class X {
+						    public static void main(String argv[]) {
+						        TemplateProcessor STR = st -> st.interpolate().equals("abc");
+					   			for ( int i = 0; (STR."abc") && i < 1; i++) {
+						        	System.out.println("hello");
+						        }
+						    }
+						}
+					"""
+				},
+				"hello"
+		);
+	}
 }
