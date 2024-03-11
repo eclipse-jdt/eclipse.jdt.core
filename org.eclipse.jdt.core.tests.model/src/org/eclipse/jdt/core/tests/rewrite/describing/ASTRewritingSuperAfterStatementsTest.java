@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.PostfixExpression;
@@ -159,17 +160,27 @@ public class ASTRewritingSuperAfterStatementsTest extends ASTRewritingTest{
 
 		assertEqualString(compilationUnit.toString(), buf.toString());
 	}
-
+	//modify one statement with super
 	public void test002() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf = new StringBuilder();
 		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("class X {\n");
-		buf.append("  int i;\n");
-		buf.append("  X() {\n");
-		buf.append("    this.i++;\n");
-		buf.append("    this.hashCode();\n");
+		buf.append("  void hello() {\n");
+		buf.append("    System.out.println(\"Hello\");\n");
+		buf.append("  }\n");
+		buf.append("  void hi() {\n");
+		buf.append("    System.out.println(\"Hi\");\n");
+		buf.append("  }\n");
+		buf.append("  class Inner {\n");
+		buf.append("    Inner() {\n");
+		buf.append("      hello();\n");
+		buf.append("      hi();\n");
+		buf.append("    }\n");
+		buf.append("  }\n");
+		buf.append("  public static void main(String[] args) {\n");
+		buf.append("    new X().new Inner();\n");
 		buf.append("  }\n");
 		buf.append("}\n");
 
@@ -180,26 +191,104 @@ public class ASTRewritingSuperAfterStatementsTest extends ASTRewritingTest{
 
         assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
 		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
-		MethodDeclaration methodDecl= findMethodDeclaration(type, "X");
-		Block block= methodDecl.getBody();
-		List<Statement> blockStatements = block.statements();
+		TypeDeclaration[] typeClassDecleration = type.getTypes();
+		MethodDeclaration[] InerMethodDecleration = typeClassDecleration[0].getMethods();
+		List<Statement> blockStatements = InerMethodDecleration[0].getBody().statements();
 		assertEquals("Incorrect number of statements", 2, blockStatements.size());
 		{
-			//replace the hashCode() with super()
-			ExpressionStatement	hashCodeStatement = (ExpressionStatement) blockStatements.get(1);
+			//replace hi() with super()
+			ExpressionStatement	hiStatement = (ExpressionStatement) blockStatements.get(1);
 			SuperConstructorInvocation superInvocation = ast.newSuperConstructorInvocation();
 
-			rewrite.replace(hashCodeStatement, superInvocation, null);
-			System.out.println();
+			rewrite.replace(hiStatement, superInvocation, null);
 		}
 		String preview = evaluateRewrite(cu, rewrite);
 		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("class X {\n");
-		buf.append("  int i;\n");
-		buf.append("  X() {\n");
-		buf.append("    this.i++;\n");
-		buf.append("    super();\n");
+		buf.append("  void hello() {\n");
+		buf.append("    System.out.println(\"Hello\");\n");
+		buf.append("  }\n");
+		buf.append("  void hi() {\n");
+		buf.append("    System.out.println(\"Hi\");\n");
+		buf.append("  }\n");
+		buf.append("  class Inner {\n");
+		buf.append("    Inner() {\n");
+		buf.append("      hello();\n");
+		buf.append("      super();\n");
+		buf.append("    }\n");
+		buf.append("  }\n");
+		buf.append("  public static void main(String[] args) {\n");
+		buf.append("    new X().new Inner();\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+	//replace super() with another statement
+	public void test003() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder buf = new StringBuilder();
+		buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("class X {\n");
+		buf.append("  void hello() {\n");
+		buf.append("    System.out.println(\"Hello\");\n");
+		buf.append("  }\n");
+		buf.append("  void hi() {\n");
+		buf.append("    System.out.println(\"Hi\");\n");
+		buf.append("  }\n");
+		buf.append("  class Inner {\n");
+		buf.append("    Inner() {\n");
+		buf.append("      hello();\n");
+		buf.append("      super();\n");
+		buf.append("    }\n");
+		buf.append("  }\n");
+		buf.append("  public static void main(String[] args) {\n");
+		buf.append("    new X().new Inner();\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+        CompilationUnit astRoot= createAST(this.apiLevel, cu);
+        ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+        AST ast= astRoot.getAST();
+
+        assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		TypeDeclaration[] typeClassDecleration = type.getTypes();
+		MethodDeclaration[] InerMethodDecleration = typeClassDecleration[0].getMethods();
+		List<Statement> blockStatements = InerMethodDecleration[0].getBody().statements();
+		assertEquals("Incorrect number of statements", 2, blockStatements.size());
+		{
+			//replace super() with hi()
+			SuperConstructorInvocation superStatement = (SuperConstructorInvocation) blockStatements.get(1);
+
+			MethodInvocation hiMethodInvocation = ast.newMethodInvocation();
+			hiMethodInvocation.setName(ast.newSimpleName("hi"));
+	        ExpressionStatement hiExpressionStatement = ast.newExpressionStatement(hiMethodInvocation);
+
+			rewrite.replace(superStatement, hiExpressionStatement, null);
+		}
+		String preview = evaluateRewrite(cu, rewrite);
+		buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("class X {\n");
+		buf.append("  void hello() {\n");
+		buf.append("    System.out.println(\"Hello\");\n");
+		buf.append("  }\n");
+		buf.append("  void hi() {\n");
+		buf.append("    System.out.println(\"Hi\");\n");
+		buf.append("  }\n");
+		buf.append("  class Inner {\n");
+		buf.append("    Inner() {\n");
+		buf.append("      hello();\n");
+		buf.append("      hi();\n");
+		buf.append("    }\n");
+		buf.append("  }\n");
+		buf.append("  public static void main(String[] args) {\n");
+		buf.append("    new X().new Inner();\n");
 		buf.append("  }\n");
 		buf.append("}\n");
 
