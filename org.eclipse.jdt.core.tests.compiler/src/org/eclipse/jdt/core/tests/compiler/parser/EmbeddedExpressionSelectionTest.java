@@ -24,7 +24,7 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
 		//		TESTS_NAMES = new String[] { "test003" };
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(EmbeddedExpressionSelectionTest.class, F_21);
+		return buildMinimalComplianceTestSuite(EmbeddedExpressionSelectionTest.class, F_22);
 	}
 
 	public EmbeddedExpressionSelectionTest(String testName) {

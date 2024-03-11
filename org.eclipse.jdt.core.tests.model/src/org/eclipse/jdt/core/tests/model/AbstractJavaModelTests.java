@@ -3503,10 +3503,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL18_SRC"; // Use the same source
 			}
 		} else {
-			if (compliance.equals("21")) {
-				// Reuse the same 14 stuff as of now. No real need for a new one
-				newJclLibString = "JCL_17_LIB";
-				newJclSrcString = "JCL_17_SRC";
+			if (compliance.equals("22")) {
+				newJclLibString = "JCL_22_LIB";
+				newJclSrcString = "JCL_22_SRC";
+			} else if (compliance.equals("21")) {
+				newJclLibString = "JCL_21_LIB";
+				newJclSrcString = "JCL_21_SRC";
 			} else if (compliance.equals("19")) {
 				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL_19_LIB";
@@ -3594,11 +3596,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IPath jcl14Lib = new Path("JCL14_LIB");
 		IPath jcl17Lib = new Path("JCL_17_LIB");
 		IPath jcl21Lib = new Path("JCL_21_LIB");
+		IPath jcl22Lib = new Path("JCL_22_LIB");
 		IPath jclFull = new Path("JCL18_FULL");
 
 		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jcl9Lib)
 				|| path.equals(jcl10Lib) ||  path.equals(jcl11Lib) || path.equals(jcl12Lib) || path.equals(jcl13Lib)
-				|| path.equals(jcl14Lib) || path.equals(jcl17Lib) || path.equals(jcl21Lib) || path.equals(jclFull);
+				|| path.equals(jcl14Lib) || path.equals(jcl17Lib) || path.equals(jcl21Lib) || path.equals(jcl22Lib)
+				|| path.equals(jclFull);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		setUpJCLClasspathVariables(compliance, false);
@@ -3711,10 +3715,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		} else if ("21".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL_21_LIB") == null) {
-				setupExternalJCL("jclMin17");
+				setupExternalJCL("jclMin21");
 				JavaCore.setClasspathVariables(
-					new String[] {"JCL_17_LIB", "JCL_17_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath("17"), getExternalJCLSourcePath("17"), getExternalJCLRootSourcePath()},
+					new String[] {"JCL_21_LIB", "JCL_21_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("21"), getExternalJCLSourcePath("21"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("22".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL_22_LIB") == null) {
+				setupExternalJCL("jclMin21");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL_22_LIB", "JCL_22_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("21"), getExternalJCLSourcePath("21"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {
