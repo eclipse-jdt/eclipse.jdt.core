@@ -135,24 +135,28 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 	public void test_001() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		String code = """
-				class X {
-				    void hello() {
-				        System.out.println("Hello");
-				    }
-					class Inner {
-				    	Inner() {
-				            hello();
-				            super();
-				        }
+				class Y {
+					public int v;
+					Y(int v) {
+						this.v = v;
+					}
+				}
+				@SuppressWarnings("preview")
+				public class X extends Y {
+				    public X(int value) {
+				        if (value <= 0)
+				            throw new IllegalArgumentException("non-positive value");
+				        super(value);
 				    }
 				    public static void main(String[] args) {
-						new X().new Inner();
+						X x = new X(100);
+						System.out.println(x.v);
 					}
 				}
 				""";
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", code);
-		search("super()", CONSTRUCTOR, REFERENCES);
-		assertSearchResults("src/X.java X$Inner() [super();] POTENTIAL_MATCH");
+		search("new X(100)", CONSTRUCTOR, REFERENCES, EXACT_RULE);
+		assertSearchResults("src/X.java X(int) [super(value);] POTENTIAL_MATCH");
 	}
 	public void test_002() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -184,7 +188,9 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 				}
 				""";
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", code);
-		search("super(f, f)", CONSTRUCTOR, REFERENCES);
-		assertSearchResults("src/X.java X(int) [super(f, f);] POTENTIAL_MATCH");
+		search("X", CONSTRUCTOR, REFERENCES, EXACT_RULE);
+		assertSearchResults("src/X.java X(int) [super(f, f);] POTENTIAL_MATCH\n"
+				+ "src/X.java void X.main(String[]) [new X(100)] EXACT_MATCH\n"
+				+ "src/X.java void X.main(String[]) [new X(1)] EXACT_MATCH");
 	}
 }
