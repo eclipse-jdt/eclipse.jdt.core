@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2023 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2024 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -40,6 +40,7 @@ import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Elements;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -623,6 +624,14 @@ public class ElementsImpl implements Elements {
 		return null;
 	}
 
+	@Override
+	public TypeElement getEnumConstantBody(VariableElement enumConstant) {
+		if (enumConstant.getKind() != ElementKind.ENUM_CONSTANT) {
+			throw new IllegalArgumentException("Argument not an enum constant"); //$NON-NLS-1$
+		}
+		// Figure out how to get the declared body of the enum constant from the binding
+		return null;
+	}
 	/* (non-Javadoc)
 	 * @see javax.lang.model.util.Elements#getTypeElement(java.lang.CharSequence)
 	 */
