@@ -78,13 +78,13 @@ public class CastExpression extends Expression {
 	 * The type; lazily initialized; defaults to a unspecified,
 	 * legal type.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * Creates a new AST node for a cast expression owned by the given

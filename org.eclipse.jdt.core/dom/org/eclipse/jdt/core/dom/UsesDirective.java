@@ -68,7 +68,7 @@ public class UsesDirective extends ModuleDirective {
 	 * The module name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private Name name = null;
+	private volatile Name name;
 
 	/**
 	 * Creates a new AST node for an uses directive owned by the

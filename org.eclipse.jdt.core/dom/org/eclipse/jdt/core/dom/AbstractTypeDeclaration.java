@@ -35,7 +35,7 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 	 * legal Java class identifier.
 	 * @since 2.0 (originally declared on {@link TypeDeclaration})
 	 */
-	SimpleName typeName = null;
+	volatile SimpleName typeName;
 
 	/**
 	 * The body declarations (element type: {@link BodyDeclaration}).
