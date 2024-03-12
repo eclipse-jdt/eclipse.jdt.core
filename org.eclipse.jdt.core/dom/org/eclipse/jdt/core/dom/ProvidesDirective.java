@@ -75,7 +75,7 @@ public class ProvidesDirective extends ModuleDirective {
 	 * The interface name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private Name name = null;
+	private volatile Name name;
 
 	/**
 	 * The implementations names

@@ -88,7 +88,7 @@ public class SuperMethodReference extends MethodReference {
 	 * The method name; lazily initialized; defaults to a unspecified,
 	 * legal Java method name.
 	 */
-	private SimpleName methodName = null;
+	private volatile SimpleName methodName;
 	/**
 	 * Creates a new AST  node for a super method reference owned
 	 * by the given AST. By default, there is no qualifier.

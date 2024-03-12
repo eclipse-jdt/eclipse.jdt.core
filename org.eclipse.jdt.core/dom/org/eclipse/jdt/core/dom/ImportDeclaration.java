@@ -105,7 +105,7 @@ public class ImportDeclaration extends ASTNode {
 	 * The import name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private Name importName = null;
+	private volatile Name importName;
 
 	/**
 	 * On demand versus single type import; defaults to single type import.

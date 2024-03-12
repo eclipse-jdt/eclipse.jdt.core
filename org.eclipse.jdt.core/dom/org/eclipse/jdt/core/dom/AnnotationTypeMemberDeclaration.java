@@ -107,13 +107,13 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	/**
 	 * The member type; lazily initialized; defaults to int.
 	 */
-	private Type memberType = null;
+	private volatile Type memberType;
 
 	/**
 	 * The member name; lazily initialized; defaults to an unspecified,
 	 * legal Java identifier.
 	 */
-	private SimpleName memberName = null;
+	private volatile SimpleName memberName;
 
 	/**
 	 * The optional default expression; <code>null</code> for none; defaults to none.

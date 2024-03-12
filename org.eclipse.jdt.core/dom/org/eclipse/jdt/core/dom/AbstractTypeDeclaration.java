@@ -33,7 +33,7 @@ public abstract class AbstractTypeDeclaration extends AbstractUnnamedTypeDeclara
 	 * legal Java class identifier.
 	 * @since 2.0 (originally declared on {@link TypeDeclaration})
 	 */
-	SimpleName typeName = null;
+	volatile SimpleName typeName;
 
 	/**
 	 * Returns structural property descriptor for the "name" property

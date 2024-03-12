@@ -67,12 +67,12 @@ public class StringTemplateComponent extends Expression {
 	/**
 	 * The embedded expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * The string fragment that follows the embedded expression.
 	 */
-	private StringFragment fragment = null;
+	private volatile StringFragment fragment;
 
 	/**
 	 * Returns a list of structural property descriptors for this node type. Clients must not modify the result.

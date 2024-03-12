@@ -104,7 +104,7 @@ public class TypeParameter extends ASTNode {
 	 * The type variable node; lazily initialized; defaults to an unspecified,
 	 * but legal, name.
 	 */
-	private SimpleName typeVariableName = null;
+	private volatile SimpleName typeVariableName;
 
 	/**
 	 * The type bounds (element type: {@link Type}).

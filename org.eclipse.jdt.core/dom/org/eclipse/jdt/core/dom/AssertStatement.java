@@ -79,7 +79,7 @@ public class AssertStatement extends Statement {
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * The message expression; <code>null</code> for none; defaults to none.
