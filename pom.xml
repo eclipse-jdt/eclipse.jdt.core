@@ -48,6 +48,12 @@
         </repository>
       </repositories>
     </profile>
+    <profile>
+      <id>p2-repo</id>
+      <modules>
+        <module>repository</module>
+      </modules>
+    </profile>
   </profiles>
 
   <modules>
