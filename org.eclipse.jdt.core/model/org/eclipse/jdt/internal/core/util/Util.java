@@ -34,12 +34,14 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.IntersectionType;
 import org.eclipse.jdt.core.dom.NameQualifiedType;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.UnionType;
 import org.eclipse.jdt.core.dom.WildcardType;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
@@ -1209,6 +1211,16 @@ public class Util {
 	 * Returns the signature of the given type.
 	 */
 	public static String getSignature(Type type) {
+		if (type instanceof UnionType union) {
+			return Signature.createUnionTypeSignature(((List<Type>)union.types()).stream()
+				.map(Util::getSignature)
+				.toArray(String[]::new));
+		}
+		if (type instanceof IntersectionType intersection) {
+			return Signature.createIntersectionTypeSignature(((List<Type>)intersection.types()).stream()
+				.map(Util::getSignature)
+				.toArray(String[]::new));
+		}
 		StringBuilder buffer = new StringBuilder();
 		getFullyQualifiedName(type, buffer);
 		return Signature.createTypeSignature(buffer.toString(), false/*not resolved in source*/);

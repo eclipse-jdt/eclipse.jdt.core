@@ -19,9 +19,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.IntersectionType;
 import org.eclipse.jdt.core.dom.NameQualifiedType;
 import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.UnionType;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -121,6 +123,20 @@ public class UtilTests extends AbstractJavaModelTests {
 		SimpleType parentType = ast.newSimpleType(ast.newName("ParentType"));
 		QualifiedType qualifiedType = ast.newQualifiedType(parentType, ast.newSimpleName("ChildType"));
 		assertEquals("QParentType.ChildType;", Util.getSignature(qualifiedType));
+	}
+	public void testIntersectionTypeSignature() {
+		AST ast = AST.newAST(AST.getJLSLatest(), false);
+		IntersectionType type = ast.newIntersectionType();
+		type.types().add(ast.newSimpleType(ast.newSimpleName("A")));
+		type.types().add(ast.newSimpleType(ast.newSimpleName("B")));
+		assertEquals("|QA;:QB;", Util.getSignature(type));
+	}
+	public void testUnionTypeSignature() {
+		AST ast = AST.newAST(AST.getJLSLatest(), false);
+		UnionType type = ast.newUnionType();
+		type.types().add(ast.newSimpleType(ast.newSimpleName("A")));
+		type.types().add(ast.newSimpleType(ast.newSimpleName("B")));
+		assertEquals("&QA;:QB;", Util.getSignature(type));
 	}
 
 }
