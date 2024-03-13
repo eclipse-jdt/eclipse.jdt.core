@@ -118,7 +118,7 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs", "16");
+		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs", "22");
 	}
 
 	public void tearDownSuite() throws Exception {
