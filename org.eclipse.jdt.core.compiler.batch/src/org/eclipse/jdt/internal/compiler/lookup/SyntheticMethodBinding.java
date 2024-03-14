@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
+import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -663,6 +664,13 @@ public class SyntheticMethodBinding extends MethodBinding {
 	@Override
 	public LambdaExpression sourceLambda() {
 		return this.lambda;
+	}
+
+	@Override
+	public RecordComponent sourceRecordComponent() {
+		if (this.recordComponentBinding != null)
+			return this.recordComponentBinding.sourceRecordComponent();
+		return null;
 	}
 
 	@Override
