@@ -5950,8 +5950,10 @@ public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtion_in
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	String result = requestor.getResults();
-    assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
-    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[149, 149], token[149, 149], 60}"));
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_VOID + R_NON_STATIC + R_NON_RESTRICTED;
+	assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
+			result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V," +
+					" null, null, forEach, (arg0), replace[149, 149], token[149, 149], "+relevance+"}"));
 }
 public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtion_insideIf_followedByChainedStatment() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
@@ -5974,8 +5976,10 @@ public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtion_in
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	String result = requestor.getResults();
-    assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
-    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[149, 149], token[149, 149], 60}"));
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_VOID + R_NON_STATIC + R_NON_RESTRICTED;
+	assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
+			result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V," +
+					" null, null, forEach, (arg0), replace[149, 149], token[149, 149], "+relevance+"}"));
 }
 public void testBug574823_completeOn_methodInvocationWithParams_inWhileConidtion_insideWhileBlock_followedByChainedStatment() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
@@ -5999,8 +6003,10 @@ public void testBug574823_completeOn_methodInvocationWithParams_inWhileConidtion
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	String result = requestor.getResults();
-    assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
-    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[152, 152], token[152, 152], 60}"));
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_VOID + R_NON_STATIC + R_NON_RESTRICTED;
+	assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
+		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V," +
+				" null, null, forEach, (arg0), replace[152, 152], token[152, 152], "+relevance+"}"));
 }
 public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtionWithExpression_insideIfBlock_followedByChainedStatment() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];

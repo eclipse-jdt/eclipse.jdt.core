@@ -983,4 +983,147 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"implementMe[METHOD_DECLARATION]{public void implementMe(), LBaseInterface;, ()V, implementMe, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	}
+	
+	public void testGH1561_CompletionInIfConditionInsideASwitchStatement() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchIf.java",
+				"""
+					public class SwitchIf {
+							final String name = "test";
+							boolean namedFlag;
+							enum Type { A }
+							private void foo(Type input) {
+								switch (input) {
+								case A:
+									if (nam)
+									break;
+								}
+							}
+					}
+					""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "if (nam";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"name[FIELD_REF]{name, LSwitchIf;, Ljava.lang.String;, null, null, name, null, [165, 168], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"namedFlag[FIELD_REF]{namedFlag, LSwitchIf;, Z, null, null, namedFlag, null, [165, 168], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE)+"}",
+				requestor.getResults());
+	}
+
+	public void testGH1561_CompletionInWhileConditionInsideASwitchStatement() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchIf.java",
+				"""
+					public class SwitchIf {
+							final String name = "test";
+							enum Type { A }
+							private void foo(Type input) {
+								switch (input) {
+								case A:
+									while (nam)
+									break;
+								}
+							}
+					}
+					""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "while (nam";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"name[FIELD_REF]{name, LSwitchIf;, Ljava.lang.String;, null, null, name, null, [147, 150], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	}
+
+	public void testGH1561_CompletionInForConditionInsideASwitchStatement() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchIf.java",
+				"""
+					public class SwitchIf {
+							final String name = "test";
+							enum Type { A }
+							private void foo(Type input) {
+								switch (input) {
+								case A:
+									for (int i = 0; i < nam)
+									break;
+								}
+							}
+					}
+					""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "for (int i = 0; i < nam";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"name[FIELD_REF]{name, LSwitchIf;, Ljava.lang.String;, null, null, name, null, [160, 163], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	}
+
+	public void testGH1561_CompletionInSwitchInsideASwitchStatement() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchIf.java",
+				"""
+					public class SwitchIf {
+							final String name = "test";
+							enum Type { A }
+							private void foo(Type input) {
+								switch (input) {
+								case A:
+									switch (nam
+									break;
+								}
+							}
+					}
+					""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "switch (nam";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"name[FIELD_REF]{name, LSwitchIf;, Ljava.lang.String;, null, null, name, null, [148, 151], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	}
+
+	public void testGH1561_CompletionInForInsideASwitchStatement() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchIf.java",
+				"""
+					public class SwitchIf {
+							final String name = "test";
+							enum Type { A }
+							private void foo(Type input) {
+								switch (input) {
+								case A:
+									for (int i = 0; nam)
+									break;
+								}
+							}
+							private boolean nameContains(String name) {
+								return false;
+							}
+					}
+					""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "for (int i = 0; nam";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("name[FIELD_REF]{name, LSwitchIf;, Ljava.lang.String;, null, null, name, null, [156, 159], "
+				+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n"
+				+ "nameContains[METHOD_REF]{nameContains(), LSwitchIf;, (Ljava.lang.String;)Z, null, null, nameContains, (name), [156, 159], "
+				+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED
+						+ R_EXACT_EXPECTED_TYPE)
+				+ "}", requestor.getResults());
+	}
 }
