@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -167,22 +166,22 @@ public class StackMapFrameCodeStream extends CodeStream {
 
 	@Override
 	public void recordExpressionType(TypeBinding typeBinding, int delta, boolean adjustStackDepth) {
-		if (adjustStackDepth) {
-			// optimized goto
-			// the break label already adjusted the stack depth (-1 or -2 depending on the return type)
-			// we need to adjust back to what it was
-			switch (typeBinding.id) {
-				case TypeIds.T_long:
-				case TypeIds.T_double:
-					this.stackDepth += 2;
-					break;
-				case TypeIds.T_void:
-					break;
-				default:
-					this.stackDepth++;
-					break;
-			}
-		}
+//		if (adjustStackDepth) {
+//			// optimized goto
+//			// the break label already adjusted the stack depth (-1 or -2 depending on the return type)
+//			// we need to adjust back to what it was
+//			switch (typeBinding.id) {
+//				case TypeIds.T_long:
+//				case TypeIds.T_double:
+//					this.stackDepth += 2;
+//					break;
+//				case TypeIds.T_void:
+//					break;
+//				default:
+//					this.stackDepth++;
+//					break;
+//			}
+//		}
 	}
 
 	/**
