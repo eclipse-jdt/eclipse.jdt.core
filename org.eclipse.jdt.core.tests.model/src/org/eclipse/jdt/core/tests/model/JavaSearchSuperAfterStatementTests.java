@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -147,6 +148,7 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 				        if (value <= 0)
 				            throw new IllegalArgumentException("non-positive value");
 				        super(value);
+				        this.v = value;
 				    }
 				    public static void main(String[] args) {
 						X x = new X(100);
@@ -155,8 +157,18 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 				}
 				""";
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", code);
-		search("new X(100)", CONSTRUCTOR, REFERENCES, EXACT_RULE);
-		assertSearchResults("src/X.java X(int) [super(value);] POTENTIAL_MATCH");
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+
+			search("Y", CONSTRUCTOR, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java X(int) [super(value);] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+
+
 	}
 	public void test_002() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -176,7 +188,7 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 					@SuppressWarnings("preview")
 					public X(int i) {
 				        var f = new F();
-				        super(f, f);
+						super(f, f);
 				        this.i = i;
 				    }
 				    public static void main(String[] args) {
@@ -188,9 +200,44 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 				}
 				""";
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", code);
-		search("X", CONSTRUCTOR, REFERENCES, EXACT_RULE);
-		assertSearchResults("src/X.java X(int) [super(f, f);] POTENTIAL_MATCH\n"
-				+ "src/X.java void X.main(String[]) [new X(100)] EXACT_MATCH\n"
-				+ "src/X.java void X.main(String[]) [new X(1)] EXACT_MATCH");
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			search("Y", CONSTRUCTOR, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java X(int) [super(f, f);] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	public void test_003() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		String code = """
+				class Y {
+					Y() {
+
+					}
+				}
+				public class X extends Y {
+					public int i;
+					@SuppressWarnings("preview")
+					public X(int i) {
+					if(i >0)
+						i = 10;
+					super();
+			        this.i = i;
+				    }
+				}
+				""";
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", code);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			search("Y", CONSTRUCTOR, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java X(int) [super();] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
 	}
 }
