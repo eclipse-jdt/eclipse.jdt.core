@@ -1411,9 +1411,10 @@ class JavacConverter {
 		if (javac == null || Objects.equals(javac, Names.instance(this.context).error) || Objects.equals(javac, Names.instance(this.context).empty)) {
 			return null;
 		}
-		int lastDot = javac.lastIndexOf((byte)'.');
+		String nameString = javac.toString();
+		int lastDot = nameString.lastIndexOf(".");
 		if (lastDot < 0) {
-			return this.ast.newSimpleName(javac.toString());
+			return this.ast.newSimpleName(nameString);
 		} else {
 			return this.ast.newQualifiedName(convert(javac.subName(0, lastDot)), (SimpleName)convert(javac.subName(lastDot + 1, javac.length() - 1)));
 		}
