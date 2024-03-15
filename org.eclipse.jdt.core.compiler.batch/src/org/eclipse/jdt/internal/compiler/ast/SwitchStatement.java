@@ -716,13 +716,6 @@ public class SwitchStatement extends Expression {
 				defaultCaseLabel.place();
 				defaultBranchLabel.place();
 			}
-			if (this.expectedType() != null) {
-				TypeBinding expectedType = this.expectedType().erasure();
-				boolean optimizedGoto = codeStream.lastAbruptCompletion == -1;
-				// if the last bytecode was an optimized goto (value is already on the stack) or an enum switch without default case, then we need to adjust the
-				// stack depth to reflect the fact that there is an value on the stack (return type of the switch expression)
-				codeStream.recordExpressionType(expectedType, optimizedGoto ? 0 : 1, optimizedGoto);
-			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
@@ -935,16 +928,6 @@ public class SwitchStatement extends Expression {
 				// we want to force an line number entry to get an end position after the switch statement
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd, true);
 				defaultLabel.place();
-			}
-			if (this instanceof SwitchExpression) {
-				TypeBinding switchResolveType = this.resolvedType;
-				if (this.expectedType() != null) {
-					switchResolveType = this.expectedType().erasure();
-				}
-				boolean optimizedGoto = codeStream.lastAbruptCompletion == -1;
-				// if the last bytecode was an optimized goto (value is already on the stack) or an enum switch without default case, then we need to adjust the
-				// stack depth to reflect the fact that there is an value on the stack (return type of the switch expression)
-				codeStream.recordExpressionType(switchResolveType, optimizedGoto ? 0 : 1, optimizedGoto || (isEnumSwitchWithoutDefaultCase && this instanceof SwitchExpression));
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {

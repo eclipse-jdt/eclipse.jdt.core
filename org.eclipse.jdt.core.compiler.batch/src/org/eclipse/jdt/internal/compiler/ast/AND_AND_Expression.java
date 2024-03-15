@@ -171,7 +171,6 @@ public class AND_AND_Expression extends BinaryExpression {
 						codeStream.iconst_0();
 					} else {
 						codeStream.goto_(endLabel = new BranchLabel(codeStream));
-						codeStream.decrStackSize(1);
 						falseLabel.place();
 						codeStream.iconst_0();
 						endLabel.place();

@@ -1336,6 +1336,24 @@ public void operandStackExceeds64KLimit(ASTNode location) {
 			location.sourceStart,
 			location.sourceEnd);
 }
+public void operandStackSizeNegative(ASTNode location) {
+	this.handle(
+		IProblem.OperandStackSizeNegative,
+		NoArgument,
+		NoArgument,
+		ProblemSeverities.Warning,
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void operandStackSizeInconsistent(ASTNode location) {
+	this.handle(
+		IProblem.OperandStackSizeInconsistent,
+		NoArgument,
+		NoArgument,
+		ProblemSeverities.Warning,
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void bytecodeExceeds64KLimit(LambdaExpression location) {
 	bytecodeExceeds64KLimit(location.binding, location.sourceStart, location.diagnosticsSourceEnd());
 }

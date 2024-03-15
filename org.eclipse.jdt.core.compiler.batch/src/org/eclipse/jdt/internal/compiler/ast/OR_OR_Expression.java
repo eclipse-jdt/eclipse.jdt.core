@@ -179,7 +179,6 @@ public class OR_OR_Expression extends BinaryExpression {
 						codeStream.iconst_1();
 					} else {
 						codeStream.goto_(endLabel = new BranchLabel(codeStream));
-						codeStream.decrStackSize(1);
 						trueLabel.place();
 						codeStream.iconst_1();
 						endLabel.place();

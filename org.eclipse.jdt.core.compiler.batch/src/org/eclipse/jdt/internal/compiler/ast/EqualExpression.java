@@ -366,7 +366,6 @@ public class EqualExpression extends BinaryExpression {
 					} else {
 						BranchLabel endLabel = new BranchLabel(codeStream);
 						codeStream.goto_(endLabel);
-						codeStream.decrStackSize(1);
 						// comparison is FALSE
 						falseLabel.place();
 						codeStream.iconst_1();
@@ -408,7 +407,6 @@ public class EqualExpression extends BinaryExpression {
 					} else {
 						BranchLabel endLabel = new BranchLabel(codeStream);
 						codeStream.goto_(endLabel);
-						codeStream.decrStackSize(1);
 						// comparison is FALSE
 						falseLabel.place();
 						codeStream.iconst_1();
@@ -446,7 +444,6 @@ public class EqualExpression extends BinaryExpression {
 				} else {
 					BranchLabel endLabel = new BranchLabel(codeStream);
 					codeStream.goto_(endLabel);
-					codeStream.decrStackSize(1);
 					// comparison is FALSE
 					falseLabel.place();
 					codeStream.iconst_0();
@@ -526,7 +523,6 @@ public class EqualExpression extends BinaryExpression {
 					} else {
 						BranchLabel endLabel = new BranchLabel(codeStream);
 						codeStream.goto_(endLabel);
-						codeStream.decrStackSize(1);
 						// comparison is FALSE
 						falseLabel.place();
 						codeStream.iconst_0();
@@ -556,7 +552,6 @@ public class EqualExpression extends BinaryExpression {
 					} else {
 						BranchLabel endLabel = new BranchLabel(codeStream);
 						codeStream.goto_(endLabel);
-						codeStream.decrStackSize(1);
 						// comparison is FALSE
 						falseLabel.place();
 						codeStream.iconst_0();
@@ -599,7 +594,6 @@ public class EqualExpression extends BinaryExpression {
 					} else {
 						BranchLabel endLabel = new BranchLabel(codeStream);
 						codeStream.goto_(endLabel);
-						codeStream.decrStackSize(1);
 						// comparison is FALSE
 						falseLabel.place();
 						codeStream.iconst_0();
@@ -629,7 +623,6 @@ public class EqualExpression extends BinaryExpression {
 				} else {
 					BranchLabel endLabel = new BranchLabel(codeStream);
 					codeStream.goto_(endLabel);
-					codeStream.decrStackSize(1);
 					// comparison is FALSE
 					falseLabel.place();
 					codeStream.iconst_0();
@@ -696,7 +689,6 @@ public class EqualExpression extends BinaryExpression {
 			} else {
 				BranchLabel endLabel = new BranchLabel(codeStream);
 				codeStream.goto_(endLabel);
-				codeStream.decrStackSize(1);
 				// comparison is FALSE
 				falseLabel.place();
 				codeStream.iconst_0();

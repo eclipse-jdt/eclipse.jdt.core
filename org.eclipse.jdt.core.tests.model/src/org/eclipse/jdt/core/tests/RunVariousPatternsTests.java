@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.InstanceofExpressionTest;
 import org.eclipse.jdt.core.tests.compiler.regression.InstanceofPrimaryPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NullAnnotationTests21;
 import org.eclipse.jdt.core.tests.compiler.regression.PatternMatching16Test;
+import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternProjectTest;
 import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchExpressionsYieldTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest;
@@ -52,6 +53,7 @@ public class RunVariousPatternsTests extends TestCase {
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
 				RecordPatternTest.class,
+				RecordPatternProjectTest.class,
 				SwitchPatternTest.class,
 				InstanceofPrimaryPatternTest.class,
 				PatternMatching16Test.class,

@@ -110,7 +110,6 @@ public class UnaryExpression extends OperatorExpression {
 							codeStream.iconst_0();
 							if (falseLabel.forwardReferenceCount() > 0) {
 								codeStream.goto_(endifLabel = new BranchLabel(codeStream));
-								codeStream.decrStackSize(1);
 								falseLabel.place();
 								codeStream.iconst_1();
 								endifLabel.place();

@@ -238,8 +238,9 @@ public static Test suite() {
 	 since_21.add(SwitchPatternTest.class);
 	 since_21.add(SwitchPatternTest21.class);
 	 since_21.add(RecordPatternTest.class);
-	since_21.add(UnnamedPatternsAndVariablesTest.class);
-	since_21.add(UseOfUnderscoreWithPreviewTest.class);
+	 since_21.add(RecordPatternProjectTest.class);
+	 since_21.add(UnnamedPatternsAndVariablesTest.class);
+	 since_21.add(UseOfUnderscoreWithPreviewTest.class);
 	 since_21.add(NullAnnotationTests21.class);
 	 since_21.add(StringTemplateTest.class);
 	 since_21.add(BatchCompilerTest_21.class);
