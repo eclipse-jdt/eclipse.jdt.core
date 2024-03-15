@@ -8403,7 +8403,10 @@ protected void consumePostExpressionInIf() {
 }
 
 protected void consumePostExpressionInSwitch(boolean statSwitch) {
-	// for sub-types to hook into
+	SwitchStatement switchStatement = statSwitch ? new SwitchStatement() : new SwitchExpression();
+	switchStatement.expression = this.expressionStack[this.expressionPtr--];
+	switchStatement.sourceStart = this.intStack[this.intPtr--];
+	pushOnAstStack(switchStatement);
 }
 
 protected void consumePostExpressionInWhile() {
@@ -9153,24 +9156,23 @@ private SwitchStatement createSwitchStatementOrExpression(boolean isStmt) {
 	this.nestedType--;
 	this.switchNestingLevel--;
 	int length;
-	SwitchStatement switchStatement = isStmt ? new SwitchStatement() : new SwitchExpression();
-	this.expressionLengthPtr--;
-	switchStatement.expression = this.expressionStack[this.expressionPtr--];
+	Statement[] switchStatements = null;
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		this.astPtr -= length;
 		System.arraycopy(
 				this.astStack,
 				this.astPtr + 1,
-				switchStatement.statements = new Statement[length],
+				switchStatements = new Statement[length],
 				0,
 				length);
 	}
+	SwitchStatement switchStatement = (SwitchStatement)this.astStack[this.astPtr--];
+	switchStatement.statements = switchStatements;
 	switchStatement.explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
 	switchStatement.containsPatterns = isPatternSwitch != null ? isPatternSwitch.booleanValue() : false;
 	switchStatement.containsNull = isNullSwitch != null ? isNullSwitch.booleanValue() : false;
 	pushOnAstStack(switchStatement);
 	switchStatement.blockStart = this.intStack[this.intPtr--];
-	switchStatement.sourceStart = this.intStack[this.intPtr--];
 	switchStatement.sourceEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(switchStatement.blockStart, switchStatement.sourceEnd)) {
 		switchStatement.bits |= ASTNode.UndocumentedEmptyBlock;
@@ -9180,7 +9182,6 @@ private SwitchStatement createSwitchStatementOrExpression(boolean isStmt) {
 	return switchStatement;
 }
 protected void consumeStatementSwitch() {
-	// SwitchStatement ::= 'switch' OpenBlock '(' Expression ')' SwitchBlock
 	createSwitchStatementOrExpression(true);
 }
 protected void consumeStatementSynchronized() {
@@ -9629,7 +9630,7 @@ protected void consumeCaseLabelElement(CaseLabelKind kind) {
 protected void consumeCaseLabelElements() {
 	concatExpressionLists();
 	boolean thisLabelIsPattern = this.expressionStack[this.expressionPtr] instanceof Pattern;
-	boolean lastLabelIsPattern = this.expressionStack[this.expressionPtr - 1] instanceof Pattern;
+	boolean lastLabelIsPattern = this.expressionPtr > 0 ? this.expressionStack[this.expressionPtr - 1] instanceof Pattern : false;
 	if (thisLabelIsPattern != lastLabelIsPattern || (thisLabelIsPattern && !JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.options.sourceLevel, this.previewEnabled))) {
 		problemReporter().illegalCaseConstantCombination(this.expressionStack[this.expressionPtr]);
 	}
