@@ -19242,4 +19242,69 @@ public void testGH1693_c() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+
+public void testGH2158() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"abc/Connection.java",
+		"""
+		package abc;
+		public interface Connection<@org.eclipse.jdt.annotation.NonNull M> { }
+		""",
+		"abc/IncomingMessageData.java",
+		"""
+		package abc;
+		public interface IncomingMessageData<@org.eclipse.jdt.annotation.NonNull T> { }
+		""",
+		"abc/MessageHandlerRegistry.java",
+		"""
+		package abc;
+		import org.eclipse.jdt.annotation.*;
+		public interface MessageHandlerRegistry
+			<@NonNull C extends Connection<?>, @NonNull T, @NonNull D extends IncomingMessageData<T>> { }
+		""",
+		"abc/MessageHandlerRegistryImpl.java",
+		"""
+		package abc;
+		import org.eclipse.jdt.annotation.*;
+		public class MessageHandlerRegistryImpl
+				<@NonNull C extends Connection<?>, @NonNull T, @NonNull D extends IncomingMessageData<T>>
+			implements MessageHandlerRegistry<C, T, D> { }
+		""",
+		"abc/d/DConnection.java",
+		"""
+		package abc.d;
+		import abc.*;
+		import org.eclipse.jdt.annotation.*;
+		public interface DConnection extends Connection<@NonNull CharSequence> { }
+		""",
+		"abc/d/DIncomingMessageData.java",
+		"""
+		package abc.d;
+		import org.eclipse.jdt.annotation.*;
+		import abc.*;
+		public interface DIncomingMessageData extends IncomingMessageData<@NonNull CharSequence> { }
+		""",
+		"abc/d/DMessageHandlerRegistry.java",
+		"""
+		package abc.d;
+		import org.eclipse.jdt.annotation.*;
+		import abc.*;
+		public interface DMessageHandlerRegistry<@NonNull C extends DConnection>
+			extends MessageHandlerRegistry<C, @NonNull CharSequence, @NonNull DIncomingMessageData> { }
+		""",
+		"abc/d/DMessageHandlerRegistryImpl.java",
+		"""
+		package abc.d;
+		import org.eclipse.jdt.annotation.*;
+		import abc.*;
+		public class DMessageHandlerRegistryImpl<@NonNull C extends DConnection>
+			extends MessageHandlerRegistryImpl<C, @NonNull CharSequence, @NonNull DIncomingMessageData>
+		implements DMessageHandlerRegistry<C> { }
+		"""
+	};
+	runner.customOptions = getCompilerOptions();
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+}
 }
