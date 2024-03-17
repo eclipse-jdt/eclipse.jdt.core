@@ -7774,4 +7774,45 @@ public void testBug552012d() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2127
+ */
+public void testIssue2127a() {
+	setComplianceLevel(CompilerOptions.VERSION_9);
+	String source = """
+		/** This   is   a   header   comment */
+
+		/** This   is   a   module   javadoc */
+		module test{}
+		""";
+	formatSource(source, """
+		/** This   is   a   header   comment */
+
+		/** This is a module javadoc */
+		module test {
+		}
+		""",
+		CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
+}
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2127
+ */
+public void testIssue2127b() {
+	setComplianceLevel(CompilerOptions.VERSION_9);
+	this.formatterPrefs.comment_format_header = true;
+	String source = """
+		/** This   is   a   header   comment */
+
+		/** This   is   a   module   javadoc */
+		module test{}
+		""";
+	formatSource(source, """
+		/** This is a header comment */
+
+		/** This is a module javadoc */
+		module test {
+		}
+		""",
+		CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
+}
 }
