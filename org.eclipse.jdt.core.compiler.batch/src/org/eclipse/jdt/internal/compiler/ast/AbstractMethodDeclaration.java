@@ -387,6 +387,9 @@ public abstract class AbstractMethodDeclaration
 			if (this.statements != null) {
 				for (Statement stmt : this.statements) {
 					stmt.generateCode(this.scope, codeStream);
+					if (!this.compilationResult.hasErrors() && codeStream.stackDepth != 0) {
+						throw new AssertionError("Unexpected stack size change after statement"); //$NON-NLS-1$
+					}
 				}
 			}
 			// if a problem got reported during code gen, then trigger problem method creation

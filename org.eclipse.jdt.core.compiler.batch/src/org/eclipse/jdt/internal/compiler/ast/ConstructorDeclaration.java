@@ -451,6 +451,9 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		if (this.statements != null) {
 			for (Statement statement : this.statements) {
 				statement.generateCode(this.scope, codeStream);
+				if (!this.compilationResult.hasErrors() && codeStream.stackDepth != 0) {
+					throw new AssertionError("Unexpected stack size change after statement"); //$NON-NLS-1$
+				}
 			}
 		}
 		// if a problem got reported during code gen, then trigger problem method creation
