@@ -29,6 +29,7 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -19306,5 +19307,13 @@ public void testGH2158() {
 	runner.customOptions = getCompilerOptions();
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
+
+	// challenge other part of the fix:
+	TypeDeclaration.TESTING_GH_2158 = true;
+	try {
+		runner.runConformTest();
+	} finally {
+		TypeDeclaration.TESTING_GH_2158 = false;
+	}
 }
 }
