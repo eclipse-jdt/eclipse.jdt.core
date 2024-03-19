@@ -143,6 +143,8 @@ protected void trackStackDepth(boolean branch) {
 			if (this.targetStackDepth != this.codeStream.stackDepth) {
 				this.codeStream.classFile.referenceBinding.scope.problemReporter().operandStackSizeInconsistent(
 						this.codeStream.classFile.referenceBinding.scope.referenceContext);
+				if (this.targetStackDepth < this.codeStream.stackDepth)
+					this.targetStackDepth = this.codeStream.stackDepth; // fwiw, pick the higher water mark.
 				if (this.shouldThrow)
 					throw new AssertionError("Operand stack size inconsistent!"); //$NON-NLS-1$
 			}
