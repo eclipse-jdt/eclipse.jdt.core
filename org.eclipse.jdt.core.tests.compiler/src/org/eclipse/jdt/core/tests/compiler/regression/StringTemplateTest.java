@@ -1972,4 +1972,40 @@ s
 				"hello"
 		);
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2062
+	// VerifyError with String Templates
+	public void testIssue2062() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					import java.lang.StringTemplate.Processor;
+					import java.util.Map;
+
+					public class X {
+
+					  public static void main(String[] args) throws Exception {
+					    Map<String, String> stuff = Map.of("a", "b");
+					    Transaction tx = new Transaction();
+
+					    for(Map.Entry<String, String> entry : stuff.entrySet()) {
+					      String name = entry.getKey();
+
+					      String s = tx.\"""
+					        INSERT INTO settings (a, b) VALUES (\\{name}, \\{entry.getValue()})\""";
+					      System.out.println(s);
+					    }
+					  }
+
+					  static class Transaction implements Processor<String, Exception> {
+					    @Override
+					    public String process(StringTemplate stringTemplate) throws Exception {
+					      return STR.process(stringTemplate);
+					    }
+					  }
+					}
+					"""
+				},
+				"INSERT INTO settings (a, b) VALUES (a, b)");
+	}
 }

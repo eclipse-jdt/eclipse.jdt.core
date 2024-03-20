@@ -52,6 +52,7 @@ public class StringTemplate extends Expression {
 				continue;
 			}
 			exp.resolveType(scope);
+			exp.computeConversion(scope, exp.resolvedType, exp.resolvedType);
 		}
 	}
 
