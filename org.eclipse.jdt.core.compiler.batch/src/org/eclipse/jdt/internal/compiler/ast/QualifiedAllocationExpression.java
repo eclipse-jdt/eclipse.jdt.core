@@ -198,7 +198,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			codeStream.generateInlinedValue(this.enumConstant.binding.id);
 		}
 		// handling innerclass instance allocation - enclosing instance arguments
-		if (allocatedType.isNestedType()) {
+		if (allocatedType.isNestedType() && !this.inPreConstructorContext) {
 			codeStream.generateSyntheticEnclosingInstanceValues(
 				currentScope,
 				allocatedType,
@@ -320,6 +320,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, this.binding.getTypeAnnotations());
 			}
 		}
+		checkPreConstructorContext(scope);
 		return result;
 	}
 

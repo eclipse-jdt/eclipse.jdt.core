@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1699,6 +1699,15 @@ public final boolean isProtected() {
 }
 
 /**
+ * Answer true if the receiver definition is in preconstructor context 
+ * - true only in such cases for anonymous type - 
+ * Java 22 - preview - JEP 447
+ */
+public final boolean isInPreconstructorContext() {
+	return (this.extendedTagBits & ExtendedTagBits.IsInPreconstructorContext) != 0;
+}
+
+/**
  * Answer true if the receiver has public visibility
  */
 public final boolean isPublic() {
@@ -1800,7 +1809,9 @@ public final boolean isViewedAsDeprecated() {
 	}
 	return false;
 }
-
+public boolean isImplicitType() {
+	return false;
+}
 /**
  * Returns the member types of this type sorted by simple name.
  */

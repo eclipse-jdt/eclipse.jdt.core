@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -25,6 +25,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.core.tests.compiler.parser.ImplicitlyDeclaredClassesTest;
 import org.eclipse.jdt.core.tests.compiler.util.HashtableOfObjectTest;
 import org.eclipse.jdt.core.tests.compiler.util.JrtUtilTest;
 import org.eclipse.jdt.core.tests.dom.StandAloneASTParserTest;
@@ -236,14 +237,20 @@ public static Test suite() {
 	 // add 21 specific test here (check duplicates)
 	 ArrayList since_21 = new ArrayList();
 	 since_21.add(SwitchPatternTest.class);
-	 since_21.add(SwitchPatternTest21.class);
 	 since_21.add(RecordPatternTest.class);
 	 since_21.add(RecordPatternProjectTest.class);
-	 since_21.add(UnnamedPatternsAndVariablesTest.class);
-	 since_21.add(UseOfUnderscoreWithPreviewTest.class);
 	 since_21.add(NullAnnotationTests21.class);
-	 since_21.add(StringTemplateTest.class);
 	 since_21.add(BatchCompilerTest_21.class);
+
+	 // add 21 specific test here (check duplicates)
+	 ArrayList since_22 = new ArrayList();
+//	 since_22.add(SuperAfterStatementsTest.class);
+	 since_22.add(UnnamedPatternsAndVariablesTest.class);
+	 since_22.add(UseOfUnderscoreWithPreviewTest.class);
+	 since_22.add(SuperAfterStatementsTest.class);
+	 since_22.add(StringTemplateTest.class);
+	 since_22.add(SwitchPatternTest21.class);
+	 since_22.add(ImplicitlyDeclaredClassesTest.class);
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
@@ -524,6 +531,29 @@ public static Test suite() {
 		TestCase.resetForgottenFilters(tests_21);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
 				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_21), tests_21));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_22) != 0) {
+		ArrayList tests_22 = (ArrayList)standardTests.clone();
+		tests_22.addAll(since_1_4);
+		tests_22.addAll(since_1_5);
+		tests_22.addAll(since_1_6);
+		tests_22.addAll(since_1_7);
+		tests_22.addAll(since_1_8);
+		tests_22.addAll(since_9);
+		tests_22.addAll(since_10);
+		tests_22.addAll(since_11);
+		tests_22.addAll(since_12);
+		tests_22.addAll(since_13);
+		tests_22.addAll(since_14);
+		tests_22.addAll(since_15);
+		tests_22.addAll(since_16);
+		tests_22.addAll(since_17);
+		tests_22.addAll(since_18);
+		tests_22.addAll(since_21);
+		tests_22.addAll(since_22);
+		TestCase.resetForgottenFilters(tests_22);
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
+				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_22), tests_22));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;

@@ -316,6 +316,9 @@ public void resolve(BlockScope scope) {
 	if (methodBinding != null && methodBinding.isCompactConstructor())
 		scope.problemReporter().recordCompactConstructorHasReturnStatement(this);
 
+	if (this.inPreConstructorContext)
+		scope.problemReporter().errorReturnInPrologue(this);
+
 	if (this.expression != null) {
 		this.expression.setExpressionContext(ASSIGNMENT_CONTEXT);
 		this.expression.setExpectedType(methodType);

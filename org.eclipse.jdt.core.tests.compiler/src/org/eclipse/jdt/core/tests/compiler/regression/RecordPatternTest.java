@@ -4568,4 +4568,126 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Illegal fall-through to a pattern\n" +
 				"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2118
+	// [Patterns] ECJ allows illegal modifiers with RecordPattern
+	public void testIllegalModifiers() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					record Point (int x, int y) {}
+
+					static void foo(Object o) {
+					    if (o instanceof public String) {}   // javac error, ecj error
+					    if (o instanceof public String s) {} // javac error, ecj error
+					    if (o instanceof public Point(int a, final int b)) {} // javac error, ECJ - NO ERROR!
+					    if (o instanceof Point(public int a, final int b)) {} // javac error, ecj error
+
+					    if (o instanceof final String) {}  // javac error, ecj error
+					    if (o instanceof final String s) {} // javac NO error, ecj NO error
+					    if (o instanceof final Point(int a, int b)) {} // javac NO error, ecj NO error
+
+					    switch (o) {
+					      case public Point(int a, int b) : System.out.println("String"); // javac error, ECJ: NO ERROR!
+					      case public Object o1: System.out.println("Default"); // both compilers error
+					    }
+					    switch (o) {
+					      case final Point(int a, int b) : System.out.println("String"); // NO ERROR in either
+					      case final Object o2: System.out.println("Default");
+					    }
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	if (o instanceof public String) {}   // javac error, ecj error\n" +
+				"	                 ^^^^^^^^^^^^^\n" +
+				"Syntax error, modifiers are not allowed here\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	if (o instanceof public String s) {} // javac error, ecj error\n" +
+				"	                               ^\n" +
+				"Illegal modifier for the pattern variable s; only final is permitted\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 7)\n" +
+				"	if (o instanceof public Point(int a, final int b)) {} // javac error, ECJ - NO ERROR!\n" +
+				"	                 ^^^^^^\n" +
+				"Syntax error, modifiers are not allowed here\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 8)\n" +
+				"	if (o instanceof Point(public int a, final int b)) {} // javac error, ecj error\n" +
+				"	                                  ^\n" +
+				"Illegal modifier for the pattern variable a; only final is permitted\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 10)\n" +
+				"	if (o instanceof final String) {}  // javac error, ecj error\n" +
+				"	                 ^^^^^^^^^^^^\n" +
+				"Syntax error, modifiers are not allowed here\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 12)\n" +
+				"	if (o instanceof final Point(int a, int b)) {} // javac NO error, ecj NO error\n" +
+				"	                 ^^^^^\n" +
+				"Syntax error, modifiers are not allowed here\n" +
+				"----------\n" +
+				"7. ERROR in X.java (at line 15)\n" +
+				"	case public Point(int a, int b) : System.out.println(\"String\"); // javac error, ECJ: NO ERROR!\n" +
+				"	     ^^^^^^\n" +
+				"Syntax error, modifiers are not allowed here\n" +
+				"----------\n" +
+				"8. ERROR in X.java (at line 16)\n" +
+				"	case public Object o1: System.out.println(\"Default\"); // both compilers error\n" +
+				"	                   ^^\n" +
+				"Illegal modifier for the pattern variable o1; only final is permitted\n" +
+				"----------\n" +
+				"9. ERROR in X.java (at line 19)\n" +
+				"	case final Point(int a, int b) : System.out.println(\"String\"); // NO ERROR in either\n" +
+				"	     ^^^^^\n" +
+				"Syntax error, modifiers are not allowed here\n" +
+				"----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2119
+	// [Patterns] ECJ allows record pattern to have dimensions
+	public void testIssue2119() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					record Point (int x, int y) {}
+
+					static void foo(Object o) {
+						if (o instanceof Point [](int x, int y)) {}
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	if (o instanceof Point [](int x, int y)) {}\n" +
+				"	                 ^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"A record pattern may not specify dimensions\n" +
+				"----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2119
+	// [Patterns] ECJ allows record pattern to have dimensions
+	public void testIssue2119_2() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					record Point (int x, int y) {}
+
+					static void foo(Object o) {
+						if (o instanceof Point (int x, int y) []) {}
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	if (o instanceof Point (int x, int y) []) {}\n" +
+				"	                                      ^^\n" +
+				"Syntax error on tokens, delete these tokens\n" +
+				"----------\n");
+	}
 }

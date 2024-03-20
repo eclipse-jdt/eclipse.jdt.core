@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -129,6 +129,12 @@ public class QualifiedThisReference extends ThisReference {
 		if (methodScope != null) {
 			MethodBinding method = methodScope.referenceMethodBinding();
 			if (method != null) {
+				if (this.inPreConstructorContext
+						&& TypeBinding.equalsEquals(method.declaringClass, this.resolvedType)) {
+					// TODO: 8.8.7.1 - check the qualifier
+					// any qualified this expression whose qualifier names the class C are disallowed
+					scope.problemReporter().errorExpressionInPreConstructorContext(this);
+				}
 				TypeBinding receiver = method.receiver;
 				while (receiver != null) {
 					if (TypeBinding.equalsEquals(receiver, this.resolvedType))

@@ -1031,7 +1031,9 @@ public final static int kind(int flags) {
 public boolean isRecord() {
 	return (this.modifiers & ExtraCompilerModifiers.AccRecord) != 0;
 }
-
+public boolean isImplicitType() {
+	return false;
+}
 /*
  * Access emulation for a local type
  * force to emulation of access to direct enclosing instance.

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -220,6 +220,81 @@ class ASTConverter {
 		}
 		// Convert javadoc
 		convert(typeDeclaration.javadoc, typeDecl);
+	}
+
+	protected void buildBodyDeclarations(
+			org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration unnamedClass,
+			UnnamedClass newUnnamedClass,
+			boolean isInterface) {
+		// add body declaration in the lexical order
+		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = unnamedClass.memberTypes;
+		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = unnamedClass.fields;
+		org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration[] methods = unnamedClass.methods;
+
+		int fieldsLength = fields == null? 0 : fields.length;
+		int methodsLength = methods == null? 0 : methods.length;
+		int membersLength = members == null ? 0 : members.length;
+		int fieldsIndex = 0;
+		int methodsIndex = 0;
+		int membersIndex = 0;
+
+		while ((fieldsIndex < fieldsLength)
+			|| (membersIndex < membersLength)
+			|| (methodsIndex < methodsLength)) {
+			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration nextFieldDeclaration = null;
+			org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration nextMethodDeclaration = null;
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration nextMemberDeclaration = null;
+
+			int position = Integer.MAX_VALUE;
+			int nextDeclarationType = -1;
+			if (fieldsIndex < fieldsLength) {
+				nextFieldDeclaration = fields[fieldsIndex];
+				if (nextFieldDeclaration.declarationSourceStart < position) {
+					position = nextFieldDeclaration.declarationSourceStart;
+					nextDeclarationType = 0; // FIELD
+				}
+			}
+			if (methodsIndex < methodsLength) {
+				nextMethodDeclaration = methods[methodsIndex];
+				if (nextMethodDeclaration.declarationSourceStart < position) {
+					position = nextMethodDeclaration.declarationSourceStart;
+					nextDeclarationType = 1; // METHOD
+				}
+			}
+			if (membersIndex < membersLength) {
+				nextMemberDeclaration = members[membersIndex];
+				if (nextMemberDeclaration.declarationSourceStart < position) {
+					position = nextMemberDeclaration.declarationSourceStart;
+					nextDeclarationType = 2; // MEMBER
+				}
+			}
+			switch (nextDeclarationType) {
+				case 0 :
+					if (nextFieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+						newUnnamedClass.bodyDeclarations().add(convert(nextFieldDeclaration));
+					} else {
+						checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, newUnnamedClass.bodyDeclarations());
+					}
+					fieldsIndex++;
+					break;
+				case 1 :
+					methodsIndex++;
+					if (!nextMethodDeclaration.isDefaultConstructor() && !nextMethodDeclaration.isClinit()) {
+						newUnnamedClass.bodyDeclarations().add(convert(isInterface, nextMethodDeclaration));
+					}
+					break;
+				case 2 :
+					membersIndex++;
+					ASTNode node = convert(nextMemberDeclaration);
+					if (node == null) {
+						newUnnamedClass.setFlags(newUnnamedClass.getFlags() | ASTNode.MALFORMED);
+					} else {
+						newUnnamedClass.bodyDeclarations().add(node);
+					}
+			}
+		}
+		// Convert javadoc
+		convert(unnamedClass.javadoc, newUnnamedClass);
 	}
 
 	protected void buildBodyDeclarations(
@@ -726,7 +801,7 @@ class ASTConverter {
 				methodDecl.setBody(block);
 			}
 			if (block != null && (statements != null || explicitConstructorCall != null)) {
-				if (explicitConstructorCall != null && explicitConstructorCall.accessMode != org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall.ImplicitSuper) {
+				if (explicitConstructorCall != null && explicitConstructorCall.accessMode != org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall.ImplicitSuper && explicitConstructorCall.firstStatement) {
 					block.statements().add(convert(explicitConstructorCall));
 				}
 				int statementsLength = statements == null ? 0 : statements.length;
@@ -3418,6 +3493,8 @@ class ASTConverter {
 				return null;
 			}
 			return convertToRecordDeclaration(typeDeclaration);
+		} else if (typeDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration unnamedClass) {
+			return convertToUnnamedClass(unnamedClass);
 		}
 		checkCanceled();
 		TypeDeclaration typeDecl = new TypeDeclaration(this.ast);
@@ -3492,6 +3569,20 @@ class ASTConverter {
 			recordNodes(typeDecl, typeDeclaration);
 			recordNodes(typeName, typeDeclaration);
 			typeDecl.resolveBinding();
+		}
+		this.referenceContext = oldReferenceContext;
+		return typeDecl;
+	}
+
+	private ASTNode convertToUnnamedClass(org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration unnamedClass) {
+		UnnamedClass typeDecl = new UnnamedClass(this.ast);
+		ASTNode oldReferenceContext = this.referenceContext;
+		this.referenceContext = typeDecl;
+		typeDecl.setSourceRange(unnamedClass.declarationSourceStart, unnamedClass.bodyEnd - unnamedClass.declarationSourceStart + 1);
+
+		buildBodyDeclarations(unnamedClass, typeDecl, false);
+		if (this.resolveBindings) {
+			recordNodes(typeDecl, unnamedClass);
 		}
 		this.referenceContext = oldReferenceContext;
 		return typeDecl;

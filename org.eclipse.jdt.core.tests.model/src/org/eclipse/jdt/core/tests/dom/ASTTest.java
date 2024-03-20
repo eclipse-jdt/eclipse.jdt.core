@@ -9605,7 +9605,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.STRING_TEMPLATE_EXPRESSION,
 			ASTNode.STRING_FRAGMENT,
 			ASTNode.STRING_TEMPLATE_COMPONENT,
-			ASTNode.EitherOr_MultiPattern
+			ASTNode.EitherOr_MultiPattern,
+			ASTNode.UNNAMED_CLASS
 		};
 
 		// assert that nodeType values are correct:

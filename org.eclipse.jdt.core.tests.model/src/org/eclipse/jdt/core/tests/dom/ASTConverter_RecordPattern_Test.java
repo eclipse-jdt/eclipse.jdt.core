@@ -53,7 +53,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		super.setUpSuite();
 		this.ast = AST.newAST(getASTLatest(), false);
 		this.currentProject = getJavaProject("Converter_19");
-		if (this.ast.apiLevel() == AST.JLS21) {
+		if (this.ast.apiLevel() >= AST.JLS21) {
 			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_21);
 			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_21);
 			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_21);

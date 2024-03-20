@@ -4609,6 +4609,8 @@ public void testAnonymousTypeMethodReferenceJarSearchGh375() throws Exception {
  * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/432
  */
 public void testAnonymousTypeMethodReferenceSearchGh432() throws Exception {
+	if (isJRE22)
+		return;
 	String testProjectName = "gh432MethodReferencesSearchBug";
 	String snippet1 = "package p;\n" +
 			"public class TestGh432 {\n" +

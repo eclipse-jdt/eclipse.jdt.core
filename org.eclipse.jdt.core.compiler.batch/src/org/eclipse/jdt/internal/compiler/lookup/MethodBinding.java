@@ -890,6 +890,25 @@ public final boolean isMain() {
 	}
 	return false;
 }
+public final boolean isCandindateMain() {
+	if (this.parameters.length > 1) {
+		return false;
+	}
+	if (this.selector.length == 4 && CharOperation.equals(this.selector, TypeConstants.MAIN)
+			&& ((this.modifiers & ClassFileConstants.AccPrivate) == 0)
+			&& TypeBinding.VOID == this.returnType) {
+		if (this.parameters.length == 0) {
+			return true;
+		}
+		if (this.parameters.length == 1) {
+			TypeBinding paramType = this.parameters[0];
+			if (paramType.dimensions() == 1 && paramType.leafComponentType().id == TypeIds.T_JavaLangString) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 /* Answer true if the receiver is a native method
 */
@@ -1105,7 +1124,8 @@ public final char[] computeSignature(ClassFile classFile) {
 	}
 	boolean needSynthetics = isConstructor
 			&& this.declaringClass.isNestedType()
-			&& !this.declaringClass.isStatic();
+			&& !this.declaringClass.isStatic()
+			&& !this.declaringClass.isInPreconstructorContext();
 	if (needSynthetics) {
 		// take into account the synthetic argument type signatures as well
 		ReferenceBinding[] syntheticArgumentTypes = this.declaringClass.syntheticEnclosingInstanceTypes();

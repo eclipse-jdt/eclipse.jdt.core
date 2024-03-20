@@ -127,6 +127,7 @@ public final class Messages {
 	public static String unnamed_patterns_and_vars;
 	public static String unnamed_classes_and_instance_main_methods;
 	public static String string_templates;
+	public static String statements_before_super;
 
 	static {
 		initializeMessages(BUNDLE_NAME, Messages.class);

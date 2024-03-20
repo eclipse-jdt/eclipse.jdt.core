@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2724,63 +2724,56 @@ public void test078() {
 // TODO: Enable after Bug 552769 is fixed
 public void test079() {
 
-	String expectedErrorLog = 		"----------\n" +
-			"1. ERROR in Hello.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"void\", @ expected\n" +
-			"----------\n" +
-			"2. ERROR in Hello.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	             ^\n" +
-			"Syntax error on token \")\", delete this token\n" +
-			"----------\n" +
-			"3. ERROR in Hello.java (at line 9)\n" +
-			"	};\n" +
-			"}\n" +
-			"	^^^^\n" +
-			"Syntax error on tokens, delete these tokens\n" +
-			"----------\n" +
-			"4. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete ClassBody\n" +
-			"----------\n" +
-			"5. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete MemberValue\n" +
-			"----------\n" +
-			"6. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \")\" to complete Modifiers\n" +
-			"----------\n" +
-			"7. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" +
-			"----------\n" +
-			"8. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" +
-			"----------\n";
-	String expectedErrorLog_J14 = "----------\n" +
-			"1. ERROR in Hello.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"void\", record expected\n" +
-			"----------\n" +
-			"2. ERROR in Hello.java (at line 2)\n" +
-			"	new Runnable() {\n" +
-			"	^^^\n" +
-			"Syntax error on token \"new\", record expected\n" +
-			"----------\n";
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK22) ?
+			"""
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Unnamed Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
+			----------
+			2. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly declared class must have a candidate main method
+			----------
+			3. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""" :
+			"""
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			The preview feature Unnamed Classes and Instance Main Methods is only available with source level 22 and above
+			----------
+			2. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly declared class must have a candidate main method
+			----------
+			3. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""";
 
+	if (this.complianceLevel < ClassFileConstants.JDK16) {
+		problemLog += """
+			4. ERROR in X.java (at line 14)
+				public static void main(String[] args) {
+				                   ^^^^^^^^^^^^^^^^^^^
+			The method main cannot be declared static; static methods can only be declared in a static or top level type
+			----------
+			""";
+	}
 	this.runNegativeTest(
 		new String[] {
-			"Hello.java",
+			"X.java",
 			"void ___eval() {\n" +
 			"	new Runnable() {\n" +
 			"		int ___run() throws Throwable {\n" +
@@ -2805,8 +2798,7 @@ public void test079() {
 			"	}\n" +
 			"}\n"
 		},
-		this.complianceLevel < ClassFileConstants.JDK14 ?
-		expectedErrorLog :expectedErrorLog_J14
+		problemLog
 	);
 }
 /*

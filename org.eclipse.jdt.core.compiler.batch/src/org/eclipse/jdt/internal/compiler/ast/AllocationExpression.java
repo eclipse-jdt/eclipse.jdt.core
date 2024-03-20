@@ -535,7 +535,26 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.binding.getTypeAnnotations() != Binding.NO_ANNOTATIONS) {
 		this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, this.binding.getTypeAnnotations());
 	}
+	checkPreConstructorContext(scope);
 	return this.resolvedType;
+}
+
+protected void checkPreConstructorContext(BlockScope scope) {
+	if (this.inPreConstructorContext && this.type != null &&
+			this.type.resolvedType instanceof ReferenceBinding currentType
+			&& !(currentType.isStatic() || currentType.isInterface())) { // no enclosing instance
+		MethodScope ms = scope.methodScope();
+		MethodBinding method = ms != null ? ms.referenceMethodBinding() : null;
+		ReferenceBinding declaringClass = method != null ? method.declaringClass : null;
+		if (declaringClass != null) {
+			while ((currentType = currentType.enclosingType())!= null) {
+				if (TypeBinding.equalsEquals(declaringClass, currentType)) {
+					scope.problemReporter().errorExpressionInPreConstructorContext(this);
+					break;
+				}
+			}
+		}
+	}
 }
 
 /**

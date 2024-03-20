@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -243,6 +243,13 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	} else {
 		if (scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 			scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
+		}
+		if (this.inPreConstructorContext && this.actualReceiverType != null) {
+			MethodScope ms = scope.methodScope();
+			MethodBinding method = ms != null ? ms.referenceMethodBinding() : null;
+			if (method != null && TypeBinding.equalsEquals(method.declaringClass, this.actualReceiverType)) {
+				scope.problemReporter().errorExpressionInPreConstructorContext(this);
+			}
 		}
 		// must check for the static status....
 		if (methodScope.isStatic) {
