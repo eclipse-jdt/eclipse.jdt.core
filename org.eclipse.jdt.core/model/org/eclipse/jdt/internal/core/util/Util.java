@@ -3341,4 +3341,13 @@ public class Util {
 		}
 		return method;
 	}
+
+	public static String getEntryName(String zipfileName, ZipEntry entry) {
+		String entryName = entry.getName();
+		if (!java.nio.file.Path.of(zipfileName, entryName).normalize()
+				.startsWith(java.nio.file.Path.of(zipfileName).normalize())) {
+			throw new IllegalArgumentException("Bad zip entry: " + entryName + " in " + zipfileName); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return entryName; // did not escape
+	}
 }

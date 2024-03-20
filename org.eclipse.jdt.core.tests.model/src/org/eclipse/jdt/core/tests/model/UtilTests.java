@@ -115,4 +115,30 @@ public class UtilTests extends AbstractJavaModelTests {
 		assertEquals("Qqualifier.id;", Util.getSignature(type));
 	}
 
+	public void testGetSafeName() {
+		assertGetSafeNamePass("simple");
+		assertGetSafeNamePass("dir1/dir2/normal");
+		assertGetSafeNamePass("dir1/../unnormal");
+		assertGetSafeNamePass("dir1/dir2/.../unnormalTripple");
+		assertGetSafeNameFail("../slipped");
+		assertGetSafeNameFail("dir1/../../slipped");
+
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/2015#issuecomment-2009162226
+		assertGetSafeNamePass("overrides/..ROOT...override");
+	}
+
+	private void assertGetSafeNamePass(String entryName) {
+		String zipfileName = "any";
+		assertEquals(entryName, Util.getEntryName(zipfileName, new java.util.zip.ZipEntry(entryName)));
+	}
+
+	private void assertGetSafeNameFail(String entryName) {
+		String zipfileName = "any";
+		try {
+			String n = Util.getEntryName(zipfileName, new java.util.zip.ZipEntry(entryName));
+			assertFalse("Expected IllegalArgumentException but got " + n, true);
+		} catch (IllegalArgumentException expected) {
+			// expected
+		}
+	}
 }
