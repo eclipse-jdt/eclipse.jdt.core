@@ -3946,6 +3946,9 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			} else if (token.equals("compareIdentical")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportComparingIdentical, severity, isEnabling);
 				return;
+			} else if (token.equals("compareWrapper")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportComparingWrapper, severity, isEnabling);
+				return;
 			} else if (token.equals("charConcat") /*|| token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportNoImplicitStringConversion, severity, isEnabling);
 				return;

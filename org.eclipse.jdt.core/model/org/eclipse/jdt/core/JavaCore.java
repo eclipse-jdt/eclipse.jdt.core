@@ -2508,6 +2508,19 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_COMPARING_IDENTICAL = PLUGIN_ID + ".compiler.problem.comparingIdentical"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Reporting Comparison of Wrapper Expressions.
+	 * <p>When enabled, the compiler will issue an error or a warning if a comparison
+	 * is involving wrapper type (or String) operands (e.g <code>'1234L == 5678L'</code>).</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.comparingWrapper"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
+	 * </dl>
+	 * @since 3.38
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_COMPARING_WRAPPER = PLUGIN_ID + ".compiler.problem.comparingWrapper"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Reporting Missing Synchronized Modifier On Inherited Method.
 	 * <p>When enabled, the compiler will issue an error or a warning if a method
 	 * overrides a synchronized method without having a synchronized modifier.</p>

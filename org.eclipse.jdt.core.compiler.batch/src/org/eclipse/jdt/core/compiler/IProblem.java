@@ -2612,6 +2612,11 @@ void setSourceStart(int sourceStart);
 
 	/**
 	 * @since 3.38
+	 */
+	int ComparingWrapper = Internal + 2011;
+
+	/**
+	 * @since 3.38
 	 * @noreference preview feature
 	 */
 	int ExpressionInPreConstructorContext = PreviewRelated + 2022;
@@ -2621,5 +2626,4 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int DisallowedStatementInPrologue = PreviewRelated + 2023;
-
 }

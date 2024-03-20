@@ -663,6 +663,8 @@ public static int getIrritant(int problemID) {
 
 		case IProblem.ComparingIdentical:
 			return CompilerOptions.ComparingIdentical;
+		case IProblem.ComparingWrapper:
+			return CompilerOptions.ComparingWrapper;
 
 		case IProblem.MissingSynchronizedModifierInInheritedMethod:
 			return CompilerOptions.MissingSynchronizedModifierInInheritedMethod;
@@ -781,6 +783,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.FallthroughCase :
 			case CompilerOptions.OverridingMethodWithoutSuperInvocation :
 			case CompilerOptions.ComparingIdentical :
+			case CompilerOptions.ComparingWrapper :
 			case CompilerOptions.MissingSynchronizedModifierInInheritedMethod :
 			case CompilerOptions.ShouldImplementHashcode :
 			case CompilerOptions.DeadCode :
@@ -1703,6 +1706,17 @@ public void comparingIdenticalExpressions(Expression comparison){
 	if (severity == ProblemSeverities.Ignore) return;
 	this.handle(
 			IProblem.ComparingIdentical,
+			NoArgument,
+			NoArgument,
+			severity,
+			comparison.sourceStart,
+			comparison.sourceEnd);
+}
+public void comparingWrapperExpressions(EqualExpression comparison) {
+	int severity = computeSeverity(IProblem.ComparingWrapper);
+	if (severity == ProblemSeverities.Ignore) return;
+	this.handle(
+			IProblem.ComparingWrapper,
 			NoArgument,
 			NoArgument,
 			severity,
