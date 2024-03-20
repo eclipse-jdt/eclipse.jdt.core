@@ -4518,12 +4518,15 @@ private void consumeTemplateExpression(Expression expression, Expression process
 }
 protected void consumeTemplateExpressionWithPrimary() {
 	Expression template = this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr--;
 	Expression processor = this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr--;
 	consumeTemplateExpression(template, processor);
 }
 protected void consumeTemplateExpressionWithName() {
 	NameReference processor = getUnspecifiedReference(true);
 	Expression template = this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr--;
 	consumeTemplateExpression(template, processor);
 }
 protected void consumeInstanceOfExpression() {
