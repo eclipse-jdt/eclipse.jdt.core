@@ -424,6 +424,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ContradictoryNullAnnotationsInferred", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ContradictoryNullAnnotationsInferredFunctionType", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ComparingIdentical", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("ComparingWrapper", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ConflictingImport", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
 		expectedProblemAttributes.put("ConflictingNullAnnotations", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ConstructedArrayIncompatible", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1532,6 +1533,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("CodeSnippetMissingClass", SKIP);
 		expectedProblemAttributes.put("CodeSnippetMissingMethod", SKIP);
 		expectedProblemAttributes.put("ComparingIdentical", new ProblemAttributes(JavaCore.COMPILER_PB_COMPARING_IDENTICAL));
+		expectedProblemAttributes.put("ComparingWrapper", new ProblemAttributes(JavaCore.COMPILER_PB_COMPARING_WRAPPER));
 		expectedProblemAttributes.put("ConstNonNullFieldComparisonYieldsFalse", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
 		expectedProblemAttributes.put("ConflictingImport", SKIP);
 		expectedProblemAttributes.put("ConflictingNullAnnotations", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));

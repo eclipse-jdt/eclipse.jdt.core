@@ -915,6 +915,13 @@ public class EqualExpression extends BinaryExpression {
 				}
 			}
 		}
+
+		// both wrapper types or strings
+		if((leftType.isBoxedPrimitiveType() && rightType.isBoxedPrimitiveType()) || (leftType.id == rightType.id && leftType.id == TypeIds.T_JavaLangString))
+		{
+			scope.problemReporter().comparingWrapperExpressions(this);
+		}
+
 		// both base type
 		if (leftType.isBaseType() && rightType.isBaseType()) {
 			int leftTypeID = leftType.id;
