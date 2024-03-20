@@ -1336,18 +1336,9 @@ public void operandStackExceeds64KLimit(ASTNode location) {
 			location.sourceStart,
 			location.sourceEnd);
 }
-public void operandStackSizeNegative(ASTNode location) {
+public void operandStackSizeInappropriate(ASTNode location) {
 	this.handle(
-		IProblem.OperandStackSizeNegative,
-		NoArgument,
-		NoArgument,
-		ProblemSeverities.Warning,
-		location.sourceStart,
-		location.sourceEnd);
-}
-public void operandStackSizeInconsistent(ASTNode location) {
-	this.handle(
-		IProblem.OperandStackSizeInconsistent,
+		IProblem.OperandStackSizeInappropriate,
 		NoArgument,
 		NoArgument,
 		ProblemSeverities.Warning,

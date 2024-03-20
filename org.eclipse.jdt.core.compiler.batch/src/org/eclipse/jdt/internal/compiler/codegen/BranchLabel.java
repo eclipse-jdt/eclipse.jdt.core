@@ -117,7 +117,7 @@ public void becomeDelegateFor(BranchLabel otherLabel) {
 	this.forwardReferences = mergedForwardReferences;
 	this.forwardReferenceCount = indexInMerge;
 }
-private boolean shouldThrow = true;
+
 protected void trackStackDepth(boolean branch) {
 	/* Control can reach an instruction with a label in two ways: (1) via a branch using that label or (2) by falling through from the previous instruction.
 	   In both cases, we KNOW the stack depth at the instruction from which control flows to the instruction with the label.
@@ -130,23 +130,19 @@ protected void trackStackDepth(boolean branch) {
 		if (sourceDepthKnown) {
 			if (this.codeStream.stackDepth < 0) {
 				this.codeStream.classFile.referenceBinding.scope.problemReporter()
-						.operandStackSizeNegative(this.codeStream.classFile.referenceBinding.scope.referenceContext);
-				this.codeStream.stackDepth = 0; // fwiw
-				if (this.shouldThrow)
-					throw new AssertionError("Operand stack size negative!"); //$NON-NLS-1$
+						.operandStackSizeInappropriate(this.codeStream.classFile.referenceBinding.scope.referenceContext);
+				this.codeStream.stackDepth = 0; // FWIW
 			}
 			this.targetStackDepth = this.codeStream.stackDepth;
-		} // else: previous instruction completes abruptly via goto/return/throw: We can't use the stack depth there; Wait for a backward branch to be emitted.
+		} // else: previous instruction completes abruptly via goto/return/throw: Wait for a backward branch to be emitted.
 	} else {
 		// Stack depth known at label having encountered a previous branch and/or having fallen through to label
 		if (sourceDepthKnown) {
 			if (this.targetStackDepth != this.codeStream.stackDepth) {
-				this.codeStream.classFile.referenceBinding.scope.problemReporter().operandStackSizeInconsistent(
+				this.codeStream.classFile.referenceBinding.scope.problemReporter().operandStackSizeInappropriate(
 						this.codeStream.classFile.referenceBinding.scope.referenceContext);
 				if (this.targetStackDepth < this.codeStream.stackDepth)
-					this.targetStackDepth = this.codeStream.stackDepth; // fwiw, pick the higher water mark.
-				if (this.shouldThrow)
-					throw new AssertionError("Operand stack size inconsistent!"); //$NON-NLS-1$
+					this.targetStackDepth = this.codeStream.stackDepth; // FWIW, pick the higher water mark.
 			}
 		}
 		this.codeStream.stackDepth = this.targetStackDepth;

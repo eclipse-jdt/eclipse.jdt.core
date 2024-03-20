@@ -452,7 +452,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			for (Statement statement : this.statements) {
 				statement.generateCode(this.scope, codeStream);
 				if (!this.compilationResult.hasErrors() && codeStream.stackDepth != 0) {
-					throw new AssertionError("Unexpected stack size change after statement"); //$NON-NLS-1$
+					this.scope.problemReporter().operandStackSizeInappropriate(this);
 				}
 			}
 		}
