@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2023, 2024 Red Hat, Inc. and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
@@ -10,7 +20,7 @@ import junit.framework.Test;
 public class UseOfUnderscoreWithPreviewTest extends AbstractBatchCompilerTest {
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(UseOfUnderscoreWithPreviewTest.class, F_21);
+		return buildMinimalComplianceTestSuite(UseOfUnderscoreWithPreviewTest.class, F_22);
 	}
 
 	public UseOfUnderscoreWithPreviewTest(String name) {
@@ -20,14 +30,19 @@ public class UseOfUnderscoreWithPreviewTest extends AbstractBatchCompilerTest {
 	@Override
 	protected Map<String, String> getCompilerOptions() {
 		CompilerOptions compilerOptions = new CompilerOptions(super.getCompilerOptions());
-		if (compilerOptions.sourceLevel == ClassFileConstants.JDK21) {
+		if (compilerOptions.sourceLevel == ClassFileConstants.JDK22) {
 			compilerOptions.enablePreviewFeatures = true;
 		}
 		return compilerOptions.getMap();
 	}
 
+	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
+		if(!isJRE22Plus)
+			return;
+		runNegativeTest(false/*skipJavac*/, null, testFiles, expectedCompilerLog);
+	}
 	public void testReportsUnderscoreInstanceMemberAsError() {
-		String message = "As of release 21, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
+		String message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 		String errorLevel = "ERROR";
 
 		runNegativeTest(new String[] { "A.java", """
@@ -48,7 +63,7 @@ public class UseOfUnderscoreWithPreviewTest extends AbstractBatchCompilerTest {
 	}
 
 	public void testReportsUnicodeEscapeUnderscoreInstanceMemberAsError() {
-		String message = "As of release 21, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
+		String message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 		String errorLevel = "ERROR";
 
 		runNegativeTest(new String[] { "A.java", """
@@ -68,7 +83,7 @@ public class UseOfUnderscoreWithPreviewTest extends AbstractBatchCompilerTest {
 	}
 
 	public void testReportsUnderscoreParameterAsError() {
-		String message = "As of release 21, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
+		String message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 		String errorLevel = "ERROR";
 
 		runNegativeTest(new String[] { "A.java", """
@@ -90,7 +105,7 @@ public class UseOfUnderscoreWithPreviewTest extends AbstractBatchCompilerTest {
 	}
 
 	public void testReportsUnderscoreParameterAsErrorUnicodeEscape() {
-		String message = "As of release 21, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
+		String message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 		String errorLevel = "ERROR";
 
 		runNegativeTest(new String[] { "A.java", """
@@ -112,6 +127,8 @@ public class UseOfUnderscoreWithPreviewTest extends AbstractBatchCompilerTest {
 	}
 
 	public void testReportsUnderscoreLocalVariableAsErrorUnicodeEscape() {
+		if(!isJRE22Plus)
+			return;
 		runConformTest(new String[] { "A.java",
 				"""
 				public class A {

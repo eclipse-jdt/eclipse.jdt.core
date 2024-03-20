@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
-
-import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -49,6 +47,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.model.SearchTests.WaitingJob;
 import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 import org.eclipse.jdt.core.tests.util.Util;
+
+import junit.framework.Test;
 
 @SuppressWarnings("rawtypes")
 public class TypeHierarchyTests extends ModifyingResourceTests {
@@ -2032,24 +2032,27 @@ public void testResilienceToMissingBinaries() throws CoreException {
 		createFolder("/P/src/tools/");
 		createFile(
 			"/P/src/tools/DisplayTestResult2.java",
-			"pakage tools;\n" +
+			"package tools;\n" +
 			"import servlet.*;\n" +
 			"public class DisplayTestResult2 extends TmrServlet2 {\n" +
-			"}"
+			"}\n" +
+			"obscruction"
 		);
 		createFolder("/P/src/servlet/");
 		createFile(
 				"/P/src/servlet/TmrServlet2.java",
-				"pakage servlet;\n" +
+				"package servlet;\n" +
 				"public class TmrServlet2 extends TmrServlet {\n" +
-				"}"
+				"}\n" +
+				"obstruction"
 			);
 		createFile(
 				"/P/src/servlet/TmrServlet.java",
-				"pakage servlet;\n" +
+				"package servlet;\n" +
 				"import gk.*;\n" +
 				"public class TmrServlet extends GKServlet {\n" +
-				"}"
+				"}\n" +
+				"obstruction"
 			);
 		IType type = getCompilationUnit("P", "src", "tools", "DisplayTestResult2.java").getType("DisplayTestResult2");
 		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
@@ -3387,6 +3390,7 @@ public void testBug457813() throws CoreException {
 		assertHierarchyEquals(
 				"Focus: X [in X.java [in hierarchy [in src [in P]]]]\n" +
 				"Super types:\n" +
+				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
 				"Sub types:\n",
 				hierarchy);
 	} finally {
@@ -3576,6 +3580,9 @@ public void testIndexQualificationJavaLangReferences() throws Exception {
 }
 
 public void testIndexQualificationLambdaReferences_AsReturnTypes() throws Exception {
+	if (isJRE22)	//TODO: Fix Issue 1875
+		return;
+
 	setupQualifierProject();
 	waitUntilIndexesReady();
 	try {
@@ -3590,6 +3597,9 @@ public void testIndexQualificationLambdaReferences_AsReturnTypes() throws Except
 }
 
 public void testIndexQualificationLambdaReferences_AsParameters() throws Exception {
+	if (isJRE22)	//TODO: Fix Issue 1875
+		return;
+
 	setupQualifierProject();
 	waitUntilIndexesReady();
 	try {

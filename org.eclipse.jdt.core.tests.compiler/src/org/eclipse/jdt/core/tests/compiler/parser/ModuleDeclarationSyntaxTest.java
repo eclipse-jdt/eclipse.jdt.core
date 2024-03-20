@@ -164,18 +164,20 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"module @Marker com.greetings {\n" +
 				"	requires org.astro;" +
 				"}\n";
-		String errorMsg =
-				"----------\n" +
-				"1. ERROR in module-info (at line 1)\n" +
-				"	module @Marker com.greetings {\n" +
-				"	^^^^^^\n" +
-				"Syntax error on token(s), misplaced construct(s)\n" +
-				"----------\n" +
-				"2. ERROR in module-info (at line 1)\n" +
-				"	module @Marker com.greetings {\n"+
-				"	        ^^^^^^\n"+
-				"Syntax error on token \"Marker\", module expected after this token\n" +
-				 "----------\n";
+		String errorMsg = """
+				----------
+				1. ERROR in module-info (at line 1)
+					module @Marker com.greetings {
+					^^^^^^
+				Syntax error on token "module", delete this token
+				----------
+				2. ERROR in module-info (at line 1)
+					module @Marker com.greetings {
+					       ^^^^^^^^^^^^^^^^^^^^^
+				Syntax error on tokens, ModuleHeader expected instead
+				----------
+				""";
+
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -187,23 +189,25 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"module com.greetings {\n" +
 				"	requires @Marker org.astro;\n" +
 				"}\n";
-		String errorMsg =
-				"----------\n" +
-				"1. ERROR in module-info (at line 1)\n" +
-				"	module com.greetings {\n	requires @Marker org.astro;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Syntax error on token(s), misplaced construct(s)\n" +
-				"----------\n" +
-				"2. ERROR in module-info (at line 2)\n" +
-				"	requires @Marker org.astro;\n"+
-				"	          ^^^^^^\n"+
-				"Syntax error on token \"Marker\", package expected after this token\n" +
-				"----------\n"+
-				"3. ERROR in module-info (at line 3)\n"+
-				"	}\n" +
-				"	^\n" +
-				"Syntax error on token \"}\", delete this token\n" +
-				 "----------\n";
+		String errorMsg = """
+				----------
+				1. ERROR in module-info (at line 1)
+					module com.greetings {
+					requires @Marker org.astro;
+					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Syntax error on token(s), misplaced construct(s)
+				----------
+				2. ERROR in module-info (at line 2)
+					requires @Marker org.astro;
+					                    ^
+				Syntax error on token(s), misplaced construct(s)
+				----------
+				3. ERROR in module-info (at line 3)
+					}
+					^
+				Syntax error on token "}", delete this token
+				----------
+				""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
@@ -233,23 +237,25 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"module com.greetings {\n" +
 				"	exports @Marker com.greetings;\n" +
 				"}\n";
-		String errorMsg =
-				"----------\n" +
-				"1. ERROR in module-info (at line 1)\n" +
-				"	module com.greetings {\n	exports @Marker com.greetings;\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Syntax error on token(s), misplaced construct(s)\n" +
-				"----------\n" +
-				"2. ERROR in module-info (at line 2)\n" +
-				"	exports @Marker com.greetings;\n"+
-				"	         ^^^^^^\n"+
-				"Syntax error on token \"Marker\", package expected after this token\n" +
-				"----------\n"+
-				"3. ERROR in module-info (at line 3)\n"+
-				"	}\n" +
-				"	^\n" +
-				"Syntax error on token \"}\", delete this token\n" +
-				 "----------\n";
+		String errorMsg = """
+				----------
+				1. ERROR in module-info (at line 1)
+					module com.greetings {
+					exports @Marker com.greetings;
+					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Syntax error on token(s), misplaced construct(s)
+				----------
+				2. ERROR in module-info (at line 2)
+					exports @Marker com.greetings;
+					                   ^
+				Syntax error on token(s), misplaced construct(s)
+				----------
+				3. ERROR in module-info (at line 3)
+					}
+					^
+				Syntax error on token "}", delete this token
+				----------
+				""";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;

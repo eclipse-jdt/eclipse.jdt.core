@@ -410,6 +410,8 @@ public class ClassScope extends Scope {
 				ReferenceBinding type = sourceType;
 				// check that the member does not conflict with an enclosing type
 				do {
+					if (this.referenceContext.isImplicitType())
+						break;
 					if (CharOperation.equals(type.sourceName, memberContext.name)) {
 						problemReporter().typeCollidesWithEnclosingType(memberContext);
 						continue nextMember;

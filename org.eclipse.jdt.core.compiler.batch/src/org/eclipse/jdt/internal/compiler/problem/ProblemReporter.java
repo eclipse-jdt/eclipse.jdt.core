@@ -12553,6 +12553,38 @@ public void unnamedVariableMustHaveInitializer(LocalDeclaration variableDeclarat
 			variableDeclaration.sourceStart,
 			variableDeclaration.sourceEnd);
 }
+public void errorExpressionInPreConstructorContext(Expression expr) {
+	String[] arguments = new String[] {expr.toString()};
+	this.handle(
+		IProblem.ExpressionInPreConstructorContext,
+		arguments,
+		arguments,
+		expr.sourceStart,
+		expr.sourceEnd);
+}
+public void errorReturnInPrologue(Statement stmt) {
+	String[] arguments = new String[] {stmt.toString()};
+	this.handle(
+		IProblem.DisallowedStatementInPrologue,
+		arguments,
+		arguments,
+		stmt.sourceStart,
+		stmt.sourceEnd);
+}
+public void implicitClassMissingMainMethod(TypeDeclaration typeDeclaration) {
+	this.handle(IProblem.ImplicitClassMissingMainMethod,
+			NoArgument,
+			NoArgument,
+			typeDeclaration.sourceStart,
+			typeDeclaration.sourceStart);
+}
+public void dimensionsIllegalOnRecordPattern(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.DimensionsIllegalOnRecordPattern,
+			NoArgument,
+			NoArgument,
+			sourceStart,
+			sourceEnd);
+}
 public boolean scheduleProblemForContext(Runnable problemComputation) {
 	if (this.referenceContext != null) {
 		CompilationResult result = this.referenceContext.compilationResult();

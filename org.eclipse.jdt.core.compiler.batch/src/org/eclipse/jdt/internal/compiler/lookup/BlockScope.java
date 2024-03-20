@@ -113,7 +113,8 @@ public final void addAnonymousType(TypeDeclaration anonymousType, ReferenceBindi
 	while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
 		LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
 		if (!lambda.scope.isStatic && !lambda.scope.isConstructorCall) {
-			lambda.shouldCaptureInstance = true;
+			if (!lambda.inPreConstructorContext)
+				lambda.shouldCaptureInstance = true;
 		}
 		methodScope = methodScope.enclosingMethodScope();
 	}

@@ -135,6 +135,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private SourceTypeBinding nestHost;
 
 	private boolean isRecordDeclaration = false;
+	public boolean isImplicit = false;
 	public boolean isVarArgs =  false; // for record declaration
 	private FieldBinding[] implicitComponentFields; // cache
 	private MethodBinding[] recordComponentAccessors = null; // hash maybe an overkill
@@ -154,6 +155,7 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.methods = Binding.UNINITIALIZED_METHODS;
 	this.prototype = this;
 	this.isRecordDeclaration = scope.referenceContext.isRecord();
+	this.isImplicit = scope.referenceContext.isImplicitType();
 	computeId();
 }
 
@@ -182,6 +184,7 @@ public SourceTypeBinding(SourceTypeBinding prototype) {
 	this.containerAnnotationType = prototype.containerAnnotationType;
 	this.tagBits |= TagBits.HasUnresolvedMemberTypes; // see memberTypes()
 	this.isRecordDeclaration = this.prototype.isRecordDeclaration;
+	this.isImplicit = this.prototype.isImplicit;
 }
 
 private void addDefaultAbstractMethods() {
@@ -2624,6 +2627,10 @@ public boolean isRecord() {
 	return this.isRecordDeclaration;
 }
 
+@Override
+public boolean isImplicitType() {
+	return this.isImplicit;
+}
 @Override
 public ReferenceBinding containerAnnotationType() {
 

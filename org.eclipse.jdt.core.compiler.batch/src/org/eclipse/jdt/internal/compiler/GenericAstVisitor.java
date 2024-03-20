@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 GK Software SE and others.
+ * Copyright (c) 2021, 2024 GK Software SE and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -445,6 +445,10 @@ public abstract class GenericAstVisitor extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(StringTemplate expr, BlockScope scope1) {
+		return visitNode(expr);
+	}
+	@Override
 	public boolean visit(NormalAnnotation annotation, BlockScope scope) {
 		return visitNode(annotation);
 	}
@@ -594,6 +598,10 @@ public abstract class GenericAstVisitor extends ASTVisitor {
 		return visitNode(synchronizedStatement);
 	}
 
+	@Override
+	public boolean visit(TemplateExpression templateExpression, BlockScope scope) {
+		return visitNode(templateExpression);
+	}
 	@Override
 	public boolean visit(ThisReference thisReference, BlockScope scope) {
 		return visitNode(thisReference);

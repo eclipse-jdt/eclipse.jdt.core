@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -412,7 +412,7 @@ protected boolean isMainMethod(IMethod method) throws JavaModelException {
 
 protected boolean isMainMethodCandidate(IMethod method) throws JavaModelException {
 	Map<String, String> options = method.getJavaProject().getOptions(true);
-	if (JavaFeature.UNNAMMED_CLASSES_AND_INSTANCE_MAIN_METHODS.isSupported(
+	if (JavaFeature.IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS.isSupported(
 				options.get(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM),
 				JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)))) {
 		if ("main".equals(method.getElementName()) && Signature.SIG_VOID.equals(method.getReturnType())) { //$NON-NLS-1$

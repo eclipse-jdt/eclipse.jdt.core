@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -105,11 +105,14 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	/** @deprecated using deprecated code */
 	private final static int JLS20_INTERNAL = AST.JLS20;
 
+	/** @deprecated using deprecated code */
 	private final static int JLS21_INTERNAL = AST.JLS21;
+
+	private final static int JLS22_INTERNAL = AST.JLS22;
 
 	private final static int[] JLS_LEVELS = { JLS2_INTERNAL, JLS3_INTERNAL, JLS4_INTERNAL, JLS8_INTERNAL, JLS9_INTERNAL,
 			JLS10_INTERNAL, JLS14_INTERNAL, JLS15_INTERNAL, JLS16_INTERNAL, JLS17_INTERNAL, JLS18_INTERNAL,
-			JLS19_INTERNAL, JLS20_INTERNAL, JLS21_INTERNAL };
+			JLS19_INTERNAL, JLS20_INTERNAL, JLS21_INTERNAL , JLS22_INTERNAL};
 
 	private static final String ONLY_AST_STRING = "_only";
 	private static final String SINCE_AST_STRING = "_since";
@@ -176,6 +179,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		  suite.addTest(ImportRewrite18Test.suite());
 		  suite.addTest(ImportRewrite_RecordTest.suite());
 		  suite.addTest(ASTRewritingStringTemplateTest.suite());
+		  suite.addTest(ASTRewritingSuperAfterStatementsTest.suite());
 
 		return suite;
 	}
@@ -317,6 +321,14 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_21);
 			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_21);
 			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_21);
+		}
+		setUpProjectAbove22();
+	}
+	protected void setUpProjectAbove22() throws Exception {
+		if (this.apiLevel == AST_INTERNAL_JLS22) {
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_22);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_22);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_22);
 		}
 	}
 

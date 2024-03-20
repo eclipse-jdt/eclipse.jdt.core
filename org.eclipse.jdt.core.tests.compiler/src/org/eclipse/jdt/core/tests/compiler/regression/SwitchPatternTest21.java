@@ -16,7 +16,7 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 	}
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(SwitchPatternTest21.class, F_21);
+		return buildMinimalComplianceTestSuite(SwitchPatternTest21.class, F_22);
 	}
 
 	public SwitchPatternTest21(String name) {
@@ -26,7 +26,7 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 	@Override
 	protected Map<String, String> getCompilerOptions() {
 		CompilerOptions compilerOptions = new CompilerOptions(super.getCompilerOptions());
-		if (compilerOptions.sourceLevel == ClassFileConstants.JDK21) {
+		if (compilerOptions.sourceLevel == ClassFileConstants.JDK22) {
 			compilerOptions.enablePreviewFeatures = true;
 		}
 		return compilerOptions.getMap();

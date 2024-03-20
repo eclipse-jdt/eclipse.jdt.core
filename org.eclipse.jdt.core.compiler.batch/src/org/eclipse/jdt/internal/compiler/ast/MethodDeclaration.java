@@ -234,6 +234,13 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	}
 
 	@Override
+	public boolean isCandidateMain() {
+		if (this.binding == null)
+			return false;
+		return this.binding.isCandindateMain();
+	}
+
+	@Override
 	public boolean isMethod() {
 		return true;
 	}
@@ -290,9 +297,9 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if (this.typeParameters != null)
 				this.scope.problemReporter().recordAccessorMethodShouldNotBeGeneric(this);
 			if (this.binding != null) {
-				if ((this.binding.modifiers & ClassFileConstants.AccPublic) == 0)
+				if (!(this.binding.isPublic()))
 					this.scope.problemReporter().recordAccessorMethodShouldBePublic(this);
-				if ((this.binding.modifiers & ClassFileConstants.AccStatic) != 0)
+				if (this.binding.isStatic())
 					this.scope.problemReporter().recordAccessorMethodShouldNotBeStatic(this);
 			}
 			if (this.thrownExceptions != null)

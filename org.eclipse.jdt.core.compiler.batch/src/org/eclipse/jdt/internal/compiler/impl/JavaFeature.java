@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2023 IBM Corporation and others.
+ * Copyright (c) 2020, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,16 +65,20 @@ public enum JavaFeature {
 			Messages.bind(Messages.record_patterns),
 			new char[][] {},
 			false),
-	UNNAMMED_PATTERNS_AND_VARS(ClassFileConstants.JDK21,
+	UNNAMMED_PATTERNS_AND_VARS(ClassFileConstants.JDK22,
 			Messages.bind(Messages.unnamed_patterns_and_vars),
 			new char[][] {},
-			true),
-	UNNAMMED_CLASSES_AND_INSTANCE_MAIN_METHODS(ClassFileConstants.JDK21,
+			false),
+	IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS(ClassFileConstants.JDK22,
 			Messages.bind(Messages.unnamed_classes_and_instance_main_methods),
 			new char[][] {},
 			true),
-	STRING_TEMPLATES(ClassFileConstants.JDK21,
+	STRING_TEMPLATES(ClassFileConstants.JDK22,
 			Messages.bind(Messages.string_templates),
+			new char[][] {},
+			true),
+	STATEMENTS_BEFORE_SUPER(ClassFileConstants.JDK22,
+			Messages.bind(Messages.statements_before_super),
 			new char[][] {},
 			true),
     ;

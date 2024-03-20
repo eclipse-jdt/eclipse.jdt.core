@@ -42,8 +42,6 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_21);
 			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_21);
 			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_21);
-			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-			this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 		}
 	}
 

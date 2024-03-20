@@ -333,7 +333,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private ASTParser createParser(int kind) {
-		ASTParser parser = ASTParser.newParser(AST.JLS21);
+		ASTParser parser = ASTParser.newParser(AST.JLS22);
 
 		if (kind == K_MODULE_INFO) {
 			parser.setSource(createDummyModuleInfoCompilationUnit());

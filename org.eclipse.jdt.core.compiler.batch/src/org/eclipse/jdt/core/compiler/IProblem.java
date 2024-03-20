@@ -2454,6 +2454,10 @@ void setSourceStart(int sourceStart);
 	 */
 	int PatternVariableRedeclared = Internal + 1784;
 
+	/** @since 3.38
+	 */
+	int DimensionsIllegalOnRecordPattern = Internal + 1785;
+
 	/** @since 3.28
 	 */
 	int DiscouragedValueBasedTypeSynchronization = Internal + 1820;
@@ -2585,6 +2589,10 @@ void setSourceStart(int sourceStart);
 	 */
 	int NamedPatternVariablesDisallowedHere = Internal + 1942;
 
+	/**
+	 * @since 3.38
+	 */
+	int ImplicitClassMissingMainMethod = PreviewRelated + 1950;
 
 	/**
 	 * @since 3.35
@@ -2592,13 +2600,26 @@ void setSourceStart(int sourceStart);
 	int SyntheticAccessorNotEnclosingMethod = MethodRelated + 1990;
 
 	/**
-	 * @since 3.37
+	 * @since 3.38
 	 * @noreference preview feature
 	 */
 	int UnderscoreCannotBeUsedHere = PreviewRelated + 2000;
 	/**
-	 * @since 3.37
+	 * @since 3.38
 	 * @noreference preview feature
 	 */
 	int UnnamedVariableMustHaveInitializer = PreviewRelated + 2001;
+
+	/**
+	 * @since 3.38
+	 * @noreference preview feature
+	 */
+	int ExpressionInPreConstructorContext = PreviewRelated + 2022;
+
+	/**
+	 * @since 3.38
+	 * @noreference preview feature
+	 */
+	int DisallowedStatementInPrologue = PreviewRelated + 2023;
+
 }

@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -121,5 +122,18 @@ public class StringTemplate extends Expression {
 		if (this.isMultiline)
 			output.append("\"\""); //$NON-NLS-1$
 		return output;
+	}
+	@Override
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (this.fragments != null)
+				for (StringLiteral frag : this.fragments) {
+					frag.traverse(visitor, scope);
+				}
+			if (this.values != null)
+				for (Expression exp : this.values) {
+					exp.traverse(visitor, scope);
+				}
+		}
 	}
 }

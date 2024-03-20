@@ -3492,6 +3492,10 @@ public abstract class Scope {
 						insideClassContext = !sourceType.isAnonymousType();
 						insideTypeAnnotation = false;
 						if (CharOperation.equals(sourceType.sourceName, name)) {
+							if (sourceType.isImplicit) {
+								char[][] compoundName = new char[][] { name };
+								return new ProblemReferenceBinding(compoundName, null, ProblemReasons.NotFound);
+							}
 							if (foundType != null && TypeBinding.notEquals(foundType, sourceType) && foundType.problemId() != ProblemReasons.NotVisible)
 								return new ProblemReferenceBinding(new char[][]{name}, foundType, ProblemReasons.InheritedNameHidesEnclosingName);
 							return sourceType;
