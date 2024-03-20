@@ -62,27 +62,24 @@ public class StringTemplate extends Expression {
 
 	private void generateNewTemplateBootstrap(CodeStream codeStream) {
 		int index = codeStream.classFile.recordBootstrapMethod(this);
-		// Kludge, see if this can be moved to CodeStream
-		codeStream.stackDepth ++;
-		if (codeStream.stackDepth > codeStream.stackMax) {
-			codeStream.stackMax = codeStream.stackDepth;
-		}
 		StringBuilder signature = new StringBuilder("("); //$NON-NLS-1$
+		int argsSize = 0;
 		for (Expression exp : this.values) {
 			TypeBinding type = exp.resolvedType;
 			if (type == TypeBinding.NULL)
 				signature.append(ConstantPool.JavaLangObjectSignature);
 			else
 				signature.append(type.signature());
+			argsSize += TypeIds.getCategory(type.id);
 		}
 		signature.append(")Ljava/lang/StringTemplate;"); //$NON-NLS-1$
 		codeStream.invokeDynamic(index,
-				1, //
-				1, // int
+				argsSize, //
+				1, // Ljava/lang/StringTemplate;
 				ConstantPool.PROCESS,
 				signature.toString().toCharArray(),
 				TypeIds.T_int,
-				TypeBinding.INT);
+				TypeBinding.INT); // Todo: copy + paste error. INT is not the type here.
 	}
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {

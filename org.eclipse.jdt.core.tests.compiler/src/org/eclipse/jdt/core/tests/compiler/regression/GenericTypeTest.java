@@ -36615,7 +36615,7 @@ public void test1066() throws Exception {
 	// 	check presence of checkcast
 	String expectedOutput;
 	if (this.complianceLevel >= ClassFileConstants.JDK9) {
-		expectedOutput = "  // Stack: 4, Locals: 8\n" +
+		expectedOutput = "  // Stack: 3, Locals: 8\n" +
 				"  public static void main(java.lang.String[] args);\n" +
 				"      0  new X [1]\n" +
 				"      3  dup\n" +

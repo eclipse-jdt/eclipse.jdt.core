@@ -504,6 +504,8 @@ void setSourceStart(int sourceStart);
 	int BytecodeExceeds64KLimitForSwitchTable = Internal + 86;
 	/** @since 3.38 */
 	int OperandStackExceeds64KLimit = Internal + 87;
+	/** @since 3.38 */
+	int OperandStackSizeInappropriate = Internal + 88;
 
 	// variable hiding
 	/** @since 3.0 */

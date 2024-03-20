@@ -4879,7 +4879,7 @@ public void test127() throws Exception {
 			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" +
 			"  \n" +
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-			"  // Stack: 3, Locals: 1\n" +
+			"  // Stack: 2, Locals: 1\n" +
 			"  public static void main(java.lang.String[] args);\n" +
 			"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
 			"     3  invokestatic X$1Y.values() : X$1Y[] [22]\n" +

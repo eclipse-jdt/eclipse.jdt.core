@@ -901,8 +901,6 @@ private void addArgumentToRecipe(BlockScope blockScope, CodeStream codeStream, S
 		recipe.delete(0, recipe.length());
 		recipe.append(TypeConstants.STRING_CONCAT_MARKER_1);
 		args.add(blockScope.getJavaLangString());
-		// We popped 190 and adding 1 for the invokeDynamic
-		codeStream.stackDepth -= 189;
 	}
 }
 public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder recipe, List<TypeBinding> argTypes) {

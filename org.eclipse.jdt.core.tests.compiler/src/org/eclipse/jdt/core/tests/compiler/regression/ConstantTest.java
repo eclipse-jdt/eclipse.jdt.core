@@ -435,7 +435,7 @@ public void test009() throws Exception {
 
 	String expectedOutput9OrLater =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-			"  // Stack: 3, Locals: 4\n" +
+			"  // Stack: 2, Locals: 4\n" +
 			"  public static void main(java.lang.String[] args);\n" +
 			"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
 			"     3  ldc <String \"1\"> [22]\n" +

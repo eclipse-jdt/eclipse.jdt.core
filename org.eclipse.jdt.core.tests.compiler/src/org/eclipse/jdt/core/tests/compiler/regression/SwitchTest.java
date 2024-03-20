@@ -3320,7 +3320,7 @@ public void testGHI1782() throws Exception {
 
 	String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-			"  // Stack: 3, Locals: 4\n" +
+			"  // Stack: 2, Locals: 4\n" +
 			"  public static void main(java.lang.String[] args);\n" +
 			"     0  ldc <String \"Hello\"> [16]\n" +
 			"     2  astore_1 [hello]\n" +

@@ -26,6 +26,7 @@ public class BranchLabel extends Label {
 
 	// Label tagbits
 	public int tagBits;
+	protected int targetStackDepth = -1;
 	public final static int WIDE = 1;
 	public final static int USED = 2;
 
@@ -117,6 +118,36 @@ public void becomeDelegateFor(BranchLabel otherLabel) {
 	this.forwardReferenceCount = indexInMerge;
 }
 
+protected void trackStackDepth(boolean branch) {
+	/* Control can reach an instruction with a label in two ways: (1) via a branch using that label or (2) by falling through from the previous instruction.
+	   In both cases, we KNOW the stack depth at the instruction from which control flows to the instruction with the label.
+	   Control cannot reach the instruction with a label by falling through if the previous instruction completes abruptly via a goto/return/throw etc
+	   this.codeStream.lastAbruptCompletion == this.position ==> instruction prior to the one with the label is a goto/return/throw
+	*/
+	boolean sourceDepthKnown = branch || this.codeStream.lastAbruptCompletion != this.position;
+	if (this.targetStackDepth == -1) {
+		// First branch to this label || placement of this label
+		if (sourceDepthKnown) {
+			if (this.codeStream.stackDepth < 0) {
+				this.codeStream.classFile.referenceBinding.scope.problemReporter()
+						.operandStackSizeInappropriate(this.codeStream.classFile.referenceBinding.scope.referenceContext);
+				this.codeStream.stackDepth = 0; // FWIW
+			}
+			this.targetStackDepth = this.codeStream.stackDepth;
+		} // else: previous instruction completes abruptly via goto/return/throw: Wait for a backward branch to be emitted.
+	} else {
+		// Stack depth known at label having encountered a previous branch and/or having fallen through to label
+		if (sourceDepthKnown) {
+			if (this.targetStackDepth != this.codeStream.stackDepth) {
+				this.codeStream.classFile.referenceBinding.scope.problemReporter().operandStackSizeInappropriate(
+						this.codeStream.classFile.referenceBinding.scope.referenceContext);
+				if (this.targetStackDepth < this.codeStream.stackDepth)
+					this.targetStackDepth = this.codeStream.stackDepth; // FWIW, pick the higher water mark.
+			}
+		}
+		this.codeStream.stackDepth = this.targetStackDepth;
+	}
+}
 /*
 * Put down  a reference to the array at the location in the codestream.
 */
@@ -137,6 +168,7 @@ void branch() {
 		 */
 		this.codeStream.writePosition(this);
 	}
+	trackStackDepth(true);
 }
 
 /*
@@ -157,6 +189,7 @@ void branchWide() {
 	} else { //Position is set. Write it!
 		this.codeStream.writeWidePosition(this);
 	}
+	trackStackDepth(true);
 }
 
 public int forwardReferenceCount() {
@@ -239,6 +272,7 @@ public void place() { // Currently lacking wide support.
 			this.codeStream.optimizeBranch(oldPosition, this);
 		}
 	}
+	trackStackDepth(false);
 }
 
 /**
