@@ -498,7 +498,7 @@ public void buildTypeBindings(CompilationUnitDeclaration unit, AccessRestriction
 		scope = new CompilationUnitScope(unit, this.globalOptions);
 		unitModule = unit.moduleDeclaration.setBinding(new SourceModuleBinding(moduleName, scope, this.root));
 	} else {
-		if (this.globalOptions.sourceLevel >= ClassFileConstants.JDK9) {
+		if (this.globalOptions.sourceLevel >= ClassFileConstants.JDK9 && !unit.isModuleInfo()) {
 			unitModule = unit.module(this);
 		}
 		scope = new CompilationUnitScope(unit, unitModule != null ? unitModule.environment : this);
