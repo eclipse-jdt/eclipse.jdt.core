@@ -375,7 +375,7 @@ public Constant resolveConstantExpression(BlockScope scope,
 			return resolveConstantExpression(scope, caseType, switchType,
 					switchStatement,(Pattern) expression);
 		} else if (expression instanceof NullLiteral) {
-			if (!(switchType instanceof ReferenceBinding)) {
+			if (!caseType.isCompatibleWith(switchType, scope)) {
 				scope.problemReporter().typeMismatchError(TypeBinding.NULL, switchType, expression, null);
 			}
 			switchStatement.switchBits |= SwitchStatement.NullCase;
