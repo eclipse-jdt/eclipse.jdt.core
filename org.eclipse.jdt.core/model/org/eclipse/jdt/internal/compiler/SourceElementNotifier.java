@@ -484,7 +484,7 @@ public void notifySourceElementRequestor(
 					} else {
 						notifySourceElementRequestor(importRef, false);
 					}
-				} else if (node instanceof TypeDeclaration) {
+				} else if (node instanceof TypeDeclaration && !new String(parsedUnit.getFileName()).endsWith(TypeConstants.MODULE_INFO_FILE_NAME_STRING)) {
 					notifySourceElementRequestor((TypeDeclaration)node, true, null, currentPackage);
 				} else if (node instanceof ModuleDeclaration) {
 					notifySourceElementRequestor(parsedUnit.moduleDeclaration);
