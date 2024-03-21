@@ -56,8 +56,11 @@ private static final String APACHE_DBUTILS_CONTENT = "package org.apache.commons
 private static final String STREAMEX_JAVA = "one/util/streamex/StreamEx.java";
 private static final String STREAMEX_CONTENT = "package one.util.streamex;\n" +
 	"import java.util.stream.*;\n" +
+	"import java.util.function.*;\n" +
 	"public abstract class StreamEx<T> implements Stream<T> {\n" +
 	"    public static <T> StreamEx<T> create() { return null; }\n" +
+	"    public static <T> StreamEx<T> of(T element) { return null; }\n" +
+	"    @Override public <R> StreamEx<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper) { return null; }\n" + // from AbstractStreamEx
 	"}\n";
 
 static {
@@ -4751,6 +4754,27 @@ public void testStreamEx_572707() {
 			"public class Bug572707 {\n" +
 			"	public void m() {\n" +
 			"		System.out.println(StreamEx.create());\n" +
+			"	}\n" +
+			"}\n"
+		},
+		options);
+}
+public void testStreamEx_GH2919() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // uses JRE 8 API
+
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			STREAMEX_JAVA,
+			STREAMEX_CONTENT,
+			"GH2919.java",
+			"import one.util.streamex.*;\n" +
+			"\n" +
+			"public class GH2919 {\n" +
+			"	public void m() {\n" +
+			"		StreamEx<Object> streamEx = StreamEx.of(new Object()).flatMap(obj->StreamEx.of(obj));\n" +
 			"	}\n" +
 			"}\n"
 		},
