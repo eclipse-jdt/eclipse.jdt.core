@@ -99,6 +99,7 @@ import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
+import com.sun.tools.javac.tree.JCTree.JCSkip;
 import com.sun.tools.javac.tree.JCTree.Tag;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Names;
@@ -127,7 +128,7 @@ class JavacConverter {
 	CompilationUnit convertCompilationUnit() {
 		return convertCompilationUnit(this.javacCompilationUnit);
 	}
-	
+
 	CompilationUnit convertCompilationUnit(JCCompilationUnit javacCompilationUnit) {
 		CompilationUnit res = this.ast.newCompilationUnit();
 		populateCompilationUnit(res, javacCompilationUnit);
@@ -222,7 +223,7 @@ class JavacConverter {
 		};
 		return convertClassDecl(javacClassDecl, parent, res);
 	}
-	
+
 //	private AbstractTypeDeclaration convertClassDecl(JCClassDecl javacClassDecl, ASTNode parent, AbstractTypeDeclaration res) {
 	private AbstractTypeDeclaration convertClassDecl(JCClassDecl javacClassDecl, ASTNode parent, AbstractTypeDeclaration res) {
 		commonSettings(res, javacClassDecl);
@@ -262,7 +263,7 @@ class JavacConverter {
 					}
 				}
 			}
-			
+
 			if( javacClassDecl.getTypeParameters() != null ) {
 				Iterator<JCTypeParameter> i = javacClassDecl.getTypeParameters().iterator();
 				while(i.hasNext()) {
@@ -270,7 +271,7 @@ class JavacConverter {
 					typeDeclaration.typeParameters().add(convert(next));
 				}
 			}
-			
+
 			if (javacClassDecl.getPermitsClause() != null) {
 				if( this.ast.apiLevel >= AST.JLS17_INTERNAL) {
 					javacClassDecl.getPermitsClause().stream()
@@ -305,7 +306,7 @@ class JavacConverter {
 		        	}
 		        }
 			}
-			
+
 			List bodyDecl = enumDecl.bodyDeclarations();
 			if (javacClassDecl.getMembers() != null) {
 		        for( Iterator<JCTree> i = javacClassDecl.getMembers().iterator(); i.hasNext(); ) {
@@ -328,7 +329,7 @@ class JavacConverter {
 					}
 				}
 			}
-			
+
 //			org.eclipse.jdt.internal.compiler.ast.TypeReference typeReference = annotDecl.get
 //			if (typeReference != null) {
 //				Type returnType = convertType(typeReference);
@@ -431,7 +432,7 @@ class JavacConverter {
 		}
 		return res;
 	}
-	
+
 	private String getNodeName(ASTNode node) {
 		if( node instanceof AbstractTypeDeclaration atd) {
 			return atd.getName().toString();
@@ -441,7 +442,7 @@ class JavacConverter {
 		}
 		return null;
 	}
-	
+
 	private String getMethodDeclName(JCMethodDecl javac, ASTNode parent) {
 		String name = javac.getName().toString();
 		boolean javacIsConstructor = Objects.equals(javac.getName(), Names.instance(this.context).init);
@@ -469,13 +470,13 @@ class JavacConverter {
 		} else {
 			res.internalSetModifiers(getJLS2ModifiersFlags(javac.mods));
 		}
-		
+
 		String javacName = javac.getName().toString();
 		String methodDeclName = getMethodDeclName(javac, parent);
 		boolean methodDeclNameMatchesInit = Objects.equals(methodDeclName, Names.instance(this.context).init.toString());
-		boolean javacNameMatchesInitAndMethodNameMatchesTypeName = javacName.equals("<init>") && methodDeclName.equals(getNodeName(parent)); 
+		boolean javacNameMatchesInitAndMethodNameMatchesTypeName = javacName.equals("<init>") && methodDeclName.equals(getNodeName(parent));
 		boolean isConstructor = methodDeclNameMatchesInit || javacNameMatchesInitAndMethodNameMatchesTypeName;
-		
+
 		res.setConstructor(isConstructor);
 		boolean malformed = false;
 		if(isConstructor && !javacNameMatchesInitAndMethodNameMatchesTypeName) {
@@ -497,7 +498,7 @@ class JavacConverter {
 		if (javac.getBody() != null) {
 			res.setBody(convertBlock(javac.getBody()));
 		}
-		
+
 		List throwing = javac.getThrows();
 		for( Iterator i = throwing.iterator(); i.hasNext(); ) {
 			if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
@@ -575,11 +576,11 @@ class JavacConverter {
 		if( (mods.flags & Flags.STRICTFP) > 0) flags += Flags.STRICTFP;
 		return flags;
 	}
-	
+
 	private FieldDeclaration convertFieldDeclaration(JCVariableDecl javac) {
 		return convertFieldDeclaration(javac, null);
 	}
-	
+
 	private FieldDeclaration convertFieldDeclaration(JCVariableDecl javac, ASTNode parent) {
 
 		// if (singleDecl) {
@@ -597,7 +598,7 @@ class JavacConverter {
 		if (javac.getInitializer() != null) {
 			fragment.setInitializer(convertExpression(javac.getInitializer()));
 		}
-		
+
 		List<ASTNode> sameStartPosition = new ArrayList<>();
 		if( parent instanceof TypeDeclaration decl) {
 			decl.bodyDeclarations().stream().filter(x -> x instanceof FieldDeclaration)
@@ -671,8 +672,8 @@ class JavacConverter {
 				commonSettings(name, ident);
 				res.setName(name);
 			} else if (nameExpr instanceof JCFieldAccess access) {
-				boolean superCall1 = access.getExpression() instanceof JCFieldAccess && Objects.equals(Names.instance(this.context)._super, ((JCFieldAccess)access.getExpression()).getIdentifier()); 
-				boolean superCall2 = access instanceof JCFieldAccess && Objects.equals(Names.instance(this.context)._super.toString(), access.getExpression().toString()); 
+				boolean superCall1 = access.getExpression() instanceof JCFieldAccess && Objects.equals(Names.instance(this.context)._super, ((JCFieldAccess)access.getExpression()).getIdentifier());
+				boolean superCall2 = access instanceof JCFieldAccess && Objects.equals(Names.instance(this.context)._super.toString(), access.getExpression().toString());
 				if (superCall1 || superCall2) {
 					JCFieldAccess fa = superCall1 ? ((JCFieldAccess)access.getExpression()) : access;
 					SuperMethodInvocation res2 = this.ast.newSuperMethodInvocation();
@@ -953,7 +954,7 @@ class JavacConverter {
         }
         return ret;
 	}
-	
+
 	private SuperMethodInvocation convertSuperMethodInvocation(JCMethodInvocation javac) {
 		SuperMethodInvocation res = this.ast.newSuperMethodInvocation();
 		commonSettings(res, javac);
@@ -1114,9 +1115,12 @@ class JavacConverter {
 			res.setExpression(convertExpression(jcSwitch.getExpression()));
 			jcSwitch.getCases().stream()
 				.flatMap(switchCase -> {
-					List<JCStatement> stmts = new ArrayList<>(switchCase.getStatements().size() + 1);
+					int numStatements = switchCase.getStatements() != null ? switchCase.getStatements().size() : 0;
+					List<JCStatement> stmts = new ArrayList<>(numStatements + 1);
 					stmts.add(switchCase);
-					stmts.addAll(switchCase.getStatements());
+					if (numStatements > 0) {
+						stmts.addAll(switchCase.getStatements());
+					}
 					return stmts.stream();
 				}).map(x -> convertStatement(x, res))
 				.forEach(res.statements()::add);
@@ -1175,6 +1179,11 @@ class JavacConverter {
 			commonSettings(res, javac);
 			return res;
 		}
+		if (javac instanceof JCSkip) {
+			EmptyStatement res = this.ast.newEmptyStatement();
+			commonSettings(res, javac);
+			return res;
+		}
 		throw new UnsupportedOperationException("Missing support to convert " + javac + "of type " + javac.getClass().getName());
 	}
 
@@ -1192,7 +1201,7 @@ class JavacConverter {
 			return jdtVariableDeclarationExpression;
 		}
 		throw new UnsupportedOperationException(javac + " of type" + javac.getClass());
-	} 
+	}
 
 	private Block convertBlock(JCBlock javac) {
 		Block res = this.ast.newBlock();
@@ -1216,7 +1225,7 @@ class JavacConverter {
 		if (javac.finalizer != null) {
 			res.setFinally(convertBlock(javac.getFinallyBlock()));
 		}
-		
+
 		if( this.ast.apiLevel >= AST.JLS4_INTERNAL) {
 			javac.getResources().stream().map(this::convertTryResource).forEach(res.resources()::add);
 		}
@@ -1385,7 +1394,7 @@ class JavacConverter {
 //		}
 //	}
 
-	
+
 	private Modifier convert(javax.lang.model.element.Modifier javac) {
 		Modifier res = this.ast.newModifier(switch (javac) {
 			case PUBLIC -> ModifierKeyword.PUBLIC_KEYWORD;
@@ -1569,7 +1578,7 @@ class JavacConverter {
 					enumConstantDeclaration.setName(typeName);
 				}
 			}
-		} 
+		}
 		return enumConstantDeclaration;
 	}
 
@@ -1587,7 +1596,7 @@ class JavacConverter {
 		if( var instanceof JCMethodDecl method) {
 			return convertMethodDecl(method, parent);
 		}
-		
+
 		return null;
 	}
 
