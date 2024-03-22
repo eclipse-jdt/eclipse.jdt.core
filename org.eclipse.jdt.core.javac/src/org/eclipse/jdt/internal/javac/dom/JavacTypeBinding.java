@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.javac.dom;
 import java.util.Objects;
 import java.util.stream.StreamSupport;
 
+import javax.lang.model.type.NullType;
+
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -31,8 +33,12 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
+import com.sun.tools.javac.code.Type.TypeVar;
+import com.sun.tools.javac.code.Type.WildcardType;
+import com.sun.tools.javac.code.Types.FunctionDescriptorLookupError;
 import com.sun.tools.javac.code.Types;
 
 public class JavacTypeBinding implements ITypeBinding {
@@ -53,8 +59,9 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getAnnotations'");
+		return typeSymbol.getAnnotationMirrors().stream()
+				.map(am -> new JavacAnnotationBinding(am, resolver))
+				.toArray(IAnnotationBinding[]::new);
 	}
 
 	@Override
@@ -132,8 +139,10 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public int getRank() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getRank'");
+		if (isWildcardType() || isIntersectionType()) {
+			return types.rank(this.typeSymbol.type);
+		}
+		return -1;
 	}
 
 	@Override
@@ -202,6 +211,21 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IBinding getDeclaringMember() {
+//		Symbol enclosingSymbol = typeSymbol.owner;
+//		//TODO Shooting from the hip here
+//		while (enclosingSymbol != null) {
+//			if (enclosingSymbol instanceof ClassSymbol classSymbol) {
+//				return new JavacTypeBinding(classSymbol, resolver);
+//			} else if (enclosingSymbol instanceof PackageSymbol packageSymbol) {
+//				return new JavacPackageBinding(packageSymbol, resolver);
+//			} else if (enclosingSymbol instanceof MethodSymbol methodSymbol) {
+//				return new JavacMethodBinding(methodSymbol, resolver);
+//			} else if (enclosingSymbol instanceof VarSymbol varSymbol) {
+//				return new JavacVariableBinding(varSymbol, resolver);
+//			}
+//			enclosingSymbol = enclosingSymbol.owner;
+//		}
+//		return null;
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getDeclaringMember'");
 	}
@@ -223,8 +247,14 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IMethodBinding getFunctionalInterfaceMethod() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getFunctionalInterfaceMethod'");
+		try {
+			Symbol symbol = types.findDescriptorSymbol(this.typeSymbol);
+			if (symbol instanceof MethodSymbol methodSymbol) {
+				return new JavacMethodBinding(methodSymbol, resolver);
+			}
+		} catch (FunctionDescriptorLookupError ignore) {
+		}
+		return null;
 	}
 
 	@Override
@@ -273,7 +303,7 @@ public class JavacTypeBinding implements ITypeBinding {
 	@Override
 	public ITypeBinding[] getTypeArguments() {
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTypeBounds'");
+		throw new UnsupportedOperationException("Unimplemented method 'getTypeArguments'");
 	}
 
 	@Override
@@ -296,8 +326,18 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getWildcard() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getWildcard'");
+		//TODO low confidence on this implem.
+		if (typeSymbol.type instanceof WildcardType wildcardType) {
+			Type extendsBound = wildcardType.getExtendsBound();
+			if (extendsBound != null) {
+				return new JavacTypeBinding(extendsBound, resolver);
+			}
+			Type superBound = wildcardType.getSuperBound();
+			if (superBound != null) {
+				return new JavacTypeBinding(superBound, resolver);
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -325,8 +365,7 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isCapture() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isCapture'");
+		return this.typeSymbol.type instanceof Type.CapturedType;
 	}
 
 	@Override
@@ -339,8 +378,8 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isClass() {
-		return this.typeSymbol instanceof final ClassSymbol classSymbol && !(
-			classSymbol.isEnum() || classSymbol.isRecord());
+		return this.typeSymbol instanceof final ClassSymbol classSymbol
+				&& !(classSymbol.isEnum() || classSymbol.isRecord());
 	}
 
 	@Override
@@ -371,14 +410,13 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isIntersectionType() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isIntersectionType'");
+		return this.typeSymbol.type.isIntersection();
 	}
 
 	@Override
 	public boolean isLocal() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isLocal'");
+		//TODO Not supremely confident in this one
+		return this.typeSymbol.isDirectlyOrIndirectlyLocal();
 	}
 
 	@Override
@@ -393,14 +431,12 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isNullType() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isNullType'");
+		return this.typeSymbol.type instanceof NullType;
 	}
 
 	@Override
 	public boolean isParameterizedType() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isParameterizedType'");
+		return !this.typeSymbol.getTypeParameters().isEmpty();
 	}
 
 	@Override
@@ -413,10 +449,15 @@ public class JavacTypeBinding implements ITypeBinding {
 		return this.typeSymbol.type.isRaw();
 	}
 
-	@Override
+	@Override	
 	public boolean isSubTypeCompatible(final ITypeBinding type) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isSubTypeCompatible'");
+		if (this == type) {
+			return true;
+		}
+		if (type instanceof JavacTypeBinding other) {
+			return this.types.isSubtype(this.typeSymbol.type, other.typeSymbol.type);
+		}
+		return false;
 	}
 
 	@Override
@@ -426,20 +467,17 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isTypeVariable() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isTypeVariable'");
+		return this.typeSymbol.type instanceof TypeVar;
 	}
 
 	@Override
 	public boolean isUpperbound() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isUpperbound'");
+		return this.typeSymbol.type.isExtendsBound();
 	}
 
 	@Override
 	public boolean isWildcardType() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isWildcardType'");
+		return this.typeSymbol.type instanceof WildcardType;
 	}
 
 }
