@@ -269,25 +269,29 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public void test001() throws CoreException {
 		this.workingCopies = createWorkingCopies(new String[] {
 			"/P/p1/X.java",
-			"package p1;\n" +
-			"public class X extends Y {\n" +
-			"}",
+			"""
+				package p1;
+				public class X extends Y {
+				}""",
 			"/P/p1/Y.java",
-			"package p1;\n" +
-			"public class Y {\n" +
-			"}",
+			"""
+				package p1;
+				public class Y {
+				}""",
 		});
 		TestASTRequestor requestor = new TestASTRequestor();
 		createASTs(this.workingCopies, requestor);
 		assertASTNodesEqual(
-			"package p1;\n" +
-			"public class X extends Y {\n" +
-			"}\n" +
-			"\n" +
-			"package p1;\n" +
-			"public class Y {\n" +
-			"}\n" +
-			"\n",
+			"""
+				package p1;
+				public class X extends Y {
+				}
+				
+				package p1;
+				public class Y {
+				}
+				
+				""",
 			requestor.asts
 		);
 	}
@@ -298,27 +302,31 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public void test002() throws CoreException {
 		MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
 			"/P/p1/X.java",
-			"package p1;\n" +
-			"public class X extends /*start*/Y/*end*/ {\n" +
-			"}",
+			"""
+				package p1;
+				public class X extends /*start*/Y/*end*/ {
+				}""",
 			"/P/p1/Y.java",
-			"package p1;\n" +
-			"/*start*/public class Y {\n" +
-			"}/*end*/",
+			"""
+				package p1;
+				/*start*/public class Y {
+				}/*end*/""",
 		});
 		this.workingCopies = createWorkingCopies(markerInfos, this.owner);
 		TestASTRequestor requestor = new TestASTRequestor();
 		resolveASTs(this.workingCopies, requestor);
 
 		assertASTNodesEqual(
-			"package p1;\n" +
-			"public class X extends Y {\n" +
-			"}\n" +
-			"\n" +
-			"package p1;\n" +
-			"public class Y {\n" +
-			"}\n" +
-			"\n",
+			"""
+				package p1;
+				public class X extends Y {
+				}
+				
+				package p1;
+				public class Y {
+				}
+				
+				""",
 			requestor.asts
 		);
 
@@ -338,24 +346,28 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		try {
 			this.workingCopies = createWorkingCopies(new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X extends Y {\n" +
-				"}",
+				"""
+					package p1;
+					public class X extends Y {
+					}""",
 			});
 			otherWorkingCopies = createWorkingCopies(new String[] {
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y {
+					}""",
 			});
 			TestASTRequestor requestor = new TestASTRequestor();
 			resolveASTs(this.workingCopies, requestor);
 
 			assertASTNodesEqual(
-				"package p1;\n" +
-				"public class X extends Y {\n" +
-				"}\n" +
-				"\n",
+				"""
+					package p1;
+					public class X extends Y {
+					}
+					
+					""",
 				requestor.asts
 			);
 		} finally {
@@ -371,9 +383,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"/*start*/package p1;/*end*/\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					/*start*/package p1;/*end*/
+					public class X {
+					}""",
 			},
 			"p1");
 	}
@@ -385,13 +398,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"/*start*/public class X extends Y {\n" +
-				"}/*end*/",
+				"""
+					package p1;
+					/*start*/public class X extends Y {
+					}/*end*/""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y {
+					}""",
 			},
 			"Lp1/X;");
 	}
@@ -403,13 +418,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X extends Y {\n" +
-				"}",
+				"""
+					package p1;
+					public class X extends Y {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"/*start*/public class Y {\n" +
-				"}/*end*/",
+				"""
+					package p1;
+					/*start*/public class Y {
+					}/*end*/""",
 			},
 			"Lp1/Y;");
 	}
@@ -421,11 +438,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  /*start*/class Member {\n" +
-				"  }/*end*/" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  /*start*/class Member {
+					  }/*end*/\
+					}""",
 			},
 			"Lp1/X$Member;");
 	}
@@ -437,13 +455,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  class Member1 {\n" +
-				"    /*start*/class Member2 {\n" +
-				"    }/*end*/" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  class Member1 {
+					    /*start*/class Member2 {
+					    }/*end*/\
+					  }
+					}""",
 			},
 			"Lp1/X$Member1$Member2;");
 	}
@@ -454,13 +473,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    new X() /*start*/{\n" +
-				"    }/*end*/;" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					    new X() /*start*/{
+					    }/*end*/;\
+					  }
+					}""",
 			},
 			"Lp1/X$52;");
 	}
@@ -471,13 +491,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    /*start*/class Y {\n" +
-				"    }/*end*/;" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					    /*start*/class Y {
+					    }/*end*/;\
+					  }
+					}""",
 			},
 			"Lp1/X$54$Y;");
 	}
@@ -489,9 +510,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 			},
 			"p1");
 	}
@@ -503,13 +525,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X extends Y {\n" +
-				"}",
+				"""
+					package p1;
+					public class X extends Y {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y {
+					}""",
 			},
 			"Lp1/X;");
 	}
@@ -521,13 +545,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X extends Y {\n" +
-				"}",
+				"""
+					package p1;
+					public class X extends Y {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y {
+					}""",
 			},
 			"Lp1/Y;");
 	}
@@ -539,11 +565,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  class Member {\n" +
-				"  }" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  class Member {
+					  }\
+					}""",
 			},
 			"Lp1/X$Member;");
 	}
@@ -555,13 +582,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  class Member1 {\n" +
-				"    class Member2 {\n" +
-				"    }" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  class Member1 {
+					    class Member2 {
+					    }\
+					  }
+					}""",
 			},
 			"Lp1/X$Member1$Member2;");
 	}
@@ -573,13 +601,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    new X() /*start*/{\n" +
-				"    }/*end*/;" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					    new X() /*start*/{
+					    }/*end*/;\
+					  }
+					}""",
 			},
 			"Lp1/X$52;");
 	}
@@ -591,13 +620,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    /*start*/class Y {\n" +
-				"    }/*end*/;" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					    /*start*/class Y {
+					    }/*end*/;\
+					  }
+					}""",
 			},
 			"Lp1/X$54$Y;");
 	}
@@ -609,11 +639,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					  }
+					}""",
 			},
 			"Lp1/X;.foo()V");
 	}
@@ -625,11 +656,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo(Object o) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo(Object o) {
+					  }
+					}""",
 			},
 			"Lp1/X;.foo(Ljava/lang/Object;)V");
 	}
@@ -641,11 +673,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  X(Object o) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  X(Object o) {
+					  }
+					}""",
 			},
 			"Lp1/X;.(Ljava/lang/Object;)V");
 	}
@@ -657,10 +690,11 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  int field;\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  int field;
+					}""",
 			},
 			"Lp1/X;.field)I");
 	}
@@ -679,9 +713,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 			},
 			"[Lp1/X;");
 	}
@@ -700,17 +735,18 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  class Y {\n" +
-				"  }\n" +
-				"  void foo() {\n" +
-				"    new X() {\n" +
-				"      /*start*/void bar(int i, X x, String[][] s, Y[] args, boolean b, Object o) {\n" +
-				"      }/*end*/\n" +
-				"    };\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  class Y {
+					  }
+					  void foo() {
+					    new X() {
+					      /*start*/void bar(int i, X x, String[][] s, Y[] args, boolean b, Object o) {
+					      }/*end*/
+					    };
+					  }
+					}""",
 			},
 			"Lp1/X$68;.bar(ILp1/X;[[Ljava/lang/String;[Lp1/X$Y;ZLjava/lang/Object;)V"
 		);
@@ -723,9 +759,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T> {\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T> {
+					}""",
 			},
 			"Lp1/X<TT;>;");
 	}
@@ -737,17 +774,20 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T extends Y & I, U extends Y> {\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T extends Y & I, U extends Y> {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y {
+					}""",
 				"/P/p1/I.java",
-				"package p1;\n" +
-				"public interface I {\n" +
-				"}",
+				"""
+					package p1;
+					public interface I {
+					}""",
 			},
 			"Lp1/X<TT;TU;>;");
 	}
@@ -759,10 +799,11 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T> {\n" +
-				"  X<String> field;\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T> {
+					  X<String> field;
+					}""",
 			},
 			"Lp1/X<Ljava/lang/String;>;");
 	}
@@ -774,12 +815,13 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T,U> {\n" +
-				"  class Y<V> {\n" +
-				"    X<Error,Exception>.Y<String> field;\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T,U> {
+					  class Y<V> {
+					    X<Error,Exception>.Y<String> field;
+					  }
+					}""",
 			},
 			"Lp1/X<Ljava/lang/Error;Ljava/lang/Exception;>.Y<Ljava/lang/String;>;");
 	}
@@ -791,10 +833,11 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T,U> {\n" +
-				"   X field;\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T,U> {
+					   X field;
+					}""",
 			},
 			"Lp1/X<>;");
 	}
@@ -806,12 +849,13 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T,U> {\n" +
-				"  class Y<V> {\n" +
-				"    X<Error,Exception>.Y field;\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T,U> {
+					  class Y<V> {
+					    X<Error,Exception>.Y field;
+					  }
+					}""",
 			},
 			"Lp1/X<Ljava/lang/Error;Ljava/lang/Exception;>.Y<>;");
 	}
@@ -823,11 +867,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  <T> void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  <T> void foo() {
+					  }
+					}""",
 			},
 			"Lp1/X;.foo<T:Ljava/lang/Object;>()V");
 	}
@@ -839,12 +884,13 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    int i;\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					    int i;
+					  }
+					}""",
 			},
 			"Lp1/X;.foo()V#i");
 	}
@@ -856,17 +902,18 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    int i = 1;\n" +
-				"    if (i == 0) {\n" +
-				"      int a;\n" +
-				"    } else {\n" +
-				"      int b;\n" +
-				"    }\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					    int i = 1;
+					    if (i == 0) {
+					      int a;
+					    } else {
+					      int b;
+					    }
+					  }
+					}""",
 			},
 			"Lp1/X;.foo()V#1#b");
 	}
@@ -878,14 +925,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T> {\n" +
-				"  void foo(T t) {\n" +
-				"  }\n" +
-				"  void bar() {\n" +
-				"    new X<String>().foo(\"\");\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T> {
+					  void foo(T t) {
+					  }
+					  void bar() {
+					    new X<String>().foo("");
+					  }
+					}""",
 			},
 			"Lp1/X<Ljava/lang/String;>;.foo(Ljava/lang/String;)V");
 	}
@@ -897,14 +945,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T> {\n" +
-				"  <U> void foo(T t, U u) {\n" +
-				"  }\n" +
-				"  void bar() {\n" +
-				"    /*start*/new X<String>().foo(\"\", this)/*end*/;\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T> {
+					  <U> void foo(T t, U u) {
+					  }
+					  void bar() {
+					    /*start*/new X<String>().foo("", this)/*end*/;
+					  }
+					}""",
 			},
 			"Lp1/X<Ljava/lang/String;>;.foo<U:Ljava/lang/Object;>(Ljava/lang/String;TU;)V%<Lp1/X;>"
 		);
@@ -917,14 +966,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T> {\n" +
-				"  <U> void foo(T t, U u) {\n" +
-				"  }\n" +
-				"  void bar() {\n" +
-				"    /*start*/new X().foo(\"\", this)/*end*/;\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T> {
+					  <U> void foo(T t, U u) {
+					  }
+					  void bar() {
+					    /*start*/new X().foo("", this)/*end*/;
+					  }
+					}""",
 			},
 			"Lp1/X;.foo<U:Ljava/lang/Object;>(TT;TU;)V%<>");
 	}
@@ -936,14 +986,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T> {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"  void bar(X<?> x) {\n" +
-				"    x.foo();\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T> {
+					  void foo() {
+					  }
+					  void bar(X<?> x) {
+					    x.foo();
+					  }
+					}""",
 			},
 			"Lp1/X<Lp1/X;{0}*>;.foo()V");
 	}
@@ -955,14 +1006,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T> {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"  void bar(X<? extends Object> x) {\n" +
-				"    x.foo();\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T> {
+					  void foo() {
+					  }
+					  void bar(X<? extends Object> x) {
+					    x.foo();
+					  }
+					}""",
 			},
 			"Lp1/X<Lp1/X;{0}+Ljava/lang/Object;>;.foo()V");
 	}
@@ -974,14 +1026,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T> {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"  void bar(X<? super Error> x) {\n" +
-				"    x.foo();\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T> {
+					  void foo() {
+					  }
+					  void bar(X<? super Error> x) {
+					    x.foo();
+					  }
+					}""",
 			},
 			"Lp1/X<Lp1/X;{0}-Ljava/lang/Error;>;.foo()V");
 	}
@@ -993,14 +1046,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T, U, V, W> {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"  void bar(X<? super Error, ?, String, ? extends Object> x) {\n" +
-				"    x.foo();\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T, U, V, W> {
+					  void foo() {
+					  }
+					  void bar(X<? super Error, ?, String, ? extends Object> x) {
+					    x.foo();
+					  }
+					}""",
 			},
 			"Lp1/X<Lp1/X;{0}-Ljava/lang/Error;Lp1/X;{1}*Ljava/lang/String;Lp1/X;{2}+Ljava/lang/Object;>;.foo()V");
 	}
@@ -1013,9 +1067,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		try {
 			workingCopy = getWorkingCopy(
 				"/P/X.java",
-				"public class X {\n" +
-				"  int field;\n" +
-				"}"
+				"""
+					public class X {
+					  int field;
+					}"""
 			);
 			BindingRequestor requestor = new BindingRequestor();
 			String[] bindingKeys =
@@ -1047,10 +1102,11 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T> {\n" +
-				"  X<? super T> field;\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T> {
+					  X<? super T> field;
+					}""",
 			},
 			"Lp1/X<Lp1/X;{0}-Lp1/X;:TT;>;");
 	}
@@ -1063,10 +1119,11 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<E> {\n" +
-				"  Class<? extends E> field;\n" +
-				"}",
+				"""
+					package p1;
+					public class X<E> {
+					  Class<? extends E> field;
+					}""",
 			},
 			"Ljava/lang/Class<Lp1/X;{0}+Lp1/X;:TE;>;");
 	}
@@ -1079,13 +1136,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y<E> {\n" +
-				"}"
+				"""
+					package p1;
+					public class Y<E> {
+					}"""
 			},
 			new String[] {
 				"Lp1/X;",
@@ -1176,11 +1235,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			createFolder("/P/p1");
 			createFile(
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}\n" +
-				"class Y {\n" +
-				"}"
+				"""
+					package p1;
+					public class X {
+					}
+					class Y {
+					}"""
 			);
 			assertBindingCreated(new String[] {}, "Lp1/X~Y;");
 		} finally {
@@ -1196,14 +1256,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			createFolder("/P/p1");
 			createFile(
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}\n" +
-				"class Y {\n" +
-				"  void foo() {\n" +
-				"    new Y() {};\n" +
-				"  }\n" +
-				"}"
+				"""
+					package p1;
+					public class X {
+					}
+					class Y {
+					  void foo() {
+					    new Y() {};
+					  }
+					}"""
 			);
 			assertBindingCreated(new String[] {}, "Lp1/X~Y$64;");
 		} finally {
@@ -1218,17 +1279,18 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    class Y {\n" +
-				"      void bar() {\n" +
-				"        new X() /*start*/{\n" +
-				"        }/*end*/;" +
-				"      }\n" +
-				"    }\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					    class Y {
+					      void bar() {
+					        new X() /*start*/{
+					        }/*end*/;\
+					      }
+					    }
+					  }
+					}""",
 			},
 			"Lp1/X$89;"
 		);
@@ -1241,14 +1303,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T> {\n" +
-				"  <U> void foo(U u) {\n" +
-				"  }\n" +
-				"  void bar() {\n" +
-				"    /*start*/new X<String>().foo(new X() {})/*end*/;\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T> {
+					  <U> void foo(U u) {
+					  }
+					  void bar() {
+					    /*start*/new X<String>().foo(new X() {})/*end*/;
+					  }
+					}""",
 			},
 			"Lp1/X<Ljava/lang/String;>;.foo<U:Ljava/lang/Object;>(TU;)V%<Lp1/X$101;>"
 		);
@@ -1263,11 +1326,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			IJavaProject project = createJavaProject("BinaryProject", new String[0], new String[] {"JCL15_LIB"}, "", "1.5");
 			addLibrary(project, "lib.jar", "src.zip", new String[] {
 				"/BinaryProject/p/X.java",
-				"package p;\n" +
-				"public class X<K, V> {\n" +
-				"  public class Y<K1, V1> {\n" +
-				"  }\n" +
-				"}"
+				"""
+					package p;
+					public class X<K, V> {
+					  public class Y<K1, V1> {
+					  }
+					}"""
 			}, "1.5");
 			ITypeBinding[] bindings = createTypeBindings(new String[0], new String[] {
 				"Lp/X<>.Y<Lp/X;:TK;Lp/X;:TV;>;"
@@ -1301,11 +1365,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  </*start*/T/*end*/> void foo(T t) {\n" +
-				"  }" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  </*start*/T/*end*/> void foo(T t) {
+					  }\
+					}""",
 			},
 			"Lp1/X;.foo<T:Ljava/lang/Object;>(TT;)V:TT;");
 	}
@@ -1317,15 +1382,16 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T> {\n" +
-				"    Object foo(X<?> list) {\n" +
-				"       return /*start*/list.get()/*end*/;\n" +
-				"    }\n" +
-				"    T get() {\n" +
-				"    	return null;\n" +
-				"    }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T> {
+					    Object foo(X<?> list) {
+					       return /*start*/list.get()/*end*/;
+					    }
+					    T get() {
+					    	return null;
+					    }
+					}""",
 			},
 			"Lp1/X;&!Lp1/X;{0}*77;"
 		);
@@ -1338,21 +1404,23 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/xy/Cap.java",
-				"package xy;\n" +
-				"import java.util.Vector;\n" +
-				"public class Cap {\n" +
-				"	{\n" +
-				"		Vector<?> v= null;\n" +
-				"		/*start*/v.get(0)/*end*/;\n" +
-				"	}\n" +
-				"}",
+				"""
+					package xy;
+					import java.util.Vector;
+					public class Cap {
+						{
+							Vector<?> v= null;
+							/*start*/v.get(0)/*end*/;
+						}
+					}""",
 				"/P/java/util/Vector.java",
-				"package java.util;\n" +
-				"public class Vector<T> {\n" +
-				"  public T get(int i) {\n" +
-				"    return null;\n" +
-				"  }\n" +
-				"}"
+				"""
+					package java.util;
+					public class Vector<T> {
+					  public T get(int i) {
+					    return null;
+					  }
+					}"""
 			},
 			"Lxy/Cap;&!Ljava/util/Vector;{0}*82;"
 		);
@@ -1365,11 +1433,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"    /*start*/<T> X() {\n" +
-				"    }/*end*/\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					    /*start*/<T> X() {
+					    }/*end*/
+					}""",
 			},
 			"Lp1/X;.<T:Ljava/lang/Object;>()V"
 		);
@@ -1383,12 +1452,13 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  <T> /*start*/T[]/*end*/ foo(T[] a) {\n" +
-				"    return null;\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  <T> /*start*/T[]/*end*/ foo(T[] a) {
+					    return null;
+					  }
+					}""",
 			},
 			"[Lp1/X;.foo<T:Ljava/lang/Object;>([TT;)[TT;:TT;"
 		);
@@ -1402,23 +1472,24 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"	public static <T extends Y<? super T>> void foo(Z<T> z) {\n" +
-				"    }\n" +
-				"    /**\n" +
-				"     * @see #foo(Z)\n" +
-				"     */\n" +
-				"    void bar() {\n" +
-				"        /*start*/foo(new W())/*end*/;\n" +
-				"    }\n" +
-				"}\n" +
-				"class Y<T> {\n" +
-				"}\n" +
-				"class Z<T> {\n" +
-				"}\n" +
-				"class W<T> extends Z<T> {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+						public static <T extends Y<? super T>> void foo(Z<T> z) {
+					    }
+					    /**
+					     * @see #foo(Z)
+					     */
+					    void bar() {
+					        /*start*/foo(new W())/*end*/;
+					    }
+					}
+					class Y<T> {
+					}
+					class Z<T> {
+					}
+					class W<T> extends Z<T> {
+					}""",
 			},
 			"Lp1/X;.foo<T:Lp1/Y<-TT;>;>(Lp1/Z<TT;>;)V%<Lp1/X~Y<Lp1/X~Y;{0}-Lp1/X~Y<Lp1/X~Y;{0}-Lp1/X;:2TT;>;>;>"
 		);
@@ -1432,23 +1503,24 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<U extends X<T>> {\n" +
-				"	public void foo(Z<U> z) {\n" +
-				"    }\n" +
-				"    /**\n" +
-				"     * @see #foo(Z)\n" +
-				"     */\n" +
-				"    static void bar(X x) {\n" +
-				"        /*start*/x.foo(new W())/*end*/;\n" +
-				"    }\n" +
-				"}\n" +
-				"class Y<T> {\n" +
-				"}\n" +
-				"class Z<T> {\n" +
-				"}\n" +
-				"class W<T> extends Z<T> {\n" +
-				"}",
+				"""
+					package p1;
+					public class X<U extends X<T>> {
+						public void foo(Z<U> z) {
+					    }
+					    /**
+					     * @see #foo(Z)
+					     */
+					    static void bar(X x) {
+					        /*start*/x.foo(new W())/*end*/;
+					    }
+					}
+					class Y<T> {
+					}
+					class Z<T> {
+					}
+					class W<T> extends Z<T> {
+					}""",
 			},
 			"Lp1/X<>;.foo(Lp1/Z;)V"
 		);
@@ -1462,18 +1534,21 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingsFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"/*start1*/public class X {\n" +
-				"	Object o= null;\n" +
-				"	Y<?> field;\n" +
-				"	void foo() {\n" +
-				"		/*start2*/o = field/*end2*/;\n" +
-				"	}\n" +
-				"}/*end1*/\n",
+				"""
+					package p1;
+					/*start1*/public class X {
+						Object o= null;
+						Y<?> field;
+						void foo() {
+							/*start2*/o = field/*end2*/;
+						}
+					}/*end1*/
+					""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y<T> {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y<T> {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -1490,13 +1565,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  <T> void foo(/*start*/Y<T>/*end*/ y) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class Y<E> {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  <T> void foo(/*start*/Y<T>/*end*/ y) {
+					  }
+					}
+					class Y<E> {
+					}""",
 			},
 			"Lp1/X~Y<Lp1/X;:1TT;>;"
 		);
@@ -1514,19 +1590,21 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			primaryWorkingCopy = getCompilationUnit("/P/p1/X.java");
 			primaryWorkingCopy.becomeWorkingCopy(null/*no progress*/);
 			primaryWorkingCopy.getBuffer().setContents(
-				"package p1;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package p1;
+					public class X {
+					}"""
 			);
 			primaryWorkingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 
 			// working copy for the test's owner with a method foo()
 			ownedWorkingcopy = getWorkingCopy(
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {}\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {}
+					}""",
 				this.owner
 			);
 
@@ -1534,11 +1612,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			assertRequestedBindingFound(
 				new String[] {
 					"/P/p1/Y.java",
-					"package p1;\n" +
-					"public class Y {\n" +
-					"  void bar() {\n" +
-					"    /*start*/new X().foo()/*end*/;\n" +
-					"}",
+					"""
+						package p1;
+						public class Y {
+						  void bar() {
+						    /*start*/new X().foo()/*end*/;
+						}""",
 				},
 				"Lp1/X;.foo()V"
 			);
@@ -1557,12 +1636,13 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<K, V> {\n" +
-				"  public class Y<K1, V1> {\n" +
-				"  }\n" +
-				"  /*start*/Y<K, V>/*end*/ field;\n" +
-				"}"
+				"""
+					package p1;
+					public class X<K, V> {
+					  public class Y<K1, V1> {
+					  }
+					  /*start*/Y<K, V>/*end*/ field;
+					}"""
 			},
 			new String[] {"Lp1/X$Y<Lp1/X;:TK;Lp1/X;:TV;>;"}
 		);
@@ -1580,25 +1660,28 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
 			addLibrary(project, "lib.jar", "src.zip", new String[] {
 				"/P1/p/X.java",
-				"package p;\n" +
-				"public class X<K, V> {\n" +
-				"  public static class Member<K1, V1> {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p;
+					public class X<K, V> {
+					  public static class Member<K1, V1> {
+					  }
+					}""",
 				"/P1/p/Y.java",
-				"package p;\n" +
-				"public class Y {\n" +
-				"  void foo(X.Member x) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p;
+					public class Y {
+					  void foo(X.Member x) {
+					  }
+					}""",
 			}, "1.5");
 			assertRequestedBindingFound(
 				new String[] {
 					"/P1/p1/Z.java",
-					"package p1;\n" +
-					"public class Z extends p.Y {\n" +
-					"  /*start*/p.X.Member/*end*/ field;\n" +
-					"}"
+					"""
+						package p1;
+						public class Z extends p.Y {
+						  /*start*/p.X.Member/*end*/ field;
+						}"""
 				},
 				"Lp/X$Member<>;"
 			);
@@ -1614,24 +1697,27 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public void test069() throws CoreException {
 		this.workingCopies = createWorkingCopies(new String[] {
 			"/P/pkg/RefAnnoAndClassWithAnno.java",
-			"package pkg;\n" +
-			"public class RefMyAnnoAndClassWithAnno {\n" +
-			"	final Class anno = MyAnno.class;\n" +
-			"	final Class withAnno = ClassWithAnnotation.class;\n" +
-			"}",
+			"""
+				package pkg;
+				public class RefMyAnnoAndClassWithAnno {
+					final Class anno = MyAnno.class;
+					final Class withAnno = ClassWithAnnotation.class;
+				}""",
 			"/P/pkg/MyAnno.java",
-			"package pkg;\n" +
-			"public @interface MyAnno {\n" +
-			"	public enum EnumColor{\n" +
-			"		BLUE, RED, WHITE;\n" +
-			"	}\n" +
-			"	EnumColor aEnum();\n" +
-			"}",
+			"""
+				package pkg;
+				public @interface MyAnno {
+					public enum EnumColor{
+						BLUE, RED, WHITE;
+					}
+					EnumColor aEnum();
+				}""",
 			"/P/pkg/ClassWithAnnotation.java",
-			"package pkg;\n" +
-			"import pkg.MyAnno.EnumColor;\n" +
-			"@MyAnno(aEnum = EnumColor.BLUE)\n" +
-			"public class ClassWithAnnotation {}"
+			"""
+				package pkg;
+				import pkg.MyAnno.EnumColor;
+				@MyAnno(aEnum = EnumColor.BLUE)
+				public class ClassWithAnnotation {}"""
 		});
 		String key = BindingKey.createTypeBindingKey("pkg.RefMyAnnoAndClassWithAnno");
 		BindingResolver resolver = new BindingResolver(new MarkerInfo[0]);
@@ -1649,14 +1735,16 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public void test070() throws CoreException {
 		MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
 			"/P/p1/X.java",
-			"package p1;\n" +
-			"public class X extends /*start*/Y/*end*/ {\n" +
-			"}",
+			"""
+				package p1;
+				public class X extends /*start*/Y/*end*/ {
+				}""",
 			"/P/p1/Y.java",
-			"package p1;\n" +
-			"public class Y {\n" +
-			"  static final int CONST = 2 + 3;\n" +
-			"}",
+			"""
+				package p1;
+				public class Y {
+				  static final int CONST = 2 + 3;
+				}""",
 		});
 		this.workingCopies = createWorkingCopies(markerInfos, this.owner);
 		TestASTRequestor requestor = new TestASTRequestor();
@@ -1677,14 +1765,16 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public void test071() throws CoreException {
 		final MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
 			"/P/p1/X.java",
-			"package p1;\n" +
-			"public class X extends /*start*/Y/*end*/ {\n" +
-			"}",
+			"""
+				package p1;
+				public class X extends /*start*/Y/*end*/ {
+				}""",
 			"/P/p1/Y.java",
-			"package p1;\n" +
-			"public class Y {\n" +
-			"  static final int CONST = 2 + 3;\n" +
-			"}",
+			"""
+				package p1;
+				public class Y {
+				  static final int CONST = 2 + 3;
+				}""",
 		});
 		this.workingCopies = createWorkingCopies(markerInfos, this.owner);
 		class Requestor extends TestASTRequestor {
@@ -1713,11 +1803,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		IVariableBinding[] bindings = createVariableBindings(
 			new String[] {
 				"/P/X.java",
-				"public class X {\n" +
-				"    void m() {\n" +
-				"        Object o;\n" +
-				"    }\n" +
-				"}"
+				"""
+					public class X {
+					    void m() {
+					        Object o;
+					    }
+					}"""
 			},
 			new String[] {
 				"LX;.m()V#o"
@@ -1735,24 +1826,26 @@ public void test073() throws CoreException, IOException {
 		ICompilationUnit compilationUnits[] = new ICompilationUnit[3];
 		compilationUnits[0] = getWorkingCopy(
 			"P072/X.java",
-			"public class X {\n" +
-			"  @Override" +
-			"  public boolean equals(Object o) {\n" +
-			"    return true;\n" +
-			"  }\n" +
-			"}");
+			"""
+				public class X {
+				  @Override\
+				  public boolean equals(Object o) {
+				    return true;
+				  }
+				}""");
 		compilationUnits[1] = getWorkingCopy(
 			"P072/Y.java",
 			"public class Y extends X {\n" +
 			"}");
 		compilationUnits[2] = getWorkingCopy(
 			"P072/Z.java",
-			"public class Z {\n" +
-			"  Y m;\n" +
-			"  boolean foo(Object p) {\n" +
-			"    return this.m.equals(p);\n" +
-			"  }\n" +
-			"}");
+			"""
+				public class Z {
+				  Y m;
+				  boolean foo(Object p) {
+				    return this.m.equals(p);
+				  }
+				}""");
 		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(project);
@@ -1774,23 +1867,25 @@ public void test074_Bug155003() throws CoreException {
 	assertBindingCreated(
 		new String[] {
 			"/P/X.java",
-			"public class X {\n" +
-			"    public void foo() throws InterruptedException, IllegalMonitorStateException {\n" +
-			"    }\n" +
-			"    void test() throws InterruptedException, IllegalMonitorStateException {\n" +
-			"    	/*start*/foo()/*end*/;\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X {
+				    public void foo() throws InterruptedException, IllegalMonitorStateException {
+				    }
+				    void test() throws InterruptedException, IllegalMonitorStateException {
+				    	/*start*/foo()/*end*/;
+				    }
+				}""",
 		},
 		"LX;.foo()V|Ljava/lang/InterruptedException;|Ljava/lang/IllegalMonitorStateException;"
 	);
-	String content = "public class X {\n" +
-			"    public void foo() throws InterruptedException, IllegalMonitorStateException {\n" +
-			"    }\n" +
-			"    void test() throws InterruptedException, IllegalMonitorStateException {\n" +
-			"    	/*start*/foo()/*end*/;\n" +
-			"    }\n" +
-			"}";
+	String content = """
+		public class X {
+		    public void foo() throws InterruptedException, IllegalMonitorStateException {
+		    }
+		    void test() throws InterruptedException, IllegalMonitorStateException {
+		    	/*start*/foo()/*end*/;
+		    }
+		}""";
 	this.workingCopies = createWorkingCopies(new String[] { "/P/X.java", content }, true /*resolve*/);
 	ASTNode node = buildAST(content, this.workingCopies[0]);
 	assertEquals("Invalid node type!", ASTNode.METHOD_INVOCATION, node.getNodeType());
@@ -1803,14 +1898,15 @@ public void test074_Bug155003() throws CoreException {
 	);
 }
 public void test075_Bug155003() throws CoreException {
-	String content = "public class X<T> {\n" +
-		"	<U extends Exception> X<T> foo(X<T> x) throws RuntimeException, U {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"	void test() throws Exception {\n" +
-		"		/*start*/foo(this)/*end*/;\n" +
-		"	}\n" +
-		"}";
+	String content = """
+		public class X<T> {
+			<U extends Exception> X<T> foo(X<T> x) throws RuntimeException, U {
+				return null;
+			}
+			void test() throws Exception {
+				/*start*/foo(this)/*end*/;
+			}
+		}""";
 	this.workingCopies = createWorkingCopies(new String[] { "/P/X.java", content }, true /*resolve*/);
 	ASTNode node = buildAST(content, this.workingCopies[0]);
 	assertEquals("Invalid node type!", ASTNode.METHOD_INVOCATION, node.getNodeType());
@@ -1823,14 +1919,15 @@ public void test075_Bug155003() throws CoreException {
 	);
 }
 public void test076_Bug155003() throws CoreException {
-	String content = "public class X<T> {\n" +
-		"	<K, V> V bar(K key, V value) throws Exception {\n" +
-		"		return value;\n" +
-		"	}\n" +
-		"	void test() throws Exception {\n" +
-		"		/*start*/bar(\"\", \"\")/*end*/;\n" +
-		"	}\n" +
-		"}";
+	String content = """
+		public class X<T> {
+			<K, V> V bar(K key, V value) throws Exception {
+				return value;
+			}
+			void test() throws Exception {
+				/*start*/bar("", "")/*end*/;
+			}
+		}""";
 	this.workingCopies = createWorkingCopies(new String[] { "/P/X.java", content }, true /*resolve*/);
 	ASTNode node = buildAST(content, this.workingCopies[0]);
 	assertEquals("Invalid node type!", ASTNode.METHOD_INVOCATION, node.getNodeType());
@@ -1849,29 +1946,32 @@ public void test076_Bug155003() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=163647"
  */
 public void test077_Bug163647() throws CoreException {
-	String content = 	"public class Test {\n" +
-		"    public X<? extends Object> getX() { return null; }\n" +
-		"    public void bar() {\n" +
-		"		try {\n" +
-		"			/*start*/getX().foo()/*end*/;\n" +
-		"		} catch (Exception e) {\n" +
-		"			// skip\n" +
-		"		}\n" +
-		"    }\n" +
-		"}\n" +
-		"class X<T> {\n" +
-		"    public void foo() throws CloneNotSupportedException, IllegalMonitorStateException, InterruptedException {\n" +
-		"    }\n" +
-		"}";
+	String content = 	"""
+		public class Test {
+		    public X<? extends Object> getX() { return null; }
+		    public void bar() {
+				try {
+					/*start*/getX().foo()/*end*/;
+				} catch (Exception e) {
+					// skip
+				}
+		    }
+		}
+		class X<T> {
+		    public void foo() throws CloneNotSupportedException, IllegalMonitorStateException, InterruptedException {
+		    }
+		}""";
 	this.workingCopies = createWorkingCopies(new String[] { "/P/Test.java", content }, true /*resolve*/);
 	ASTNode node = buildAST(content, this.workingCopies[0]);
 	assertEquals("Invalid node type!", ASTNode.METHOD_INVOCATION, node.getNodeType());
 	IBinding binding = resolveBinding(node);
 	BindingKey bindingKey = new BindingKey(binding.getKey());
 	assertStringsEqual("Unexpected thrown exceptions",
-		"Ljava.lang.CloneNotSupportedException;\n" +
-		"Ljava.lang.IllegalMonitorStateException;\n" +
-		"Ljava.lang.InterruptedException;\n",
+		"""
+			Ljava.lang.CloneNotSupportedException;
+			Ljava.lang.IllegalMonitorStateException;
+			Ljava.lang.InterruptedException;
+			""",
 		bindingKey.getThrownExceptions()
 	);
 }
@@ -1882,24 +1982,25 @@ public void test078() throws CoreException, IOException {
 		ICompilationUnit compilationUnits[] = new ICompilationUnit[1];
 		compilationUnits[0] = getWorkingCopy(
 			"P078/Test.java",
-			"import java.util.*;\n" +
-			"public class Test {\n" +
-			"        public interface ExtraIterator<T> extends Iterator {\n" +
-			"                public void extra();\n" +
-			"        }\n" +
-			"        public class Test2<T> implements ExtraIterator<T> {\n" +
-			"            public boolean hasNext() {\n" +
-			"                return false;\n" +
-			"            }\n" +
-			"            public T next() {\n" +
-			"                return null;\n" +
-			"            }\n" +
-			"            public void remove() {\n" +
-			"            }\n" +
-			"            public void extra() {\n" +
-			"            }\n" +
-			"        }\n" +
-			"}");
+			"""
+				import java.util.*;
+				public class Test {
+				        public interface ExtraIterator<T> extends Iterator {
+				                public void extra();
+				        }
+				        public class Test2<T> implements ExtraIterator<T> {
+				            public boolean hasNext() {
+				                return false;
+				            }
+				            public T next() {
+				                return null;
+				            }
+				            public void remove() {
+				            }
+				            public void extra() {
+				            }
+				        }
+				}""");
 		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(project);
@@ -1937,23 +2038,24 @@ public void test079() throws CoreException, IOException {
 		IJavaProject project = createJavaProject("P079", new String[] {"src"}, Util.getJavaClassLibs(), "bin", "1.5");
 		createFolder("/P079/src/test");
 		createFile("/P079/src/test/Test.java",
-				"package test;\n" +
-				"import java.util.*;\n" +
-				"interface ExtraIterator<T> extends Iterator {\n" +
-				"        public void extra();\n" +
-				"}\n" +
-				"public class Test<T> implements ExtraIterator<T> {\n" +
-				"    public boolean hasNext() {\n" +
-				"        return false;\n" +
-				"    }\n" +
-				"    public T next() {\n" +
-				"        return null;\n" +
-				"    }\n" +
-				"    public void remove() {\n" +
-				"    }\n" +
-				"    public void extra() {\n" +
-				"    }\n" +
-				"}");
+				"""
+					package test;
+					import java.util.*;
+					interface ExtraIterator<T> extends Iterator {
+					        public void extra();
+					}
+					public class Test<T> implements ExtraIterator<T> {
+					    public boolean hasNext() {
+					        return false;
+					    }
+					    public T next() {
+					        return null;
+					    }
+					    public void remove() {
+					    }
+					    public void extra() {
+					    }
+					}""");
 		ICompilationUnit compilationUnits[] = new ICompilationUnit[1];
 		compilationUnits[0] = getCompilationUnit("P079", "src", "test", "Test.java");
 		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
@@ -1993,25 +2095,26 @@ public void test080() throws CoreException, IOException {
 		IJavaProject project = createJavaProject(projectName, new String[] {"src"}, Util.getJavaClassLibs(), "bin", "1.5");
 		createFolder("/" + projectName + "/src/test");
 		createFile("/" + projectName + "/src/test/Test.java",
-				"package test;\n" +
-				"import java.util.*;\n" +
-				"public class Test {\n" +
-				"        public interface ExtraIterator<T> extends Iterator {\n" +
-				"                public void extra();\n" +
-				"        }\n" +
-				"        public class Test2<T> implements ExtraIterator<T> {\n" +
-				"            public boolean hasNext() {\n" +
-				"                return false;\n" +
-				"            }\n" +
-				"            public T next() {\n" +
-				"                return null;\n" +
-				"            }\n" +
-				"            public void remove() {\n" +
-				"            }\n" +
-				"            public void extra() {\n" +
-				"            }\n" +
-				"        }\n" +
-				"}");
+				"""
+					package test;
+					import java.util.*;
+					public class Test {
+					        public interface ExtraIterator<T> extends Iterator {
+					                public void extra();
+					        }
+					        public class Test2<T> implements ExtraIterator<T> {
+					            public boolean hasNext() {
+					                return false;
+					            }
+					            public T next() {
+					                return null;
+					            }
+					            public void remove() {
+					            }
+					            public void extra() {
+					            }
+					        }
+					}""");
 		ICompilationUnit compilationUnits[] = new ICompilationUnit[1];
 		compilationUnits[0] = getCompilationUnit(projectName, "src", "test", "Test.java");
 		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
@@ -2111,9 +2214,10 @@ public void test082() throws CoreException, IOException {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"/*start*/class Y {\n" +
-				"}/*end*/",
+				"""
+					package p1;
+					/*start*/class Y {
+					}/*end*/""",
 			},
 			"Lp1/X~Y;");
 	}
@@ -2126,13 +2230,14 @@ public void test082() throws CoreException, IOException {
 		assertBindingCreated(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    int i;\n" +
-				"    int i;\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					    int i;
+					    int i;
+					  }
+					}""",
 			},
 			"Lp1/X;.foo()V#i#1");
 	}
@@ -2144,14 +2249,16 @@ public void test082() throws CoreException, IOException {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"/*start*/@MyAnnot/*end*/\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					/*start*/@MyAnnot/*end*/
+					public class X {
+					}""",
 				"/P/p1/MyAnnot.java",
-				"package p1;\n" +
-				"public @interface MyAnnot {\n" +
-				"}",
+				"""
+					package p1;
+					public @interface MyAnnot {
+					}""",
 			},
 			"Lp1/X;@Lp1/MyAnnot;");
 	}
@@ -2163,15 +2270,17 @@ public void test082() throws CoreException, IOException {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  /*start*/@MyAnnot/*end*/\n" +
-				"  int field;\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  /*start*/@MyAnnot/*end*/
+					  int field;
+					}""",
 				"/P/p1/MyAnnot.java",
-				"package p1;\n" +
-				"public @interface MyAnnot {\n" +
-				"}",
+				"""
+					package p1;
+					public @interface MyAnnot {
+					}""",
 			},
 			"Lp1/X;.field)I@Lp1/MyAnnot;");
 	}
@@ -2183,16 +2292,18 @@ public void test082() throws CoreException, IOException {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  /*start*/@MyAnnot/*end*/\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  /*start*/@MyAnnot/*end*/
+					  void foo() {
+					  }
+					}""",
 				"/P/p1/MyAnnot.java",
-				"package p1;\n" +
-				"public @interface MyAnnot {\n" +
-				"}",
+				"""
+					package p1;
+					public @interface MyAnnot {
+					}""",
 			},
 			"Lp1/X;.foo()V@Lp1/MyAnnot;");
 	}
@@ -2206,22 +2317,24 @@ public void test082() throws CoreException, IOException {
 		assertBindingCreated(
 			new String[] {
 				"/P/A.java",
-				"public class A {\n" +
-				"	public void foo(C c) {\n" +
-				"		c.bar(B //|<---Ctrl+Space after B\n" +
-				"	}\n" +
-				"}\n" +
-				"class B<V, E> {\n" +
-				"}",
+				"""
+					public class A {
+						public void foo(C c) {
+							c.bar(B //|<---Ctrl+Space after B
+						}
+					}
+					class B<V, E> {
+					}""",
 				"/P/C.java",
-				"public class C {\n" +
-				"	public <V, E> void bar(B<V, E> code) {\n" +
-				"		new D(null) {};  \n" +
-				"	}\n" +
-				"}\n" +
-				"class D {\n" +
-				"	D(Object o) {}\n" +
-				"}"
+				"""
+					public class C {
+						public <V, E> void bar(B<V, E> code) {
+							new D(null) {}; \s
+						}
+					}
+					class D {
+						D(Object o) {}
+					}"""
 			},
 			"LA~B<LC;:1TV;LC;:1TE;>;");
 	}
@@ -2229,17 +2342,18 @@ public void test082() throws CoreException, IOException {
 	public void testIgnoreMethodBodies1() throws CoreException {
 		this.workingCopies = createWorkingCopies(new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  public int foo() {\n" +
-				"    int i = 0;\n" +
-				"  }\n" +
-				"  public int bar() {\n" +
-				"    int i = 0;\n" +
-				"    new X() /*start*/{\n" +
-				"    }/*end*/;" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  public int foo() {
+					    int i = 0;
+					  }
+					  public int bar() {
+					    int i = 0;
+					    new X() /*start*/{
+					    }/*end*/;\
+					  }
+					}""",
 			});
 			TestASTRequestor requestor = new TestASTRequestor();
 			ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
@@ -2247,31 +2361,34 @@ public void test082() throws CoreException, IOException {
 			parser.createASTs(this.workingCopies, new String[] {}, requestor, null);
 			// statement declaring i should not be in the AST
 			assertASTNodesEqual(
-					"package p1;\n" +
-					"public class X {\n" +
-					"  public int foo(){\n" +
-					"  }\n" +
-					"  public int bar(){\n" +
-					"  }\n" +
-					"}\n" +
-					"\n",
+					"""
+						package p1;
+						public class X {
+						  public int foo(){
+						  }
+						  public int bar(){
+						  }
+						}
+						
+						""",
 					requestor.asts
 				);
 	}
 	public void testIgnoreMethodBodies2() throws CoreException {
 		this.workingCopies = createWorkingCopies(new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  public int foo() {\n" +
-				"    int i = 0;\n" +
-				"  }\n" +
-				"  public int bar() {\n" +
-				"    int i = 0;\n" +
-				"    new X() /*start*/{\n" +
-				"    }/*end*/;" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  public int foo() {
+					    int i = 0;
+					  }
+					  public int bar() {
+					    int i = 0;
+					    new X() /*start*/{
+					    }/*end*/;\
+					  }
+					}""",
 			});
 			TestASTRequestor requestor = new TestASTRequestor();
 			ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
@@ -2281,14 +2398,16 @@ public void test082() throws CoreException, IOException {
 			parser.createASTs(this.workingCopies, new String[] {}, requestor, null);
 			// statement declaring i should not be in the AST
 			assertASTNodesEqual(
-					"package p1;\n" +
-					"public class X {\n" +
-					"  public int foo(){\n" +
-					"  }\n" +
-					"  public int bar(){\n" +
-					"  }\n" +
-					"}\n" +
-					"\n",
+					"""
+						package p1;
+						public class X {
+						  public int foo(){
+						  }
+						  public int bar(){
+						  }
+						}
+						
+						""",
 					requestor.asts
 				);
 	}

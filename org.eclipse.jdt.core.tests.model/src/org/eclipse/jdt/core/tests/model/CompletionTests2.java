@@ -254,9 +254,10 @@ public void testBug29832() throws Exception {
 			"bin");
 		this.createFile(
 			"/P2/src/X.java",
-			"public class X {\n"+
-			"  ZZZ z;\n"+
-			"}");
+			"""
+				public class X {
+				  ZZZ z;
+				}""");
 
 		waitUntilIndexesReady();
 
@@ -281,40 +282,43 @@ public void testBug29832() throws Exception {
 		File dest = getWorkspaceRoot().getLocation().toFile();
 		File pro = createDirectory(dest, "P1");
 
-		createFile(pro, ".classpath", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
-			"    <classpathentry kind=\"var\" path=\"JCL_LIB\" sourcepath=\"JCL_SRC\" rootpath=\"JCL_SRCROOT\"/>\n" +
-			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>");
+		createFile(pro, ".classpath", """
+			<?xml version="1.0" encoding="UTF-8"?>
+			<classpath>
+			    <classpathentry kind="src" path="src"/>
+			    <classpathentry kind="var" path="JCL_LIB" sourcepath="JCL_SRC" rootpath="JCL_SRCROOT"/>
+			    <classpathentry kind="output" path="bin"/>
+			</classpath>""");
 
 		createFile(pro, ".project",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<projectDescription>\n" +
-			"	<name>org.eclipse.jdt.core</name>\n" +
-			"	<comment></comment>\n" +
-			"	<projects>\n" +
-			"	</projects>\n" +
-			"	<buildSpec>\n" +
-			"		<buildCommand>\n" +
-			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
-			"			<arguments>\n" +
-			"			</arguments>\n" +
-			"		</buildCommand>\n" +
-			"	</buildSpec>\n" +
-			"	<natures>\n" +
-			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
-			"	</natures>\n" +
-			"</projectDescription>");
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<projectDescription>
+					<name>org.eclipse.jdt.core</name>
+					<comment></comment>
+					<projects>
+					</projects>
+					<buildSpec>
+						<buildCommand>
+							<name>org.eclipse.jdt.core.javabuilder</name>
+							<arguments>
+							</arguments>
+						</buildCommand>
+					</buildSpec>
+					<natures>
+						<nature>org.eclipse.jdt.core.javanature</nature>
+					</natures>
+				</projectDescription>""");
 
 		File src = createDirectory(pro, "src");
 
 		File pz = createDirectory(src, "pz");
 
 		createFile(pz, "ZZZ.java",
-			"package pz;\n" +
-			"public class ZZZ {\n" +
-			"}");
+			"""
+				package pz;
+				public class ZZZ {
+				}""");
 
 		final IProject project = getWorkspaceRoot().getProject("P1");
 		IWorkspaceRunnable populate = new IWorkspaceRunnable() {
@@ -379,9 +383,10 @@ public void testBug33560() throws Exception {
 			"bin");
 		this.createFile(
 			"/P3/src/X.java",
-			"public class X {\n"+
-			"  ZZZ z;\n"+
-			"}");
+			"""
+				public class X {
+				  ZZZ z;
+				}""");
 
 		waitUntilIndexesReady();
 
@@ -406,40 +411,43 @@ public void testBug33560() throws Exception {
 		File dest = getWorkspaceRoot().getLocation().toFile();
 		File pro = createDirectory(dest, "P1");
 
-		createFile(pro, ".classpath", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
-			"    <classpathentry kind=\"var\" path=\"JCL_LIB\" sourcepath=\"JCL_SRC\" rootpath=\"JCL_SRCROOT\"/>\n" +
-			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>");
+		createFile(pro, ".classpath", """
+			<?xml version="1.0" encoding="UTF-8"?>
+			<classpath>
+			    <classpathentry kind="src" path="src"/>
+			    <classpathentry kind="var" path="JCL_LIB" sourcepath="JCL_SRC" rootpath="JCL_SRCROOT"/>
+			    <classpathentry kind="output" path="bin"/>
+			</classpath>""");
 
 		createFile(pro, ".project",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<projectDescription>\n" +
-			"	<name>org.eclipse.jdt.core</name>\n" +
-			"	<comment></comment>\n" +
-			"	<projects>\n" +
-			"	</projects>\n" +
-			"	<buildSpec>\n" +
-			"		<buildCommand>\n" +
-			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
-			"			<arguments>\n" +
-			"			</arguments>\n" +
-			"		</buildCommand>\n" +
-			"	</buildSpec>\n" +
-			"	<natures>\n" +
-			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
-			"	</natures>\n" +
-			"</projectDescription>");
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<projectDescription>
+					<name>org.eclipse.jdt.core</name>
+					<comment></comment>
+					<projects>
+					</projects>
+					<buildSpec>
+						<buildCommand>
+							<name>org.eclipse.jdt.core.javabuilder</name>
+							<arguments>
+							</arguments>
+						</buildCommand>
+					</buildSpec>
+					<natures>
+						<nature>org.eclipse.jdt.core.javanature</nature>
+					</natures>
+				</projectDescription>""");
 
 		File src = createDirectory(pro, "src");
 
 		File pz = createDirectory(src, "pz");
 
 		createFile(pz, "ZZZ.java",
-			"package pz;\n" +
-			"public class ZZZ {\n" +
-			"}");
+			"""
+				package pz;
+				public class ZZZ {
+				}""");
 
 		final IProject project = getWorkspaceRoot().getProject("P1");
 		IWorkspaceRunnable populate = new IWorkspaceRunnable() {
@@ -476,19 +484,23 @@ public void testBug6930_01() throws Exception {
 		this.workingCopies = new ICompilationUnit[3];
 
 		this.workingCopies[1] = getWorkingCopy("/P/src/p6930/AllConstructors01.java",
-			"package p6930;\n" +
-			"public class AllConstructors01 {\n" +
-			"  public AllConstructors01() {}\n" +
-			"  public AllConstructors01(Object o) {}\n" +
-			"  public AllConstructors01(int o) {}\n" +
-			"  public AllConstructors01(Object o, String s) {}\n" +
-			"}\n"
+			"""
+				package p6930;
+				public class AllConstructors01 {
+				  public AllConstructors01() {}
+				  public AllConstructors01(Object o) {}
+				  public AllConstructors01(int o) {}
+				  public AllConstructors01(Object o, String s) {}
+				}
+				"""
 		);
 
 		this.workingCopies[2] = getWorkingCopy("/P/src/p6930/AllConstructors01b.java",
-			"package p6930;\n" +
-			"public class AllConstructors01b {\n" +
-			"}\n"
+			"""
+				package p6930;
+				public class AllConstructors01b {
+				}
+				"""
 		);
 
 		refresh(p);
@@ -497,12 +509,13 @@ public void testBug6930_01() throws Exception {
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -541,17 +554,19 @@ public void testBug6930_02() throws Exception {
 	try {
 		createJar(new String[] {
 			"p6930/AllConstructors02.java",
-			"package p6930;\n" +
-			"public class AllConstructors02 {\n" +
-			"  public AllConstructors02() {}\n" +
-			"  public AllConstructors02(Object o) {}\n" +
-			"  public AllConstructors02(int o) {}\n" +
-			"  public AllConstructors02(Object o, String s) {}\n" +
-			"}",
+			"""
+				package p6930;
+				public class AllConstructors02 {
+				  public AllConstructors02() {}
+				  public AllConstructors02(Object o) {}
+				  public AllConstructors02(int o) {}
+				  public AllConstructors02(Object o, String s) {}
+				}""",
 			"p6930/AllConstructors02b.java",
-			"package p6930;\n" +
-			"public class AllConstructors02b {\n" +
-			"}"
+			"""
+				package p6930;
+				public class AllConstructors02b {
+				}"""
 		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
 
 		refresh(p);
@@ -561,12 +576,13 @@ public void testBug6930_02() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -602,19 +618,21 @@ public void testBug6930_03() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors03.java",
-				"package p6930;\n" +
-				"public class AllConstructors03 {\n" +
-				"  public AllConstructors03() {}\n" +
-				"  public AllConstructors03(Object o) {}\n" +
-				"  public AllConstructors03(int o) {}\n" +
-				"  public AllConstructors03(Object o, String s) {}\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors03 {
+					  public AllConstructors03() {}
+					  public AllConstructors03(Object o) {}
+					  public AllConstructors03(int o) {}
+					  public AllConstructors03(Object o, String s) {}
+					}""");
 
 		createFile(
 				"/P/src/p6930/AllConstructors03b.java",
-				"package p6930;\n" +
-				"public class AllConstructors03b {\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors03b {
+					}""");
 		refresh(p);
 
 		waitUntilIndexesReady();
@@ -622,12 +640,13 @@ public void testBug6930_03() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -666,32 +685,34 @@ public void testBug6930_04() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"class AllConstructors04a {\n" +
-				"  public class AllConstructors0b {\n" +
-				"  }\n" +
-				"}\n" +
-				"public class Test {\n" +
-				"  public class AllConstructors04c {\n" +
-				"    public class AllConstructors04d {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  void foo() {\n" +
-				"    class AllConstructors04e {\n" +
-				"      class AllConstructors04f {\n" +
-				"      }\n" +
-				"    }\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					class AllConstructors04a {
+					  public class AllConstructors0b {
+					  }
+					}
+					public class Test {
+					  public class AllConstructors04c {
+					    public class AllConstructors04d {
+					    }
+					  }
+					  void foo() {
+					    class AllConstructors04e {
+					      class AllConstructors04f {
+					      }
+					    }
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/test/AllConstructors04g.java",
-				"package test;"+
-				"public class AllConstructors04g {\n" +
-				"  public class AllConstructors0h {\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class AllConstructors04g {
+					  public class AllConstructors0h {
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -728,28 +749,30 @@ public void testBug6930_05() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"class AllConstructors05a {\n" +
-				"  public static class AllConstructors0b {\n" +
-				"  }\n" +
-				"}\n" +
-				"public class Test {\n" +
-				"  public static class AllConstructors05c {\n" +
-				"    public static class AllConstructors05d {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					class AllConstructors05a {
+					  public static class AllConstructors0b {
+					  }
+					}
+					public class Test {
+					  public static class AllConstructors05c {
+					    public static class AllConstructors05d {
+					    }
+					  }
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/test/AllConstructors05g.java",
-				"package test;"+
-				"public class AllConstructors05g {\n" +
-				"  public static class AllConstructors0h {\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class AllConstructors05g {
+					  public static class AllConstructors0h {
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -784,15 +807,17 @@ public void testBug6930_06() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors06a.java",
-				"package p6930;\n" +
-				"public class AllConstructors06a {\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors06a {
+					}""");
 
 		createJar(new String[] {
 			"p6930/AllConstructors06b.java",
-			"package p6930;\n" +
-			"public class AllConstructors06b {\n" +
-			"}"
+			"""
+				package p6930;
+				public class AllConstructors06b {
+				}"""
 		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
 
 		refresh(p);
@@ -802,21 +827,23 @@ public void testBug6930_06() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"import p6930.AllConstructors06a;\n"+
-				"import p6930.AllConstructors06b;\n"+
-				"import p6930.AllConstructors06c;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					import p6930.AllConstructors06a;
+					import p6930.AllConstructors06b;
+					import p6930.AllConstructors06c;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors06c.java",
-				"package p6930;"+
-				"public class AllConstructors06c {\n" +
-				"}");
+				"""
+					package p6930;\
+					public class AllConstructors06c {
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -849,23 +876,25 @@ public void testBug6930_07() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors07a.java",
-				"package p6930;\n" +
-				"public class AllConstructors07a {\n" +
-				"  public class AllConstructors07b {\n" +
-				"  }\n" +
-				"  public static class AllConstructors07c {\n" +
-				"  }\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors07a {
+					  public class AllConstructors07b {
+					  }
+					  public static class AllConstructors07c {
+					  }
+					}""");
 
 		createFile(
 				"/P/src/p6930/AllConstructors07d.java",
-				"package p6930;\n" +
-				"public class AllConstructors07d {\n" +
-				"  public class AllConstructors07e {\n" +
-				"  }\n" +
-				"  public static class AllConstructors07f {\n" +
-				"  }\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors07d {
+					  public class AllConstructors07e {
+					  }
+					  public static class AllConstructors07f {
+					  }
+					}""");
 
 		refresh(p);
 
@@ -874,13 +903,14 @@ public void testBug6930_07() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"import p6930.*;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					import p6930.*;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -912,23 +942,25 @@ public void testBug6930_08() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors08a.java",
-				"package p6930;\n" +
-				"public class AllConstructors08a {\n" +
-				"  public class AllConstructors08b {\n" +
-				"  }\n" +
-				"  public static class AllConstructors08c {\n" +
-				"  }\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors08a {
+					  public class AllConstructors08b {
+					  }
+					  public static class AllConstructors08c {
+					  }
+					}""");
 
 		createFile(
 				"/P/src/p6930/AllConstructors08d.java",
-				"package p6930;\n" +
-				"public class AllConstructors08d {\n" +
-				"  public class AllConstructors08e {\n" +
-				"  }\n" +
-				"  public static class AllConstructors08f {\n" +
-				"  }\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors08d {
+					  public class AllConstructors08e {
+					  }
+					  public static class AllConstructors08f {
+					  }
+					}""");
 
 		refresh(p);
 
@@ -937,13 +969,14 @@ public void testBug6930_08() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"import p6930.AllConstructors08a;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					import p6930.AllConstructors08a;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -976,25 +1009,27 @@ public void testBug6930_09() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors09a.java",
-				"package p6930;\n" +
-				"public class AllConstructors09a {\n" +
-				"  public class AllConstructors09b {\n" +
-				"  }\n" +
-				"  public static class AllConstructors09c {\n" +
-				"  }\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors09a {
+					  public class AllConstructors09b {
+					  }
+					  public static class AllConstructors09c {
+					  }
+					}""");
 
 		createFile(
 				"/P/src/p6930/AllConstructors09d.java",
-				"package p6930;\n" +
-				"public class AllConstructors09d {\n" +
-				"  public class AllConstructors09e {\n" +
-				"  }\n" +
-				"  public static class AllConstructors09f {\n" +
-				"    public static class AllConstructors09g {\n" +
-				"    }\n" +
-				"  }\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors09d {
+					  public class AllConstructors09e {
+					  }
+					  public static class AllConstructors09f {
+					    public static class AllConstructors09g {
+					    }
+					  }
+					}""");
 
 		refresh(p);
 
@@ -1003,14 +1038,15 @@ public void testBug6930_09() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"import p6930.AllConstructors09a.*;\n"+
-				"import static p6930.AllConstructors09d.*;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					import p6930.AllConstructors09a.*;
+					import static p6930.AllConstructors09d.*;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1045,31 +1081,33 @@ public void testBug6930_10() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors10a.java",
-				"package p6930;\n" +
-				"public class AllConstructors10a {\n" +
-				"  public class AllConstructors10b {\n" +
-				"    public static class AllConstructors10bs {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  public static class AllConstructors10c {\n" +
-				"    public static class AllConstructors10cs {\n" +
-				"    }\n" +
-				"  }\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors10a {
+					  public class AllConstructors10b {
+					    public static class AllConstructors10bs {
+					    }
+					  }
+					  public static class AllConstructors10c {
+					    public static class AllConstructors10cs {
+					    }
+					  }
+					}""");
 
 		createFile(
 				"/P/src/p6930/AllConstructors10d.java",
-				"package p6930;\n" +
-				"public class AllConstructors10d {\n" +
-				"  public class AllConstructors10e {\n" +
-				"    public static class AllConstructors10es {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  public static class AllConstructors10f {\n" +
-				"    public static class AllConstructors10fs {\n" +
-				"    }\n" +
-				"  }\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors10d {
+					  public class AllConstructors10e {
+					    public static class AllConstructors10es {
+					    }
+					  }
+					  public static class AllConstructors10f {
+					    public static class AllConstructors10fs {
+					    }
+					  }
+					}""");
 
 		refresh(p);
 
@@ -1078,16 +1116,17 @@ public void testBug6930_10() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"import p6930.AllConstructors10a.AllConstructors10b;\n"+
-				"import p6930.AllConstructors10a.AllConstructors10c;\n"+
-				"import static p6930.AllConstructors10d.AllConstructors10e;\n"+
-				"import static p6930.AllConstructors10d.AllConstructors10f;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					import p6930.AllConstructors10a.AllConstructors10b;
+					import p6930.AllConstructors10a.AllConstructors10c;
+					import static p6930.AllConstructors10d.AllConstructors10e;
+					import static p6930.AllConstructors10d.AllConstructors10f;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1125,9 +1164,10 @@ public void testBug6930_11() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors11a.java",
-				"package p6930;\n" +
-				"public class AllConstructors11a {\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors11a {
+					}""");
 
 
 		refresh(p);
@@ -1137,12 +1177,13 @@ public void testBug6930_11() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    p6930.AllConstructors11a a = new \n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    p6930.AllConstructors11a a = new\s
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1172,11 +1213,12 @@ public void testBug6930_12() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors12a.java",
-				"package p6930;\n" +
-				"public class AllConstructors12a {\n" +
-				"  public static class AllConstructors12b {\n" +
-				"  }\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors12a {
+					  public static class AllConstructors12b {
+					  }
+					}""");
 
 		refresh(p);
 
@@ -1185,12 +1227,13 @@ public void testBug6930_12() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    p6930.AllConstructors12a a = new \n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    p6930.AllConstructors12a a = new\s
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1221,9 +1264,10 @@ public void testBug6930_13() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors13a.java",
-				"package p6930;\n" +
-				"public class AllConstructors13a {\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors13a {
+					}""");
 
 
 		refresh(p);
@@ -1233,12 +1277,13 @@ public void testBug6930_13() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    p6930.AllConstructors13a a = new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    p6930.AllConstructors13a a = new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1266,11 +1311,12 @@ public void testBug6930_14() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors14a.java",
-				"package p6930;\n" +
-				"public class AllConstructors14a {\n" +
-				"  public static class AllConstructors14b {\n" +
-				"  }\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors14a {
+					  public static class AllConstructors14b {
+					  }
+					}""");
 
 		refresh(p);
 
@@ -1279,12 +1325,13 @@ public void testBug6930_14() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    p6930.AllConstructors14a a = new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    p6930.AllConstructors14a a = new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1313,16 +1360,18 @@ public void testBug6930_15() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors15a.java",
-				"package p6930;\n" +
-				"public class AllConstructors15a<T> {\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors15a<T> {
+					}""");
 
 		createJar(
 				new String[] {
 					"p6930/AllConstructors15b.java",
-					"package p6930;\n" +
-					"public class AllConstructors15b<T> {\n" +
-					"}"
+					"""
+						package p6930;
+						public class AllConstructors15b<T> {
+						}"""
 				},
 				p.getProject().getLocation().append("lib6930.jar").toOSString(),
 				new String[]{getExternalJCLPathString("1.5")},
@@ -1335,18 +1384,20 @@ public void testBug6930_15() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors15c.java",
-				"package p6930;"+
-				"public class AllConstructors15c<T> {\n" +
-				"}");
+				"""
+					package p6930;\
+					public class AllConstructors15c<T> {
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1378,18 +1429,20 @@ public void testBug6930_16() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors16a.java",
-				"package p6930;\n" +
-				"public class AllConstructors16a{\n" +
-				"  public <T> AllConstructors16a(){}\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors16a{
+					  public <T> AllConstructors16a(){}
+					}""");
 
 		createJar(
 				new String[] {
 					"p6930/AllConstructors16b.java",
-					"package p6930;\n" +
-					"public class AllConstructors16b {\n" +
-					"  public <T> AllConstructors16b(){}\n" +
-					"}"
+					"""
+						package p6930;
+						public class AllConstructors16b {
+						  public <T> AllConstructors16b(){}
+						}"""
 				},
 				p.getProject().getLocation().append("lib6930.jar").toOSString(),
 				new String[]{getExternalJCLPathString("1.5")},
@@ -1402,19 +1455,21 @@ public void testBug6930_16() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors16c.java",
-				"package p6930;"+
-				"public class AllConstructors16c {\n" +
-				"  public <T> AllConstructors16c(){}\n" +
-				"}");
+				"""
+					package p6930;\
+					public class AllConstructors16c {
+					  public <T> AllConstructors16c(){}
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1447,18 +1502,20 @@ public void testBug6930_17() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors17a.java",
-				"package p6930;\n" +
-				"public class AllConstructors17a{\n" +
-				"  public AllConstructors17a(java.util.Collection<Object> o){}\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors17a{
+					  public AllConstructors17a(java.util.Collection<Object> o){}
+					}""");
 
 		createJar(
 				new String[] {
 					"p6930/AllConstructors17b.java",
-					"package p6930;\n" +
-					"public class AllConstructors17b {\n" +
-					"  public AllConstructors17b(java.util.Collection<Object> o){}\n" +
-					"}"
+					"""
+						package p6930;
+						public class AllConstructors17b {
+						  public AllConstructors17b(java.util.Collection<Object> o){}
+						}"""
 				},
 				p.getProject().getLocation().append("lib6930.jar").toOSString(),
 				new String[]{getExternalJCLPathString("1.5")},
@@ -1471,19 +1528,21 @@ public void testBug6930_17() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors17c.java",
-				"package p6930;"+
-				"public class AllConstructors17c {\n" +
-				"  public AllConstructors17c(java.util.Collection<Object> o){}\n" +
-				"}");
+				"""
+					package p6930;\
+					public class AllConstructors17c {
+					  public AllConstructors17c(java.util.Collection<Object> o){}
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1515,15 +1574,17 @@ public void testBug6930_18() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors18a.java",
-				"package p6930;\n" +
-				"public interface AllConstructors18a {\n" +
-				"}");
+				"""
+					package p6930;
+					public interface AllConstructors18a {
+					}""");
 
 		createJar(new String[] {
 			"p6930/AllConstructors18b.java",
-			"package p6930;\n" +
-			"public interface AllConstructors18b {\n" +
-			"}"
+			"""
+				package p6930;
+				public interface AllConstructors18b {
+				}"""
 		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
 
 		refresh(p);
@@ -1533,18 +1594,20 @@ public void testBug6930_18() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors18c.java",
-				"package p6930;"+
-				"public interface AllConstructors18c {\n" +
-				"}");
+				"""
+					package p6930;\
+					public interface AllConstructors18c {
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1576,15 +1639,17 @@ public void testBug6930_19() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors19a.java",
-				"package p6930;\n" +
-				"public interface AllConstructors19a {\n" +
-				"}");
+				"""
+					package p6930;
+					public interface AllConstructors19a {
+					}""");
 
 		createJar(new String[] {
 			"p6930/AllConstructors19b.java",
-			"package p6930;\n" +
-			"public interface AllConstructors19b {\n" +
-			"}"
+			"""
+				package p6930;
+				public interface AllConstructors19b {
+				}"""
 		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
 
 		refresh(p);
@@ -1594,21 +1659,23 @@ public void testBug6930_19() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"import p6930.AllConstructors19a;\n"+
-				"import p6930.AllConstructors19b;\n"+
-				"import p6930.AllConstructors19c;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					import p6930.AllConstructors19a;
+					import p6930.AllConstructors19b;
+					import p6930.AllConstructors19c;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors19c.java",
-				"package p6930;"+
-				"public interface AllConstructors19c {\n" +
-				"}");
+				"""
+					package p6930;\
+					public interface AllConstructors19c {
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1640,17 +1707,19 @@ public void testBug6930_20() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors20a.java",
-				"package p6930;\n" +
-				"public enum AllConstructors20a {\n" +
-				"	ZZZ;\n" +
-				"}");
+				"""
+					package p6930;
+					public enum AllConstructors20a {
+						ZZZ;
+					}""");
 
 		createJar(new String[] {
 				"p6930/AllConstructors20b.java",
-				"package p6930;\n" +
-				"public enum AllConstructors20b {\n" +
-				"	ZZZ;\n" +
-				"}"
+				"""
+					package p6930;
+					public enum AllConstructors20b {
+						ZZZ;
+					}"""
 			},
 			p.getProject().getLocation().append("lib6930.jar").toOSString(),
 			new String[]{getExternalJCLPathString("1.5")},
@@ -1663,19 +1732,21 @@ public void testBug6930_20() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors20c.java",
-				"package p6930;"+
-				"public enum AllConstructors20c {\n" +
-				"	ZZZ;\n" +
-				"}");
+				"""
+					package p6930;\
+					public enum AllConstructors20c {
+						ZZZ;
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1702,18 +1773,20 @@ public void testBug6930_21() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors21a.java",
-				"package p6930;\n" +
-				"public enum AllConstructors21a {\n" +
-				"	ZZZ;\n" +
-				"}");
+				"""
+					package p6930;
+					public enum AllConstructors21a {
+						ZZZ;
+					}""");
 
 		createJar(
 				new String[] {
 					"p6930/AllConstructors21b.java",
-					"package p6930;\n" +
-					"public enum AllConstructors21b {\n" +
-					"	ZZZ;\n" +
-					"}"
+					"""
+						package p6930;
+						public enum AllConstructors21b {
+							ZZZ;
+						}"""
 				},
 				p.getProject().getLocation().append("lib6930.jar").toOSString(),
 				new String[]{getExternalJCLPathString("1.5")},
@@ -1726,22 +1799,24 @@ public void testBug6930_21() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"import p6930.AllConstructors21a;\n"+
-				"import p6930.AllConstructors21b;\n"+
-				"import p6930.AllConstructors21c;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					import p6930.AllConstructors21a;
+					import p6930.AllConstructors21b;
+					import p6930.AllConstructors21c;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors21c.java",
-				"package p6930;"+
-				"public enum AllConstructors21c {\n" +
-				"	ZZZ;\n" +
-				"}");
+				"""
+					package p6930;\
+					public enum AllConstructors21c {
+						ZZZ;
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1769,19 +1844,21 @@ public void testBug6930_22() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors22a.java",
-				"package p6930;\n" +
-				"public class AllConstructors22a {\n" +
-				"	private AllConstructors22a(){}\n" +
-				"	public static class AllConstructorsInner{}\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors22a {
+						private AllConstructors22a(){}
+						public static class AllConstructorsInner{}
+					}""");
 
 		createJar(new String[] {
 			"p6930/AllConstructors22b.java",
-			"package p6930;\n" +
-			"public class AllConstructors22b {\n" +
-			"	private AllConstructors22b(){}\n" +
-			"	public static class AllConstructorsInner{}\n" +
-			"}"
+			"""
+				package p6930;
+				public class AllConstructors22b {
+					private AllConstructors22b(){}
+					public static class AllConstructorsInner{}
+				}"""
 		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
 
 		refresh(p);
@@ -1791,20 +1868,22 @@ public void testBug6930_22() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors22c.java",
-				"package p6930;"+
-				"public class AllConstructors22c {\n" +
-				"	private AllConstructors22c(){}\n" +
-				"	public static class AllConstructorsInner{}\n" +
-				"}");
+				"""
+					package p6930;\
+					public class AllConstructors22c {
+						private AllConstructors22c(){}
+						public static class AllConstructorsInner{}
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1834,19 +1913,21 @@ public void testBug6930_23() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors23a.java",
-				"package p6930;\n" +
-				"public class AllConstructors23a {\n" +
-				"	private AllConstructors23a(){}\n" +
-				"	public static class AllConstructorsInner{}\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors23a {
+						private AllConstructors23a(){}
+						public static class AllConstructorsInner{}
+					}""");
 
 		createJar(new String[] {
 			"p6930/AllConstructors23b.java",
-			"package p6930;\n" +
-			"public class AllConstructors23b {\n" +
-			"	private AllConstructors23b(){}\n" +
-			"	public static class AllConstructorsInner{}\n" +
-			"}"
+			"""
+				package p6930;
+				public class AllConstructors23b {
+					private AllConstructors23b(){}
+					public static class AllConstructorsInner{}
+				}"""
 		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
 
 		refresh(p);
@@ -1856,23 +1937,25 @@ public void testBug6930_23() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"import p6930.AllConstructors23a;\n"+
-				"import p6930.AllConstructors23b;\n"+
-				"import p6930.AllConstructors23c;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					import p6930.AllConstructors23a;
+					import p6930.AllConstructors23b;
+					import p6930.AllConstructors23c;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors23c.java",
-				"package p6930;"+
-				"public class AllConstructors23c {\n" +
-				"	private AllConstructors23c(){}\n" +
-				"	public static class AllConstructorsInner{}\n" +
-				"}");
+				"""
+					package p6930;\
+					public class AllConstructors23c {
+						private AllConstructors23c(){}
+						public static class AllConstructorsInner{}
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1902,19 +1985,21 @@ public void testBug6930_24() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors24a.java",
-				"package p6930;\n" +
-				"public class AllConstructors24a {\n" +
-				"	public AllConstructors24a(){}\n" +
-				"	private static class AllConstructorsInner{}\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors24a {
+						public AllConstructors24a(){}
+						private static class AllConstructorsInner{}
+					}""");
 
 		createJar(new String[] {
 			"p6930/AllConstructors24b.java",
-			"package p6930;\n" +
-			"public class AllConstructors24b {\n" +
-			"	public AllConstructors24b(){}\n" +
-			"	private static class AllConstructorsInner{}\n" +
-			"}"
+			"""
+				package p6930;
+				public class AllConstructors24b {
+					public AllConstructors24b(){}
+					private static class AllConstructorsInner{}
+				}"""
 		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
 
 		refresh(p);
@@ -1924,20 +2009,22 @@ public void testBug6930_24() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors24c.java",
-				"package p6930;"+
-				"public class AllConstructors24c {\n" +
-				"	public AllConstructors24c(){}\n" +
-				"	private static class AllConstructorsInner{}\n" +
-				"}");
+				"""
+					package p6930;\
+					public class AllConstructors24c {
+						public AllConstructors24c(){}
+						private static class AllConstructorsInner{}
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -1970,19 +2057,21 @@ public void testBug6930_25() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors25a.java",
-				"package p6930;\n" +
-				"public class AllConstructors25a {\n" +
-				"	public AllConstructors25a(){}\n" +
-				"	private static class AllConstructorsInner{}\n" +
-				"}");
+				"""
+					package p6930;
+					public class AllConstructors25a {
+						public AllConstructors25a(){}
+						private static class AllConstructorsInner{}
+					}""");
 
 		createJar(new String[] {
 			"p6930/AllConstructors25b.java",
-			"package p6930;\n" +
-			"public class AllConstructors25b {\n" +
-			"	public AllConstructors25b(){}\n" +
-			"	private static class AllConstructorsInner{}\n" +
-			"}"
+			"""
+				package p6930;
+				public class AllConstructors25b {
+					public AllConstructors25b(){}
+					private static class AllConstructorsInner{}
+				}"""
 		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
 
 		refresh(p);
@@ -1992,23 +2081,25 @@ public void testBug6930_25() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"import p6930.AllConstructors25a;\n"+
-				"import p6930.AllConstructors25b;\n"+
-				"import p6930.AllConstructors25c;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					import p6930.AllConstructors25a;
+					import p6930.AllConstructors25b;
+					import p6930.AllConstructors25c;
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors25c.java",
-				"package p6930;"+
-				"public class AllConstructors25c {\n" +
-				"	public AllConstructors25c(){}\n" +
-				"	private static class AllConstructorsInner{}\n" +
-				"}");
+				"""
+					package p6930;\
+					public class AllConstructors25c {
+						public AllConstructors25c(){}
+						private static class AllConstructorsInner{}
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -2044,21 +2135,23 @@ public void testBug6930_26() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo(p6930.AllConstructors26a var) {\n" +
-				"    var.new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo(p6930.AllConstructors26a var) {
+					    var.new AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors26a.java",
-				"package p6930;"+
-				"public class AllConstructors26a {\n" +
-				"	public class AllConstructors26b {\n" +
-				"	  public AllConstructors26b(int i) {}\n" +
-				"	}\n" +
-				"}");
+				"""
+					package p6930;\
+					public class AllConstructors26a {
+						public class AllConstructors26b {
+						  public AllConstructors26b(int i) {}
+						}
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -2090,21 +2183,23 @@ public void testBug6930_27() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new p6930.AllConstructors27a.AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    new p6930.AllConstructors27a.AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors27a.java",
-				"package p6930;"+
-				"public class AllConstructors27a {\n" +
-				"	public static class AllConstructors27b {\n" +
-				"	  public AllConstructors27b(int i) {}\n" +
-				"	}\n" +
-				"}");
+				"""
+					package p6930;\
+					public class AllConstructors27a {
+						public static class AllConstructors27b {
+						  public AllConstructors27b(int i) {}
+						}
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -2134,29 +2229,32 @@ public void testBug6930_28() throws Exception {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/p6930/Test.java",
-				"package p6930;\n"+
-				"class AllConstructors28a {\n" +
-				"	public AllConstructors28a(int i) {}\n" +
-				"}\n" +
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new p6930.AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package p6930;
+					class AllConstructors28a {
+						public AllConstructors28a(int i) {}
+					}
+					public class Test {
+					  void foo() {
+					    new p6930.AllConstructors
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p6930/AllConstructors28b.java",
-				"package p6930;"+
-				"public class AllConstructors28b {\n" +
-				"	public AllConstructors28b(int i) {}\n" +
-				"}");
+				"""
+					package p6930;\
+					public class AllConstructors28b {
+						public AllConstructors28b(int i) {}
+					}""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/p6930b/AllConstructors28c.java",
-				"package p6930b;"+
-				"public class AllConstructors28c {\n" +
-				"	public AllConstructors28c(int i) {}\n" +
-				"}");
+				"""
+					package p6930b;\
+					public class AllConstructors28c {
+						public AllConstructors28c(int i) {}
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -2185,12 +2283,13 @@ public void testBug6930_29() throws Exception {
 
 		createJar(new String[] {
 			"p6930/AllConstructors29.java",
-			"package p6930;\n" +
-			"public class AllConstructors29 {\n" +
-			"  public AllConstructors29() {}\n" +
-			"  public AllConstructors29(Object o) {}\n" +
-			"  public AllConstructors29(Object o, String s) {}\n" +
-			"}"
+			"""
+				package p6930;
+				public class AllConstructors29 {
+				  public AllConstructors29() {}
+				  public AllConstructors29(Object o) {}
+				  public AllConstructors29(Object o, String s) {}
+				}"""
 		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
 
 		refresh(p);
@@ -2200,12 +2299,13 @@ public void testBug6930_29() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    p6930.AllConstructors29 var = new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class Test {
+					  void foo() {
+					    p6930.AllConstructors29 var = new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -2239,16 +2339,17 @@ public void testBug6930_30() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/AllConstructors30.java",
-				"package test;"+
-				"class AllConstructors30b {\n" +
-				"  private class Innerb {}\n" +
-				"}\n" +
-				"public class AllConstructors30 {\n" +
-				"  private class Inner {}\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					class AllConstructors30b {
+					  private class Innerb {}
+					}
+					public class AllConstructors30 {
+					  private class Inner {}
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -2281,17 +2382,18 @@ public void testBug6930_31() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/AllConstructors31.java",
-				"package test;"+
-				"class AllConstructors31b {\n" +
-				"  private class Innerb {}\n" +
-				"}\n" +
-				"public class AllConstructors31 {\n" +
-				"  public class Inner {\n" +
-				"  }\n" +
-				"  void foo() {\n" +
-				"    AllConstructors31.Inner var = new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					class AllConstructors31b {
+					  private class Innerb {}
+					}
+					public class AllConstructors31 {
+					  public class Inner {
+					  }
+					  void foo() {
+					    AllConstructors31.Inner var = new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -2324,18 +2426,19 @@ public void testBug6930_32() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"  public class AllConstructors32b {\n" +
-				"    private class Innerb {}\n" +
-				"  }\n" +
-				"  public class AllConstructors32 {\n" +
-				"    public class Inner {}\n" +
-				"    void foo() {\n" +
-				"      new Test.AllConstructors\n" +
-				"    }\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class Test {
+					  public class AllConstructors32b {
+					    private class Innerb {}
+					  }
+					  public class AllConstructors32 {
+					    public class Inner {}
+					    void foo() {
+					      new Test.AllConstructors
+					    }
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -2368,24 +2471,27 @@ public void testBug6930_33() throws Exception {
 
 		createFile(
 				"/P/src/p6930/AllConstructors33.java",
-				"package p6930;\n" +
-				"import p6930_2.ParamType;\n" +
-				"public class AllConstructors33 {\n" +
-				"  public AllConstructors33(ParamType p11, ParamType p12) {}\n" +
-				"  public AllConstructors33(p6930_1.ParamType p21, ParamType p22) {}\n" +
-				"}");
+				"""
+					package p6930;
+					import p6930_2.ParamType;
+					public class AllConstructors33 {
+					  public AllConstructors33(ParamType p11, ParamType p12) {}
+					  public AllConstructors33(p6930_1.ParamType p21, ParamType p22) {}
+					}""");
 
 		createFile(
 				"/P/src/p6930_1/ParamType.java",
-				"package p6930_1;\n" +
-				"public class ParamType {\n" +
-				"}");
+				"""
+					package p6930_1;
+					public class ParamType {
+					}""");
 
 		createFile(
 				"/P/src/p6930_2/ParamType.java",
-				"package p6930_2;\n" +
-				"public class ParamType {\n" +
-				"}");
+				"""
+					package p6930_2;
+					public class ParamType {
+					}""");
 
 		refresh(p);
 
@@ -2394,12 +2500,13 @@ public void testBug6930_33() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -2431,10 +2538,11 @@ public void testBug6930_34() throws Exception {
 		String[] pathsAndContents =
 			new String[] {
 				"p6930/AllConstructors34.java",
-				"package p6930;\n" +
-				"public class AllConstructors34 {\n" +
-				"  public AllConstructors34(Object o) {}\n" +
-				"}"
+				"""
+					package p6930;
+					public class AllConstructors34 {
+					  public AllConstructors34(Object o) {}
+					}"""
 			};
 		createJar(
 				pathsAndContents,
@@ -2450,12 +2558,13 @@ public void testBug6930_34() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -2486,10 +2595,11 @@ public void testBug6930_35() throws Exception {
 		String[] pathsAndContents =
 			new String[] {
 				"p6930/AllConstructors35.java",
-				"package p6930;\n" +
-				"public class AllConstructors35 {\n" +
-				"  public AllConstructors35(Object o) {}\n" +
-				"}"
+				"""
+					package p6930;
+					public class AllConstructors35 {
+					  public AllConstructors35(Object o) {}
+					}"""
 			};
 		createJar(
 				pathsAndContents,
@@ -2509,12 +2619,13 @@ public void testBug6930_35() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -2552,9 +2663,10 @@ public void testBug79288() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		// create P2
 		this.createJavaProject(
@@ -2567,9 +2679,10 @@ public void testBug79288() throws Exception {
 		this.createFolder("/P2/src/b");
 		this.createFile(
 				"/P2/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		// create P3
 		this.createJavaProject(
@@ -2581,11 +2694,12 @@ public void testBug79288() throws Exception {
 
 		this.createFile(
 				"/P3/src/YY.java",
-				"public class YY {\n"+
-				"  vois foo(){\n"+
-				"    XX\n"+
-				"  }\n"+
-				"}");
+				"""
+					public class YY {
+					  vois foo(){
+					    XX
+					  }
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -2625,9 +2739,10 @@ public void testBug91772() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		// create P2
 		ContainerInitializer.setInitializer(new CompletionContainerInitializer("P2", new String[] {"/P1"}, new boolean[] {true}));
@@ -2645,9 +2760,10 @@ public void testBug91772() throws Exception {
 		this.createFolder("/P2/src/b");
 		this.createFile(
 				"/P2/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		// create P3
 		this.createJavaProject(
@@ -2659,11 +2775,12 @@ public void testBug91772() throws Exception {
 
 		this.createFile(
 				"/P3/src/YY.java",
-				"public class YY {\n"+
-				"  vois foo(){\n"+
-				"    XX\n"+
-				"  }\n"+
-				"}");
+				"""
+					public class YY {
+					  vois foo(){
+					    XX
+					  }
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -2714,16 +2831,18 @@ public void testBug93891() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		// create P2
 		ContainerInitializer.setInitializer(new CompletionContainerInitializer("P2", new String[] {"/P1"}, new boolean[] {true}, new String[]{"a/*"}));
@@ -2744,11 +2863,12 @@ public void testBug93891() throws Exception {
 		this.createFolder("/P2/src/b");
 		this.createFile(
 				"/P2/src/YY.java",
-				"public class YY {\n"+
-				"  void foo() {\n"+
-				"    XX\n"+
-				"  }\n"+
-				"}");
+				"""
+					public class YY {
+					  void foo() {
+					    XX
+					  }
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -2798,16 +2918,18 @@ public void testAccessRestriction1() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -2823,11 +2945,12 @@ public void testAccessRestriction1() throws Exception {
 
 		this.createFile(
 			"/P2/src/YY.java",
-			"public class YY {\n"+
-			"  void foo() {\n"+
-			"    XX\n"+
-			"  }\n"+
-			"}");
+			"""
+				public class YY {
+				  void foo() {
+				    XX
+				  }
+				}""");
 
 		waitUntilIndexesReady();
 
@@ -2872,16 +2995,18 @@ public void testAccessRestriction2() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -2906,11 +3031,12 @@ public void testAccessRestriction2() throws Exception {
 
 		this.createFile(
 			"/P2/src/YY.java",
-			"public class YY {\n"+
-			"  void foo() {\n"+
-			"    XX\n"+
-			"  }\n"+
-			"}");
+			"""
+				public class YY {
+				  void foo() {
+				    XX
+				  }
+				}""");
 
 		waitUntilIndexesReady();
 
@@ -2953,16 +3079,18 @@ public void testAccessRestriction3() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -2986,11 +3114,12 @@ public void testAccessRestriction3() throws Exception {
 
 		this.createFile(
 			"/P2/src/YY.java",
-			"public class YY {\n"+
-			"  void foo() {\n"+
-			"    XX\n"+
-			"  }\n"+
-			"}");
+			"""
+				public class YY {
+				  void foo() {
+				    XX
+				  }
+				}""");
 
 		waitUntilIndexesReady();
 
@@ -3034,16 +3163,18 @@ public void testAccessRestriction4() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -3068,11 +3199,12 @@ public void testAccessRestriction4() throws Exception {
 
 		this.createFile(
 			"/P2/src/YY.java",
-			"public class YY {\n"+
-			"  void foo() {\n"+
-			"    XX\n"+
-			"  }\n"+
-			"}");
+			"""
+				public class YY {
+				  void foo() {
+				    XX
+				  }
+				}""");
 
 		waitUntilIndexesReady();
 
@@ -3115,16 +3247,18 @@ public void testAccessRestriction5() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -3148,11 +3282,12 @@ public void testAccessRestriction5() throws Exception {
 
 		this.createFile(
 			"/P2/src/YY.java",
-			"public class YY {\n"+
-			"  void foo() {\n"+
-			"    XX\n"+
-			"  }\n"+
-			"}");
+			"""
+				public class YY {
+				  void foo() {
+				    XX
+				  }
+				}""");
 
 		waitUntilIndexesReady();
 
@@ -3194,23 +3329,26 @@ public void testAccessRestriction6() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		this.createFolder("/P1/src/c");
 		this.createFile(
 				"/P1/src/c/XX3.java",
-				"package c;\n"+
-				"public class XX3 {\n"+
-				"}");
+				"""
+					package c;
+					public class XX3 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -3254,11 +3392,12 @@ public void testAccessRestriction6() throws Exception {
 
 		this.createFile(
 			"/P3/src/YY.java",
-			"public class YY {\n"+
-			"  void foo() {\n"+
-			"    XX\n"+
-			"  }\n"+
-			"}");
+			"""
+				public class YY {
+				  void foo() {
+				    XX
+				  }
+				}""");
 
 		waitUntilIndexesReady();
 
@@ -3302,16 +3441,18 @@ public void testAccessRestriction7() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -3335,11 +3476,12 @@ public void testAccessRestriction7() throws Exception {
 
 		this.createFile(
 				"/P2/src/YY.java",
-				"public class YY {\n"+
-				"  void foo() {\n"+
-				"    XX\n"+
-				"  }\n"+
-				"}");
+				"""
+					public class YY {
+					  void foo() {
+					    XX
+					  }
+					}""");
 
 		// create P3
 		project = this.createJavaProject(
@@ -3403,16 +3545,18 @@ public void testAccessRestriction8() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -3436,11 +3580,12 @@ public void testAccessRestriction8() throws Exception {
 
 		this.createFile(
 				"/P2/src/YY.java",
-				"public class YY {\n"+
-				"  void foo() {\n"+
-				"    XX\n"+
-				"  }\n"+
-				"}");
+				"""
+					public class YY {
+					  void foo() {
+					    XX
+					  }
+					}""");
 
 		// create P3
 		project = this.createJavaProject(
@@ -3505,16 +3650,18 @@ public void testAccessRestriction9() throws Exception {
 		this.createFolder("/P1/src/p11");
 		this.createFile(
 				"/P1/src/p11/XX11.java",
-				"package p11;\n"+
-				"public class XX11 {\n"+
-				"}");
+				"""
+					package p11;
+					public class XX11 {
+					}""");
 
 		this.createFolder("/P1/src/p12");
 		this.createFile(
 				"/P1/src/p12/XX12.java",
-				"package p12;\n"+
-				"public class XX12 {\n"+
-				"}");
+				"""
+					package p12;
+					public class XX12 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -3539,16 +3686,18 @@ public void testAccessRestriction9() throws Exception {
 		this.createFolder("/P2/src/p21");
 		this.createFile(
 				"/P2/src/p21/XX21.java",
-				"package p21;\n"+
-				"public class XX21 {\n"+
-				"}");
+				"""
+					package p21;
+					public class XX21 {
+					}""");
 
 		this.createFolder("/P2/src/p22");
 		this.createFile(
 				"/P2/src/p22/XX22.java",
-				"package p22;\n"+
-				"public class XX22 {\n"+
-				"}");
+				"""
+					package p22;
+					public class XX22 {
+					}""");
 
 		// create P3
 		project = this.createJavaProject(
@@ -3573,16 +3722,18 @@ public void testAccessRestriction9() throws Exception {
 		this.createFolder("/P3/src/p31");
 		this.createFile(
 				"/P3/src/p31/XX31.java",
-				"package p31;\n"+
-				"public class XX31 {\n"+
-				"}");
+				"""
+					package p31;
+					public class XX31 {
+					}""");
 
 		this.createFolder("/P3/src/p32");
 		this.createFile(
 				"/P3/src/p32/XX32.java",
-				"package p32;\n"+
-				"public class XX32 {\n"+
-				"}");
+				"""
+					package p32;
+					public class XX32 {
+					}""");
 
 		// create PX
 		project = this.createJavaProject(
@@ -3606,11 +3757,12 @@ public void testAccessRestriction9() throws Exception {
 
 		this.createFile(
 				"/PX/src/X.java",
-				"public class X {\n"+
-				"  void foo() {\n"+
-				"    XX\n"+
-				"  }\n"+
-				"}");
+				"""
+					public class X {
+					  void foo() {
+					    XX
+					  }
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -3658,16 +3810,18 @@ public void testAccessRestriction10() throws Exception {
 		this.createFolder("/P1/src/p11");
 		this.createFile(
 				"/P1/src/p11/XX11.java",
-				"package p11;\n"+
-				"public class XX11 {\n"+
-				"}");
+				"""
+					package p11;
+					public class XX11 {
+					}""");
 
 		this.createFolder("/P1/src/p12");
 		this.createFile(
 				"/P1/src/p12/XX12.java",
-				"package p12;\n"+
-				"public class XX12 {\n"+
-				"}");
+				"""
+					package p12;
+					public class XX12 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -3692,16 +3846,18 @@ public void testAccessRestriction10() throws Exception {
 		this.createFolder("/P2/src/p21");
 		this.createFile(
 				"/P2/src/p21/XX21.java",
-				"package p21;\n"+
-				"public class XX21 {\n"+
-				"}");
+				"""
+					package p21;
+					public class XX21 {
+					}""");
 
 		this.createFolder("/P2/src/p22");
 		this.createFile(
 				"/P2/src/p22/XX22.java",
-				"package p22;\n"+
-				"public class XX22 {\n"+
-				"}");
+				"""
+					package p22;
+					public class XX22 {
+					}""");
 
 		// create P3
 		project = this.createJavaProject(
@@ -3726,16 +3882,18 @@ public void testAccessRestriction10() throws Exception {
 		this.createFolder("/P3/src/p31");
 		this.createFile(
 				"/P3/src/p31/XX31.java",
-				"package p31;\n"+
-				"public class XX31 {\n"+
-				"}");
+				"""
+					package p31;
+					public class XX31 {
+					}""");
 
 		this.createFolder("/P3/src/p32");
 		this.createFile(
 				"/P3/src/p32/XX32.java",
-				"package p32;\n"+
-				"public class XX32 {\n"+
-				"}");
+				"""
+					package p32;
+					public class XX32 {
+					}""");
 
 		// create PX
 		project = this.createJavaProject(
@@ -3759,11 +3917,12 @@ public void testAccessRestriction10() throws Exception {
 
 		this.createFile(
 				"/PX/src/X.java",
-				"public class X {\n"+
-				"  void foo() {\n"+
-				"    XX\n"+
-				"  }\n"+
-				"}");
+				"""
+					public class X {
+					  void foo() {
+					    XX
+					  }
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -3813,16 +3972,18 @@ public void testAccessRestriction11() throws Exception {
 		this.createFolder("/P1/src/x/y/z/p11");
 		this.createFile(
 				"/P1/src/x/y/z/p11/XX11.java",
-				"package x.y.z.p11;\n"+
-				"public class XX11 {\n"+
-				"}");
+				"""
+					package x.y.z.p11;
+					public class XX11 {
+					}""");
 
 		this.createFolder("/P1/src/x/y/z/p12");
 		this.createFile(
 				"/P1/src/x/y/z/p12/XX12.java",
-				"package x.y.z.p12;\n"+
-				"public class XX12 {\n"+
-				"}");
+				"""
+					package x.y.z.p12;
+					public class XX12 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -3847,16 +4008,18 @@ public void testAccessRestriction11() throws Exception {
 		this.createFolder("/P2/src/x/y/z/p21");
 		this.createFile(
 				"/P2/src/x/y/z/p21/XX21.java",
-				"package x.y.z.p21;\n"+
-				"public class XX21 {\n"+
-				"}");
+				"""
+					package x.y.z.p21;
+					public class XX21 {
+					}""");
 
 		this.createFolder("/P2/src/x/y/z/p22");
 		this.createFile(
 				"/P2/src/x/y/z/p22/XX22.java",
-				"package x.y.z.p22;\n"+
-				"public class XX22 {\n"+
-				"}");
+				"""
+					package x.y.z.p22;
+					public class XX22 {
+					}""");
 
 		// create P3
 		project = this.createJavaProject(
@@ -3881,16 +4044,18 @@ public void testAccessRestriction11() throws Exception {
 		this.createFolder("/P3/src/x/y/z/p31");
 		this.createFile(
 				"/P3/src/x/y/z/p31/XX31.java",
-				"package x.y.z.p31;\n"+
-				"public class XX31 {\n"+
-				"}");
+				"""
+					package x.y.z.p31;
+					public class XX31 {
+					}""");
 
 		this.createFolder("/P3/src/x/y/z/p32");
 		this.createFile(
 				"/P3/src/x/y/z/p32/XX32.java",
-				"package x.y.z.p32;\n"+
-				"public class XX32 {\n"+
-				"}");
+				"""
+					package x.y.z.p32;
+					public class XX32 {
+					}""");
 
 		// create PX
 		project = this.createJavaProject(
@@ -3914,11 +4079,12 @@ public void testAccessRestriction11() throws Exception {
 
 		this.createFile(
 				"/PX/src/X.java",
-				"public class X {\n"+
-				"  void foo() {\n"+
-				"    XX\n"+
-				"  }\n"+
-				"}");
+				"""
+					public class X {
+					  void foo() {
+					    XX
+					  }
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -3965,16 +4131,18 @@ public void testAccessRestriction12() throws Exception {
 		this.createFolder("/P1/src/p11");
 		this.createFile(
 				"/P1/src/p11/XX11.java",
-				"package p11;\n"+
-				"public class XX11 {\n"+
-				"}");
+				"""
+					package p11;
+					public class XX11 {
+					}""");
 
 		this.createFolder("/P1/src/p12");
 		this.createFile(
 				"/P1/src/p12/XX12.java",
-				"package p12;\n"+
-				"public class XX12 {\n"+
-				"}");
+				"""
+					package p12;
+					public class XX12 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -3999,16 +4167,18 @@ public void testAccessRestriction12() throws Exception {
 		this.createFolder("/P2/src/p21");
 		this.createFile(
 				"/P2/src/p21/XX21.java",
-				"package p21;\n"+
-				"public class XX21 {\n"+
-				"}");
+				"""
+					package p21;
+					public class XX21 {
+					}""");
 
 		this.createFolder("/P2/src/p22");
 		this.createFile(
 				"/P2/src/p22/XX22.java",
-				"package p22;\n"+
-				"public class XX22 {\n"+
-				"}");
+				"""
+					package p22;
+					public class XX22 {
+					}""");
 
 		// create P3
 		project = this.createJavaProject(
@@ -4033,16 +4203,18 @@ public void testAccessRestriction12() throws Exception {
 		this.createFolder("/P3/src/p31");
 		this.createFile(
 				"/P3/src/p31/XX31.java",
-				"package p31;\n"+
-				"public class XX31 {\n"+
-				"}");
+				"""
+					package p31;
+					public class XX31 {
+					}""");
 
 		this.createFolder("/P3/src/p32");
 		this.createFile(
 				"/P3/src/p32/XX32.java",
-				"package p32;\n"+
-				"public class XX32 {\n"+
-				"}");
+				"""
+					package p32;
+					public class XX32 {
+					}""");
 
 		// create PX
 		project = this.createJavaProject(
@@ -4066,11 +4238,12 @@ public void testAccessRestriction12() throws Exception {
 
 		this.createFile(
 				"/PX/src/X.java",
-				"public class X {\n"+
-				"  void foo() {\n"+
-				"    XX\n"+
-				"  }\n"+
-				"}");
+				"""
+					public class X {
+					  void foo() {
+					    XX
+					  }
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -4120,16 +4293,18 @@ public void testAccessRestriction13() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -4153,11 +4328,12 @@ public void testAccessRestriction13() throws Exception {
 
 		this.createFile(
 			"/P2/src/YY.java",
-			"public class YY {\n"+
-			"  void foo() {\n"+
-			"    XX\n"+
-			"  }\n"+
-			"}");
+			"""
+				public class YY {
+				  void foo() {
+				    XX
+				  }
+				}""");
 
 		waitUntilIndexesReady();
 
@@ -4200,16 +4376,18 @@ public void testAccessRestriction14() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX1.java",
-				"package a;\n"+
-				"public class XX1 {\n"+
-				"}");
+				"""
+					package a;
+					public class XX1 {
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX2.java",
-				"package b;\n"+
-				"public class XX2 {\n"+
-				"}");
+				"""
+					package b;
+					public class XX2 {
+					}""");
 
 		// create P2
 		project = this.createJavaProject(
@@ -4234,11 +4412,12 @@ public void testAccessRestriction14() throws Exception {
 
 		this.createFile(
 			"/P2/src/YY.java",
-			"public class YY {\n"+
-			"  void foo() {\n"+
-			"    XX\n"+
-			"  }\n"+
-			"}");
+			"""
+				public class YY {
+				  void foo() {
+				    XX
+				  }
+				}""");
 
 		waitUntilIndexesReady();
 
@@ -4371,9 +4550,10 @@ public void testBug96950() throws Exception {
 			"1.4");
 		this.createFile(
 				"/P2/src/BreakRules.java",
-				"public class BreakRules {\n"+
-				"	Tara\n"+
-				"}");
+				"""
+					public class BreakRules {
+						Tara
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -4404,13 +4584,14 @@ public void testBug276890_01() throws Exception {
 
 		createFile(
 				"/P/src/p276890/Stuff.java",
-				"package p276890;\n" +
-				"public class Stuff<E> {\n"+
-				"  public Stuff(E e) {}\n"+
-				"  public Stuff(Object o, Object o2) {}\n"+
-				"  public Stuff(Stuff<E> ees) {}\n"+
-				"  public Stuff() {}\n"+
-				"}");
+				"""
+					package p276890;
+					public class Stuff<E> {
+					  public Stuff(E e) {}
+					  public Stuff(Object o, Object o2) {}
+					  public Stuff(Stuff<E> ees) {}
+					  public Stuff() {}
+					}""");
 
 		refresh(p);
 
@@ -4419,12 +4600,13 @@ public void testBug276890_01() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new Stuf\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    new Stuf
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -4464,22 +4646,24 @@ public void testBug276890_02() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new Stuf\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    new Stuf
+					  }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/p276890/Stuff.java",
-				"package p276890;\n" +
-				"public class Stuff<E> {\n"+
-				"  public Stuff(E e) {}\n"+
-				"  public Stuff(Object o, Object o2) {}\n"+
-				"  public Stuff(Stuff<E> ees) {}\n"+
-				"  public Stuff() {}\n"+
-				"}");
+				"""
+					package p276890;
+					public class Stuff<E> {
+					  public Stuff(E e) {}
+					  public Stuff(Object o, Object o2) {}
+					  public Stuff(Stuff<E> ees) {}
+					  public Stuff() {}
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -4515,13 +4699,14 @@ public void testBug276890_03() throws Exception {
 		createJar(
 				new String[] {
 						"p276890/Stuff.java",
-						"package p276890;\n" +
-						"public class Stuff<E> {\n"+
-						"  public Stuff(E e) {}\n"+
-						"  public Stuff(Object o, Object o2) {}\n"+
-						"  public Stuff(Stuff<E> ees) {}\n"+
-						"  public Stuff() {}\n"+
-						"}"
+						"""
+							package p276890;
+							public class Stuff<E> {
+							  public Stuff(E e) {}
+							  public Stuff(Object o, Object o2) {}
+							  public Stuff(Stuff<E> ees) {}
+							  public Stuff() {}
+							}"""
 				},
 				p.getProject().getLocation().append("lib276890.jar").toOSString(),
 				new String[]{getExternalJCLPathString("1.5")},
@@ -4534,12 +4719,13 @@ public void testBug276890_03() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new Stuf\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void foo() {
+					    new Stuf
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -4577,11 +4763,13 @@ public void testChangeInternalJar() throws CoreException, IOException {
 		// Create jar file with a class with 2 methods doXXX
 		String[] pathAndContents = new String[] {
 			"pack/Util.java",
-			"package pack;\n" +
-			"public class Util {\n" +
-			"    public void doit2A(int x, int y) { }\n" +
-			"    public void doit2B(int x) { }\n" +
-			"}\n"
+			"""
+				package pack;
+				public class Util {
+				    public void doit2A(int x, int y) { }
+				    public void doit2B(int x) { }
+				}
+				"""
 		};
 		addLibrary(jarName, sourceZipName, pathAndContents, JavaCore.VERSION_1_4);
 
@@ -4595,14 +4783,16 @@ public void testChangeInternalJar() throws CoreException, IOException {
 
 		// Create compilation unit in which completion occurs
 		String path = "/Completion/src/test/Test.java";
-		String source = "package test;\n" +
-			"import pack.*;\n" +
-			"public class Test {\n" +
-			"	public void foo() {\n" +
-			"		Util test = new Util();\n" +
-			"		test.doit2A(1, 2);\n" +
-			"	}\n" +
-			"}\n";
+		String source = """
+			package test;
+			import pack.*;
+			public class Test {
+				public void foo() {
+					Util test = new Util();
+					test.doit2A(1, 2);
+				}
+			}
+			""";
 		createFolder("/Completion/src/test");
 		createFile(path, source);
 
@@ -4622,12 +4812,14 @@ public void testChangeInternalJar() throws CoreException, IOException {
 		String jarPath = projectLocation + File.separator + jarName;
 		createJar(new String[] {
 			"pack/Util.java",
-			"package pack;\n" +
-			"public class Util {\n" +
-			"    public void doit2A(int x, int y) { }\n" +
-			"    public void doit2B(int x) { }\n" +
-			"    public void doit2C(int x) { }\n" +
-			"}\n"
+			"""
+				package pack;
+				public class Util {
+				    public void doit2A(int x, int y) { }
+				    public void doit2B(int x) { }
+				    public void doit2C(int x) { }
+				}
+				"""
 		}, jarPath);
 		this.currentProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 
@@ -4664,29 +4856,31 @@ public void testBug237469a() throws Exception {
 
 		// create external jar 1
 		Util.createJar(
-				new String[] {
-					"test/IProject.java", //$NON-NLS-1$
-					"package test;\n" + //$NON-NLS-1$
-					"public class IProject {\n" + //$NON-NLS-1$
-					"}" //$NON-NLS-1$
-				},
-				new HashMap(),
-				externalJar1);
+						new String[] {
+							"test/IProject.java", //$NON-NLS-1$
+							"""
+			package test;
+			public class IProject {
+			}""" //$NON-NLS-1$
+						},
+						new HashMap(),
+						externalJar1);
 
 		// create external jar 2
 		Util.createJar(
-				new String[] {
-					"test/IJavaProject.java", //$NON-NLS-1$
-					"package test;\n" + //$NON-NLS-1$
-					"import test.IProject;\n" + //$NON-NLS-1$
-					"public class IJavaProject {\n" + //$NON-NLS-1$
-					"	IProject project = null;\n" + //$NON-NLS-1$
-					"}" //$NON-NLS-1$
-				},
-				null,
-				new HashMap(),
-				new String[]{externalJar1},
-				externalJar2);
+						new String[] {
+							"test/IJavaProject.java", //$NON-NLS-1$
+							"""
+			package test;
+			import test.IProject;
+			public class IJavaProject {
+				IProject project = null;
+			}""" //$NON-NLS-1$
+						},
+						null,
+						new HashMap(),
+						new String[]{externalJar1},
+						externalJar2);
 
 		// create P1
 		this.createJavaProject(
@@ -4698,13 +4892,14 @@ public void testBug237469a() throws Exception {
 		this.createFolder("/PS1/src/test");
 		this.createFile(
 				"/PS1/src/test/Y.java",
-				"package test;\n"+
-				"import test.IProject;\n"+
-				"import test.IJavaProject;\n"+
-				"public class Y {\n"+
-				"  IProject project;\n"+
-				"  IJavaProject javaProject;\n"+
-				"}");
+				"""
+					package test;
+					import test.IProject;
+					import test.IJavaProject;
+					public class Y {
+					  IProject project;
+					  IJavaProject javaProject;
+					}""");
 
 		// create P2
 		this.createJavaProject(
@@ -4717,13 +4912,14 @@ public void testBug237469a() throws Exception {
 		this.createFolder("/PS2/src/test");
 		this.createFile(
 				"/PS2/src/test/X.java",
-				"package test;\n"+
-				"public class X extends test.Y {\n"+
-				"  private Object initializer;\n"+
-				"  public void foo() {\n"+
-				"    initializer\n"+
-				"  }\n"+
-				"}");
+				"""
+					package test;
+					public class X extends test.Y {
+					  private Object initializer;
+					  public void foo() {
+					    initializer
+					  }
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -4760,29 +4956,31 @@ public void testBug237469b() throws Exception {
 
 		// create external jar 1
 		Util.createJar(
-				new String[] {
-					"test/IProject.java", //$NON-NLS-1$
-					"package test;\n" + //$NON-NLS-1$
-					"public class IProject {\n" + //$NON-NLS-1$
-					"}" //$NON-NLS-1$
-				},
-				new HashMap(),
-				externalJar1);
+						new String[] {
+							"test/IProject.java", //$NON-NLS-1$
+							"""
+			package test;
+			public class IProject {
+			}""" //$NON-NLS-1$
+						},
+						new HashMap(),
+						externalJar1);
 
 		// create external jar 2
 		Util.createJar(
-				new String[] {
-					"test/IJavaProject.java", //$NON-NLS-1$
-					"package test;\n" + //$NON-NLS-1$
-					"import test.IProject;\n" + //$NON-NLS-1$
-					"public class IJavaProject {\n" + //$NON-NLS-1$
-					"	IProject project = null;\n" + //$NON-NLS-1$
-					"}" //$NON-NLS-1$
-				},
-				null,
-				new HashMap(),
-				new String[]{externalJar1},
-				externalJar2);
+						new String[] {
+							"test/IJavaProject.java", //$NON-NLS-1$
+							"""
+			package test;
+			import test.IProject;
+			public class IJavaProject {
+				IProject project = null;
+			}""" //$NON-NLS-1$
+						},
+						null,
+						new HashMap(),
+						new String[]{externalJar1},
+						externalJar2);
 
 		// create P1
 		this.createJavaProject(
@@ -4794,13 +4992,14 @@ public void testBug237469b() throws Exception {
 		this.createFolder("/PS1/src/test");
 		this.createFile(
 				"/PS1/src/test/Y.java",
-				"package test;\n"+
-				"import test.IProject;\n"+
-				"import test.IJavaProject;\n"+
-				"public class Y {\n"+
-				"  IProject project;\n"+
-				"  IJavaProject javaProject;\n"+
-				"}");
+				"""
+					package test;
+					import test.IProject;
+					import test.IJavaProject;
+					public class Y {
+					  IProject project;
+					  IJavaProject javaProject;
+					}""");
 
 		// create P2
 		this.createJavaProject(
@@ -4813,13 +5012,14 @@ public void testBug237469b() throws Exception {
 		this.createFolder("/PS2/src/test");
 		this.createFile(
 				"/PS2/src/test/X.java",
-				"package test;\n"+
-				"public class X extends test.Y {\n"+
-				"  private X initializer;\n"+
-				"  public void foo() {\n"+
-				"    Object o; o.equals\n"+
-				"  }\n"+
-				"}");
+				"""
+					package test;
+					public class X extends test.Y {
+					  private X initializer;
+					  public void foo() {
+					    Object o; o.equals
+					  }
+					}""");
 
 		waitUntilIndexesReady();
 
@@ -4867,10 +5067,11 @@ public void testBug270113_01() throws Exception {
 
 		createJar(new String[] {
 			"p270113/AllConstructors01.java",
-			"package p270113;\n" +
-			"public abstract class AllConstructors01 {\n" +
-			"  protected AllConstructors01(int i) {}\n" +
-			"}"
+			"""
+				package p270113;
+				public abstract class AllConstructors01 {
+				  protected AllConstructors01(int i) {}
+				}"""
 		}, p.getProject().getLocation().append("lib270113.jar").toOSString());
 
 		refresh(p);
@@ -4880,12 +5081,13 @@ public void testBug270113_01() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new AllConstructors\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class Test {
+					  void foo() {
+					    new AllConstructors
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -4919,12 +5121,13 @@ public void testBug281598() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    sys\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class Test {
+					  void foo() {
+					    sys
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -4954,12 +5157,13 @@ public void testBug281598b() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new String\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;\
+					public class Test {
+					  void foo() {
+					    new String
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -4991,12 +5195,14 @@ public void testBug281598c() throws Exception {
 
 		// Create compilation unit in which completion occurs
 		String path = "/P/src/test/Test.java";
-		String source = "package test;\n" +
-			"public class Test {\n" +
-			"	public void foo() {\n" +
-			"		Strin\n" +
-			"	}\n" +
-			"}\n";
+		String source = """
+			package test;
+			public class Test {
+				public void foo() {
+					Strin
+				}
+			}
+			""";
 		createFolder("/P/src/test");
 		createFile(path, source);
 		this.indexDisabledForTest = true;
@@ -5028,20 +5234,21 @@ public void testBug151500a() throws Exception {
 		createJar(
 				new String[] {
 						"foo/Foo.java",
-						"package foo;\n" +
-						"public class Foo {\n"+
-						"  public Foo(int p1) {}\n"+
-						"  public Bar bar = new Bar(1,2);\n"+
-						"  public class Bar {\n" +
-						"    int param1;\n" +
-						"	 int param2;\n" +
-						"	 public Bar (int a, int b) {\n" +
-						"		param1 = a;\n" +
-						"		param2 = b;\n" +
-						"	 }\n" +
-						"	 public void someMethod(String paramName) {}\n"+
-						"  }\n"+
-						"}"
+						"""
+							package foo;
+							public class Foo {
+							  public Foo(int p1) {}
+							  public Bar bar = new Bar(1,2);
+							  public class Bar {
+							    int param1;
+								 int param2;
+								 public Bar (int a, int b) {
+									param1 = a;
+									param2 = b;
+								 }
+								 public void someMethod(String paramName) {}
+							  }
+							}"""
 				},
 				p.getProject().getLocation().append("lib151500.jar").toOSString(),
 				new String[]{getExternalJCLPathString("1.3")},
@@ -5054,13 +5261,14 @@ public void testBug151500a() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void m() {\n" +
-				"    foo.Foo f = new Foo(1);\n" +
-				"	 f.bar.s\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void m() {
+					    foo.Foo f = new Foo(1);
+						 f.bar.s
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -5087,20 +5295,21 @@ public void testBug151500b() throws Exception {
 		createJar(
 				new String[] {
 						"foo/Foo.java",
-						"package foo;\n" +
-						"public class Foo {\n"+
-						"  public Foo(int p1) {}\n"+
-						"  public Bar bar = new Bar(1,2);\n"+
-						"  public class Bar {\n" +
-						"    int param1;\n" +
-						"	 int param2;\n" +
-						"	 public Bar (int a, int b) {\n" +
-						"		param1 = a;\n" +
-						"		param2 = b;\n" +
-						"	 }\n" +
-						"	 public void someMethod(String paramName) {}\n"+
-						"  }\n"+
-						"}"
+						"""
+							package foo;
+							public class Foo {
+							  public Foo(int p1) {}
+							  public Bar bar = new Bar(1,2);
+							  public class Bar {
+							    int param1;
+								 int param2;
+								 public Bar (int a, int b) {
+									param1 = a;
+									param2 = b;
+								 }
+								 public void someMethod(String paramName) {}
+							  }
+							}"""
 				},
 				p.getProject().getLocation().append("lib151500.jar").toOSString(),
 				new String[]{getExternalJCLPathString("1.3")},
@@ -5113,12 +5322,13 @@ public void testBug151500b() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void m() {\n" +
-				"    new foo.Foo(1).new B;\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void m() {
+					    new foo.Foo(1).new B;
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -5146,20 +5356,21 @@ public void testBug151500c() throws Exception {
 		createJar(
 				new String[] {
 						"foo/Foo.java",
-						"package foo;\n" +
-						"public class Foo {\n"+
-						"  public Foo(int p1) {}\n"+
-						"  public Bar bar = new Bar(1,2);\n"+
-						"  public class Bar {\n" +
-						"    int param1;\n" +
-						"	 int param2;\n" +
-						"	 public Bar (int a, int b) {\n" +
-						"		param1 = a;\n" +
-						"		param2 = b;\n" +
-						"	 }\n" +
-						"	 public void someMethod(String paramName) {}\n"+
-						"  }\n"+
-						"}"
+						"""
+							package foo;
+							public class Foo {
+							  public Foo(int p1) {}
+							  public Bar bar = new Bar(1,2);
+							  public class Bar {
+							    int param1;
+								 int param2;
+								 public Bar (int a, int b) {
+									param1 = a;
+									param2 = b;
+								 }
+								 public void someMethod(String paramName) {}
+							  }
+							}"""
 				},
 				p.getProject().getLocation().append("lib151500.jar").toOSString(),
 				new String[]{getExternalJCLPathString("1.3")},
@@ -5172,12 +5383,13 @@ public void testBug151500c() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n"+
-				"public class Test {\n" +
-				"  void m() {\n" +
-				"    new foo.Foo.B;\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					  void m() {
+					    new foo.Foo.B;
+					  }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -5208,12 +5420,13 @@ public void testBug317264a() throws CoreException {
 
 		createFile(
 				"/P2/X.java",
-				"import org.apache.commons.lang.*;\n"+
-				"public class X {\n"+
-				"  public void foo() {\n"+
-				"    enu\n"+
-				"  }\n"+
-				"}");
+				"""
+					import org.apache.commons.lang.*;
+					public class X {
+					  public void foo() {
+					    enu
+					  }
+					}""");
 		waitUntilIndexesReady();
 
 		ICompilationUnit cu= getCompilationUnit("P2", "", "", "X.java");
@@ -5241,12 +5454,13 @@ public void testBug317264b() throws CoreException {
 
 		createFile(
 				"/P2/X.java",
-				"import org.apache.commons.lang.*;\n"+
-				"public class X {\n"+
-				"  public void foo() {\n"+
-				"    enu\n"+
-				"  }\n"+
-				"}");
+				"""
+					import org.apache.commons.lang.*;
+					public class X {
+					  public void foo() {
+					    enu
+					  }
+					}""");
 		waitUntilIndexesReady();
 
 		ICompilationUnit cu= getCompilationUnit("P2", "", "", "X.java");
@@ -5274,11 +5488,12 @@ public void testBug317264c() throws CoreException {
 
 		createFile(
 				"/P2/X.java",
-				"import org.apache.commons.lang.enu;\n"+
-				"public class X {\n"+
-				"  public void foo() {\n"+
-				"  }\n"+
-				"}");
+				"""
+					import org.apache.commons.lang.enu;
+					public class X {
+					  public void foo() {
+					  }
+					}""");
 		waitUntilIndexesReady();
 
 		ICompilationUnit cu= getCompilationUnit("P2", "", "", "X.java");
@@ -5304,11 +5519,12 @@ public void testBug317264d() throws CoreException {
 
 		createFile(
 				"/P2/X.java",
-				"import org.apache.commons.lang.enu;\n"+
-				"public class X {\n"+
-				"  public void foo() {\n"+
-				"  }\n"+
-				"}");
+				"""
+					import org.apache.commons.lang.enu;
+					public class X {
+					  public void foo() {
+					  }
+					}""");
 		waitUntilIndexesReady();
 
 		ICompilationUnit cu= getCompilationUnit("P2", "", "", "X.java");
@@ -5332,19 +5548,21 @@ public void testBug340945() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Try.java",
-			"package test;\n" +
-			"public class Try extends Thread{\n" +
-			"	int inty = 1;\n" +
-			"	void foo() {\n" +
-			"		int i = 1;\n" +
-			"		Object o = new Object() {\n" +
-			"			void running() {\n" +
-			"				int j = 1;\n" +
-			"				int k = " +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;
+				public class Try extends Thread{
+					int inty = 1;
+					void foo() {
+						int i = 1;
+						Object o = new Object() {
+							void running() {
+								int j = 1;
+								int k = \
+							}
+						}
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.setRequireExtendedContext(true);
@@ -5362,27 +5580,31 @@ public void testBug340945() throws JavaModelException {
 			"int k = <CompleteOnName:>;",
 			requestor.getCompletionNodeParent());
 	assertResults(
-			"int j[pos: unused][id:2]\n" +
-			"int i[pos: unused][id:0]\n" +
-			"java.lang.Object o[pos: unused][id:1]\n",
+			"""
+				int j[pos: unused][id:2]
+				int i[pos: unused][id:0]
+				java.lang.Object o[pos: unused][id:1]
+				""",
 			requestor.getVisibleLocalVariables());
 	assertResults(
 			"int inty\n",
 			requestor.getVisibleFields());
 	assertResults(
-			"void running() \n" +
-			"public final void wait(long, int) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
-			"public final void wait(long) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
-			"public final void wait() throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
-			"public java.lang.String toString() \n" +
-			"public final void notifyAll() throws java.lang.IllegalMonitorStateException\n" +
-			"public final void notify() throws java.lang.IllegalMonitorStateException\n" +
-			"public int hashCode() \n" +
-			"public final java.lang.Class getClass() \n" +
-			"protected void finalize() throws java.lang.Throwable\n" +
-			"public boolean equals(java.lang.Object) \n" +
-			"protected java.lang.Object clone() throws java.lang.CloneNotSupportedException\n" +
-			"void foo() \n",
+			"""
+				void running()\s
+				public final void wait(long, int) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException
+				public final void wait(long) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException
+				public final void wait() throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException
+				public java.lang.String toString()\s
+				public final void notifyAll() throws java.lang.IllegalMonitorStateException
+				public final void notify() throws java.lang.IllegalMonitorStateException
+				public int hashCode()\s
+				public final java.lang.Class getClass()\s
+				protected void finalize() throws java.lang.Throwable
+				public boolean equals(java.lang.Object)\s
+				protected java.lang.Object clone() throws java.lang.CloneNotSupportedException
+				void foo()\s
+				""",
 			requestor.getVisibleMethods());
 }
 
@@ -5391,12 +5613,14 @@ public void testBug340945a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Try.java",
-			"package test;\n" +
-			"public class Try extends Thread{\n" +
-			"	int int1 = 1;\n" +
-			"	int int2 = 2;\n" +
-			"	int int3 = " +
-			"}\n");
+			"""
+				package test;
+				public class Try extends Thread{
+					int int1 = 1;
+					int int2 = 2;
+					int int3 = \
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.setRequireExtendedContext(true);
@@ -5420,17 +5644,19 @@ public void testBug340945a() throws JavaModelException {
 			"int int1\n",
 			requestor.getVisibleFields());
 	assertResults(
-			"public final void wait(long, int) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
-			"public final void wait(long) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
-			"public final void wait() throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
-			"public java.lang.String toString() \n" +
-			"public final void notifyAll() throws java.lang.IllegalMonitorStateException\n" +
-			"public final void notify() throws java.lang.IllegalMonitorStateException\n" +
-			"public int hashCode() \n" +
-			"public final java.lang.Class getClass() \n" +
-			"protected void finalize() throws java.lang.Throwable\n" +
-			"public boolean equals(java.lang.Object) \n" +
-			"protected java.lang.Object clone() throws java.lang.CloneNotSupportedException\n",
+			"""
+				public final void wait(long, int) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException
+				public final void wait(long) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException
+				public final void wait() throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException
+				public java.lang.String toString()\s
+				public final void notifyAll() throws java.lang.IllegalMonitorStateException
+				public final void notify() throws java.lang.IllegalMonitorStateException
+				public int hashCode()\s
+				public final java.lang.Class getClass()\s
+				protected void finalize() throws java.lang.Throwable
+				public boolean equals(java.lang.Object)\s
+				protected java.lang.Object clone() throws java.lang.CloneNotSupportedException
+				""",
 			requestor.getVisibleMethods());
 }
 
@@ -5439,15 +5665,17 @@ public void testBug340945b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Try.java",
-			"package test;\n" +
-			"public class Try extends Thread{\n" +
-			"Object field;\n" +
-			"void foo() {\n" +
-			"	int int1 = 1;\n" +
-			"	int int2 = 2;\n" +
-			"	int int3 = " +
-			"}\n" +
-			"}\n");
+			"""
+				package test;
+				public class Try extends Thread{
+				Object field;
+				void foo() {
+					int int1 = 1;
+					int int2 = 2;
+					int int3 = \
+				}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.setRequireExtendedContext(true);
@@ -5471,18 +5699,20 @@ public void testBug340945b() throws JavaModelException {
 			"java.lang.Object field\n",
 			requestor.getVisibleFields());
 	assertResults(
-			"void foo() \n" +
-			"public final void wait(long, int) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
-			"public final void wait(long) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
-			"public final void wait() throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
-			"public java.lang.String toString() \n" +
-			"public final void notifyAll() throws java.lang.IllegalMonitorStateException\n" +
-			"public final void notify() throws java.lang.IllegalMonitorStateException\n" +
-			"public int hashCode() \n" +
-			"public final java.lang.Class getClass() \n" +
-			"protected void finalize() throws java.lang.Throwable\n" +
-			"public boolean equals(java.lang.Object) \n" +
-			"protected java.lang.Object clone() throws java.lang.CloneNotSupportedException\n",
+			"""
+				void foo()\s
+				public final void wait(long, int) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException
+				public final void wait(long) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException
+				public final void wait() throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException
+				public java.lang.String toString()\s
+				public final void notifyAll() throws java.lang.IllegalMonitorStateException
+				public final void notify() throws java.lang.IllegalMonitorStateException
+				public int hashCode()\s
+				public final java.lang.Class getClass()\s
+				protected void finalize() throws java.lang.Throwable
+				public boolean equals(java.lang.Object)\s
+				protected java.lang.Object clone() throws java.lang.CloneNotSupportedException
+				""",
 			requestor.getVisibleMethods());
 }
 
@@ -5491,16 +5721,18 @@ public void testBug340945c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Try.java",
-			"package test;\n" +
-			"public class Try extends Thread{\n" +
-			"Object field;\n" +
-			"void foo() {\n" +
-			"	int int1 = 1;\n" +
-			"	int int2 = 2;\n" +
-			"	Object o1 = new Object();\n" +
-			"   o1." +
-			"}\n" +
-			"}\n");
+			"""
+				package test;
+				public class Try extends Thread{
+				Object field;
+				void foo() {
+					int int1 = 1;
+					int int2 = 2;
+					Object o1 = new Object();
+				   o1.\
+				}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.setRequireExtendedContext(true);
@@ -5517,26 +5749,30 @@ public void testBug340945c() throws JavaModelException {
 			"should be null",
 			requestor.getCompletionNodeParent());
 	assertResults(
-			"int int1[pos: unused][id:0]\n" +
-			"int int2[pos: unused][id:1]\n" +
-			"java.lang.Object o1[pos: unused][id:2]\n",
+			"""
+				int int1[pos: unused][id:0]
+				int int2[pos: unused][id:1]
+				java.lang.Object o1[pos: unused][id:2]
+				""",
 			requestor.getVisibleLocalVariables());
 	assertResults(
 			"java.lang.Object field\n",
 			requestor.getVisibleFields());
 	assertResults(
-			"void foo() \n" +
-			"public final void wait(long, int) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
-			"public final void wait(long) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
-			"public final void wait() throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
-			"public java.lang.String toString() \n" +
-			"public final void notifyAll() throws java.lang.IllegalMonitorStateException\n" +
-			"public final void notify() throws java.lang.IllegalMonitorStateException\n" +
-			"public int hashCode() \n" +
-			"public final java.lang.Class getClass() \n" +
-			"protected void finalize() throws java.lang.Throwable\n" +
-			"public boolean equals(java.lang.Object) \n" +
-			"protected java.lang.Object clone() throws java.lang.CloneNotSupportedException\n",
+			"""
+				void foo()\s
+				public final void wait(long, int) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException
+				public final void wait(long) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException
+				public final void wait() throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException
+				public java.lang.String toString()\s
+				public final void notifyAll() throws java.lang.IllegalMonitorStateException
+				public final void notify() throws java.lang.IllegalMonitorStateException
+				public int hashCode()\s
+				public final java.lang.Class getClass()\s
+				protected void finalize() throws java.lang.Throwable
+				public boolean equals(java.lang.Object)\s
+				protected java.lang.Object clone() throws java.lang.CloneNotSupportedException
+				""",
 			requestor.getVisibleMethods());
 }
 
@@ -5545,16 +5781,18 @@ public void testBug340945d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Try.java",
-			"package test;\n" +
-			"public class Try extends Thread{\n" +
-			"Object field;\n" +
-			"static void foo() {\n" +	// field should not be visible here
-			"	int int1 = 1;\n" +
-			"	int int2 = 2;\n" +
-			"	Object o1 = new Object();\n" +
-			"   o1." +
-			"}\n" +
-			"}\n");
+			"""
+				package test;
+				public class Try extends Thread{
+				Object field;
+				static void foo() {
+					int int1 = 1;
+					int int2 = 2;
+					Object o1 = new Object();
+				   o1.\
+				}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.setRequireExtendedContext(true);
@@ -5571,9 +5809,11 @@ public void testBug340945d() throws JavaModelException {
 			"should be null",
 			requestor.getCompletionNodeParent());
 	assertResults(
-			"int int1[pos: unused][id:0]\n" +
-			"int int2[pos: unused][id:1]\n" +
-			"java.lang.Object o1[pos: unused][id:2]\n",
+			"""
+				int int1[pos: unused][id:0]
+				int int2[pos: unused][id:1]
+				java.lang.Object o1[pos: unused][id:2]
+				""",
 			requestor.getVisibleLocalVariables());
 	assertResults(
 			"",
@@ -5637,32 +5877,35 @@ public void testBug373409() throws Exception {
 
 		createFile(
 				"/P/src/java/llang/Thread.java",
-				"package java.llang;\n"+
-				"public class Thread {\n" +
-				"  public Thread() {\n" +
-				"  }\n" +
-				"  public Thread(String s) {\n" +
-				"  }\n" +
-				"  public Thread(String s, int i) {\n" +
-				"  }\n" +
-				"}");
+				"""
+					package java.llang;
+					public class Thread {
+					  public Thread() {
+					  }
+					  public Thread(String s) {
+					  }
+					  public Thread(String s, int i) {
+					  }
+					}""");
 
 		createFile(
 				"/P/src/java/llang/ThreadLocal.java",
-				"package java.llang;\n"+
-				"public class ThreadLocal {\n" +
-				"	 static class ThreadLocalMap {}\n" + // non private static member class necessary for ThreadLocal to be proposed as a type
-				"}");
+				"""
+					package java.llang;
+					public class ThreadLocal {
+						 static class ThreadLocalMap {}
+					}""");
 
 		createFile(
 				"/P/src/java/llang/ThreadGroup.java",
-				"package java.llang;\n"+
-				"public class ThreadGroup {\n" +
-				"   public ThreadGroup() {\n" +
-				"  }\n" +
-				"   public ThreadGroup(String s) {\n" +
-				"  }\n" +
-				"}");
+				"""
+					package java.llang;
+					public class ThreadGroup {
+					   public ThreadGroup() {
+					  }
+					   public ThreadGroup(String s) {
+					  }
+					}""");
 
 		refresh(p);
 
@@ -5672,13 +5915,14 @@ public void testBug373409() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/test/Test.java",
-				"package test;\n" +
-				"import java.llang.*;\n"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    new Threa\n" +
-				"  }\n" +
-				"}");
+				"""
+					package test;
+					import java.llang.*;
+					public class Test {
+					  void foo() {
+					    new Threa
+					  }
+					}""");
 
 
 
@@ -5716,11 +5960,13 @@ public void testBug397070() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Completion.java",
-		"package test;\n" +
-		"public class Completion implements {}\n" +
-		"public interface Completion2 extends {}\n" +
-		"public class Completion3 extends {}\n" +
-		"}\n");
+		"""
+			package test;
+			public class Completion implements {}
+			public interface Completion2 extends {}
+			public class Completion3 extends {}
+			}
+			""");
 
 	class CompletionRequestor2 extends CompletionRequestor {
 		SourceType type = null;
@@ -5782,17 +6028,18 @@ public void testBug392581() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/p/B.java",
-				"class A {\n" +
-				"	protected String foo1(){\n" +
-				"		return \"From A\";\n" +
-				"  }\n" +
-				"}\n" +
-				"public class B extends A {\n" +
-				"	@Override\n" +
-				"	protected String foo1() {\n" +
-				"  		super. \n" +
-				"	}\n" +
-				"}");
+				"""
+					class A {
+						protected String foo1(){
+							return "From A";
+					  }
+					}
+					public class B extends A {
+						@Override
+						protected String foo1() {
+					  		super.\s
+						}
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5835,17 +6082,19 @@ public void testBug410207a() throws Exception {
 		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB", "/P/lib.jar"}, "bin", "1.5");
 		Util.createJar(new String[] {
 				"a/enum/b/NonCompliant.java",
-				"package a.enum.b;\n" +
-				"public class NonCompliant {\n" +
-				"}",
+				"""
+					package a.enum.b;
+					public class NonCompliant {
+					}""",
 				"lib/External.java",
-				"package lib;\n" +
-				"import a.enum.b.NonCompliant;\n" +
-				"public class External {\n" +
-				"   public NonCompliant setNonCompliant(NonCompliant x) {\n" +
-				"      return null;\n" +
-				"	}\n" +
-				"}"
+				"""
+					package lib;
+					import a.enum.b.NonCompliant;
+					public class External {
+					   public NonCompliant setNonCompliant(NonCompliant x) {
+					      return null;
+						}
+					}"""
 			},
 			p.getProject().getLocation().append("lib.jar").toOSString(),
 			"1.3");
@@ -5853,14 +6102,15 @@ public void testBug410207a() throws Exception {
 		createFolder("/P/src/p/");
 		createFile(
 				"/P/src/p/Main.java",
-				"package p;\n" +
-				"import lib.External;\n" +
-				"public class Main {\n" +
-				"   public void m() {\n" +
-				"      External external = new External();\n" +
-				"      external.setNonCompliant(new );\n" +
-				"   };\n" +
-				"}"
+				"""
+					package p;
+					import lib.External;
+					public class Main {
+					   public void m() {
+					      External external = new External();
+					      external.setNonCompliant(new );
+					   };
+					}"""
 		);
 		waitUntilIndexesReady();
 		ICompilationUnit cu = getCompilationUnit("P", "src", "p", "Main.java");
@@ -5890,17 +6140,19 @@ public void testBug410207b() throws Exception {
 		options.put(CompilerOptions.OPTION_Source, "1.4");
 		Util.createJar(new String[] {
 				"a/enum/b/NonCompliant.java",
-				"package a.enum.b;\n" +
-				"public class NonCompliant {\n" +
-				"}",
+				"""
+					package a.enum.b;
+					public class NonCompliant {
+					}""",
 				"lib/External.java",
-				"package lib;\n" +
-				"import a.enum.b.NonCompliant;\n" +
-				"public class External {\n" +
-				"   public NonCompliant setNonCompliant(NonCompliant x) {\n" +
-				"      return null;\n" +
-				"	}\n" +
-				"}"
+				"""
+					package lib;
+					import a.enum.b.NonCompliant;
+					public class External {
+					   public NonCompliant setNonCompliant(NonCompliant x) {
+					      return null;
+						}
+					}"""
 			},
 			null,/*extraPathsAndContents*/
 			p.getProject().getLocation().append("lib.jar").toOSString(),
@@ -5911,14 +6163,15 @@ public void testBug410207b() throws Exception {
 		createFolder("/P/src/p/");
 		createFile(
 				"/P/src/p/Main.java",
-				"package p;\n" +
-				"import lib.External;\n" +
-				"public class Main {\n" +
-				"   public void m() {\n" +
-				"      External external = new External();\n" +
-				"      external.setNonCompliant(new );\n" +
-				"   };\n" +
-				"}"
+				"""
+					package p;
+					import lib.External;
+					public class Main {
+					   public void m() {
+					      External external = new External();
+					      external.setNonCompliant(new );
+					   };
+					}"""
 		);
 		waitUntilIndexesReady();
 		ICompilationUnit cu = getCompilationUnit("P", "src", "p", "Main.java");
@@ -5947,34 +6200,37 @@ public void testBug410207c() throws Exception {
 		createFolder("/Lib/src/a/enum/b");
 		createFile(
 				"/Lib/src/a/enum/b/NonCompliant.java",
-				"package a.enum.b;\n" +
-				"public class NonCompliant {\n" +
-				"}"
+				"""
+					package a.enum.b;
+					public class NonCompliant {
+					}"""
 		);
 		createFolder("/Lib/src/lib");
 		createFile(
 				"/Lib/src/lib/External.java",
-				"package lib;\n" +
-				"import a.enum.b.NonCompliant;\n" +
-				"public class External {\n" +
-				"   public NonCompliant setNonCompliant(NonCompliant x) {\n" +
-				"      return null;\n" +
-				"	}\n" +
-				"}"
+				"""
+					package lib;
+					import a.enum.b.NonCompliant;
+					public class External {
+					   public NonCompliant setNonCompliant(NonCompliant x) {
+					      return null;
+						}
+					}"""
 		);
 		getProject("Lib").build(IncrementalProjectBuilder.FULL_BUILD, null);
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB", "/Lib/bin"}, "bin", "1.5");
 		createFolder("/P/src/p");
 		createFile(
 				"/P/src/p/Main.java",
-				"package p;\n" +
-				"import lib.External;\n" +
-				"public class Main {\n" +
-				"   public void m() {\n" +
-				"      External external = new External();\n" +
-				"      external.setNonCompliant(new );\n" +
-				"   };\n" +
-				"}"
+				"""
+					package p;
+					import lib.External;
+					public class Main {
+					   public void m() {
+					      External external = new External();
+					      external.setNonCompliant(new );
+					   };
+					}"""
 		);
 		waitUntilIndexesReady();
 		ICompilationUnit cu = getCompilationUnit("P", "src", "p", "Main.java");
@@ -6003,34 +6259,37 @@ public void testBug410207d() throws Exception {
 		createFolder("/Lib/src/a/enum/b");
 		createFile(
 				"/Lib/src/a/enum/b/NonCompliant.java",
-				"package a.enum.b;\n" +
-				"public class NonCompliant {\n" +
-				"}"
+				"""
+					package a.enum.b;
+					public class NonCompliant {
+					}"""
 		);
 		createFolder("/Lib/src/lib");
 		createFile(
 				"/Lib/src/lib/External.java",
-				"package lib;\n" +
-				"import a.enum.b.NonCompliant;\n" +
-				"public class External {\n" +
-				"   public NonCompliant setNonCompliant(NonCompliant x) {\n" +
-				"      return null;\n" +
-				"	}\n" +
-				"}"
+				"""
+					package lib;
+					import a.enum.b.NonCompliant;
+					public class External {
+					   public NonCompliant setNonCompliant(NonCompliant x) {
+					      return null;
+						}
+					}"""
 		);
 		getProject("Lib").build(IncrementalProjectBuilder.FULL_BUILD, null);
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, new String[] {"/Lib"}, "bin", "1.5");
 		createFolder("/P/src/p");
 		createFile(
 				"/P/src/p/Main.java",
-				"package p;\n" +
-				"import lib.External;\n" +
-				"public class Main {\n" +
-				"   public void m() {\n" +
-				"      External external = new External();\n" +
-				"      external.setNonCompliant(new );\n" +
-				"   };\n" +
-				"}"
+				"""
+					package p;
+					import lib.External;
+					public class Main {
+					   public void m() {
+					      External external = new External();
+					      external.setNonCompliant(new );
+					   };
+					}"""
 		);
 		waitUntilIndexesReady();
 		ICompilationUnit cu = getCompilationUnit("P", "src", "p", "Main.java");
@@ -6058,10 +6317,11 @@ public void testBug418011() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/p/X.java",
-				"class X {\n" +
-				"	X max1 = null;\n" +
-				"	X max1 = Math.ma\n" +
-				"}");
+				"""
+					class X {
+						X max1 = null;
+						X max1 = Math.ma
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6094,25 +6354,28 @@ public void testBug376977() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/myannotations/Nested.java",
-				"package myannotations;\n"+
-				"public @interface Nested {\n" +
-				"}");
+				"""
+					package myannotations;
+					public @interface Nested {
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/myannotations/Outer.java",
-				"package myannotations;\n"+
-				"public @interface Outer {\n" +
-				"	Nested[] nest();\n" +
-				"}");
+				"""
+					package myannotations;
+					public @interface Outer {
+						Nested[] nest();
+					}""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/mymyclass/Outer.java",
-				"package mymyclass;\n"+
-				"import myannotations.Outer;\n"+
-				"import myannotations.Nested;\n"+
-				"@Outer(nest= {@Nested()})\n" +
-				"public class MyClass {\n" +
-				"}");
+				"""
+					package mymyclass;
+					import myannotations.Outer;
+					import myannotations.Nested;
+					@Outer(nest= {@Nested()})
+					public class MyClass {
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -6136,19 +6399,21 @@ public void test442868() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.List;\n" +
-			"abstract class Other {\n" +
-			"	public abstract void m(String s, Object l, Object o);\n" +
-			"}\n" +
-			"public class Weird {\n" +
-			"	private static void weird() {\n" +
-			"		new Other() {\n" +
-			"			@Override\n" +
-			"			public void m(String s, Obj l, Object o) {\n" +
-			"			}\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.List;
+				abstract class Other {
+					public abstract void m(String s, Object l, Object o);
+				}
+				public class Weird {
+					private static void weird() {
+						new Other() {
+							@Override
+							public void m(String s, Obj l, Object o) {
+							}
+						};
+					}
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
 	String str = this.workingCopies[0].getSource();
@@ -6173,21 +6438,25 @@ public void test479656() throws Exception {
 		this.createFolder("/P/src/com/google/gwt/event/shared");
 		this.createFile(
 			"/P/src/com/google/gwt/event/shared/GwtEvent.java",
-			"package com.google.gwt.event.shared;\n" +
-			"public abstract class GwtEvent<H>  {\n" +
-			"	public static class Type<H> {}\n" +
-			"}\n");
+			"""
+				package com.google.gwt.event.shared;
+				public abstract class GwtEvent<H>  {
+					public static class Type<H> {}
+				}
+				""");
 		this.createFolder("/P/src/test");
 		this.createFile(
 			"/P/src/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"	String value = \"\";\n" +
-			"	com.gtouch5.shared.data.store.event.StoreEvent<String> event = null;\n" +
-			"	public Test() {\n" +
-			"		value.toS\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;
+				public class Test {
+					String value = "";
+					com.gtouch5.shared.data.store.event.StoreEvent<String> event = null;
+					public Test() {
+						value.toS
+					}
+				}
+				""");
 		refresh(p);
 		waitUntilIndexesReady();
 		ICompilationUnit cu = getCompilationUnit("P", "src", "test", "Test.java");
@@ -6228,12 +6497,13 @@ public void testBug575562_AccessRestrictionCheck_ENABLED() throws Exception {
 		this.createFolder("/P1/src/p11");
 		this.createFile(
 				"/P1/src/p11/Y11.java",
-				"package p11;\n"+
-				"public class YY11 {\n"+
-				"  void foo() {\n"+
-				"    X\n"+
-				"  }\n"+
-				"}");
+				"""
+					package p11;
+					public class YY11 {
+					  void foo() {
+					    X
+					  }
+					}""");
 		waitUntilIndexesReady();
 
 		// do completion
@@ -6277,12 +6547,13 @@ public void testBug575562_AccessRestrictionCheck_DISABLED() throws Exception {
 		this.createFolder("/P1/src/p11");
 		this.createFile(
 				"/P1/src/p11/Y11.java",
-				"package p11;\n"+
-				"public class YY11 {\n"+
-				"  void foo() {\n"+
-				"    X\n"+
-				"  }\n"+
-				"}");
+				"""
+					package p11;
+					public class YY11 {
+					  void foo() {
+					    X
+					  }
+					}""");
 		waitUntilIndexesReady();
 
 		// do completion

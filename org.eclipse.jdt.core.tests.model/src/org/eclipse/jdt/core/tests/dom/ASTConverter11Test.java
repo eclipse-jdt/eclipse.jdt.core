@@ -53,15 +53,16 @@ public class ASTConverter11Test extends ConverterTestSetup {
 
 	public void testBug535249_001() throws JavaModelException {
 		String contents =
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I lambda = (var x) -> {System.out.println(x);};\n" +
-				"       lambda.apply(10);\n" +
-				"	}\n" +
-				"}\n" +
-				"interface I {\n" +
-				"	public void apply(Integer k);\n" +
-				"}";
+				"""
+			public class X {
+				public static void main(String[] args) {
+					I lambda = (var x) -> {System.out.println(x);};
+			       lambda.apply(10);
+				}
+			}
+			interface I {
+				public void apply(Integer k);
+			}""";
 			this.workingCopy = getWorkingCopy("/Converter11/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(contents, this.workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -85,15 +86,16 @@ public class ASTConverter11Test extends ConverterTestSetup {
 
 	public void testBug535249_002() throws JavaModelException {
 		String contents =
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I lambda = (var x, var y) -> {System.out.println(x);};\n" +
-				"       lambda.apply(10, 20);\n" +
-				"	}\n" +
-				"}\n" +
-				"interface I {\n" +
-				"	public void apply(Integer k, Integer l);\n" +
-				"}";
+				"""
+			public class X {
+				public static void main(String[] args) {
+					I lambda = (var x, var y) -> {System.out.println(x);};
+			       lambda.apply(10, 20);
+				}
+			}
+			interface I {
+				public void apply(Integer k, Integer l);
+			}""";
 			this.workingCopy = getWorkingCopy("/Converter11/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(contents, this.workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());

@@ -394,17 +394,30 @@ public class DeclarationVisitorTests extends APTTestBase {
 	}
 
 	final String code =
-		"package test;" + "\n" +
-		"import org.eclipse.jdt.apt.tests.annotations.generic.*;" + "\n" +
-		"@GenericAnnotation public class Test" + "\n" +
-		"{" + "\n" +
-		"    Test() {}" + "\n" +
-		"    String s;" + "\n" +
-		"    class C {}" + "\n" +
-		"    class P<T> {}" + "\n" +
-		"    interface I {}" + "\n" +
-		"    void m(int i) {}" + "\n" +
-		"    enum E { elephant }" + "\n" +
-		"    @interface A { String strValue() default \"\"; }" + "\n" +
-		"}";
+		"""
+		package test;\
+		
+		import org.eclipse.jdt.apt.tests.annotations.generic.*;\
+		
+		@GenericAnnotation public class Test\
+		
+		{\
+		
+		    Test() {}\
+		
+		    String s;\
+		
+		    class C {}\
+		
+		    class P<T> {}\
+		
+		    interface I {}\
+		
+		    void m(int i) {}\
+		
+		    enum E { elephant }\
+		
+		    @interface A { String strValue() default ""; }\
+		
+		}""";
 }

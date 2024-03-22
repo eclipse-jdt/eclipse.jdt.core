@@ -233,33 +233,36 @@ protected String getTest063c_log() {
 @Override
 protected String getTestBug440282_log() {
 	return
-		"----------\n" +
-		"1. ERROR in ResourceLeakFalseNegative.java (at line 36)\n" +
-		"	final FileInputStream in = new FileInputStream(\"/dev/null\");\n" +
-		"	                      ^^\n" +
-		"Resource leak: 'in' is never closed\n" +
-		"----------\n" +
-		"2. ERROR in ResourceLeakFalseNegative.java (at line 39)\n" +
-		"	return new Foo(reader).read();\n" +
-		"	       ^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in ResourceLeakFalseNegative.java (at line 36)
+			final FileInputStream in = new FileInputStream("/dev/null");
+			                      ^^
+		Resource leak: 'in' is never closed
+		----------
+		2. ERROR in ResourceLeakFalseNegative.java (at line 39)
+			return new Foo(reader).read();
+			       ^^^^^^^^^^^^^^^
+		Resource leak: \'<unassigned Closeable value>\' is never closed
+		----------
+		""";
 }
 
 public void testBug411098_comment19_annotated() {
 	runLeakTestWithAnnotations(
 		new String[] {
 			"A.java",
-			"import java.io.PrintWriter;\n" +
-			"import org.eclipse.jdt.annotation.Owning;\n" +
-			"public class A implements AutoCloseable {\n" +
-			"	@Owning PrintWriter fWriter;\n" +
-			"	boolean useField = false;\n" +
-			"	public void close() {\n" +
-			"		PrintWriter bug= useField ? fWriter : null;\n" +
-			"		System.out.println(bug);\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.io.PrintWriter;
+				import org.eclipse.jdt.annotation.Owning;
+				public class A implements AutoCloseable {
+					@Owning PrintWriter fWriter;
+					boolean useField = false;
+					public void close() {
+						PrintWriter bug= useField ? fWriter : null;
+						System.out.println(bug);
+					}
+				}"""
 		},
 		"""
 		----------
@@ -276,87 +279,91 @@ public void testBug440282_annotated() {
 	runLeakTestWithAnnotations(
 		new String[] {
 			"ResourceLeakFalseNegative.java",
-			"import java.io.*;\n" +
-			"\n" +
-			"import org.eclipse.jdt.annotation.*;\n" +
-			"\n" +
-			"public final class ResourceLeakFalseNegative {\n" +
-			"\n" +
-			"  private static final class Foo implements AutoCloseable {\n" +
-			"    @Owning final InputStreamReader reader;\n" +
-			"\n" +
-			"    Foo(@Owning final InputStreamReader reader) {\n" +
-			"      this.reader = reader;\n" +
-			"    }\n" +
-			"    \n" +
-			"    public int read() throws IOException {\n" +
-			"      return reader.read();\n" +
-			"    }\n" +
-			"\n" +
-			"    public void close() throws IOException {\n" +
-			"      reader.close();\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"  private static final class Bar {\n" +
-			"    final int read;\n" +
-			"\n" +
-			"    Bar(final InputStreamReader reader) throws IOException {\n" +
-			"      read = reader.read();\n" +
-			"    }\n" +
-			"    \n" +
-			"    public int read() {\n" +
-			"      return read;\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"  public final static int foo() throws IOException {\n" +
-			"    final FileInputStream in = new FileInputStream(\"/dev/null\");\n" +
-			"    final InputStreamReader reader = new InputStreamReader(in);\n" +
-			"    try {\n" +
-			"      return new Foo(reader).read();\n" +
-			"    } finally {\n" +
-			"      // even though Foo is not closed, no potential resource leak is reported.\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"  public final static int bar() throws IOException {\n" +
-			"    final FileInputStream in = new FileInputStream(\"/dev/null\");\n" +
-			"    final InputStreamReader reader = new InputStreamReader(in);\n" +
-			"    try {\n" +
-			"      final Bar bar = new Bar(reader);\n" +
-			"      return bar.read();\n" +
-			"    } finally {\n" +
-			"      // Removing the close correctly reports potential resource leak as a warning,\n" +
-			"      // because Bar does not implement AutoCloseable.\n" +
-			"      reader.close();\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"  public static void main(String[] args) throws IOException {\n" +
-			"    for (;;) {\n" +
-			"      foo();\n" +
-			"      bar();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				
+				import org.eclipse.jdt.annotation.*;
+				
+				public final class ResourceLeakFalseNegative {
+				
+				  private static final class Foo implements AutoCloseable {
+				    @Owning final InputStreamReader reader;
+				
+				    Foo(@Owning final InputStreamReader reader) {
+				      this.reader = reader;
+				    }
+				   \s
+				    public int read() throws IOException {
+				      return reader.read();
+				    }
+				
+				    public void close() throws IOException {
+				      reader.close();
+				    }
+				  }
+				
+				  private static final class Bar {
+				    final int read;
+				
+				    Bar(final InputStreamReader reader) throws IOException {
+				      read = reader.read();
+				    }
+				   \s
+				    public int read() {
+				      return read;
+				    }
+				  }
+				
+				  public final static int foo() throws IOException {
+				    final FileInputStream in = new FileInputStream("/dev/null");
+				    final InputStreamReader reader = new InputStreamReader(in);
+				    try {
+				      return new Foo(reader).read();
+				    } finally {
+				      // even though Foo is not closed, no potential resource leak is reported.
+				    }
+				  }
+				
+				  public final static int bar() throws IOException {
+				    final FileInputStream in = new FileInputStream("/dev/null");
+				    final InputStreamReader reader = new InputStreamReader(in);
+				    try {
+				      final Bar bar = new Bar(reader);
+				      return bar.read();
+				    } finally {
+				      // Removing the close correctly reports potential resource leak as a warning,
+				      // because Bar does not implement AutoCloseable.
+				      reader.close();
+				    }
+				  }
+				
+				  public static void main(String[] args) throws IOException {
+				    for (;;) {
+				      foo();
+				      bar();
+				    }
+				  }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in ResourceLeakFalseNegative.java (at line 39)\n" +
-		"	return new Foo(reader).read();\n" +
-		"	       ^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n" +
-		"2. INFO in ResourceLeakFalseNegative.java (at line 46)\n" +
-		"	final FileInputStream in = new FileInputStream(\"/dev/null\");\n" +
-		"	                      ^^\n" +
-		"Resource \'in\' should be managed by try-with-resource\n" +
-		"----------\n" +
-		"3. INFO in ResourceLeakFalseNegative.java (at line 47)\n" +
-		"	final InputStreamReader reader = new InputStreamReader(in);\n" +
-		"	                        ^^^^^^\n" +
-		"Resource \'reader\' should be managed by try-with-resource\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in ResourceLeakFalseNegative.java (at line 39)
+				return new Foo(reader).read();
+				       ^^^^^^^^^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			2. INFO in ResourceLeakFalseNegative.java (at line 46)
+				final FileInputStream in = new FileInputStream("/dev/null");
+				                      ^^
+			Resource \'in\' should be managed by try-with-resource
+			----------
+			3. INFO in ResourceLeakFalseNegative.java (at line 47)
+				final InputStreamReader reader = new InputStreamReader(in);
+				                        ^^^^^^
+			Resource \'reader\' should be managed by try-with-resource
+			----------
+			""",
 		null);
 }
 

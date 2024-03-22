@@ -50,19 +50,20 @@ public class BatchCompilerTest2 extends AbstractBatchCompilerTest {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.List;\n" +
-					"\n" +
-					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
-					")\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		if (false) {\n" +
-					"			;\n" +
-					"		} else {\n" +
-					"		}\n" +
-					"		Zork z;\n" +
-					"	}\n" +
-					"}"
+					"""
+						import java.util.List;
+						
+						@SuppressWarnings("all"//$NON-NLS-1$
+						)
+						public class X {
+							public static void main(String[] args) {
+								if (false) {
+									;
+								} else {
+								}
+								Zork z;
+							}
+						}"""
 		        },
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -10 --enable-preview",
@@ -74,74 +75,82 @@ public void test002() throws Exception {
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
-					"import java.util.List;\n" +
-							"\n" +
-							"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
-							")\n" +
-							"public class X {\n" +
-							"	public static void main(String[] args) {\n" +
-							"		if (false) {\n" +
-							"			;\n" +
-							"		} else {\n" +
-							"		}\n" +
-							"		Zork z;\n" +
-							"	}\n" +
-							"}"
+					"""
+						import java.util.List;
+						
+						@SuppressWarnings("all"//$NON-NLS-1$
+						)
+						public class X {
+							public static void main(String[] args) {
+								if (false) {
+									;
+								} else {
+								}
+								Zork z;
+							}
+						}"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
 					"",
-					"----------\n" +
-							"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 11)\n" +
-							"	Zork z;\n" +
-							"	^^^^\n" +
-							"Zork cannot be resolved to a type\n" +
-							"----------\n" +
-							"1 problem (1 error)\n",
+					"""
+						----------
+						1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 11)
+							Zork z;
+							^^^^
+						Zork cannot be resolved to a type
+						----------
+						1 problem (1 error)
+						""",
 							true);
 }
 public void test003() {
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" +
-					"    public static void main(String [] args) {\n" +
-					"        I lam = (Integer  x, var y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-					"        lam.apply(20, 200);\n" +
-					"    }\n" +
-					"}\n" +
-					"interface I {\n" +
-					"    public void apply(Integer k, Integer z);\n" +
-					"}\n"
+					"""
+						public class X {
+						    public static void main(String [] args) {
+						        I lam = (Integer  x, var y) -> {System.out.println("SUCCESS " + x);};
+						        lam.apply(20, 200);
+						    }
+						}
+						interface I {
+						    public void apply(Integer k, Integer z);
+						}
+						"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
 					"",
-					"----------\n" +
-					"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-					"	I lam = (Integer  x, var y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-					"	                         ^\n" +
-					"\'var\' cannot be mixed with non-var parameters\n" +
-					"----------\n" +
-					"1 problem (1 error)\n",
+					"""
+						----------
+						1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)
+							I lam = (Integer  x, var y) -> {System.out.println("SUCCESS " + x);};
+							                         ^
+						\'var\' cannot be mixed with non-var parameters
+						----------
+						1 problem (1 error)
+						""",
 					true);
 }
 public void test004() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"import java.util.List;\n" +
-					"\n" +
-					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
-					")\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		if (false) {\n" +
-					"			;\n" +
-					"		} else {\n" +
-					"		}\n" +
-					"	}\n" +
-					"}"
+					"""
+						import java.util.List;
+						
+						@SuppressWarnings("all"//$NON-NLS-1$
+						)
+						public class X {
+							public static void main(String[] args) {
+								if (false) {
+									;
+								} else {
+								}
+							}
+						}"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
@@ -155,18 +164,19 @@ public void test005() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"import java.util.List;\n" +
-					"\n" +
-					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
-					")\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		if (false) {\n" +
-					"			;\n" +
-					"		} else {\n" +
-					"		}\n" +
-					"	}\n" +
-					"}"
+					"""
+						import java.util.List;
+						
+						@SuppressWarnings("all"//$NON-NLS-1$
+						)
+						public class X {
+							public static void main(String[] args) {
+								if (false) {
+									;
+								} else {
+								}
+							}
+						}"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
@@ -180,18 +190,19 @@ public void test006() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"import java.util.List;\n" +
-					"\n" +
-					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
-					")\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		if (false) {\n" +
-					"			;\n" +
-					"		} else {\n" +
-					"		}\n" +
-					"	}\n" +
-					"}"
+					"""
+						import java.util.List;
+						
+						@SuppressWarnings("all"//$NON-NLS-1$
+						)
+						public class X {
+							public static void main(String[] args) {
+								if (false) {
+									;
+								} else {
+								}
+							}
+						}"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 					+ " -source 11",
@@ -205,25 +216,27 @@ public void testBug540123a() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"SecurePrefs.java",
-					"public class SecurePrefs {\n" +
-					"  public SecurePrefs node (String s) {\n" +
-					"	  System.out.println(s);\n" +
-					"	  return null;\n" +
-					"  }\n" +
-					"}",
+					"""
+						public class SecurePrefs {
+						  public SecurePrefs node (String s) {
+							  System.out.println(s);
+							  return null;
+						  }
+						}""",
 					"SecurePrefsRoot.java",
-					"public class SecurePrefsRoot extends SecurePrefs {\n" +
-					"\n" +
-					"	public void foo() {\n" +
-					"		SecurePrefs node = node(\"Hello\");\n" +
-					"		if (node != null)\n" +
-					"			System.out.println(node.toString());\n" +
-					"	}\n" +
-					"	\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new SecurePrefsRoot().foo();\n" +
-					"	}\n" +
-					"}"
+					"""
+						public class SecurePrefsRoot extends SecurePrefs {
+						
+							public void foo() {
+								SecurePrefs node = node("Hello");
+								if (node != null)
+									System.out.println(node.toString());
+							}
+						\t
+							public static void main(String[] args) {
+								new SecurePrefsRoot().foo();
+							}
+						}"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "SecurePrefsRoot.java\""
 			+" \"" + OUTPUT_DIR +  File.separator + "SecurePrefs.java\""
@@ -238,25 +251,27 @@ public void testBug540123b() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"SecurePrefs.java",
-					"public class SecurePrefs {\n" +
-					"  public SecurePrefs node (String s) {\n" +
-					"	  System.out.println(s);\n" +
-					"	  return null;\n" +
-					"  }\n" +
-					"}",
+					"""
+						public class SecurePrefs {
+						  public SecurePrefs node (String s) {
+							  System.out.println(s);
+							  return null;
+						  }
+						}""",
 					"SecurePrefsRoot.java",
-					"public class SecurePrefsRoot extends SecurePrefs {\n" +
-					"\n" +
-					"	public void foo() {\n" +
-					"		SecurePrefs node = node(\"Hello\");\n" +
-					"		if (node != null)\n" +
-					"			System.out.println(node.toString());\n" +
-					"	}\n" +
-					"	\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new SecurePrefsRoot().foo();\n" +
-					"	}\n" +
-					"}"
+					"""
+						public class SecurePrefsRoot extends SecurePrefs {
+						
+							public void foo() {
+								SecurePrefs node = node("Hello");
+								if (node != null)
+									System.out.println(node.toString());
+							}
+						\t
+							public static void main(String[] args) {
+								new SecurePrefsRoot().foo();
+							}
+						}"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "SecurePrefsRoot.java\""
 			+" \"" + OUTPUT_DIR +  File.separator + "SecurePrefs.java\""
@@ -271,25 +286,27 @@ public void testBug540123c() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"SecurePrefs.java",
-					"public class SecurePrefs {\n" +
-					"  public SecurePrefs node (String s) {\n" +
-					"	  System.out.println(s);\n" +
-					"	  return null;\n" +
-					"  }\n" +
-					"}",
+					"""
+						public class SecurePrefs {
+						  public SecurePrefs node (String s) {
+							  System.out.println(s);
+							  return null;
+						  }
+						}""",
 					"SecurePrefsRoot.java",
-					"public class SecurePrefsRoot extends SecurePrefs {\n" +
-					"\n" +
-					"	public void foo() {\n" +
-					"		SecurePrefs node = node(\"Hello\");\n" +
-					"		if (node != null)\n" +
-					"			System.out.println(node.toString());\n" +
-					"	}\n" +
-					"	\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new SecurePrefsRoot().foo();\n" +
-					"	}\n" +
-					"}"
+					"""
+						public class SecurePrefsRoot extends SecurePrefs {
+						
+							public void foo() {
+								SecurePrefs node = node("Hello");
+								if (node != null)
+									System.out.println(node.toString());
+							}
+						\t
+							public static void main(String[] args) {
+								new SecurePrefsRoot().foo();
+							}
+						}"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "SecurePrefsRoot.java\""
 			+" \"" + OUTPUT_DIR +  File.separator + "SecurePrefs.java\""
@@ -304,25 +321,27 @@ public void testBug540123d() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"SecurePrefs.java",
-					"public class SecurePrefs {\n" +
-					"  public SecurePrefs node (String s) {\n" +
-					"	  System.out.println(s);\n" +
-					"	  return null;\n" +
-					"  }\n" +
-					"}",
+					"""
+						public class SecurePrefs {
+						  public SecurePrefs node (String s) {
+							  System.out.println(s);
+							  return null;
+						  }
+						}""",
 					"SecurePrefsRoot.java",
-					"public class SecurePrefsRoot extends SecurePrefs {\n" +
-					"\n" +
-					"	public void foo() {\n" +
-					"		SecurePrefs node = node(\"Hello\");\n" +
-					"		if (node != null)\n" +
-					"			System.out.println(node.toString());\n" +
-					"	}\n" +
-					"	\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new SecurePrefsRoot().foo();\n" +
-					"	}\n" +
-					"}"
+					"""
+						public class SecurePrefsRoot extends SecurePrefs {
+						
+							public void foo() {
+								SecurePrefs node = node("Hello");
+								if (node != null)
+									System.out.println(node.toString());
+							}
+						\t
+							public static void main(String[] args) {
+								new SecurePrefsRoot().foo();
+							}
+						}"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "SecurePrefsRoot.java\""
 			+" \"" + OUTPUT_DIR +  File.separator + "SecurePrefs.java\""
@@ -337,25 +356,27 @@ public void testBug540123e() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"SecurePrefs.java",
-					"public class SecurePrefs {\n" +
-					"  public SecurePrefs node (String s) {\n" +
-					"	  System.out.println(s);\n" +
-					"	  return null;\n" +
-					"  }\n" +
-					"}",
+					"""
+						public class SecurePrefs {
+						  public SecurePrefs node (String s) {
+							  System.out.println(s);
+							  return null;
+						  }
+						}""",
 					"SecurePrefsRoot.java",
-					"public class SecurePrefsRoot extends SecurePrefs {\n" +
-					"\n" +
-					"	public void foo() {\n" +
-					"		SecurePrefs node = node(\"Hello\");\n" +
-					"		if (node != null)\n" +
-					"			System.out.println(node.toString());\n" +
-					"	}\n" +
-					"	\n" +
-					"	public static void main(String[] args) {\n" +
-					"		new SecurePrefsRoot().foo();\n" +
-					"	}\n" +
-					"}"
+					"""
+						public class SecurePrefsRoot extends SecurePrefs {
+						
+							public void foo() {
+								SecurePrefs node = node("Hello");
+								if (node != null)
+									System.out.println(node.toString());
+							}
+						\t
+							public static void main(String[] args) {
+								new SecurePrefsRoot().foo();
+							}
+						}"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "SecurePrefsRoot.java\""
 			+" \"" + OUTPUT_DIR +  File.separator + "SecurePrefs.java\""
@@ -370,10 +391,11 @@ public void testBug562473() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"	}\n" +
-					"}"
+					"""
+						public class X {
+							public static void main(String[] args) {
+							}
+						}"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\"" +
 					" -source " + CompilerOptions.getLatestVersion() +
@@ -400,10 +422,12 @@ public void testBug568802() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"import hello.World;\n"
-					+ "public class X {\n"
-					+ "	 World field = new World();\n"
-					+ "}\n"
+					"""
+						import hello.World;
+						public class X {
+							 World field = new World();
+						}
+						"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\"" +
 					" -cp " + libPath + // relative
@@ -422,12 +446,14 @@ public void testIssue114() {
 	this.runNegativeTest(
 		new String[] {
 				"Foo.java",
-				"import com.sun.imageio.plugins.png.PNGImageReader;\n" +
-				"import com.sun.imageio.plugins.png.PNGImageReaderSpi;\n" +
-				"\n" +
-				"public class Foo {\n" +
-				"        PNGImageReader r;\n" +
-				"}\n"
+				"""
+					import com.sun.imageio.plugins.png.PNGImageReader;
+					import com.sun.imageio.plugins.png.PNGImageReaderSpi;
+					
+					public class Foo {
+					        PNGImageReader r;
+					}
+					"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "Foo.java\"" +
 					" --release 9" +
@@ -442,23 +468,25 @@ public void testIssue147() throws Exception {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.lang.invoke.MethodHandle;\n" +
-			"import java.lang.invoke.MethodHandles;\n" +
-			"import java.lang.reflect.Method;\n" +
-			"\n" +
-			"\n" +
-			"public class X {\n" +
-			"	public final Object invoke(Object self) throws Throwable {\n" +
-			"\n" +
-			"			Method method = null;\n" +
-			"			try {\n" +
-			"				MethodHandle methodHandle = MethodHandles.lookup().unreflect(method );\n" +
-			"				return methodHandle.invoke(self);\n" +
-			"			} catch (IllegalArgumentException e) {\n" +
-			"				throw e;\n" +
-			"			} \n" +
-			"		}\n" +
-			"}\n"
+			"""
+				import java.lang.invoke.MethodHandle;
+				import java.lang.invoke.MethodHandles;
+				import java.lang.reflect.Method;
+				
+				
+				public class X {
+					public final Object invoke(Object self) throws Throwable {
+				
+							Method method = null;
+							try {
+								MethodHandle methodHandle = MethodHandles.lookup().unreflect(method );
+								return methodHandle.invoke(self);
+							} catch (IllegalArgumentException e) {
+								throw e;
+							}\s
+						}
+				}
+				"""
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\"" +
 				" --release " + CompilerOptions.VERSION_9 + " ",

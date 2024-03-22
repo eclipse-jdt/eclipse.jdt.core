@@ -289,11 +289,12 @@ public void testChangeExternalFolder() throws CoreException {
 		Util.compile(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					  public void foo() {
+					  }
+					}"""
 			},
 			new HashMap<>(),
 			externalLib
@@ -306,12 +307,13 @@ public void testChangeExternalFolder() throws CoreException {
 		env.setOutputFolder(projectPath, "");
 
 		IPath classY = env.addClass(root, "q", "Y",
-			"package q;\n"+
-			"public class Y {\n" +
-			"  void bar(p.X x) {\n" +
-			"    x.foo();\n" +
-			"  }\n" +
-			"}"
+			"""
+				package q;
+				public class Y {
+				  void bar(p.X x) {
+				    x.foo();
+				  }
+				}"""
 		);
 
 		fullBuild(projectPath);
@@ -327,9 +329,10 @@ public void testChangeExternalFolder() throws CoreException {
 		Util.compile(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					}"""
 			},
 			new HashMap<>(),
 			externalLib
@@ -361,11 +364,12 @@ public void testChangeZIPArchive1() throws Exception {
 		org.eclipse.jdt.core.tests.util.Util.createJar(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"  public void foo() {\n" +
-				"  }\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					  public void foo() {
+					  }
+					}"""
 			},
 			externalLib,
 			"1.4");
@@ -377,12 +381,13 @@ public void testChangeZIPArchive1() throws Exception {
 		env.setOutputFolder(projectPath, "");
 
 		IPath classY = env.addClass(root, "q", "Y",
-			"package q;\n"+
-			"public class Y {\n" +
-			"  void bar(p.X x) {\n" +
-			"    x.foo();\n" +
-			"  }\n" +
-			"}"
+			"""
+				package q;
+				public class Y {
+				  void bar(p.X x) {
+				    x.foo();
+				  }
+				}"""
 		);
 
 		fullBuild(projectPath);
@@ -391,9 +396,10 @@ public void testChangeZIPArchive1() throws Exception {
 		org.eclipse.jdt.core.tests.util.Util.createJar(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					}"""
 			},
 			externalLib,
 			"1.4");
@@ -422,11 +428,12 @@ public void testChangeZIPArchive2() throws Exception {
 	org.eclipse.jdt.core.tests.util.Util.createJar(
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				  public void foo() {
+				  }
+				}"""
 		},
 		internalLib,
 		"1.4");
@@ -437,12 +444,13 @@ public void testChangeZIPArchive2() throws Exception {
 	env.setOutputFolder(projectPath, "");
 
 	IPath classY = env.addClass(root, "q", "Y",
-		"package q;\n"+
-		"public class Y {\n" +
-		"  void bar(p.X x) {\n" +
-		"    x.foo();\n" +
-		"  }\n" +
-		"}"
+		"""
+			package q;
+			public class Y {
+			  void bar(p.X x) {
+			    x.foo();
+			  }
+			}"""
 	);
 
 	fullBuild(projectPath);
@@ -456,9 +464,10 @@ public void testChangeZIPArchive2() throws Exception {
 	org.eclipse.jdt.core.tests.util.Util.createJar(
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				}"""
 		},
 		internalLib,
 		"1.4");
@@ -483,24 +492,26 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
 	IPath classTest = env.addClass(root, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
-		"package p;\n"+ //$NON-NLS-1$
-		"public class X {\n" + //$NON-NLS-1$
-		"  void foo() {\n" + //$NON-NLS-1$
-		"    new q.Y().bar();\n" + //$NON-NLS-1$
-		"  }\n" + //$NON-NLS-1$
-		"}" //$NON-NLS-1$
-	);
+			"""
+		package p;
+		public class X {
+		  void foo() {
+		    new q.Y().bar();
+		  }
+		}""" //$NON-NLS-1$
+		);
 	String externalJar = Util.getOutputDirectory() + File.separator + "test.jar"; //$NON-NLS-1$
 	Util.createJar(
-		new String[] {
-			"q/Y.java", //$NON-NLS-1$
-			"package q;\n" + //$NON-NLS-1$
-			"public class Y {\n" + //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-		},
-		new HashMap<>(),
-		externalJar
-	);
+			new String[] {
+				"q/Y.java", //$NON-NLS-1$
+				"""
+		package q;
+		public class Y {
+		}""" //$NON-NLS-1$
+			},
+			new HashMap<>(),
+			externalJar
+		);
 	env.addExternalJar(projectPath, externalJar);
 
 	// build -> expecting problems
@@ -512,17 +523,18 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 
 	// fix jar
 	Util.createJar(
-		new String[] {
-			"q/Y.java", //$NON-NLS-1$
-			"package q;\n" + //$NON-NLS-1$
-			"public class Y {\n" + //$NON-NLS-1$
-			"  public void bar() {\n" + //$NON-NLS-1$
-			"  }\n" + //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-		},
-		new HashMap<>(),
-		externalJar
-	);
+			new String[] {
+				"q/Y.java", //$NON-NLS-1$
+				"""
+		package q;
+		public class Y {
+		  public void bar() {
+		  }
+		}""" //$NON-NLS-1$
+			},
+			new HashMap<>(),
+			externalJar
+		);
 
 	// refresh project and rebuild -> expecting no problems
 	IJavaProject project = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject("Project")); //$NON-NLS-1$
@@ -589,11 +601,12 @@ public void testMissingFieldType() throws JavaModelException {
 	env.addRequiredProject(projectPath2, projectPath);
 	IPath root2 = env.getPackageFragmentRootPath(projectPath2, ""); //$NON-NLS-1$
 	env.addClass(root2, "p2", "Test2", //$NON-NLS-1$ //$NON-NLS-2$
-		"package p2;\n"+ //$NON-NLS-1$
-		"public class Test2 {\n" + //$NON-NLS-1$
-		"	public static p1.Test field;\n" + //$NON-NLS-1$
-		"}" //$NON-NLS-1$
-	);
+			"""
+		package p2;
+		public class Test2 {
+			public static p1.Test field;
+		}""" //$NON-NLS-1$
+		);
 
 	incrementalBuild();
 	expectingNoProblems();
@@ -603,11 +616,12 @@ public void testMissingFieldType() throws JavaModelException {
 	env.addRequiredProject(projectPath3, projectPath2);
 	IPath root3 = env.getPackageFragmentRootPath(projectPath3, ""); //$NON-NLS-1$
 	env.addClass(root3, "p3", "Test3", //$NON-NLS-1$ //$NON-NLS-2$
-		"package p3;\n"+ //$NON-NLS-1$
-		"public class Test3 extends p2.Test2 {\n" + //$NON-NLS-1$
-		"	static Object field;\n" + //$NON-NLS-1$
-		"}" //$NON-NLS-1$
-	);
+			"""
+		package p3;
+		public class Test3 extends p2.Test2 {
+			static Object field;
+		}""" //$NON-NLS-1$
+		);
 
 	incrementalBuild();
 	expectingNoProblems();
@@ -1003,22 +1017,24 @@ public void test0100() throws JavaModelException {
 	IPath defaultPackagePath = env.addPackage(projectPath, "");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	env.addClass(defaultPackagePath, "X",
-		"public interface X<E extends Object & X.Entry> {\n" +
-		"  interface Entry {\n" +
-		"    interface Internal extends Entry {\n" +
-		"      Internal createEntry();\n" +
-		"    }\n" +
-		"  }\n" +
-		"}"
+		"""
+			public interface X<E extends Object & X.Entry> {
+			  interface Entry {
+			    interface Internal extends Entry {
+			      Internal createEntry();
+			    }
+			  }
+			}"""
 	);
 	fullBuild();
 	expectingNoProblems();
 	env.addClass(defaultPackagePath, "Y",
-		"public class Y implements X.Entry.Internal {\n" +
-		"  public Internal createEntry() {\n" +
-		"    return null;\n" +
-		"  }\n" +
-		"}");
+		"""
+			public class Y implements X.Entry.Internal {
+			  public Internal createEntry() {
+			    return null;
+			  }
+			}""");
 	incrementalBuild();
 	expectingNoProblems();
 	env.removeProject(projectPath);

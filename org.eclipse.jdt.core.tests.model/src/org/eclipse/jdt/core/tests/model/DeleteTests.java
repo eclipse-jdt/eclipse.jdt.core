@@ -68,10 +68,11 @@ public void testDeleteAllImports() throws CoreException {
 	try {
 		createFile(
 			"P/X.java",
-			"import java.util.*;\n" +
-			"import q.Y;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				import java.util.*;
+				import q.Y;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		IImportDeclaration[] children= cu.getImports();
@@ -80,11 +81,12 @@ public void testDeleteAllImports() throws CoreException {
 		assertDeletion(children);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				<import container>[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								<import container>[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -178,10 +180,11 @@ public void testDeleteCompilationUnit1() throws CoreException {
 		assertTrue("Should be able to delete a CU", !cu.exists());
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -207,10 +210,11 @@ public void testDeleteCompilationUnit2() throws CoreException {
 		assertTrue("Should be able to delete a CU", !cu.exists());
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -246,10 +250,11 @@ public void testDeleteCompilationUnit3() throws CoreException {
 		assertTrue("Should be able to delete a CU", !cu.exists());
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -264,9 +269,10 @@ public void testDeleteCompilationUnit4() throws CoreException {
 		createFolder("P/p");
 		IFile file = createFile(
 			"P/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/p/X.java");
 
@@ -276,10 +282,11 @@ public void testDeleteCompilationUnit4() throws CoreException {
 		assertTrue("Corresponding file should not exist", !file.exists());
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		p[*]: {CHILDREN}\n" +
-			"			X.java[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						p[*]: {CHILDREN}
+							X.java[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -323,10 +330,11 @@ public void testDeleteConstructor() throws CoreException {
 	try {
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  public X(String s) {\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  public X(String s) {
+				  }
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		IMethod constructor = cu.getType("X").getMethod("X", new String[] {"QString;"});
@@ -336,12 +344,13 @@ public void testDeleteConstructor() throws CoreException {
 		assertTrue("Should be able to delete a constructor", !constructor.exists());
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					X(String)[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								X[*]: {CHILDREN | FINE GRAINED}
+									X(String)[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -377,9 +386,10 @@ public void testDeleteField1() throws CoreException { // was testDeleteField
 	try {
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  int field;\n" +
-			"}"
+			"""
+				public class X {
+				  int field;
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		IField field = cu.getType("X").getField("field");
@@ -388,12 +398,13 @@ public void testDeleteField1() throws CoreException { // was testDeleteField
 		assertDeletion(field);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					field[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								X[*]: {CHILDREN | FINE GRAINED}
+									field[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -407,9 +418,10 @@ public void testDeleteField2() throws CoreException { // was testDeleteFieldWith
 	try {
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  int field;\n" +
-			"}"
+			"""
+				public class X {
+				  int field;
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		IField field = cu.getType("X").getField("field");
@@ -435,9 +447,10 @@ public void testDeleteField3() throws CoreException {
 	try {
 		IFile file = createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  int field;\n" +
-			"}"
+			"""
+				public class X {
+				  int field;
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		final IField field = cu.getType("X").getField("field");
@@ -454,12 +467,13 @@ public void testDeleteField3() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					field[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								X[*]: {CHILDREN | FINE GRAINED}
+									field[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -474,9 +488,10 @@ public void testDeleteField4() throws CoreException {
 	try {
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  private String t = \"sample test\";\n" +
-			"}"
+			"""
+				public class X {
+				  private String t = "sample test";
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		IField field = cu.getType("X").getField("t");
@@ -498,18 +513,20 @@ public void testDeleteField5() throws CoreException {
 		this.createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, null, "", "1.5");
 		createFile(
 			"P1/X.java",
-			"public enum X {\n" +
-			"  A, B, C\n" +
-			"}"
+			"""
+				public enum X {
+				  A, B, C
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P1/X.java");
 		IField field = cu.getType("X").getField("A");
 		field.delete(false, null);
 		assertSourceEquals(
 			"Unexpected source",
-			"public enum X {\n" +
-			"  B, C\n" +
-			"}",
+			"""
+				public enum X {
+				  B, C
+				}""",
 			cu.getSource());
 	} finally {
 		deleteProject("P1");
@@ -522,10 +539,11 @@ public void testDeleteImportDeclaration() throws CoreException {
 	try {
 		createFile(
 			"P/X.java",
-			"import java.util.*;\n" +
-			"import q.Y;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				import java.util.*;
+				import q.Y;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		IImportDeclaration imp= cu.getImport("q.Y");
@@ -534,12 +552,13 @@ public void testDeleteImportDeclaration() throws CoreException {
 		assertDeletion(imp);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				<import container>[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					import q.Y[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								<import container>[*]: {CHILDREN | FINE GRAINED}
+									import q.Y[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -553,10 +572,11 @@ public void testDeleteMethod() throws CoreException {
 	try {
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  public void foo() {
+				  }
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		IMethod method = cu.getType("X").getMethod("foo", new String[] {});
@@ -565,12 +585,13 @@ public void testDeleteMethod() throws CoreException {
 		assertDeletion(method);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					foo()[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								X[*]: {CHILDREN | FINE GRAINED}
+									foo()[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -587,32 +608,34 @@ public void testDeleteMultipleMembersFromVariousCUs() throws CoreException {
 		createFolder("P/a/b/c");
 		createFile(
 			"P/a/b/c/X.java",
-			"package a.b.c;\n" +
-			"import java.util.Vector;\n" +
-			"import java.util.Enumeration;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"    System.out.println(\"Hello World\");\n" +
-			"  }\n" +
-			"  static class Bar {\n" +
-			"    private final java.lang.String test = \"testminor\";\n" +
-			"    public Bar() {\n" +
-			"      super();\n" +
-			"    }\n" +
-			"    private void test() {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"
+			"""
+				package a.b.c;
+				import java.util.Vector;
+				import java.util.Enumeration;
+				public class X {
+				  public static void main(String[] args) {
+				    System.out.println("Hello World");
+				  }
+				  static class Bar {
+				    private final java.lang.String test = "testminor";
+				    public Bar() {
+				      super();
+				    }
+				    private void test() {
+				    }
+				  }
+				}"""
 		);
 		createFile(
 			"P/a/b/Y.java",
-			"package a.b;\n" +
-			"public class Y {\n" +
-			"  int foo;\n" +
-			"  public static void main(String[] args) {\n" +
-			"    System.out.println(\"Hello World\");\n" +
-			"  }\n" +
-			"}"
+			"""
+				package a.b;
+				public class Y {
+				  int foo;
+				  public static void main(String[] args) {
+				    System.out.println("Hello World");
+				  }
+				}"""
 		);
 
 		// elements to be deleted:
@@ -650,20 +673,21 @@ public void testDeleteMultipleMembersFromVariousCUs() throws CoreException {
 		assertDeletion(toBeDeleted);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		a.b.c[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				<import container>[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					import java.util.Vector[-]: {}\n" +
-			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					Bar[-]: {}\n" +
-			"					main(String[])[-]: {}\n" +
-			"		a.b[*]: {CHILDREN}\n" +
-			"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				Y[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					foo[-]: {}\n" +
-			"					main(String[])[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						a.b.c[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								<import container>[*]: {CHILDREN | FINE GRAINED}
+									import java.util.Vector[-]: {}
+								X[*]: {CHILDREN | FINE GRAINED}
+									Bar[-]: {}
+									main(String[])[-]: {}
+						a.b[*]: {CHILDREN}
+							Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								Y[*]: {CHILDREN | FINE GRAINED}
+									foo[-]: {}
+									main(String[])[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -678,9 +702,10 @@ public void testDeletePackageDeclaration() throws CoreException {
 		createFolder("P/a/b/c");
 		createFile(
 			"P/a/b/c/X.java",
-			"package a.b.c;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package a.b.c;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/a/b/c/X.java");
 		IPackageDeclaration packageDeclaration = cu.getPackageDeclaration("a.b.c");
@@ -689,11 +714,12 @@ public void testDeletePackageDeclaration() throws CoreException {
 		assertDeletion(packageDeclaration);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		a.b.c[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				package a.b.c[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						a.b.c[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								package a.b.c[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -705,9 +731,10 @@ public void testDeletePackageFragment1() throws CoreException {
 		createFolder("P/a/b/c");
 		createFile(
 			"P/a/b/c/X.java",
-			"package a.b.c;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package a.b.c;
+				public class X {
+				}"""
 		);
 		IPackageFragment pkg = getPackage("P/a/b/c");
 		IFolder folder = getFolder("P/a/b/c");
@@ -718,9 +745,10 @@ public void testDeletePackageFragment1() throws CoreException {
 		assertTrue("Fragment should not exist", !pkg.exists());
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		a.b.c[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						a.b.c[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -751,10 +779,11 @@ public void testDeletePackageFragment2() throws CoreException {
 		assertTrue("Compilation unit should no longer exist", !cu.exists());
 		assertDeltas(
 			"Unexpected delta",
-			"P1[*]: {CHILDREN}\n" +
-			"	src[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[-]: {}"
+			"""
+				P1[*]: {CHILDREN}
+					src[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -785,10 +814,11 @@ public void testDeletePackageFragment3() throws CoreException {
 		assertTrue("Compilation unit should no longer exist", !cu.exists());
 		assertDeltas(
 			"Unexpected delta",
-			"P1[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[-]: {}"
+			"""
+				P1[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -813,9 +843,10 @@ public void testDeletePackageFragment4() throws CoreException {
 		assertTrue("File should no longer exist", !file.exists());
 		assertDeltas(
 			"Unexpected delta",
-			"P1[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		p[-]: {}"
+			"""
+				P1[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						p[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -836,9 +867,10 @@ public void testDeleteProjectAfterUsingJar() throws CoreException, IOException {
 			"libsrc.zip",
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p;
+					public class X {
+					}""",
 			},
 			JavaCore.VERSION_1_4
 		);
@@ -858,9 +890,10 @@ public void testDeleteSyntaxErrorField() throws CoreException {
 	try {
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  int field\n" + // missing semi-colon
-			"}"
+			"""
+				public class X {
+				  int field
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		IField field = cu.getType("X").getField("field");
@@ -869,12 +902,13 @@ public void testDeleteSyntaxErrorField() throws CoreException {
 		assertDeletion(field);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					field[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								X[*]: {CHILDREN | FINE GRAINED}
+									field[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -888,12 +922,13 @@ public void testDeleteSyntaxErrorInMethod1() throws CoreException {
 	try {
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  public void foo() {\n" +
-			"    String s = ;\n" +
-			"    System.out.println(s);\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  public void foo() {
+				    String s = ;
+				    System.out.println(s);
+				  }
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		IMethod method = cu.getType("X").getMethod("foo", new String[] {});
@@ -902,12 +937,13 @@ public void testDeleteSyntaxErrorInMethod1() throws CoreException {
 		assertDeletion(method);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					foo()[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								X[*]: {CHILDREN | FINE GRAINED}
+									foo()[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -921,9 +957,10 @@ public void testDeleteSyntaxErrorInMethod2() throws CoreException {
 	try {
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  public void foo() \n" +
-			"}"
+			"""
+				public class X {
+				  public void foo()\s
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		IMethod method = cu.getType("X").getMethod("foo", new String[] {});
@@ -932,12 +969,13 @@ public void testDeleteSyntaxErrorInMethod2() throws CoreException {
 		assertDeletion(method);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					foo()[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								X[*]: {CHILDREN | FINE GRAINED}
+									foo()[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -951,10 +989,11 @@ public void testDeleteSyntaxErrorInMethod3() throws CoreException {
 	try {
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  public void foo( \n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  public void foo(\s
+				  }
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		IMethod method = cu.getType("X").getMethod("foo", new String[] {});
@@ -963,12 +1002,13 @@ public void testDeleteSyntaxErrorInMethod3() throws CoreException {
 		assertDeletion(method);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					foo()[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								X[*]: {CHILDREN | FINE GRAINED}
+									foo()[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -982,9 +1022,10 @@ public void testDeleteSyntaxErrorType() throws CoreException {
 	try {
 		createFile(
 			"P/X.java",
-			"public class X {\n" +
-			"  method() {\n" +
-			"}"
+			"""
+				public class X {
+				  method() {
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		IType type = cu.getType("X");
@@ -993,11 +1034,12 @@ public void testDeleteSyntaxErrorType() throws CoreException {
 		assertDeletion(type);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				X[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								X[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -1021,11 +1063,12 @@ public void testDeleteType1() throws CoreException{
 		assertDeletion(type);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				X[-]: {}"
+			"""
+				P[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								X[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -1051,11 +1094,12 @@ public void testDeleteType2() throws CoreException {
 		assertDeletion(type);
 		assertDeltas(
 			"Unexpected delta",
-			"P1[*]: {CHILDREN}\n" +
-			"	src[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				X[-]: {}"
+			"""
+				P1[*]: {CHILDREN}
+					src[*]: {CHILDREN}
+						<default>[*]: {CHILDREN}
+							X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+								X[-]: {}"""
 		);
 	} finally {
 		stopDeltas();

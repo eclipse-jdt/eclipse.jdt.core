@@ -107,11 +107,12 @@ protected ThreadReference getDebuggedThread(DebugEvaluationTest test) {
 			if (this.breakpointClassName.equals("_JDIStackFrame_")) {
 				// install special class
 				String source =
-					"public class _JDIStackFrame_ {\n" +
-					"  public int foo() {\n" +
-					"    return -1;\n" +
-					"  }\n" +
-					"}";
+					"""
+					public class _JDIStackFrame_ {
+					  public int foo() {
+					    return -1;
+					  }
+					}""";
 				test.compileAndDeploy(source, "_JDIStackFrame_");
 			}
 

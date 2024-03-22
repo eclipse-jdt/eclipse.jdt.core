@@ -347,21 +347,38 @@ public class TypeVisitorTests extends APTTestBase {
 	}
 
 	final String code =
-		"package test;" + "\n" +
-		"import org.eclipse.jdt.apt.tests.annotations.generic.*;" + "\n" +
-		"import java.util.List;" + "\n" +
-		"@GenericAnnotation public class Test" + "\n" +
-		"{" + "\n" +
-		"    int j;" + "\n" +
-		"    int k[];" + "\n" +
-		"    List<? extends Number> ln;" + "\n" +
-		"    class C {}" + "\n" +
-		"    class P<T> { }" + "\n" +
-		"    class D implements Runnable { public void run () {} }" + "\n" +
-		"    void m() {}" + "\n" +
-		"    enum E { elephant }" + "\n" +
-		"    @interface B { E e(); }" + "\n" +
-		"    @B(e = E.elephant)" + "\n" +
-		"    String s;" + "\n" +
-		"}";
+		"""
+		package test;\
+		
+		import org.eclipse.jdt.apt.tests.annotations.generic.*;\
+		
+		import java.util.List;\
+		
+		@GenericAnnotation public class Test\
+		
+		{\
+		
+		    int j;\
+		
+		    int k[];\
+		
+		    List<? extends Number> ln;\
+		
+		    class C {}\
+		
+		    class P<T> { }\
+		
+		    class D implements Runnable { public void run () {} }\
+		
+		    void m() {}\
+		
+		    enum E { elephant }\
+		
+		    @interface B { E e(); }\
+		
+		    @B(e = E.elephant)\
+		
+		    String s;\
+		
+		}""";
 }

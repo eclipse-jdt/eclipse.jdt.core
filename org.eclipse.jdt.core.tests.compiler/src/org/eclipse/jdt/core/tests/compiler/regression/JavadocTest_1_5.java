@@ -107,11 +107,13 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Valid type parameter reference\n" +
-					"  * @param <E> Type\n" +
-					"  */\n" +
-					" public class X<E> {}"
+					"""
+						 /**
+						  * Valid type parameter reference
+						  * @param <E> Type
+						  */
+						 public class X<E> {}\
+						"""
 			}
 		);
 	}
@@ -119,11 +121,13 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Valid type parameter reference\n" +
-					"  * @param <E> Type extends RuntimeException\n" +
-					"  */\n" +
-					" public class X<E extends RuntimeException> {}"
+					"""
+						 /**
+						  * Valid type parameter reference
+						  * @param <E> Type extends RuntimeException
+						  */
+						 public class X<E extends RuntimeException> {}\
+						"""
 			}
 		);
 	}
@@ -131,13 +135,15 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Valid type parameter reference\n" +
-					"  * @param <T> Type parameter 1\n" +
-					"  * @param <U> Type parameter 2\n" +
-					"  * @param <V> Type parameter 3\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Valid type parameter reference
+						  * @param <T> Type parameter 1
+						  * @param <U> Type parameter 2
+						  * @param <V> Type parameter 3
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			}
 		);
 	}
@@ -145,18 +151,22 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <E> Type parameter\n" +
-					"  */\n" +
-					" public class X {}",
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <E> Type parameter
+						  */
+						 public class X {}\
+						""",
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	* @param <E> Type parameter\n" +
-				"	   ^^^^^\n" +
-				"Javadoc: Unexpected tag\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					* @param <E> Type parameter
+					   ^^^^^
+				Javadoc: Unexpected tag
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -164,18 +174,22 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <E> Type parameter\n" +
-					"  */\n" +
-					" public class X<E, F> {}",
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <E> Type parameter
+						  */
+						 public class X<E, F> {}\
+						""",
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	public class X<E, F> {}\n" +
-				"	                  ^\n" +
-				"Javadoc: Missing tag for parameter F\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					public class X<E, F> {}
+					                  ^
+				Javadoc: Missing tag for parameter F
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -183,25 +197,29 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <T> Type parameter 1\n" +
-					"  * @param <U> Type parameter 2\n" +
-					"  * @param <V> Type parameter 3\n" +
-					"  */\n" +
-					" public class X<T> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <T> Type parameter 1
+						  * @param <U> Type parameter 2
+						  * @param <V> Type parameter 3
+						  */
+						 public class X<T> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	* @param <U> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: U cannot be resolved to a type\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	* @param <V> Type parameter 3\n" +
-				"	          ^\n" +
-				"Javadoc: V cannot be resolved to a type\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param <U> Type parameter 2
+					          ^
+				Javadoc: U cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 5)
+					* @param <V> Type parameter 3
+					          ^
+				Javadoc: V cannot be resolved to a type
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -209,27 +227,31 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <T> Type parameter 1\n" +
-					"  * @param <X> Type parameter 2\n" +
-					"  * @param <U> Type parameter 2\n" +
-					"  * @param <E> Type parameter 2\n" +
-					"  * @param <V> Type parameter 3\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <T> Type parameter 1
+						  * @param <X> Type parameter 2
+						  * @param <U> Type parameter 2
+						  * @param <E> Type parameter 2
+						  * @param <V> Type parameter 3
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	* @param <X> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: Parameter X is not declared\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	* @param <E> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: E cannot be resolved to a type\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param <X> Type parameter 2
+					          ^
+				Javadoc: Parameter X is not declared
+				----------
+				2. ERROR in X.java (at line 6)
+					* @param <E> Type parameter 2
+					          ^
+				Javadoc: E cannot be resolved to a type
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -237,13 +259,15 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Valid type parameter reference\n" +
-					"  * @param <V> Type parameter 3\n" +
-					"  * @param <U> Type parameter 2\n" +
-					"  * @param <T> Type parameter 1\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Valid type parameter reference
+						  * @param <V> Type parameter 3
+						  * @param <U> Type parameter 2
+						  * @param <T> Type parameter 1
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			}
 		);
 	}
@@ -251,27 +275,31 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <U> Type parameter 1\n" +
-					"  * @param <E> Type parameter 2\n" +
-					"  * @param <V> Type parameter 2\n" +
-					"  * @param <U> Type parameter 2\n" +
-					"  * @param <T> Type parameter 3\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <U> Type parameter 1
+						  * @param <E> Type parameter 2
+						  * @param <V> Type parameter 2
+						  * @param <U> Type parameter 2
+						  * @param <T> Type parameter 3
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	* @param <E> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: E cannot be resolved to a type\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	* @param <U> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: Duplicate tag for parameter\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param <E> Type parameter 2
+					          ^
+				Javadoc: E cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 6)
+					* @param <U> Type parameter 2
+					          ^
+				Javadoc: Duplicate tag for parameter
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -279,27 +307,31 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	               ^\n" +
-				"Javadoc: Missing tag for parameter T\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	                  ^\n" +
-				"Javadoc: Missing tag for parameter U\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 4)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	                     ^\n" +
-				"Javadoc: Missing tag for parameter V\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					public class X<T, U, V> {}
+					               ^
+				Javadoc: Missing tag for parameter T
+				----------
+				2. ERROR in X.java (at line 4)
+					public class X<T, U, V> {}
+					                  ^
+				Javadoc: Missing tag for parameter U
+				----------
+				3. ERROR in X.java (at line 4)
+					public class X<T, U, V> {}
+					                     ^
+				Javadoc: Missing tag for parameter V
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -307,23 +339,27 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <T> Type parameter 3\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <T> Type parameter 3
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	                  ^\n" +
-				"Javadoc: Missing tag for parameter U\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	                     ^\n" +
-				"Javadoc: Missing tag for parameter V\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					public class X<T, U, V> {}
+					                  ^
+				Javadoc: Missing tag for parameter U
+				----------
+				2. ERROR in X.java (at line 5)
+					public class X<T, U, V> {}
+					                     ^
+				Javadoc: Missing tag for parameter V
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -331,23 +367,27 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <U> Type parameter 3\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <U> Type parameter 3
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	               ^\n" +
-				"Javadoc: Missing tag for parameter T\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	                     ^\n" +
-				"Javadoc: Missing tag for parameter V\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					public class X<T, U, V> {}
+					               ^
+				Javadoc: Missing tag for parameter T
+				----------
+				2. ERROR in X.java (at line 5)
+					public class X<T, U, V> {}
+					                     ^
+				Javadoc: Missing tag for parameter V
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -355,19 +395,23 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <U> Type parameter 3\n" +
-					"  * @param <V> Type parameter 3\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <U> Type parameter 3
+						  * @param <V> Type parameter 3
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	               ^\n" +
-				"Javadoc: Missing tag for parameter T\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					public class X<T, U, V> {}
+					               ^
+				Javadoc: Missing tag for parameter T
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -375,19 +419,23 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <T> Type parameter 3\n" +
-					"  * @param <V> Type parameter 3\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <T> Type parameter 3
+						  * @param <V> Type parameter 3
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	                  ^\n" +
-				"Javadoc: Missing tag for parameter U\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					public class X<T, U, V> {}
+					                  ^
+				Javadoc: Missing tag for parameter U
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -395,19 +443,23 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <T> Type parameter 3\n" +
-					"  * @param <U> Type parameter 3\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <T> Type parameter 3
+						  * @param <U> Type parameter 3
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	                     ^\n" +
-				"Javadoc: Missing tag for parameter V\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					public class X<T, U, V> {}
+					                     ^
+				Javadoc: Missing tag for parameter V
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -415,23 +467,27 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <V> Type parameter 3\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <V> Type parameter 3
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	               ^\n" +
-				"Javadoc: Missing tag for parameter T\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	                  ^\n" +
-				"Javadoc: Missing tag for parameter U\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					public class X<T, U, V> {}
+					               ^
+				Javadoc: Missing tag for parameter T
+				----------
+				2. ERROR in X.java (at line 5)
+					public class X<T, U, V> {}
+					                  ^
+				Javadoc: Missing tag for parameter U
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -439,37 +495,41 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <V> Type parameter 2\n" +
-					"  * @param <X> Type parameter 2\n" +
-					"  * @param <U> Type parameter 1\n" +
-					"  * @param <E> Type parameter 2\n" +
-					"  * @param <U> Type parameter 2\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <V> Type parameter 2
+						  * @param <X> Type parameter 2
+						  * @param <U> Type parameter 1
+						  * @param <E> Type parameter 2
+						  * @param <U> Type parameter 2
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	* @param <X> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: Parameter X is not declared\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	* @param <E> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: E cannot be resolved to a type\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 7)\n" +
-				"	* @param <U> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: Duplicate tag for parameter\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 9)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	               ^\n" +
-				"Javadoc: Missing tag for parameter T\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param <X> Type parameter 2
+					          ^
+				Javadoc: Parameter X is not declared
+				----------
+				2. ERROR in X.java (at line 6)
+					* @param <E> Type parameter 2
+					          ^
+				Javadoc: E cannot be resolved to a type
+				----------
+				3. ERROR in X.java (at line 7)
+					* @param <U> Type parameter 2
+					          ^
+				Javadoc: Duplicate tag for parameter
+				----------
+				4. ERROR in X.java (at line 9)
+					public class X<T, U, V> {}
+					               ^
+				Javadoc: Missing tag for parameter T
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -477,25 +537,29 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <V> Type parameter 2\n" +
-					"  * @param\n" +
-					"  * @param <U> Type parameter 1\n" +
-					"  */\n" +
-					" public class X<T, U, V> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference
+						  * @param <V> Type parameter 2
+						  * @param
+						  * @param <U> Type parameter 1
+						  */
+						 public class X<T, U, V> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	* @param\n" +
-				"	   ^^^^^\n" +
-				"Javadoc: Missing parameter name\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
-				"	public class X<T, U, V> {}\n" +
-				"	               ^\n" +
-				"Javadoc: Missing tag for parameter T\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param
+					   ^^^^^
+				Javadoc: Missing parameter name
+				----------
+				2. ERROR in X.java (at line 7)
+					public class X<T, U, V> {}
+					               ^
+				Javadoc: Missing tag for parameter T
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -503,55 +567,63 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference: compile error\n" +
-					"  * @param <T> Type parameter 2\n" +
-					"  * @param <V> Type parameter 2\n" +
-					"  * @param <U> Type parameter 1\n" +
-					"  */\n" +
-					" public class X<T, , V> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference: compile error
+						  * @param <T> Type parameter 2
+						  * @param <V> Type parameter 2
+						  * @param <U> Type parameter 1
+						  */
+						 public class X<T, , V> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	* @param <V> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: V cannot be resolved to a type\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	* @param <U> Type parameter 1\n" +
-				"	          ^\n" +
-				"Javadoc: U cannot be resolved to a type\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 7)\n" +
-				"	public class X<T, , V> {}\n" +
-				"	                  ^\n" +
-				"Syntax error on token \",\", delete this token\n" +
-				"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param <V> Type parameter 2
+					          ^
+				Javadoc: V cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 5)
+					* @param <U> Type parameter 1
+					          ^
+				Javadoc: U cannot be resolved to a type
+				----------
+				3. ERROR in X.java (at line 7)
+					public class X<T, , V> {}
+					                  ^
+				Syntax error on token ",", delete this token
+				----------
+				"""
 		);
 	}
 	public void test022() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-					" /**\n" +
-					"  * Invalid type parameter reference: compile error\n" +
-					"  * @param <T> Type parameter 2\n" +
-					"  * @param <V> Type parameter 2\n" +
-					"  * @param <U> Type parameter 1\n" +
-					"  */\n" +
-					" public class X<T, U, V extend Exception> {}"
+					"""
+						 /**
+						  * Invalid type parameter reference: compile error
+						  * @param <T> Type parameter 2
+						  * @param <V> Type parameter 2
+						  * @param <U> Type parameter 1
+						  */
+						 public class X<T, U, V extend Exception> {}\
+						"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	public class X<T, U, V extend Exception> {}\n" +
-				"	                       ^^^^^^\n" +
-				"Syntax error on token \"extend\", extends expected\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
-				"	public class X<T, U, V extend Exception> {}\n" +
-				"	                       ^^^^^^\n" +
-				"extend cannot be resolved to a type\n" +
-				"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					public class X<T, U, V extend Exception> {}
+					                       ^^^^^^
+				Syntax error on token "extend", extends expected
+				----------
+				2. ERROR in X.java (at line 7)
+					public class X<T, U, V extend Exception> {}
+					                       ^^^^^^
+				extend cannot be resolved to a type
+				----------
+				"""
 		);
 	}
 
@@ -562,13 +634,14 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Valid type parameter reference\n" +
-					"	 * @param <E> Type\n" +
-					"	 */\n" +
-					"	public <E> void foo() {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Valid type parameter reference
+						 * @param <E> Type
+						 */
+						public <E> void foo() {}
+					}"""
 			}
 		);
 	}
@@ -576,15 +649,16 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Valid type parameter reference\n" +
-					"	 * @param <E> Type extends RuntimeException\n" +
-					"	 * @param val int\n" +
-					"	 * @param obj Object\n" +
-					"	 */\n" +
-					"	public <E extends RuntimeException> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Valid type parameter reference
+						 * @param <E> Type extends RuntimeException
+						 * @param val int
+						 * @param obj Object
+						 */
+						public <E extends RuntimeException> void foo(int val, Object obj) {}
+					}"""
 			}
 		);
 	}
@@ -592,17 +666,18 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Valid type parameter reference\n" +
-					"	 * @param val int\n" +
-					"	 * @param obj Object\n" +
-					"	 * @param <T> Type parameter 1\n" +
-					"	 * @param <U> Type parameter 2\n" +
-					"	 * @param <V> Type parameter 3\n" +
-					"	 */\n" +
-					"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Valid type parameter reference
+						 * @param val int
+						 * @param obj Object
+						 * @param <T> Type parameter 1
+						 * @param <U> Type parameter 2
+						 * @param <V> Type parameter 3
+						 */
+						public <T, U, V> void foo(int val, Object obj) {}
+					}"""
 			}
 		);
 	}
@@ -610,22 +685,25 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Invalid type parameter reference\n" +
-					"	 * @param val int\n" +
-					"	 * @param <E> Type parameter\n" +
-					"	 * @param obj Object\n" +
-					"	 */\n" +
-					"	public void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Invalid type parameter reference
+						 * @param val int
+						 * @param <E> Type parameter
+						 * @param obj Object
+						 */
+						public void foo(int val, Object obj) {}
+					}"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	* @param <E> Type parameter\n" +
-				"	   ^^^^^\n" +
-				"Javadoc: Unexpected tag\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @param <E> Type parameter
+					   ^^^^^
+				Javadoc: Unexpected tag
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -633,30 +711,33 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Invalid type parameter reference\n" +
-					"	 * @param <E> Type parameter\n" +
-					"	 */\n" +
-					"	public <E, F> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Invalid type parameter reference
+						 * @param <E> Type parameter
+						 */
+						public <E, F> void foo(int val, Object obj) {}
+					}"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	public <E, F> void foo(int val, Object obj) {}\n" +
-				"	           ^\n" +
-				"Javadoc: Missing tag for parameter F\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	public <E, F> void foo(int val, Object obj) {}\n" +
-				"	                           ^^^\n" +
-				"Javadoc: Missing tag for parameter val\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 6)\n" +
-				"	public <E, F> void foo(int val, Object obj) {}\n" +
-				"	                                       ^^^\n" +
-				"Javadoc: Missing tag for parameter obj\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					public <E, F> void foo(int val, Object obj) {}
+					           ^
+				Javadoc: Missing tag for parameter F
+				----------
+				2. ERROR in X.java (at line 6)
+					public <E, F> void foo(int val, Object obj) {}
+					                           ^^^
+				Javadoc: Missing tag for parameter val
+				----------
+				3. ERROR in X.java (at line 6)
+					public <E, F> void foo(int val, Object obj) {}
+					                                       ^^^
+				Javadoc: Missing tag for parameter obj
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -664,49 +745,52 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Invalid type parameter reference\n" +
-					"	 * @param <T> Type parameter 1\n" +
-					"	 * @param <U> Type parameter 2\n" +
-					"	 * @param <V> Type parameter 3\n" +
-					"	 * @param xxx int\n" +
-					"	 * @param Obj Object\n" +
-					"	 */\n" +
-					"	public <T> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Invalid type parameter reference
+						 * @param <T> Type parameter 1
+						 * @param <U> Type parameter 2
+						 * @param <V> Type parameter 3
+						 * @param xxx int
+						 * @param Obj Object
+						 */
+						public <T> void foo(int val, Object obj) {}
+					}"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	* @param <U> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: U cannot be resolved to a type\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	* @param <V> Type parameter 3\n" +
-				"	          ^\n" +
-				"Javadoc: V cannot be resolved to a type\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 7)\n" +
-				"	* @param xxx int\n" +
-				"	         ^^^\n" +
-				"Javadoc: Parameter xxx is not declared\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 8)\n" +
-				"	* @param Obj Object\n" +
-				"	         ^^^\n" +
-				"Javadoc: Parameter Obj is not declared\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 10)\n" +
-				"	public <T> void foo(int val, Object obj) {}\n" +
-				"	                        ^^^\n" +
-				"Javadoc: Missing tag for parameter val\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 10)\n" +
-				"	public <T> void foo(int val, Object obj) {}\n" +
-				"	                                    ^^^\n" +
-				"Javadoc: Missing tag for parameter obj\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @param <U> Type parameter 2
+					          ^
+				Javadoc: U cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 6)
+					* @param <V> Type parameter 3
+					          ^
+				Javadoc: V cannot be resolved to a type
+				----------
+				3. ERROR in X.java (at line 7)
+					* @param xxx int
+					         ^^^
+				Javadoc: Parameter xxx is not declared
+				----------
+				4. ERROR in X.java (at line 8)
+					* @param Obj Object
+					         ^^^
+				Javadoc: Parameter Obj is not declared
+				----------
+				5. ERROR in X.java (at line 10)
+					public <T> void foo(int val, Object obj) {}
+					                        ^^^
+				Javadoc: Missing tag for parameter val
+				----------
+				6. ERROR in X.java (at line 10)
+					public <T> void foo(int val, Object obj) {}
+					                                    ^^^
+				Javadoc: Missing tag for parameter obj
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -714,31 +798,34 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Invalid type parameter reference\n" +
-					"	 * @param <T> Type parameter 1\n" +
-					"	 * @param <X> Type parameter 2\n" +
-					"	 * @param val int\n" +
-					"	 * @param <U> Type parameter 2\n" +
-					"	 * @param <E> Type parameter 2\n" +
-					"	 * @param obj Object\n" +
-					"	 * @param <V> Type parameter 3\n" +
-					"	 */\n" +
-					"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Invalid type parameter reference
+						 * @param <T> Type parameter 1
+						 * @param <X> Type parameter 2
+						 * @param val int
+						 * @param <U> Type parameter 2
+						 * @param <E> Type parameter 2
+						 * @param obj Object
+						 * @param <V> Type parameter 3
+						 */
+						public <T, U, V> void foo(int val, Object obj) {}
+					}"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	* @param <X> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: Parameter X is not declared\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 8)\n" +
-				"	* @param <E> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: E cannot be resolved to a type\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @param <X> Type parameter 2
+					          ^
+				Javadoc: Parameter X is not declared
+				----------
+				2. ERROR in X.java (at line 8)
+					* @param <E> Type parameter 2
+					          ^
+				Javadoc: E cannot be resolved to a type
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -746,17 +833,18 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Valid type parameter reference\n" +
-					"	 * @param <V> Type parameter 3\n" +
-					"	 * @param obj Object\n" +
-					"	 * @param <U> Type parameter 2\n" +
-					"	 * @param val int\n" +
-					"	 * @param <T> Type parameter 1\n" +
-					"	 */\n" +
-					"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Valid type parameter reference
+						 * @param <V> Type parameter 3
+						 * @param obj Object
+						 * @param <U> Type parameter 2
+						 * @param val int
+						 * @param <T> Type parameter 1
+						 */
+						public <T, U, V> void foo(int val, Object obj) {}
+					}"""
 			}
 		);
 	}
@@ -764,39 +852,42 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Invalid type parameter reference\n" +
-					"	 */\n" +
-					"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Invalid type parameter reference
+						 */
+						public <T, U, V> void foo(int val, Object obj) {}
+					}"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	        ^\n" +
-				"Javadoc: Missing tag for parameter T\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	           ^\n" +
-				"Javadoc: Missing tag for parameter U\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 5)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	              ^\n" +
-				"Javadoc: Missing tag for parameter V\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 5)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	                              ^^^\n" +
-				"Javadoc: Missing tag for parameter val\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 5)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	                                          ^^^\n" +
-				"Javadoc: Missing tag for parameter obj\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					public <T, U, V> void foo(int val, Object obj) {}
+					        ^
+				Javadoc: Missing tag for parameter T
+				----------
+				2. ERROR in X.java (at line 5)
+					public <T, U, V> void foo(int val, Object obj) {}
+					           ^
+				Javadoc: Missing tag for parameter U
+				----------
+				3. ERROR in X.java (at line 5)
+					public <T, U, V> void foo(int val, Object obj) {}
+					              ^
+				Javadoc: Missing tag for parameter V
+				----------
+				4. ERROR in X.java (at line 5)
+					public <T, U, V> void foo(int val, Object obj) {}
+					                              ^^^
+				Javadoc: Missing tag for parameter val
+				----------
+				5. ERROR in X.java (at line 5)
+					public <T, U, V> void foo(int val, Object obj) {}
+					                                          ^^^
+				Javadoc: Missing tag for parameter obj
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -804,31 +895,34 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Invalid type parameter reference\n" +
-					"	 * @param <T> Type parameter 3\n" +
-					"	 * @param val int\n" +
-					"	 */\n" +
-					"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Invalid type parameter reference
+						 * @param <T> Type parameter 3
+						 * @param val int
+						 */
+						public <T, U, V> void foo(int val, Object obj) {}
+					}"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	           ^\n" +
-				"Javadoc: Missing tag for parameter U\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	              ^\n" +
-				"Javadoc: Missing tag for parameter V\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 7)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	                                          ^^^\n" +
-				"Javadoc: Missing tag for parameter obj\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					public <T, U, V> void foo(int val, Object obj) {}
+					           ^
+				Javadoc: Missing tag for parameter U
+				----------
+				2. ERROR in X.java (at line 7)
+					public <T, U, V> void foo(int val, Object obj) {}
+					              ^
+				Javadoc: Missing tag for parameter V
+				----------
+				3. ERROR in X.java (at line 7)
+					public <T, U, V> void foo(int val, Object obj) {}
+					                                          ^^^
+				Javadoc: Missing tag for parameter obj
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -836,27 +930,30 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Invalid type parameter reference\n" +
-					"	 * @param obj Object\n" +
-					"	 * @param <U> Type parameter 3\n" +
-					"	 * @param <V> Type parameter 3\n" +
-					"	 */\n" +
-					"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Invalid type parameter reference
+						 * @param obj Object
+						 * @param <U> Type parameter 3
+						 * @param <V> Type parameter 3
+						 */
+						public <T, U, V> void foo(int val, Object obj) {}
+					}"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	        ^\n" +
-				"Javadoc: Missing tag for parameter T\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 8)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	                              ^^^\n" +
-				"Javadoc: Missing tag for parameter val\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 8)
+					public <T, U, V> void foo(int val, Object obj) {}
+					        ^
+				Javadoc: Missing tag for parameter T
+				----------
+				2. ERROR in X.java (at line 8)
+					public <T, U, V> void foo(int val, Object obj) {}
+					                              ^^^
+				Javadoc: Missing tag for parameter val
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -864,57 +961,60 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Invalid type parameter reference\n" +
-					"	 * @param val int\n" +
-					"	 * @param <V> Type parameter 2\n" +
-					"	 * @param <X> Type parameter 2\n" +
-					"	 * @param <U> Type parameter 1\n" +
-					"	 * @param Object obj\n" +
-					"	 * @param <E> Type parameter 2\n" +
-					"	 * @param <U> Type parameter 2\n" +
-					"	 * @param val int\n" +
-					"	 */\n" +
-					"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Invalid type parameter reference
+						 * @param val int
+						 * @param <V> Type parameter 2
+						 * @param <X> Type parameter 2
+						 * @param <U> Type parameter 1
+						 * @param Object obj
+						 * @param <E> Type parameter 2
+						 * @param <U> Type parameter 2
+						 * @param val int
+						 */
+						public <T, U, V> void foo(int val, Object obj) {}
+					}"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	* @param <X> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: Parameter X is not declared\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 8)\n" +
-				"	* @param Object obj\n" +
-				"	         ^^^^^^\n" +
-				"Javadoc: Parameter Object is not declared\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 9)\n" +
-				"	* @param <E> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: E cannot be resolved to a type\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 10)\n" +
-				"	* @param <U> Type parameter 2\n" +
-				"	          ^\n" +
-				"Javadoc: Duplicate tag for parameter\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 11)\n" +
-				"	* @param val int\n" +
-				"	         ^^^\n" +
-				"Javadoc: Duplicate tag for parameter\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 13)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	        ^\n" +
-				"Javadoc: Missing tag for parameter T\n" +
-				"----------\n" +
-				"7. ERROR in X.java (at line 13)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	                                          ^^^\n" +
-				"Javadoc: Missing tag for parameter obj\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					* @param <X> Type parameter 2
+					          ^
+				Javadoc: Parameter X is not declared
+				----------
+				2. ERROR in X.java (at line 8)
+					* @param Object obj
+					         ^^^^^^
+				Javadoc: Parameter Object is not declared
+				----------
+				3. ERROR in X.java (at line 9)
+					* @param <E> Type parameter 2
+					          ^
+				Javadoc: E cannot be resolved to a type
+				----------
+				4. ERROR in X.java (at line 10)
+					* @param <U> Type parameter 2
+					          ^
+				Javadoc: Duplicate tag for parameter
+				----------
+				5. ERROR in X.java (at line 11)
+					* @param val int
+					         ^^^
+				Javadoc: Duplicate tag for parameter
+				----------
+				6. ERROR in X.java (at line 13)
+					public <T, U, V> void foo(int val, Object obj) {}
+					        ^
+				Javadoc: Missing tag for parameter T
+				----------
+				7. ERROR in X.java (at line 13)
+					public <T, U, V> void foo(int val, Object obj) {}
+					                                          ^^^
+				Javadoc: Missing tag for parameter obj
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -922,37 +1022,40 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Invalid type parameter reference\n" +
-					"	 * @param <V> Type parameter 2\n" +
-					"	 * @param\n" +
-					"	 * @param <U> Type parameter 1\n" +
-					"	 */\n" +
-					"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Invalid type parameter reference
+						 * @param <V> Type parameter 2
+						 * @param
+						 * @param <U> Type parameter 1
+						 */
+						public <T, U, V> void foo(int val, Object obj) {}
+					}"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	* @param\n" +
-				"	   ^^^^^\n" +
-				"Javadoc: Missing parameter name\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 8)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	        ^\n" +
-				"Javadoc: Missing tag for parameter T\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 8)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	                              ^^^\n" +
-				"Javadoc: Missing tag for parameter val\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 8)\n" +
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-				"	                                          ^^^\n" +
-				"Javadoc: Missing tag for parameter obj\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @param
+					   ^^^^^
+				Javadoc: Missing parameter name
+				----------
+				2. ERROR in X.java (at line 8)
+					public <T, U, V> void foo(int val, Object obj) {}
+					        ^
+				Javadoc: Missing tag for parameter T
+				----------
+				3. ERROR in X.java (at line 8)
+					public <T, U, V> void foo(int val, Object obj) {}
+					                              ^^^
+				Javadoc: Missing tag for parameter val
+				----------
+				4. ERROR in X.java (at line 8)
+					public <T, U, V> void foo(int val, Object obj) {}
+					                                          ^^^
+				Javadoc: Missing tag for parameter obj
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -962,110 +1065,120 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Invalid type parameter reference: compile error\n" +
-					"	 * @param <T> Type parameter 2\n" +
-					"	 * @param <V> Type parameter 2\n" +
-					"	 * @param <U> Type parameter 1\n" +
-					"	 * @param val int\n" +
-					"	 * @param obj Object\n" +
-					"	 */\n" +
-					"	public <T, , V> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Invalid type parameter reference: compile error
+						 * @param <T> Type parameter 2
+						 * @param <V> Type parameter 2
+						 * @param <U> Type parameter 1
+						 * @param val int
+						 * @param obj Object
+						 */
+						public <T, , V> void foo(int val, Object obj) {}
+					}"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	* @param <T> Type parameter 2\n" +
-				"	   ^^^^^\n" +
-				"Javadoc: Unexpected tag\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	* @param <V> Type parameter 2\n" +
-				"	   ^^^^^\n" +
-				"Javadoc: Unexpected tag\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 6)\n" +
-				"	* @param <U> Type parameter 1\n" +
-				"	   ^^^^^\n" +
-				"Javadoc: Unexpected tag\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 10)\n" +
-				"	public <T, , V> void foo(int val, Object obj) {}\n" +
-				"	           ^\n" +
-				"Syntax error on token \",\", delete this token\n" +
-				"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param <T> Type parameter 2
+					   ^^^^^
+				Javadoc: Unexpected tag
+				----------
+				2. ERROR in X.java (at line 5)
+					* @param <V> Type parameter 2
+					   ^^^^^
+				Javadoc: Unexpected tag
+				----------
+				3. ERROR in X.java (at line 6)
+					* @param <U> Type parameter 1
+					   ^^^^^
+				Javadoc: Unexpected tag
+				----------
+				4. ERROR in X.java (at line 10)
+					public <T, , V> void foo(int val, Object obj) {}
+					           ^
+				Syntax error on token ",", delete this token
+				----------
+				"""
 		);
 	}
 	public void test037() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * Invalid type parameter reference: compile error\n" +
-					"	 * @param <T> Type parameter 2\n" +
-					"	 * @param <V> Type parameter 2\n" +
-					"	 * @param <U> Type parameter 1\n" +
-					"	 * @param val int\n" +
-					"	 * @param obj Object\n" +
-					"	 */\n" +
-					"	public <T, U, V extends Exceptions> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * Invalid type parameter reference: compile error
+						 * @param <T> Type parameter 2
+						 * @param <V> Type parameter 2
+						 * @param <U> Type parameter 1
+						 * @param val int
+						 * @param obj Object
+						 */
+						public <T, U, V extends Exceptions> void foo(int val, Object obj) {}
+					}"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
-				"	public <T, U, V extends Exceptions> void foo(int val, Object obj) {}\n" +
-				"	                        ^^^^^^^^^^\n" +
-				"Exceptions cannot be resolved to a type\n" +
-				"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 10)
+					public <T, U, V extends Exceptions> void foo(int val, Object obj) {}
+					                        ^^^^^^^^^^
+				Exceptions cannot be resolved to a type
+				----------
+				"""
 		);
 	}
 	public void test038() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param < Type\n" +
-					"  * @param < Type for parameterization\n" +
-					"  * @param <> Type\n" +
-					"  * @param <?> Type\n" +
-					"  * @param <*> Type\n" +
-					"  */\n" +
-					" public class X<E> {}"
+				"""
+					 /**
+					  * Invalid type parameter reference
+					  * @param < Type
+					  * @param < Type for parameterization
+					  * @param <> Type
+					  * @param <?> Type
+					  * @param <*> Type
+					  */
+					 public class X<E> {}\
+					"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	* @param < Type\n" +
-				"	         ^^^^^^\n" +
-				"Javadoc: Invalid param tag type parameter name\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	* @param < Type for parameterization\n" +
-				"	         ^^^^^^\n" +
-				"Javadoc: Invalid param tag type parameter name\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 5)\n" +
-				"	* @param <> Type\n" +
-				"	         ^^\n" +
-				"Javadoc: Invalid param tag type parameter name\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 6)\n" +
-				"	* @param <?> Type\n" +
-				"	         ^^^\n" +
-				"Javadoc: Invalid param tag type parameter name\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 7)\n" +
-				"	* @param <*> Type\n" +
-				"	         ^^^\n" +
-				"Javadoc: Invalid param tag type parameter name\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 9)\n" +
-				"	public class X<E> {}\n" +
-				"	               ^\n" +
-				"Javadoc: Missing tag for parameter E\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					* @param < Type
+					         ^^^^^^
+				Javadoc: Invalid param tag type parameter name
+				----------
+				2. ERROR in X.java (at line 4)
+					* @param < Type for parameterization
+					         ^^^^^^
+				Javadoc: Invalid param tag type parameter name
+				----------
+				3. ERROR in X.java (at line 5)
+					* @param <> Type
+					         ^^
+				Javadoc: Invalid param tag type parameter name
+				----------
+				4. ERROR in X.java (at line 6)
+					* @param <?> Type
+					         ^^^
+				Javadoc: Invalid param tag type parameter name
+				----------
+				5. ERROR in X.java (at line 7)
+					* @param <*> Type
+					         ^^^
+				Javadoc: Invalid param tag type parameter name
+				----------
+				6. ERROR in X.java (at line 9)
+					public class X<E> {}
+					               ^
+				Javadoc: Missing tag for parameter E
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1073,47 +1186,51 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				" /**\n" +
-					"  * Invalid type parameter reference\n" +
-					"  * @param <E Type\n" +
-					"  * @param E> Type\n" +
-					"  * @param <<E> Type\n" +
-					"  * @param <<<E> Type\n" +
-					"  * @param <E>> Type\n" +
-					"  */\n" +
-					" public class X<E> {}"
+				"""
+					 /**
+					  * Invalid type parameter reference
+					  * @param <E Type
+					  * @param E> Type
+					  * @param <<E> Type
+					  * @param <<<E> Type
+					  * @param <E>> Type
+					  */
+					 public class X<E> {}\
+					"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	* @param <E Type\n" +
-				"	         ^^\n" +
-				"Javadoc: Invalid param tag type parameter name\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	* @param E> Type\n" +
-				"	         ^^\n" +
-				"Javadoc: Invalid param tag name\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 5)\n" +
-				"	* @param <<E> Type\n" +
-				"	         ^^^^\n" +
-				"Javadoc: Invalid param tag type parameter name\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 6)\n" +
-				"	* @param <<<E> Type\n" +
-				"	         ^^^^^\n" +
-				"Javadoc: Invalid param tag type parameter name\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 7)\n" +
-				"	* @param <E>> Type\n" +
-				"	         ^^^^\n" +
-				"Javadoc: Invalid param tag type parameter name\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 9)\n" +
-				"	public class X<E> {}\n" +
-				"	               ^\n" +
-				"Javadoc: Missing tag for parameter E\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					* @param <E Type
+					         ^^
+				Javadoc: Invalid param tag type parameter name
+				----------
+				2. ERROR in X.java (at line 4)
+					* @param E> Type
+					         ^^
+				Javadoc: Invalid param tag name
+				----------
+				3. ERROR in X.java (at line 5)
+					* @param <<E> Type
+					         ^^^^
+				Javadoc: Invalid param tag type parameter name
+				----------
+				4. ERROR in X.java (at line 6)
+					* @param <<<E> Type
+					         ^^^^^
+				Javadoc: Invalid param tag type parameter name
+				----------
+				5. ERROR in X.java (at line 7)
+					* @param <E>> Type
+					         ^^^^
+				Javadoc: Invalid param tag type parameter name
+				----------
+				6. ERROR in X.java (at line 9)
+					public class X<E> {}
+					               ^
+				Javadoc: Missing tag for parameter E
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1122,11 +1239,13 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformReferenceTest(
 			new String[] {
 				"X.java",
-				"/**\n" +
-				" * @category\n" +
-				" */\n" +
-				"public class X {\n" +
-				"}\n"
+				"""
+					/**
+					 * @category
+					 */
+					public class X {
+					}
+					"""
 			}
 		);
 	}
@@ -1139,23 +1258,27 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"/**\n" +
-				" * @see G#G(Object)\n" +
-				" * @see G#G(Exception)\n" +
-				" */\n" +
-				"public class X extends G<Exception> {\n" +
-				"	X(Exception exc) { super(exc);}\n" +
-				"}\n" +
-				"class G<E extends Exception> {\n" +
-				"	G(E e) {}\n" +
-				"}\n"
+				"""
+					/**
+					 * @see G#G(Object)
+					 * @see G#G(Exception)
+					 */
+					public class X extends G<Exception> {
+						X(Exception exc) { super(exc);}
+					}
+					class G<E extends Exception> {
+						G(E e) {}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	* @see G#G(Object)\n" +
-			"	         ^^^^^^^^^\n" +
-			"Javadoc: The constructor G(Object) is undefined\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					* @see G#G(Object)
+					         ^^^^^^^^^
+				Javadoc: The constructor G(Object) is undefined
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1169,35 +1292,38 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class ComparableUtils {\n" +
-				"   public static <T extends Comparable< ? super T>> int compareTo(final Object first, final Object firstPrime,  final Class<T> type) throws ClassCastException\n" +
-				"    {\n" +
-				"        return 0;\n" +
-				"    }\n" +
-				"    public static <X extends Comparable< ? super X>> int compareTo(final X first, final X firstPrime)\n" +
-				"        throws ClassCastException\n" +
-				"    {\n" +
-				"        return 0;\n" +
-				"    }\n" +
-				"}\n" +
-				"public final class X {  \n" +
-				"	/** Tests the method{@link ComparableUtils#compareTo(Object, Object, Class)} and\n" +
-				"	 *  {@link ComparableUtils#compareTo(Object, Object)}.\n" +
-				"	 */\n" +
-				"    public void testCompareTo() {}\n" +
-				"}"
+				"""
+					class ComparableUtils {
+					   public static <T extends Comparable< ? super T>> int compareTo(final Object first, final Object firstPrime,  final Class<T> type) throws ClassCastException
+					    {
+					        return 0;
+					    }
+					    public static <X extends Comparable< ? super X>> int compareTo(final X first, final X firstPrime)
+					        throws ClassCastException
+					    {
+					        return 0;
+					    }
+					}
+					public final class X { \s
+						/** Tests the method{@link ComparableUtils#compareTo(Object, Object, Class)} and
+						 *  {@link ComparableUtils#compareTo(Object, Object)}.
+						 */
+					    public void testCompareTo() {}
+					}"""
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 6)\n" +
-			"	public static <X extends Comparable< ? super X>> int compareTo(final X first, final X firstPrime)\n" +
-			"	               ^\n" +
-			"The type parameter X is hiding the type X\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 14)\n" +
-			"	*  {@link ComparableUtils#compareTo(Object, Object)}.\n" +
-			"	                          ^^^^^^^^^\n" +
-			"Javadoc: Bound mismatch: The generic method compareTo(X, X) of type ComparableUtils is not applicable for the arguments (Object, Object). The inferred type Object is not a valid substitute for the bounded parameter <X extends Comparable<? super X>>\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 6)
+					public static <X extends Comparable< ? super X>> int compareTo(final X first, final X firstPrime)
+					               ^
+				The type parameter X is hiding the type X
+				----------
+				2. ERROR in X.java (at line 14)
+					*  {@link ComparableUtils#compareTo(Object, Object)}.
+					                          ^^^^^^^^^
+				Javadoc: Bound mismatch: The generic method compareTo(X, X) of type ComparableUtils is not applicable for the arguments (Object, Object). The inferred type Object is not a valid substitute for the bounded parameter <X extends Comparable<? super X>>
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1210,53 +1336,57 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"Test.java",
-				"/** \n" +
-				" * @see Test#add(T) \n" +
-				" * @see #add(T)\n" +
-				" * @see Test#Test(T)\n" +
-				" * @see #Test(T)\n" +
-				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" +
-				" *                the arguments (T)\"\n" +
-				" *   - method binding = Test.add(Object)\n" +
-				" *   - parameter binding = T of A\n" +
-				" */\n" +
-				"public class Test<T> {\n" +
-				"	Test(T t) {}\n" +
-				"    public boolean add(T t) {\n" +
-				"        return true;\n" +
-				"    }\n" +
-				"}\n" +
-				"\n" +
-				"class Sub<E extends Number> extends Test<E> {\n" +
-				"	Sub (E e) {super(null);}\n" +
-				"    public boolean add(E e) {\n" +
-				"        if (e.doubleValue() > 0)\n" +
-				"            return false;\n" +
-				"        return super.add(e);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					/**\s
+					 * @see Test#add(T)\s
+					 * @see #add(T)
+					 * @see Test#Test(T)
+					 * @see #Test(T)
+					 *   - warning = "The method add(Object) in the type Test is not applicable for
+					 *                the arguments (T)"
+					 *   - method binding = Test.add(Object)
+					 *   - parameter binding = T of A
+					 */
+					public class Test<T> {
+						Test(T t) {}
+					    public boolean add(T t) {
+					        return true;
+					    }
+					}
+					
+					class Sub<E extends Number> extends Test<E> {
+						Sub (E e) {super(null);}
+					    public boolean add(E e) {
+					        if (e.doubleValue() > 0)
+					            return false;
+					        return super.add(e);
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in Test.java (at line 2)\n" +
-			"	* @see Test#add(T) \n" +
-			"	            ^^^\n" +
-			"Javadoc: The method add(Object) in the type Test is not applicable for the arguments (T)\n" +
-			"----------\n" +
-			"2. ERROR in Test.java (at line 3)\n" +
-			"	* @see #add(T)\n" +
-			"	        ^^^\n" +
-			"Javadoc: The method add(Object) in the type Test is not applicable for the arguments (T)\n" +
-			"----------\n" +
-			"3. ERROR in Test.java (at line 4)\n" +
-			"	* @see Test#Test(T)\n" +
-			"	            ^^^^^^^\n" +
-			"Javadoc: The constructor Test(T) is undefined\n" +
-			"----------\n" +
-			"4. ERROR in Test.java (at line 5)\n" +
-			"	* @see #Test(T)\n" +
-			"	        ^^^^^^^\n" +
-			"Javadoc: The constructor Test(T) is undefined\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in Test.java (at line 2)
+					* @see Test#add(T)\s
+					            ^^^
+				Javadoc: The method add(Object) in the type Test is not applicable for the arguments (T)
+				----------
+				2. ERROR in Test.java (at line 3)
+					* @see #add(T)
+					        ^^^
+				Javadoc: The method add(Object) in the type Test is not applicable for the arguments (T)
+				----------
+				3. ERROR in Test.java (at line 4)
+					* @see Test#Test(T)
+					            ^^^^^^^
+				Javadoc: The constructor Test(T) is undefined
+				----------
+				4. ERROR in Test.java (at line 5)
+					* @see #Test(T)
+					        ^^^^^^^
+				Javadoc: The constructor Test(T) is undefined
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1265,43 +1395,47 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"Test.java",
-				"/** \n" +
-				" * @see Sub#add(T)\n" +
-				" * @see Sub#Sub(T)\n" +
-				" *   - warning = \"The method add(Number) in the type Sub is not applicable for\n" +
-				" *                the arguments (T)\"\n" +
-				" *   - method binding = Sub.add(Number)\n" +
-				" *   - parameter binding = T of A\n" +
-				" *     -> Do we need to change this as T natually resolved to TypeVariable?\n" +
-				" *        As compiler raises a warning, it\'s perhaps not a problem now...\n" +
-				" */\n" +
-				"public class Test<T>{\n" +
-				"	Test(T t) {}\n" +
-				"    public boolean add(T t) {\n" +
-				"        return true;\n" +
-				"    }\n" +
-				"}\n" +
-				"\n" +
-				"class Sub<E extends Number> extends Test<E> {\n" +
-				"	Sub (E e) {super(null);}\n" +
-				"    public boolean add(E e) {\n" +
-				"        if (e.doubleValue() > 0)\n" +
-				"            return false;\n" +
-				"        return super.add(e);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					/**\s
+					 * @see Sub#add(T)
+					 * @see Sub#Sub(T)
+					 *   - warning = "The method add(Number) in the type Sub is not applicable for
+					 *                the arguments (T)"
+					 *   - method binding = Sub.add(Number)
+					 *   - parameter binding = T of A
+					 *     -> Do we need to change this as T natually resolved to TypeVariable?
+					 *        As compiler raises a warning, it\'s perhaps not a problem now...
+					 */
+					public class Test<T>{
+						Test(T t) {}
+					    public boolean add(T t) {
+					        return true;
+					    }
+					}
+					
+					class Sub<E extends Number> extends Test<E> {
+						Sub (E e) {super(null);}
+					    public boolean add(E e) {
+					        if (e.doubleValue() > 0)
+					            return false;
+					        return super.add(e);
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in Test.java (at line 2)\n" +
-			"	* @see Sub#add(T)\n" +
-			"	           ^^^\n" +
-			"Javadoc: The method add(Number) in the type Sub is not applicable for the arguments (T)\n" +
-			"----------\n" +
-			"2. ERROR in Test.java (at line 3)\n" +
-			"	* @see Sub#Sub(T)\n" +
-			"	           ^^^^^^\n" +
-			"Javadoc: The constructor Sub(T) is undefined\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in Test.java (at line 2)
+					* @see Sub#add(T)
+					           ^^^
+				Javadoc: The method add(Number) in the type Sub is not applicable for the arguments (T)
+				----------
+				2. ERROR in Test.java (at line 3)
+					* @see Sub#Sub(T)
+					           ^^^^^^
+				Javadoc: The constructor Sub(T) is undefined
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1310,40 +1444,44 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"Test.java",
-				"/** \n" +
-				" * @see Sub#add(E) \n" +
-				" * @see Sub#Sub(E)\n" +
-				" *   - warning = \"E cannot be resolved to a type\"\n" +
-				" *   - method binding = null\n" +
-				" *   - parameter binding = null\n" +
-				" */\n" +
-				"public class Test<T>{\n" +
-				"	Test(T t) {}\n" +
-				"    public boolean add(T t) {\n" +
-				"        return true;\n" +
-				"    }\n" +
-				"}\n" +
-				"\n" +
-				"class Sub<E extends Number> extends Test<E> {\n" +
-				"	Sub (E e) {super(null);}\n" +
-				"    public boolean add(E e) {\n" +
-				"        if (e.doubleValue() > 0)\n" +
-				"            return false;\n" +
-				"        return super.add(e);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					/**\s
+					 * @see Sub#add(E)\s
+					 * @see Sub#Sub(E)
+					 *   - warning = "E cannot be resolved to a type"
+					 *   - method binding = null
+					 *   - parameter binding = null
+					 */
+					public class Test<T>{
+						Test(T t) {}
+					    public boolean add(T t) {
+					        return true;
+					    }
+					}
+					
+					class Sub<E extends Number> extends Test<E> {
+						Sub (E e) {super(null);}
+					    public boolean add(E e) {
+					        if (e.doubleValue() > 0)
+					            return false;
+					        return super.add(e);
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in Test.java (at line 2)\n" +
-			"	* @see Sub#add(E) \n" +
-			"	               ^\n" +
-			"Javadoc: E cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in Test.java (at line 3)\n" +
-			"	* @see Sub#Sub(E)\n" +
-			"	               ^\n" +
-			"Javadoc: E cannot be resolved to a type\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in Test.java (at line 2)
+					* @see Sub#add(E)\s
+					               ^
+				Javadoc: E cannot be resolved to a type
+				----------
+				2. ERROR in Test.java (at line 3)
+					* @see Sub#Sub(E)
+					               ^
+				Javadoc: E cannot be resolved to a type
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1352,45 +1490,51 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"Unrelated1.java",
-				"public class Unrelated1<E extends Number> {\n" +
-				"	public Unrelated1(E e) {}\n" +
-				"	public boolean add(E e) { return false; }\n" +
-				"}\n",
+				"""
+					public class Unrelated1<E extends Number> {
+						public Unrelated1(E e) {}
+						public boolean add(E e) { return false; }
+					}
+					""",
 				"Test.java",
-				"/** \n" +
-				" * @see Unrelated1#add(E)\n" +
-				" * @see Unrelated1#Unrelated1(E)\n" +
-				" *   - warning = \"E cannot be resolved to a type\"\n" +
-				" *   - method binding = null\n" +
-				" *   - parameter binding = null\n" +
-				" */\n" +
-				"public class Test<T>{\n" +
-				"	Test(T t) {}\n" +
-				"    public boolean add(T t) {\n" +
-				"        return true;\n" +
-				"    }\n" +
-				"}\n" +
-				"\n" +
-				"class Sub<E extends Number> extends Test<E> {\n" +
-				"	Sub (E e) {super(null);}\n" +
-				"    public boolean add(E e) {\n" +
-				"        if (e.doubleValue() > 0)\n" +
-				"            return false;\n" +
-				"        return super.add(e);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					/**\s
+					 * @see Unrelated1#add(E)
+					 * @see Unrelated1#Unrelated1(E)
+					 *   - warning = "E cannot be resolved to a type"
+					 *   - method binding = null
+					 *   - parameter binding = null
+					 */
+					public class Test<T>{
+						Test(T t) {}
+					    public boolean add(T t) {
+					        return true;
+					    }
+					}
+					
+					class Sub<E extends Number> extends Test<E> {
+						Sub (E e) {super(null);}
+					    public boolean add(E e) {
+					        if (e.doubleValue() > 0)
+					            return false;
+					        return super.add(e);
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in Test.java (at line 2)\n" +
-			"	* @see Unrelated1#add(E)\n" +
-			"	                      ^\n" +
-			"Javadoc: E cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in Test.java (at line 3)\n" +
-			"	* @see Unrelated1#Unrelated1(E)\n" +
-			"	                             ^\n" +
-			"Javadoc: E cannot be resolved to a type\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in Test.java (at line 2)
+					* @see Unrelated1#add(E)
+					                      ^
+				Javadoc: E cannot be resolved to a type
+				----------
+				2. ERROR in Test.java (at line 3)
+					* @see Unrelated1#Unrelated1(E)
+					                             ^
+				Javadoc: E cannot be resolved to a type
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1399,45 +1543,51 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"Unrelated1.java",
-				"public class Unrelated1<E extends Number> {\n" +
-				"	public Unrelated1(E e) {}\n" +
-				"	public boolean add(E e) { return false; }\n" +
-				"}\n",
+				"""
+					public class Unrelated1<E extends Number> {
+						public Unrelated1(E e) {}
+						public boolean add(E e) { return false; }
+					}
+					""",
 				"Test.java",
-				"/** \n" +
-				" * @see Unrelated1#add(Object)\n" +
-				" * @see Unrelated1#Unrelated1(Object)\n" +
-				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" +
-				" *                the arguments (Object)\"\n" +
-				" *   - method binding = Unrelated1.add(Number)\n" +
-				" *   - parameter binding = java.lang.Object\n" +
-				" */\n" +
-				"public class Test<T>{\n" +
-				"	Test(T t) {}\n" +
-				"    public boolean add(T t) {\n" +
-				"        return true;\n" +
-				"    }\n" +
-				"}\n" +
-				"class Sub<E extends Number> extends Test<E> {\n" +
-				"	Sub (E e) {super(null);}\n" +
-				"    public boolean add(E e) {\n" +
-				"        if (e.doubleValue() > 0)\n" +
-				"            return false;\n" +
-				"        return super.add(e);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					/**\s
+					 * @see Unrelated1#add(Object)
+					 * @see Unrelated1#Unrelated1(Object)
+					 *   - warning = "The method add(Object) in the type Test is not applicable for
+					 *                the arguments (Object)"
+					 *   - method binding = Unrelated1.add(Number)
+					 *   - parameter binding = java.lang.Object
+					 */
+					public class Test<T>{
+						Test(T t) {}
+					    public boolean add(T t) {
+					        return true;
+					    }
+					}
+					class Sub<E extends Number> extends Test<E> {
+						Sub (E e) {super(null);}
+					    public boolean add(E e) {
+					        if (e.doubleValue() > 0)
+					            return false;
+					        return super.add(e);
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in Test.java (at line 2)\n" +
-			"	* @see Unrelated1#add(Object)\n" +
-			"	                  ^^^\n" +
-			"Javadoc: The method add(Number) in the type Unrelated1 is not applicable for the arguments (Object)\n" +
-			"----------\n" +
-			"2. ERROR in Test.java (at line 3)\n" +
-			"	* @see Unrelated1#Unrelated1(Object)\n" +
-			"	                  ^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The constructor Unrelated1(Object) is undefined\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in Test.java (at line 2)
+					* @see Unrelated1#add(Object)
+					                  ^^^
+				Javadoc: The method add(Number) in the type Unrelated1 is not applicable for the arguments (Object)
+				----------
+				2. ERROR in Test.java (at line 3)
+					* @see Unrelated1#Unrelated1(Object)
+					                  ^^^^^^^^^^^^^^^^^^
+				Javadoc: The constructor Unrelated1(Object) is undefined
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1446,32 +1596,36 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"Unrelated1.java",
-				"public class Unrelated1<E extends Number> {\n" +
-				"	public Unrelated1(E e) {}\n" +
-				"	public boolean add(E e) { return false; }\n" +
-				"}\n",
+				"""
+					public class Unrelated1<E extends Number> {
+						public Unrelated1(E e) {}
+						public boolean add(E e) { return false; }
+					}
+					""",
 				"Test.java",
-				"/** \n" +
-				" * @see Unrelated1#add(Number)\n" +
-				" * @see Unrelated1#Unrelated1(Number)\n" +
-				" *   - no warning\n" +
-				" *   - method binding = Unrelated1.add(Number)\n" +
-				" *   - parameter binding = java.lang.Number\n" +
-				" */\n" +
-				"public class Test<T>{\n" +
-				"	Test(T t) {}\n" +
-				"    public boolean add(T t) {\n" +
-				"        return true;\n" +
-				"    }\n" +
-				"}\n" +
-				"class Sub<E extends Number> extends Test<E> {\n" +
-				"	Sub (E e) {super(null);}\n" +
-				"    public boolean add(E e) {\n" +
-				"        if (e.doubleValue() > 0)\n" +
-				"            return false;\n" +
-				"        return super.add(e);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					/**\s
+					 * @see Unrelated1#add(Number)
+					 * @see Unrelated1#Unrelated1(Number)
+					 *   - no warning
+					 *   - method binding = Unrelated1.add(Number)
+					 *   - parameter binding = java.lang.Number
+					 */
+					public class Test<T>{
+						Test(T t) {}
+					    public boolean add(T t) {
+					        return true;
+					    }
+					}
+					class Sub<E extends Number> extends Test<E> {
+						Sub (E e) {super(null);}
+					    public boolean add(E e) {
+					        if (e.doubleValue() > 0)
+					            return false;
+					        return super.add(e);
+					    }
+					}
+					"""
 			}
 		);
 	}
@@ -1480,46 +1634,52 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"Unrelated1.java",
-				"public class Unrelated1<E extends Number> {\n" +
-				"	public Unrelated1(E e) {}\n" +
-				"	public boolean add(E e) { return false; }\n" +
-				"}\n",
+				"""
+					public class Unrelated1<E extends Number> {
+						public Unrelated1(E e) {}
+						public boolean add(E e) { return false; }
+					}
+					""",
 				"Test.java",
-				"/** \n" +
-				" * @see Unrelated1#add(Integer)\n" +
-				" * @see Unrelated1#Unrelated1(Integer)\n" +
-				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" +
-				" *                the arguments (Integer)\"\n" +
-				" *   - method binding = Unrelated1.add(Number)\n" +
-				" *   - parameter binding = java.lang.Integer\n" +
-				" */\n" +
-				"public class Test<T>{\n" +
-				"	Test(T t) {}\n" +
-				"    public boolean add(T t) {\n" +
-				"        return true;\n" +
-				"    }\n" +
-				"}\n" +
-				"\n" +
-				"class Sub<E extends Number> extends Test<E> {\n" +
-				"	Sub (E e) {super(null);}\n" +
-				"	public boolean add(E e) {\n" +
-				"        if (e.doubleValue() > 0)\n" +
-				"            return false;\n" +
-				"        return super.add(e);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					/**\s
+					 * @see Unrelated1#add(Integer)
+					 * @see Unrelated1#Unrelated1(Integer)
+					 *   - warning = "The method add(Object) in the type Test is not applicable for
+					 *                the arguments (Integer)"
+					 *   - method binding = Unrelated1.add(Number)
+					 *   - parameter binding = java.lang.Integer
+					 */
+					public class Test<T>{
+						Test(T t) {}
+					    public boolean add(T t) {
+					        return true;
+					    }
+					}
+					
+					class Sub<E extends Number> extends Test<E> {
+						Sub (E e) {super(null);}
+						public boolean add(E e) {
+					        if (e.doubleValue() > 0)
+					            return false;
+					        return super.add(e);
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in Test.java (at line 2)\n" +
-			"	* @see Unrelated1#add(Integer)\n" +
-			"	                  ^^^\n" +
-			"Javadoc: The method add(Number) in the type Unrelated1 is not applicable for the arguments (Integer)\n" +
-			"----------\n" +
-			"2. ERROR in Test.java (at line 3)\n" +
-			"	* @see Unrelated1#Unrelated1(Integer)\n" +
-			"	                  ^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The constructor Unrelated1(Integer) is undefined\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in Test.java (at line 2)
+					* @see Unrelated1#add(Integer)
+					                  ^^^
+				Javadoc: The method add(Number) in the type Unrelated1 is not applicable for the arguments (Integer)
+				----------
+				2. ERROR in Test.java (at line 3)
+					* @see Unrelated1#Unrelated1(Integer)
+					                  ^^^^^^^^^^^^^^^^^^^
+				Javadoc: The constructor Unrelated1(Integer) is undefined
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1528,41 +1688,47 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"Unrelated2.java",
-				"public interface Unrelated2<E> {\n" +
-				"	boolean add(E e);\n" +
-				"}\n",
+				"""
+					public interface Unrelated2<E> {
+						boolean add(E e);
+					}
+					""",
 				"Test.java",
-				"/** \n" +
-				" * @see Unrelated2#add(T)\n" +
-				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" +
-				" *                the arguments (T)\"\n" +
-				" *   - method binding = Unrelated2.add(Object)\n" +
-				" *   - parameter binding = T of A\n" +
-				" *     -> Do we need to change this as T natually resolved to TypeVariable?\n" +
-				" *        As compiler raises a warning, it\'s perhaps not a problem now...\n" +
-				" */\n" +
-				"public class Test<T>{\n" +
-				"	Test(T t) {}\n" +
-				"    public boolean add(T t) {\n" +
-				"        return true;\n" +
-				"    }\n" +
-				"}\n" +
-				"\n" +
-				"class Sub<E extends Number> extends Test<E> {\n" +
-				"	Sub (E e) {super(null);}\n" +
-				"    public boolean add(E e) {\n" +
-				"        if (e.doubleValue() > 0)\n" +
-				"            return false;\n" +
-				"        return super.add(e);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					/**\s
+					 * @see Unrelated2#add(T)
+					 *   - warning = "The method add(Object) in the type Test is not applicable for
+					 *                the arguments (T)"
+					 *   - method binding = Unrelated2.add(Object)
+					 *   - parameter binding = T of A
+					 *     -> Do we need to change this as T natually resolved to TypeVariable?
+					 *        As compiler raises a warning, it\'s perhaps not a problem now...
+					 */
+					public class Test<T>{
+						Test(T t) {}
+					    public boolean add(T t) {
+					        return true;
+					    }
+					}
+					
+					class Sub<E extends Number> extends Test<E> {
+						Sub (E e) {super(null);}
+					    public boolean add(E e) {
+					        if (e.doubleValue() > 0)
+					            return false;
+					        return super.add(e);
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in Test.java (at line 2)\n" +
-			"	* @see Unrelated2#add(T)\n" +
-			"	                  ^^^\n" +
-			"Javadoc: The method add(Object) in the type Unrelated2 is not applicable for the arguments (T)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in Test.java (at line 2)
+					* @see Unrelated2#add(T)
+					                  ^^^
+				Javadoc: The method add(Object) in the type Unrelated2 is not applicable for the arguments (T)
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1575,23 +1741,27 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"	public void foo(int a, int b) {} \n" +
-				"	public void foo(int a, int... args) {}\n" +
-				"	public void foo(String... args) {}\n" +
-				"	public void foo(Exception str, boolean... args) {}\n" +
-				"}\n",
+				"""
+					public class Test {
+						public void foo(int a, int b) {}\s
+						public void foo(int a, int... args) {}
+						public void foo(String... args) {}
+						public void foo(Exception str, boolean... args) {}
+					}
+					""",
 				"Valid.java",
-				"/**\n" +
-				" * @see Test#foo(int, int)\n" +
-				" * @see Test#foo(int, int[])\n" +
-				" * @see Test#foo(int, int...)\n" +
-				" * @see Test#foo(String[])\n" +
-				" * @see Test#foo(String...)\n" +
-				" * @see Test#foo(Exception, boolean[])\n" +
-				" * @see Test#foo(Exception, boolean...)\n" +
-				" */\n" +
-				"public class Valid {}\n"
+				"""
+					/**
+					 * @see Test#foo(int, int)
+					 * @see Test#foo(int, int[])
+					 * @see Test#foo(int, int...)
+					 * @see Test#foo(String[])
+					 * @see Test#foo(String...)
+					 * @see Test#foo(Exception, boolean[])
+					 * @see Test#foo(Exception, boolean...)
+					 */
+					public class Valid {}
+					"""
 			}
 		);
 	}
@@ -1599,66 +1769,72 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"	public void foo(int a, int b) {} \n" +
-				"	public void foo(int a, int... args) {}\n" +
-				"	public void foo(String... args) {}\n" +
-				"	public void foo(Exception str, boolean... args) {}\n" +
-				"}\n",
+				"""
+					public class Test {
+						public void foo(int a, int b) {}\s
+						public void foo(int a, int... args) {}
+						public void foo(String... args) {}
+						public void foo(Exception str, boolean... args) {}
+					}
+					""",
 				"Invalid.java",
-				"/**\n" +
-				" * @see Test#foo(int)\n" +
-				" * @see Test#foo(int, int, int)\n" +
-				" * @see Test#foo()\n" +
-				" * @see Test#foo(String)\n" +
-				" * @see Test#foo(String, String)\n" +
-				" * @see Test#foo(Exception)\n" +
-				" * @see Test#foo(Exception, boolean)\n" +
-				" * @see Test#foo(Exception, boolean, boolean)\n" +
-				" */\n" +
-				"public class Invalid {}\n"
+				"""
+					/**
+					 * @see Test#foo(int)
+					 * @see Test#foo(int, int, int)
+					 * @see Test#foo()
+					 * @see Test#foo(String)
+					 * @see Test#foo(String, String)
+					 * @see Test#foo(Exception)
+					 * @see Test#foo(Exception, boolean)
+					 * @see Test#foo(Exception, boolean, boolean)
+					 */
+					public class Invalid {}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in Invalid.java (at line 2)\n" +
-			"	* @see Test#foo(int)\n" +
-			"	            ^^^\n" +
-			"Javadoc: The method foo(int, int...) in the type Test is not applicable for the arguments (int)\n" +
-			"----------\n" +
-			"2. ERROR in Invalid.java (at line 3)\n" +
-			"	* @see Test#foo(int, int, int)\n" +
-			"	            ^^^\n" +
-			"Javadoc: The method foo(int, int...) in the type Test is not applicable for the arguments (int, int, int)\n" +
-			"----------\n" +
-			"3. ERROR in Invalid.java (at line 4)\n" +
-			"	* @see Test#foo()\n" +
-			"	            ^^^\n" +
-			"Javadoc: The method foo(String...) in the type Test is not applicable for the arguments ()\n" +
-			"----------\n" +
-			"4. ERROR in Invalid.java (at line 5)\n" +
-			"	* @see Test#foo(String)\n" +
-			"	            ^^^\n" +
-			"Javadoc: The method foo(String...) in the type Test is not applicable for the arguments (String)\n" +
-			"----------\n" +
-			"5. ERROR in Invalid.java (at line 6)\n" +
-			"	* @see Test#foo(String, String)\n" +
-			"	            ^^^\n" +
-			"Javadoc: The method foo(String...) in the type Test is not applicable for the arguments (String, String)\n" +
-			"----------\n" +
-			"6. ERROR in Invalid.java (at line 7)\n" +
-			"	* @see Test#foo(Exception)\n" +
-			"	            ^^^\n" +
-			"Javadoc: The method foo(Exception, boolean...) in the type Test is not applicable for the arguments (Exception)\n" +
-			"----------\n" +
-			"7. ERROR in Invalid.java (at line 8)\n" +
-			"	* @see Test#foo(Exception, boolean)\n" +
-			"	            ^^^\n" +
-			"Javadoc: The method foo(Exception, boolean...) in the type Test is not applicable for the arguments (Exception, boolean)\n" +
-			"----------\n" +
-			"8. ERROR in Invalid.java (at line 9)\n" +
-			"	* @see Test#foo(Exception, boolean, boolean)\n" +
-			"	            ^^^\n" +
-			"Javadoc: The method foo(Exception, boolean...) in the type Test is not applicable for the arguments (Exception, boolean, boolean)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in Invalid.java (at line 2)
+					* @see Test#foo(int)
+					            ^^^
+				Javadoc: The method foo(int, int...) in the type Test is not applicable for the arguments (int)
+				----------
+				2. ERROR in Invalid.java (at line 3)
+					* @see Test#foo(int, int, int)
+					            ^^^
+				Javadoc: The method foo(int, int...) in the type Test is not applicable for the arguments (int, int, int)
+				----------
+				3. ERROR in Invalid.java (at line 4)
+					* @see Test#foo()
+					            ^^^
+				Javadoc: The method foo(String...) in the type Test is not applicable for the arguments ()
+				----------
+				4. ERROR in Invalid.java (at line 5)
+					* @see Test#foo(String)
+					            ^^^
+				Javadoc: The method foo(String...) in the type Test is not applicable for the arguments (String)
+				----------
+				5. ERROR in Invalid.java (at line 6)
+					* @see Test#foo(String, String)
+					            ^^^
+				Javadoc: The method foo(String...) in the type Test is not applicable for the arguments (String, String)
+				----------
+				6. ERROR in Invalid.java (at line 7)
+					* @see Test#foo(Exception)
+					            ^^^
+				Javadoc: The method foo(Exception, boolean...) in the type Test is not applicable for the arguments (Exception)
+				----------
+				7. ERROR in Invalid.java (at line 8)
+					* @see Test#foo(Exception, boolean)
+					            ^^^
+				Javadoc: The method foo(Exception, boolean...) in the type Test is not applicable for the arguments (Exception, boolean)
+				----------
+				8. ERROR in Invalid.java (at line 9)
+					* @see Test#foo(Exception, boolean, boolean)
+					            ^^^
+				Javadoc: The method foo(Exception, boolean...) in the type Test is not applicable for the arguments (Exception, boolean, boolean)
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1671,62 +1847,68 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"pack/package-info.java",
-				"/**\n" +
-				" * Valid javadoc.\n" +
-				" * @see pack.Test\n" +
-				" * @see Unknown\n" +
-				" * @see pack.Test#foo()\n" +
-				" * @see pack.Test#unknown()\n" +
-				" * @see pack.Test#field\n" +
-				" * @see pack.Test#unknown\n" +
-				" * @param unexpected\n" +
-				" * @throws unexpected\n" +
-				" * @return unexpected \n" +
-				" * @deprecated accepted by javadoc.exe although javadoc 1.5 spec does not say that's a valid tag\n" +
-				" * @other-tags are valid\n" +
-				" */\n" +
-				"package pack;\n",
+				"""
+					/**
+					 * Valid javadoc.
+					 * @see pack.Test
+					 * @see Unknown
+					 * @see pack.Test#foo()
+					 * @see pack.Test#unknown()
+					 * @see pack.Test#field
+					 * @see pack.Test#unknown
+					 * @param unexpected
+					 * @throws unexpected
+					 * @return unexpected\s
+					 * @deprecated accepted by javadoc.exe although javadoc 1.5 spec does not say that's a valid tag
+					 * @other-tags are valid
+					 */
+					package pack;
+					""",
 				"pack/Test.java",
-				"/**\n" +
-				" * Invalid javadoc\n" +
-				" */\n" +
-				"package pack;\n" +
-				"public class Test {\n" +
-				"	public int field;\n" +
-				"	public void foo() {}\n" +
-				"}\n"
+				"""
+					/**
+					 * Invalid javadoc
+					 */
+					package pack;
+					public class Test {
+						public int field;
+						public void foo() {}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in pack\\package-info.java (at line 4)\n" +
-			"	* @see Unknown\n" +
-			"	       ^^^^^^^\n" +
-			"Javadoc: Unknown cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in pack\\package-info.java (at line 6)\n" +
-			"	* @see pack.Test#unknown()\n" +
-			"	                 ^^^^^^^\n" +
-			"Javadoc: The method unknown() is undefined for the type Test\n" +
-			"----------\n" +
-			"3. ERROR in pack\\package-info.java (at line 8)\n" +
-			"	* @see pack.Test#unknown\n" +
-			"	                 ^^^^^^^\n" +
-			"Javadoc: unknown cannot be resolved or is not a field\n" +
-			"----------\n" +
-			"4. ERROR in pack\\package-info.java (at line 9)\n" +
-			"	* @param unexpected\n" +
-			"	   ^^^^^\n" +
-			"Javadoc: Unexpected tag\n" +
-			"----------\n" +
-			"5. ERROR in pack\\package-info.java (at line 10)\n" +
-			"	* @throws unexpected\n" +
-			"	   ^^^^^^\n" +
-			"Javadoc: Unexpected tag\n" +
-			"----------\n" +
-			"6. ERROR in pack\\package-info.java (at line 11)\n" +
-			"	* @return unexpected \n" +
-			"	   ^^^^^^\n" +
-			"Javadoc: Unexpected tag\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in pack\\package-info.java (at line 4)
+					* @see Unknown
+					       ^^^^^^^
+				Javadoc: Unknown cannot be resolved to a type
+				----------
+				2. ERROR in pack\\package-info.java (at line 6)
+					* @see pack.Test#unknown()
+					                 ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type Test
+				----------
+				3. ERROR in pack\\package-info.java (at line 8)
+					* @see pack.Test#unknown
+					                 ^^^^^^^
+				Javadoc: unknown cannot be resolved or is not a field
+				----------
+				4. ERROR in pack\\package-info.java (at line 9)
+					* @param unexpected
+					   ^^^^^
+				Javadoc: Unexpected tag
+				----------
+				5. ERROR in pack\\package-info.java (at line 10)
+					* @throws unexpected
+					   ^^^^^^
+				Javadoc: Unexpected tag
+				----------
+				6. ERROR in pack\\package-info.java (at line 11)
+					* @return unexpected\s
+					   ^^^^^^
+				Javadoc: Unexpected tag
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1740,88 +1922,92 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"E.java",
-				"public enum E {\n" +
-				"	A,\n" +
-				"	DC{\n" +
-				"		public void foo() {}\n" +
-				"	};\n" +
-				"	E() {}\n" +
-				"	public void foo() {}\n" +
-				"	private enum Epriv {\n" +
-				"		Apriv,\n" +
-				"		Cpriv {\n" +
-				"			public void foo() {}\n" +
-				"		};\n" +
-				"		Epriv() {}\n" +
-				"		public void foo() {}\n" +
-				"	}\n" +
-				"	enum Edef {\n" +
-				"		Adef,\n" +
-				"		Cdef {\n" +
-				"			public void foo() {}\n" +
-				"		};\n" +
-				"		Edef() {}\n" +
-				"		public void foo() {}\n" +
-				"	}\n" +
-				"	protected enum Epro {\n" +
-				"		Apro,\n" +
-				"		Cpro {\n" +
-				"			public void foo() {}\n" +
-				"		};\n" +
-				"		Epro() {}\n" +
-				"		public void foo() {}\n" +
-				"	}\n" +
-				"	public enum Epub {\n" +
-				"		Apub,\n" +
-				"		Cpub {\n" +
-				"			public void foo() {}\n" +
-				"		};\n" +
-				"		Epub() {}\n" +
-				"		public void foo() {}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public enum E {
+						A,
+						DC{
+							public void foo() {}
+						};
+						E() {}
+						public void foo() {}
+						private enum Epriv {
+							Apriv,
+							Cpriv {
+								public void foo() {}
+							};
+							Epriv() {}
+							public void foo() {}
+						}
+						enum Edef {
+							Adef,
+							Cdef {
+								public void foo() {}
+							};
+							Edef() {}
+							public void foo() {}
+						}
+						protected enum Epro {
+							Apro,
+							Cpro {
+								public void foo() {}
+							};
+							Epro() {}
+							public void foo() {}
+						}
+						public enum Epub {
+							Apub,
+							Cpub {
+								public void foo() {}
+							};
+							Epub() {}
+							public void foo() {}
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in E.java (at line 1)\n" +
-			"	public enum E {\n" +
-			"	            ^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n" +
-			"2. ERROR in E.java (at line 2)\n" +
-			"	A,\n" +
-			"	^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n" +
-			"3. ERROR in E.java (at line 3)\n" +
-			"	DC{\n" +
-			"	^^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n" +
-			"4. ERROR in E.java (at line 7)\n" +
-			"	public void foo() {}\n" +
-			"	            ^^^^^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n" +
-			"5. ERROR in E.java (at line 32)\n" +
-			"	public enum Epub {\n" +
-			"	            ^^^^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n" +
-			"6. ERROR in E.java (at line 33)\n" +
-			"	Apub,\n" +
-			"	^^^^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n" +
-			"7. ERROR in E.java (at line 34)\n" +
-			"	Cpub {\n" +
-			"	^^^^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n" +
-			"8. ERROR in E.java (at line 38)\n" +
-			"	public void foo() {}\n" +
-			"	            ^^^^^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in E.java (at line 1)
+					public enum E {
+					            ^
+				Javadoc: Missing comment for public declaration
+				----------
+				2. ERROR in E.java (at line 2)
+					A,
+					^
+				Javadoc: Missing comment for public declaration
+				----------
+				3. ERROR in E.java (at line 3)
+					DC{
+					^^
+				Javadoc: Missing comment for public declaration
+				----------
+				4. ERROR in E.java (at line 7)
+					public void foo() {}
+					            ^^^^^
+				Javadoc: Missing comment for public declaration
+				----------
+				5. ERROR in E.java (at line 32)
+					public enum Epub {
+					            ^^^^
+				Javadoc: Missing comment for public declaration
+				----------
+				6. ERROR in E.java (at line 33)
+					Apub,
+					^^^^
+				Javadoc: Missing comment for public declaration
+				----------
+				7. ERROR in E.java (at line 34)
+					Cpub {
+					^^^^
+				Javadoc: Missing comment for public declaration
+				----------
+				8. ERROR in E.java (at line 38)
+					public void foo() {}
+					            ^^^^^
+				Javadoc: Missing comment for public declaration
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1836,10 +2022,12 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/package-info.java",
-				"/**\n" +
-				" * Javadoc for all package \n" +
-				" */\n" +
-				"package test;\n"
+				"""
+					/**
+					 * Javadoc for all package\s
+					 */
+					package test;
+					"""
 			}
 		);
 	}
@@ -1849,10 +2037,12 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/package-info.java",
-				"/**\n" +
-				" * Javadoc for all package \n" +
-				" */\n" +
-				"package test;\n"
+				"""
+					/**
+					 * Javadoc for all package\s
+					 */
+					package test;
+					"""
 			}
 		);
 	}
@@ -1865,30 +2055,32 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n" +
-				"\n" +
-				"/** Test */\n" +
-				"public class X implements I {\n" +
-				"	/**\n" +
-				"	 * @see test.I#foo(java.lang.Class)\n" +
-				"	 */\n" +
-				"	public <T> G<T> foo(Class<T> stuffClass) {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"}\n" +
-				"/** Interface */\n" +
-				"interface I {\n" +
-				"    /**\n" +
-				"     * @param <T>\n" +
-				"     * @param stuffClass \n" +
-				"     * @return stuff\n" +
-				"     */\n" +
-				"    public <T extends Object> G<T> foo(Class<T> stuffClass);\n" +
-				"}\n" +
-				"/** \n" +
-				" * @param <T>\n" +
-				" */\n" +
-				"class G<T> {}\n"
+				"""
+					package test;
+					
+					/** Test */
+					public class X implements I {
+						/**
+						 * @see test.I#foo(java.lang.Class)
+						 */
+						public <T> G<T> foo(Class<T> stuffClass) {
+							return null;
+						}
+					}
+					/** Interface */
+					interface I {
+					    /**
+					     * @param <T>
+					     * @param stuffClass\s
+					     * @return stuff
+					     */
+					    public <T extends Object> G<T> foo(Class<T> stuffClass);
+					}
+					/**\s
+					 * @param <T>
+					 */
+					class G<T> {}
+					"""
 			}
 		);
 	}
@@ -1896,41 +2088,43 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n" +
-				"\n" +
-				"/** Test */\n" +
-				"public class X {\n" +
-				"    /**\n" +
-				"     * @param <T>\n" +
-				"     * @param classT \n" +
-				"     */\n" +
-				"	public <T> X(Class<T> classT) {\n" +
-				"	}\n" +
-				"    /**\n" +
-				"     * @param <T>\n" +
-				"     * @param classT\n" +
-				"     * @return classT\n" +
-				"     */\n" +
-				"	public <T> Class<T> foo(Class<T> classT) {\n" +
-				"		return classT;\n" +
-				"	}\n" +
-				"}\n" +
-				"/** Super class */\n" +
-				"class Y extends X {\n" +
-				"	/**\n" +
-				"	 * @see X#X(java.lang.Class)\n" +
-				"	 */\n" +
-				"	public <T> Y(Class<T> classT) {\n" +
-				"		super(classT);\n" +
-				"	}\n" +
-				"\n" +
-				"	/**\n" +
-				"	 * @see X#foo(java.lang.Class)\n" +
-				"	 */\n" +
-				"    public <T extends Object> Class<T> foo(Class<T> stuffClass) {\n" +
-				"    	return null;\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					package test;
+					
+					/** Test */
+					public class X {
+					    /**
+					     * @param <T>
+					     * @param classT\s
+					     */
+						public <T> X(Class<T> classT) {
+						}
+					    /**
+					     * @param <T>
+					     * @param classT
+					     * @return classT
+					     */
+						public <T> Class<T> foo(Class<T> classT) {
+							return classT;
+						}
+					}
+					/** Super class */
+					class Y extends X {
+						/**
+						 * @see X#X(java.lang.Class)
+						 */
+						public <T> Y(Class<T> classT) {
+							super(classT);
+						}
+					
+						/**
+						 * @see X#foo(java.lang.Class)
+						 */
+					    public <T extends Object> Class<T> foo(Class<T> stuffClass) {
+					    	return null;
+					    }
+					}
+					"""
 			}
 		);
 	}
@@ -1944,17 +2138,18 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"comment6/Valid.java",
-				"package comment6;\n" +
-				"public class Valid {\n" +
-				"    /**\n" +
-				"     * @see Valid.Inner\n" +
-				"     */\n" +
-				"    public class Inner { }\n" +
-				"}\n" +
-				"/**\n" +
-				" * See also {@link Valid.Inner}\n" +
-				" */\n" +
-				"class Sub2 extends Valid { }"
+				"""
+					package comment6;
+					public class Valid {
+					    /**
+					     * @see Valid.Inner
+					     */
+					    public class Inner { }
+					}
+					/**
+					 * See also {@link Valid.Inner}
+					 */
+					class Sub2 extends Valid { }"""
 			}
 		);
 	}
@@ -1963,17 +2158,19 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"comment6/Invalid.java",
-				"package comment6;\n" +
-				"public class Invalid {\n" +
-				"    /**\n" +
-				"     * @see Inner\n" +
-				"     */\n" +
-				"    public class Inner { }\n" +
-				"}\n" +
-				"/**\n" +
-				" * See also {@link Inner} \n" +
-				" */\n" +
-				"class Sub1 extends Invalid { }\n"
+				"""
+					package comment6;
+					public class Invalid {
+					    /**
+					     * @see Inner
+					     */
+					    public class Inner { }
+					}
+					/**
+					 * See also {@link Inner}\s
+					 */
+					class Sub1 extends Invalid { }
+					"""
 			}
 		);
 	}
@@ -1982,52 +2179,57 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"comment6a/def/Test.java",
-				"package comment6a.def;\n" +
-				"public class Test {\n" +
-				"    /**\n" +
-				"     * @see Inner\n" +
-				"     */\n" +
-				"    public class Inner { }\n" +
-				"}\n",
+				"""
+					package comment6a.def;
+					public class Test {
+					    /**
+					     * @see Inner
+					     */
+					    public class Inner { }
+					}
+					""",
 				"comment6a/test/Invalid.java",
-				"package comment6a.test;\n" +
-				"import comment6a.def.Test;\n" +
-				"/**\n" +
-				" * See also {@link Inner}\n" +
-				" */\n" +
-				"public class Invalid extends Test { \n" +
-				"}",
+				"""
+					package comment6a.test;
+					import comment6a.def.Test;
+					/**
+					 * See also {@link Inner}
+					 */
+					public class Invalid extends Test {\s
+					}""",
 				"comment6a/test/Invalid2.java",
-				"package comment6a.test;\n" +
-				"import comment6a.def.Test;\n" +
-				"/**\n" +
-				" * @see Test.Inner\n" +
-				" */\n" +
-				"public class Invalid2 extends Test { \n" +
-				"}",
+				"""
+					package comment6a.test;
+					import comment6a.def.Test;
+					/**
+					 * @see Test.Inner
+					 */
+					public class Invalid2 extends Test {\s
+					}""",
 				"comment6a/test/Valid.java",
-				"package comment6a.test;\n" +
-				"import comment6a.def.Test;\n" +
-				"/**\n" +
-				" * @see comment6a.def.Test.Inner\n" +
-				" */\n" +
-				"public class Valid extends Test { \n" +
-				"}"
+				"""
+					package comment6a.test;
+					import comment6a.def.Test;
+					/**
+					 * @see comment6a.def.Test.Inner
+					 */
+					public class Valid extends Test {\s
+					}"""
 			},
-			//comment6a\test\Invalid.java:8: warning - Tag @link: reference not found: Inner
-			//comment6a\test\Invalid2.java:8: warning - Tag @see: reference not found: Test.Inner => bug ID: 4464323
-			"----------\n" +
-			"1. ERROR in comment6a\\test\\Invalid.java (at line 4)\n" +
-			"	* See also {@link Inner}\n" +
-			"	                  ^^^^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in comment6a\\test\\Invalid2.java (at line 4)\n" +
-			"	* @see Test.Inner\n" +
-			"	       ^^^^^^^^^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in comment6a\\test\\Invalid.java (at line 4)
+					* See also {@link Inner}
+					                  ^^^^^
+				Javadoc: Invalid member type qualification
+				----------
+				----------
+				1. ERROR in comment6a\\test\\Invalid2.java (at line 4)
+					* @see Test.Inner
+					       ^^^^^^^^^^
+				Javadoc: Invalid member type qualification
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2036,37 +2238,42 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"comment6b/Invalid.java",
-				"package comment6b;\n" +
-				"\n" +
-				"/**\n" +
-				" * @see Inner\n" +
-				" */\n" +
-				"public class Invalid implements Test { \n" +
-				"}",
+				"""
+					package comment6b;
+					
+					/**
+					 * @see Inner
+					 */
+					public class Invalid implements Test {\s
+					}""",
 				"comment6b/Test.java",
-				"package comment6b;\n" +
-				"public interface Test {\n" +
-				"    /**\n" +
-				"     * @see Inner\n" +
-				"     */\n" +
-				"    public class Inner { }\n" +
-				"}\n",
+				"""
+					package comment6b;
+					public interface Test {
+					    /**
+					     * @see Inner
+					     */
+					    public class Inner { }
+					}
+					""",
 				"comment6b/Valid.java",
-				"package comment6b;\n" +
-				"\n" +
-				"/**\n" +
-				" * @see Test.Inner\n" +
-				" */\n" +
-				"public class Valid implements Test { \n" +
-				"}"
+				"""
+					package comment6b;
+					
+					/**
+					 * @see Test.Inner
+					 */
+					public class Valid implements Test {\s
+					}"""
 			},
-			//comment6b\Invalid.java:6: warning - Tag @see: reference not found: Inner
-			"----------\n" +
-			"1. ERROR in comment6b\\Invalid.java (at line 4)\n" +
-			"	* @see Inner\n" +
-			"	       ^^^^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in comment6b\\Invalid.java (at line 4)
+					* @see Inner
+					       ^^^^^
+				Javadoc: Invalid member type qualification
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2075,28 +2282,30 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/a/Test.java",
-				"package test.a;\n" +
-				"/**\n" +
-				" * @see Inner\n" +
-				" * @see Test.Inner\n" +
-				" */\n" +
-				"public class Test {\n" +
-				"	class Inner {}\n" +
-				"}\n"
+				"""
+					package test.a;
+					/**
+					 * @see Inner
+					 * @see Test.Inner
+					 */
+					public class Test {
+						class Inner {}
+					}
+					"""
 			},
-			//test\a\Test.java:6: warning - Tag @see: reference not found: Inner
-			//test\a\Test.java:6: warning - Tag @see: reference not found: Test.Inner
-			"----------\n" +
-			"1. ERROR in test\\a\\Test.java (at line 3)\n" +
-			"	* @see Inner\n" +
-			"	       ^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n" +
-			"2. ERROR in test\\a\\Test.java (at line 4)\n" +
-			"	* @see Test.Inner\n" +
-			"	       ^^^^^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in test\\a\\Test.java (at line 3)
+					* @see Inner
+					       ^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				2. ERROR in test\\a\\Test.java (at line 4)
+					* @see Test.Inner
+					       ^^^^^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2105,46 +2314,46 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/b/Test.java",
-				"package test.b;\n" +
-				"/** \n" +
-				" * @see Inner.Level2\n" +
-				" * @see Test.Inner.Level2\n" +
-				" */\n" +
-				"public class Test {\n" +
-				"	/** \n" +
-				"	 * @see Level2\n" +
-				"	 * @see Test.Inner.Level2\n" +
-				"	 */\n" +
-				"	public class Inner {\n" +
-				"		class Level2 {}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package test.b;
+					/**\s
+					 * @see Inner.Level2
+					 * @see Test.Inner.Level2
+					 */
+					public class Test {
+						/**\s
+						 * @see Level2
+						 * @see Test.Inner.Level2
+						 */
+						public class Inner {
+							class Level2 {}
+						}
+					}
+					"""
 			},
-			//test\b\Test.java:6: warning - Tag @see: reference not found: Inner.Level2
-			//test\b\Test.java:6: warning - Tag @see: reference not found: Test.Inner.Level2
-			//test\b\Test.java:11: warning - Tag @see: reference not found: Level2
-			//test\b\Test.java:11: warning - Tag @see: reference not found: Test.Inner.Level2
-			"----------\n" +
-			"1. ERROR in test\\b\\Test.java (at line 3)\n" +
-			"	* @see Inner.Level2\n" +
-			"	       ^^^^^^^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n" +
-			"2. ERROR in test\\b\\Test.java (at line 4)\n" +
-			"	* @see Test.Inner.Level2\n" +
-			"	       ^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n" +
-			"3. ERROR in test\\b\\Test.java (at line 8)\n" +
-			"	* @see Level2\n" +
-			"	       ^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n" +
-			"4. ERROR in test\\b\\Test.java (at line 9)\n" +
-			"	* @see Test.Inner.Level2\n" +
-			"	       ^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in test\\b\\Test.java (at line 3)
+					* @see Inner.Level2
+					       ^^^^^^^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				2. ERROR in test\\b\\Test.java (at line 4)
+					* @see Test.Inner.Level2
+					       ^^^^^^^^^^^^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				3. ERROR in test\\b\\Test.java (at line 8)
+					* @see Level2
+					       ^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				4. ERROR in test\\b\\Test.java (at line 9)
+					* @see Test.Inner.Level2
+					       ^^^^^^^^^^^^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2153,63 +2362,61 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/c/Test.java",
-				"package test.c;\n" +
-				"/**\n" +
-				" * @see Inner.Level2.Level3\n" +
-				" * @see Test.Inner.Level2.Level3\n" +
-				" */\n" +
-				"public class Test {\n" +
-				"	public class Inner {\n" +
-				"		/**\n" +
-				"		 * @see Level3\n" +
-				"		 * @see Level2.Level3\n" +
-				"		 * @see Inner.Level2.Level3\n" +
-				"		 * @see Test.Inner.Level2.Level3\n" +
-				"		 */\n" +
-				"		public class Level2 {\n" +
-				"			class Level3 {\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package test.c;
+					/**
+					 * @see Inner.Level2.Level3
+					 * @see Test.Inner.Level2.Level3
+					 */
+					public class Test {
+						public class Inner {
+							/**
+							 * @see Level3
+							 * @see Level2.Level3
+							 * @see Inner.Level2.Level3
+							 * @see Test.Inner.Level2.Level3
+							 */
+							public class Level2 {
+								class Level3 {
+								}
+							}
+						}
+					}
+					"""
 			},
-			//test\c\Test.java:6: warning - Tag @see: reference not found: Inner.Level2.Level3
-			//test\c\Test.java:6: warning - Tag @see: reference not found: Test.Inner.Level2.Level3
-			//test\c\Test.java:14: warning - Tag @see: reference not found: Level3
-			//test\c\Test.java:14: warning - Tag @see: reference not found: Level2.Level3
-			//test\c\Test.java:14: warning - Tag @see: reference not found: Inner.Level2.Level3
-			//test\c\Test.java:14: warning - Tag @see: reference not found: Test.Inner.Level2.Level3
-			"----------\n" +
-			"1. ERROR in test\\c\\Test.java (at line 3)\n" +
-			"	* @see Inner.Level2.Level3\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n" +
-			"2. ERROR in test\\c\\Test.java (at line 4)\n" +
-			"	* @see Test.Inner.Level2.Level3\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n" +
-			"3. ERROR in test\\c\\Test.java (at line 9)\n" +
-			"	* @see Level3\n" +
-			"	       ^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n" +
-			"4. ERROR in test\\c\\Test.java (at line 10)\n" +
-			"	* @see Level2.Level3\n" +
-			"	       ^^^^^^^^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n" +
-			"5. ERROR in test\\c\\Test.java (at line 11)\n" +
-			"	* @see Inner.Level2.Level3\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n" +
-			"6. ERROR in test\\c\\Test.java (at line 12)\n" +
-			"	* @see Test.Inner.Level2.Level3\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in test\\c\\Test.java (at line 3)
+					* @see Inner.Level2.Level3
+					       ^^^^^^^^^^^^^^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				2. ERROR in test\\c\\Test.java (at line 4)
+					* @see Test.Inner.Level2.Level3
+					       ^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				3. ERROR in test\\c\\Test.java (at line 9)
+					* @see Level3
+					       ^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				4. ERROR in test\\c\\Test.java (at line 10)
+					* @see Level2.Level3
+					       ^^^^^^^^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				5. ERROR in test\\c\\Test.java (at line 11)
+					* @see Inner.Level2.Level3
+					       ^^^^^^^^^^^^^^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				6. ERROR in test\\c\\Test.java (at line 12)
+					* @see Test.Inner.Level2.Level3
+					       ^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2218,30 +2425,35 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/d/Reference.java",
-				"package test.d;\n" +
-				"class Reference {\n" +
-				"}\n",
+				"""
+					package test.d;
+					class Reference {
+					}
+					""",
 				"test/d/Test.java",
-				"package test.d;\n" +
-				"/**\n" +
-				" * @see Secondary\n" +
-				" * @see Reference\n" +
-				" */\n" +
-				"public class Test {\n" +
-				"}\n" +
-				"class Secondary {}"
+				"""
+					package test.d;
+					/**
+					 * @see Secondary
+					 * @see Reference
+					 */
+					public class Test {
+					}
+					class Secondary {}"""
 			},
-			"----------\n" +
-			"1. ERROR in test\\d\\Test.java (at line 3)\n" +
-			"	* @see Secondary\n" +
-			"	       ^^^^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n" +
-			"2. ERROR in test\\d\\Test.java (at line 4)\n" +
-			"	* @see Reference\n" +
-			"	       ^^^^^^^^^\n" +
-			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in test\\d\\Test.java (at line 3)
+					* @see Secondary
+					       ^^^^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				2. ERROR in test\\d\\Test.java (at line 4)
+					* @see Reference
+					       ^^^^^^^^^
+				Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2250,17 +2462,18 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"comment6/Valid.java",
-				"package comment6;\n" +
-				"public class Valid {\n" +
-				"    /**\n" +
-				"     * @see Valid.Inner\n" +
-				"     */\n" +
-				"    public class Inner { }\n" +
-				"}\n" +
-				"/**\n" +
-				" * See also {@link Valid.Inner}\n" +
-				" */\n" +
-				"class Sub2 extends Valid { }"
+				"""
+					package comment6;
+					public class Valid {
+					    /**
+					     * @see Valid.Inner
+					     */
+					    public class Inner { }
+					}
+					/**
+					 * See also {@link Valid.Inner}
+					 */
+					class Sub2 extends Valid { }"""
 			}
 		);
 	}
@@ -2269,25 +2482,28 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"comment6/Invalid.java",
-				"package comment6;\n" +
-				"public class Invalid {\n" +
-				"    /**\n" +
-				"     * @see Inner\n" +
-				"     */\n" +
-				"    public class Inner { }\n" +
-				"}\n" +
-				"/**\n" +
-				" * See also {@link Inner} \n" +
-				" */\n" +
-				"class Sub1 extends Invalid { }\n"
+				"""
+					package comment6;
+					public class Invalid {
+					    /**
+					     * @see Inner
+					     */
+					    public class Inner { }
+					}
+					/**
+					 * See also {@link Inner}\s
+					 */
+					class Sub1 extends Invalid { }
+					"""
 			},
-			//comment6\Invalid.java:11: warning - Tag @link: reference not found: Inner
-			"----------\n" +
-			"1. ERROR in comment6\\Invalid.java (at line 9)\n" +
-			"	* See also {@link Inner} \n" +
-			"	                  ^^^^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in comment6\\Invalid.java (at line 9)
+					* See also {@link Inner}\s
+					                  ^^^^^
+				Javadoc: Invalid member type qualification
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2296,52 +2512,57 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"comment6a/def/Test.java",
-				"package comment6a.def;\n" +
-				"public class Test {\n" +
-				"    /**\n" +
-				"     * @see Inner\n" +
-				"     */\n" +
-				"    public class Inner { }\n" +
-				"}\n",
+				"""
+					package comment6a.def;
+					public class Test {
+					    /**
+					     * @see Inner
+					     */
+					    public class Inner { }
+					}
+					""",
 				"comment6a/test/Invalid.java",
-				"package comment6a.test;\n" +
-				"import comment6a.def.Test;\n" +
-				"/**\n" +
-				" * See also {@link Inner}\n" +
-				" */\n" +
-				"public class Invalid extends Test { \n" +
-				"}",
+				"""
+					package comment6a.test;
+					import comment6a.def.Test;
+					/**
+					 * See also {@link Inner}
+					 */
+					public class Invalid extends Test {\s
+					}""",
 				"comment6a/test/Invalid2.java",
-				"package comment6a.test;\n" +
-				"import comment6a.def.Test;\n" +
-				"/**\n" +
-				" * @see Test.Inner\n" +
-				" */\n" +
-				"public class Invalid2 extends Test { \n" +
-				"}",
+				"""
+					package comment6a.test;
+					import comment6a.def.Test;
+					/**
+					 * @see Test.Inner
+					 */
+					public class Invalid2 extends Test {\s
+					}""",
 				"comment6a/test/Valid.java",
-				"package comment6a.test;\n" +
-				"import comment6a.def.Test;\n" +
-				"/**\n" +
-				" * @see comment6a.def.Test.Inner\n" +
-				" */\n" +
-				"public class Valid extends Test { \n" +
-				"}"
+				"""
+					package comment6a.test;
+					import comment6a.def.Test;
+					/**
+					 * @see comment6a.def.Test.Inner
+					 */
+					public class Valid extends Test {\s
+					}"""
 			},
-			//comment6a\test\Invalid.java:8: warning - Tag @link: reference not found: Inner
-			//comment6a\test\Invalid2.java:8: warning - Tag @see: reference not found: Test.Inner => bug ID: 4464323
-			"----------\n" +
-			"1. ERROR in comment6a\\test\\Invalid.java (at line 4)\n" +
-			"	* See also {@link Inner}\n" +
-			"	                  ^^^^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in comment6a\\test\\Invalid2.java (at line 4)\n" +
-			"	* @see Test.Inner\n" +
-			"	       ^^^^^^^^^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in comment6a\\test\\Invalid.java (at line 4)
+					* See also {@link Inner}
+					                  ^^^^^
+				Javadoc: Invalid member type qualification
+				----------
+				----------
+				1. ERROR in comment6a\\test\\Invalid2.java (at line 4)
+					* @see Test.Inner
+					       ^^^^^^^^^^
+				Javadoc: Invalid member type qualification
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2350,37 +2571,42 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"comment6b/Invalid.java",
-				"package comment6b;\n" +
-				"\n" +
-				"/**\n" +
-				" * @see Inner\n" +
-				" */\n" +
-				"public class Invalid implements Test { \n" +
-				"}",
+				"""
+					package comment6b;
+					
+					/**
+					 * @see Inner
+					 */
+					public class Invalid implements Test {\s
+					}""",
 				"comment6b/Test.java",
-				"package comment6b;\n" +
-				"public interface Test {\n" +
-				"    /**\n" +
-				"     * @see Inner\n" +
-				"     */\n" +
-				"    public class Inner { }\n" +
-				"}\n",
+				"""
+					package comment6b;
+					public interface Test {
+					    /**
+					     * @see Inner
+					     */
+					    public class Inner { }
+					}
+					""",
 				"comment6b/Valid.java",
-				"package comment6b;\n" +
-				"\n" +
-				"/**\n" +
-				" * @see Test.Inner\n" +
-				" */\n" +
-				"public class Valid implements Test { \n" +
-				"}"
+				"""
+					package comment6b;
+					
+					/**
+					 * @see Test.Inner
+					 */
+					public class Valid implements Test {\s
+					}"""
 			},
-			//comment6b\Invalid.java:6: warning - Tag @see: reference not found: Inner
-			"----------\n" +
-			"1. ERROR in comment6b\\Invalid.java (at line 4)\n" +
-			"	* @see Inner\n" +
-			"	       ^^^^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in comment6b\\Invalid.java (at line 4)
+					* @see Inner
+					       ^^^^^
+				Javadoc: Invalid member type qualification
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2389,14 +2615,16 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/a/Test.java",
-				"package test.a;\n" +
-				"/**\n" +
-				" * @see Inner\n" +
-				" * @see Test.Inner\n" +
-				" */\n" +
-				"public class Test {\n" +
-				"	class Inner {}\n" +
-				"}\n"
+				"""
+					package test.a;
+					/**
+					 * @see Inner
+					 * @see Test.Inner
+					 */
+					public class Test {
+						class Inner {}
+					}
+					"""
 			}
 		);
 	}
@@ -2405,20 +2633,22 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/b/Test.java",
-				"package test.b;\n" +
-				"/** \n" +
-				" * @see Inner.Level2\n" +
-				" * @see Test.Inner.Level2\n" +
-				" */\n" +
-				"public class Test {\n" +
-				"	/** \n" +
-				"	 * @see Level2\n" +
-				"	 * @see Test.Inner.Level2\n" +
-				"	 */\n" +
-				"	public class Inner {\n" +
-				"		class Level2 {}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package test.b;
+					/**\s
+					 * @see Inner.Level2
+					 * @see Test.Inner.Level2
+					 */
+					public class Test {
+						/**\s
+						 * @see Level2
+						 * @see Test.Inner.Level2
+						 */
+						public class Inner {
+							class Level2 {}
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -2427,25 +2657,27 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/c/Test.java",
-				"package test.c;\n" +
-				"/**\n" +
-				" * @see Inner.Level2.Level3\n" +
-				" * @see Test.Inner.Level2.Level3\n" +
-				" */\n" +
-				"public class Test {\n" +
-				"	public class Inner {\n" +
-				"		/**\n" +
-				"		 * @see Level3\n" +
-				"		 * @see Level2.Level3\n" +
-				"		 * @see Inner.Level2.Level3\n" +
-				"		 * @see Test.Inner.Level2.Level3\n" +
-				"		 */\n" +
-				"		public class Level2 {\n" +
-				"			class Level3 {\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package test.c;
+					/**
+					 * @see Inner.Level2.Level3
+					 * @see Test.Inner.Level2.Level3
+					 */
+					public class Test {
+						public class Inner {
+							/**
+							 * @see Level3
+							 * @see Level2.Level3
+							 * @see Inner.Level2.Level3
+							 * @see Test.Inner.Level2.Level3
+							 */
+							public class Level2 {
+								class Level3 {
+								}
+							}
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -2454,18 +2686,21 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/d/Reference.java",
-				"package test.d;\n" +
-				"class Reference {\n" +
-				"}\n",
+				"""
+					package test.d;
+					class Reference {
+					}
+					""",
 				"test/d/Test.java",
-				"package test.d;\n" +
-				"/**\n" +
-				" * @see Secondary\n" +
-				" * @see Reference\n" +
-				" */\n" +
-				"public class Test {\n" +
-				"}\n" +
-				"class Secondary {}"
+				"""
+					package test.d;
+					/**
+					 * @see Secondary
+					 * @see Reference
+					 */
+					public class Test {
+					}
+					class Secondary {}"""
 			}
 		);
 	}
@@ -2478,38 +2713,42 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X<T, F> {\n" +
-				"\n" +
-				"	/**\n" +
-				"	 * @param <T>  \n" +
-				"	 * @param <F>\n" +
-				"	 */\n" +
-				"	static class Entry<L, R> {\n" +
-				"		// empty\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X<T, F> {
+					
+						/**
+						 * @param <T> \s
+						 * @param <F>
+						 */
+						static class Entry<L, R> {
+							// empty
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	* @param <T>  \n" +
-			"	          ^\n" +
-			"Javadoc: Parameter T is not declared\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	* @param <F>\n" +
-			"	          ^\n" +
-			"Javadoc: Parameter F is not declared\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	static class Entry<L, R> {\n" +
-			"	                   ^\n" +
-			"Javadoc: Missing tag for parameter L\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 7)\n" +
-			"	static class Entry<L, R> {\n" +
-			"	                      ^\n" +
-			"Javadoc: Missing tag for parameter R\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param <T> \s
+					          ^
+				Javadoc: Parameter T is not declared
+				----------
+				2. ERROR in X.java (at line 5)
+					* @param <F>
+					          ^
+				Javadoc: Parameter F is not declared
+				----------
+				3. ERROR in X.java (at line 7)
+					static class Entry<L, R> {
+					                   ^
+				Javadoc: Missing tag for parameter L
+				----------
+				4. ERROR in X.java (at line 7)
+					static class Entry<L, R> {
+					                      ^
+				Javadoc: Missing tag for parameter R
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2517,38 +2756,42 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X<T, F> {\n" +
-				"\n" +
-				"	/**\n" +
-				"	 * @see T Variable \n" +
-				"	 * @see F Variable\n" +
-				"	 */\n" +
-				"	static class Entry<L, R> {\n" +
-				"		// empty\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X<T, F> {
+					
+						/**
+						 * @see T Variable\s
+						 * @see F Variable
+						 */
+						static class Entry<L, R> {
+							// empty
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	* @see T Variable \n" +
-			"	       ^\n" +
-			"Javadoc: Invalid reference\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	* @see F Variable\n" +
-			"	       ^\n" +
-			"Javadoc: Invalid reference\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	static class Entry<L, R> {\n" +
-			"	                   ^\n" +
-			"Javadoc: Missing tag for parameter L\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 7)\n" +
-			"	static class Entry<L, R> {\n" +
-			"	                      ^\n" +
-			"Javadoc: Missing tag for parameter R\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @see T Variable\s
+					       ^
+				Javadoc: Invalid reference
+				----------
+				2. ERROR in X.java (at line 5)
+					* @see F Variable
+					       ^
+				Javadoc: Invalid reference
+				----------
+				3. ERROR in X.java (at line 7)
+					static class Entry<L, R> {
+					                   ^
+				Javadoc: Missing tag for parameter L
+				----------
+				4. ERROR in X.java (at line 7)
+					static class Entry<L, R> {
+					                      ^
+				Javadoc: Missing tag for parameter R
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2556,38 +2799,42 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X<T, F> {\n" +
-				"\n" +
-				"	/**\n" +
-				"	 * @param <T>  \n" +
-				"	 * @param <F>\n" +
-				"	 */\n" +
-				"	class Entry<L, R> {\n" +
-				"		// empty\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X<T, F> {
+					
+						/**
+						 * @param <T> \s
+						 * @param <F>
+						 */
+						class Entry<L, R> {
+							// empty
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	* @param <T>  \n" +
-			"	          ^\n" +
-			"Javadoc: Parameter T is not declared\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	* @param <F>\n" +
-			"	          ^\n" +
-			"Javadoc: Parameter F is not declared\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	class Entry<L, R> {\n" +
-			"	            ^\n" +
-			"Javadoc: Missing tag for parameter L\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 7)\n" +
-			"	class Entry<L, R> {\n" +
-			"	               ^\n" +
-			"Javadoc: Missing tag for parameter R\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param <T> \s
+					          ^
+				Javadoc: Parameter T is not declared
+				----------
+				2. ERROR in X.java (at line 5)
+					* @param <F>
+					          ^
+				Javadoc: Parameter F is not declared
+				----------
+				3. ERROR in X.java (at line 7)
+					class Entry<L, R> {
+					            ^
+				Javadoc: Missing tag for parameter L
+				----------
+				4. ERROR in X.java (at line 7)
+					class Entry<L, R> {
+					               ^
+				Javadoc: Missing tag for parameter R
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2595,38 +2842,42 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X<T, F> {\n" +
-				"\n" +
-				"	/**\n" +
-				"	 * @see T Variable \n" +
-				"	 * @see F Variable\n" +
-				"	 */\n" +
-				"	class Entry<L, R> {\n" +
-				"		// empty\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class X<T, F> {
+					
+						/**
+						 * @see T Variable\s
+						 * @see F Variable
+						 */
+						class Entry<L, R> {
+							// empty
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	* @see T Variable \n" +
-			"	       ^\n" +
-			"Javadoc: Invalid reference\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	* @see F Variable\n" +
-			"	       ^\n" +
-			"Javadoc: Invalid reference\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	class Entry<L, R> {\n" +
-			"	            ^\n" +
-			"Javadoc: Missing tag for parameter L\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 7)\n" +
-			"	class Entry<L, R> {\n" +
-			"	               ^\n" +
-			"Javadoc: Missing tag for parameter R\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @see T Variable\s
+					       ^
+				Javadoc: Invalid reference
+				----------
+				2. ERROR in X.java (at line 5)
+					* @see F Variable
+					       ^
+				Javadoc: Invalid reference
+				----------
+				3. ERROR in X.java (at line 7)
+					class Entry<L, R> {
+					            ^
+				Javadoc: Missing tag for parameter L
+				----------
+				4. ERROR in X.java (at line 7)
+					class Entry<L, R> {
+					               ^
+				Javadoc: Missing tag for parameter R
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2636,29 +2887,33 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"Test.java",
-				"public interface Test<V, R extends Component<?>, C extends\n" +
-				"Test<V, R, C>> extends Control<SelectModel<V>, C>\n" +
-				"{\n" +
-				"	public interface ValueRepresentationStrategy<VV, RR extends Component<?>> extends ComponentFactory<VV, RR>\n" +
-				"	{\n" +
-				"		/**This value must be equal to the ID of the component returned by the {@link\n" +
-				"		ComponentFactory#createComponent(V)} method.*/\n" +
-				"		public String getID(final VV value);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Component<T> {}\n" +
-				"interface Control<U, V> {}\n" +
-				"class SelectModel<V> {}\n" +
-				"interface ComponentFactory <U, V> {\n" +
-				"	public void createComponent(V v);\n" +
-				"}\n"
+				"""
+					public interface Test<V, R extends Component<?>, C extends
+					Test<V, R, C>> extends Control<SelectModel<V>, C>
+					{
+						public interface ValueRepresentationStrategy<VV, RR extends Component<?>> extends ComponentFactory<VV, RR>
+						{
+							/**This value must be equal to the ID of the component returned by the {@link
+							ComponentFactory#createComponent(V)} method.*/
+							public String getID(final VV value);
+						}
+					}
+					class Component<T> {}
+					interface Control<U, V> {}
+					class SelectModel<V> {}
+					interface ComponentFactory <U, V> {
+						public void createComponent(V v);
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in Test.java (at line 7)\n" +
-			"	ComponentFactory#createComponent(V)} method.*/\n" +
-			"	                                 ^\n" +
-			"Javadoc: Cannot make a static reference to the non-static type variable V\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in Test.java (at line 7)
+					ComponentFactory#createComponent(V)} method.*/
+					                                 ^
+				Javadoc: Cannot make a static reference to the non-static type variable V
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2667,22 +2922,24 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"Test.java",
-				"public interface Test<V, R extends Component<?>, C extends\n" +
-				"Test<V, R, C>> extends Control<SelectModel<V>, C>\n" +
-				"{\n" +
-				"	public interface ValueRepresentationStrategy<VV, RR extends Component<?>> extends ComponentFactory<VV, RR>\n" +
-				"	{\n" +
-				"		/**This value must be equal to the ID of the component returned by the {@link\n" +
-				"		ComponentFactory#createComponent(Object)} method.*/\n" +
-				"		public String getID(final VV value);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Component<T> {}\n" +
-				"interface Control<U, V> {}\n" +
-				"class SelectModel<V> {}\n" +
-				"interface ComponentFactory <U, V> {\n" +
-				"	public void createComponent(V v);\n" +
-				"}\n"
+				"""
+					public interface Test<V, R extends Component<?>, C extends
+					Test<V, R, C>> extends Control<SelectModel<V>, C>
+					{
+						public interface ValueRepresentationStrategy<VV, RR extends Component<?>> extends ComponentFactory<VV, RR>
+						{
+							/**This value must be equal to the ID of the component returned by the {@link
+							ComponentFactory#createComponent(Object)} method.*/
+							public String getID(final VV value);
+						}
+					}
+					class Component<T> {}
+					interface Control<U, V> {}
+					class SelectModel<V> {}
+					interface ComponentFactory <U, V> {
+						public void createComponent(V v);
+					}
+					"""
 			}
 		);
 	}
@@ -2692,36 +2949,40 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n" +
-				"public class X {\n" +
-				"	int foo() { return 0; }\n" +
-				"	class XX extends X2 {\n" +
-				"		int bar() {\n" +
-				"			return foo();\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n" +
-				"class X2 {\n" +
-				"	int foo() {\n" +
-				"		return 0;\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package test;
+					public class X {
+						int foo() { return 0; }
+						class XX extends X2 {
+							int bar() {
+								return foo();
+							}
+						}
+					}
+					class X2 {
+						int foo() {
+							return 0;
+						}
+					}
+					""",
 				"test/Y.java",
-				"package test;\n" +
-				"public class Y {\n" +
-				"	int foo;\n" +
-				"	class YY extends Y2 {\n" +
-				"	/**\n" +
-				"	 *  @see #foo\n" +
-				"	 */\n" +
-				"		int bar() {\n" +
-				"			return foo;\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y2 {\n" +
-				"	int foo;\n" +
-				"}\n"
+				"""
+					package test;
+					public class Y {
+						int foo;
+						class YY extends Y2 {
+						/**
+						 *  @see #foo
+						 */
+							int bar() {
+								return foo;
+							}
+						}
+					}
+					class Y2 {
+						int foo;
+					}
+					"""
 			}
 		);
 	}
@@ -2735,15 +2996,17 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"Test.java",
-				"/**\n" +
-				" * Test references\n" +
-				" * @see Test#field\n" +
-				" * @see Test#foo()\n" +
-				" */\n" +
-				"public class Test<T> {\n" +
-				"	T field;\n" +
-				"	T foo() { return null; }\n" +
-				"}\n"
+				"""
+					/**
+					 * Test references
+					 * @see Test#field
+					 * @see Test#foo()
+					 */
+					public class Test<T> {
+						T field;
+						T foo() { return null; }
+					}
+					"""
 			}
 		);
 	}
@@ -2756,53 +3019,55 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"DefaultInformationControl.java",
-				"public class DefaultInformationControl {\n" +
-				"	public interface IInformationPresenter {\n" +
-				"		/**\n" +
-				"		 * Updates the given presentation of the given information and\n" +
-				"		 * thereby may manipulate the information to be displayed. The manipulation\n" +
-				"		 * could be the extraction of textual encoded style information etc. Returns the\n" +
-				"		 * manipulated information.\n" +
-				"		 *\n" +
-				"		 * @param hoverInfo the information to be presented\n" +
-				"		 * @param maxWidth the maximal width in pixels\n" +
-				"		 * @param maxHeight the maximal height in pixels\n" +
-				"		 *\n" +
-				"		 * @return the manipulated information\n" +
-				"		 * @deprecated As of 3.2, replaced by {@link IInformationPresenterExtension#updatePresentation(String, int, int)}\n" +
-				"		 * 				see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=38528 for details.\n" +
-				"		 */\n" +
-				"		String updatePresentation(String hoverInfo, int maxWidth, int maxHeight);\n" +
-				"	}\n" +
-				"	/**\n" +
-				"	 * An information presenter determines the style presentation\n" +
-				"	 * of information displayed in the default information control.\n" +
-				"	 * The interface can be implemented by clients.\n" +
-				"	 * \n" +
-				"	 * @since 3.2\n" +
-				"	 */\n" +
-				"	public interface IInformationPresenterExtension {\n" +
-				"		\n" +
-				"		/**\n" +
-				"		 * Updates the given presentation of the given information and\n" +
-				"		 * thereby may manipulate the information to be displayed. The manipulation\n" +
-				"		 * could be the extraction of textual encoded style information etc. Returns the\n" +
-				"		 * manipulated information.\n" +
-				"		 * <p>\n" +
-				"		 * Replaces {@link IInformationPresenter#updatePresentation(String, int, int)}\n" +
-				"		 * <em>Make sure that you do not pass in a <code>Display</code></em> until\n" +
-				"		 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=38528 is fixed.\n" +
-				"		 * </p>\n" +
-				"		 *\n" +
-				"		 * @param hoverInfo the information to be presented\n" +
-				"		 * @param maxWidth the maximal width in pixels\n" +
-				"		 * @param maxHeight the maximal height in pixels\n" +
-				"		 *\n" +
-				"		 * @return the manipulated information\n" +
-				"		 */\n" +
-				"		String updatePresentation(String hoverInfo, int maxWidth, int maxHeight);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class DefaultInformationControl {
+						public interface IInformationPresenter {
+							/**
+							 * Updates the given presentation of the given information and
+							 * thereby may manipulate the information to be displayed. The manipulation
+							 * could be the extraction of textual encoded style information etc. Returns the
+							 * manipulated information.
+							 *
+							 * @param hoverInfo the information to be presented
+							 * @param maxWidth the maximal width in pixels
+							 * @param maxHeight the maximal height in pixels
+							 *
+							 * @return the manipulated information
+							 * @deprecated As of 3.2, replaced by {@link IInformationPresenterExtension#updatePresentation(String, int, int)}
+							 * 				see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=38528 for details.
+							 */
+							String updatePresentation(String hoverInfo, int maxWidth, int maxHeight);
+						}
+						/**
+						 * An information presenter determines the style presentation
+						 * of information displayed in the default information control.
+						 * The interface can be implemented by clients.
+						 *\s
+						 * @since 3.2
+						 */
+						public interface IInformationPresenterExtension {
+						\t
+							/**
+							 * Updates the given presentation of the given information and
+							 * thereby may manipulate the information to be displayed. The manipulation
+							 * could be the extraction of textual encoded style information etc. Returns the
+							 * manipulated information.
+							 * <p>
+							 * Replaces {@link IInformationPresenter#updatePresentation(String, int, int)}
+							 * <em>Make sure that you do not pass in a <code>Display</code></em> until
+							 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=38528 is fixed.
+							 * </p>
+							 *
+							 * @param hoverInfo the information to be presented
+							 * @param maxWidth the maximal width in pixels
+							 * @param maxHeight the maximal height in pixels
+							 *
+							 * @return the manipulated information
+							 */
+							String updatePresentation(String hoverInfo, int maxWidth, int maxHeight);
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -2810,17 +3075,18 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"TestFields.java",
-				"/**\n" +
-				" * @see MyInnerClass#foo\n" +
-				" */\n" +
-				"public class TestFields {\n" +
-				"    /**\n" +
-				"     * @see MyInnerClass#foo\n" +
-				"     */\n" +
-				"    public class MyInnerClass {\n" +
-				"            Object foo;\n" +
-				"    }\n" +
-				"}"
+				"""
+					/**
+					 * @see MyInnerClass#foo
+					 */
+					public class TestFields {
+					    /**
+					     * @see MyInnerClass#foo
+					     */
+					    public class MyInnerClass {
+					            Object foo;
+					    }
+					}"""
 			}
 		);
 	}
@@ -2828,24 +3094,25 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"TestMethods.java",
-				"/**\n" +
-				" * @see MyInnerClass#foo()\n" +
-				" * @see MyInnerInterface#foo()\n" +
-				" */\n" +
-				"public class TestMethods {\n" +
-				"    /**\n" +
-				"     * @see MyInnerInterface#foo()\n" +
-				"     */\n" +
-				"    public class MyInnerClass {\n" +
-				"            public void foo() {}\n" +
-				"    }\n" +
-				"    /**\n" +
-				"     * @see MyInnerClass#foo()\n" +
-				"     */\n" +
-				"    public interface MyInnerInterface {\n" +
-				"            public void foo();\n" +
-				"    }\n" +
-				"}"
+				"""
+					/**
+					 * @see MyInnerClass#foo()
+					 * @see MyInnerInterface#foo()
+					 */
+					public class TestMethods {
+					    /**
+					     * @see MyInnerInterface#foo()
+					     */
+					    public class MyInnerClass {
+					            public void foo() {}
+					    }
+					    /**
+					     * @see MyInnerClass#foo()
+					     */
+					    public interface MyInnerInterface {
+					            public void foo();
+					    }
+					}"""
 			}
 		);
 	}
@@ -2853,24 +3120,25 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"TestTypes.java",
-				"/**\n" +
-				" * @see MyInnerClass\n" +
-				" * @see MyInnerInterface\n" +
-				" */\n" +
-				"public class TestTypes {\n" +
-				"	/**\n" +
-				"	 * @see MyInnerInterface\n" +
-				"	 */\n" +
-				"	public class MyInnerClass {\n" +
-				"	        public void foo() {}\n" +
-				"	}\n" +
-				"	/**\n" +
-				"	 * @see MyInnerClass\n" +
-				"	 */\n" +
-				"	public interface MyInnerInterface {\n" +
-				"	        public void foo();\n" +
-				"	}\n" +
-				"}"
+				"""
+					/**
+					 * @see MyInnerClass
+					 * @see MyInnerInterface
+					 */
+					public class TestTypes {
+						/**
+						 * @see MyInnerInterface
+						 */
+						public class MyInnerClass {
+						        public void foo() {}
+						}
+						/**
+						 * @see MyInnerClass
+						 */
+						public interface MyInnerInterface {
+						        public void foo();
+						}
+					}"""
 			}
 		);
 	}
@@ -2879,19 +3147,21 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"pack/Test.java",
-				"package pack;\n" +
-				"public class Test {\n" +
-				"	static class Inner {\n" +
-				"		public Object foo() { return null; }\n" +
-				"	}\n" +
-				"	public Inner field;\n" +
-				"	/** \n" +
-				"	 * @see Inner#foo()\n" +
-				"	 */\n" +
-				"	public Object foo() {\n" +
-				"		return field.foo();\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package pack;
+					public class Test {
+						static class Inner {
+							public Object foo() { return null; }
+						}
+						public Inner field;
+						/**\s
+						 * @see Inner#foo()
+						 */
+						public Object foo() {
+							return field.foo();
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -2901,27 +3171,30 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"pack/Test.java",
-				"package pack;\n" +
-				"public class Test {\n" +
-				"	static class Inner {\n" +
-				"		public Object foo() { return null; }\n" +
-				"	}\n" +
-				"	public Inner field;\n" +
-				"	/** \n" +
-				"	 * @see Inner#foo()\n" +
-				"	 */\n" +
-				"	public Object foo() {\n" +
-				"		return field.foo();\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package pack;
+					public class Test {
+						static class Inner {
+							public Object foo() { return null; }
+						}
+						public Inner field;
+						/**\s
+						 * @see Inner#foo()
+						 */
+						public Object foo() {
+							return field.foo();
+						}
+					}
+					"""
 			},
-			//pack/Test.java:13: warning - Tag @see: reference not found: Inner1#foo()
-			"----------\n" +
-			"1. ERROR in pack\\Test.java (at line 8)\r\n" +
-			"	* @see Inner#foo()\r\n" +
-			"	       ^^^^^\n" +
-			"Javadoc: \'public\' visibility for malformed doc comments hides this \'default\' reference\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in pack\\Test.java (at line 8)\r
+					* @see Inner#foo()\r
+					       ^^^^^
+				Javadoc: \'public\' visibility for malformed doc comments hides this \'default\' reference
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -2930,21 +3203,23 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/Test.java",
-				"package test;\n" +
-				"public class Test {\n" +
-				"	static class Inner1 {\n" +
-				"		public Object foo() { return null; }\n" +
-				"	}\n" +
-				"	static class Inner2 {\n" +
-				"		public Inner1 field;\n" +
-				"		/** \n" +
-				"		 * @see Inner1#foo()\n" +
-				"		 */\n" +
-				"		public Object foo() {\n" +
-				"			return field.foo();\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package test;
+					public class Test {
+						static class Inner1 {
+							public Object foo() { return null; }
+						}
+						static class Inner2 {
+							public Inner1 field;
+							/**\s
+							 * @see Inner1#foo()
+							 */
+							public Object foo() {
+								return field.foo();
+							}
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -2954,21 +3229,23 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/Test.java",
-				"package test;\n" +
-				"public class Test {\n" +
-				"	static class Inner1 {\n" +
-				"		public Object foo() { return null; }\n" +
-				"	}\n" +
-				"	static class Inner2 {\n" +
-				"		public Inner1 field;\n" +
-				"		/** \n" +
-				"		 * @see Inner1#foo()\n" +
-				"		 */\n" +
-				"		public Object foo() {\n" +
-				"			return field.foo();\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package test;
+					public class Test {
+						static class Inner1 {
+							public Object foo() { return null; }
+						}
+						static class Inner2 {
+							public Inner1 field;
+							/**\s
+							 * @see Inner1#foo()
+							 */
+							public Object foo() {
+								return field.foo();
+							}
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -2978,29 +3255,32 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"pack/Test.java",
-				"package pack;\n" +
-				"public class Test {\n" +
-				"	static class Inner1 {\n" +
-				"		public Object foo() { return null; }\n" +
-				"	}\n" +
-				"	public static class Inner2 {\n" +
-				"		public Inner1 field;\n" +
-				"		/** \n" +
-				"		 * @see Inner1#foo()\n" +
-				"		 */\n" +
-				"		public Object foo() {\n" +
-				"			return field.foo();\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package pack;
+					public class Test {
+						static class Inner1 {
+							public Object foo() { return null; }
+						}
+						public static class Inner2 {
+							public Inner1 field;
+							/**\s
+							 * @see Inner1#foo()
+							 */
+							public Object foo() {
+								return field.foo();
+							}
+						}
+					}
+					"""
 			},
-			//pack/Test.java:13: warning - Tag @see: reference not found: Inner1#foo()
-			"----------\n" +
-			"1. ERROR in pack\\Test.java (at line 9)\n" +
-			"	* @see Inner1#foo()\n" +
-			"	       ^^^^^^\n" +
-			"Javadoc: \'public\' visibility for malformed doc comments hides this \'default\' reference\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in pack\\Test.java (at line 9)
+					* @see Inner1#foo()
+					       ^^^^^^
+				Javadoc: \'public\' visibility for malformed doc comments hides this \'default\' reference
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3013,22 +3293,25 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"A.java",
-				"public class A<E> {\n" +
-				"    /**\n" +
-				"     * @param object\n" +
-				"     */\n" +
-				"    public void aMethod(E object) {}\n" +
-				"}",
+				"""
+					public class A<E> {
+					    /**
+					     * @param object
+					     */
+					    public void aMethod(E object) {}
+					}""",
 				"B.java",
-				"public class B<E> extends A<E> {\n" +
-				"	/**\n" +
-				"	 * @see A#aMethod(java.lang.Object)\n" +
-				"	 */\n" +
-				"	@Override\n" +
-				"	public void aMethod(E object) {\n" +
-				"		super.aMethod(object);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class B<E> extends A<E> {
+						/**
+						 * @see A#aMethod(java.lang.Object)
+						 */
+						@Override
+						public void aMethod(E object) {
+							super.aMethod(object);
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -3036,21 +3319,24 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"A.java",
-				"public class A<E> {\n" +
-				"    /**\n" +
-				"     * @param object\n" +
-				"     */\n" +
-				"    public void aMethod(E object) {}\n" +
-				"}",
+				"""
+					public class A<E> {
+					    /**
+					     * @param object
+					     */
+					    public void aMethod(E object) {}
+					}""",
 				"B.java",
-				"public class B<E> extends A<E> {\n" +
-				"	/**\n" +
-				"	 * @see A#aMethod(java.lang.Object)\n" +
-				"	 */\n" +
-				"	public void aMethod(E object) {\n" +
-				"		super.aMethod(object);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class B<E> extends A<E> {
+						/**
+						 * @see A#aMethod(java.lang.Object)
+						 */
+						public void aMethod(E object) {
+							super.aMethod(object);
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -3058,22 +3344,25 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"A.java",
-				"public class A<E> {\n" +
-				"    /**\n" +
-				"     * @param object\n" +
-				"     */\n" +
-				"    public void aMethod(E object) {}\n" +
-				"}",
+				"""
+					public class A<E> {
+					    /**
+					     * @param object
+					     */
+					    public void aMethod(E object) {}
+					}""",
 				"B.java",
-				"public class B<E> extends A<E> {\n" +
-				"	/**\n" +
-				"	 * Empty comment\n" +
-				"	 */\n" +
-				"	@Override\n" +
-				"	public void aMethod(E object) {\n" +
-				"		super.aMethod(object);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class B<E> extends A<E> {
+						/**
+						 * Empty comment
+						 */
+						@Override
+						public void aMethod(E object) {
+							super.aMethod(object);
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -3086,23 +3375,24 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"TestClass.java",
-				"class TestClass<T> {\n" +
-				"    static class Test1 {\n" +
-				"        /**\n" +
-				"         * A simple method that demonstrates tag problems\n" +
-				"         * \n" +
-				"         * @return a string\n" +
-				"         * @throws MyException\n" +
-				"         *             if something goes wrong\n" +
-				"         */\n" +
-				"        public String getString() throws MyException {\n" +
-				"            throw new MyException();\n" +
-				"        }\n" +
-				"    }\n" +
-				"    static class MyException extends Exception {\n" +
-				"        private static final long serialVersionUID = 1L;\n" +
-				"    }\n" +
-				"}"
+				"""
+					class TestClass<T> {
+					    static class Test1 {
+					        /**
+					         * A simple method that demonstrates tag problems
+					         *\s
+					         * @return a string
+					         * @throws MyException
+					         *             if something goes wrong
+					         */
+					        public String getString() throws MyException {
+					            throw new MyException();
+					        }
+					    }
+					    static class MyException extends Exception {
+					        private static final long serialVersionUID = 1L;
+					    }
+					}"""
 			}
 		);
 	}
@@ -3118,39 +3408,43 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"A.java",
-				"enum A {\n" +
-				"	clubs,\n" +
-				"	diamonds,\n" +
-				"	hearts,\n" +
-				"	spades\n" +
-				"}\n"
+				"""
+					enum A {
+						clubs,
+						diamonds,
+						hearts,
+						spades
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in A.java (at line 1)\n" +
-			"	enum A {\n" +
-			"	     ^\n" +
-			"Javadoc: Missing comment for default declaration\n" +
-			"----------\n" +
-			"2. ERROR in A.java (at line 2)\n" +
-			"	clubs,\n" +
-			"	^^^^^\n" +
-			"Javadoc: Missing comment for default declaration\n" +
-			"----------\n" +
-			"3. ERROR in A.java (at line 3)\n" +
-			"	diamonds,\n" +
-			"	^^^^^^^^\n" +
-			"Javadoc: Missing comment for default declaration\n" +
-			"----------\n" +
-			"4. ERROR in A.java (at line 4)\n" +
-			"	hearts,\n" +
-			"	^^^^^^\n" +
-			"Javadoc: Missing comment for default declaration\n" +
-			"----------\n" +
-			"5. ERROR in A.java (at line 5)\n" +
-			"	spades\n" +
-			"	^^^^^^\n" +
-			"Javadoc: Missing comment for default declaration\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in A.java (at line 1)
+					enum A {
+					     ^
+				Javadoc: Missing comment for default declaration
+				----------
+				2. ERROR in A.java (at line 2)
+					clubs,
+					^^^^^
+				Javadoc: Missing comment for default declaration
+				----------
+				3. ERROR in A.java (at line 3)
+					diamonds,
+					^^^^^^^^
+				Javadoc: Missing comment for default declaration
+				----------
+				4. ERROR in A.java (at line 4)
+					hearts,
+					^^^^^^
+				Javadoc: Missing comment for default declaration
+				----------
+				5. ERROR in A.java (at line 5)
+					spades
+					^^^^^^
+				Javadoc: Missing comment for default declaration
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3160,12 +3454,14 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"A.java",
-				"enum A {\n" +
-				"	clubs,\n" +
-				"	diamonds,\n" +
-				"	hearts,\n" +
-				"	spades\n" +
-				"}\n"
+				"""
+					enum A {
+						clubs,
+						diamonds,
+						hearts,
+						spades
+					}
+					"""
 			});
 	}
 
@@ -3180,17 +3476,20 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X<T> {\n" +
-			    "    /** @see T.R */\n" +
-			    "    void foo() {}\n" +
-				"}"
+				"""
+					public class X<T> {
+					    /** @see T.R */
+					    void foo() {}
+					}"""
 				},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	/** @see T.R */\n" +
-			"	         ^^^\n" +
-			"Javadoc: Invalid reference\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					/** @see T.R */
+					         ^^^
+				Javadoc: Invalid reference
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3202,10 +3501,11 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X<T> {\n" +
-			    "    /** @see T.R */\n" +
-			    "    void foo() {}\n" +
-				"}"
+				"""
+					public class X<T> {
+					    /** @see T.R */
+					    void foo() {}
+					}"""
 			}
 		);
 	}
@@ -3219,35 +3519,40 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public abstract class X extends Y {\n" +
-				"	protected class A extends Member {\n" +
-				"		/**\n" +
-				"		 * @see Member#foo(Object, Object)\n" +
-				"		 */\n" +
-				"		public void foo(Object source, Object data) {}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p;
+					public abstract class X extends Y {
+						protected class A extends Member {
+							/**
+							 * @see Member#foo(Object, Object)
+							 */
+							public void foo(Object source, Object data) {}
+						}
+					}""",
 				"p/Y.java",
-				"package p;\n" +
-				"import p1.Z;\n" +
-				"public abstract class Y extends Z<Object> {\n" +
-				"}",
+				"""
+					package p;
+					import p1.Z;
+					public abstract class Y extends Z<Object> {
+					}""",
 				"p1/Z.java",
-				"package p1;\n" +
-				"public abstract class Z<T> {\n" +
-				"	protected class Member {\n" +
-				"		protected void foo(Object source, Object data) {\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p1;
+					public abstract class Z<T> {
+						protected class Member {
+							protected void foo(Object source, Object data) {
+							}
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in p\\X.java (at line 5)\n" +
-			"	* @see Member#foo(Object, Object)\n" +
-			"	       ^^^^^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in p\\X.java (at line 5)
+					* @see Member#foo(Object, Object)
+					       ^^^^^^
+				Javadoc: Invalid member type qualification
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3257,34 +3562,39 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public abstract class X extends Y {\n" +
-				"	protected class A extends Member {\n" +
-				"		/**\n" +
-				"		 * @see Member#foo(Object, Object)\n" +
-				"		 */\n" +
-				"		public void foo(Object source, Object data) {}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p;
+					public abstract class X extends Y {
+						protected class A extends Member {
+							/**
+							 * @see Member#foo(Object, Object)
+							 */
+							public void foo(Object source, Object data) {}
+						}
+					}""",
 				"p/Y.java",
-				"package p;\n" +
-				"\n" +
-				"import p1.Z;\n" +
-				"public abstract class Y extends Z<Object> {}",
+				"""
+					package p;
+					
+					import p1.Z;
+					public abstract class Y extends Z<Object> {}""",
 				"p1/Z.java",
-				"package p1;\n" +
-				"public abstract class Z<T> {\n" +
-				"	protected class Member {\n" +
-				"		protected void foo(Object source, Object data) {}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p1;
+					public abstract class Z<T> {
+						protected class Member {
+							protected void foo(Object source, Object data) {}
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in p\\X.java (at line 5)\n" +
-			"	* @see Member#foo(Object, Object)\n" +
-			"	       ^^^^^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in p\\X.java (at line 5)
+					* @see Member#foo(Object, Object)
+					       ^^^^^^
+				Javadoc: Invalid member type qualification
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3295,44 +3605,47 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"p1/A.java",
-				"package p1;\n" +
-				"public class A<R> {\n" +
-				"	public class A1<S> {\n" +
-				"		public class A2<T> {\n" +
-				"			public class A3<U> {\n" +
-				"				public class A4<V> {\n" +
-				"					public void foo(V v) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p1;
+					public class A<R> {
+						public class A1<S> {
+							public class A2<T> {
+								public class A3<U> {
+									public class A4<V> {
+										public void foo(V v) {}
+									}
+								}
+							}
+						}
+					}""",
 				"p2/X.java",
-				"package p2;\n" +
-				"import p1.A;\n" +
-				"public class X<R> extends A<R> {\n" +
-				"	public class X1<S> extends A1<S> {\n" +
-				"		public class X2<T> extends A2<T> {\n" +
-				"			public class X3<U> extends A3<U> {\n" +
-				"				public class X4<V> extends A4<V> {\n" +
-				"					/**\n" +
-									// implicit type reference
-				"			 		 * @see #foo(Object)\n" +
-				"			 		 * @see #foo(V)\n" +
-				"					 */\n" +
-				"					public void foo(V v) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p2;
+					import p1.A;
+					public class X<R> extends A<R> {
+						public class X1<S> extends A1<S> {
+							public class X2<T> extends A2<T> {
+								public class X3<U> extends A3<U> {
+									public class X4<V> extends A4<V> {
+										/**
+								 		 * @see #foo(Object)
+								 		 * @see #foo(V)
+										 */
+										public void foo(V v) {}
+									}
+								}
+							}
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in p2\\X.java (at line 10)\n" +
-			"	* @see #foo(V)\n" +
-			"	        ^^^\n" +
-			"Javadoc: The method foo(Object) in the type X.X1.X2.X3.X4 is not applicable for the arguments (V)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in p2\\X.java (at line 10)
+					* @see #foo(V)
+					        ^^^
+				Javadoc: The method foo(Object) in the type X.X1.X2.X3.X4 is not applicable for the arguments (V)
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3343,49 +3656,52 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"p1/A.java",
-				"package p1;\n" +
-				"public class A<R> {\n" +
-				"	public class A1<S> {\n" +
-				"		public class A2<T> {\n" +
-				"			public class A3<U> {\n" +
-				"				public class A4<V> {\n" +
-				"					public void foo(V v) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p1;
+					public class A<R> {
+						public class A1<S> {
+							public class A2<T> {
+								public class A3<U> {
+									public class A4<V> {
+										public void foo(V v) {}
+									}
+								}
+							}
+						}
+					}""",
 				"p2/X.java",
-				"package p2;\n" +
-				"import p1.A;\n" +
-				"public class X<R> extends A<R> {\n" +
-				"	public class X1<S> extends A1<S> {\n" +
-				"		public class X2<T> extends A2<T> {\n" +
-				"			public class X3<U> extends A3<U> {\n" +
-				"				public class X4<V> extends A4<V> {\n" +
-				"					/**\n" +
-									// single type reference
-				"			 		 * @see A4#foo(V)\n" +
-				"			 		 * @see A4#foo(Object)\n" +
-				"					 */\n" +
-				"					public void myFoo(V v) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p2;
+					import p1.A;
+					public class X<R> extends A<R> {
+						public class X1<S> extends A1<S> {
+							public class X2<T> extends A2<T> {
+								public class X3<U> extends A3<U> {
+									public class X4<V> extends A4<V> {
+										/**
+								 		 * @see A4#foo(V)
+								 		 * @see A4#foo(Object)
+										 */
+										public void myFoo(V v) {}
+									}
+								}
+							}
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in p2\\X.java (at line 9)\n" +
-			"	* @see A4#foo(V)\n" +
-			"	          ^^^\n" +
-			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (V)\n" +
-			"----------\n" +
-			"2. ERROR in p2\\X.java (at line 10)\n" +
-			"	* @see A4#foo(Object)\n" +
-			"	       ^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in p2\\X.java (at line 9)
+					* @see A4#foo(V)
+					          ^^^
+				Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (V)
+				----------
+				2. ERROR in p2\\X.java (at line 10)
+					* @see A4#foo(Object)
+					       ^^
+				Javadoc: Invalid member type qualification
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3395,44 +3711,47 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"p1/A.java",
-				"package p1;\n" +
-				"public class A<R> {\n" +
-				"	public class A1<S> {\n" +
-				"		public class A2<T> {\n" +
-				"			public class A3<U> {\n" +
-				"				public class A4<V> {\n" +
-				"					public void foo(V v) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p1;
+					public class A<R> {
+						public class A1<S> {
+							public class A2<T> {
+								public class A3<U> {
+									public class A4<V> {
+										public void foo(V v) {}
+									}
+								}
+							}
+						}
+					}""",
 				"p2/X.java",
-				"package p2;\n" +
-				"import p1.A;\n" +
-				"public class X<R> extends A<R> {\n" +
-				"	public class X1<S> extends A1<S> {\n" +
-				"		public class X2<T> extends A2<T> {\n" +
-				"			public class X3<U> extends A3<U> {\n" +
-				"				public class X4<V> extends A4<V> {\n" +
-				"					/**\n" +
-									// qualified single type reference
-				"			 		 * @see A3.A4#foo(V)\n" +
-				"			 		 * @see p1.A.A1.A2.A3.A4#foo(Object)\n" +
-				"					 */\n" +
-				"					public void foo(V v) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p2;
+					import p1.A;
+					public class X<R> extends A<R> {
+						public class X1<S> extends A1<S> {
+							public class X2<T> extends A2<T> {
+								public class X3<U> extends A3<U> {
+									public class X4<V> extends A4<V> {
+										/**
+								 		 * @see A3.A4#foo(V)
+								 		 * @see p1.A.A1.A2.A3.A4#foo(Object)
+										 */
+										public void foo(V v) {}
+									}
+								}
+							}
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in p2\\X.java (at line 9)\n" +
-			"	* @see A3.A4#foo(V)\n" +
-			"	             ^^^\n" +
-			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (V)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in p2\\X.java (at line 9)
+					* @see A3.A4#foo(V)
+					             ^^^
+				Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (V)
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3442,44 +3761,47 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"p1/A.java",
-				"package p1;\n" +
-				"public class A<R> {\n" +
-				"	public class A1<S> {\n" +
-				"		public class A2<T> {\n" +
-				"			public class A3<U> {\n" +
-				"				public class A4<V> {\n" +
-				"					public void foo(V v) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p1;
+					public class A<R> {
+						public class A1<S> {
+							public class A2<T> {
+								public class A3<U> {
+									public class A4<V> {
+										public void foo(V v) {}
+									}
+								}
+							}
+						}
+					}""",
 				"p2/X.java",
-				"package p2;\n" +
-				"import p1.A;\n" +
-				"public class X<R> extends A<R> {\n" +
-				"	public class X1<S> extends A1<S> {\n" +
-				"		public class X2<T> extends A2<T> {\n" +
-				"			public class X3<U> extends A3<U> {\n" +
-				"				public class X4<V> extends A4<V> {\n" +
-				"					/**\n" +
-									// fully qualified type reference
-				"			 		 * @see p1.A.A1.A2.A3.A4#foo(V)\n" +
-				"			 		 * @see p1.A.A1.A2.A3.A4#foo(Object)\n" +
-				"					 */\n" +
-				"					public void foo(V v) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p2;
+					import p1.A;
+					public class X<R> extends A<R> {
+						public class X1<S> extends A1<S> {
+							public class X2<T> extends A2<T> {
+								public class X3<U> extends A3<U> {
+									public class X4<V> extends A4<V> {
+										/**
+								 		 * @see p1.A.A1.A2.A3.A4#foo(V)
+								 		 * @see p1.A.A1.A2.A3.A4#foo(Object)
+										 */
+										public void foo(V v) {}
+									}
+								}
+							}
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in p2\\X.java (at line 9)\n" +
-			"	* @see p1.A.A1.A2.A3.A4#foo(V)\n" +
-			"	                        ^^^\n" +
-			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (V)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in p2\\X.java (at line 9)
+					* @see p1.A.A1.A2.A3.A4#foo(V)
+					                        ^^^
+				Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (V)
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3490,44 +3812,47 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"p1/A.java",
-				"package p1;\n" +
-				"public class A<R> {\n" +
-				"	public class A1<S> {\n" +
-				"		public class A2<T> {\n" +
-				"			public class A3<U> {\n" +
-				"				public class A4 {\n" +
-				"					public void foo(U u) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p1;
+					public class A<R> {
+						public class A1<S> {
+							public class A2<T> {
+								public class A3<U> {
+									public class A4 {
+										public void foo(U u) {}
+									}
+								}
+							}
+						}
+					}""",
 				"p2/X.java",
-				"package p2;\n" +
-				"import p1.A;\n" +
-				"public class X<R> extends A<R> {\n" +
-				"	public class X1<S> extends A1<S> {\n" +
-				"		public class X2<T> extends A2<T> {\n" +
-				"			public class X3<U> extends A3<U> {\n" +
-				"				public class X4 extends A4 {\n" +
-				"					/**\n" +
-									// implicit reference
-				"			 		 * @see #foo(Object)\n" +
-				"			 		 * @see #foo(U u)\n" +
-				"					 */\n" +
-				"					public void foo(U u) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p2;
+					import p1.A;
+					public class X<R> extends A<R> {
+						public class X1<S> extends A1<S> {
+							public class X2<T> extends A2<T> {
+								public class X3<U> extends A3<U> {
+									public class X4 extends A4 {
+										/**
+								 		 * @see #foo(Object)
+								 		 * @see #foo(U u)
+										 */
+										public void foo(U u) {}
+									}
+								}
+							}
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in p2\\X.java (at line 10)\r\n" +
-			"	* @see #foo(U u)\r\n" +
-			"	        ^^^\n" +
-			"Javadoc: The method foo(Object) in the type X.X1.X2.X3.X4 is not applicable for the arguments (U)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in p2\\X.java (at line 10)\r
+					* @see #foo(U u)\r
+					        ^^^
+				Javadoc: The method foo(Object) in the type X.X1.X2.X3.X4 is not applicable for the arguments (U)
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3538,49 +3863,52 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"p1/A.java",
-				"package p1;\n" +
-				"public class A<R> {\n" +
-				"	public class A1<S> {\n" +
-				"		public class A2<T> {\n" +
-				"			public class A3 {\n" +
-				"				public class A4 {\n" +
-				"					public void foo(T t) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p1;
+					public class A<R> {
+						public class A1<S> {
+							public class A2<T> {
+								public class A3 {
+									public class A4 {
+										public void foo(T t) {}
+									}
+								}
+							}
+						}
+					}""",
 				"p2/X.java",
-				"package p2;\n" +
-				"import p1.A;\n" +
-				"public class X<R> extends A<R> {\n" +
-				"	public class X1<S> extends A1<S> {\n" +
-				"		public class X2<T> extends A2<T> {\n" +
-				"			public class X3 extends A3 {\n" +
-				"				public class X4 extends A4 {\n" +
-				"					/**\n" +
-									// single type reference
-				"			 		 * @see A4#foo(Object)\n" +
-				"			 		 * @see A4#foo(T)\n" +
-				"					 */\n" +
-				"					public void foo(T t) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p2;
+					import p1.A;
+					public class X<R> extends A<R> {
+						public class X1<S> extends A1<S> {
+							public class X2<T> extends A2<T> {
+								public class X3 extends A3 {
+									public class X4 extends A4 {
+										/**
+								 		 * @see A4#foo(Object)
+								 		 * @see A4#foo(T)
+										 */
+										public void foo(T t) {}
+									}
+								}
+							}
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in p2\\X.java (at line 9)\n" +
-			"	* @see A4#foo(Object)\n" +
-			"	       ^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n" +
-			"2. ERROR in p2\\X.java (at line 10)\n" +
-			"	* @see A4#foo(T)\n" +
-			"	          ^^^\n" +
-			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (T)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in p2\\X.java (at line 9)
+					* @see A4#foo(Object)
+					       ^^
+				Javadoc: Invalid member type qualification
+				----------
+				2. ERROR in p2\\X.java (at line 10)
+					* @see A4#foo(T)
+					          ^^^
+				Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (T)
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3591,49 +3919,52 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"p1/A.java",
-				"package p1;\n" +
-				"public class A<R> {\n" +
-				"	public class A1<S> {\n" +
-				"		public class A2 {\n" +
-				"			public class A3 {\n" +
-				"				public class A4 {\n" +
-				"					public void foo(S s) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p1;
+					public class A<R> {
+						public class A1<S> {
+							public class A2 {
+								public class A3 {
+									public class A4 {
+										public void foo(S s) {}
+									}
+								}
+							}
+						}
+					}""",
 				"p2/X.java",
-				"package p2;\n" +
-				"import p1.A;\n" +
-				"public class X<R> extends A<R> {\n" +
-				"	public class X1<S> extends A1<S> {\n" +
-				"		public class X2 extends A2 {\n" +
-				"			public class X3 extends A3 {\n" +
-				"				public class X4 extends A4 {\n" +
-				"					/**\n" +
-									// single type reference
-				"			 		 * @see A4#foo(Object)\n" +
-				"			 		 * @see A4#foo(S)\n" +
-				"					 */\n" +
-				"					public void foo(S s) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p2;
+					import p1.A;
+					public class X<R> extends A<R> {
+						public class X1<S> extends A1<S> {
+							public class X2 extends A2 {
+								public class X3 extends A3 {
+									public class X4 extends A4 {
+										/**
+								 		 * @see A4#foo(Object)
+								 		 * @see A4#foo(S)
+										 */
+										public void foo(S s) {}
+									}
+								}
+							}
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in p2\\X.java (at line 9)\n" +
-			"	* @see A4#foo(Object)\n" +
-			"	       ^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n" +
-			"2. ERROR in p2\\X.java (at line 10)\n" +
-			"	* @see A4#foo(S)\n" +
-			"	          ^^^\n" +
-			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (S)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in p2\\X.java (at line 9)
+					* @see A4#foo(Object)
+					       ^^
+				Javadoc: Invalid member type qualification
+				----------
+				2. ERROR in p2\\X.java (at line 10)
+					* @see A4#foo(S)
+					          ^^^
+				Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (S)
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3644,49 +3975,52 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"p1/A.java",
-				"package p1;\n" +
-				"public class A {\n" +
-				"	public class A1 {\n" +
-				"		public class A2<T> {\n" +
-				"			public class A3 {\n" +
-				"				public class A4 {\n" +
-				"					public void foo(T t) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p1;
+					public class A {
+						public class A1 {
+							public class A2<T> {
+								public class A3 {
+									public class A4 {
+										public void foo(T t) {}
+									}
+								}
+							}
+						}
+					}""",
 				"p2/X.java",
-				"package p2;\n" +
-				"import p1.A;\n" +
-				"public class X extends A {\n" +
-				"	public class X1 extends A1 {\n" +
-				"		public class X2<T> extends A2<T> {\n" +
-				"			public class X3 extends A3 {\n" +
-				"				public class X4 extends A4 {\n" +
-				"					/**\n" +
-									// single type reference
-				"			 		 * @see A4#foo(Object)\n" +
-				"			 		 * @see A4#foo(T)\n" +
-				"					 */\n" +
-				"					public void foo(T t) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p2;
+					import p1.A;
+					public class X extends A {
+						public class X1 extends A1 {
+							public class X2<T> extends A2<T> {
+								public class X3 extends A3 {
+									public class X4 extends A4 {
+										/**
+								 		 * @see A4#foo(Object)
+								 		 * @see A4#foo(T)
+										 */
+										public void foo(T t) {}
+									}
+								}
+							}
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in p2\\X.java (at line 9)\n" +
-			"	* @see A4#foo(Object)\n" +
-			"	       ^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n" +
-			"2. ERROR in p2\\X.java (at line 10)\n" +
-			"	* @see A4#foo(T)\n" +
-			"	          ^^^\n" +
-			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (T)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in p2\\X.java (at line 9)
+					* @see A4#foo(Object)
+					       ^^
+				Javadoc: Invalid member type qualification
+				----------
+				2. ERROR in p2\\X.java (at line 10)
+					* @see A4#foo(T)
+					          ^^^
+				Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (T)
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3697,49 +4031,52 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"p1/A.java",
-				"package p1;\n" +
-				"public class A {\n" +
-				"	public class A1 {\n" +
-				"		public class A2<T> {\n" +
-				"			public class A3 {\n" +
-				"				public class A4 {\n" +
-				"					public void foo(T t) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p1;
+					public class A {
+						public class A1 {
+							public class A2<T> {
+								public class A3 {
+									public class A4 {
+										public void foo(T t) {}
+									}
+								}
+							}
+						}
+					}""",
 				"p2/X.java",
-				"package p2;\n" +
-				"import p1.A;\n" +
-				"public class X extends A {\n" +
-				"	public class X1 extends A1 {\n" +
-				"		public class X2<T> extends A2<T> {\n" +
-				"			public class X3 extends A3 {\n" +
-				"				public class X4 extends A4 {\n" +
-				"					/**\n" +
-				// single type reference
-				"			 		 * @see A4#foo(Object)\n" +
-				"			 		 * @see A4#foo(T)\n" +
-				"					 */\n" +
-				"					public void foo(T t) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p2;
+					import p1.A;
+					public class X extends A {
+						public class X1 extends A1 {
+							public class X2<T> extends A2<T> {
+								public class X3 extends A3 {
+									public class X4 extends A4 {
+										/**
+								 		 * @see A4#foo(Object)
+								 		 * @see A4#foo(T)
+										 */
+										public void foo(T t) {}
+									}
+								}
+							}
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in p2\\X.java (at line 9)\n" +
-			"	* @see A4#foo(Object)\n" +
-			"	       ^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n" +
-			"2. ERROR in p2\\X.java (at line 10)\n" +
-			"	* @see A4#foo(T)\n" +
-			"	          ^^^\n" +
-			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (T)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in p2\\X.java (at line 9)
+					* @see A4#foo(Object)
+					       ^^
+				Javadoc: Invalid member type qualification
+				----------
+				2. ERROR in p2\\X.java (at line 10)
+					* @see A4#foo(T)
+					          ^^^
+				Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (T)
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3750,37 +4087,38 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"p1/A.java",
-				"package p1;\n" +
-				"\n" +
-				"public class A<R> {\n" +
-				"	public class A1<S> {\n" +
-				"		public class A2 {\n" +
-				"			public class A3 {\n" +
-				"				public class A4 {\n" +
-				"					public void foo(S s) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p1;
+					
+					public class A<R> {
+						public class A1<S> {
+							public class A2 {
+								public class A3 {
+									public class A4 {
+										public void foo(S s) {}
+									}
+								}
+							}
+						}
+					}""",
 				"p2/X.java",
-				"package p2;\n" +
-				"import p1.A;\n" +
-				"public class X<R> extends A<R> {\n" +
-				"	public class X1<S> extends A1<S> {\n" +
-				"		public class X2 extends A2 {\n" +
-				"			public class X3 extends A3 {\n" +
-				"				public class X4 extends A4 {\n" +
-				"					/**\n" +
-									// qualified single type reference
-				"			 		 * @see p1.A.A1.A2.A3.A4#foo(Object)\n" +
-				"					 */\n" +
-				"					public void foo(S s) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p2;
+					import p1.A;
+					public class X<R> extends A<R> {
+						public class X1<S> extends A1<S> {
+							public class X2 extends A2 {
+								public class X3 extends A3 {
+									public class X4 extends A4 {
+										/**
+								 		 * @see p1.A.A1.A2.A3.A4#foo(Object)
+										 */
+										public void foo(S s) {}
+									}
+								}
+							}
+						}
+					}"""
 			}
 		);
 	}
@@ -3791,45 +4129,46 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"p1/A.java",
-				"package p1;\n" +
-				"\n" +
-				"public class A<R> {\n" +
-				"	public class A1<S> {\n" +
-				"		public class A2 {\n" +
-				"			public class A3 {\n" +
-				"				public class A4 {\n" +
-				"					public class A5 {\n" +
-				"						public class A6 {\n" +
-				"							public void foo(S s) {}\n" +
-				"						}\n" +
-				"					}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p1;
+					
+					public class A<R> {
+						public class A1<S> {
+							public class A2 {
+								public class A3 {
+									public class A4 {
+										public class A5 {
+											public class A6 {
+												public void foo(S s) {}
+											}
+										}
+									}
+								}
+							}
+						}
+					}""",
 				"p2/X.java",
-				"package p2;\n" +
-				"import p1.A;\n" +
-				"public class X<R> extends A<R> {\n" +
-				"	public class X1<S> extends A1<S> {\n" +
-				"		public class X2 extends A2 {\n" +
-				"			public class X3 extends A3 {\n" +
-				"				public class X4 extends A4 {\n" +
-				"					public class X5 extends A5 {\n" +
-				"						public class X6 extends A6 {\n" +
-				"							/**\n" +
-											// qualified single type reference
-				"			 				 * @see p1.A.A1.A2.A3.A4.A5.A6#foo(Object)\n" +
-				"							 */\n" +
-				"							public void foo(S s) {}\n" +
-				"						}\n" +
-				"					}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p2;
+					import p1.A;
+					public class X<R> extends A<R> {
+						public class X1<S> extends A1<S> {
+							public class X2 extends A2 {
+								public class X3 extends A3 {
+									public class X4 extends A4 {
+										public class X5 extends A5 {
+											public class X6 extends A6 {
+												/**
+								 				 * @see p1.A.A1.A2.A3.A4.A5.A6#foo(Object)
+												 */
+												public void foo(S s) {}
+											}
+										}
+									}
+								}
+							}
+						}
+					}"""
 			}
 		);
 	}
@@ -3839,45 +4178,48 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"p1/A.java",
-				"package p1;\n" +
-				"\n" +
-				"public class A<R> {\n" +
-				"	public class A1 {\n" +
-				"		public class A2 {\n" +
-				"			public class A3 {\n" +
-				"				public class A4 {\n" +
-				"					public void foo(R r) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p1;
+					
+					public class A<R> {
+						public class A1 {
+							public class A2 {
+								public class A3 {
+									public class A4 {
+										public void foo(R r) {}
+									}
+								}
+							}
+						}
+					}""",
 				"p2/X.java",
-				"package p2;\n" +
-				"import p1.A;\n" +
-				"public class X<R> extends A<R> {\n" +
-				"	public class X1 extends A1 {\n" +
-				"		public class X2 extends A2 {\n" +
-				"			public class X3 extends A3 {\n" +
-				"				public class X4 extends A4 {\n" +
-				"					/**\n" +
-									// fully qualified type reference
-				"			 		 * @see p1.A.A1.A2.A3.A4#foo(Object)\n" +
-				"			 		 * @see p1.A.A1.A2.A3.A4#foo(R)\n" +
-				"					 */\n" +
-				"					public void foo(R r) {}\n" +
-				"				}\n" +
-				"			}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					package p2;
+					import p1.A;
+					public class X<R> extends A<R> {
+						public class X1 extends A1 {
+							public class X2 extends A2 {
+								public class X3 extends A3 {
+									public class X4 extends A4 {
+										/**
+								 		 * @see p1.A.A1.A2.A3.A4#foo(Object)
+								 		 * @see p1.A.A1.A2.A3.A4#foo(R)
+										 */
+										public void foo(R r) {}
+									}
+								}
+							}
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in p2\\X.java (at line 10)\r\n" +
-			"	* @see p1.A.A1.A2.A3.A4#foo(R)\r\n" +
-			"	                        ^^^\n" +
-			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (R)\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in p2\\X.java (at line 10)\r
+					* @see p1.A.A1.A2.A3.A4#foo(R)\r
+					                        ^^^
+				Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (R)
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -3887,29 +4229,33 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"pack/package-info.java",
-				"/**\n" +
-				" * {@inheritDoc}\n" +
-				" * @since {@inheritDoc}\n" +
-				" * @blah {@inheritDoc}\n" +
-				" */\n" +
-				"package pack;\n"
+				"""
+					/**
+					 * {@inheritDoc}
+					 * @since {@inheritDoc}
+					 * @blah {@inheritDoc}
+					 */
+					package pack;
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in pack\\package-info.java (at line 2)\n" +
-			"	* {@inheritDoc}\n" +
-			"	    ^^^^^^^^^^\n" +
-			"Javadoc: Unexpected tag\n" +
-			"----------\n" +
-			"2. ERROR in pack\\package-info.java (at line 3)\n" +
-			"	* @since {@inheritDoc}\n" +
-			"	           ^^^^^^^^^^\n" +
-			"Javadoc: Unexpected tag\n" +
-			"----------\n" +
-			"3. ERROR in pack\\package-info.java (at line 4)\n" +
-			"	* @blah {@inheritDoc}\n" +
-			"	          ^^^^^^^^^^\n" +
-			"Javadoc: Unexpected tag\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in pack\\package-info.java (at line 2)
+					* {@inheritDoc}
+					    ^^^^^^^^^^
+				Javadoc: Unexpected tag
+				----------
+				2. ERROR in pack\\package-info.java (at line 3)
+					* @since {@inheritDoc}
+					           ^^^^^^^^^^
+				Javadoc: Unexpected tag
+				----------
+				3. ERROR in pack\\package-info.java (at line 4)
+					* @blah {@inheritDoc}
+					          ^^^^^^^^^^
+				Javadoc: Unexpected tag
+				----------
+				"""
 		);
 	}
 
@@ -3919,33 +4265,37 @@ public class JavadocTest_1_5 extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"pack/package-info.java",
-				"/**\n" +
-				" * @return {@inheritDoc}\n" +
-				" * @param blah {@inheritDoc}\n" +
-				" */\n" +
-				"package pack;\n"
+				"""
+					/**
+					 * @return {@inheritDoc}
+					 * @param blah {@inheritDoc}
+					 */
+					package pack;
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in pack\\package-info.java (at line 2)\n" +
-			"	* @return {@inheritDoc}\n" +
-			"	   ^^^^^^\n" +
-			"Javadoc: Unexpected tag\n" +
-			"----------\n" +
-			"2. ERROR in pack\\package-info.java (at line 2)\n" +
-			"	* @return {@inheritDoc}\n" +
-			"	            ^^^^^^^^^^\n" +
-			"Javadoc: Unexpected tag\n" +
-			"----------\n" +
-			"3. ERROR in pack\\package-info.java (at line 3)\n" +
-			"	* @param blah {@inheritDoc}\n" +
-			"	   ^^^^^\n" +
-			"Javadoc: Unexpected tag\n" +
-			"----------\n" +
-			"4. ERROR in pack\\package-info.java (at line 3)\n" +
-			"	* @param blah {@inheritDoc}\n" +
-			"	                ^^^^^^^^^^\n" +
-			"Javadoc: Unexpected tag\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in pack\\package-info.java (at line 2)
+					* @return {@inheritDoc}
+					   ^^^^^^
+				Javadoc: Unexpected tag
+				----------
+				2. ERROR in pack\\package-info.java (at line 2)
+					* @return {@inheritDoc}
+					            ^^^^^^^^^^
+				Javadoc: Unexpected tag
+				----------
+				3. ERROR in pack\\package-info.java (at line 3)
+					* @param blah {@inheritDoc}
+					   ^^^^^
+				Javadoc: Unexpected tag
+				----------
+				4. ERROR in pack\\package-info.java (at line 3)
+					* @param blah {@inheritDoc}
+					                ^^^^^^^^^^
+				Javadoc: Unexpected tag
+				----------
+				"""
 		);
 	}
 	/**
@@ -3959,73 +4309,85 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug284333() {
 		runNegativeTest(new String[]{
 				"goo/bar/package-info.java",
-				"/**\n" +
-				"*/\n" +
-				"package goo.bar;\n",
+				"""
+					/**
+					*/
+					package goo.bar;
+					""",
 				"foo/bar/ClassInSamePackage.java",
-				"package foo.bar;\n" +
-				"public class ClassInSamePackage {\n" +
-				"	public static int SOME_FIELD; \n" +
-				"}\n",
+				"""
+					package foo.bar;
+					public class ClassInSamePackage {
+						public static int SOME_FIELD;\s
+					}
+					""",
 				"foo/bar/goo/ClassInSubPackage.java",
-				"package foo.bar.goo;\n" +
-				"public class ClassInSubPackage {\n" +
-				"	public static void foo() { \n" +
-				"   }\n" +
-				"}\n",
+				"""
+					package foo.bar.goo;
+					public class ClassInSubPackage {
+						public static void foo() {\s
+					   }
+					}
+					""",
 				"foo/ClassInEnclosingPackage.java",
-				"package foo;\n" +
-				"public class ClassInEnclosingPackage {\n" +
-				"	public static int SOME_FIELD; \n" +
-				"}\n",
+				"""
+					package foo;
+					public class ClassInEnclosingPackage {
+						public static int SOME_FIELD;\s
+					}
+					""",
 				"foo/bar/package-info.java",
-				"/**\n" +
-				" * @see ClassInSamePackage#SOME_FIELD\n" +
-				" * @see foo.bar.ClassInSamePackage#SOME_FIELD\n" +
-				" * @see ClassInSamePackage#SOME_FIELD\n" +
-				" * @see ClassInSubPackage#foo\n" +
-				" * @see foo.bar.goo.ClassInSubPackage#foo\n" +
-				" * @see ClassInSubPackage#foo\n" +
-				" * @see ClassInEnclosingPackage\n" +
-				" * @see foo.ClassInEnclosingPackage\n" +
-				" * @see ClassInEnclosingPackage\n" +
-				" * @see foo.bar\n" +
-				" * @see goo.bar\n" +
-				" * @see foo.bar.goo\n" +
-				" */\n" +
-				"package foo.bar;\n"
+				"""
+					/**
+					 * @see ClassInSamePackage#SOME_FIELD
+					 * @see foo.bar.ClassInSamePackage#SOME_FIELD
+					 * @see ClassInSamePackage#SOME_FIELD
+					 * @see ClassInSubPackage#foo
+					 * @see foo.bar.goo.ClassInSubPackage#foo
+					 * @see ClassInSubPackage#foo
+					 * @see ClassInEnclosingPackage
+					 * @see foo.ClassInEnclosingPackage
+					 * @see ClassInEnclosingPackage
+					 * @see foo.bar
+					 * @see goo.bar
+					 * @see foo.bar.goo
+					 */
+					package foo.bar;
+					"""
 		},
-		"----------\n" +
-		"1. ERROR in foo\\bar\\package-info.java (at line 2)\n" +
-		"	* @see ClassInSamePackage#SOME_FIELD\n" +
-		"	       ^^^^^^^^^^^^^^^^^^\n" +
-		"Javadoc: Invalid reference\n" +
-		"----------\n" +
-		"2. ERROR in foo\\bar\\package-info.java (at line 4)\n" +
-		"	* @see ClassInSamePackage#SOME_FIELD\n" +
-		"	       ^^^^^^^^^^^^^^^^^^\n" +
-		"Javadoc: Invalid reference\n" +
-		"----------\n" +
-		"3. ERROR in foo\\bar\\package-info.java (at line 5)\n" +
-		"	* @see ClassInSubPackage#foo\n" +
-		"	       ^^^^^^^^^^^^^^^^^\n" +
-		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" +
-		"----------\n" +
-		"4. ERROR in foo\\bar\\package-info.java (at line 7)\n" +
-		"	* @see ClassInSubPackage#foo\n" +
-		"	       ^^^^^^^^^^^^^^^^^\n" +
-		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" +
-		"----------\n" +
-		"5. ERROR in foo\\bar\\package-info.java (at line 8)\n" +
-		"	* @see ClassInEnclosingPackage\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" +
-		"----------\n" +
-		"6. ERROR in foo\\bar\\package-info.java (at line 10)\n" +
-		"	* @see ClassInEnclosingPackage\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in foo\\bar\\package-info.java (at line 2)
+				* @see ClassInSamePackage#SOME_FIELD
+				       ^^^^^^^^^^^^^^^^^^
+			Javadoc: Invalid reference
+			----------
+			2. ERROR in foo\\bar\\package-info.java (at line 4)
+				* @see ClassInSamePackage#SOME_FIELD
+				       ^^^^^^^^^^^^^^^^^^
+			Javadoc: Invalid reference
+			----------
+			3. ERROR in foo\\bar\\package-info.java (at line 5)
+				* @see ClassInSubPackage#foo
+				       ^^^^^^^^^^^^^^^^^
+			Javadoc: ClassInSubPackage cannot be resolved to a type
+			----------
+			4. ERROR in foo\\bar\\package-info.java (at line 7)
+				* @see ClassInSubPackage#foo
+				       ^^^^^^^^^^^^^^^^^
+			Javadoc: ClassInSubPackage cannot be resolved to a type
+			----------
+			5. ERROR in foo\\bar\\package-info.java (at line 8)
+				* @see ClassInEnclosingPackage
+				       ^^^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: ClassInEnclosingPackage cannot be resolved to a type
+			----------
+			6. ERROR in foo\\bar\\package-info.java (at line 10)
+				* @see ClassInEnclosingPackage
+				       ^^^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: ClassInEnclosingPackage cannot be resolved to a type
+			----------
+			""");
 	}
 
 	/**
@@ -4038,70 +4400,82 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug284333a() {
 		runNegativeTest(new String[]{
 				"goo/bar/package-info.java",
-				"/**\n" +
-				"*/\n" +
-				"package goo.bar;\n",
+				"""
+					/**
+					*/
+					package goo.bar;
+					""",
 				"foo/bar/ClassInSamePackage.java",
-				"package foo.bar;\n" +
-				"public class ClassInSamePackage {\n" +
-				"	public static int SOME_FIELD; \n" +
-				"}\n",
+				"""
+					package foo.bar;
+					public class ClassInSamePackage {
+						public static int SOME_FIELD;\s
+					}
+					""",
 				"foo/bar/goo/ClassInSubPackage.java",
-				"package foo.bar.goo;\n" +
-				"public class ClassInSubPackage {\n" +
-				"	public static void foo() { \n" +
-				"   }\n" +
-				"}\n",
+				"""
+					package foo.bar.goo;
+					public class ClassInSubPackage {
+						public static void foo() {\s
+					   }
+					}
+					""",
 				"foo/ClassInEnclosingPackage.java",
-				"package foo;\n" +
-				"public class ClassInEnclosingPackage {\n" +
-				"	public static int SOME_FIELD; \n" +
-				"}\n",
+				"""
+					package foo;
+					public class ClassInEnclosingPackage {
+						public static int SOME_FIELD;\s
+					}
+					""",
 				"foo/bar/NotAPackageInfo.java",
-				"package foo.bar;\n" +
-				"/**\n" +
-				" * @see ClassInSamePackage#SOME_FIELD\n" +
-				" * @see foo.bar.ClassInSamePackage#SOME_FIELD\n" +
-				" * @see ClassInSamePackage#SOME_FIELD\n" +
-				" */\n" +
-				" public class NotAPackageInfo {\n" +
-				"/**\n" +
-				" * @see ClassInSubPackage#foo\n" +
-				" * @see foo.bar.goo.ClassInSubPackage#foo\n" +
-				" * @see ClassInSubPackage#foo\n" +
-				" */\n" +
-				"	public static int SOME_FIELD = 0;\n" +
-				"/**\n" +
-				" * @see ClassInEnclosingPackage\n" +
-				" * @see foo.ClassInEnclosingPackage\n" +
-				" * @see ClassInEnclosingPackage\n" +
-				" */\n" +
-				" 	public static void foo() {\n" +
-				"	}\n" +
-				"	" +
-				" }\n"
+				"""
+					package foo.bar;
+					/**
+					 * @see ClassInSamePackage#SOME_FIELD
+					 * @see foo.bar.ClassInSamePackage#SOME_FIELD
+					 * @see ClassInSamePackage#SOME_FIELD
+					 */
+					 public class NotAPackageInfo {
+					/**
+					 * @see ClassInSubPackage#foo
+					 * @see foo.bar.goo.ClassInSubPackage#foo
+					 * @see ClassInSubPackage#foo
+					 */
+						public static int SOME_FIELD = 0;
+					/**
+					 * @see ClassInEnclosingPackage
+					 * @see foo.ClassInEnclosingPackage
+					 * @see ClassInEnclosingPackage
+					 */
+					 	public static void foo() {
+						}
+						\
+					 }
+					"""
 		},
-		"----------\n" +
-		"1. ERROR in foo\\bar\\NotAPackageInfo.java (at line 9)\n" +
-		"	* @see ClassInSubPackage#foo\n" +
-		"	       ^^^^^^^^^^^^^^^^^\n" +
-		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in foo\\bar\\NotAPackageInfo.java (at line 11)\n" +
-		"	* @see ClassInSubPackage#foo\n" +
-		"	       ^^^^^^^^^^^^^^^^^\n" +
-		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in foo\\bar\\NotAPackageInfo.java (at line 15)\n" +
-		"	* @see ClassInEnclosingPackage\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" +
-		"----------\n" +
-		"4. ERROR in foo\\bar\\NotAPackageInfo.java (at line 17)\n" +
-		"	* @see ClassInEnclosingPackage\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in foo\\bar\\NotAPackageInfo.java (at line 9)
+				* @see ClassInSubPackage#foo
+				       ^^^^^^^^^^^^^^^^^
+			Javadoc: ClassInSubPackage cannot be resolved to a type
+			----------
+			2. ERROR in foo\\bar\\NotAPackageInfo.java (at line 11)
+				* @see ClassInSubPackage#foo
+				       ^^^^^^^^^^^^^^^^^
+			Javadoc: ClassInSubPackage cannot be resolved to a type
+			----------
+			3. ERROR in foo\\bar\\NotAPackageInfo.java (at line 15)
+				* @see ClassInEnclosingPackage
+				       ^^^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: ClassInEnclosingPackage cannot be resolved to a type
+			----------
+			4. ERROR in foo\\bar\\NotAPackageInfo.java (at line 17)
+				* @see ClassInEnclosingPackage
+				       ^^^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: ClassInEnclosingPackage cannot be resolved to a type
+			----------
+			""");
 	}
 	/**
 	 * Additional tests for "https://bugs.eclipse.org/bugs/show_bug.cgi?id=284333"
@@ -4112,53 +4486,63 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug284333b() {
 		runConformTest(new String[] {
 				"goo/bar/package-info.java",
-				"/**\n" +
-				"*/\n" +
-				"package goo.bar;\n",
+				"""
+					/**
+					*/
+					package goo.bar;
+					""",
 				"foo/bar/ClassInSamePackage.java",
-				"package foo.bar;\n" +
-				"public class ClassInSamePackage {\n" +
-				"	public static int SOME_FIELD; \n" +
-				"}\n",
+				"""
+					package foo.bar;
+					public class ClassInSamePackage {
+						public static int SOME_FIELD;\s
+					}
+					""",
 				"foo/bar/goo/ClassInSubPackage.java",
-				"package foo.bar.goo;\n" +
-				"public class ClassInSubPackage {\n" +
-				"	public static void foo() { \n" +
-				"   }\n" +
-				"}\n",
+				"""
+					package foo.bar.goo;
+					public class ClassInSubPackage {
+						public static void foo() {\s
+					   }
+					}
+					""",
 				"foo/ClassInEnclosingPackage.java",
-				"package foo;\n" +
-				"public class ClassInEnclosingPackage {\n" +
-				"	public static int SOME_FIELD; \n" +
-				"}\n",
+				"""
+					package foo;
+					public class ClassInEnclosingPackage {
+						public static int SOME_FIELD;\s
+					}
+					""",
 				"foo/bar/NotAPackageInfo.java",
-				"package foo.bar;\n" +
-				"import foo.*;\n" +
-				"import foo.bar.goo.*;\n" +
-				"/**\n" +
-				" * @see ClassInSamePackage#SOME_FIELD\n" +
-				" * @see foo.bar.ClassInSamePackage#SOME_FIELD\n" +
-				" * @see ClassInSamePackage#SOME_FIELD\n" +
-				" * @see goo.bar\n" +
-				" */\n" +
-				" public class NotAPackageInfo {\n" +
-				"/**\n" +
-				" * @see ClassInSubPackage#foo\n" +
-				" * @see foo.bar.goo.ClassInSubPackage#foo\n" +
-				" * @see ClassInSubPackage#foo\n" +
-				" * @see goo.bar\n" +
-				" */\n" +
-				"	public static int SOME_FIELD = 0;\n" +
-				"/**\n" +
-				" * @see ClassInEnclosingPackage\n" +
-				" * @see foo.ClassInEnclosingPackage\n" +
-				" * @see ClassInEnclosingPackage\n" +
-				" * @see goo.bar\n" +
-				" */\n" +
-				" 	public static void foo() {\n" +
-				"	}\n" +
-				"	" +
-				" }\n"
+				"""
+					package foo.bar;
+					import foo.*;
+					import foo.bar.goo.*;
+					/**
+					 * @see ClassInSamePackage#SOME_FIELD
+					 * @see foo.bar.ClassInSamePackage#SOME_FIELD
+					 * @see ClassInSamePackage#SOME_FIELD
+					 * @see goo.bar
+					 */
+					 public class NotAPackageInfo {
+					/**
+					 * @see ClassInSubPackage#foo
+					 * @see foo.bar.goo.ClassInSubPackage#foo
+					 * @see ClassInSubPackage#foo
+					 * @see goo.bar
+					 */
+						public static int SOME_FIELD = 0;
+					/**
+					 * @see ClassInEnclosingPackage
+					 * @see foo.ClassInEnclosingPackage
+					 * @see ClassInEnclosingPackage
+					 * @see goo.bar
+					 */
+					 	public static void foo() {
+						}
+						\
+					 }
+					"""
 		});
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322581
@@ -4170,26 +4554,29 @@ public class JavadocTest_1_5 extends JavadocTest {
 			true,
 			new String[] {
 				"X.java",
-				" public class X {\n" +
-					"	/**\n" +
-					"	 * javadoc\n" +
-					"	 */\n" +
-					"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-					"}"
+				"""
+					 public class X {
+						/**
+						 * javadoc
+						 */
+						public <T, U, V> void foo(int val, Object obj) {}
+					}"""
 			},
 			null,
 			options,
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-			"	                              ^^^\n" +
-			"Javadoc: Missing tag for parameter val\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	public <T, U, V> void foo(int val, Object obj) {}\n" +
-			"	                                          ^^^\n" +
-			"Javadoc: Missing tag for parameter obj\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					public <T, U, V> void foo(int val, Object obj) {}
+					                              ^^^
+				Javadoc: Missing tag for parameter val
+				----------
+				2. ERROR in X.java (at line 5)
+					public <T, U, V> void foo(int val, Object obj) {}
+					                                          ^^^
+				Javadoc: Missing tag for parameter obj
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -4202,37 +4589,40 @@ public class JavadocTest_1_5 extends JavadocTest {
 			true,
 			new String[] {
 				"ListCallable.java",
-				" import java.util.Collections;\n" +
-				" import java.util.List;\n" +
-				" import java.util.concurrent.Callable;\n" +
-				"/**\n" +
-				" * Callable that returns a list.\n" +
-				" */\n" +
-				"public abstract class ListCallable<V> implements Callable<List<V>> { // good warning\n" +
-				"	public abstract List<V> call() throws Exception;\n" +
-				"    /**\n" +
-				"	 * Returns a {@link ListCallable} that wraps the result from calling <code>callable</code>.\n" +
-				"    * @param callable the {@link Callable} to wrap\n" +
-				"	 * @return the wrapper\n" +
-				"    */\n" +
-				"	public static <T> ListCallable<T> from(final Callable<T> callable) { // don't warn\n" +
-				"		return new ListCallable<T>() {\n" +
-				"			@Override\n" +
-				"			public List<T> call() throws Exception {\n" +
-				"				return Collections.singletonList(callable.call());\n" +
-				"			}\n" +
-				"		};\n" +
-				"	}\n" +
-				"}"
+				"""
+					 import java.util.Collections;
+					 import java.util.List;
+					 import java.util.concurrent.Callable;
+					/**
+					 * Callable that returns a list.
+					 */
+					public abstract class ListCallable<V> implements Callable<List<V>> { // good warning
+						public abstract List<V> call() throws Exception;
+					    /**
+						 * Returns a {@link ListCallable} that wraps the result from calling <code>callable</code>.
+					    * @param callable the {@link Callable} to wrap
+						 * @return the wrapper
+					    */
+						public static <T> ListCallable<T> from(final Callable<T> callable) { // don't warn
+							return new ListCallable<T>() {
+								@Override
+								public List<T> call() throws Exception {
+									return Collections.singletonList(callable.call());
+								}
+							};
+						}
+					}"""
 			},
 			null,
 			options,
-			"----------\n" +
-			"1. ERROR in ListCallable.java (at line 7)\n" +
-			"	public abstract class ListCallable<V> implements Callable<List<V>> { // good warning\n" +
-			"	                                   ^\n" +
-			"Javadoc: Missing tag for parameter V\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in ListCallable.java (at line 7)
+					public abstract class ListCallable<V> implements Callable<List<V>> { // good warning
+					                                   ^
+				Javadoc: Missing tag for parameter V
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -4244,26 +4634,29 @@ public class JavadocTest_1_5 extends JavadocTest {
 			true,
 			new String[] {
 				"X.java",
-				"/**\n" +
-				" * @param <p> the given type parameter\n" +
-				" */\n" +
-				"public class X<p> {\n" +
-				"	/**\n" +
-				"	 * @param o the given object\n" +
-				"	 * @see #foo(p.O[])\n" +
-				"	 */\n" +
-				"	public void foo(Object o) {\n" +
-				"	}\n" +
-				"}"
+				"""
+					/**
+					 * @param <p> the given type parameter
+					 */
+					public class X<p> {
+						/**
+						 * @param o the given object
+						 * @see #foo(p.O[])
+						 */
+						public void foo(Object o) {
+						}
+					}"""
 			},
 			null,
 			options,
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	* @see #foo(p.O[])\n" +
-			"	            ^^^\n" +
-			"Illegal qualified access from the type parameter p\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					* @see #foo(p.O[])
+					            ^^^
+				Illegal qualified access from the type parameter p
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -4275,26 +4668,29 @@ public class JavadocTest_1_5 extends JavadocTest {
 			true,
 			new String[] {
 				"X.java",
-				"/**\n" +
-				" * @param <p> the given type parameter\n" +
-				" */\n" +
-				"public class X<p> {\n" +
-				"	/**\n" +
-				"	 * @param o the given object\n" +
-				"	 * @see #foo(O[])\n" +
-				"	 */\n" +
-				"	public void foo(Object o) {\n" +
-				"	}\n" +
-				"}"
+				"""
+					/**
+					 * @param <p> the given type parameter
+					 */
+					public class X<p> {
+						/**
+						 * @param o the given object
+						 * @see #foo(O[])
+						 */
+						public void foo(Object o) {
+						}
+					}"""
 			},
 			null,
 			options,
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	* @see #foo(O[])\n" +
-			"	            ^\n" +
-			"Javadoc: O[] cannot be resolved to a type\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					* @see #foo(O[])
+					            ^
+				Javadoc: O[] cannot be resolved to a type
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -4306,26 +4702,29 @@ public class JavadocTest_1_5 extends JavadocTest {
 			true,
 			new String[] {
 				"X.java",
-				"/**\n" +
-				" * @param <p> the given type parameter\n" +
-				" */\n" +
-				"public class X<p> {\n" +
-				"	/**\n" +
-				"	 * @param o the given object\n" +
-				"	 * @see #foo(test.O[])\n" +
-				"	 */\n" +
-				"	public void foo(Object o) {\n" +
-				"	}\n" +
-				"}"
+				"""
+					/**
+					 * @param <p> the given type parameter
+					 */
+					public class X<p> {
+						/**
+						 * @param o the given object
+						 * @see #foo(test.O[])
+						 */
+						public void foo(Object o) {
+						}
+					}"""
 			},
 			null,
 			options,
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	* @see #foo(test.O[])\n" +
-			"	            ^^^^^^\n" +
-			"Javadoc: test[] cannot be resolved to a type\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					* @see #foo(test.O[])
+					            ^^^^^^
+				Javadoc: test[] cannot be resolved to a type
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -4337,26 +4736,29 @@ public class JavadocTest_1_5 extends JavadocTest {
 			true,
 			new String[] {
 				"X.java",
-				"/**\n" +
-				" * @param <p> the given type parameter\n" +
-				" */\n" +
-				"public class X<p> {\n" +
-				"	/**\n" +
-				"	 * @param o the given object\n" +
-				"	 * @see #foo(test.O)\n" +
-				"	 */\n" +
-				"	public void foo(Object o) {\n" +
-				"	}\n" +
-				"}"
+				"""
+					/**
+					 * @param <p> the given type parameter
+					 */
+					public class X<p> {
+						/**
+						 * @param o the given object
+						 * @see #foo(test.O)
+						 */
+						public void foo(Object o) {
+						}
+					}"""
 			},
 			null,
 			options,
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	* @see #foo(test.O)\n" +
-			"	            ^^^^^^\n" +
-			"Javadoc: test cannot be resolved to a type\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					* @see #foo(test.O)
+					            ^^^^^^
+				Javadoc: test cannot be resolved to a type
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}

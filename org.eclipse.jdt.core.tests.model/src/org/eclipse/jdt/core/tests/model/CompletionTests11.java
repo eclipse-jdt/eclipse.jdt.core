@@ -40,16 +40,18 @@ public void test_var_in_parameter_in_lambda() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/X.java",
-			"package test;\n" +
-			 		"public class X {\n" +
-			 		"	public static void main(String[] args) {	\n" +
-			 		"		I lambda = (va ) -> {}; \n" +
-			 		"		lambda.apply(10); \n" +
-			 		"		}\n" +
-			 		"	}\n" +
-			 		"interface I {\n" +
-			 		"void apply(Integer a); \n" +
-			 		"}\n");
+			"""
+				package test;
+				public class X {
+					public static void main(String[] args) {\t
+						I lambda = (va ) -> {};\s
+						lambda.apply(10);\s
+						}
+					}
+				interface I {
+				void apply(Integer a);\s
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
 	String str = this.workingCopies[0].getSource();
@@ -65,18 +67,20 @@ public void test_members_matching_paramater_name_on_getter() throws JavaModelExc
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Smart.java",
-			"package test;\n" +
-					"public class Smart {\n" +
-					"	public static void persist(Task task) {	\n" +
-					"		create(task.);\n" +
-					"	}\n" +
-					"	public static void create(String name, boolean completed, int details) {}\n" +
-					"	public static class Task {\n" +
-					"		public String getName() {return null;}\n" +
-					"		public boolean isCompleted() {return false;}\n" +
-					"		public String details() {return null;}\n" +
-					"	}\n" +
-					"}\n");
+			"""
+				package test;
+				public class Smart {
+					public static void persist(Task task) {\t
+						create(task.);
+					}
+					public static void create(String name, boolean completed, int details) {}
+					public static class Task {
+						public String getName() {return null;}
+						public boolean isCompleted() {return false;}
+						public String details() {return null;}
+					}
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
 	String str = this.workingCopies[0].getSource();
@@ -94,20 +98,21 @@ public void test_members_matching_paramater_name_on_non_getter() throws JavaMode
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Smart.java",
-			"package test;\n" +
-					"public class Smart {\n" +
-					"	public static void persist(Task task) {	\n" +
-					"		create(task.getName(), false, task.);\n" +
-					"	}\n" +
-					"	public static void create(String name, boolean completed, String details, String assignee) {}\n"
-					+
-					"	public static class Task {\n" +
-					"		public String getName() {return null;}\n" +
-					"		public boolean isCompleted() {return false;}\n" +
-					"		public String details() {return null;}\n" +
-					"		public int getAssignee() {return null;}\n" +
-					"	}\n" +
-					"}\n");
+			"""
+				package test;
+				public class Smart {
+					public static void persist(Task task) {\t
+						create(task.getName(), false, task.);
+					}
+					public static void create(String name, boolean completed, String details, String assignee) {}
+					public static class Task {
+						public String getName() {return null;}
+						public boolean isCompleted() {return false;}
+						public String details() {return null;}
+						public int getAssignee() {return null;}
+					}
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
 	String str = this.workingCopies[0].getSource();
@@ -125,20 +130,21 @@ public void test_members_matching_paramater_name_on_boolean_getter() throws Java
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Smart.java",
-			"package test;\n" +
-					"public class Smart {\n" +
-					"	public static void persist(Task task) {	\n" +
-					"		create(task.getName(), task.);\n" +
-					"	}\n" +
-					"	public static void create(String name, boolean completed, String details, String assignee) {}\n"
-					+
-					"	public static class Task {\n" +
-					"		public String getName() {return null;}\n" +
-					"		public boolean isCompleted() {return false;}\n" +
-					"		public String details() {return null;}\n" +
-					"		public int getAssignee() {return null;}\n" +
-					"	}\n" +
-					"}\n");
+			"""
+				package test;
+				public class Smart {
+					public static void persist(Task task) {\t
+						create(task.getName(), task.);
+					}
+					public static void create(String name, boolean completed, String details, String assignee) {}
+					public static class Task {
+						public String getName() {return null;}
+						public boolean isCompleted() {return false;}
+						public String details() {return null;}
+						public int getAssignee() {return null;}
+					}
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
 	String str = this.workingCopies[0].getSource();
@@ -158,20 +164,21 @@ public void test_members_matching_paramater_name_on_wrong_type() throws JavaMode
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Smart.java",
-			"package test;\n" +
-					"public class Smart {\n" +
-					"	public static void persist(Task task) {	\n" +
-					"		create(task.getName(), false, \"\", task.);\n" +
-					"	}\n" +
-					"	public static void create(String name, boolean completed, String details, String assignee) {}\n"
-					+
-					"	public static class Task {\n" +
-					"		public String getName() {return null;}\n" +
-					"		public boolean isCompleted() {return false;}\n" +
-					"		public String details() {return null;}\n" +
-					"		public int getAssignee() {return null;}\n" +
-					"	}\n" +
-					"}\n");
+			"""
+				package test;
+				public class Smart {
+					public static void persist(Task task) {\t
+						create(task.getName(), false, "", task.);
+					}
+					public static void create(String name, boolean completed, String details, String assignee) {}
+					public static class Task {
+						public String getName() {return null;}
+						public boolean isCompleted() {return false;}
+						public String details() {return null;}
+						public int getAssignee() {return null;}
+					}
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
 	String str = this.workingCopies[0].getSource();
@@ -191,21 +198,22 @@ public void test_members_matching_paramater_name_on_field() throws JavaModelExce
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Smart.java",
-			"package test;\n" +
-					"public class Smart {\n" +
-					"	public static void persist(Task task) {	\n" +
-					"		create(task.getName(), false, \"\", task.);\n" +
-					"	}\n" +
-					"	public static void create(String name, boolean completed, String details, String assignee) {}\n"
-					+
-					"	public static class Task {\n" +
-					"		public String getName() {return null;}\n" +
-					"		public boolean isCompleted() {return false;}\n" +
-					"		public String details() {return null;}\n" +
-					"		public int getAssignee() {return null;}\n" +
-					"		public String assignee;}\n" +
-					"	}\n" +
-					"}\n");
+			"""
+				package test;
+				public class Smart {
+					public static void persist(Task task) {\t
+						create(task.getName(), false, "", task.);
+					}
+					public static void create(String name, boolean completed, String details, String assignee) {}
+					public static class Task {
+						public String getName() {return null;}
+						public boolean isCompleted() {return false;}
+						public String details() {return null;}
+						public int getAssignee() {return null;}
+						public String assignee;}
+					}
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
 	String str = this.workingCopies[0].getSource();
@@ -225,14 +233,15 @@ public void test_members_matching_paramater_name_on_local_variable() throws Java
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Smart.java",
-			"package test;\n" +
-					"public class Smart {\n" +
-					"	public static void persist(String name, String shortName) {	\n" +
-					"		create(null, false, null, null);\n" +
-					"	}\n" +
-					"	public static void create(String name, boolean completed, String details, String assignee) {}\n"
-					+
-					"}\n");
+			"""
+				package test;
+				public class Smart {
+					public static void persist(String name, String shortName) {\t
+						create(null, false, null, null);
+					}
+					public static void create(String name, boolean completed, String details, String assignee) {}
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
 	String str = this.workingCopies[0].getSource();

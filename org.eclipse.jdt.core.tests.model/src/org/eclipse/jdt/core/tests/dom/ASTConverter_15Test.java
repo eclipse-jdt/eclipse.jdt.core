@@ -99,12 +99,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-			"public record X() {\n" +
-			"		public X {\n" +
-			"			System.out.println(\"no error\");\n" +
-			"		}\n" +
-			"\n" +
-			"}\n";
+			"""
+			public record X() {
+					public X {
+						System.out.println("no error");
+					}
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -131,14 +133,16 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-			"public record X(int param1, int param2) {\n" +
-			"		public X {\n" +
-			"			if (param1 > 5) {\n" +
-			"				System.out.println(\"error\");\n" +
-			"			}\n" +
-			"		}\n" +
-			"\n" +
-			"}\n";
+			"""
+			public record X(int param1, int param2) {
+					public X {
+						if (param1 > 5) {
+							System.out.println("error");
+						}
+					}
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -162,18 +166,20 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-			"public record X(int param1, int param2) {\n" +
-			"		public X {\n" +
-			"			if (param1 > 5) {\n" +
-			"				System.out.println(\"error\");\n" +
-			"			}\n" +
-			"		}\n" +
-			"\n" +
-			"		public X(int a) {\n" +
-			"			this(6,16);\n" +
-			"			System.out.println(a);\n" +
-			"		}\n" +
-			"}\n";
+			"""
+			public record X(int param1, int param2) {
+					public X {
+						if (param1 > 5) {
+							System.out.println("error");
+						}
+					}
+			
+					public X(int a) {
+						this(6,16);
+						System.out.println(a);
+					}
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -196,13 +202,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test " + getName() + " requires a JRE 15");
 			return;
 		}
-		String contents = "public class X {\n" +
-						  "	public static void main(String[] args) {\n" +
-				          "		record R(int x,int y){}\n" +
-						  "		R r = new R(100, 200);\n" +
-				          "		System.out.println(r.x());\n" +
-						  "	}\n" +
-				          "}";
+		String contents = """
+			public class X {
+				public static void main(String[] args) {
+					record R(int x,int y){}
+					R r = new R(100, 200);
+					System.out.println(r.x());
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/* resolve */);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -232,13 +239,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
-		String contents = "public class X {\n" +
-				  "	public static void main(String[] args) {\n" +
-		          "		record R(int x,String y){}\n" +
-				  "		R r = new R(100, \"Point\");\n" +
-		          "		System.out.println(r.x());\n" +
-				  "	}\n" +
-		          "}";
+		String contents = """
+			public class X {
+				public static void main(String[] args) {
+					record R(int x,String y){}
+					R r = new R(100, "Point");
+					System.out.println(r.x());
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -283,16 +291,17 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
-		String contents = "import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"record X(@MyAnnot int lo) {\n" +
-				"	public int lo() {\n" +
-				"		return this.lo;\n" +
-				"	}\n" +
-				"\n" +
-				"}\n" +
-				"@Target({ElementType.FIELD})\n" +
-				"@interface MyAnnot {}";
+		String contents = """
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			record X(@MyAnnot int lo) {
+				public int lo() {
+					return this.lo;
+				}
+			
+			}
+			@Target({ElementType.FIELD})
+			@interface MyAnnot {}""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -330,12 +339,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
-		String contents = "record X(int lo) {\n" +
-				"	public int lo() {\n" +
-				"		return this.lo;\n" +
-				"	}\n" +
-				"\n" +
-				"}\n";
+		String contents = """
+			record X(int lo) {
+				public int lo() {
+					return this.lo;
+				}
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -372,15 +383,17 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
-		String contents = "import java.lang.annotation.*;\n" +
-				"@Target (ElementType.METHOD)\n" +
-				"@interface MyAnnot {}\n" +
-				"public record X(@MyAnnot int lo) {\n" +
-				"	public int lo() {\n" +
-				"		return this.lo;\n" +
-				"	}\n" +
-				"\n" +
-				"}\n";
+		String contents = """
+			import java.lang.annotation.*;
+			@Target (ElementType.METHOD)
+			@interface MyAnnot {}
+			public record X(@MyAnnot int lo) {
+				public int lo() {
+					return this.lo;
+				}
+			
+			}
+			""";
 
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
@@ -409,32 +422,35 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
-		String elementType = "package java.lang.annotation;\n" +
-				"public enum ElementType {\n" +
-				"    TYPE,\n" +
-				"    FIELD,\n" +
-				"    METHOD,\n" +
-				"    PARAMETER,\n" +
-				"    CONSTRUCTOR,\n" +
-				"    LOCAL_VARIABLE,\n" +
-				"    ANNOTATION_TYPE,\n" +
-				"    PACKAGE,\n" +
-				"    TYPE_PARAMETER,\n" +
-				"    TYPE_USE,\n" +
-				"    MODULE,\n" +
-				"    RECORD_COMPONENT\n" +
-				"}\n";
+		String elementType = """
+			package java.lang.annotation;
+			public enum ElementType {
+			    TYPE,
+			    FIELD,
+			    METHOD,
+			    PARAMETER,
+			    CONSTRUCTOR,
+			    LOCAL_VARIABLE,
+			    ANNOTATION_TYPE,
+			    PACKAGE,
+			    TYPE_PARAMETER,
+			    TYPE_USE,
+			    MODULE,
+			    RECORD_COMPONENT
+			}
+			""";
 		ICompilationUnit workingCopy2 = getWorkingCopy("/Converter_15/src/java/lang/annotation/ElementType.java", true/*resolve*/);
-		String contents = "import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"record X(@MyAnnot int lo) {\n" +
-				"	public int lo() {\n" +
-				"		return this.lo;\n" +
-				"	}\n" +
-				"\n" +
-				"}\n" +
-				"@Target({ElementType.RECORD_COMPONENT})\n" +
-				"@interface MyAnnot {}";
+		String contents = """
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			record X(@MyAnnot int lo) {
+				public int lo() {
+					return this.lo;
+				}
+			
+			}
+			@Target({ElementType.RECORD_COMPONENT})
+			@interface MyAnnot {}""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -473,33 +489,36 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
-		String elementType = "package java.lang.annotation;\n" +
-				"public enum ElementType {\n" +
-				"    TYPE,\n" +
-				"    FIELD,\n" +
-				"    METHOD,\n" +
-				"    PARAMETER,\n" +
-				"    CONSTRUCTOR,\n" +
-				"    LOCAL_VARIABLE,\n" +
-				"    ANNOTATION_TYPE,\n" +
-				"    PACKAGE,\n" +
-				"    TYPE_PARAMETER,\n" +
-				"    TYPE_USE,\n" +
-				"    MODULE,\n" +
-				"    RECORD_COMPONENT\n" +
-				"}\n";
+		String elementType = """
+			package java.lang.annotation;
+			public enum ElementType {
+			    TYPE,
+			    FIELD,
+			    METHOD,
+			    PARAMETER,
+			    CONSTRUCTOR,
+			    LOCAL_VARIABLE,
+			    ANNOTATION_TYPE,
+			    PACKAGE,
+			    TYPE_PARAMETER,
+			    TYPE_USE,
+			    MODULE,
+			    RECORD_COMPONENT
+			}
+			""";
 		ICompilationUnit workingCopy2 = getWorkingCopy("/Converter_15/src/java/lang/annotation/ElementType.java", true/*resolve*/);
-		String contents = "import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"record X(@MyAnnot int lo) {\n" +
-				"	public static @MyAnnot int x;\n" +
-				"	public int lo() {\n" +
-				"		return this.lo;\n" +
-				"	}\n" +
-				"\n" +
-				"}\n" +
-				"@Target({ElementType.RECORD_COMPONENT})\n" +
-				"@interface MyAnnot {}";
+		String contents = """
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			record X(@MyAnnot int lo) {
+				public static @MyAnnot int x;
+				public int lo() {
+					return this.lo;
+				}
+			
+			}
+			@Target({ElementType.RECORD_COMPONENT})
+			@interface MyAnnot {}""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -528,12 +547,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-			"public record X() {\n" +
-			"		public X {\n" +
-			"			System.out.println(\"no error\");\n" +
-			"		}\n" +
-			"\n" +
-			"}\n";
+			"""
+			public record X() {
+					public X {
+						System.out.println("no error");
+					}
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -564,12 +585,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-			"public record X(int myComp) {\n" +
-			"		public void foo() {\n" +
-			"			System.out.println(\"no error\");\n" +
-			"		}\n" +
-			"\n" +
-			"}\n";
+			"""
+			public record X(int myComp) {
+					public void foo() {
+						System.out.println("no error");
+					}
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -615,12 +638,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-			"public class X {\n" +
-			"		public X() {\n" +
-			"			System.out.println(\"no error\");\n" +
-			"		}\n" +
-			"\n" +
-			"}\n";
+			"""
+			public class X {
+					public X() {
+						System.out.println("no error");
+					}
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 				contents,
@@ -644,9 +669,11 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-			"public interface X {\n" +
-			"\n" +
-			"}\n";
+			"""
+			public interface X {
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 				contents,
@@ -670,19 +697,20 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-				"public class X {\n" +
-						"	public String test001() {\n" +
-						"		String s = \"\"\"\n" +
-						"       <html>\n" +
-						"        <body>\n" +
-						"            <p>Hello, world</p>\n" +
-						"        </body>\n" +
-						"       </html>\n" +
-						"   \"\"\";\n" +
-						"    	System.out.println(s);" +
-						"		return s;\n" +
-						"	}" +
-						"}" ;
+				"""
+			public class X {
+				public String test001() {
+					String s = \"""
+			       <html>
+			        <body>
+			            <p>Hello, world</p>
+			        </body>
+			       </html>
+			   \""";
+			    	System.out.println(s);\
+					return s;
+				}\
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 				contents,
@@ -706,11 +734,13 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 
 		String literal = ((TextBlock) initializer).getLiteralValue();
 		assertEquals("literal value not correct",
-				"    <html>\n" +
-				"     <body>\n" +
-				"         <p>Hello, world</p>\n" +
-				"     </body>\n" +
-				"    </html>\n",
+				"""
+					    <html>
+					     <body>
+					         <p>Hello, world</p>
+					     </body>
+					    </html>
+					""",
 				literal);
 
 	}
@@ -721,19 +751,20 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-				"public class X {\n" +
-						"	public String test001() {\n" +
-						"		String s = \"\"\"\n" +
-						"      	<html>\n" +
-						"        <body>\n" +
-						"            <p>Hello, world</p>\n" +
-						"        </body>\n" +
-						"      	</html>\n" +
-						"\"\"\";\n" +
-						"    	System.out.println(s);" +
-						"		return s;\n" +
-						"	}" +
-						"}" ;
+				"""
+			public class X {
+				public String test001() {
+					String s = \"""
+			      	<html>
+			        <body>
+			            <p>Hello, world</p>
+			        </body>
+			      	</html>
+			\""";
+			    	System.out.println(s);\
+					return s;
+				}\
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 				contents,
@@ -759,13 +790,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			assertTrue("String should not be empty", escapedValue.length() != 0);
 		assertTrue("String should start with \"\"\"", escapedValue.startsWith("\"\"\""));
 		assertEquals("escaped value not correct",
-				"\"\"\"\n" +
-				"      	<html>\n" +
-				"        <body>\n" +
-				"            <p>Hello, world</p>\n" +
-				"        </body>\n" +
-				"      	</html>\n" +
-				"\"\"\"",
+				"""
+					\"""
+					      	<html>
+					        <body>
+					            <p>Hello, world</p>
+					        </body>
+					      	</html>
+					\"\"\"""",
 				escapedValue);
 
 		String literal = ((TextBlock) initializer).getLiteralValue();
@@ -785,17 +817,18 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-				"public class test14 {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		String s = \"\"\"\n" +
-				"				nadknaks vgvh \n" +
-				"				\"\"\";\n" +
-				"\n" +
-				"		int m = 10;\n" +
-				"		m = m* 6;\n" +
-				"		System.out.println(s);\n" +
-				"	}\n" +
-				"}" ;
+				"""
+			public class test14 {
+				public static void main(String[] args) {
+					String s = \"""
+							nadknaks vgvh\s
+							\""";
+			
+					int m = 10;
+					m = m* 6;
+					System.out.println(s);
+				}
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter_15/src/test14.java", true/*resolve*/);
 		ASTNode node = buildAST(
 				contents,
@@ -820,15 +853,16 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-				"public class X {\n" +
-						"	public String test001(Object o) {\n" +
-						"		if (o instanceof String s){\n" +
-						"    		System.out.println(s);\n" +
-						"			return s;\n" +
-						"		}\n" +
-						"		return null;\n" +
-						"	}\n" +
-						"}" ;
+				"""
+			public class X {
+				public String test001(Object o) {
+					if (o instanceof String s){
+			    		System.out.println(s);
+						return s;
+					}
+					return null;
+				}
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -863,16 +897,17 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-				"public class X {\n" +
-						"	public String test001(Object o) {\n" +
-						"		if (o instanceof String){\n" +
-						"    		String s = (String)o;\n" +
-						"    		System.out.println(s);\n" +
-						"			return s;\n" +
-						"		}\n" +
-						"		return null;\n" +
-						"	}\n" +
-						"}" ;
+				"""
+			public class X {
+				public String test001(Object o) {
+					if (o instanceof String){
+			    		String s = (String)o;
+			    		System.out.println(s);
+						return s;
+					}
+					return null;
+				}
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -907,15 +942,16 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-				"public class X {\n" +
-						"	public String test001(Object o) {\n" +
-						"		if (o instanceof String s){\n" +
-						"    		System.out.println(s);\n" +
-						"			return s;\n" +
-						"		}\n" +
-						"		return null;\n" +
-						"	}\n" +
-						"}" ;
+				"""
+			public class X {
+				public String test001(Object o) {
+					if (o instanceof String s){
+			    		System.out.println(s);
+						return s;
+					}
+					return null;
+				}
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -951,12 +987,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
-		String contents = "public sealed class X permits X1{\n" +
-				"\n" +
-				"}\n" +
-				"non-sealed class X1 extends X {\n" +
-				"\n" +
-				"}\n";
+		String contents = """
+			public sealed class X permits X1{
+			
+			}
+			non-sealed class X1 extends X {
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -998,12 +1036,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
-		String contents = "public sealed interface X permits X1{\n" +
-				"\n" +
-				"}\n" +
-				"non-sealed interface X1 extends X {\n" +
-				"\n" +
-				"}\n";
+		String contents = """
+			public sealed interface X permits X1{
+			
+			}
+			non-sealed interface X1 extends X {
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -1035,12 +1075,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
-		String contents = "public sealed interface X permits X1{\n" +
-				"\n" +
-				"}\n" +
-				"non-sealed interface X1 extends X {\n" +
-				"\n" +
-				"}\n";
+		String contents = """
+			public sealed interface X permits X1{
+			
+			}
+			non-sealed interface X1 extends X {
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -1081,12 +1123,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
-		String contents = "public sealed class X permits X1{\n" +
-				"\n" +
-				"}\n" +
-				"non-sealed class X1 extends X {\n" +
-				"\n" +
-				"}\n";
+		String contents = """
+			public sealed class X permits X1{
+			
+			}
+			non-sealed class X1 extends X {
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -1126,17 +1170,21 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
-		String contents = "record X(int lo) {\n" +
-				"   public X {\n" +
-				"   \n}\n" +
-				"   public X(String str) {\n" +
-				"		this((str != null) ? str.length() : 0);" +
-				"   \n}\n" +
-				"	public int abc() {\n" +
-				"		return this.lo;\n" +
-				"	}\n" +
-				"\n" +
-				"}\n";
+		String contents = """
+			record X(int lo) {
+			   public X {
+			  \s
+			}
+			   public X(String str) {
+					this((str != null) ? str.length() : 0);\
+			  \s
+			}
+				public int abc() {
+					return this.lo;
+				}
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -1179,18 +1227,22 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
-		String contents = "record X(int lo) {\n" +
-				"   public X(int lo) {\n" +
-				"		this.lo = lo;" +
-				"   \n}\n" +
-				"   public X(String str) {\n" +
-				"		this((str != null) ? str.length() : 0);" +
-				"   \n}\n" +
-				"	public int abc() {\n" +
-				"		return this.lo;\n" +
-				"	}\n" +
-				"\n" +
-				"}\n";
+		String contents = """
+			record X(int lo) {
+			   public X(int lo) {
+					this.lo = lo;\
+			  \s
+			}
+			   public X(String str) {
+					this((str != null) ? str.length() : 0);\
+			  \s
+			}
+				public int abc() {
+					return this.lo;
+				}
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -1233,11 +1285,12 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-						"public class X {\n"
-						+ "    String example = \"\"\"\n"
-						+ "            Example text\"\"\";\n"
-						+ "    final String expected = \"Example text\";\n"
-						+ "}" ;
+						"""
+			public class X {
+			    String example = \"""
+			            Example text\""";
+			    final String expected = "Example text";
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 				contents,

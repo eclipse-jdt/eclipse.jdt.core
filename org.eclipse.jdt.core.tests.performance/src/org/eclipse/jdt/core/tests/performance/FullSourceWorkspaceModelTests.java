@@ -741,25 +741,27 @@ public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException 
 
 	// build big file contents
 	String method =
-		"() {\n" +
-		"  bar(\n" +
-		"    \"public class X <E extends Exception> {\\n\" + \r\n" +
-		"	 \"    void foo(E e) throws E {\\n\" + \r\n" +
-		"	 \"        throw e;\\n\" + \r\n" +
-		"	 \"    }\\n\" + \r\n" +
-		"	 \"    void bar(E e) {\\n\" + \r\n" +
-		"	 \"        try {\\n\" + \r\n" +
-		"	 \"            foo(e);\\n\" + \r\n" +
-		"	 \"        } catch(Exception ex) {\\n\" + \r\n" +
-		"	 \"	        System.out.println(\\\"SUCCESS\\\");\\n\" + \r\n" +
-		"	 \"        }\\n\" + \r\n" +
-		"	 \"    }\\n\" + \r\n" +
-		"	 \"    public static void main(String[] args) {\\n\" + \r\n" +
-		"	 \"        new X<Exception>().bar(new Exception());\\n\" + \r\n" +
-		"	 \"    }\\n\" + \r\n" +
-		"	 \"}\\n\"" +
-		"  );\n" +
-		"}\n";
+		"""
+		() {
+		  bar(
+		    "public class X <E extends Exception> {\\n" + \r
+			 "    void foo(E e) throws E {\\n" + \r
+			 "        throw e;\\n" + \r
+			 "    }\\n" + \r
+			 "    void bar(E e) {\\n" + \r
+			 "        try {\\n" + \r
+			 "            foo(e);\\n" + \r
+			 "        } catch(Exception ex) {\\n" + \r
+			 "	        System.out.println(\\"SUCCESS\\");\\n" + \r
+			 "        }\\n" + \r
+			 "    }\\n" + \r
+			 "    public static void main(String[] args) {\\n" + \r
+			 "        new X<Exception>().bar(new Exception());\\n" + \r
+			 "    }\\n" + \r
+			 "}\\n"\
+		  );
+		}
+		""";
 	StringBuilder bigContents = new StringBuilder();
 	bigContents.append("public class BigCU {\n");
 	int fooIndex = 0;

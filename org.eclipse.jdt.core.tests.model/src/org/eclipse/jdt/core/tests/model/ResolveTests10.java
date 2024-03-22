@@ -84,25 +84,27 @@ public class ResolveTests10 extends AbstractJavaModelTests {
 	public void testVarWithIntersectionType() throws CoreException {
 		this.wc = getWorkingCopy(
 				"/Resolve/src/Hey.java",
-				"interface Cloneable {}\n" +
-				"\n" +
-				"abstract class AbstractSet<S> {}\n" +
-				"\n" +
-				"class TreeSet<E> extends AbstractSet<E>\n" +
-				"    implements Cloneable, java.io.Serializable\n" +
-				"{}\n" +
-				"\n" +
-				"class HashSet<E>\n" +
-				"    extends AbstractSet<E>\n" +
-				"    implements Cloneable, java.io.Serializable\n" +
-				"{}\n" +
-				"\n" +
-				"public class Hey {\n" +
-				"    public static void main(String[] args) {\n" +
-				"        var x = args.length > 0 ? new TreeSet<>() : new HashSet<>();\n" +
-				"        x.add(1);\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					interface Cloneable {}
+					
+					abstract class AbstractSet<S> {}
+					
+					class TreeSet<E> extends AbstractSet<E>
+					    implements Cloneable, java.io.Serializable
+					{}
+					
+					class HashSet<E>
+					    extends AbstractSet<E>
+					    implements Cloneable, java.io.Serializable
+					{}
+					
+					public class Hey {
+					    public static void main(String[] args) {
+					        var x = args.length > 0 ? new TreeSet<>() : new HashSet<>();
+					        x.add(1);
+					    }
+					}
+					""");
 
 		String str = this.wc.getSource();
 		String selection = "x";
@@ -121,29 +123,32 @@ public class ResolveTests10 extends AbstractJavaModelTests {
 
 		assertStringsEqual(
 				"Unexpected intersection type bounds",
-				"LAbstractSet<Ljava.lang.Object;>;\n" +
-				"LCloneable;\n" +
-				"Ljava.io.Serializable;\n",
+				"""
+					LAbstractSet<Ljava.lang.Object;>;
+					LCloneable;
+					Ljava.io.Serializable;
+					""",
 				Signature.getUnionTypeBounds(typeSignature) // method name is wrong, it actually means: getIntersectionTypeBounds
 			);
 	}
 	public void testBug562382() throws CoreException {
 		this.wc = getWorkingCopy("/Resolve/src/X.java",
-				"class X {\n" +
-				"	class Number {};\n" +
-				"	class Integer extends Number {};\n" +
-				"	interface Function<T, R> {\n" +
-				"	    R apply(T t);\n" +
-				"	}\n" +
-				"	Function<Number, Integer> fail() {\n" +
-				"		return new Function<>() {\n" +
-				"			@Override\n" +
-				"			public Integer apply(Number t) {\n" +
-				"				return null;\n" +
-				"			}\n" +
-				"		};\n" +
-				"	}\n" +
-				"}"
+				"""
+					class X {
+						class Number {};
+						class Integer extends Number {};
+						interface Function<T, R> {
+						    R apply(T t);
+						}
+						Function<Number, Integer> fail() {
+							return new Function<>() {
+								@Override
+								public Integer apply(Number t) {
+									return null;
+								}
+							};
+						}
+					}"""
 				);
 		String str = this.wc.getSource();
 		String selection = "Number";

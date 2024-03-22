@@ -128,18 +128,19 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case Integer i     -> System.out.println(\"String:\");\n"+
-				"     case String s     -> System.out.println(\"String: Hello World!\");\n"+
-				"     default       -> System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case Integer i     -> System.out.println("String:");
+					     case String s     -> System.out.println("String: Hello World!");
+					     default       -> System.out.println("Object");
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello World");
+					 }
+					}""",
 			},
 			"String: Hello World!");
 	}
@@ -147,18 +148,19 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case Integer i when i > 10    -> System.out.println(\"Integer: greater than 10\");\n"+
-				"     case String  s   -> System.out.println(\"String: Hello World!\");\n"+
-				"     default       -> System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(12);\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case Integer i when i > 10    -> System.out.println("Integer: greater than 10");
+					     case String  s   -> System.out.println("String: Hello World!");
+					     default       -> System.out.println("Object");
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo(12);
+					 }
+					}""",
 			},
 			"Integer: greater than 10");
 	}
@@ -166,618 +168,668 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case String s     -> System.out.println(\"String:\");\n"+
-				"     default       -> System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case String s     -> System.out.println("String:");
+					     default       -> System.out.println("Object");
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello World");
+					   Zork();
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 10)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 10)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug573516_003() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case String s  : System.out.println(\"String:\"); break;\n"+
-				"     case Integer i  : System.out.println(\"Integer:\");break;\n"+
-				"     default       : System.out.println(\"Object\");break;\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case String s  : System.out.println("String:"); break;
+					     case Integer i  : System.out.println("Integer:");break;
+					     default       : System.out.println("Object");break;
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello World");
+					   Zork();
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 11)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug573516_004() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case Integer t when t > 0 -> System.out.println(\"Integer && t > 0\");\n"+
-				"     default       -> System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case Integer t when t > 0 -> System.out.println("Integer && t > 0");
+					     default       -> System.out.println("Object");
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello World");
+					   Zork();
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 10)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 10)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug573516_005() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n"+
-				"     default : System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}\n"+
-				"class Y {}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case Integer t, String s, X x : System.out.println("Integer, String or X");
+					     default : System.out.println("Object");
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello World");
+					   Zork();
+					 }
+					}
+					class Y {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n" +
-			"	             ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n" +
-			"	                ^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n" +
-			"	                       ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n" +
-			"	                          ^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n" +
-			"	                            ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 10)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case Integer t, String s, X x : System.out.println("Integer, String or X");
+					             ^
+				Named pattern variables are not allowed here
+				----------
+				2. ERROR in X.java (at line 4)
+					case Integer t, String s, X x : System.out.println("Integer, String or X");
+					                ^^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				3. ERROR in X.java (at line 4)
+					case Integer t, String s, X x : System.out.println("Integer, String or X");
+					                       ^
+				Named pattern variables are not allowed here
+				----------
+				4. ERROR in X.java (at line 4)
+					case Integer t, String s, X x : System.out.println("Integer, String or X");
+					                          ^^^
+				Cannot mix pattern with other case labels
+				----------
+				5. ERROR in X.java (at line 4)
+					case Integer t, String s, X x : System.out.println("Integer, String or X");
+					                            ^
+				Named pattern variables are not allowed here
+				----------
+				6. ERROR in X.java (at line 10)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug573516_006() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n"+
-				"     default : System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}\n"+
-				"class Y {}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println("Integer, String or X");
+					     default : System.out.println("Object");
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello World");
+					   Zork();
+					 }
+					}
+					class Y {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	             ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	                ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	                       ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	                         ^^^^^^^^^^^^^^^^^\n" +
-			"Syntax error on token(s), misplaced construct(s)\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	                                              ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	                                                     ^\n" +
-			"x cannot be resolved\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 10)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println("Integer, String or X");
+					             ^
+				Named pattern variables are not allowed here
+				----------
+				2. ERROR in X.java (at line 4)
+					case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println("Integer, String or X");
+					                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				3. ERROR in X.java (at line 4)
+					case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println("Integer, String or X");
+					                       ^
+				Named pattern variables are not allowed here
+				----------
+				4. ERROR in X.java (at line 4)
+					case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println("Integer, String or X");
+					                         ^^^^^^^^^^^^^^^^^
+				Syntax error on token(s), misplaced construct(s)
+				----------
+				5. ERROR in X.java (at line 4)
+					case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println("Integer, String or X");
+					                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				6. ERROR in X.java (at line 4)
+					case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println("Integer, String or X");
+					                                              ^
+				Named pattern variables are not allowed here
+				----------
+				7. ERROR in X.java (at line 4)
+					case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println("Integer, String or X");
+					                                                     ^
+				x cannot be resolved
+				----------
+				8. ERROR in X.java (at line 10)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug573516_007() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case Integer t, String : System.out.println(\"Error should be flagged for String\");\n"+
-				"     default : System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}\n"+
-				"class Y {}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case Integer t, String : System.out.println("Error should be flagged for String");
+					     default : System.out.println("Object");
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello World");
+					   Zork();
+					 }
+					}
+					class Y {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String : System.out.println(\"Error should be flagged for String\");\n" +
-			"	                ^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String : System.out.println(\"Error should be flagged for String\");\n" +
-			"	                ^^^^^^\n" +
-			"String cannot be resolved to a variable\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case Integer t, String : System.out.println("Error should be flagged for String");
+					                ^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				2. ERROR in X.java (at line 4)
+					case Integer t, String : System.out.println("Error should be flagged for String");
+					                ^^^^^^
+				String cannot be resolved to a variable
+				----------
+				3. ERROR in X.java (at line 10)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug573516_008() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o.hashCode()) {\n"+
-				"     case Integer t, String : System.out.println(\"Error should be flagged for Integer and String\");\n"+
-				"     default : System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}\n"+
-				"class Y {}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o.hashCode()) {
+					     case Integer t, String : System.out.println("Error should be flagged for Integer and String");
+					     default : System.out.println("Object");
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello World");
+					   Zork();
+					 }
+					}
+					class Y {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String : System.out.println(\"Error should be flagged for Integer and String\");\n" +
-			"	     ^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from int to Integer\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String : System.out.println(\"Error should be flagged for Integer and String\");\n" +
-			"	                ^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String : System.out.println(\"Error should be flagged for Integer and String\");\n" +
-			"	                ^^^^^^\n" +
-			"String cannot be resolved to a variable\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 10)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case Integer t, String : System.out.println("Error should be flagged for Integer and String");
+					     ^^^^^^^^^
+				Type mismatch: cannot convert from int to Integer
+				----------
+				2. ERROR in X.java (at line 4)
+					case Integer t, String : System.out.println("Error should be flagged for Integer and String");
+					                ^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				3. ERROR in X.java (at line 4)
+					case Integer t, String : System.out.println("Error should be flagged for Integer and String");
+					                ^^^^^^
+				String cannot be resolved to a variable
+				----------
+				4. ERROR in X.java (at line 10)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug573516_009() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o.hashCode()) {\n"+
-				"     case null, default : System.out.println(\"Default\");\n"+
-				"     default : System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}\n"+
-				"class Y {}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o.hashCode()) {
+					     case null, default : System.out.println("Default");
+					     default : System.out.println("Object");
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello World");
+					   Zork();
+					 }
+					}
+					class Y {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case null, default : System.out.println(\"Default\");\n" +
-			"	     ^^^^\n" +
-			"Type mismatch: cannot convert from null to int\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	default : System.out.println(\"Object\");\n" +
-			"	^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case null, default : System.out.println("Default");
+					     ^^^^
+				Type mismatch: cannot convert from null to int
+				----------
+				2. ERROR in X.java (at line 5)
+					default : System.out.println("Object");
+					^^^^^^^
+				The default case is already defined
+				----------
+				3. ERROR in X.java (at line 10)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug573516_010() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o.hashCode()) {\n"+
-				"     case String s, default : System.out.println(\"Error should be flagged for String and default\");\n"+
-				"     default : System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}\n"+
-				"class Y {}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o.hashCode()) {
+					     case String s, default : System.out.println("Error should be flagged for String and default");
+					     default : System.out.println("Object");
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello World");
+					   Zork();
+					 }
+					}
+					class Y {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case String s, default : System.out.println(\"Error should be flagged for String and default\");\n" +
-			"	     ^^^^^^^^\n" +
-			"Type mismatch: cannot convert from int to String\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case String s, default : System.out.println(\"Error should be flagged for String and default\");\n" +
-			"	               ^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case String s, default : System.out.println(\"Error should be flagged for String and default\");\n" +
-			"	               ^^^^^^^\n" +
-			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 5)\n" +
-			"	default : System.out.println(\"Object\");\n" +
-			"	^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 10)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case String s, default : System.out.println("Error should be flagged for String and default");
+					     ^^^^^^^^
+				Type mismatch: cannot convert from int to String
+				----------
+				2. ERROR in X.java (at line 4)
+					case String s, default : System.out.println("Error should be flagged for String and default");
+					               ^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				3. ERROR in X.java (at line 4)
+					case String s, default : System.out.println("Error should be flagged for String and default");
+					               ^^^^^^^
+				A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default'\s
+				----------
+				4. ERROR in X.java (at line 5)
+					default : System.out.println("Object");
+					^^^^^^^
+				The default case is already defined
+				----------
+				5. ERROR in X.java (at line 10)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug573516_011() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o.hashCode()) {\n"+
-				"     case var s : System.out.println(\"Error should be ANY_PATTERN\");\n"+
-				"     default : System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}\n"+
-				"class Y {}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o.hashCode()) {
+					     case var s : System.out.println("Error should be ANY_PATTERN");
+					     default : System.out.println("Object");
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello World");
+					   Zork();
+					 }
+					}
+					class Y {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case var s : System.out.println(\"Error should be ANY_PATTERN\");\n" +
-			"	     ^^^\n" +
-			"'var' is not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case var s : System.out.println("Error should be ANY_PATTERN");
+					     ^^^
+				'var' is not allowed here
+				----------
+				2. ERROR in X.java (at line 10)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug574228_001() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case 1: System.out.println(\"Integer\"); break;\n"+
-				"     default : System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				"   public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				"     Zork();\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case 1: System.out.println("Integer"); break;
+					     default : System.out.println("Object");
+					   }
+					 }
+					   public static void main(String[] args) {
+					   foo("Hello World");
+					     Zork();
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case 1: System.out.println(\"Integer\"); break;\n" +
-			"	     ^\n" +
-			"Type mismatch: cannot convert from int to Object\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case 1: System.out.println("Integer"); break;
+					     ^
+				Type mismatch: cannot convert from int to Object
+				----------
+				2. ERROR in X.java (at line 10)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 
 	public void testBug573936_01() {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"     case Integer I: \n"+
-					"       System.out.println(\"Integer\"); \n"+
-					"       System.out.println(I); \n"+
-					"     case String s when s.length()>1: \n"+
-					"       System.out.println(\"String s && s.length()>1\"); \n"+
-					"       System.out.println(s); \n"+
-					"       break;// error no fallthrough allowed in pattern\n"+
-					"     case X x:\n"+
-					"       System.out.println(\"X\"); \n"+
-					"       System.out.println(x);\n"+
-					"       break;\n"+
-					"     default : System.out.println(\"Object\"); \n"+
-					"   }\n"+
-					" }   \n"+
-					"   public static void main(String[] args) {\n"+
-					"   foo(\"Hello World!\");\n"+
-					"     foo(\"H\");\n"+
-					"   foo(bar());\n"+
-					" }\n"+
-					"   public static Object bar() { return new Object();}\n"+
-					"}",
+					"""
+						public class X {
+						 private static void foo(Object o) {
+						   switch (o) {
+						     case Integer I:\s
+						       System.out.println("Integer");\s
+						       System.out.println(I);\s
+						     case String s when s.length()>1:\s
+						       System.out.println("String s && s.length()>1");\s
+						       System.out.println(s);\s
+						       break;// error no fallthrough allowed in pattern
+						     case X x:
+						       System.out.println("X");\s
+						       System.out.println(x);
+						       break;
+						     default : System.out.println("Object");\s
+						   }
+						 }  \s
+						   public static void main(String[] args) {
+						   foo("Hello World!");
+						     foo("H");
+						   foo(bar());
+						 }
+						   public static Object bar() { return new Object();}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case String s when s.length()>1: \n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Illegal fall-through to a pattern\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						case String s when s.length()>1:\s
+						^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Illegal fall-through to a pattern
+					----------
+					""");
 	}
 	public void testBug573939_01() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"     case Integer s : System.out.println(\"Integer\");\n"+
-					"     case String s1: System.out.println(\"String \");\n"+
-					"     default : System.out.println(\"Object\");\n"+
-					"   }\n"+
-					" }\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(\"Hello World\");\n"+
-					"   Zork();\n"+
-					" }\n"+
-					"}\n"+
-					"class Y {}",
+					"""
+						public class X {
+						 private static void foo(Object o) {
+						   switch (o) {
+						     case Integer s : System.out.println("Integer");
+						     case String s1: System.out.println("String ");
+						     default : System.out.println("Object");
+						   }
+						 }
+						 public static void main(String[] args) {
+						   foo("Hello World");
+						   Zork();
+						 }
+						}
+						class Y {}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case String s1: System.out.println(\"String \");\n" +
-				"	^^^^^^^^^^^^^^\n" +
-				"Illegal fall-through to a pattern\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 11)\n" +
-				"	Zork();\n" +
-				"	^^^^\n" +
-				"The method Zork() is undefined for the type X\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						case String s1: System.out.println("String ");
+						^^^^^^^^^^^^^^
+					Illegal fall-through to a pattern
+					----------
+					2. ERROR in X.java (at line 11)
+						Zork();
+						^^^^
+					The method Zork() is undefined for the type X
+					----------
+					""");
 	}
 	public void testBug573939_02() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"     case Integer I: System.out.println(\"Integer\"); break;\n"+
-					"     case String s when s.length()>1: System.out.println(\"String > 1\"); break;\n"+
-					"     case String s1: System.out.println(\"String\"); break;\n"+
-					"     case X x: System.out.println(\"X\"); break;\n"+
-					"     default : System.out.println(\"Object\");\n"+
-					"   }\n"+
-					" }\n"+
-					"   public static void main(String[] args) {\n"+
-					"   foo(\"Hello World!\");\n"+
-					"   foo(\"H\");\n"+
-					"   foo(bar());\n"+
-					" }\n"+
-					"   public static Object bar() { return new Object();}\n"+
-					"}",
+					"""
+						public class X {
+						 private static void foo(Object o) {
+						   switch (o) {
+						     case Integer I: System.out.println("Integer"); break;
+						     case String s when s.length()>1: System.out.println("String > 1"); break;
+						     case String s1: System.out.println("String"); break;
+						     case X x: System.out.println("X"); break;
+						     default : System.out.println("Object");
+						   }
+						 }
+						   public static void main(String[] args) {
+						   foo("Hello World!");
+						   foo("H");
+						   foo(bar());
+						 }
+						   public static Object bar() { return new Object();}
+						}""",
 				},
-				"String > 1\n" +
-				"String\n" +
-				"Object");
+				"""
+					String > 1
+					String
+					Object""");
 	}
 	public void testBug573939_03() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"     case Integer I: \n"+
-					"       System.out.println(\"Integer\"); \n"+
-					"       System.out.println(I); \n"+
-					"       break; \n"+
-					"     case String s when s.length()>1: \n"+
-					"       System.out.println(\"String s when s.length()>1\"); \n"+
-					"       System.out.println(s); \n"+
-					"       break;\n"+
-					"     case String s1: \n"+
-					"       System.out.println(\"String\"); \n"+
-					"       System.out.println(s1);\n"+
-					"       break; \n"+
-					"     case X x:\n"+
-					"       System.out.println(\"X\"); \n"+
-					"       System.out.println(x);\n"+
-					"       break;\n"+
-					"     default : System.out.println(\"Object\"); \n"+
-					"   }\n"+
-					" }   \n"+
-					"   public static void main(String[] args) {\n"+
-					"   foo(\"Hello World!\");\n"+
-					"     foo(\"H\");\n"+
-					"   foo(bar());\n"+
-					" }\n"+
-					"   public static Object bar() { return new Object();}\n"+
-					"}",
+					"""
+						public class X {
+						 private static void foo(Object o) {
+						   switch (o) {
+						     case Integer I:\s
+						       System.out.println("Integer");\s
+						       System.out.println(I);\s
+						       break;\s
+						     case String s when s.length()>1:\s
+						       System.out.println("String s when s.length()>1");\s
+						       System.out.println(s);\s
+						       break;
+						     case String s1:\s
+						       System.out.println("String");\s
+						       System.out.println(s1);
+						       break;\s
+						     case X x:
+						       System.out.println("X");\s
+						       System.out.println(x);
+						       break;
+						     default : System.out.println("Object");\s
+						   }
+						 }  \s
+						   public static void main(String[] args) {
+						   foo("Hello World!");
+						     foo("H");
+						   foo(bar());
+						 }
+						   public static Object bar() { return new Object();}
+						}""",
 				},
-				"String s when s.length()>1\n" +
-				"Hello World!\n" +
-				"String\n" +
-				"H\n" +
-				"Object");
+				"""
+					String s when s.length()>1
+					Hello World!
+					String
+					H
+					Object""");
 	}
 	public void testBug573939_03b() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"     case Integer I: \n"+
-					"       System.out.println(\"Integer\"); \n"+
-					"       System.out.println(I); \n"+
-					"       break; \n"+
-					"     case String s when s.length()>1: \n"+
-					"       System.out.println(\"String s when s.length()>1\"); \n"+
-					"       System.out.println(s); \n"+
-					"       break;\n"+
-					"     case String s: \n"+
-					"       System.out.println(\"String\"); \n"+
-					"       System.out.println(s);\n"+
-					"       break; \n"+
-					"     case X x:\n"+
-					"       System.out.println(\"X\"); \n"+
-					"       System.out.println(x);\n"+
-					"       break;\n"+
-					"     default : System.out.println(\"Object\"); \n"+
-					"   }\n"+
-					" }   \n"+
-					"   public static void main(String[] args) {\n"+
-					"   foo(\"Hello World!\");\n"+
-					"     foo(\"H\");\n"+
-					"   foo(bar());\n"+
-					" }\n"+
-					"   public static Object bar() { return new Object();}\n"+
-					"}",
+					"""
+						public class X {
+						 private static void foo(Object o) {
+						   switch (o) {
+						     case Integer I:\s
+						       System.out.println("Integer");\s
+						       System.out.println(I);\s
+						       break;\s
+						     case String s when s.length()>1:\s
+						       System.out.println("String s when s.length()>1");\s
+						       System.out.println(s);\s
+						       break;
+						     case String s:\s
+						       System.out.println("String");\s
+						       System.out.println(s);
+						       break;\s
+						     case X x:
+						       System.out.println("X");\s
+						       System.out.println(x);
+						       break;
+						     default : System.out.println("Object");\s
+						   }
+						 }  \s
+						   public static void main(String[] args) {
+						   foo("Hello World!");
+						     foo("H");
+						   foo(bar());
+						 }
+						   public static Object bar() { return new Object();}
+						}""",
 				},
-				"String s when s.length()>1\n" +
-				"Hello World!\n" +
-				"String\n" +
-				"H\n" +
-				"Object");
+				"""
+					String s when s.length()>1
+					Hello World!
+					String
+					H
+					Object""");
 	}
 	public void test045() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public abstract class X {\n" +
-				"  public static void main(String[] args) {\n" +
-				"    switch (args.length) {\n" +
-				"      case 1:\n" +
-				"        final int j = 1;\n" +
-				"      case 2:\n" +
-				"        switch (5) {\n" +
-				"          case j:\n" +
-				"        }\n" +
-				"    }\n" +
-				"  }\n" +
-				"}\n",
+				"""
+					public abstract class X {
+					  public static void main(String[] args) {
+					    switch (args.length) {
+					      case 1:
+					        final int j = 1;
+					      case 2:
+					        switch (5) {
+					          case j:
+					        }
+					    }
+					  }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	case j:\n" +
-			"	     ^\n" +
-			"The local variable j may not have been initialized\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 8)
+					case j:
+					     ^
+				The local variable j may not have been initialized
+				----------
+				""");
 	}
 	public void testBug574525_01() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"     case Integer I: \n"+
-					"       System.out.println(\"Integer\"); \n"+
-					"       System.out.println(I); \n"+
-					"       break; \n"+
-					"     case null:\n"+
-					"       System.out.println(\"NULL\"); \n"+
-					"       break;\n"+
-					"     default : System.out.println(\"Object\"); \n"+
-					"   }\n"+
-					" }   \n"+
-					"   public static void main(String[] args) {\n"+
-					"     foo(null);\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 private static void foo(Object o) {
+						   switch (o) {
+						     case Integer I:\s
+						       System.out.println("Integer");\s
+						       System.out.println(I);\s
+						       break;\s
+						     case null:
+						       System.out.println("NULL");\s
+						       break;
+						     default : System.out.println("Object");\s
+						   }
+						 }  \s
+						   public static void main(String[] args) {
+						     foo(null);
+						 }
+						}""",
 				},
 				"NULL");
 	}
@@ -785,65 +837,68 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"     case Integer I: \n"+
-					"       System.out.println(\"Integer\"); \n"+
-					"       System.out.println(I); \n"+
-					"       break; \n"+
-					"     case String s when s.length()>1: \n"+
-					"       System.out.println(\"String s when s.length()>1\"); \n"+
-					"       System.out.println(s); \n"+
-					"       break;\n"+
-					"     case String s1: \n"+
-					"       System.out.println(\"String\"); \n"+
-					"       System.out.println(s1);\n"+
-					"       break; \n"+
-					"     case X x:\n"+
-					"       System.out.println(\"X\"); \n"+
-					"       System.out.println(x);\n"+
-					"       break;\n"+
-					"     case null:\n"+
-					"       System.out.println(\"NULL\"); \n"+
-					"       break;\n"+
-					"     default : System.out.println(\"Object\"); \n"+
-					"   }\n"+
-					" }   \n"+
-					"   public static void main(String[] args) {\n"+
-					"   foo(\"Hello World!\");\n"+
-					"   foo(null);\n"+
-					"   foo(bar());\n"+
-					" }\n"+
-					"   public static Object bar() { return new Object();}\n"+
-					"}",
+					"""
+						public class X {
+						 private static void foo(Object o) {
+						   switch (o) {
+						     case Integer I:\s
+						       System.out.println("Integer");\s
+						       System.out.println(I);\s
+						       break;\s
+						     case String s when s.length()>1:\s
+						       System.out.println("String s when s.length()>1");\s
+						       System.out.println(s);\s
+						       break;
+						     case String s1:\s
+						       System.out.println("String");\s
+						       System.out.println(s1);
+						       break;\s
+						     case X x:
+						       System.out.println("X");\s
+						       System.out.println(x);
+						       break;
+						     case null:
+						       System.out.println("NULL");\s
+						       break;
+						     default : System.out.println("Object");\s
+						   }
+						 }  \s
+						   public static void main(String[] args) {
+						   foo("Hello World!");
+						   foo(null);
+						   foo(bar());
+						 }
+						   public static Object bar() { return new Object();}
+						}""",
 				},
-				"String s when s.length()>1\n" +
-				"Hello World!\n" +
-				"NULL\n" +
-				"Object");
+				"""
+					String s when s.length()>1
+					Hello World!
+					NULL
+					Object""");
 	}
 	public void testBug574525_03() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" private static void foo(Integer o) {\n"+
-					"   switch (o) {\n"+
-					"     case 10: \n"+
-					"       System.out.println(\"Integer\"); \n"+
-					"       System.out.println(o); \n"+
-					"       break; \n"+
-					"     case null:\n"+
-					"       System.out.println(\"NULL\"); \n"+
-					"       break;\n"+
-					"     default : System.out.println(o); \n"+
-					"   }\n"+
-					" }   \n"+
-					"   public static void main(String[] args) {\n"+
-					"     foo(0);\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 private static void foo(Integer o) {
+						   switch (o) {
+						     case 10:\s
+						       System.out.println("Integer");\s
+						       System.out.println(o);\s
+						       break;\s
+						     case null:
+						       System.out.println("NULL");\s
+						       break;
+						     default : System.out.println(o);\s
+						   }
+						 }  \s
+						   public static void main(String[] args) {
+						     foo(0);
+						 }
+						}""",
 				},
 				"0");
 	}
@@ -851,54 +906,58 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" private static void foo(int o) {\n"+
-					"   switch (o) {\n"+
-					"     case 10: \n"+
-					"       System.out.println(\"Integer\"); \n"+
-					"       System.out.println(o); \n"+
-					"       break; \n"+
-					"     case null:\n"+
-					"       System.out.println(\"NULL\"); \n"+
-					"       break;\n"+
-					"     default : System.out.println(o); \n"+
-					"   }\n"+
-					" }   \n"+
-					"   public static void main(String[] args) {\n"+
-					"     foo(0);\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 private static void foo(int o) {
+						   switch (o) {
+						     case 10:\s
+						       System.out.println("Integer");\s
+						       System.out.println(o);\s
+						       break;\s
+						     case null:
+						       System.out.println("NULL");\s
+						       break;
+						     default : System.out.println(o);\s
+						   }
+						 }  \s
+						   public static void main(String[] args) {
+						     foo(0);
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	case null:\n" +
-				"	     ^^^^\n" +
-				"Type mismatch: cannot convert from null to int\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						case null:
+						     ^^^^
+					Type mismatch: cannot convert from null to int
+					----------
+					""");
 	}
 	public void testBug574538_01() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(Integer.valueOf(11));\n"+
-					"   foo(Integer.valueOf(9));\n"+
-					" }\n"+
-					"\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"   case Integer i when i>10:\n"+
-					"     System.out.println(\"Greater than 10:\" + o);\n"+
-					"     break;\n"+
-					"   case Integer j when j>0:\n"+
-					"     System.out.println(\"Greater than 0:\" + o);\n"+
-					"     break;\n"+
-					"   default:\n"+
-					"     System.out.println(\"Object\" + o);\n"+
-					"   }\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo(Integer.valueOf(11));
+						   foo(Integer.valueOf(9));
+						 }
+						
+						 private static void foo(Object o) {
+						   switch (o) {
+						   case Integer i when i>10:
+						     System.out.println("Greater than 10:" + o);
+						     break;
+						   case Integer j when j>0:
+						     System.out.println("Greater than 0:" + o);
+						     break;
+						   default:
+						     System.out.println("Object" + o);
+						   }
+						 }
+						}""",
 				},
 				"Greater than 10:11\n" +
 				"Greater than 0:9");
@@ -907,43 +966,46 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo1(Integer.valueOf(10));\n"+
-					"   foo1(Integer.valueOf(11));\n"+
-					"   foo1(\"Hello World!\");\n"+
-					" }\n"+
-					"\n"+
-					" private static void foo1(Object o) {\n"+
-					"   switch (o) {\n"+
-					"   case Integer i when i>10 -> System.out.println(\"Greater than 10:\");\n"+
-					"   case String s when s.equals(\"ff\") -> System.out.println(\"String:\" + s);\n"+
-					"   default -> System.out.println(\"Object:\" + o);\n"+
-					"   }\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo1(Integer.valueOf(10));
+						   foo1(Integer.valueOf(11));
+						   foo1("Hello World!");
+						 }
+						
+						 private static void foo1(Object o) {
+						   switch (o) {
+						   case Integer i when i>10 -> System.out.println("Greater than 10:");
+						   case String s when s.equals("ff") -> System.out.println("String:" + s);
+						   default -> System.out.println("Object:" + o);
+						   }
+						 }
+						}""",
 				},
-				"Object:10\n" +
-				"Greater than 10:\n" +
-				"Object:Hello World!");
+				"""
+					Object:10
+					Greater than 10:
+					Object:Hello World!""");
 	}
 
 	public void testBug574549_01() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(\"Hello World!\");\n"+
-					" }\n"+
-					"\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"    case null, default:\n"+
-					"     System.out.println(\"Object: \" + o);\n"+
-					"   }\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo("Hello World!");
+						 }
+						
+						 private static void foo(Object o) {
+						   switch (o) {
+						    case null, default:
+						     System.out.println("Object: " + o);
+						   }
+						 }
+						}""",
 				},
 				"Object: Hello World!");
 	}
@@ -951,103 +1013,111 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(Integer.valueOf(11));\n"+
-					"   foo(Integer.valueOf(9));\n"+
-					"   foo(\"Hello World!\");\n"+
-					" }\n"+
-					"\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"   case Integer i when i>10:\n"+
-					"     System.out.println(\"Greater than 10:\" + o);\n"+
-					"     break;\n"+
-					"   case Integer j when j>0:\n"+
-					"     System.out.println(\"Greater than 0:\" + o);\n"+
-					"     break;\n"+
-					"   case null,default:\n"+
-					"     System.out.println(\"Give Me Some SunShine:\" + o);\n"+
-					"   }\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo(Integer.valueOf(11));
+						   foo(Integer.valueOf(9));
+						   foo("Hello World!");
+						 }
+						
+						 private static void foo(Object o) {
+						   switch (o) {
+						   case Integer i when i>10:
+						     System.out.println("Greater than 10:" + o);
+						     break;
+						   case Integer j when j>0:
+						     System.out.println("Greater than 0:" + o);
+						     break;
+						   case null,default:
+						     System.out.println("Give Me Some SunShine:" + o);
+						   }
+						 }
+						}""",
 				},
-				"Greater than 10:11\n" +
-				"Greater than 0:9\n" +
-				"Give Me Some SunShine:Hello World!");
+				"""
+					Greater than 10:11
+					Greater than 0:9
+					Give Me Some SunShine:Hello World!""");
 	}
 	public void testBug574549_03() {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(\"Hello World!\");\n"+
-					" }\n"+
-					"\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"   case Integer i :\n"+
-					"     System.out.println(\"Integer:\" + o);\n"+
-					"     break;\n"+
-					"   case null, default:\n"+
-					"     System.out.println(\"Object\" + o);\n"+
-					"   case null, default:\n"+
-					"     System.out.println(\"Give me Some Sunshine\" + o);\n"+
-					"   }\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo("Hello World!");
+						 }
+						
+						 private static void foo(Object o) {
+						   switch (o) {
+						   case Integer i :
+						     System.out.println("Integer:" + o);
+						     break;
+						   case null, default:
+						     System.out.println("Object" + o);
+						   case null, default:
+						     System.out.println("Give me Some Sunshine" + o);
+						   }
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 11)\n" +
-				"	case null, default:\n" +
-				"	     ^^^^\n" +
-				"Duplicate case\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 13)\n" +
-				"	case null, default:\n" +
-				"	     ^^^^\n" +
-				"Duplicate case\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 13)\n" +
-				"	case null, default:\n" +
-				"	           ^^^^^^^\n" +
-				"The default case is already defined\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 11)
+						case null, default:
+						     ^^^^
+					Duplicate case
+					----------
+					2. ERROR in X.java (at line 13)
+						case null, default:
+						     ^^^^
+					Duplicate case
+					----------
+					3. ERROR in X.java (at line 13)
+						case null, default:
+						           ^^^^^^^
+					The default case is already defined
+					----------
+					""");
 	}
 	public void testBug574549_04() {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(\"Hello World!\");\n"+
-					" }\n"+
-					"\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"   case Integer i :\n"+
-					"     System.out.println(\"Integer:\" + o);\n"+
-					"     break;\n"+
-					"   case default:\n"+
-					"     System.out.println(\"Object\" + o);\n"+
-					"   default:\n"+
-					"     System.out.println(\"Give me Some Sunshine\" + o);\n"+
-					"   }\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo("Hello World!");
+						 }
+						
+						 private static void foo(Object o) {
+						   switch (o) {
+						   case Integer i :
+						     System.out.println("Integer:" + o);
+						     break;
+						   case default:
+						     System.out.println("Object" + o);
+						   default:
+						     System.out.println("Give me Some Sunshine" + o);
+						   }
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 11)\n" +
-				"	case default:\n" +
-				"	     ^^^^^^^\n" +
-				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 13)\n" +
-				"	default:\n" +
-				"	^^^^^^^\n" +
-				"The default case is already defined\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 11)
+						case default:
+						     ^^^^^^^
+					A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+					----------
+					2. ERROR in X.java (at line 13)
+						default:
+						^^^^^^^
+					The default case is already defined
+					----------
+					""");
 	}
 	// Test that when a pattern variable is unused and when the OPTION_PreserveUnusedLocal
 	// option is used, no issue is reported at runtime.
@@ -1059,19 +1129,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			this.runConformTest(
 				new String[] {
 				"X.java",
-					"public class X {\n"
-						+ "	public static void main(String[] args) {\n"
-						+ "		System.out.println(\"Hello\");\n"
-						+ "	}\n"
-						+ "	public static void foo(Object o) {\n"
-						+ "		switch (o) {\n"
-						+ "			case String s:\n"
-						+ "				break;\n"
-						+ "			default:\n"
-						+ "				break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "}",
+					"""
+						public class X {
+							public static void main(String[] args) {
+								System.out.println("Hello");
+							}
+							public static void foo(Object o) {
+								switch (o) {
+									case String s:
+										break;
+									default:
+										break;
+								}
+							}
+						}""",
 					},
 					"Hello",
 					options);
@@ -1085,57 +1156,63 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void foo(Object o) {\n"
-						+ "		switch (o) {\n"
-						+ "			case String s:\n"
-						+ "				System.out.println(s);\n"
-						+ "				break;\n"
-						+ "			case Integer i:\n"
-						+ "				System.out.println(s);\n"
-						+ "			default:\n"
-						+ "				break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "}",
+						"""
+							public class X {
+								public static void foo(Object o) {
+									switch (o) {
+										case String s:
+											System.out.println(s);
+											break;
+										case Integer i:
+											System.out.println(s);
+										default:
+											break;
+									}
+								}
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	System.out.println(s);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						System.out.println(s);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					""");
 	}
 	// Same as above, but without break statement
 	public void testBug573937_3() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void foo(Object o) {\n"
-						+ "		switch (o) {\n"
-						+ "			case String s:\n"
-						+ "				System.out.println(s);\n"
-						+ "			case Integer i:\n"
-						+ "				System.out.println(s);\n"
-						+ "			default:\n"
-						+ "				System.out.println(s);\n"
-						+ "				break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "}",
+						"""
+							public class X {
+								public static void foo(Object o) {
+									switch (o) {
+										case String s:
+											System.out.println(s);
+										case Integer i:
+											System.out.println(s);
+										default:
+											System.out.println(s);
+											break;
+									}
+								}
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	System.out.println(s);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 9)\n" +
-				"	System.out.println(s);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						System.out.println(s);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					2. ERROR in X.java (at line 9)
+						System.out.println(s);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					""");
 	}
 	// Test that compiler rejects attempts to redeclare local variable
 	// with same name as a pattern variable
@@ -1143,25 +1220,28 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void foo(Object o) {\n"
-						+ "		switch (o) {\n"
-						+ "			case String s:\n"
-						+ "				String s = null;\n"
-						+ "				System.out.println(s);\n"
-						+ "				break;\n"
-						+ "			default:\n"
-						+ "				break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "}",
+						"""
+							public class X {
+								public static void foo(Object o) {
+									switch (o) {
+										case String s:
+											String s = null;
+											System.out.println(s);
+											break;
+										default:
+											break;
+									}
+								}
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	String s = null;\n" +
-				"	       ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						String s = null;
+						       ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					""");
 	}
 	// Test that compiler allows local variable with same name as a
 	// pattern variable in a different case statement
@@ -1169,21 +1249,22 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-								+ "	public static void foo(Object o) {\n"
-								+ "		switch (o) {\n"
-								+ "			case String s:\n"
-								+ "				System.out.println(s);\n"
-								+ "				break;\n"
-								+ "			default:\n"
-								+ "				String s = null;\n"
-								+ "				break;\n"
-								+ "		}\n"
-								+ "	}\n"
-								+ "	public static void main(String[] args) {\n"
-								+ "		foo(\"hello\");\n"
-								+ "	}\n"
-								+ "}",
+						"""
+							public class X {
+								public static void foo(Object o) {
+									switch (o) {
+										case String s:
+											System.out.println(s);
+											break;
+										default:
+											String s = null;
+											break;
+									}
+								}
+								public static void main(String[] args) {
+									foo("hello");
+								}
+							}""",
 				},
 				"hello");
 	}
@@ -1193,24 +1274,27 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void foo(Object o) {\n"
-						+ "		switch (o) {\n"
-						+ "			case String o:\n"
-						+ "				System.out.println(o);\n"
-						+ "				break;\n"
-						+ "			default:\n"
-						+ "				break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "}",
+						"""
+							public class X {
+								public static void foo(Object o) {
+									switch (o) {
+										case String o:
+											System.out.println(o);
+											break;
+										default:
+											break;
+									}
+								}
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case String o:\n" +
-				"	            ^\n" +
-				"Duplicate local variable o\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						case String o:
+						            ^
+					Duplicate local variable o
+					----------
+					""");
 	}
 	// Test that compiler rejects attempts to redeclare another pattern
 	// variable (instanceof) with same name as that a pattern variable in
@@ -1219,26 +1303,29 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void foo(Object o) {\n"
-						+ "		switch (o) {\n"
-						+ "			case String s1:\n"
-						+ "				if (o instanceof String s1) {\n"
-						+ "					System.out.println(s1);\n"
-						+ "				}\n"
-						+ "				break;\n"
-						+ "			default:\n"
-						+ "				break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "} ",
+						"""
+							public class X {
+								public static void foo(Object o) {
+									switch (o) {
+										case String s1:
+											if (o instanceof String s1) {
+												System.out.println(s1);
+											}
+											break;
+										default:
+											break;
+									}
+								}
+							} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	if (o instanceof String s1) {\n" +
-				"	                        ^^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						if (o instanceof String s1) {
+						                        ^^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					""");
 	}
 	// Test that when multiple case statements declare pattern variables
 	// with same name, correct ones are used in their respective scopes.
@@ -1246,27 +1333,30 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void foo(Object o) {\n"
-						+ "		switch (o) {\n"
-						+ "			case String s1:\n"
-						+ "				System.out.println(s1.length());\n"
-						+ "				break;\n"
-						+ "			case Integer s1:\n"
-						+ "				System.out.println(s1.length());\n"
-						+ "				break;\n"
-						+ "			default:\n"
-						+ "				break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "} ",
+						"""
+							public class X {
+								public static void foo(Object o) {
+									switch (o) {
+										case String s1:
+											System.out.println(s1.length());
+											break;
+										case Integer s1:
+											System.out.println(s1.length());
+											break;
+										default:
+											break;
+									}
+								}
+							} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	System.out.println(s1.length());\n" +
-				"	                      ^^^^^^\n" +
-				"The method length() is undefined for the type Integer\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						System.out.println(s1.length());
+						                      ^^^^^^
+					The method length() is undefined for the type Integer
+					----------
+					""");
 	}
 	// Test that a pattern variable declared in the preceding case statement
 	// can't be used in the case statement itself
@@ -1274,26 +1364,29 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void foo(Object o) {\n"
-						+ "		switch (o) {\n"
-						+ "			case Integer i1:\n"
-						+ "				break;\n"
-						+ "			case String s1 when s1.length() > i1:\n"
-						+ "					System.out.println(s1.length());\n"
-						+ "				break;\n"
-						+ "			default:\n"
-						+ "				break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "} ",
+						"""
+							public class X {
+								public static void foo(Object o) {
+									switch (o) {
+										case Integer i1:
+											break;
+										case String s1 when s1.length() > i1:
+												System.out.println(s1.length());
+											break;
+										default:
+											break;
+									}
+								}
+							} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case String s1 when s1.length() > i1:\n" +
-				"	                                  ^^\n" +
-				"i1 cannot be resolved to a variable\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						case String s1 when s1.length() > i1:
+						                                  ^^
+					i1 cannot be resolved to a variable
+					----------
+					""");
 	}
 	// Test that redefining pattern variables with null is allowed
 	// and produce expected result (NPE) when run.
@@ -1301,28 +1394,29 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "@SuppressWarnings(\"null\")"
-				+ "	public static void foo(Object o) {\n"
-				+ "	  try {\n"
-				+ "		switch (o) {\n"
-				+ "			case String s1 when s1.length() == 0:\n"
-				+ "					break;"
-				+ "			case String s1:\n"
-				+ "					s1 = null;\n"
-				+ "					System.out.println(s1.length());\n"
-				+ "				break;\n"
-				+ "			default:\n"
-				+ "				break;\n"
-				+ "		}\n"
-				+ "	  } catch(Exception e) {\n"
-				+ "    System.out.println(e.getMessage());\n"
-				+ "	  };\n"
-				+ "	}\n"
-				+ "	public static void main(String[] args) {\n"
-				+ "		foo(\"hello\");\n"
-				+ "	}\n"
-				+ "}",
+				"""
+					public class X {
+					@SuppressWarnings("null")\
+						public static void foo(Object o) {
+						  try {
+							switch (o) {
+								case String s1 when s1.length() == 0:
+										break;\
+								case String s1:
+										s1 = null;
+										System.out.println(s1.length());
+									break;
+								default:
+									break;
+							}
+						  } catch(Exception e) {
+					    System.out.println(e.getMessage());
+						  };
+						}
+						public static void main(String[] args) {
+							foo("hello");
+						}
+					}""",
 		};
 		runner.expectedOutputString = "Cannot invoke \"String.length()\" because \"s1\" is null";
 		runner.expectedJavacOutputString = "Cannot invoke \"String.length()\" because \"<local4>\" is null";
@@ -1337,30 +1431,33 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "	public static void foo(Object o) throws Exception {\n"
-				+ "		switch (o) {\n"
-				+ "			case String s1:\n"
-				+ "				throw new Exception(s1);\n"
-				+ "			default:\n"
-				+ "				break;\n"
-				+ "		}\n"
-				+ "	}\n"
-				+ "	public static void main(String[] args) throws Exception {\n"
-				+ "		try {\n"
-				+ "		  foo(\"hello\");\n"
-				+ "		} catch(Exception e) {\n"
-				+ "		  e.printStackTrace(System.out);\n"
-				+ "		};\n"
-				+ "	}\n"
-				+ "} ",
+				"""
+					public class X {
+						public static void foo(Object o) throws Exception {
+							switch (o) {
+								case String s1:
+									throw new Exception(s1);
+								default:
+									break;
+							}
+						}
+						public static void main(String[] args) throws Exception {
+							try {
+							  foo("hello");
+							} catch(Exception e) {
+							  e.printStackTrace(System.out);
+							};
+						}
+					} """,
 		};
-		runner.expectedOutputString = "java.lang.Exception: hello\n" +
-				"	at X.foo(X.java:5)\n" +
-				"	at X.main(X.java:12)";
-		runner.expectedJavacOutputString = "java.lang.Exception: hello\n"
-				+ "	at X.foo(X.java:5)\n"
-				+ "	at X.main(X.java:12)";
+		runner.expectedOutputString = """
+			java.lang.Exception: hello
+				at X.foo(X.java:5)
+				at X.main(X.java:12)""";
+		runner.expectedJavacOutputString = """
+			java.lang.Exception: hello
+				at X.foo(X.java:5)
+				at X.main(X.java:12)""";
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = getCompilerOptions();
 		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel);
@@ -1372,25 +1469,28 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void foo(Object o) {\n"
-						+ "		int len = 2;\n"
-						+ "		switch (o) {\n"
-						+ "		case String o1 when o1.length() > len:\n"
-						+ "			len = 0;\n"
-						+ "		break;\n"
-						+ "		default:\n"
-						+ "			break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "} ",
+						"""
+							public class X {
+								public static void foo(Object o) {
+									int len = 2;
+									switch (o) {
+									case String o1 when o1.length() > len:
+										len = 0;
+									break;
+									default:
+										break;
+									}
+								}
+							} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case String o1 when o1.length() > len:\n" +
-				"	                                  ^^^\n" +
-				"Local variable len referenced from a guard must be final or effectively final\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						case String o1 when o1.length() > len:
+						                                  ^^^
+					Local variable len referenced from a guard must be final or effectively final
+					----------
+					""");
 	}
 	// A non effectively final referenced from the LHS of the guarding expression
 	// is reported by the compiler.
@@ -1398,25 +1498,28 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void foo(Object o) {\n"
-						+ "		int len = 2;\n"
-						+ "		switch (o) {\n"
-						+ "		case String o1 when len < o1.length():\n"
-						+ "			len = 0;\n"
-						+ "		break;\n"
-						+ "		default:\n"
-						+ "			break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "} ",
+						"""
+							public class X {
+								public static void foo(Object o) {
+									int len = 2;
+									switch (o) {
+									case String o1 when len < o1.length():
+										len = 0;
+									break;
+									default:
+										break;
+									}
+								}
+							} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case String o1 when len < o1.length():\n" +
-				"	                    ^^^\n" +
-				"Local variable len referenced from a guard must be final or effectively final\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						case String o1 when len < o1.length():
+						                    ^^^
+					Local variable len referenced from a guard must be final or effectively final
+					----------
+					""");
 	}
 	// An explicitly final local variable, also referenced in a guarding expression of a pattern
 	// and later on re-assigned is only reported for the explicit final being modified
@@ -1424,45 +1527,49 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void foo(Object o) {\n"
-						+ "		final int len = 2;\n"
-						+ "		switch (o) {\n"
-						+ "		case String o1 when len < o1.length():\n"
-						+ "			len = 0;\n"
-						+ "		break;\n"
-						+ "		default:\n"
-						+ "			break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "} ",
+						"""
+							public class X {
+								public static void foo(Object o) {
+									final int len = 2;
+									switch (o) {
+									case String o1 when len < o1.length():
+										len = 0;
+									break;
+									default:
+										break;
+									}
+								}
+							} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	len = 0;\n" +
-				"	^^^\n" +
-				"The final local variable len cannot be assigned. It must be blank and not using a compound assignment\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						len = 0;
+						^^^
+					The final local variable len cannot be assigned. It must be blank and not using a compound assignment
+					----------
+					""");
 	}
 	public void testBug574612_4() {
 		this.runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void foo(Object o) {\n"
-						+ "		int len = 2;\n"
-						+ "		switch (o) {\n"
-						+ "		case String o1 when len < o1.length():\n"
-						+ "			System.out.println(o1);\n"
-						+ "		break;\n"
-						+ "		default:\n"
-						+ "			break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "	public static void main(String[] args) throws Exception {\n"
-						+ "		foo(\"hello\");\n"
-						+ "	}\n"
-						+ "} ",
+						"""
+							public class X {
+								public static void foo(Object o) {
+									int len = 2;
+									switch (o) {
+									case String o1 when len < o1.length():
+										System.out.println(o1);
+									break;
+									default:
+										break;
+									}
+								}
+								public static void main(String[] args) throws Exception {
+									foo("hello");
+								}
+							} """,
 				},
 				"hello");
 	}
@@ -1470,347 +1577,381 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static int foo(Integer o) {\n"+
-				"   int k = 0;\n"+
-				"   switch (o) {\n"+
-				"     case 0, default   : k = 1;\n"+
-				"   }\n"+
-				"   return k;\n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(100 ));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static int foo(Integer o) {
+					   int k = 0;
+					   switch (o) {
+					     case 0, default   : k = 1;
+					   }
+					   return k;
+					 }\s
+					 public static void main(String[] args) {
+					   System.out.println(foo(100 ));
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case 0, default   : k = 1;\n" +
-			"	        ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case 0, default   : k = 1;
+					        ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				""");
 	}
 	public void testBug574719_006() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static int foo(Integer o) {\n"+
-				"   int k = 0;\n"+
-				"   switch (o) {\n"+
-				"     case 0  : k = 2; break;\n"+
-				"     case 1, default, default   : k = 1;\n"+
-				"   }\n"+
-				"   return k;\n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(100));\n"+
-				"   System.out.println(foo(0));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static int foo(Integer o) {
+					   int k = 0;
+					   switch (o) {
+					     case 0  : k = 2; break;
+					     case 1, default, default   : k = 1;
+					   }
+					   return k;
+					 }\s
+					 public static void main(String[] args) {
+					   System.out.println(foo(100));
+					   System.out.println(foo(0));
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	case 1, default, default   : k = 1;\n" +
-			"	        ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	case 1, default, default   : k = 1;\n" +
-			"	                 ^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	case 1, default, default   : k = 1;\n" +
-			"	                 ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					case 1, default, default   : k = 1;
+					        ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				2. ERROR in X.java (at line 6)
+					case 1, default, default   : k = 1;
+					                 ^^^^^^^
+				The default case is already defined
+				----------
+				3. ERROR in X.java (at line 6)
+					case 1, default, default   : k = 1;
+					                 ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				""");
 	}
 	public void testBug574561_001() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static int foo(Integer o) {\n"+
-				"   int k = 0;\n"+
-				"   switch (o) {\n"+
-				"     default, default  : k = 2; break;\n"+
-				"   }\n"+
-				"   return k;\n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(100));\n"+
-				"   System.out.println(foo(0));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static int foo(Integer o) {
+					   int k = 0;
+					   switch (o) {
+					     default, default  : k = 2; break;
+					   }
+					   return k;
+					 }\s
+					 public static void main(String[] args) {
+					   System.out.println(foo(100));
+					   System.out.println(foo(0));
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	default, default  : k = 2; break;\n" +
-			"	       ^\n" +
-			"Syntax error on token \",\", : expected\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					default, default  : k = 2; break;
+					       ^
+				Syntax error on token ",", : expected
+				----------
+				""");
 	}
 	public void testBug574561_002() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static int foo(Integer o) {\n"+
-				"   int k = 0;\n"+
-				"   switch (o) {\n"+
-				"     case default, 1, default   : k = 1;\n"+
-				"   }\n"+
-				"   return k;\n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(100));\n"+
-				"   System.out.println(foo(0));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static int foo(Integer o) {
+					   int k = 0;
+					   switch (o) {
+					     case default, 1, default   : k = 1;
+					   }
+					   return k;
+					 }\s
+					 public static void main(String[] args) {
+					   System.out.println(foo(100));
+					   System.out.println(foo(0));
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case default, 1, default   : k = 1;\n" +
-			"	     ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case default, 1, default   : k = 1;\n" +
-			"	                 ^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	case default, 1, default   : k = 1;\n" +
-			"	                 ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case default, 1, default   : k = 1;
+					     ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				2. ERROR in X.java (at line 5)
+					case default, 1, default   : k = 1;
+					                 ^^^^^^^
+				The default case is already defined
+				----------
+				3. ERROR in X.java (at line 5)
+					case default, 1, default   : k = 1;
+					                 ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				""");
 	}
 	public void testBug574561_003() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static int foo(Integer o) {\n"+
-				"   int k = 0;\n"+
-				"   switch (o) {\n"+
-				"     case default, 1, default   : k = 1;\n"+
-				"   }\n"+
-				"   return k;\n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(100));\n"+
-				"   System.out.println(foo(0));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static int foo(Integer o) {
+					   int k = 0;
+					   switch (o) {
+					     case default, 1, default   : k = 1;
+					   }
+					   return k;
+					 }\s
+					 public static void main(String[] args) {
+					   System.out.println(foo(100));
+					   System.out.println(foo(0));
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case default, 1, default   : k = 1;\n" +
-			"	     ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case default, 1, default   : k = 1;\n" +
-			"	                 ^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	case default, 1, default   : k = 1;\n" +
-			"	                 ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case default, 1, default   : k = 1;
+					     ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				2. ERROR in X.java (at line 5)
+					case default, 1, default   : k = 1;
+					                 ^^^^^^^
+				The default case is already defined
+				----------
+				3. ERROR in X.java (at line 5)
+					case default, 1, default   : k = 1;
+					                 ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				""");
 	}
 	public void testBug574793_001() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {}\n"+
-				" private static void foo1(int o) {\n"+
-				"   switch (o) {\n"+
-				"     case null  -> System.out.println(\"null\");\n"+
-				"     case 20  -> System.out.println(\"20\");\n"+
-				"   }\n"+
-				" }\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"   case \"F\"  :\n"+
-				"     break;\n"+
-				"   case 2 :\n"+
-				"     break;\n"+
-				"   default:\n"+
-				"     break;\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {}
+					 private static void foo1(int o) {
+					   switch (o) {
+					     case null  -> System.out.println("null");
+					     case 20  -> System.out.println("20");
+					   }
+					 }
+					 private static void foo(Object o) {
+					   switch (o) {
+					   case "F"  :
+					     break;
+					   case 2 :
+					     break;
+					   default:
+					     break;
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case null  -> System.out.println(\"null\");\n" +
-			"	     ^^^^\n" +
-			"Type mismatch: cannot convert from null to int\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 11)\n" +
-			"	case \"F\"  :\n" +
-			"	     ^^^\n" +
-			"Type mismatch: cannot convert from String to Object\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 13)\n" +
-			"	case 2 :\n" +
-			"	     ^\n" +
-			"Type mismatch: cannot convert from int to Object\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					switch (o) {
+					        ^
+				An enhanced switch statement should be exhaustive; a default label expected
+				----------
+				2. ERROR in X.java (at line 5)
+					case null  -> System.out.println("null");
+					     ^^^^
+				Type mismatch: cannot convert from null to int
+				----------
+				3. ERROR in X.java (at line 11)
+					case "F"  :
+					     ^^^
+				Type mismatch: cannot convert from String to Object
+				----------
+				4. ERROR in X.java (at line 13)
+					case 2 :
+					     ^
+				Type mismatch: cannot convert from int to Object
+				----------
+				""");
 	}
 	public void testBug574559_001() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {}\n"+
-				" public static void foo1(Integer o) {\n"+
-				"   switch (o) {\n"+
-				"     case 1, Integer i  -> System.out.println(o);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {}
+					 public static void foo1(Integer o) {
+					   switch (o) {
+					     case 1, Integer i  -> System.out.println(o);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case 1, Integer i  -> System.out.println(o);\n" +
-			"	        ^^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case 1, Integer i  -> System.out.println(o);
+					        ^^^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				""");
 	}
 	public void testBug574559_002() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {}\n"+
-				" private static void foo1(Integer o) {\n"+
-				"   switch (o) {\n"+
-				"     case  Integer i, 30  -> System.out.println(o);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {}
+					 private static void foo1(Integer o) {
+					   switch (o) {
+					     case  Integer i, 30  -> System.out.println(o);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case  Integer i, 30  -> System.out.println(o);\n" +
-			"	                 ^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case  Integer i, 30  -> System.out.println(o);\n" +
-			"	                 ^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case  Integer i, 30  -> System.out.println(o);
+					                 ^^
+				Cannot mix pattern with other case labels
+				----------
+				2. ERROR in X.java (at line 5)
+					case  Integer i, 30  -> System.out.println(o);
+					                 ^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				""");
 	}
 	// Test that fall-through to a pattern is not allowed (label statement group has one statement)
 	public void testBug573940_1() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"public void foo(Number n) {\n"
-					+ "	switch (n) {\n"
-					+ "	case Integer i :\n"
-					+ "		System.out.println(i);\n"
-					+ "	case Float f :\n"
-					+ "		System.out.println(f);\n"
-					+ "	case Object o : break;\n"
-					+ "	}\n"
-					+ "}\n"+
-					"}",
+					"""
+						public class X {
+						public void foo(Number n) {
+							switch (n) {
+							case Integer i :
+								System.out.println(i);
+							case Float f :
+								System.out.println(f);
+							case Object o : break;
+							}
+						}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case Float f :\n" +
-				"	^^^^^^^^^^^^\n" +
-				"Illegal fall-through to a pattern\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 8)\n" +
-				"	case Object o : break;\n" +
-				"	^^^^^^^^^^^^^\n" +
-				"Illegal fall-through to a pattern\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						case Float f :
+						^^^^^^^^^^^^
+					Illegal fall-through to a pattern
+					----------
+					2. ERROR in X.java (at line 8)
+						case Object o : break;
+						^^^^^^^^^^^^^
+					Illegal fall-through to a pattern
+					----------
+					""");
 	}
 	// Test that fall-through to a pattern is not allowed (label statement group has zero statement)
 	public void testBug573940_2() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"public void foo(Number n) {\n"
-					+ "	switch (n) {\n"
-					+ "	case Integer i :\n"
-					+ "	case Float f :\n"
-					+ "		System.out.println(f);\n"
-					+ "     break;\n"
-					+ "	default : break;\n"
-					+ "	}\n"
-					+ "}\n"+
-					"}",
+					"""
+						public class X {
+						public void foo(Number n) {
+							switch (n) {
+							case Integer i :
+							case Float f :
+								System.out.println(f);
+						     break;
+							default : break;
+							}
+						}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case Integer i :\n" +
-				"	^^^^^^^^^^^^^^\n" +
-				"Illegal fall-through from a case label pattern\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	case Float f :\n" +
-				"	^^^^^^^^^^^^\n" +
-				"Illegal fall-through to a pattern\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						case Integer i :
+						^^^^^^^^^^^^^^
+					Illegal fall-through from a case label pattern
+					----------
+					2. ERROR in X.java (at line 5)
+						case Float f :
+						^^^^^^^^^^^^
+					Illegal fall-through to a pattern
+					----------
+					""");
 	}
 	// Test that fall-through to a pattern is not allowed (label statement group has zero statement)
 	public void testBug573940_2a() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"public void foo(Number n) {\n"
-					+ "	switch (n) {\n"
-					+ "	default :\n"
-					+ "	case Float f :\n"
-					+ "		System.out.println(f);\n"
-					+ "     break;\n"
-					+ "	}\n"
-					+ "}\n"+
-					"}",
+					"""
+						public class X {
+						public void foo(Number n) {
+							switch (n) {
+							default :
+							case Float f :
+								System.out.println(f);
+						     break;
+							}
+						}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case Float f :\n" +
-				"	     ^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						case Float f :
+						     ^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	// Test that falling through from a pattern to a default is allowed
 	public void testBug573940_3() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "public static void foo(Number n) {\n"
-					+ "		switch (n) {\n"
-					+ "		case Integer i :\n"
-					+ "			System.out.println(i);\n"
-					+ "		default:\n"
-					+ "			System.out.println(\"null\");\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "public static void main(String[] args) {\n"
-					+ "		foo(Integer.valueOf(5));\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						public class X {
+						public static void foo(Number n) {
+								switch (n) {
+								case Integer i :
+									System.out.println(i);
+								default:
+									System.out.println("null");
+								}
+							}
+						public static void main(String[] args) {
+								foo(Integer.valueOf(5));
+							}
+						}""",
 				},
 				"5\n" +
 				"null");
@@ -1821,27 +1962,29 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "public static void foo(Number n) {\n"
-					+ "		switch (n) {\n"
-					+ "		case Integer i :\n"
-					+ "			throw new IllegalArgumentException();\n"
-					+ "		default:\n"
-					+ "			System.out.println(\"null\");\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "public static void main(String[] args) {\n"
-					+ "		try{\n"
-					+ "			foo(Integer.valueOf(5));\n"
-					+ "		} catch(Exception e) {\n"
-					+ "		 	e.printStackTrace(System.out);\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						public class X {
+						public static void foo(Number n) {
+								switch (n) {
+								case Integer i :
+									throw new IllegalArgumentException();
+								default:
+									System.out.println("null");
+								}
+							}
+						public static void main(String[] args) {
+								try{
+									foo(Integer.valueOf(5));
+								} catch(Exception e) {
+								 	e.printStackTrace(System.out);
+								}
+							}
+						}""",
 				},
-				"java.lang.IllegalArgumentException\n" +
-				"	at X.foo(X.java:5)\n" +
-				"	at X.main(X.java:12)");
+				"""
+					java.lang.IllegalArgumentException
+						at X.foo(X.java:5)
+						at X.main(X.java:12)""");
 	}
 	// Test that switch expression with pattern variables is reported when a case statement
 	// doesn't return any value.
@@ -1849,358 +1992,388 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	public static void foo(Number n) {\n"
-					+ "		int j = \n"
-					+ "			switch (n) {\n"
-					+ "			case Integer i -> {\n"
-					+ "			}\n"
-					+ "			default -> {\n"
-					+ "				yield 1;\n"
-					+ "			}\n"
-					+ "		};\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						public class X {
+							public static void foo(Number n) {
+								int j =\s
+									switch (n) {
+									case Integer i -> {
+									}
+									default -> {
+										yield 1;
+									}
+								};
+							}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	}\n" +
-				"	^^\n" +
-				"A switch labeled block in a switch expression should not complete normally\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						}
+						^^
+					A switch labeled block in a switch expression should not complete normally
+					----------
+					""");
 	}
 	public void testBug574564_001() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(new String(\"Hello\"));\n"+
-				" }\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case var i  -> System.out.println(0);\n"+
-				"     default -> System.out.println(o);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					   foo(new String("Hello"));
+					 }
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case var i  -> System.out.println(0);
+					     default -> System.out.println(o);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	case var i  -> System.out.println(0);\n" +
-			"	     ^^^\n" +
-			"'var' is not allowed here\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					case var i  -> System.out.println(0);
+					     ^^^
+				'var' is not allowed here
+				----------
+				""");
 	}
 	public void testBug574564_002() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(new String(\"Hello\"));\n"+
-				" }\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case var i, var j, var k  -> System.out.println(0);\n"+
-				"     default -> System.out.println(o);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					   foo(new String("Hello"));
+					 }
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case var i, var j, var k  -> System.out.println(0);
+					     default -> System.out.println(o);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	     ^^^\n" +
-			"'var' is not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	         ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	            ^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 7)\n" +
-			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	            ^^^\n" +
-			"'var' is not allowed here\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 7)\n" +
-			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	                ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 7)\n" +
-			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	                   ^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 7)\n" +
-			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	                   ^^^\n" +
-			"'var' is not allowed here\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 7)\n" +
-			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	                       ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					case var i, var j, var k  -> System.out.println(0);
+					     ^^^
+				'var' is not allowed here
+				----------
+				2. ERROR in X.java (at line 7)
+					case var i, var j, var k  -> System.out.println(0);
+					         ^
+				Named pattern variables are not allowed here
+				----------
+				3. ERROR in X.java (at line 7)
+					case var i, var j, var k  -> System.out.println(0);
+					            ^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				4. ERROR in X.java (at line 7)
+					case var i, var j, var k  -> System.out.println(0);
+					            ^^^
+				'var' is not allowed here
+				----------
+				5. ERROR in X.java (at line 7)
+					case var i, var j, var k  -> System.out.println(0);
+					                ^
+				Named pattern variables are not allowed here
+				----------
+				6. ERROR in X.java (at line 7)
+					case var i, var j, var k  -> System.out.println(0);
+					                   ^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				7. ERROR in X.java (at line 7)
+					case var i, var j, var k  -> System.out.println(0);
+					                   ^^^
+				'var' is not allowed here
+				----------
+				8. ERROR in X.java (at line 7)
+					case var i, var j, var k  -> System.out.println(0);
+					                       ^
+				Named pattern variables are not allowed here
+				----------
+				""");
 	}
 	public void testBug574564_003() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(10);\n"+
-				" }\n"+
-				" private static void foo(Integer o) {\n"+
-				"   switch (o) {\n"+
-				"     case var i, 10  -> System.out.println(0);\n"+
-				"     default -> System.out.println(o);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					   foo(10);
+					 }
+					 private static void foo(Integer o) {
+					   switch (o) {
+					     case var i, 10  -> System.out.println(0);
+					     default -> System.out.println(o);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	case var i, 10  -> System.out.println(0);\n" +
-			"	     ^^^\n" +
-			"\'var\' is not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	case var i, 10  -> System.out.println(0);\n" +
-			"	            ^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					case var i, 10  -> System.out.println(0);
+					     ^^^
+				\'var\' is not allowed here
+				----------
+				2. ERROR in X.java (at line 7)
+					case var i, 10  -> System.out.println(0);
+					            ^^
+				Cannot mix pattern with other case labels
+				----------
+				""");
 	}
 	public void testBug574564_004() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(10);\n"+
-				" }\n"+
-				" private static void foo(Integer o) {\n"+
-				"   switch (o) {\n"+
-				"     case var i, 10, var k  -> System.out.println(0);\n"+
-				"     default -> System.out.println(o);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					   foo(10);
+					 }
+					 private static void foo(Integer o) {
+					   switch (o) {
+					     case var i, 10, var k  -> System.out.println(0);
+					     default -> System.out.println(o);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	case var i, 10, var k  -> System.out.println(0);\n" +
-			"	     ^^^\n" +
-			"'var' is not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	case var i, 10, var k  -> System.out.println(0);\n" +
-			"	            ^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	case var i, 10, var k  -> System.out.println(0);\n" +
-			"	                ^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 7)\n" +
-			"	case var i, 10, var k  -> System.out.println(0);\n" +
-			"	                ^^^\n" +
-			"'var' is not allowed here\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					case var i, 10, var k  -> System.out.println(0);
+					     ^^^
+				'var' is not allowed here
+				----------
+				2. ERROR in X.java (at line 7)
+					case var i, 10, var k  -> System.out.println(0);
+					            ^^
+				Cannot mix pattern with other case labels
+				----------
+				3. ERROR in X.java (at line 7)
+					case var i, 10, var k  -> System.out.println(0);
+					                ^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				4. ERROR in X.java (at line 7)
+					case var i, 10, var k  -> System.out.println(0);
+					                ^^^
+				'var' is not allowed here
+				----------
+				""");
 	}
 	public void testBug574564_005() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(10);\n"+
-				" }\n"+
-				" private static void foo(Integer o) {\n"+
-				"   switch (o) {\n"+
-				"     case  10, null, var k  -> System.out.println(0);\n"+
-				"     default -> System.out.println(o);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					   foo(10);
+					 }
+					 private static void foo(Integer o) {
+					   switch (o) {
+					     case  10, null, var k  -> System.out.println(0);
+					     default -> System.out.println(o);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	case  10, null, var k  -> System.out.println(0);\n" +
-			"	          ^^^^\n" +
-			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	case  10, null, var k  -> System.out.println(0);\n" +
-			"	                ^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	case  10, null, var k  -> System.out.println(0);\n" +
-			"	                ^^^\n" +
-			"'var' is not allowed here\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					case  10, null, var k  -> System.out.println(0);
+					          ^^^^
+				A null case label has to be either the only expression in a case label or the first expression followed only by a default
+				----------
+				2. ERROR in X.java (at line 7)
+					case  10, null, var k  -> System.out.println(0);
+					                ^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				3. ERROR in X.java (at line 7)
+					case  10, null, var k  -> System.out.println(0);
+					                ^^^
+				'var' is not allowed here
+				----------
+				""");
 	}
 	public void testBug574564_006() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(10);\n"+
-				" }\n"+
-				" private static void foo(Integer o) {\n"+
-				"   switch (o) {\n"+
-				"     case  default, var k  -> System.out.println(0);\n"+
-				"     default -> System.out.println(o);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					   foo(10);
+					 }
+					 private static void foo(Integer o) {
+					   switch (o) {
+					     case  default, var k  -> System.out.println(0);
+					     default -> System.out.println(o);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	case  default, var k  -> System.out.println(0);\n" +
-			"	      ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	case  default, var k  -> System.out.println(0);\n" +
-			"	               ^^^\n" +
-			"\'var\' is not allowed here\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	case  default, var k  -> System.out.println(0);\n" +
-			"	               ^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 8)\n" +
-			"	default -> System.out.println(o);\n" +
-			"	^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					case  default, var k  -> System.out.println(0);
+					      ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				2. ERROR in X.java (at line 7)
+					case  default, var k  -> System.out.println(0);
+					               ^^^
+				\'var\' is not allowed here
+				----------
+				3. ERROR in X.java (at line 7)
+					case  default, var k  -> System.out.println(0);
+					               ^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				4. ERROR in X.java (at line 8)
+					default -> System.out.println(o);
+					^^^^^^^
+				The default case is already defined
+				----------
+				""");
 	}
 	public void testBug574564_007() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(10);\n"+
-				" }\n"+
-				" private static void foo(Integer o) {\n"+
-				"   switch (o) {\n"+
-				"     case  default, default, var k  -> System.out.println(0);\n"+
-				"     default -> System.out.println(o);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					   foo(10);
+					 }
+					 private static void foo(Integer o) {
+					   switch (o) {
+					     case  default, default, var k  -> System.out.println(0);
+					     default -> System.out.println(o);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	case  default, default, var k  -> System.out.println(0);\n" +
-			"	      ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	case  default, default, var k  -> System.out.println(0);\n" +
-			"	               ^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	case  default, default, var k  -> System.out.println(0);\n" +
-			"	               ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 7)\n" +
-			"	case  default, default, var k  -> System.out.println(0);\n" +
-			"	                        ^^^\n" +
-			"\'var\' is not allowed here\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 7)\n" +
-			"	case  default, default, var k  -> System.out.println(0);\n" +
-			"	                        ^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 8)\n" +
-			"	default -> System.out.println(o);\n" +
-			"	^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					case  default, default, var k  -> System.out.println(0);
+					      ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				2. ERROR in X.java (at line 7)
+					case  default, default, var k  -> System.out.println(0);
+					               ^^^^^^^
+				The default case is already defined
+				----------
+				3. ERROR in X.java (at line 7)
+					case  default, default, var k  -> System.out.println(0);
+					               ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				4. ERROR in X.java (at line 7)
+					case  default, default, var k  -> System.out.println(0);
+					                        ^^^
+				\'var\' is not allowed here
+				----------
+				5. ERROR in X.java (at line 7)
+					case  default, default, var k  -> System.out.println(0);
+					                        ^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				6. ERROR in X.java (at line 8)
+					default -> System.out.println(o);
+					^^^^^^^
+				The default case is already defined
+				----------
+				""");
 	}
 	public void testBug574564_008() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(10);\n"+
-				" }\n"+
-				" private static void foo(Integer o) {\n"+
-				"   switch (o) {\n"+
-				"     case  default, 1, var k  -> System.out.println(0);\n"+
-				"     default -> System.out.println(o);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					   foo(10);
+					 }
+					 private static void foo(Integer o) {
+					   switch (o) {
+					     case  default, 1, var k  -> System.out.println(0);
+					     default -> System.out.println(o);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	case  default, 1, var k  -> System.out.println(0);\n" +
-			"	      ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	case  default, 1, var k  -> System.out.println(0);\n" +
-			"	                  ^^^\n" +
-			"\'var\' is not allowed here\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	case  default, 1, var k  -> System.out.println(0);\n" +
-			"	                  ^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 8)\n" +
-			"	default -> System.out.println(o);\n" +
-			"	^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					case  default, 1, var k  -> System.out.println(0);
+					      ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				2. ERROR in X.java (at line 7)
+					case  default, 1, var k  -> System.out.println(0);
+					                  ^^^
+				\'var\' is not allowed here
+				----------
+				3. ERROR in X.java (at line 7)
+					case  default, 1, var k  -> System.out.println(0);
+					                  ^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				4. ERROR in X.java (at line 8)
+					default -> System.out.println(o);
+					^^^^^^^
+				The default case is already defined
+				----------
+				""");
 	}
 	public void testBug574564_009() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case String s, default, Integer i  -> System.out.println(0);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case String s, default, Integer i  -> System.out.println(0);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case String s, default, Integer i  -> System.out.println(0);\n" +
-			"	               ^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case String s, default, Integer i  -> System.out.println(0);\n" +
-			"	               ^^^^^^^\n" +
-			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case String s, default, Integer i  -> System.out.println(0);\n" +
-			"	                        ^^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case String s, default, Integer i  -> System.out.println(0);
+					               ^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				2. ERROR in X.java (at line 4)
+					case String s, default, Integer i  -> System.out.println(0);
+					               ^^^^^^^
+				A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default'\s
+				----------
+				3. ERROR in X.java (at line 4)
+					case String s, default, Integer i  -> System.out.println(0);
+					                        ^^^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				"""
 );
 	}
 	public void testBug574564_010() {
@@ -2209,30 +2382,33 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case String s, default, Integer i  -> System.out.println(0);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case String s, default, Integer i  -> System.out.println(0);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case String s, default, Integer i  -> System.out.println(0);\n" +
-			"	               ^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case String s, default, Integer i  -> System.out.println(0);\n" +
-			"	               ^^^^^^^\n" +
-			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case String s, default, Integer i  -> System.out.println(0);\n" +
-			"	                        ^^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case String s, default, Integer i  -> System.out.println(0);
+					               ^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				2. ERROR in X.java (at line 4)
+					case String s, default, Integer i  -> System.out.println(0);
+					               ^^^^^^^
+				A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default'\s
+				----------
+				3. ERROR in X.java (at line 4)
+					case String s, default, Integer i  -> System.out.println(0);
+					                        ^^^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				""",
 			null,
 			true,
 			options);
@@ -2241,188 +2417,207 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case default, default -> System.out.println(0);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case default, default -> System.out.println(0);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case default, default -> System.out.println(0);\n" +
-			"	     ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case default, default -> System.out.println(0);\n" +
-			"	              ^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case default, default -> System.out.println(0);\n" +
-			"	              ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case default, default -> System.out.println(0);
+					     ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				2. ERROR in X.java (at line 4)
+					case default, default -> System.out.println(0);
+					              ^^^^^^^
+				The default case is already defined
+				----------
+				3. ERROR in X.java (at line 4)
+					case default, default -> System.out.println(0);
+					              ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				""");
 	}
 	public void testBug574563_001() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {}\n"+
-				" private static void foo1(Integer o) {\n"+
-				"   switch (o) {\n"+
-				"     case null, null  -> System.out.println(o);\n"+
-				"     default  -> System.out.println(o);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {}
+					 private static void foo1(Integer o) {
+					   switch (o) {
+					     case null, null  -> System.out.println(o);
+					     default  -> System.out.println(o);
+					   }
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case null, null  -> System.out.println(o);\n" +
-			"	     ^^^^\n" +
-			"Duplicate case\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case null, null  -> System.out.println(o);\n" +
-			"	           ^^^^\n" +
-			"Duplicate case\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case null, null  -> System.out.println(o);
+					     ^^^^
+				Duplicate case
+				----------
+				2. ERROR in X.java (at line 5)
+					case null, null  -> System.out.println(o);
+					           ^^^^
+				Duplicate case
+				----------
+				""");
 	}
 	public void testBug574563_002() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case null, Integer i  -> System.out.println(0);\n"+
-				"     default -> System.out.println(o);\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void bar(Object o) {\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void foo(Object o) {
+					   switch (o) {
+					     case null, Integer i  -> System.out.println(0);
+					     default -> System.out.println(o);
+					   }
+					 }
+					 public static void bar(Object o) {
+					   Zork();
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case null, Integer i  -> System.out.println(0);\n" +
-			"	           ^^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case null, Integer i  -> System.out.println(0);
+					           ^^^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				2. ERROR in X.java (at line 9)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug574563_003() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case Integer i, null  -> System.out.println(0);\n"+
-				"     default -> System.out.println(o);\n"+
-				"   }\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case Integer i, null  -> System.out.println(0);
+					     default -> System.out.println(o);
+					   }
+					   Zork();
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case Integer i, null  -> System.out.println(0);\n" +
-			"	                ^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case Integer i, null  -> System.out.println(0);\n" +
-			"	                ^^^^\n" +
-			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case Integer i, null  -> System.out.println(0);
+					                ^^^^
+				Cannot mix pattern with other case labels
+				----------
+				2. ERROR in X.java (at line 4)
+					case Integer i, null  -> System.out.println(0);
+					                ^^^^
+				A null case label has to be either the only expression in a case label or the first expression followed only by a default
+				----------
+				3. ERROR in X.java (at line 7)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug574563_004() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case null, Integer i when i > 10 -> System.out.println(0);\n"+
-				"     default -> System.out.println(o);\n"+
-				"   }\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case null, Integer i when i > 10 -> System.out.println(0);
+					     default -> System.out.println(o);
+					   }
+					   Zork();
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case null, Integer i when i > 10 -> System.out.println(0);\n" +
-			"	           ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case null, Integer i when i > 10 -> System.out.println(0);
+					           ^^^^^^^^^^^^^^^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				2. ERROR in X.java (at line 7)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug574563_005() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case Integer i when i > 10, null  -> System.out.println(0);\n"+
-				"     default -> System.out.println(o);\n"+
-				"   }\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case Integer i when i > 10, null  -> System.out.println(0);
+					     default -> System.out.println(o);
+					   }
+					   Zork();
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case Integer i when i > 10, null  -> System.out.println(0);\n" +
-			"	                            ^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case Integer i when i > 10, null  -> System.out.println(0);\n" +
-			"	                            ^^^^\n" +
-			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case Integer i when i > 10, null  -> System.out.println(0);
+					                            ^^^^
+				Cannot mix pattern with other case labels
+				----------
+				2. ERROR in X.java (at line 4)
+					case Integer i when i > 10, null  -> System.out.println(0);
+					                            ^^^^
+				A null case label has to be either the only expression in a case label or the first expression followed only by a default
+				----------
+				3. ERROR in X.java (at line 7)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug575030_01() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(\"Hello World!\");\n"+
-					" }\n"+
-					"\n"+
-					" private static void foo(String o) {\n"+
-					"   switch (o) {\n"+
-					"     case String s -> System.out.println(s);\n"+
-					"   }\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo("Hello World!");
+						 }
+						
+						 private static void foo(String o) {
+						   switch (o) {
+						     case String s -> System.out.println(s);
+						   }
+						 }
+						}""",
 				},
 				"Hello World!");
 	}
@@ -2430,24 +2625,25 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(Long.valueOf(10));\n"+
-				" }\n"+
-				" private static void foo(Object o) {\n"+
-				"   String s1 = \" Hello \";\n"+
-				"   String s2 = \"World!\";\n"+
-				"   switch (o) {\n"+
-				"     case Integer I when I > 10: break;\n"+
-				"      case X J: break;\n"+
-				"      case String s : break;\n"+
-				"      default:\n"+
-				"       s1 = new StringBuilder(String.valueOf(s1)).append(String.valueOf(s2)).toString();\n"+
-				"       System.out.println(s1);\n"+
-				"       break; \n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					   foo(Long.valueOf(10));
+					 }
+					 private static void foo(Object o) {
+					   String s1 = " Hello ";
+					   String s2 = "World!";
+					   switch (o) {
+					     case Integer I when I > 10: break;
+					      case X J: break;
+					      case String s : break;
+					      default:
+					       s1 = new StringBuilder(String.valueOf(s1)).append(String.valueOf(s2)).toString();
+					       System.out.println(s1);
+					       break;\s
+					   }
+					 }
+					}""",
 			},
 			"Hello World!");
 	}
@@ -2455,27 +2651,28 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(Long.valueOf(0));\n"+
-				" }\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case Integer I:\n"+
-				"       break;\n"+
-				"      case String s :\n"+
-				"       break;\n"+
-				"      case X J:\n"+
-				"       break;\n"+
-				"      default:\n"+
-				"       String s1 = \"Hello \";\n"+
-				"       String s2 = \"World!\";\n"+
-				"       s1 = s1 +s2; \n"+
-				"       System.out.println(s1);\n"+
-				"       break;\n"+
-				"   }\n"+
-				" } \n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					   foo(Long.valueOf(0));
+					 }
+					 private static void foo(Object o) {
+					   switch (o) {
+					     case Integer I:
+					       break;
+					      case String s :
+					       break;
+					      case X J:
+					       break;
+					      default:
+					       String s1 = "Hello ";
+					       String s2 = "World!";
+					       s1 = s1 +s2;\s
+					       System.out.println(s1);
+					       break;
+					   }
+					 }\s
+					}""",
 			},
 			"Hello World!");
 	}
@@ -2483,74 +2680,81 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" private static void foo(Object o) {\n"+
-					"		switch(o) {\n" +
-					"			case CharSequence cs ->\n" +
-					"			System.out.println(\"A sequence of length \" + cs.length());\n" +
-					"			case String s when s.length() > 0 -> \n" +
-					"			System.out.println(\"A string: \" + s);\n" +
-					"			default -> {\n" +
-					"				break;\n" +
-					"			} \n" +
-					"		}\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 private static void foo(Object o) {
+								switch(o) {
+									case CharSequence cs ->
+									System.out.println("A sequence of length " + cs.length());
+									case String s when s.length() > 0 ->\s
+									System.out.println("A string: " + s);
+									default -> {
+										break;
+									}\s
+								}
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case String s when s.length() > 0 -> \n" +
-				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						case String s when s.length() > 0 ->\s
+						     ^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testBug573921_2() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" private static void foo(Object o) {\n"+
-					"		switch(o) {\n" +
-					"			case CharSequence cs:\n" +
-					"				System.out.println(\"A sequence of length \" + cs.length());\n" +
-					"				break;\n" +
-					"			case String s:\n" +
-					"				System.out.println(\"A string: \" + s);\n" +
-					"				break;\n" +
-					"			default: \n" +
-					"				break;\n" +
-					"		}\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 private static void foo(Object o) {
+								switch(o) {
+									case CharSequence cs:
+										System.out.println("A sequence of length " + cs.length());
+										break;
+									case String s:
+										System.out.println("A string: " + s);
+										break;
+									default:\s
+										break;
+								}
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case String s:\n" +
-				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						case String s:
+						     ^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testBug573921_3() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(\"Hello!\");\n"+
-					" }\n"+
-					" private static void foo(Object o) {\n"+
-					"		switch(o) {\n" +
-					"			case String s:\n" +
-					"				System.out.println(\"String:\" + s);\n" +
-					"				break;\n" +
-					"			case CharSequence cs:\n" +
-					"				System.out.println(\"A CS:\" + cs);\n" +
-					"				break;\n" +
-					"			default: \n" +
-					"				break;\n" +
-					"		}\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo("Hello!");
+						 }
+						 private static void foo(Object o) {
+								switch(o) {
+									case String s:
+										System.out.println("String:" + s);
+										break;
+									case CharSequence cs:
+										System.out.println("A CS:" + cs);
+										break;
+									default:\s
+										break;
+								}
+						 }
+						}""",
 				},
 				"String:Hello!");
 	}
@@ -2558,23 +2762,24 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(new StringBuffer(\"Hello!\"));\n"+
-					" }\n"+
-					" private static void foo(Object o) {\n"+
-					"		switch(o) {\n" +
-					"			case String s:\n" +
-					"				System.out.println(\"String:\" + s);\n" +
-					"				break;\n" +
-					"			case CharSequence cs:\n" +
-					"				System.out.println(\"A CS:\" + cs.toString());\n" +
-					"				break;\n" +
-					"			default: \n" +
-					"				break;\n" +
-					"		}\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo(new StringBuffer("Hello!"));
+						 }
+						 private static void foo(Object o) {
+								switch(o) {
+									case String s:
+										System.out.println("String:" + s);
+										break;
+									case CharSequence cs:
+										System.out.println("A CS:" + cs.toString());
+										break;
+									default:\s
+										break;
+								}
+						 }
+						}""",
 				},
 				"A CS:Hello!");
 	}
@@ -2582,22 +2787,23 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(\"Hello\");\n"+
-					" }\n"+
-					" private static void foo(Object o) {\n"+
-					"		switch(o) {\n" +
-					"		case String s when s.length() < 5 :\n" +
-					"			System.out.println(\"1:\" + s);\n" +
-					"			break;\n" +
-					"		case String s when s.length() == 5:\n" +
-					"			System.out.println(\"2:\" + s);\n" +
-					"			break;\n" +
-					"		default : System.out.println(\"Object\");\n" +
-					"	}\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo("Hello");
+						 }
+						 private static void foo(Object o) {
+								switch(o) {
+								case String s when s.length() < 5 :
+									System.out.println("1:" + s);
+									break;
+								case String s when s.length() == 5:
+									System.out.println("2:" + s);
+									break;
+								default : System.out.println("Object");
+							}
+						 }
+						}""",
 				},
 				"2:Hello");
 	}
@@ -2605,22 +2811,23 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(\"\");\n"+
-					" }\n"+
-					" private static void foo(Object o) {\n"+
-					"		switch(o) {\n" +
-					"		case String s when s.length() < 5 :\n" +
-					"			System.out.println(\"1:\" + s);\n" +
-					"			break;\n" +
-					"		case String s when s.length() == 5:\n" +
-					"			System.out.println(\"2:\" + s);\n" +
-					"			break;\n" +
-					"		default : System.out.println(\"Object\");\n" +
-					"	}\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo("");
+						 }
+						 private static void foo(Object o) {
+								switch(o) {
+								case String s when s.length() < 5 :
+									System.out.println("1:" + s);
+									break;
+								case String s when s.length() == 5:
+									System.out.println("2:" + s);
+									break;
+								default : System.out.println("Object");
+							}
+						 }
+						}""",
 				},
 				"1:");
 	}
@@ -2628,156 +2835,172 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.*;\n" +
-					"public class X {\n"+
-					" @SuppressWarnings(\"rawtypes\")\n" +
-					" private static void foo(Object o) {\n"+
-					"		switch(o) {\n"+
-					"		case List cs:\n"+
-					"			System.out.println(\"A sequence of length \" + cs.size());\n"+
-					"			break;\n"+
-					"		case List<String> s: \n"+
-					"			System.out.println(\"A string: \" + s);\n"+
-					"			break;\n"+
-					"		} "+
-					" }\n"+
-					"}",
+					"""
+						import java.util.*;
+						public class X {
+						 @SuppressWarnings("rawtypes")
+						 private static void foo(Object o) {
+								switch(o) {
+								case List cs:
+									System.out.println("A sequence of length " + cs.size());
+									break;
+								case List<String> s:\s
+									System.out.println("A string: " + s);
+									break;
+								} \
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	switch(o) {\n" +
-				"	       ^\n" +
-				"An enhanced switch statement should be exhaustive; a default label expected\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 9)\n" +
-				"	case List<String> s: \n" +
-				"	     ^^^^^^^^^^^^^^\n" +
-				"Type Object cannot be safely cast to List<String>\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 9)\n" +
-				"	case List<String> s: \n" +
-				"	     ^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						switch(o) {
+						       ^
+					An enhanced switch statement should be exhaustive; a default label expected
+					----------
+					2. ERROR in X.java (at line 9)
+						case List<String> s:\s
+						     ^^^^^^^^^^^^^^
+					Type Object cannot be safely cast to List<String>
+					----------
+					3. ERROR in X.java (at line 9)
+						case List<String> s:\s
+						     ^^^^^^^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testBug573921_8() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.*;\n" +
-					"public class X {\n"+
-					" @SuppressWarnings(\"rawtypes\")\n" +
-					" private static void foo(Object o) {\n"+
-					"		switch(o.hashCode()) {\n"+
-					"		case String s:\n"+
-					"			break;\n"+
-					"		default: \n"+
-					"			break;\n"+
-					"		} "+
-					" }\n"+
-					"}",
+					"""
+						import java.util.*;
+						public class X {
+						 @SuppressWarnings("rawtypes")
+						 private static void foo(Object o) {
+								switch(o.hashCode()) {
+								case String s:
+									break;
+								default:\s
+									break;
+								} \
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case String s:\n" +
-				"	     ^^^^^^^^\n" +
-				"Type mismatch: cannot convert from int to String\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						case String s:
+						     ^^^^^^^^
+					Type mismatch: cannot convert from int to String
+					----------
+					""");
 	}
 	public void testBug573921_9() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.*;\n" +
-					"public class X {\n"+
-					" @SuppressWarnings(\"rawtypes\")\n" +
-					" private static void foo(Object o) {\n"+
-					"		switch(o) {\n"+
-					"		case Object o1:\n"+
-					"			break;\n"+
-					"		default: \n"+
-					"			break;\n"+
-					"		} "+
-					" }\n"+
-					"}",
+					"""
+						import java.util.*;
+						public class X {
+						 @SuppressWarnings("rawtypes")
+						 private static void foo(Object o) {
+								switch(o) {
+								case Object o1:
+									break;
+								default:\s
+									break;
+								} \
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	default: \n" +
-				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						default:\s
+						^^^^^^^
+					Switch case cannot have both unconditional pattern and default label
+					----------
+					""");
 	}
 	public void testBug573921_10() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.*;\n" +
-					"public class X {\n"+
-					" @SuppressWarnings(\"rawtypes\")\n" +
-					" private static void foo(List<String> o) {\n"+
-					"		switch(o) {\n"+
-					"		case List o1:\n"+
-					"			break;\n"+
-					"		default: \n"+
-					"			break;\n"+
-					"		} "+
-					" }\n"+
-					"}",
+					"""
+						import java.util.*;
+						public class X {
+						 @SuppressWarnings("rawtypes")
+						 private static void foo(List<String> o) {
+								switch(o) {
+								case List o1:
+									break;
+								default:\s
+									break;
+								} \
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	default: \n" +
-				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						default:\s
+						^^^^^^^
+					Switch case cannot have both unconditional pattern and default label
+					----------
+					""");
 	}
 	public void testBug573921_11() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.*;\n" +
-					"public class X {\n"+
-					" @SuppressWarnings(\"rawtypes\")\n" +
-					" private static void foo(String s) {\n"+
-					"		switch(s) {\n"+
-					"		case CharSequence cs:\n"+
-					"			break;\n"+
-					"		default: \n"+
-					"			break;\n"+
-					"		} "+
-					" }\n"+
-					"}",
+					"""
+						import java.util.*;
+						public class X {
+						 @SuppressWarnings("rawtypes")
+						 private static void foo(String s) {
+								switch(s) {
+								case CharSequence cs:
+									break;
+								default:\s
+									break;
+								} \
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	default: \n" +
-				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						default:\s
+						^^^^^^^
+					Switch case cannot have both unconditional pattern and default label
+					----------
+					""");
 	}
 	public void testBug575049_001() {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed interface I permits A,B,C {}\n"+
-				"final class A implements I {}\n"+
-				"final class B implements I {}\n"+
-				"record C(int j) implements I {} // Implicitly final\n"+
-				"public class X {\n"+
-				" static int testSealedCoverage(I i) {\n"+
-				"   return switch (i) {\n"+
-				"   case A a -> 0;\n"+
-				"   case B b -> 1;\n"+
-				"   case C c -> 2; // No default required!\n"+
-				"   default -> 3;\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   A a = new A();\n"+
-				"   System.out.println(testSealedCoverage(a));\n"+
-				" }\n"+
-				"}",
+				"""
+					sealed interface I permits A,B,C {}
+					final class A implements I {}
+					final class B implements I {}
+					record C(int j) implements I {} // Implicitly final
+					public class X {
+					 static int testSealedCoverage(I i) {
+					   return switch (i) {
+					   case A a -> 0;
+					   case B b -> 1;
+					   case C c -> 2; // No default required!
+					   default -> 3;
+					   };
+					 }
+					 public static void main(String[] args) {
+					   A a = new A();
+					   System.out.println(testSealedCoverage(a));
+					 }
+					}""",
 			},
 			"0");
 	}
@@ -2785,23 +3008,24 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed interface I permits A,B,C {}\n"+
-				"final class A implements I {}\n"+
-				"final class B implements I {}\n"+
-				"record C(int j) implements I {} // Implicitly final\n"+
-				"public class X {\n"+
-				" static int testSealedCoverage(I i) {\n"+
-				"   return switch (i) {\n"+
-				"   case A a -> 0;\n"+
-				"   case B b -> 1;\n"+
-				"   case C c -> 2; // No default required!\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   A a = new A();\n"+
-				"   System.out.println(testSealedCoverage(a));\n"+
-				" }\n"+
-				"}",
+				"""
+					sealed interface I permits A,B,C {}
+					final class A implements I {}
+					final class B implements I {}
+					record C(int j) implements I {} // Implicitly final
+					public class X {
+					 static int testSealedCoverage(I i) {
+					   return switch (i) {
+					   case A a -> 0;
+					   case B b -> 1;
+					   case C c -> 2; // No default required!
+					   };
+					 }
+					 public static void main(String[] args) {
+					   A a = new A();
+					   System.out.println(testSealedCoverage(a));
+					 }
+					}""",
 			},
 			"0");
 	}
@@ -2809,23 +3033,24 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed interface I permits A,B,C {}\n"+
-				"final class A implements I {}\n"+
-				"final class B implements I {}\n"+
-				"record C(int j) implements I {} // Implicitly final\n"+
-				"public class X {\n"+
-				" static int testSealedCoverage(I i) {\n"+
-				"   return switch (i) {\n"+
-				"   case A a -> 0;\n"+
-				"   case B b -> 1;\n"+
-				"   default -> 2; // No default required!\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   A a = new A();\n"+
-				"   System.out.println(testSealedCoverage(a));\n"+
-				" }\n"+
-				"}",
+				"""
+					sealed interface I permits A,B,C {}
+					final class A implements I {}
+					final class B implements I {}
+					record C(int j) implements I {} // Implicitly final
+					public class X {
+					 static int testSealedCoverage(I i) {
+					   return switch (i) {
+					   case A a -> 0;
+					   case B b -> 1;
+					   default -> 2; // No default required!
+					   };
+					 }
+					 public static void main(String[] args) {
+					   A a = new A();
+					   System.out.println(testSealedCoverage(a));
+					 }
+					}""",
 			},
 			"0");
 	}
@@ -2833,77 +3058,84 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"sealed interface I permits A,B,C {}\n"+
-				"final class A implements I {}\n"+
-				"final class B implements I {}\n"+
-				"record C(int j) implements I {} // Implicitly final\n"+
-				"public class X {\n"+
-				" static int testSealedCoverage(I i) {\n"+
-				"   return switch (i) {\n"+
-				"   case A a -> 0;\n"+
-				"   case B b -> 1;\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   A a = new A();\n"+
-				"   System.out.println(testSealedCoverage(a));\n"+
-				" }\n"+
-				"}",
+				"""
+					sealed interface I permits A,B,C {}
+					final class A implements I {}
+					final class B implements I {}
+					record C(int j) implements I {} // Implicitly final
+					public class X {
+					 static int testSealedCoverage(I i) {
+					   return switch (i) {
+					   case A a -> 0;
+					   case B b -> 1;
+					   };
+					 }
+					 public static void main(String[] args) {
+					   A a = new A();
+					   System.out.println(testSealedCoverage(a));
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	return switch (i) {\n" +
-			"	               ^\n" +
-			"A switch expression should have a default case\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					return switch (i) {
+					               ^
+				A switch expression should have a default case
+				----------
+				""");
 	}
 	public void testBug575048_01() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static int foo(Integer i) {\n"+
-				"   return switch (i) {\n"+
-				"     default -> 2;\n"+
-				"     case Integer i1 -> 0;\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(1));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static int foo(Integer i) {
+					   return switch (i) {
+					     default -> 2;
+					     case Integer i1 -> 0;
+					   };
+					 }
+					 public static void main(String[] args) {
+					   System.out.println(foo(1));
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case Integer i1 -> 0;\n" +
-			"	^^^^^^^^^^^^^^^\n" +
-			"Switch case cannot have both unconditional pattern and default label\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case Integer i1 -> 0;\n" +
-			"	     ^^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case Integer i1 -> 0;
+					^^^^^^^^^^^^^^^
+				Switch case cannot have both unconditional pattern and default label
+				----------
+				2. ERROR in X.java (at line 5)
+					case Integer i1 -> 0;
+					     ^^^^^^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				""");
 	}
 	public void testBug575053_001() {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void foo(String o) {\n" +
-				"		switch (o) {\n" +
-				"		  case String s when s.length() > 0  -> {}\n" +
-				"		  default -> {}\n" +
-				"		} \n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		try{\n" +
-				"		  (new X()).foo(null);\n" +
-				"		} catch(Exception e) {\n" +
-				"		 	System.out.println(\"Null Pointer Exception Thrown\");\n" +
-				"		}\n" +
-				"	}\n"+
-				"}",
+				"""
+					public class X {
+						public void foo(String o) {
+							switch (o) {
+							  case String s when s.length() > 0  -> {}
+							  default -> {}
+							}\s
+						}
+						public static void main(String[] args) {
+							try{
+							  (new X()).foo(null);
+							} catch(Exception e) {
+							 	System.out.println("Null Pointer Exception Thrown");
+							}
+						}
+					}""",
 			},
 			"Null Pointer Exception Thrown");
 	}
@@ -2911,21 +3143,22 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void foo(Object o) {\n" +
-				"		switch (o) {\n" +
-				"		  case String s -> {}\n" +
-				"		  default -> {}\n" +
-				"		} \n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		try{\n" +
-				"		  (new X()).foo(null);\n" +
-				"		} catch(Exception t) {\n" +
-				"		 	System.err.println(\"Null Pointer Exception Thrown\");\n" +
-				"		}\n" +
-				"	}\n"+
-				"}",
+				"""
+					public class X {
+						public void foo(Object o) {
+							switch (o) {
+							  case String s -> {}
+							  default -> {}
+							}\s
+						}
+						public static void main(String[] args) {
+							try{
+							  (new X()).foo(null);
+							} catch(Exception t) {
+							 	System.err.println("Null Pointer Exception Thrown");
+							}
+						}
+					}""",
 			},
 			"",
 			"Null Pointer Exception Thrown");
@@ -2934,45 +3167,49 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static int foo(Object o) {\n" +
-				"		return switch (o) {\n" +
-				"		  case (String s) : yield 0;\n" +
-				"		  default : yield 1;\n" +
-				"		};\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(foo(\"Hello\"));\n" +
-				"	}\n"+
-				"}",
+				"""
+					public class X {
+						public static int foo(Object o) {
+							return switch (o) {
+							  case (String s) : yield 0;
+							  default : yield 1;
+							};
+						}
+						public static void main(String[] args) {
+							System.out.println(foo("Hello"));
+						}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case (String s) : yield 0;\n" +
-			"	             ^\n" +
-			"Syntax error on token \"s\", delete this token\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case (String s) : yield 0;\n" +
-			"	                  ^^^^^\n" +
-			"Syntax error on token \"yield\", AssignmentOperator expected after this token\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case (String s) : yield 0;
+					             ^
+				Syntax error on token "s", delete this token
+				----------
+				2. ERROR in X.java (at line 4)
+					case (String s) : yield 0;
+					                  ^^^^^
+				Syntax error on token "yield", AssignmentOperator expected after this token
+				----------
+				""");
 	}
 	public void testBug575249_02() {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static int foo(Object o) {\n" +
-				"		return switch (o) {\n" +
-				"		  case String s when s.length() < 10 : yield 0;\n" +
-				"		  default : yield 1;\n" +
-				"		};\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(foo(\"Hello\"));\n" +
-				"	}\n"+
-				"}",
+				"""
+					public class X {
+						public static int foo(Object o) {
+							return switch (o) {
+							  case String s when s.length() < 10 : yield 0;
+							  default : yield 1;
+							};
+						}
+						public static void main(String[] args) {
+							System.out.println(foo("Hello"));
+						}
+					}""",
 			},
 			"0");
 	}
@@ -2980,17 +3217,18 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static int foo(Object o) {\n" +
-				"		return switch (o) {\n" +
-				"		  case (String s) -> 0;\n" +
-				"		  default -> 1;\n" +
-				"		};\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(foo(\"Hello\"));\n" +
-				"	}\n"+
-				"}",
+				"""
+					public class X {
+						public static int foo(Object o) {
+							return switch (o) {
+							  case (String s) -> 0;
+							  default -> 1;
+							};
+						}
+						public static void main(String[] args) {
+							System.out.println(foo("Hello"));
+						}
+					}""",
 			},
 			"""
 			----------
@@ -3011,17 +3249,18 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static int foo(Object o) {\n" +
-				"		return switch (o) {\n" +
-				"		  case String s when s.length() < 10 -> 0;\n" +
-				"		  default -> 1;\n" +
-				"		};\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(foo(\"Hello\"));\n" +
-				"	}\n"+
-				"}",
+				"""
+					public class X {
+						public static int foo(Object o) {
+							return switch (o) {
+							  case String s when s.length() < 10 -> 0;
+							  default -> 1;
+							};
+						}
+						public static void main(String[] args) {
+							System.out.println(foo("Hello"));
+						}
+					}""",
 			},
 			"0");
 	}
@@ -3029,16 +3268,17 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static int foo(Integer i) {\n"+
-				"   return switch (i) {\n"+
-				"     case Integer i1 -> 0;\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(1));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static int foo(Integer i) {
+					   return switch (i) {
+					     case Integer i1 -> 0;
+					   };
+					 }
+					 public static void main(String[] args) {
+					   System.out.println(foo(1));
+					 }
+					}""",
 			},
 			"0");
 	}
@@ -3046,16 +3286,17 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static int foo(Integer i) {\n"+
-				"   return switch (i) {\n"+
-				"     case Object o -> 0;\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(1));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static int foo(Integer i) {
+					   return switch (i) {
+					     case Object o -> 0;
+					   };
+					 }
+					 public static void main(String[] args) {
+					   System.out.println(foo(1));
+					 }
+					}""",
 			},
 			"0");
 	}
@@ -3063,19 +3304,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static int foo(Object myVar) {\n"+
-				"   return switch (myVar) {\n"+
-				"     case null  -> 0;\n"+
-				"     case Integer o -> 1;\n"+
-				"     case Object obj ->2;\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(Integer.valueOf(0)));\n"+
-				"   System.out.println(foo(null));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static int foo(Object myVar) {
+					   return switch (myVar) {
+					     case null  -> 0;
+					     case Integer o -> 1;
+					     case Object obj ->2;
+					   };
+					 }
+					 public static void main(String[] args) {
+					   System.out.println(foo(Integer.valueOf(0)));
+					   System.out.println(foo(null));
+					 }
+					}""",
 			},
 			"1\n" +
 			"0");
@@ -3084,22 +3326,23 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static int foo(Object myVar) {\n"+
-				"   return switch (myVar) {\n"+
-				"     case Integer o -> 1;\n"+
-				"     case Object obj ->2;\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(Integer.valueOf(0)));\n"+
-				"   try {\n"+
-				"   foo(null);\n"+
-				"   } catch (NullPointerException e) {\n"+
-				"     System.out.println(\"NPE\");\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static int foo(Object myVar) {
+					   return switch (myVar) {
+					     case Integer o -> 1;
+					     case Object obj ->2;
+					   };
+					 }
+					 public static void main(String[] args) {
+					   System.out.println(foo(Integer.valueOf(0)));
+					   try {
+					   foo(null);
+					   } catch (NullPointerException e) {
+					     System.out.println("NPE");
+					   }
+					 }
+					}""",
 			},
 			"1\n" +
 			"NPE");
@@ -3108,22 +3351,23 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static void foo(Integer myVar) {\n"+
-				"    switch (myVar) {\n"+
-				"     case  null  -> System.out.println(100);\n"+
-				"     case Integer o -> System.out.println(o);\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(Integer.valueOf(0));\n"+
-				"   try {\n"+
-				"   foo(null);\n"+
-				"   } catch (NullPointerException e) {\n"+
-				"     System.out.println(\"NPE\");\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static void foo(Integer myVar) {
+					    switch (myVar) {
+					     case  null  -> System.out.println(100);
+					     case Integer o -> System.out.println(o);
+					   };
+					 }
+					 public static void main(String[] args) {
+					   foo(Integer.valueOf(0));
+					   try {
+					   foo(null);
+					   } catch (NullPointerException e) {
+					     System.out.println("NPE");
+					   }
+					 }
+					}""",
 			},
 			"0\n" +
 			"100");
@@ -3132,21 +3376,22 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static void foo(Integer myVar) {\n"+
-				"    switch (myVar) {\n"+
-				"     case Integer o -> System.out.println(o);\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(Integer.valueOf(0));\n"+
-				"   try {\n"+
-				"   foo(null);\n"+
-				"   } catch (NullPointerException e) {\n"+
-				"     System.out.println(\"NPE\");\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static void foo(Integer myVar) {
+					    switch (myVar) {
+					     case Integer o -> System.out.println(o);
+					   };
+					 }
+					 public static void main(String[] args) {
+					   foo(Integer.valueOf(0));
+					   try {
+					   foo(null);
+					   } catch (NullPointerException e) {
+					     System.out.println("NPE");
+					   }
+					 }
+					}""",
 			},
 			"0\n" +
 			"NPE");
@@ -3155,18 +3400,19 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static void foo(String myVar) {\n"+
-				"    switch (myVar) {\n"+
-				"     case  null  -> System.out.println(100);\n"+
-				"     case String o -> System.out.println(o);\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello\");\n"+
-				"   foo(null);\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static void foo(String myVar) {
+					    switch (myVar) {
+					     case  null  -> System.out.println(100);
+					     case String o -> System.out.println(o);
+					   };
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello");
+					   foo(null);
+					 }
+					}""",
 			},
 			"Hello\n" +
 			"100");
@@ -3175,21 +3421,22 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static void foo(String myVar) {\n"+
-				"    switch (myVar) {\n"+
-				"     case String o -> System.out.println(o);\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello\");\n"+
-				"   try {\n"+
-				"   foo(null);\n"+
-				"   } catch (NullPointerException e) {\n"+
-				"     System.out.println(\"NPE\");\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static void foo(String myVar) {
+					    switch (myVar) {
+					     case String o -> System.out.println(o);
+					   };
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello");
+					   try {
+					   foo(null);
+					   } catch (NullPointerException e) {
+					     System.out.println("NPE");
+					   }
+					 }
+					}""",
 			},
 			"Hello\n" +
 			"NPE");
@@ -3198,40 +3445,44 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static void foo(Integer myVar) {\n"+
-					"    switch (myVar) {\n"+
-					"     case default -> System.out.println(\"hello\");\n"+
-					"   };   \n"+
-					" }   \n"+
-					"\n"+
-					" public static  void main(String[] args) {\n"+
-					"   foo(Integer.valueOf(10)); \n"+
-					" } \n"+
-					"}",
+					"""
+						public class X {
+						 static void foo(Integer myVar) {
+						    switch (myVar) {
+						     case default -> System.out.println("hello");
+						   };  \s
+						 }  \s
+						
+						 public static  void main(String[] args) {
+						   foo(Integer.valueOf(10));\s
+						 }\s
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case default -> System.out.println(\"hello\");\n" +
-				"	     ^^^^^^^\n" +
-				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						case default -> System.out.println("hello");
+						     ^^^^^^^
+					A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+					----------
+					""");
 	}
 	public void testBug575356_02() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static void foo(Integer myVar) {\n"+
-					"    switch (myVar) {\n"+
-					"     case null, default -> System.out.println(\"hello\");\n"+
-					"   };   \n"+
-					" }   \n"+
-					"\n"+
-					" public static  void main(String[] args) {\n"+
-					"   foo(Integer.valueOf(10)); \n"+
-					" } \n"+
-					"}",
+					"""
+						public class X {
+						 static void foo(Integer myVar) {
+						    switch (myVar) {
+						     case null, default -> System.out.println("hello");
+						   };  \s
+						 }  \s
+						
+						 public static  void main(String[] args) {
+						   foo(Integer.valueOf(10));\s
+						 }\s
+						}""",
 				},
 				"hello");
 	}
@@ -3239,48 +3490,52 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static void foo(Integer myVar) {\n"+
-					"    switch (myVar) {\n"+
-					"     case default, null -> System.out.println(\"hello\");\n"+
-					"   };   \n"+
-					" }   \n"+
-					"\n"+
-					" public static  void main(String[] args) {\n"+
-					"   foo(Integer.valueOf(10)); \n"+
-					" } \n"+
-					"}",
+					"""
+						public class X {
+						 static void foo(Integer myVar) {
+						    switch (myVar) {
+						     case default, null -> System.out.println("hello");
+						   };  \s
+						 }  \s
+						
+						 public static  void main(String[] args) {
+						   foo(Integer.valueOf(10));\s
+						 }\s
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case default, null -> System.out.println(\"hello\");\n" +
-				"	     ^^^^^^^\n" +
-				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	case default, null -> System.out.println(\"hello\");\n" +
-				"	              ^^^^\n" +
-				"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						case default, null -> System.out.println("hello");
+						     ^^^^^^^
+					A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+					----------
+					2. ERROR in X.java (at line 4)
+						case default, null -> System.out.println("hello");
+						              ^^^^
+					A null case label has to be either the only expression in a case label or the first expression followed only by a default
+					----------
+					""");
 	}
 	public void testBug575356_04() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"    case Integer i ->\n"+
-					"      System.out.println(\"Integer:\"+ i );\n"+
-					"    case null, default -> System.out.println(o.toString() );\n"+
-					"   }\n"+
-					"}\n"+
-					"\n"+
-					" public static  void main(String[] args) {\n"+
-					"   foo(Integer.valueOf(10)); \n"+
-					"   foo(new String(\"Hello\")); \n"+
-					" } \n"+
-					"}",
+					"""
+						public class X {
+						private static void foo(Object o) {
+						   switch (o) {
+						    case Integer i ->
+						      System.out.println("Integer:"+ i );
+						    case null, default -> System.out.println(o.toString() );
+						   }
+						}
+						
+						 public static  void main(String[] args) {
+						   foo(Integer.valueOf(10));\s
+						   foo(new String("Hello"));\s
+						 }\s
+						}""",
 				},
 				"Integer:10\n" +
 				"Hello");
@@ -3289,17 +3544,18 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"   case String s -> System.out.println(s);\n"+
-				"   default -> System.out.println(0);\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello\");\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static void foo(Object o) {
+					   switch (o) {
+					   case String s -> System.out.println(s);
+					   default -> System.out.println(0);
+					   };
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello");
+					 }
+					}""",
 			},
 			"Hello");
 	}
@@ -3307,62 +3563,69 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"   	case String s -> System.out.println(s);\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello\");\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static void foo(Object o) {
+					   switch (o) {
+					   	case String s -> System.out.println(s);
+					   };
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello");
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					switch (o) {
+					        ^
+				An enhanced switch statement should be exhaustive; a default label expected
+				----------
+				""");
 	}
 	public void testBug575052_003() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static int foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"   	case null -> System.out.println(0);\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello\");\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static int foo(Object o) {
+					   switch (o) {
+					   	case null -> System.out.println(0);
+					   };
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello");
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					switch (o) {
+					        ^
+				An enhanced switch statement should be exhaustive; a default label expected
+				----------
+				""");
 	}
 	public void testBug575052_004() {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static int foo(int i) {\n"+
-				"   switch (i) {\n"+
-				"   case 1:\n"+
-				"     break;\n"+
-				"   }\n"+
-				"   return 0;\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(X.foo(0));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 private static int foo(int i) {
+					   switch (i) {
+					   case 1:
+					     break;
+					   }
+					   return 0;
+					 }
+					 public static void main(String[] args) {
+					   System.out.println(X.foo(0));
+					 }
+					}""",
 			},
 			"0");
 	}
@@ -3370,67 +3633,76 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static int foo(Object o) {\n"+
-				"   return switch (o) {\n"+
-				"   	case String s -> 0;\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello\");\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static int foo(Object o) {
+					   return switch (o) {
+					   	case String s -> 0;
+					   };
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello");
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	return switch (o) {\n" +
-			"	               ^\n" +
-			"A switch expression should have a default case\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					return switch (o) {
+					               ^
+				A switch expression should have a default case
+				----------
+				""");
 	}
 	public void testBug575050_002() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static int  foo(Object o) {\n"+
-				"   return switch (o) {\n"+
-				"   	case null -> 0;\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello\");\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static int  foo(Object o) {
+					   return switch (o) {
+					   	case null -> 0;
+					   };
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello");
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	return switch (o) {\n" +
-			"	               ^\n" +
-			"A switch expression should have a default case\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					return switch (o) {
+					               ^
+				A switch expression should have a default case
+				----------
+				""");
 	}
 	// From 14.11.1.2 - null to be handled separately - no dominance here
 	public void testBug575047_01() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static int foo(Integer i) {\n"+
-					"   return switch (i) {\n"+
-					"     case Integer i1 -> 0;\n"+
-					"     case null -> 2;\n"+
-					"   };\n"+
-					"   Zork();\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 static int foo(Integer i) {
+						   return switch (i) {
+						     case Integer i1 -> 0;
+						     case null -> 2;
+						   };
+						   Zork();
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	Zork();\n" +
-				"	^^^^\n" +
-				"The method Zork() is undefined for the type X\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						Zork();
+						^^^^
+					The method Zork() is undefined for the type X
+					----------
+					""");
 	}
 	// A switch label that has a pattern case label element p dominates another
 	// switch label that has a constant case label element c if either of the
@@ -3441,61 +3713,68 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static int foo(Integer i) {\n"+
-					"   return switch (i) {\n"+
-					"     case Integer i1 -> i1;\n"+
-					"     case 0 -> 0;\n"+
-					"   };\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 static int foo(Integer i) {
+						   return switch (i) {
+						     case Integer i1 -> i1;
+						     case 0 -> 0;
+						   };
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case 0 -> 0;\n" +
-				"	     ^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						case 0 -> 0;
+						     ^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testBug575047_03() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static void foo(Color c) {\n"+
-					"   switch (c) {\n" +
-					"			case Color c1 : \n" +
-					"				break;\n" +
-					"			case Blue :\n" +
-					"				break;\n" +
-					"		}\n"+
-					" }\n"+
-					"enum Color { Blue, Red; }\n" +
-					"}",
+					"""
+						public class X {
+						 static void foo(Color c) {
+						   switch (c) {
+									case Color c1 :\s
+										break;
+									case Blue :
+										break;
+								}
+						 }
+						enum Color { Blue, Red; }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case Blue :\n" +
-				"	     ^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						case Blue :
+						     ^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testBug575047_04() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static int foo(Integer i) {\n"+
-					"   return switch (i) {\n"+
-					"     case null -> 2;\n"+
-					"     case Integer i1 -> 0;\n"+
-					"   };\n"+
-					" }\n"+
-					" public static void main(String[] args) {\n"+
-					"   System.out.println(foo(null));\n"+
-					"   System.out.println(foo(Integer.valueOf(0)));\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 static int foo(Integer i) {
+						   return switch (i) {
+						     case null -> 2;
+						     case Integer i1 -> 0;
+						   };
+						 }
+						 public static void main(String[] args) {
+						   System.out.println(foo(null));
+						   System.out.println(foo(Integer.valueOf(0)));
+						 }
+						}""",
 				},
 				"2\n" +
 				"0");
@@ -3504,48 +3783,54 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static void foo(float c) {\n"+
-					"   switch (c) {\n" +
-					"			case 0 : \n" +
-					"				break;\n" +
-					"			default :\n" +
-					"		}\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 static void foo(float c) {
+						   switch (c) {
+									case 0 :\s
+										break;
+									default :
+								}
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case 0 : \n" +
-				"	     ^\n" +
-				"Type mismatch: cannot convert from int to float\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						case 0 :\s
+						     ^
+					Type mismatch: cannot convert from int to float
+					----------
+					""");
 	}
 	public void testBug575047_06() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static int foo(String o) {\n"+
-					"    return switch (o) {\n" +
-					"		     case String s when s.length() > 0 -> 3;\n" +
-					"		     case String s1 -> 1;\n" +
-					"		     case String s -> -1;\n"+
-					"		   };\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 static int foo(String o) {
+						    return switch (o) {
+								     case String s when s.length() > 0 -> 3;
+								     case String s1 -> 1;
+								     case String s -> -1;
+								   };
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case String s -> -1;\n" +
-				"	     ^^^^^^^^\n" +
-				"The switch statement cannot have more than one unconditional pattern\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	case String s -> -1;\n" +
-				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						case String s -> -1;
+						     ^^^^^^^^
+					The switch statement cannot have more than one unconditional pattern
+					----------
+					2. ERROR in X.java (at line 6)
+						case String s -> -1;
+						     ^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	// Test that when a literal is used as case constant
 	// we report type mismatch error against the literal's type and
@@ -3554,44 +3839,48 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static void foo(Number i) {\n"+
-					"	    switch (i) {\n"+
-					"		 case Integer j, \"\":\n"+
-					"			 System.out.println(0);\n"+
-					"		 default:\n"+
-					"	   }\n"+
-					"	}\n"+
-					"}",
+					"""
+						public class X {
+						 static void foo(Number i) {
+							    switch (i) {
+								 case Integer j, "":
+									 System.out.println(0);
+								 default:
+							   }
+							}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case Integer j, \"\":\n" +
-				"	                ^^\n" +
-				"Cannot mix pattern with other case labels\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	case Integer j, \"\":\n" +
-				"	                ^^\n" +
-				"Type mismatch: cannot convert from String to Number\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						case Integer j, "":
+						                ^^
+					Cannot mix pattern with other case labels
+					----------
+					2. ERROR in X.java (at line 4)
+						case Integer j, "":
+						                ^^
+					Type mismatch: cannot convert from String to Number
+					----------
+					""");
 	}
 	public void testBug575047_08() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static int foo(Integer i) {\n"+
-					"   return switch (i) {\n"+
-					"     case 0 -> 0;\n"+
-					"     case Integer i1 -> i1;\n"+
-					"   };\n"+
-					" }\n"+
-					" public static void main(String[] args) {\n"+
-					"   System.out.println(foo(3));\n"+
-					"   System.out.println(foo(0));\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 static int foo(Integer i) {
+						   return switch (i) {
+						     case 0 -> 0;
+						     case Integer i1 -> i1;
+						   };
+						 }
+						 public static void main(String[] args) {
+						   System.out.println(foo(3));
+						   System.out.println(foo(0));
+						 }
+						}""",
 				},
 				"3\n"+
 				"0");
@@ -3600,18 +3889,19 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" 	static int foo(String i) {\n"+
-					"		return switch (i) {\n"+
-					"	     case \"\" -> 0;\n"+
-					"	     case String s -> -1;\n"+
-					"	   };\n"+
-					"	}\n"+
-					" public static void main(String[] args) {\n"+
-					"   System.out.println(foo(\"\"));\n"+
-					"   System.out.println(foo(\"abc\"));\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 	static int foo(String i) {
+								return switch (i) {
+							     case "" -> 0;
+							     case String s -> -1;
+							   };
+							}
+						 public static void main(String[] args) {
+						   System.out.println(foo(""));
+						   System.out.println(foo("abc"));
+						 }
+						}""",
 				},
 				"0\n" +
 				"-1");
@@ -3620,51 +3910,54 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"	static String foo(Object o) {\n" +
-					"	   return switch (o) {\n" +
-					"		 case String i when i.length() == 0 -> \"empty\";\n" +
-					"	     case String i when i.length() > 0 -> \"zero+\";\n" +
-					"	     case Color s -> s.toString();\n" +
-					"		 default -> \"unknown\";\n" +
-					"	   };\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.println(foo(\"abc\"));\n" +
-					"		System.out.println(foo(\"\"));\n" +
-					"		System.out.println(Color.Blue);\n" +
-					"		System.out.println(foo(args));\n" +
-					"	}\n" +
-					"} \n" +
-					"enum Color {\n" +
-					"	Blue, Red; \n" +
-					"}",
+					"""
+						public class X {
+							static String foo(Object o) {
+							   return switch (o) {
+								 case String i when i.length() == 0 -> "empty";
+							     case String i when i.length() > 0 -> "zero+";
+							     case Color s -> s.toString();
+								 default -> "unknown";
+							   };
+							}
+							public static void main(String[] args) {
+								System.out.println(foo("abc"));
+								System.out.println(foo(""));
+								System.out.println(Color.Blue);
+								System.out.println(foo(args));
+							}
+						}\s
+						enum Color {
+							Blue, Red;\s
+						}""",
 				},
-				"zero+\n" +
-				"empty\n" +
-				"Blue\n" +
-				"unknown");
+				"""
+					zero+
+					empty
+					Blue
+					unknown""");
 	}
 	// Positive - Mix enum constants as well as suitable pattern var
 	public void testBug575047_11() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"	static String foo(Color o) {\n" +
-					"		return switch (o) {\n" +
-					"	     case Red -> \"Const:Red\";\n" +
-					"	     case Color s -> s.toString();\n" +
-					"	   };\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.println(foo(Color.Red));\n" +
-					"		System.out.println(foo(Color.Blue));\n" +
-					"	}\n" +
-					"} \n" +
-					"enum Color {\n" +
-					"	Blue, Red; \n" +
-					"}",
+					"""
+						public class X {
+							static String foo(Color o) {
+								return switch (o) {
+							     case Red -> "Const:Red";
+							     case Color s -> s.toString();
+							   };
+							}
+							public static void main(String[] args) {
+								System.out.println(foo(Color.Red));
+								System.out.println(foo(Color.Blue));
+							}
+						}\s
+						enum Color {
+							Blue, Red;\s
+						}""",
 				},
 				"Const:Red\n" +
 				"Blue");
@@ -3673,22 +3966,23 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"	static String foo(Color o) {\n" +
-					"		return switch (o) {\n" +
-					"	     case Red -> \"Red\";\n" +
-					"	     case Color s when s == Color.Blue  -> s.toString();\n" +
-					"	     case Color s -> s.toString();\n" +
-					"	   };\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.println(Color.Red);\n" +
-					"		System.out.println(Color.Blue);\n" +
-					"	}\n" +
-					"} \n" +
-					"enum Color {\n" +
-					"	Blue, Red; \n" +
-					"}",
+					"""
+						public class X {
+							static String foo(Color o) {
+								return switch (o) {
+							     case Red -> "Red";
+							     case Color s when s == Color.Blue  -> s.toString();
+							     case Color s -> s.toString();
+							   };
+							}
+							public static void main(String[] args) {
+								System.out.println(Color.Red);
+								System.out.println(Color.Blue);
+							}
+						}\s
+						enum Color {
+							Blue, Red;\s
+						}""",
 				},
 				"Red\n" +
 				"Blue");
@@ -3697,67 +3991,74 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"	static String foo(Color o) {\n" +
-					"		return switch (o) {\n" +
-					"	     case Color s when s == Color.Blue  -> s.toString();\n" +
-					"	     case Red -> \"Red\";\n" +
-					"	     case null -> \"\";\n" +
-					"	   };\n" +
-					"	}\n" +
-					"} \n" +
-					"enum Color {\n" +
-					"	Blue, Red; \n" +
-					"}",
+					"""
+						public class X {
+							static String foo(Color o) {
+								return switch (o) {
+							     case Color s when s == Color.Blue  -> s.toString();
+							     case Red -> "Red";
+							     case null -> "";
+							   };
+							}
+						}\s
+						enum Color {
+							Blue, Red;\s
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	return switch (o) {\n" +
-				"	               ^\n" +
-				"A Switch expression should cover all possible values\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						return switch (o) {
+						               ^
+					A Switch expression should cover all possible values
+					----------
+					""");
 	}
 	public void testBug575047_14() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"	static String foo(Color o) {\n" +
-					"		return switch (o) {\n" +
-					"	     case Color s when s == Color.Blue  -> s.toString();\n" +
-					"	     case Red -> \"Red\";\n" +
-					"	   };\n" +
-					"	}\n" +
-					"} \n" +
-					"enum Color {\n" +
-					"	Blue, Red; \n" +
-					"}",
+					"""
+						public class X {
+							static String foo(Color o) {
+								return switch (o) {
+							     case Color s when s == Color.Blue  -> s.toString();
+							     case Red -> "Red";
+							   };
+							}
+						}\s
+						enum Color {
+							Blue, Red;\s
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	return switch (o) {\n" +
-				"	               ^\n" +
-				"A Switch expression should cover all possible values\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						return switch (o) {
+						               ^
+					A Switch expression should cover all possible values
+					----------
+					""");
 	}
 	public void testBug575047_15() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n" +
-					"	static void foo(Integer o) {\n" +
-					"		switch (o) {\n" +
-					"		  case 1: break;\n" +
-					"		  case Integer s when s == 2:\n" +
-					"			  System.out.println(s);break;\n" +
-					"		  case null, default:\n" +
-					"			  System.out.println(\"null/default\");\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static  void main(String[] args) {\n" +
-					"		foo(null);\n" +
-					"	}\n" +
-					"}",
+					"""
+						public class X {
+							static void foo(Integer o) {
+								switch (o) {
+								  case 1: break;
+								  case Integer s when s == 2:
+									  System.out.println(s);break;
+								  case null, default:
+									  System.out.println("null/default");
+								}
+							}
+							public static  void main(String[] args) {
+								foo(null);
+							}
+						}""",
 				},
 				"null/default");
 	}
@@ -3765,16 +4066,17 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static void foo(String myVar) { // String\n"+
-					"    switch (myVar) {\n"+
-					"     case null, default : System.out.println(\"hello\");\n"+
-					"   };   \n"+
-					" }\n"+
-					" public static  void main(String[] args) { \n"+
-					"   foo(new String(\"Hello\")); \n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 static void foo(String myVar) { // String
+						    switch (myVar) {
+						     case null, default : System.out.println("hello");
+						   };  \s
+						 }
+						 public static  void main(String[] args) {\s
+						   foo(new String("Hello"));\s
+						 }
+						}""",
 				},
 				"hello");
 	}
@@ -3782,21 +4084,24 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"	public int foo(CharSequence c) {\n" +
-					"		return switch (c) {\n" +
-					"		   case CharSequence c1 when (c instanceof String c1 && c1.length() > 0) -> 0;\n" +
-					"		   default -> 0;\n" +
-					"		};\n" +
-					"	}" +
-					"}",
+					"""
+						public class X {
+							public int foo(CharSequence c) {
+								return switch (c) {
+								   case CharSequence c1 when (c instanceof String c1 && c1.length() > 0) -> 0;
+								   default -> 0;
+								};
+							}\
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case CharSequence c1 when (c instanceof String c1 && c1.length() > 0) -> 0;\n" +
-				"	                                               ^^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						case CharSequence c1 when (c instanceof String c1 && c1.length() > 0) -> 0;
+						                                               ^^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					""");
 	}
 	// Fails with Javac as it prints Javac instead of throwing NPE
 	// https://bugs.openjdk.java.net/browse/JDK-8272776
@@ -3804,52 +4109,56 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n" +
-					"	public void foo(Object o) {\n" +
-					"	  try{\n" +
-					"		switch (o) {\n" +
-					"		  default:\n" +
-					"			  break;\n" +
-					"		  case String s :\n" +
-					"			  System.out.println(s);\n" +
-					"		} \n" +
-					"	  } catch(Exception t) {\n" +
-					"		 t.printStackTrace(System.out);\n" +
-					"	  }\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		  (new X()).foo(null);\n" +
-					"	}\n" +
-					"}",
+					"""
+						public class X {
+							public void foo(Object o) {
+							  try{
+								switch (o) {
+								  default:
+									  break;
+								  case String s :
+									  System.out.println(s);
+								}\s
+							  } catch(Exception t) {
+								 t.printStackTrace(System.out);
+							  }
+							}
+							public static void main(String[] args) {
+								  (new X()).foo(null);
+							}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case String s :\n" +
-				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						case String s :
+						     ^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	// Test we don't report any illegal fall-through to null case
 	public void testBug575051_2() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n" +
-					"	public void foo(Object o) {\n" +
-					"		switch (o) {\n" +
-					"		  case String s :\n" +
-					"			  System.out.println(s);\n" +
-					"				//$FALL-THROUGH$\n" +
-					"		  case null:\n" +
-					"			  break;\n" +
-					"		  default : \n" +
-					"				  break;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		(new X()).foo(null);\n" +
-					"	}\n" +
-					"}",
+					"""
+						public class X {
+							public void foo(Object o) {
+								switch (o) {
+								  case String s :
+									  System.out.println(s);
+										//$FALL-THROUGH$
+								  case null:
+									  break;
+								  default :\s
+										  break;
+								}
+							}
+							public static void main(String[] args) {
+								(new X()).foo(null);
+							}
+						}""",
 				},
 				"");
 	}
@@ -3859,107 +4168,122 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runWarningTest(
 		new String[] {
 		"X.java",
-		"public class X {\n" +
-		"       public void foo(Color o) {\n" +
-		"               switch (o) {\n" +
-		"                 case Blue:\n" +
-		"                       break;\n" +
-		"               }\n" +
-		"       }\n" +
-		"       public static void main(String[] args) {}\n" +
-		"}\n" +
-		"enum Color {   Blue;  }\n",
+		"""
+			public class X {
+			       public void foo(Color o) {
+			               switch (o) {
+			                 case Blue:
+			                       break;
+			               }
+			       }
+			       public static void main(String[] args) {}
+			}
+			enum Color {   Blue;  }
+			""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	switch (o) {\n" +
-		"	        ^\n" +
-		"The switch over the enum type Color should have a default case\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				switch (o) {
+				        ^
+			The switch over the enum type Color should have a default case
+			----------
+			""",
 		options);
 	}
 	public void testBug575571_2() {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"	public void foo(Color o) {\n" +
-						"		switch (o) {\n" +
-						"		  case Blue:\n" +
-						"		  case Color c:\n" +
-						"			break;\n" +
-						"		}\n" +
-						"	}\n" +
-						"	public static void main(String[] args) {}\n" +
-						"}\n" +
-						"enum Color {	Blue, Red;  }\n",
+						"""
+							public class X {
+								public void foo(Color o) {
+									switch (o) {
+									  case Blue:
+									  case Color c:
+										break;
+									}
+								}
+								public static void main(String[] args) {}
+							}
+							enum Color {	Blue, Red;  }
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case Color c:\n" +
-				"	^^^^^^^^^^^^\n" +
-				"Illegal fall-through to a pattern\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						case Color c:
+						^^^^^^^^^^^^
+					Illegal fall-through to a pattern
+					----------
+					""");
 	}
 	public void testBug575714_01() {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"class X {\n"+
-						" static Object foo(Object o) {\n"+
-						"   switch (o) {\n"+
-						"       case Object __ -> throw new AssertionError(); \n"+
-						"   }\n"+
-						" }\n"+
-						" public static void main(String[] args) {\n"+
-						"   Zork();\n"+
-						" }\n"+
-						"}",
+						"""
+							class X {
+							 static Object foo(Object o) {
+							   switch (o) {
+							       case Object __ -> throw new AssertionError();\s
+							   }
+							 }
+							 public static void main(String[] args) {
+							   Zork();
+							 }
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	Zork();\n" +
-				"	^^^^\n" +
-				"The method Zork() is undefined for the type X\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						Zork();
+						^^^^
+					The method Zork() is undefined for the type X
+					----------
+					""");
 	}
 	public void testBug575714_02() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"class X {\n"+
-					" static Object foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"       case Object __ -> System.out.println(\"Hello\"); \n"+
-					"   }\n"+
-					" }\n"+
-					" public static void main(String[] args) {\n"+
-					"   X.foo(new X());\n"+
-					" }\n"+
-					"}",
+					"""
+						class X {
+						 static Object foo(Object o) {
+						   switch (o) {
+						       case Object __ -> System.out.println("Hello");\s
+						   }
+						 }
+						 public static void main(String[] args) {
+						   X.foo(new X());
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 2)\n" +
-				"	static Object foo(Object o) {\n" +
-				"	              ^^^^^^^^^^^^^\n" +
-				"This method must return a result of type Object\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 2)
+						static Object foo(Object o) {
+						              ^^^^^^^^^^^^^
+					This method must return a result of type Object
+					----------
+					""");
 	}
 	public void testBug575714_03() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"class X {\n"+
-					" static Object foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"       case Object __ -> System.out.println(\"Hello\"); \n"+
-					"   }\n"+
-					"   return null;\n"+
-					" }\n"+
-					" public static void main(String[] args) {\n"+
-					"   X.foo(new X());\n"+
-					" }\n"+
-					"}",
+					"""
+						class X {
+						 static Object foo(Object o) {
+						   switch (o) {
+						       case Object __ -> System.out.println("Hello");\s
+						   }
+						   return null;
+						 }
+						 public static void main(String[] args) {
+						   X.foo(new X());
+						 }
+						}""",
 				},
 				"Hello");
 	}
@@ -3967,20 +4291,21 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"class X {\n"+
-					" static Object foo(Object o) throws Exception {\n"+
-					"   switch (o) {\n"+
-					"       case Object __ -> throw new Exception(); \n"+
-					"   }\n"+
-					" }\n"+
-					" public static void main(String[] args) {\n"+
-					"   try {\n"+
-					"     X.foo(new X());\n"+
-					"   } catch (Exception e) {\n"+
-					"     System.out.println(\"Hello\");\n"+
-					"   }\n"+
-					" }\n"+
-					"}",
+					"""
+						class X {
+						 static Object foo(Object o) throws Exception {
+						   switch (o) {
+						       case Object __ -> throw new Exception();\s
+						   }
+						 }
+						 public static void main(String[] args) {
+						   try {
+						     X.foo(new X());
+						   } catch (Exception e) {
+						     System.out.println("Hello");
+						   }
+						 }
+						}""",
 				},
 				"Hello");
 	}
@@ -3988,221 +4313,239 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"	static void number(Number i) {\n" +
-						"		switch (i) {\n" +
-						"			case Integer i2, 4.5:\n" +
-						"			case 4.3: System.out.println();\n" +
-						"			default: System.out.println(\"nothing\");\n" +
-						"		}\n" +
-						"	}\n" +
-						"	public static void main(String[] args) {}\n" +
-						"}\n" +
-						"enum Color {	Blue, Red;  }\n",
+						"""
+							public class X {
+								static void number(Number i) {
+									switch (i) {
+										case Integer i2, 4.5:
+										case 4.3: System.out.println();
+										default: System.out.println("nothing");
+									}
+								}
+								public static void main(String[] args) {}
+							}
+							enum Color {	Blue, Red;  }
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case Integer i2, 4.5:\n" +
-				"	                 ^^^\n" +
-				"Cannot mix pattern with other case labels\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	case Integer i2, 4.5:\n" +
-				"	                 ^^^\n" +
-				"Type mismatch: cannot convert from double to Number\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 5)\n" +
-				"	case 4.3: System.out.println();\n" +
-				"	     ^^^\n" +
-				"Type mismatch: cannot convert from double to Number\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						case Integer i2, 4.5:
+						                 ^^^
+					Cannot mix pattern with other case labels
+					----------
+					2. ERROR in X.java (at line 4)
+						case Integer i2, 4.5:
+						                 ^^^
+					Type mismatch: cannot convert from double to Number
+					----------
+					3. ERROR in X.java (at line 5)
+						case 4.3: System.out.println();
+						     ^^^
+					Type mismatch: cannot convert from double to Number
+					----------
+					""");
 	}
 	public void testBug575686_1() {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"	void m(Object o) {\n" +
-						"		switch (o) {\n" +
-						"			case Integer i1, String s1 ->\n" +
-						"				System.out.print(s1);\n" +
-						"			default -> System.out.print(\"default\");\n" +
-						"			case Number n, null ->\n" +
-						"				System.out.print(o);\n" +
-						"			case null, Class c ->\n" +
-						"				System.out.print(o);\n" +
-						"		}\n" +
-						"	}\n" +
-						"	public static void main(String[] args) {}\n" +
-						"}\n" +
-						"enum Color {	Blue, Red;  }\n",
+						"""
+							public class X {
+								void m(Object o) {
+									switch (o) {
+										case Integer i1, String s1 ->
+											System.out.print(s1);
+										default -> System.out.print("default");
+										case Number n, null ->
+											System.out.print(o);
+										case null, Class c ->
+											System.out.print(o);
+									}
+								}
+								public static void main(String[] args) {}
+							}
+							enum Color {	Blue, Red;  }
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case Integer i1, String s1 ->\n" +
-				"	             ^^\n" +
-				"Named pattern variables are not allowed here\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	case Integer i1, String s1 ->\n" +
-				"	                 ^^^^^^^^^\n" +
-				"Cannot mix pattern with other case labels\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 4)\n" +
-				"	case Integer i1, String s1 ->\n" +
-				"	                        ^^\n" +
-				"Named pattern variables are not allowed here\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 5)\n" +
-				"	System.out.print(s1);\n" +
-				"	                 ^^\n" +
-				"s1 cannot be resolved to a variable\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 7)\n" +
-				"	case Number n, null ->\n" +
-				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 7)\n" +
-				"	case Number n, null ->\n" +
-				"	               ^^^^\n" +
-				"Cannot mix pattern with other case labels\n" +
-				"----------\n" +
-				"7. ERROR in X.java (at line 7)\n" +
-				"	case Number n, null ->\n" +
-				"	               ^^^^\n" +
-				"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
-				"----------\n" +
-				"8. ERROR in X.java (at line 7)\n" +
-				"	case Number n, null ->\n" +
-				"	               ^^^^\n" +
-				"Duplicate case\n" +
-				"----------\n" +
-				"9. ERROR in X.java (at line 9)\n" +
-				"	case null, Class c ->\n" +
-				"	     ^^^^\n" +
-				"Duplicate case\n" +
-				"----------\n" +
-				"10. ERROR in X.java (at line 9)\n" +
-				"	case null, Class c ->\n" +
-				"	           ^^^^^^^\n" +
-				"Cannot mix pattern with other case labels\n" +
-				"----------\n" +
-				"11. WARNING in X.java (at line 9)\n" +
-				"	case null, Class c ->\n" +
-				"	           ^^^^^\n" +
-				"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-				"----------\n" +
-				"12. ERROR in X.java (at line 9)\n" +
-				"	case null, Class c ->\n" +
-				"	           ^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						case Integer i1, String s1 ->
+						             ^^
+					Named pattern variables are not allowed here
+					----------
+					2. ERROR in X.java (at line 4)
+						case Integer i1, String s1 ->
+						                 ^^^^^^^^^
+					Cannot mix pattern with other case labels
+					----------
+					3. ERROR in X.java (at line 4)
+						case Integer i1, String s1 ->
+						                        ^^
+					Named pattern variables are not allowed here
+					----------
+					4. ERROR in X.java (at line 5)
+						System.out.print(s1);
+						                 ^^
+					s1 cannot be resolved to a variable
+					----------
+					5. ERROR in X.java (at line 7)
+						case Number n, null ->
+						     ^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					6. ERROR in X.java (at line 7)
+						case Number n, null ->
+						               ^^^^
+					Cannot mix pattern with other case labels
+					----------
+					7. ERROR in X.java (at line 7)
+						case Number n, null ->
+						               ^^^^
+					A null case label has to be either the only expression in a case label or the first expression followed only by a default
+					----------
+					8. ERROR in X.java (at line 7)
+						case Number n, null ->
+						               ^^^^
+					Duplicate case
+					----------
+					9. ERROR in X.java (at line 9)
+						case null, Class c ->
+						     ^^^^
+					Duplicate case
+					----------
+					10. ERROR in X.java (at line 9)
+						case null, Class c ->
+						           ^^^^^^^
+					Cannot mix pattern with other case labels
+					----------
+					11. WARNING in X.java (at line 9)
+						case null, Class c ->
+						           ^^^^^
+					Class is a raw type. References to generic type Class<T> should be parameterized
+					----------
+					12. ERROR in X.java (at line 9)
+						case null, Class c ->
+						           ^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testBug575738_001() {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"	private static void foo(Object o) {\n" +
-						"	   switch (o.hashCode()) {\n" +
-						"	     case int t: System.out.println(\"Integer\"); \n" +
-						"	     default : System.out.println(\"Object\"); \n" +
-						"	   }\n" +
-						"	}\n" +
-						"	public static void main(String[] args) { \n" +
-						"		foo(\"Hello World\");\n" +
-						"	}\n" +
-						"}"
+						"""
+							public class X {
+								private static void foo(Object o) {
+								   switch (o.hashCode()) {
+								     case int t: System.out.println("Integer");\s
+								     default : System.out.println("Object");\s
+								   }
+								}
+								public static void main(String[] args) {\s
+									foo("Hello World");
+								}
+							}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case int t: System.out.println(\"Integer\"); \n" +
-				"	     ^^^^^\n" +
-				"Unexpected type int, expected class or array type\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						case int t: System.out.println("Integer");\s
+						     ^^^^^
+					Unexpected type int, expected class or array type
+					----------
+					""");
 	}
 	public void testBug575738_002() {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"	private static void foo(Object o) {\n" +
-						"	   switch (o.hashCode()) {\n" +
-						"	     case Integer t: System.out.println(\"Integer\"); \n" +
-						"	     default : System.out.println(\"Object\"); \n" +
-						"	   }\n" +
-						"	}\n" +
-						"	public static void main(String[] args) { \n" +
-						"		foo(\"Hello World\");\n" +
-						"	}\n" +
-						"}"
+						"""
+							public class X {
+								private static void foo(Object o) {
+								   switch (o.hashCode()) {
+								     case Integer t: System.out.println("Integer");\s
+								     default : System.out.println("Object");\s
+								   }
+								}
+								public static void main(String[] args) {\s
+									foo("Hello World");
+								}
+							}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case Integer t: System.out.println(\"Integer\"); \n" +
-				"	     ^^^^^^^^^\n" +
-				"Type mismatch: cannot convert from int to Integer\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						case Integer t: System.out.println("Integer");\s
+						     ^^^^^^^^^
+					Type mismatch: cannot convert from int to Integer
+					----------
+					""");
 	}
 
 	public void testBug576075_001() throws Exception {
 		runConformTest(
 			new String[] {
 				"p/Rec.java",
-				"package p;\n"+
-				"import p.Rec.MyInterface.MyClass1;\n"+
-				"import p.Rec.MyInterface.MyClass2;\n"+
-				"public record Rec(MyInterface c) {\n"+
-				"	public static sealed interface MyInterface permits MyClass1, MyClass2 {\n"+
-				"		public static final class MyClass1 implements MyInterface { }\n"+
-				"        public static final class MyClass2 implements MyInterface { }\n"+
-				"    }\n"+
-				"    public boolean bla() {\n"+
-				"        return switch (c) {\n"+
-				"            case MyClass1 mc1 -> true;\n"+
-				"            case MyClass2 mc2 -> false;\n"+
-				"        };\n"+
-				"    }\n"+
-				"    public static void main(String[] args) {\n"+
-				"        new Rec(new MyClass1()).hashCode();\n"+
-				"        System.out.println(\"works\");\n"+
-				"    }\n"+
-				"}\n"
+				"""
+					package p;
+					import p.Rec.MyInterface.MyClass1;
+					import p.Rec.MyInterface.MyClass2;
+					public record Rec(MyInterface c) {
+						public static sealed interface MyInterface permits MyClass1, MyClass2 {
+							public static final class MyClass1 implements MyInterface { }
+					        public static final class MyClass2 implements MyInterface { }
+					    }
+					    public boolean bla() {
+					        return switch (c) {
+					            case MyClass1 mc1 -> true;
+					            case MyClass2 mc2 -> false;
+					        };
+					    }
+					    public static void main(String[] args) {
+					        new Rec(new MyClass1()).hashCode();
+					        System.out.println("works");
+					    }
+					}
+					"""
 			},
 		 "works");
 		String expectedOutput =
-				"Bootstrap methods:\n" +
-				"  0 : # 95 invokestatic java/lang/runtime/SwitchBootstraps.typeSwitch:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" +
-				"	Method arguments:\n" +
-				"		#32 p/Rec$MyInterface$MyClass1\n" +
-				"		#34 p/Rec$MyInterface$MyClass2,\n" +
-				"  1 : # 102 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;\n" +
-				"	Method arguments:\n" +
-				"		#1 p/Rec\n" +
-				"		#103 c\n" +
-				"		#104 REF_getField c:Lp/Rec$MyInterface;";
+				"""
+			Bootstrap methods:
+			  0 : # 95 invokestatic java/lang/runtime/SwitchBootstraps.typeSwitch:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+				Method arguments:
+					#32 p/Rec$MyInterface$MyClass1
+					#34 p/Rec$MyInterface$MyClass2,
+			  1 : # 102 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;
+				Method arguments:
+					#1 p/Rec
+					#103 c
+					#104 REF_getField c:Lp/Rec$MyInterface;""";
 		SwitchPatternTest.verifyClassFile(expectedOutput, "p/Rec.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug576785_001() {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed interface J<X> permits D, E {}\n"+
-				"final class D implements J<String> {}\n"+
-				"final class E<X> implements J<X> {}\n"+
-				"\n"+
-				"public class X {\n"+
-				"       static int testExhaustive2(J<Integer> ji) {\n"+
-				"               return switch (ji) { // Exhaustive!\n"+
-				"               case E<Integer> e -> 42;\n"+
-				"               };\n"+
-				"       }\n"+
-				"       public static void main(String[] args) {\n"+
-				"               J<Integer> ji = new E<>();\n"+
-				"               System.out.println(X.testExhaustive2(ji));\n"+
-				"       }\n"+
-				"}",
+				"""
+					sealed interface J<X> permits D, E {}
+					final class D implements J<String> {}
+					final class E<X> implements J<X> {}
+					
+					public class X {
+					       static int testExhaustive2(J<Integer> ji) {
+					               return switch (ji) { // Exhaustive!
+					               case E<Integer> e -> 42;
+					               };
+					       }
+					       public static void main(String[] args) {
+					               J<Integer> ji = new E<>();
+					               System.out.println(X.testExhaustive2(ji));
+					       }
+					}""",
 			},
 			"42");
 	}
@@ -4210,204 +4553,226 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 				"X.java",
-				"@SuppressWarnings(\"rawtypes\")\n" +
-				"sealed interface J<T> permits D, E, F {}\n"+
-				"final class D implements J<String> {}\n"+
-				"final class E<T> implements J<T> {}\n"+
-				"final class F<T> implements J<T> {}\n"+
-				"\n"+
-				"public class X {\n"+
-				" static int testExhaustive2(J<Integer> ji) {\n"+
-				"   return switch (ji) { // Exhaustive!\n"+
-				"   case E<Integer> e -> 42;\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   J<Integer> ji = new E<>();\n"+
-				"   System.out.println(X.testExhaustive2(ji));\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}"
+				"""
+					@SuppressWarnings("rawtypes")
+					sealed interface J<T> permits D, E, F {}
+					final class D implements J<String> {}
+					final class E<T> implements J<T> {}
+					final class F<T> implements J<T> {}
+					
+					public class X {
+					 static int testExhaustive2(J<Integer> ji) {
+					   return switch (ji) { // Exhaustive!
+					   case E<Integer> e -> 42;
+					   };
+					 }
+					 public static void main(String[] args) {
+					   J<Integer> ji = new E<>();
+					   System.out.println(X.testExhaustive2(ji));
+					   Zork();
+					 }
+					}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	return switch (ji) { // Exhaustive!\n" +
-				"	               ^^\n" +
-				"A switch expression should have a default case\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 16)\n" +
-				"	Zork();\n" +
-				"	^^^^\n" +
-				"The method Zork() is undefined for the type X\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 9)
+						return switch (ji) { // Exhaustive!
+						               ^^
+					A switch expression should have a default case
+					----------
+					2. ERROR in X.java (at line 16)
+						Zork();
+						^^^^
+					The method Zork() is undefined for the type X
+					----------
+					""");
 	}
 	public void testBug576830_001() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello\");\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static void foo(Object o) {
+					   switch (o) {
+					   };
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello");
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					switch (o) {
+					        ^
+				An enhanced switch statement should be exhaustive; a default label expected
+				----------
+				""");
 	}
 	public void testBug578107_001() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"sealed class C permits D {}\n"+
-				"final class D extends C {}\n"+
-				"public class X {\n"+
-				"       static  void foo(C ji) {\n"+
-				"                switch (ji) { // non-exhaustive\n"+
-				"                  case D d : System.out.println(\"D\"); break;\n"+
-				"               }; \n"+
-				"       } \n"+
-				"       public static void main(String[] args) {\n"+
-				"               X.foo(new D());\n"+
-				"               Zork();\n"+
-				"       }\n"+
-				"}",
+				"""
+					sealed class C permits D {}
+					final class D extends C {}
+					public class X {
+					       static  void foo(C ji) {
+					                switch (ji) { // non-exhaustive
+					                  case D d : System.out.println("D"); break;
+					               };\s
+					       }\s
+					       public static void main(String[] args) {
+					               X.foo(new D());
+					               Zork();
+					       }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	switch (ji) { // non-exhaustive\n" +
-			"	        ^^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					switch (ji) { // non-exhaustive
+					        ^^
+				An enhanced switch statement should be exhaustive; a default label expected
+				----------
+				2. ERROR in X.java (at line 11)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug578107_002() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"abstract sealed class C permits D {}\n"+
-				"final class D extends C {}\n"+
-				"public class X {\n"+
-				"       static  void foo(C ji) {\n"+
-				"                switch (ji) { // non-exhaustive\n"+
-				"                  case D d : System.out.println(\"D\"); break;\n"+
-				"               }; \n"+
-				"       } \n"+
-				"       public static void main(String[] args) {\n"+
-				"               X.foo(new D());\n"+
-				"               Zork();\n"+
-				"       }\n"+
-				"}",
+				"""
+					abstract sealed class C permits D {}
+					final class D extends C {}
+					public class X {
+					       static  void foo(C ji) {
+					                switch (ji) { // non-exhaustive
+					                  case D d : System.out.println("D"); break;
+					               };\s
+					       }\s
+					       public static void main(String[] args) {
+					               X.foo(new D());
+					               Zork();
+					       }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 11)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug578107_003() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"sealed interface C permits D {}\n"+
-				"final class D implements C {}\n"+
-				"public class X {\n"+
-				"       static  void foo(C ji) {\n"+
-				"                switch (ji) { // non-exhaustive\n"+
-				"                  case D d : System.out.println(\"D\"); break;\n"+
-				"               }; \n"+
-				"       } \n"+
-				"       public static void main(String[] args) {\n"+
-				"               X.foo(new D());\n"+
-				"               Zork();\n"+
-				"       }\n"+
-				"}",
+				"""
+					sealed interface C permits D {}
+					final class D implements C {}
+					public class X {
+					       static  void foo(C ji) {
+					                switch (ji) { // non-exhaustive
+					                  case D d : System.out.println("D"); break;
+					               };\s
+					       }\s
+					       public static void main(String[] args) {
+					               X.foo(new D());
+					               Zork();
+					       }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 11)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug578108_001() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"sealed abstract class C permits D {}\n"+
-				"final class D extends C {}\n"+
-				"public class X {\n"+
-				" static <T extends C> void foo(T  ji) {\n"+
-				"    switch (ji) { // exhaustive because C is sealed and abstract\n"+
-				"      case D d : System.out.println(\"D\"); break;\n"+
-				"   }; \n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   X.foo(new D());\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}",
+				"""
+					sealed abstract class C permits D {}
+					final class D extends C {}
+					public class X {
+					 static <T extends C> void foo(T  ji) {
+					    switch (ji) { // exhaustive because C is sealed and abstract
+					      case D d : System.out.println("D"); break;
+					   };\s
+					 }\s
+					 public static void main(String[] args) {
+					   X.foo(new D());
+					   Zork();
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 11)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug578108_002() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"sealed interface C permits D {}\n"+
-				"final class D implements C {}\n"+
-				"public class X {\n"+
-				" static <T extends C> void foo(T  ji) {\n"+
-				"    switch (ji) { // exhaustive because C is sealed and abstract\n"+
-				"      case D d : System.out.println(\"D\"); break;\n"+
-				"   }; \n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   X.foo(new D());\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}",
+				"""
+					sealed interface C permits D {}
+					final class D implements C {}
+					public class X {
+					 static <T extends C> void foo(T  ji) {
+					    switch (ji) { // exhaustive because C is sealed and abstract
+					      case D d : System.out.println("D"); break;
+					   };\s
+					 }\s
+					 public static void main(String[] args) {
+					   X.foo(new D());
+					   Zork();
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 11)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testBug578143_001() {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" static  int foo(Object o) {\n"+
-				"   return switch (o) { \n"+
-				"      case X x when true -> 0;\n"+
-				"      default -> 1;\n"+
-				"   }; \n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(X.foo(new X()));\n"+
-				"   System.out.println(X.foo(new Object()));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 static  int foo(Object o) {
+					   return switch (o) {\s
+					      case X x when true -> 0;
+					      default -> 1;
+					   };\s
+					 }\s
+					 public static void main(String[] args) {
+					   System.out.println(X.foo(new X()));
+					   System.out.println(X.foo(new Object()));
+					 }
+					}""",
 			},
 			"0\n" +
 			"1");
@@ -4416,15 +4781,16 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"     Boolean input = false;\n"+
-				"     int result = switch(input) {\n"+
-				"       case Boolean p when true -> 1;\n"+
-				"     };\n"+
-				"     System.out.println(result);\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					     Boolean input = false;
+					     int result = switch(input) {
+					       case Boolean p when true -> 1;
+					     };
+					     System.out.println(result);
+					 }
+					}""",
 			},
 			"1");
 	}
@@ -4432,26 +4798,27 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X  {\n"
-					+ "enum Color{BLUE, RED, YELLOW;}\n"
-					+ "    public static void run(Color c) {\n"
-					+ "        switch(c) {\n"
-					+ "                case BLUE -> {\n"
-					+ "                    System.out.println(\"BLUE\");\n"
-					+ "                }\n"
-					+ "                case RED -> {\n"
-					+ "                    System.out.println(\"RED\");\n"
-					+ "                }\n"
-					+ "                case Object o -> {\n"
-					+ "                    System.out.println(o.toString());\n"
-					+ "                }\n"
-					+ "            }\n"
-					+ "    }"
-					+ "	public static void main(String[] args) {\n"
-					+ "		run(Color.RED);\n"
-					+ "		run(Color.BLUE);\n"
-					+ "	}\n"
-					+ "}"
+					"""
+						public class X  {
+						enum Color{BLUE, RED, YELLOW;}
+						    public static void run(Color c) {
+						        switch(c) {
+						                case BLUE -> {
+						                    System.out.println("BLUE");
+						                }
+						                case RED -> {
+						                    System.out.println("RED");
+						                }
+						                case Object o -> {
+						                    System.out.println(o.toString());
+						                }
+						            }
+						    }\
+							public static void main(String[] args) {
+								run(Color.RED);
+								run(Color.BLUE);
+							}
+						}"""
 				},
 				"RED\n" +
 				"BLUE");
@@ -4460,30 +4827,31 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X  {\n"
-					+ "static final String CONST = \"abc\";\n"
-					+ "    public static void main(String args[]) {\n"
-					+ "        System.out.println(run());\n"
-					+ "    }\n"
-					+ "    public static int run() {\n"
-					+ "        String s = \"abc\";\n"
-					+ "        int a = -1;\n"
-					+ "        switch (s) {\n"
-					+ "            case CONST -> {\n"
-					+ "                a = 2;\n"
-					+ "                break;\n"
-					+ "            }\n"
-					+ "            case null -> {\n"
-					+ "                a = 0;\n"
-					+ "                break; \n"
-					+ "            }\n"
-					+ "            default -> {\n"
-					+ "            	a = 1;\n"
-					+ "            }\n"
-					+ "        }\n"
-					+ "        return a;\n"
-					+ "    }\n"
-					+ "}",
+					"""
+						public class X  {
+						static final String CONST = "abc";
+						    public static void main(String args[]) {
+						        System.out.println(run());
+						    }
+						    public static int run() {
+						        String s = "abc";
+						        int a = -1;
+						        switch (s) {
+						            case CONST -> {
+						                a = 2;
+						                break;
+						            }
+						            case null -> {
+						                a = 0;
+						                break;\s
+						            }
+						            default -> {
+						            	a = 1;
+						            }
+						        }
+						        return a;
+						    }
+						}""",
 				},
 				"2");
 	}
@@ -4492,27 +4860,28 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X  {\n"
-					+ "static final String CONST = \"abc\";\n"
-					+ "    public static void main(String args[]) {\n"
-					+ "        System.out.println(run());\n"
-					+ "    }\n"
-					+ "    public static int run() {\n"
-					+ "        String s = \"abc\";\n"
-					+ "        int a = -1;\n"
-					+ "        switch (s) {\n"
-					+ "            case CONST -> {\n"
-					+ "                a = 2;\n"
-					+ "                break;\n"
-					+ "            }\n"
-					+ "            case String s1 -> {\n"
-					+ "                a = 0;\n"
-					+ "                break; \n"
-					+ "            }\n"
-					+ "        }\n"
-					+ "        return a;\n"
-					+ "    }\n"
-					+ "}",
+					"""
+						public class X  {
+						static final String CONST = "abc";
+						    public static void main(String args[]) {
+						        System.out.println(run());
+						    }
+						    public static int run() {
+						        String s = "abc";
+						        int a = -1;
+						        switch (s) {
+						            case CONST -> {
+						                a = 2;
+						                break;
+						            }
+						            case String s1 -> {
+						                a = 0;
+						                break;\s
+						            }
+						        }
+						        return a;
+						    }
+						}""",
 				},
 				"2");
 	}
@@ -4520,26 +4889,27 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "    public static void foo(Object obj, int x) {\n"
-					+ "    	switch (obj) {\n"
-					+ "    		case String s when (switch (x) {\n"
-					+ "					case 1 -> { yield true; }\n"
-					+ "					default -> { yield false; }\n"
-					+ "   	 									})	\n"
-					+ "   	 		 			-> {\n"
-					+ "   	 		 				System.out.println(\"true\");\n"
-					+ "   	 		 			}\n"
-					+ "					\n"
-					+ "   	 		 default -> {\n"
-					+ "   	 			System.out.println(\"false\");\n"
-					+ "   	 		 }\n"
-					+ "    	}	\n"
-					+ "    }\n"
-					+ "    public static void main(String[] args) {\n"
-					+ "		foo(\"abc\", 1);\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						public class X {
+						    public static void foo(Object obj, int x) {
+						    	switch (obj) {
+						    		case String s when (switch (x) {
+											case 1 -> { yield true; }
+											default -> { yield false; }
+						   	 									})\t
+						   	 		 			-> {
+						   	 		 				System.out.println("true");
+						   	 		 			}
+										\t
+						   	 		 default -> {
+						   	 			System.out.println("false");
+						   	 		 }
+						    	}\t
+						    }
+						    public static void main(String[] args) {
+								foo("abc", 1);
+							}
+						}""",
 				},
 				"true");
 	}
@@ -4608,19 +4978,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	static Long foo(Number n) {\n"
-					+ "		return switch (n) {\n"
-					+ "	     case (Long l) when l.toString().equals(\"0\") -> {\n"
-					+ "	    	 yield ++l;\n"
-					+ "	     }\n"
-					+ "		default -> throw new IllegalArgumentException();\n"
-					+ "	   };\n"
-					+ "	}\n"
-					+ "	public static void main(String[] args) {\n"
-					+ "		System.out.println(foo(0L));\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						public class X {
+							static Long foo(Number n) {
+								return switch (n) {
+							     case (Long l) when l.toString().equals("0") -> {
+							    	 yield ++l;
+							     }
+								default -> throw new IllegalArgumentException();
+							   };
+							}
+							public static void main(String[] args) {
+								System.out.println(foo(0L));
+							}
+						}""",
 				},
 				"""
 				----------
@@ -4650,24 +5021,25 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	static Long foo(Number n) {  \n"
-					+ "		return switch (n) { \n"
-					+ "	     case (Long l) when l.toString().equals(\"0\") -> {\n"
-					+ "	    	 yield switch(l) {\n"
-					+ "	    	 case Long l1 when l1.toString().equals(l1.toString()) -> {\n"
-					+ "	    	 	yield ++l + ++l1;\n"
-					+ "	    	 }\n"
-					+ "			default -> throw new IllegalArgumentException(\"Unexpected value: \" + l);\n"
-					+ "	    	 };\n"
-					+ "	     }\n"
-					+ "		default -> throw new IllegalArgumentException();\n"
-					+ "	   };\n"
-					+ "	}\n"
-					+ "	public static void main(String[] args) {\n"
-					+ "		System.out.println(foo(0L));\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						public class X {
+							static Long foo(Number n) { \s
+								return switch (n) {\s
+							     case (Long l) when l.toString().equals("0") -> {
+							    	 yield switch(l) {
+							    	 case Long l1 when l1.toString().equals(l1.toString()) -> {
+							    	 	yield ++l + ++l1;
+							    	 }
+									default -> throw new IllegalArgumentException("Unexpected value: " + l);
+							    	 };
+							     }
+								default -> throw new IllegalArgumentException();
+							   };
+							}
+							public static void main(String[] args) {
+								System.out.println(foo(0L));
+							}
+						}""",
 				},
 				"""
 				----------
@@ -4702,21 +5074,22 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	static Long foo(Number n) {  \n"
-					+ "		return switch (n) { \n"
-					+ "	     case (Long l) when l.toString().equals(\"0\") -> {\n"
-					+ "	    	 yield switch(l) {\n"
-					+ "	    	 case Long l1 when l.toString().equals(l1.toString()) -> {\n"
-					+ "	    	 	yield ++l + ++l1;\n"
-					+ "	    	 }\n"
-					+ "			default -> throw new IllegalArgumentException(\"Unexpected value: \" + l);\n"
-					+ "	    	 };\n"
-					+ "	     }\n"
-					+ "		default -> throw new IllegalArgumentException();\n"
-					+ "	   };\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						public class X {
+							static Long foo(Number n) { \s
+								return switch (n) {\s
+							     case (Long l) when l.toString().equals("0") -> {
+							    	 yield switch(l) {
+							    	 case Long l1 when l.toString().equals(l1.toString()) -> {
+							    	 	yield ++l + ++l1;
+							    	 }
+									default -> throw new IllegalArgumentException("Unexpected value: " + l);
+							    	 };
+							     }
+								default -> throw new IllegalArgumentException();
+							   };
+							}
+						}""",
 				},
 				"""
 				----------
@@ -4751,79 +5124,88 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	static Long foo(Number n) {  \n"
-					+ "	int i = 0;\n"
-					+ "	return switch(n) {\n"
-					+ "	  case Long l when (1 == switch(l) {\n"
-					+ "		//case \n"
-					+ "			default -> {  \n"
-					+ "				yield (i++);\n"
-					+ "			} \n"
-					+ "		}) -> 1L; \n"
-					+ "	  default -> throw new IllegalArgumentException(\"Unexpected value: \" + n);\n"
-					+ "	  };\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						public class X {
+							static Long foo(Number n) { \s
+							int i = 0;
+							return switch(n) {
+							  case Long l when (1 == switch(l) {
+								//case\s
+									default -> { \s
+										yield (i++);
+									}\s
+								}) -> 1L;\s
+							  default -> throw new IllegalArgumentException("Unexpected value: " + n);
+							  };
+							}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	yield (i++);\n" +
-				"	       ^\n" +
-				"Local variable i referenced from a guard must be final or effectively final\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						yield (i++);
+						       ^
+					Local variable i referenced from a guard must be final or effectively final
+					----------
+					""");
 	}
 	public void testBug578553_5() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	static Long foo(Number n) {  \n"
-					+ "	int i = 0;\n"
-					+ "	return switch(n) {\n"
-					+ "	  case Long l when (1 == switch(l) {\n"
-					+ "		//case \n"
-					+ "			default -> {  \n"
-					+ "				yield ++i;\n"
-					+ "			} \n"
-					+ "		}) -> 1L; \n"
-					+ "	  default -> throw new IllegalArgumentException(\"Unexpected value: \" + n);\n"
-					+ "	  };\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						public class X {
+							static Long foo(Number n) { \s
+							int i = 0;
+							return switch(n) {
+							  case Long l when (1 == switch(l) {
+								//case\s
+									default -> { \s
+										yield ++i;
+									}\s
+								}) -> 1L;\s
+							  default -> throw new IllegalArgumentException("Unexpected value: " + n);
+							  };
+							}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	yield ++i;\n" +
-				"	        ^\n" +
-				"Local variable i referenced from a guard must be final or effectively final\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						yield ++i;
+						        ^
+					Local variable i referenced from a guard must be final or effectively final
+					----------
+					""");
 	}
 	public void testBug578553_6() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	static Long foo(Number n) {  \n"
-					+ "	int i = 0;\n"
-					+ "	return switch(n) {\n"
-					+ "	  case Long l when (1 == switch(l) {\n"
-					+ "		//case \n"
-					+ "			default -> {  \n"
-					+ "				yield (i=i+1);\n"
-					+ "			} \n"
-					+ "		}) -> 1L; \n"
-					+ "	  default -> throw new IllegalArgumentException(\"Unexpected value: \" + n);\n"
-					+ "	  };\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						public class X {
+							static Long foo(Number n) { \s
+							int i = 0;
+							return switch(n) {
+							  case Long l when (1 == switch(l) {
+								//case\s
+									default -> { \s
+										yield (i=i+1);
+									}\s
+								}) -> 1L;\s
+							  default -> throw new IllegalArgumentException("Unexpected value: " + n);
+							  };
+							}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	yield (i=i+1);\n" +
-				"	       ^\n" +
-				"Local variable i referenced from a guard must be final or effectively final\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						yield (i=i+1);
+						       ^
+					Local variable i referenced from a guard must be final or effectively final
+					----------
+					""");
 	}
 	public void testBug578553_7() {
 		runNegativeTest(
@@ -4831,52 +5213,56 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				JavacTestOptions.JavacHasABug.JavacBug8299416,
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ " static int bar() { return 1; }\n"
-					+ "	static Long foo(Number n) {  \n"
-					+ "	int i = 0;\n"
-					+ "	return switch(n) {\n"
-					+ "	  case Long l when (1 == switch(l) {\n"
-					+ "		//case \n"
-					+ "			default -> {  \n"
-					+ "				yield (i = bar());\n"
-					+ "			} \n"
-					+ "		}) -> 1L; \n"
-					+ "	  default -> throw new IllegalArgumentException(\"Unexpected value: \" + n);\n"
-					+ "	  };\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						public class X {
+						 static int bar() { return 1; }
+							static Long foo(Number n) { \s
+							int i = 0;
+							return switch(n) {
+							  case Long l when (1 == switch(l) {
+								//case\s
+									default -> { \s
+										yield (i = bar());
+									}\s
+								}) -> 1L;\s
+							  default -> throw new IllegalArgumentException("Unexpected value: " + n);
+							  };
+							}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	yield (i = bar());\n" +
-				"	       ^\n" +
-				"Local variable i referenced from a guard must be final or effectively final\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 9)
+						yield (i = bar());
+						       ^
+					Local variable i referenced from a guard must be final or effectively final
+					----------
+					""");
 	}
 	public void testBug578568_1() {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-								+ "	public static int foo(Number arg0) {\n"
-								+ "        int result = 0;\n"
-								+ "        result = \n"
-								+ "         switch (arg0) {\n"
-								+ "            case Object p -> {\n"
-								+ "                switch (arg0) {\n"
-								+ "                     case Number p1 -> {\n"
-								+ "                        yield 1;\n"
-								+ "                    }\n"
-								+ "                }\n"
-								+ "            }\n"
-								+ "        }; \n"
-								+ "        return result;\n"
-								+ "    }\n"
-								+ " public static void main(String[] args) {\n"
-								+ "    	System.out.println(foo(0L));\n"
-								+ "	}"
-								+ "}",
+						"""
+							public class X {
+								public static int foo(Number arg0) {
+							        int result = 0;
+							        result =\s
+							         switch (arg0) {
+							            case Object p -> {
+							                switch (arg0) {
+							                     case Number p1 -> {
+							                        yield 1;
+							                    }
+							                }
+							            }
+							        };\s
+							        return result;
+							    }
+							 public static void main(String[] args) {
+							    	System.out.println(foo(0L));
+								}\
+							}""",
 				},
 				"1");
 	}
@@ -4884,22 +5270,23 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-								+ "	public static int foo(Number arg0) {\n"
-								+ "        return switch (arg0) {\n"
-								+ "            case Object p : {\n"
-								+ "                switch (arg0) {\n"
-								+ "                     case Number p1 : {\n"
-								+ "                        yield 1;\n"
-								+ "                    }\n"
-								+ "                }\n"
-								+ "            }\n"
-								+ "        }; \n"
-								+ "    }\n"
-								+ " public static void main(String[] args) {\n"
-								+ "    	System.out.println(foo(0L));\n"
-								+ "	}"
-								+ "}",
+						"""
+							public class X {
+								public static int foo(Number arg0) {
+							        return switch (arg0) {
+							            case Object p : {
+							                switch (arg0) {
+							                     case Number p1 : {
+							                        yield 1;
+							                    }
+							                }
+							            }
+							        };\s
+							    }
+							 public static void main(String[] args) {
+							    	System.out.println(foo(0L));
+								}\
+							}""",
 				},
 				"1");
 	}
@@ -4907,283 +5294,305 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-								+ "	public static int foo(Object arg0) {\n"
-								+ "        return switch (arg0) {\n"
-								+ "            case Object p : {\n"
-								+ "                switch (arg0) {\n"
-								+ "                    case Number p1 : {\n"
-								+ "                        yield 1;\n"
-								+ "                    }\n"
-								+ "                    default: {\n"
-								+ "                    }"
-								+ "                }\n"
-								+ "            }\n"
-								+ "        }; \n"
-								+ " }\n"
-								+ "}",
+						"""
+							public class X {
+								public static int foo(Object arg0) {
+							        return switch (arg0) {
+							            case Object p : {
+							                switch (arg0) {
+							                    case Number p1 : {
+							                        yield 1;
+							                    }
+							                    default: {
+							                    }\
+							                }
+							            }
+							        };\s
+							 }
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 11)\n" +
-				"	}\n" +
-				"	^^\n" +
-				"A switch labeled block in a switch expression should not complete normally\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 11)
+						}
+						^^
+					A switch labeled block in a switch expression should not complete normally
+					----------
+					""");
 	}
 	public void testBug578416() {
 		runConformTest(new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "    public static int testMethod(I i) {\n"
-				+ "       return switch (i) {\n"
-				+ "            case I p1 when (p1 instanceof C p2) : {\n"
-				+ "                yield p2.value(); // Error here\n"
-				+ "            }\n"
-				+ "            case I p3 : {\n"
-				+ "                yield p3.value(); // No error here\n"
-				+ "            }\n"
-				+ "        };\n"
-				+ "    }\n"
-				+ "    interface I {\n"
-				+ "        public int value();\n"
-				+ "    }\n"
-				+ "    class C implements I {\n"
-				+ "    	@Override\n"
-				+ "    	public int value() {\n"
-				+ "    		return 0;\n"
-				+ "    	}\n"
-				+ "    }\n"
-				+ "    public static void main(String[] args) {\n"
-				+ "    	I i = new I() {\n"
-				+ "    		public int value() {\n"
-				+ "    			return 10;\n"
-				+ "    		} \n"
-				+ "    	}; \n"
-				+ "    	System.out.println(testMethod(i));\n"
-				+ "    	System.out.println(testMethod(new X().new C()));\n"
-				+ "	}"
-				+ "}\n"},
+				"""
+					public class X {
+					    public static int testMethod(I i) {
+					       return switch (i) {
+					            case I p1 when (p1 instanceof C p2) : {
+					                yield p2.value(); // Error here
+					            }
+					            case I p3 : {
+					                yield p3.value(); // No error here
+					            }
+					        };
+					    }
+					    interface I {
+					        public int value();
+					    }
+					    class C implements I {
+					    	@Override
+					    	public int value() {
+					    		return 0;
+					    	}
+					    }
+					    public static void main(String[] args) {
+					    	I i = new I() {
+					    		public int value() {
+					    			return 10;
+					    		}\s
+					    	};\s
+					    	System.out.println(testMethod(i));
+					    	System.out.println(testMethod(new X().new C()));
+						}\
+					}
+					"""},
 				"10\n" +
 				"0");
 	}
 	public void testBug578416_1() {
 		runConformTest(new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "    public static int testMethod(I i) {\n"
-				+ "       return switch (i) {\n"
-				+ "            case I p1 when (p1 instanceof C p2) : {\n"
-				+ "                yield p2.value();\n"
-				+ "            }\n"
-				+ "            case I p3 : {\n"
-				+ "                yield p3.value();\n"
-				+ "            }\n"
-				+ "        };\n"
-				+ "    }\n"
-				+ "    interface I {\n"
-				+ "        public int value();\n"
-				+ "    }\n"
-				+ "    class C implements I {\n"
-				+ "    	@Override\n"
-				+ "    	public int value() {\n"
-				+ "    		return 0;\n"
-				+ "    	}\n"
-				+ "    }\n"
-				+ "    public static void main(String[] args) {\n"
-				+ "    	I i = new I() {\n"
-				+ "    		public int value() {\n"
-				+ "    			return 10;\n"
-				+ "    		} \n"
-				+ "    	}; \n"
-				+ "    	System.out.println(testMethod(i));\n"
-				+ "    	System.out.println(testMethod(new X().new C()));\n"
-				+ "	}"
-				+ "}\n"},
+				"""
+					public class X {
+					    public static int testMethod(I i) {
+					       return switch (i) {
+					            case I p1 when (p1 instanceof C p2) : {
+					                yield p2.value();
+					            }
+					            case I p3 : {
+					                yield p3.value();
+					            }
+					        };
+					    }
+					    interface I {
+					        public int value();
+					    }
+					    class C implements I {
+					    	@Override
+					    	public int value() {
+					    		return 0;
+					    	}
+					    }
+					    public static void main(String[] args) {
+					    	I i = new I() {
+					    		public int value() {
+					    			return 10;
+					    		}\s
+					    	};\s
+					    	System.out.println(testMethod(i));
+					    	System.out.println(testMethod(new X().new C()));
+						}\
+					}
+					"""},
 				"10\n" +
 				"0");
 	}
 	public void testBug578416_2() {
 		runConformTest(new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "    public static int foo(Object o) {\n"
-				+ "       return switch (o) {\n"
-				+ "            case Number n when (n instanceof Integer i) : {\n"
-				+ "                yield n.intValue() + i; // Error here\n"
-				+ "            }\n"
-				+ "            case Number n2 : {\n"
-				+ "                yield n2.intValue();\n"
-				+ "            }\n"
-				+ "            default : {\n"
-				+ "                yield -1;\n"
-				+ "            }\n"
-				+ "        };\n"
-				+ "    }\n"
-				+ "    public static void main(String[] args) {\n"
-				+ "    	System.out.println(foo(new Integer(10)));\n"
-				+ "    	System.out.println(foo(new Integer(5)));\n"
-				+ "    	System.out.println(foo(new Long(5L)));\n"
-				+ "    	System.out.println(foo(new Float(0)));\n"
-				+ "	}"
-				+ "}\n"},
-				"20\n" +
-				"10\n" +
-				"5\n" +
-				"0");
+				"""
+					public class X {
+					    public static int foo(Object o) {
+					       return switch (o) {
+					            case Number n when (n instanceof Integer i) : {
+					                yield n.intValue() + i; // Error here
+					            }
+					            case Number n2 : {
+					                yield n2.intValue();
+					            }
+					            default : {
+					                yield -1;
+					            }
+					        };
+					    }
+					    public static void main(String[] args) {
+					    	System.out.println(foo(new Integer(10)));
+					    	System.out.println(foo(new Integer(5)));
+					    	System.out.println(foo(new Long(5L)));
+					    	System.out.println(foo(new Float(0)));
+						}\
+					}
+					"""},
+				"""
+					20
+					10
+					5
+					0""");
 	}
 	public void testBug578416_3() {
 		runConformTest(new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "    public static int foo(Object o) {\n"
-				+ "       return switch (o) {\n"
-				+ "            case Number n when (n instanceof Integer i && i.equals(10)) : {\n"
-				+ "                yield n.intValue() + i; // Error here\n"
-				+ "            }\n"
-				+ "            case Number n2 : {\n"
-				+ "                yield n2.intValue();\n"
-				+ "            }\n"
-				+ "            default : {\n"
-				+ "                yield -1;\n"
-				+ "            }\n"
-				+ "        };\n"
-				+ "    }\n"
-				+ "    public static void main(String[] args) {\n"
-				+ "    	System.out.println(foo(new Integer(10)));\n"
-				+ "    	System.out.println(foo(new Integer(5)));\n"
-				+ "    	System.out.println(foo(new Long(5L)));\n"
-				+ "    	System.out.println(foo(new Float(0)));\n"
-				+ "	}"
-				+ "}\n"},
-				"20\n" +
-				"5\n" +
-				"5\n" +
-				"0");
+				"""
+					public class X {
+					    public static int foo(Object o) {
+					       return switch (o) {
+					            case Number n when (n instanceof Integer i && i.equals(10)) : {
+					                yield n.intValue() + i; // Error here
+					            }
+					            case Number n2 : {
+					                yield n2.intValue();
+					            }
+					            default : {
+					                yield -1;
+					            }
+					        };
+					    }
+					    public static void main(String[] args) {
+					    	System.out.println(foo(new Integer(10)));
+					    	System.out.println(foo(new Integer(5)));
+					    	System.out.println(foo(new Long(5L)));
+					    	System.out.println(foo(new Float(0)));
+						}\
+					}
+					"""},
+				"""
+					20
+					5
+					5
+					0""");
 	}
 	public void testBug578635_1() {
 		runConformTest(new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "	public static boolean foo(Integer n) {\n"
-				+ "    	return switch (n) {\n"
-				+ "	    	case Integer x when x.equals(10) -> {\n"
-				+ "	    		yield true;\n"
-				+ "	    	}\n"
-				+ "	    	case Comparable y -> {\n"
-				+ "	    		yield false;\n"
-				+ "	    	}\n"
-				+ "    	};\n"
-				+ "    }\n"
-				+ "    public static void main(String[] argv) {\n"
-				+ "    	System.out.println(foo(Integer.valueOf(0)));\n"
-				+ "    	System.out.println(foo(Integer.valueOf(10)));\n"
-				+ "    }\n"
-				+ "}"},
+				"""
+					public class X {
+						public static boolean foo(Integer n) {
+					    	return switch (n) {
+						    	case Integer x when x.equals(10) -> {
+						    		yield true;
+						    	}
+						    	case Comparable y -> {
+						    		yield false;
+						    	}
+					    	};
+					    }
+					    public static void main(String[] argv) {
+					    	System.out.println(foo(Integer.valueOf(0)));
+					    	System.out.println(foo(Integer.valueOf(10)));
+					    }
+					}"""},
 				"false\n" +
 				"true");
 	}
 	public void testBug578635_2() {
 		runNegativeTest(new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "   @SuppressWarnings({ \"rawtypes\" })\n"
-				+ "	public static boolean foo(Integer n) {\n"
-				+ "    	return switch (n) {\n"
-				+ "	    	case Integer x when x.equals(10) -> {\n"
-				+ "	    		yield true;\n"
-				+ "	    	}\n"
-				+ "	    	case Comparable y -> {\n"
-				+ "	    		yield false;\n"
-				+ "	    	}\n"
-				+ "	    	default -> {\n"
-				+ "	    		yield false;\n"
-				+ "	    	}\n"
-				+ "    	};\n"
-				+ "    }\n"
-				+ "    public static void main(String[] argv) {\n"
-				+ "    	System.out.println(foo(Integer.valueOf(0)));\n"
-				+ "    	System.out.println(foo(Integer.valueOf(10)));\n"
-				+ "    }\n"
-				+ "}"},
-				"----------\n" +
-				"1. ERROR in X.java (at line 11)\n" +
-				"	default -> {\n" +
-				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
-				"----------\n");
+				"""
+					public class X {
+					   @SuppressWarnings({ "rawtypes" })
+						public static boolean foo(Integer n) {
+					    	return switch (n) {
+						    	case Integer x when x.equals(10) -> {
+						    		yield true;
+						    	}
+						    	case Comparable y -> {
+						    		yield false;
+						    	}
+						    	default -> {
+						    		yield false;
+						    	}
+					    	};
+					    }
+					    public static void main(String[] argv) {
+					    	System.out.println(foo(Integer.valueOf(0)));
+					    	System.out.println(foo(Integer.valueOf(10)));
+					    }
+					}"""},
+				"""
+					----------
+					1. ERROR in X.java (at line 11)
+						default -> {
+						^^^^^^^
+					Switch case cannot have both unconditional pattern and default label
+					----------
+					""");
 	}
 	public void testBug578635_3() {
 		runNegativeTest(new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "   @SuppressWarnings({ \"rawtypes\" })\n"
-				+ "	public static boolean foo(Integer n) {\n"
-				+ "    	return switch (n) {\n"
-				+ "	    	case Integer x when x.equals(10) -> {\n"
-				+ "	    		yield true;\n"
-				+ "	    	}\n"
-				+ "	    	case Comparable y -> {\n"
-				+ "	    		yield false;\n"
-				+ "	    	}\n"
-				+ "	    	default -> {\n"
-				+ "	    		yield false;\n"
-				+ "	    	}\n"
-				+ "    	};\n"
-				+ "    }\n"
-				+ "    public static void main(String[] argv) {\n"
-				+ "    	System.out.println(foo(Integer.valueOf(0)));\n"
-				+ "    	System.out.println(foo(Integer.valueOf(10)));\n"
-				+ "    }\n"
-				+ "}"},
-				"----------\n" +
-				"1. ERROR in X.java (at line 11)\n" +
-				"	default -> {\n" +
-				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
-				"----------\n");
+				"""
+					public class X {
+					   @SuppressWarnings({ "rawtypes" })
+						public static boolean foo(Integer n) {
+					    	return switch (n) {
+						    	case Integer x when x.equals(10) -> {
+						    		yield true;
+						    	}
+						    	case Comparable y -> {
+						    		yield false;
+						    	}
+						    	default -> {
+						    		yield false;
+						    	}
+					    	};
+					    }
+					    public static void main(String[] argv) {
+					    	System.out.println(foo(Integer.valueOf(0)));
+					    	System.out.println(foo(Integer.valueOf(10)));
+					    }
+					}"""},
+				"""
+					----------
+					1. ERROR in X.java (at line 11)
+						default -> {
+						^^^^^^^
+					Switch case cannot have both unconditional pattern and default label
+					----------
+					""");
 	}
 	public void testBug578417_1() {
 		runConformTest(new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "    static final String CONSTANT = \"abc\";\n"
-				+ "    static String CON2 = \"abc\";\n"
-				+ "    public static int foo() {\n"
-				+ "        int res = 0;\n"
-				+ "        switch (CON2) {\n"
-				+ "            case CONSTANT -> {\n"
-				+ "                res = 1;\n"
-				+ "                break;\n"
-				+ "            }\n"
-				+ "            case String s -> {\n"
-				+ "                res = 2;\n"
-				+ "                break;\n"
-				+ "            }\n"
-				+ "        }\n"
-				+ "        return res;\n"
-				+ "    }\n"
-				+ "    public static void main(String argv[]) {\n"
-				+ "    	System.out.println(foo()); \n"
-				+ "    }\n"
-				+ "}"},
+				"""
+					public class X {
+					    static final String CONSTANT = "abc";
+					    static String CON2 = "abc";
+					    public static int foo() {
+					        int res = 0;
+					        switch (CON2) {
+					            case CONSTANT -> {
+					                res = 1;
+					                break;
+					            }
+					            case String s -> {
+					                res = 2;
+					                break;
+					            }
+					        }
+					        return res;
+					    }
+					    public static void main(String argv[]) {
+					    	System.out.println(foo());\s
+					    }
+					}"""},
 				"1" );
 	}
 	public void testBug578132_001() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" static  int foo(Object o, boolean b) {\n"+
-					"   return switch (o) { \n"+
-					"      case X x when b -> 0; // compilation error\n"+
-					"      default -> 1;\n"+
-					"   }; \n"+
-					" } \n"+
-					" public static void main(String[] args) {\n"+
-					"   System.out.println(X.foo(new X(), true));\n"+
-					"   System.out.println(X.foo(new Object(), true));\n"+
-					" }\n"+
-					"}"
+					"""
+						public class X {
+						 static  int foo(Object o, boolean b) {
+						   return switch (o) {\s
+						      case X x when b -> 0; // compilation error
+						      default -> 1;
+						   };\s
+						 }\s
+						 public static void main(String[] args) {
+						   System.out.println(X.foo(new X(), true));
+						   System.out.println(X.foo(new Object(), true));
+						 }
+						}"""
 				},
 				"0\n"+
 				"1");
@@ -5192,24 +5601,25 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"     public static void foo1(Object o) {\n"
-					+ "    	boolean b = switch (o) {\n"
-					+ "    		case String s -> {\n"
-					+ "    			yield s == null;\n"
-					+ "    		}\n"
-					+ "    		case null -> {\n"
-					+ "    			yield true;\n"
-					+ "    		}\n"
-					+ "    		default -> true;\n"
-					+ "    	};\n"
-					+ "    	System.out.println(b);\n"
-					+ "    } \n"
-					+ "    public static void main(String[] argv) {\n"
-					+ "    	foo1(null);\n"
-					+ "    	foo1(\"abc\");\n"
-					+ "    }\n"+
-					"}"
+					"""
+						public class X {
+						     public static void foo1(Object o) {
+						    	boolean b = switch (o) {
+						    		case String s -> {
+						    			yield s == null;
+						    		}
+						    		case null -> {
+						    			yield true;
+						    		}
+						    		default -> true;
+						    	};
+						    	System.out.println(b);
+						    }\s
+						    public static void main(String[] argv) {
+						    	foo1(null);
+						    	foo1("abc");
+						    }
+						}"""
 				},
 				"true\n"+
 				"false");
@@ -5218,25 +5628,26 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"    sealed interface A {}\n"+
-					"    sealed interface B1 extends A {}\n"+
-					"    sealed interface B2 extends A {}\n"+
-					"    sealed interface C extends A {}\n"+
-					"    final class D1 implements B1, C {}\n"+
-					"    final class D2 implements B2, C {}\n"+
-					"    \n"+
-					"    public static int test(A arg) {\n"+
-					"        return switch (arg) {\n"+
-					"            case B1 b1 -> 1;\n"+
-					"            case B2 b2 -> 2;\n"+
-					"        };\n"+
-					"    }\n"+
-					"    public static void main(String[] args) {\n"+
-					"   X.D1 d1 = new X().new D1();\n"+
-					"   System.out.println(X.test(d1));\n"+
-					" }\n"+
-					"}"
+					"""
+						public class X {
+						    sealed interface A {}
+						    sealed interface B1 extends A {}
+						    sealed interface B2 extends A {}
+						    sealed interface C extends A {}
+						    final class D1 implements B1, C {}
+						    final class D2 implements B2, C {}
+						   \s
+						    public static int test(A arg) {
+						        return switch (arg) {
+						            case B1 b1 -> 1;
+						            case B2 b2 -> 2;
+						        };
+						    }
+						    public static void main(String[] args) {
+						   X.D1 d1 = new X().new D1();
+						   System.out.println(X.test(d1));
+						 }
+						}"""
 				},
 				"1");
 	}
@@ -5244,83 +5655,88 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"       static void constantLabelMustAppearBeforePattern(Integer o) {\n"+
-					"               switch (o) {\n"+
-					"               case -1, 1 -> System.out.println(\"special case:\" + o);\n"+
-					"               case Integer i when i > 0 -> System.out.println(\"positive integer: \" + o);\n"+
-					"               case Integer i -> System.out.println(\"other integer: \" + o);\n"+
-					"               }\n"+
-					"       }\n"+
-					"\n"+
-					"       public static void main(String[] args) {\n"+
-					"               X.constantLabelMustAppearBeforePattern(-10);\n"+
-					"               X.constantLabelMustAppearBeforePattern(-1);\n"+
-					"               X.constantLabelMustAppearBeforePattern(0);\n"+
-					"               X.constantLabelMustAppearBeforePattern(1);\n"+
-					"               X.constantLabelMustAppearBeforePattern(10);\n"+
-					"       } \n"+
-					"}"
+					"""
+						public class X {
+						       static void constantLabelMustAppearBeforePattern(Integer o) {
+						               switch (o) {
+						               case -1, 1 -> System.out.println("special case:" + o);
+						               case Integer i when i > 0 -> System.out.println("positive integer: " + o);
+						               case Integer i -> System.out.println("other integer: " + o);
+						               }
+						       }
+						
+						       public static void main(String[] args) {
+						               X.constantLabelMustAppearBeforePattern(-10);
+						               X.constantLabelMustAppearBeforePattern(-1);
+						               X.constantLabelMustAppearBeforePattern(0);
+						               X.constantLabelMustAppearBeforePattern(1);
+						               X.constantLabelMustAppearBeforePattern(10);
+						       }\s
+						}"""
 				},
-				"other integer: -10\n" +
-				"special case:-1\n" +
-				"other integer: 0\n" +
-				"special case:1\n" +
-				"positive integer: 10");
+				"""
+					other integer: -10
+					special case:-1
+					other integer: 0
+					special case:1
+					positive integer: 10""");
 	}
 	public void testBug579355_002() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"       static void constantLabelMustAppearBeforePattern(Integer o) {\n"+
-					"               switch (o) {\n"+
-					"               case -1, 1 -> System.out.println(\"special case:\" + o);\n"+
-					"               case null -> System.out.println(\"null\");\n"+
-					"               case Integer i when i > 0 -> System.out.println(\"positive integer: \" + o);\n"+
-					"               case Integer i -> System.out.println(\"other integer: \" + o);\n"+
-					"               }\n"+
-					"       }\n"+
-					"\n"+
-					"       public static void main(String[] args) {\n"+
-					"               X.constantLabelMustAppearBeforePattern(-10);\n"+
-					"               X.constantLabelMustAppearBeforePattern(-1);\n"+
-					"               X.constantLabelMustAppearBeforePattern(0);\n"+
-					"               X.constantLabelMustAppearBeforePattern(1);\n"+
-					"               X.constantLabelMustAppearBeforePattern(10);\n"+
-					"               X.constantLabelMustAppearBeforePattern(null);\n"+
-					"       } \n"+
-					"}"
+					"""
+						public class X {
+						       static void constantLabelMustAppearBeforePattern(Integer o) {
+						               switch (o) {
+						               case -1, 1 -> System.out.println("special case:" + o);
+						               case null -> System.out.println("null");
+						               case Integer i when i > 0 -> System.out.println("positive integer: " + o);
+						               case Integer i -> System.out.println("other integer: " + o);
+						               }
+						       }
+						
+						       public static void main(String[] args) {
+						               X.constantLabelMustAppearBeforePattern(-10);
+						               X.constantLabelMustAppearBeforePattern(-1);
+						               X.constantLabelMustAppearBeforePattern(0);
+						               X.constantLabelMustAppearBeforePattern(1);
+						               X.constantLabelMustAppearBeforePattern(10);
+						               X.constantLabelMustAppearBeforePattern(null);
+						       }\s
+						}"""
 				},
-				"other integer: -10\n" +
-				"special case:-1\n" +
-				"other integer: 0\n" +
-				"special case:1\n" +
-				"positive integer: 10\n"+
-				"null");
+				"""
+					other integer: -10
+					special case:-1
+					other integer: 0
+					special case:1
+					positive integer: 10
+					null""");
 	}
 	public void testBug579355_004() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"    public static Color color = Color.BLUE;\n"
-					+ "    public static void main(String args[]) {\n"
-					+ "        Color c; \n"
-					+ "        var result = switch(color){\n"
-					+ "                case BLUE ->  (c = color) == Color.BLUE;\n"
-					+ "                case RED, GREEN ->  (c = color) + \"text\";\n"
-					+ "                case YELLOW ->  new String((c = color) + \"text\");\n"
-					+ "                default ->  (c = color);\n"
-					+ "                };\n"
-					+ "        if (result != null && c == Color.BLUE) {\n"
-					+ "        	System.out.println(\"Pass\");\n"
-					+ "        } else {\n"
-					+ "        	System.out.println(\"Fail\");\n"
-					+ "        }\n"
-					+ "    } \n"
-					+ "}\n"
-					+ "enum Color{BLUE, RED, GREEN, YELLOW;}"
+					"""
+						public class X {
+						    public static Color color = Color.BLUE;
+						    public static void main(String args[]) {
+						        Color c;\s
+						        var result = switch(color){
+						                case BLUE ->  (c = color) == Color.BLUE;
+						                case RED, GREEN ->  (c = color) + "text";
+						                case YELLOW ->  new String((c = color) + "text");
+						                default ->  (c = color);
+						                };
+						        if (result != null && c == Color.BLUE) {
+						        	System.out.println("Pass");
+						        } else {
+						        	System.out.println("Fail");
+						        }
+						    }\s
+						}
+						enum Color{BLUE, RED, GREEN, YELLOW;}"""
 				},
 				"Pass");
 	}
@@ -5328,24 +5744,25 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"    public int foo(Character c) {\n"
-					+ "        int result = 0;\n"
-					+ "        result = switch (c) {\n"
-					+ "            case Character c1 -> 1;\n"
-					+ "            case (short)1 -> 5;\n"
-					+ "        };\n"
-					+ "        return result;\n"
-					+ "    }\n"
-					+ "    public static void main(String args[]) {\n"
-					+ "    	X x = new X();\n"
-					+ "    	if (x.foo('\\u0001') == 1) {\n"
-					+ "            System.out.println(\"Pass\");\n"
-					+ "        } else {\n"
-					+ "        	System.out.println(\"Fail\");\n"
-					+ "        }\n"
-					+ "    }\n"
-					+ "}"
+					"""
+						public class X {
+						    public int foo(Character c) {
+						        int result = 0;
+						        result = switch (c) {
+						            case Character c1 -> 1;
+						            case (short)1 -> 5;
+						        };
+						        return result;
+						    }
+						    public static void main(String args[]) {
+						    	X x = new X();
+						    	if (x.foo('\\u0001') == 1) {
+						            System.out.println("Pass");
+						        } else {
+						        	System.out.println("Fail");
+						        }
+						    }
+						}"""
 				},
 				"Pass");
 	}
@@ -5353,16 +5770,17 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"  public static void main(String[] args) {\n"+
-					"    Object obj = null;\n"+
-					"    var a = switch (obj) {\n"+
-					"        case null -> 1;\n"+
-					"        default   -> 2;\n"+
-					"    };\n"+
-					"    System.out.println(a);\n"+
-					"  }\n" +
-					"}"
+					"""
+						public class X {
+						  public static void main(String[] args) {
+						    Object obj = null;
+						    var a = switch (obj) {
+						        case null -> 1;
+						        default   -> 2;
+						    };
+						    System.out.println(a);
+						  }
+						}"""
 				},
 				"1");
 	}
@@ -5370,16 +5788,17 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"  public static void main(String[] args) {\n"+
-					"    String obj = null;\n"+
-					"    var a = switch (obj) {\n"+
-					"        case null -> 1;\n"+
-					"        default   -> 2;\n"+
-					"    };\n"+
-					"    System.out.println(a);\n"+
-					"  }\n" +
-					"}"
+					"""
+						public class X {
+						  public static void main(String[] args) {
+						    String obj = null;
+						    var a = switch (obj) {
+						        case null -> 1;
+						        default   -> 2;
+						    };
+						    System.out.println(a);
+						  }
+						}"""
 				},
 				"1");
 	}
@@ -5387,297 +5806,325 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"     public static void foo1(String o) {\n"
-					+ "    	boolean b = switch (o) {\n"
-					+ "    		case \"abc\", null -> {\n"
-					+ "    			yield false;\n"
-					+ "    		}\n"
-					+ "    		default -> true;\n"
-					+ "    	};\n"
-					+ "    	System.out.println(b);\n"
-					+ "    } \n"
-					+ "    public static void main(String[] argv) {\n"
-					+ "    	foo1(null);\n"
-					+ "    	foo1(\"abc\");\n"
-					+ "    }\n"+
-					"}"
+					"""
+						public class X {
+						     public static void foo1(String o) {
+						    	boolean b = switch (o) {
+						    		case "abc", null -> {
+						    			yield false;
+						    		}
+						    		default -> true;
+						    	};
+						    	System.out.println(b);
+						    }\s
+						    public static void main(String[] argv) {
+						    	foo1(null);
+						    	foo1("abc");
+						    }
+						}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case \"abc\", null -> {\n" +
-				"	            ^^^^\n" +
-				"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						case "abc", null -> {
+						            ^^^^
+					A null case label has to be either the only expression in a case label or the first expression followed only by a default
+					----------
+					""");
 	}
 	public void testIssue_556_002() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(\"Hello World!\");\n"+
-					" }\n"+
-					"\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"    case default:\n"+
-					"     System.out.println(\"Object: \" + o);\n"+
-					"   }\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo("Hello World!");
+						 }
+						
+						 private static void foo(Object o) {
+						   switch (o) {
+						    case default:
+						     System.out.println("Object: " + o);
+						   }
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	case default:\n" +
-				"	     ^^^^^^^\n" +
-				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						case default:
+						     ^^^^^^^
+					A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+					----------
+					""");
 	}
 	public void testIssue_556_003() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(Integer.valueOf(11));\n"+
-					"   foo(Integer.valueOf(9));\n"+
-					"   foo(\"Hello World!\");\n"+
-					" }\n"+
-					"\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"   case Integer i when i>10:\n"+
-					"     System.out.println(\"Greater than 10:\" + o);\n"+
-					"     break;\n"+
-					"   case Integer j when j>0:\n"+
-					"     System.out.println(\"Greater than 0:\" + o);\n"+
-					"     break;\n"+
-					"   case default:\n"+
-					"     System.out.println(\"Give Me Some SunShine:\" + o);\n"+
-					"   }\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo(Integer.valueOf(11));
+						   foo(Integer.valueOf(9));
+						   foo("Hello World!");
+						 }
+						
+						 private static void foo(Object o) {
+						   switch (o) {
+						   case Integer i when i>10:
+						     System.out.println("Greater than 10:" + o);
+						     break;
+						   case Integer j when j>0:
+						     System.out.println("Greater than 0:" + o);
+						     break;
+						   case default:
+						     System.out.println("Give Me Some SunShine:" + o);
+						   }
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 16)\n" +
-				"	case default:\n" +
-				"	     ^^^^^^^\n" +
-				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 16)
+						case default:
+						     ^^^^^^^
+					A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+					----------
+					""");
 	}
 	public void testIssue_556_004() {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String[] args) {\n"+
-					"   foo(\"Hello World!\");\n"+
-					" }\n"+
-					"\n"+
-					" private static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"   case Integer i :\n"+
-					"     System.out.println(\"Integer:\" + o);\n"+
-					"     break;\n"+
-					"   case default:\n"+
-					"     System.out.println(\"Object\" + o);\n"+
-					"   case default:\n"+
-					"     System.out.println(\"Give me Some Sunshine\" + o);\n"+
-					"   }\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 public static void main(String[] args) {
+						   foo("Hello World!");
+						 }
+						
+						 private static void foo(Object o) {
+						   switch (o) {
+						   case Integer i :
+						     System.out.println("Integer:" + o);
+						     break;
+						   case default:
+						     System.out.println("Object" + o);
+						   case default:
+						     System.out.println("Give me Some Sunshine" + o);
+						   }
+						 }
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 11)\n" +
-				"	case default:\n" +
-				"	     ^^^^^^^\n" +
-				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 13)\n" +
-				"	case default:\n" +
-				"	^^^^^^^^^^^^\n" +
-				"The default case is already defined\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 13)\n" +
-				"	case default:\n" +
-				"	     ^^^^^^^\n" +
-				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 11)
+						case default:
+						     ^^^^^^^
+					A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+					----------
+					2. ERROR in X.java (at line 13)
+						case default:
+						^^^^^^^^^^^^
+					The default case is already defined
+					----------
+					3. ERROR in X.java (at line 13)
+						case default:
+						     ^^^^^^^
+					A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+					----------
+					""");
 	}
 	public void testIssue_556_005() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o.hashCode()) {\n"+
-				"     case default : System.out.println(\"Default\");\n"+
-				"     default : System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(\"Hello World\");\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}\n"+
-				"class Y {}",
+				"""
+					public class X {
+					 private static void foo(Object o) {
+					   switch (o.hashCode()) {
+					     case default : System.out.println("Default");
+					     default : System.out.println("Object");
+					   }
+					 }
+					 public static void main(String[] args) {
+					   foo("Hello World");
+					   Zork();
+					 }
+					}
+					class Y {}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case default : System.out.println(\"Default\");\n" +
-			"	     ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	default : System.out.println(\"Object\");\n" +
-			"	^^^^^^^\n" +
-			"The default case is already defined\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case default : System.out.println("Default");
+					     ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				2. ERROR in X.java (at line 5)
+					default : System.out.println("Object");
+					^^^^^^^
+				The default case is already defined
+				----------
+				3. ERROR in X.java (at line 10)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void testIssue_556_006() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static int foo(Integer o) {\n"+
-				"   int k = 0;\n"+
-				"   switch (o) {\n"+
-				"     case 0, default   : k = 1;\n"+
-				"   }\n"+
-				"   return k;\n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(100 ));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static int foo(Integer o) {
+					   int k = 0;
+					   switch (o) {
+					     case 0, default   : k = 1;
+					   }
+					   return k;
+					 }\s
+					 public static void main(String[] args) {
+					   System.out.println(foo(100 ));
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case 0, default   : k = 1;\n" +
-			"	        ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case 0, default   : k = 1;
+					        ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				""");
 	}
 	public void testIssue_556_007() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static int foo(Integer o) {\n"+
-				"   int k = 0;\n"+
-				"   switch (o) {\n"+
-				"     case 0, default, 1   : k = 1;\n"+
-				"   }\n"+
-				"   return k;\n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(100 ));\n"+
-				" }\n"+
-				"}",
+				"""
+					public class X {
+					 public static int foo(Integer o) {
+					   int k = 0;
+					   switch (o) {
+					     case 0, default, 1   : k = 1;
+					   }
+					   return k;
+					 }\s
+					 public static void main(String[] args) {
+					   System.out.println(foo(100 ));
+					 }
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case 0, default, 1   : k = 1;\n" +
-			"	        ^^^^^^^\n" +
-			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case 0, default, 1   : k = 1;
+					        ^^^^^^^
+				A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\'\s
+				----------
+				""");
 	}
 	public void testIssue_556_008() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n" +
-					"	public void foo(Object o) {\n" +
-					"	  try{\n" +
-					"		switch (o) {\n" +
-					"		  default:\n" +
-					"			  break;\n" +
-					"		  case String s :\n" +
-					"			  System.out.println(10);\n" +
-					"			  break;\n" +
-					"		  case String s when (s.length() == 10):\n" +
-					"			  System.out.println(s);\n" +
-					"		} \n" +
-					"	  } catch(Exception t) {\n" +
-					"		 t.printStackTrace(System.out);\n" +
-					"	  }\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		  (new X()).foo(null);\n" +
-					"	}\n" +
-					"}",
+					"""
+						public class X {
+							public void foo(Object o) {
+							  try{
+								switch (o) {
+								  default:
+									  break;
+								  case String s :
+									  System.out.println(10);
+									  break;
+								  case String s when (s.length() == 10):
+									  System.out.println(s);
+								}\s
+							  } catch(Exception t) {
+								 t.printStackTrace(System.out);
+							  }
+							}
+							public static void main(String[] args) {
+								  (new X()).foo(null);
+							}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case String s :\n" +
-				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 10)\n" +
-				"	case String s when (s.length() == 10):\n" +
-				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						case String s :
+						     ^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					2. ERROR in X.java (at line 10)
+						case String s when (s.length() == 10):
+						     ^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testIssue_556_009() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n" +
-					"	public void foo(Object o) {\n" +
-					"	  try{\n" +
-					"		switch (o) {\n" +
-					"		  case null, default:\n" +
-					"			  break;\n" +
-					"		  case String s :\n" +
-					"			  System.out.println(s);\n" +
-					"		} \n" +
-					"	  } catch(Exception t) {\n" +
-					"		 t.printStackTrace(System.out);\n" +
-					"	  }\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		  (new X()).foo(null);\n" +
-					"	}\n" +
-					"}",
+					"""
+						public class X {
+							public void foo(Object o) {
+							  try{
+								switch (o) {
+								  case null, default:
+									  break;
+								  case String s :
+									  System.out.println(s);
+								}\s
+							  } catch(Exception t) {
+								 t.printStackTrace(System.out);
+							  }
+							}
+							public static void main(String[] args) {
+								  (new X()).foo(null);
+							}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case String s :\n" +
-				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						case String s :
+						     ^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testIssue658() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	public static void main(String argv[]) {\n"
-					+ "		(new X()).foo(\"abc\");\n"
-					+ "	}\n"
-					+ "	public void foo(String s) {\n"
-					+ "		int v = 0;\n"
-					+ "		Boolean b1 = Boolean.valueOf(true);\n"
-					+ "		switch (s) {\n"
-					+ "			case String obj when b1 -> v = 1;\n"
-					+ "			default -> v = 0;\n"
-					+ "		}\n"
-					+ "		System.out.println(v);\n"
-					+ "		Boolean b2 = Boolean.valueOf(false);\n"
-					+ "		switch (s) {\n"
-					+ "			case String obj when b2 -> v = 1;\n"
-					+ "			default -> v = 0;\n"
-					+ "		}\n"
-					+ "		System.out.println(v);\n"
-					+ "	}\n"
-					+ "}"
+					"""
+						public class X {
+							public static void main(String argv[]) {
+								(new X()).foo("abc");
+							}
+							public void foo(String s) {
+								int v = 0;
+								Boolean b1 = Boolean.valueOf(true);
+								switch (s) {
+									case String obj when b1 -> v = 1;
+									default -> v = 0;
+								}
+								System.out.println(v);
+								Boolean b2 = Boolean.valueOf(false);
+								switch (s) {
+									case String obj when b2 -> v = 1;
+									default -> v = 0;
+								}
+								System.out.println(v);
+							}
+						}"""
 				},
 				"1\n0");
 	}
@@ -5685,133 +6132,147 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.*;\n"
-					+ "public class X {\n"
-					+ "public static void foo(List<Number> l) {\n"
-					+ "	switch (l) {\n"
-					+ "	    case ArrayList<Number> al -> \n"
-					+ "	        System.out.println(\"An ArrayList of Number\");\n"
-					+ "	    case ArrayList<? extends Number> aln -> // Error - dominated case label\n"
-					+ "	        System.out.println(\"An ArrayList of Number\");\n"
-					+ "	    default -> \n"
-					+ "	        System.out.println(\"A List\");\n"
-					+ "	}\n"
-					+ "}\n" +
-					"}",
+					"""
+						import java.util.*;
+						public class X {
+						public static void foo(List<Number> l) {
+							switch (l) {
+							    case ArrayList<Number> al ->\s
+							        System.out.println("An ArrayList of Number");
+							    case ArrayList<? extends Number> aln -> // Error - dominated case label
+							        System.out.println("An ArrayList of Number");
+							    default ->\s
+							        System.out.println("A List");
+							}
+						}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case ArrayList<? extends Number> aln -> // Error - dominated case label\n" +
-				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						case ArrayList<? extends Number> aln -> // Error - dominated case label
+						     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testIssue711_2() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.*;\n"
-					+ "public class X {\n"
-					+ "public static void foo(List<Number> l) {\n"
-					+ "	switch (l) {\n"
-					+ "	    case ArrayList<? extends Number> aln ->\n"
-					+ "	        System.out.println(\"An ArrayList of Number\");\n"
-					+ "	    case ArrayList<Number> al ->  // Error - dominated case label\n"
-					+ "	        System.out.println(\"An ArrayList of Number\");\n"
-					+ "	    default -> \n"
-					+ "	        System.out.println(\"A List\");\n"
-					+ "	}\n"
-					+ "}\n" +
-					"}",
+					"""
+						import java.util.*;
+						public class X {
+						public static void foo(List<Number> l) {
+							switch (l) {
+							    case ArrayList<? extends Number> aln ->
+							        System.out.println("An ArrayList of Number");
+							    case ArrayList<Number> al ->  // Error - dominated case label
+							        System.out.println("An ArrayList of Number");
+							    default ->\s
+							        System.out.println("A List");
+							}
+						}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case ArrayList<Number> al ->  // Error - dominated case label\n" +
-				"	     ^^^^^^^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						case ArrayList<Number> al ->  // Error - dominated case label
+						     ^^^^^^^^^^^^^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testIssue742_1() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.*;\n" +
-					"public class X {\n"
-					+ "public static void foo(Integer n) {\n"
-					+ "  switch (n) {\n"
-					+ "    case Integer i when true -> // Allowed but why write this?\n"
-					+ "        System.out.println(\"An integer\"); \n"
-					+ "    case Integer i ->                     // Error - dominated case label\n"
-					+ "        System.out.println(\"An integer\"); \n"
-					+ "  }\n"
-					+ "}\n" +
-					"}",
+					"""
+						import java.util.*;
+						public class X {
+						public static void foo(Integer n) {
+						  switch (n) {
+						    case Integer i when true -> // Allowed but why write this?
+						        System.out.println("An integer");\s
+						    case Integer i ->                     // Error - dominated case label
+						        System.out.println("An integer");\s
+						  }
+						}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case Integer i ->                     // Error - dominated case label\n" +
-				"	     ^^^^^^^^^\n" +
-				"The switch statement cannot have more than one unconditional pattern\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
-				"	case Integer i ->                     // Error - dominated case label\n" +
-				"	     ^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						case Integer i ->                     // Error - dominated case label
+						     ^^^^^^^^^
+					The switch statement cannot have more than one unconditional pattern
+					----------
+					2. ERROR in X.java (at line 7)
+						case Integer i ->                     // Error - dominated case label
+						     ^^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testIssue742_2() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.*;\n"
-					+ "public class X {\n"
-					+ "public static void foo(Integer n) {\n"
-					+ "  switch (n) {\n"
-					+ "    case Integer i -> // Allowed but why write this?\n"
-					+ "        System.out.println(\"An integer\"); \n"
-					+ "    case Integer i when true ->                     // Error - dominated case label\n"
-					+ "        System.out.println(\"An integer\"); \n"
-					+ "  }\n"
-					+ "}\n" +
-					"}",
+					"""
+						import java.util.*;
+						public class X {
+						public static void foo(Integer n) {
+						  switch (n) {
+						    case Integer i -> // Allowed but why write this?
+						        System.out.println("An integer");\s
+						    case Integer i when true ->                     // Error - dominated case label
+						        System.out.println("An integer");\s
+						  }
+						}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case Integer i when true ->                     // Error - dominated case label\n" +
-				"	     ^^^^^^^^^\n" +
-				"The switch statement cannot have more than one unconditional pattern\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
-				"	case Integer i when true ->                     // Error - dominated case label\n" +
-				"	     ^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						case Integer i when true ->                     // Error - dominated case label
+						     ^^^^^^^^^
+					The switch statement cannot have more than one unconditional pattern
+					----------
+					2. ERROR in X.java (at line 7)
+						case Integer i when true ->                     // Error - dominated case label
+						     ^^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testIssue712_001() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"       \n"+
-					"       public static void main(String[] args) {\n"+
-					"               Object o = \"Hello World\";\n"+
-					"               foo(o);\n"+
-					"       }\n"+
-					"       public static void foo(Object o) {\n"+
-					"         switch (o) {\n"+
-					"           case String s:\n"+
-					"               System.out.println(s);        // No break!\n"+
-					"           case R():\n"+
-					"               System.out.println(\"It's either an R or a string\"); // Allowed\n"+
-					"               break;\n"+
-					"           default:\n"+
-					"         }\n"+
-					"       }\n"+
-					"\n"+
-					"}\n"+
-					"\n"+
-					"record R() {} \n"+
-					"record S() {}\n"
+					"""
+						public class X {
+						      \s
+						       public static void main(String[] args) {
+						               Object o = "Hello World";
+						               foo(o);
+						       }
+						       public static void foo(Object o) {
+						         switch (o) {
+						           case String s:
+						               System.out.println(s);        // No break!
+						           case R():
+						               System.out.println("It's either an R or a string"); // Allowed
+						               break;
+						           default:
+						         }
+						       }
+						
+						}
+						
+						record R() {}\s
+						record S() {}
+						"""
 				},
 				"Hello World\n" +
 				"It\'s either an R or a string");
@@ -5820,26 +6281,28 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" \n"+
-					" public static void main(String[] args) {\n"+
-					"   Object o = new R();\n"+
-					"   foo(o);\n"+
-					" }\n"+
-					" public static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"     case R():\n"+
-					"     case S():                         // Multiple case labels!\n"+
-					"         System.out.println(\"Either R or an S\");\n"+
-					"         break;\n"+
-					"     default:\n"+
-					" }\n"+
-					" }\n"+
-					"\n"+
-					"}\n"+
-					"\n"+
-					"record R() {}\n"+
-					"record S() {}\n"
+					"""
+						public class X {
+						\s
+						 public static void main(String[] args) {
+						   Object o = new R();
+						   foo(o);
+						 }
+						 public static void foo(Object o) {
+						   switch (o) {
+						     case R():
+						     case S():                         // Multiple case labels!
+						         System.out.println("Either R or an S");
+						         break;
+						     default:
+						 }
+						 }
+						
+						}
+						
+						record R() {}
+						record S() {}
+						"""
 				},
 				"Either R or an S");
 	}
@@ -5847,25 +6310,26 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" \n"+
-					" public static void main(String[] args) {\n"+
-					"   Object o = null;\n"+
-					"   foo(o);\n"+
-					" }\n"+
-					" public static void foo(Object o) {\n"+
-					"   switch (o) {\n"+
-					"     case null:\n"+
-					"     case R():                         // Multiple case labels!\n"+
-					"         System.out.println(\"Either null or an R\");\n"+
-					"         break;\n"+
-					"     default:\n"+
-					" }\n"+
-					" }\n"+
-					"}\n"+
-					"\n"+
-					"record R() {}\n"+
-					"record S() {}"
+					"""
+						public class X {
+						\s
+						 public static void main(String[] args) {
+						   Object o = null;
+						   foo(o);
+						 }
+						 public static void foo(Object o) {
+						   switch (o) {
+						     case null:
+						     case R():                         // Multiple case labels!
+						         System.out.println("Either null or an R");
+						         break;
+						     default:
+						 }
+						 }
+						}
+						
+						record R() {}
+						record S() {}"""
 				},
 				"Either null or an R");
 	}
@@ -5873,183 +6337,202 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n" +
-					" \n" +
-					" public static void foo(Object o) {\n" +
-					"   switch (o) {\n" +
-					"     case Integer i :\n" +
-					"     case R():                         // Multiple case labels!\n" +
-					"         System.out.println(\"R Only\");\n" +
-					"     default:\n" +
-					"   }\n" +
-					" }\n" +
-					"}\n" +
-					" \n" +
-					"record R() {}"
+					"""
+						public class X {
+						\s
+						 public static void foo(Object o) {
+						   switch (o) {
+						     case Integer i :
+						     case R():                         // Multiple case labels!
+						         System.out.println("R Only");
+						     default:
+						   }
+						 }
+						}
+						\s
+						record R() {}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case Integer i :\n" +
-				"	^^^^^^^^^^^^^^\n" +
-				"Illegal fall-through from a case label pattern\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						case Integer i :
+						^^^^^^^^^^^^^^
+					Illegal fall-through from a case label pattern
+					----------
+					""");
 	}
 	public void testIssueDefaultDominance_001() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					" public class X {\n" +
-					" \n" +
-					" public static void foo(Object o) {\n" +
-					"   switch (o) {\n" +
-					"   case Float f: System.out.println(\"integer\"); break;\n" +
-					"   default: System.out.println(\"default\"); break;\n" +
-					"   case Integer i: System.out.println(\"integer\"); break;\n" +
-					"   }      \n" +
-					" }\n" +
-					"}"
+					"""
+						 public class X {
+						\s
+						 public static void foo(Object o) {
+						   switch (o) {
+						   case Float f: System.out.println("integer"); break;
+						   default: System.out.println("default"); break;
+						   case Integer i: System.out.println("integer"); break;
+						   }     \s
+						 }
+						}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case Integer i: System.out.println(\"integer\"); break;\n" +
-				"	     ^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						case Integer i: System.out.println("integer"); break;
+						     ^^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testIssueDefaultDominance_002() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					" public class X {\n" +
-					" \n" +
-					" public static void foo(Object o) {\n" +
-					"   switch (o) {\n" +
-					"   default: System.out.println(\"default\"); break;\n" +
-					"   case Integer i: System.out.println(\"integer\"); break;\n" +
-					"   }      \n" +
-					" }\n" +
-					"}"
+					"""
+						 public class X {
+						\s
+						 public static void foo(Object o) {
+						   switch (o) {
+						   default: System.out.println("default"); break;
+						   case Integer i: System.out.println("integer"); break;
+						   }     \s
+						 }
+						}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case Integer i: System.out.println(\"integer\"); break;\n" +
-				"	     ^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						case Integer i: System.out.println("integer"); break;
+						     ^^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testIssueDefaultDominance_003() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					" public class X {\n" +
-					" \n" +
-					" public static void foo(Object o) {\n" +
-					"   switch (o) {\n" +
-					"   default: System.out.println(\"default\"); break;\n" +
-					"   case null: System.out.println(\"null\"); break;\n" +
-					"   }      \n" +
-					" }\n" +
-					"}"
+					"""
+						 public class X {
+						\s
+						 public static void foo(Object o) {
+						   switch (o) {
+						   default: System.out.println("default"); break;
+						   case null: System.out.println("null"); break;
+						   }     \s
+						 }
+						}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case null: System.out.println(\"null\"); break;\n" +
-				"	     ^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						case null: System.out.println("null"); break;
+						     ^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testIssueDefaultDominance_004() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					" public class X {\n" +
-					" \n" +
-					" public static void foo(Object o) {\n" +
-					"   switch (o) {\n" +
-					"   case Float f: System.out.println(\"integer\"); break;\n" +
-					"   default: System.out.println(\"default\"); break;\n" +
-					"   case null: System.out.println(\"null\"); break;\n" +
-					"   }      \n" +
-					" }\n" +
-					"}"
+					"""
+						 public class X {
+						\s
+						 public static void foo(Object o) {
+						   switch (o) {
+						   case Float f: System.out.println("integer"); break;
+						   default: System.out.println("default"); break;
+						   case null: System.out.println("null"); break;
+						   }     \s
+						 }
+						}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case null: System.out.println(\"null\"); break;\n" +
-				"	     ^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						case null: System.out.println("null"); break;
+						     ^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testIssue919() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				" public class X {\n"
-				+ "   static void defaultCanAppearBeforePattern(Integer i) {\n"
-				+ "	  switch (i) {\n"
-				+ "	  case null -> System.out.println(\"value unavailable: \" + i);\n"
-				+ "	  case -1, 1 -> System.out.println(\"absolute value 1: \" + i);\n"
-				+ "	  default -> System.out.println(\"other integer: \" + i);\n"
-				+ "	  case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n"
-				+ "	  }\n"
-				+ "  }\n"
-				+ "  static void defaultCanAppearBeforeNull(Integer i) {\n"
-				+ "	  switch (i) {\n"
-				+ "	  case -1, 1 -> System.out.println(\"absolute value 1: \" + i);\n"
-				+ "	  default -> System.out.println(\"other integer: \" + i);\n"
-				+ "	  case null -> System.out.println(\"value unavailable: \" + i);\n"
-				+ "	  case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n"
-				+ "	  }\n"
-				+ "  }\n"
-				+ "  static void defaultCanAppearBeforeConstantLabel(Integer i) {\n"
-				+ "	  switch (i) {\n"
-				+ "	  case null -> System.out.println(\"value unavailable: \" + i);\n"
-				+ "	  default -> System.out.println(\"other integer: \" + i);\n"
-				+ "	  case -1, 1 -> System.out.println(\"absolute value 1: \" + i);\n"
-				+ "	  case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n"
-				+ "	  }\n"
-				+ "  }\n"
-				+ "}"
+				"""
+					 public class X {
+					   static void defaultCanAppearBeforePattern(Integer i) {
+						  switch (i) {
+						  case null -> System.out.println("value unavailable: " + i);
+						  case -1, 1 -> System.out.println("absolute value 1: " + i);
+						  default -> System.out.println("other integer: " + i);
+						  case Integer value when value > 0 -> System.out.println("positive integer: " + i);
+						  }
+					  }
+					  static void defaultCanAppearBeforeNull(Integer i) {
+						  switch (i) {
+						  case -1, 1 -> System.out.println("absolute value 1: " + i);
+						  default -> System.out.println("other integer: " + i);
+						  case null -> System.out.println("value unavailable: " + i);
+						  case Integer value when value > 0 -> System.out.println("positive integer: " + i);
+						  }
+					  }
+					  static void defaultCanAppearBeforeConstantLabel(Integer i) {
+						  switch (i) {
+						  case null -> System.out.println("value unavailable: " + i);
+						  default -> System.out.println("other integer: " + i);
+						  case -1, 1 -> System.out.println("absolute value 1: " + i);
+						  case Integer value when value > 0 -> System.out.println("positive integer: " + i);
+						  }
+					  }
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n" +
-			"	     ^^^^^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 14)\n" +
-			"	case null -> System.out.println(\"value unavailable: \" + i);\n" +
-			"	     ^^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 15)\n" +
-			"	case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n" +
-			"	     ^^^^^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 23)\n" +
-			"	case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n" +
-			"	     ^^^^^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					case Integer value when value > 0 -> System.out.println("positive integer: " + i);
+					     ^^^^^^^^^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				2. ERROR in X.java (at line 14)
+					case null -> System.out.println("value unavailable: " + i);
+					     ^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				3. ERROR in X.java (at line 15)
+					case Integer value when value > 0 -> System.out.println("positive integer: " + i);
+					     ^^^^^^^^^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				4. ERROR in X.java (at line 23)
+					case Integer value when value > 0 -> System.out.println("positive integer: " + i);
+					     ^^^^^^^^^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				""");
 	}
 	public void testIssue1126a() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" 	static int foo(String i) {\n"+
-					"		return switch (i) {\n"+
-					"	     case \"abc\" -> 0;\n"+
-					"	     case \"abcd\" -> 1;\n"+
-					"	     case String s -> -1;\n"+
-					"	   };\n"+
-					"	}\n"+
-					" public static void main(String[] args) {\n"+
-					"   System.out.println(foo(\"abcd\"));\n"+
-					"   System.out.println(foo(\"abc\"));\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 	static int foo(String i) {
+								return switch (i) {
+							     case "abc" -> 0;
+							     case "abcd" -> 1;
+							     case String s -> -1;
+							   };
+							}
+						 public static void main(String[] args) {
+						   System.out.println(foo("abcd"));
+						   System.out.println(foo("abc"));
+						 }
+						}""",
 				},
 				"1\n" +
 				"0");
@@ -6058,19 +6541,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" 	static int foo(String i) {\n"+
-					"		return switch (i) {\n"+
-					"	     case \"FB\" -> 0;\n"+
-					"	     case \"Ea\" -> 1;\n"+
-					"	     case String s -> -1;\n"+
-					"	   };\n"+
-					"	}\n"+
-					" public static void main(String[] args) {\n"+
-					"   System.out.println(foo(\"Ea\"));\n"+
-					"   System.out.println(foo(\"FB\"));\n"+
-					" }\n"+
-					"}",
+					"""
+						public class X {
+						 	static int foo(String i) {
+								return switch (i) {
+							     case "FB" -> 0;
+							     case "Ea" -> 1;
+							     case String s -> -1;
+							   };
+							}
+						 public static void main(String[] args) {
+						   System.out.println(foo("Ea"));
+						   System.out.println(foo("FB"));
+						 }
+						}""",
 				},
 				"1\n" +
 				"0");
@@ -6079,21 +6563,22 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"  sealed interface I<T> permits A, B {}\n"+
-					"  final static class A<T> implements I<String> {}\n"+
-					"  final static class B<Y> implements I<Y> {}\n"+
-					"\n"+
-					"  static int testGenericSealedExhaustive(I<Integer> i) {\n"+
-					"    return switch (i) {\n"+
-					"      // Exhaustive as no A case possible!\n"+
-					"      case B<Integer> bi -> 42;\n"+
-					"    };\n"+
-					"  }\n"+
-					"  public static void main(String[] args) {\n"+
-					"       System.out.println(testGenericSealedExhaustive(new B<Integer>()));\n"+
-					"  }\n"+
-					"}",
+					"""
+						public class X {
+						  sealed interface I<T> permits A, B {}
+						  final static class A<T> implements I<String> {}
+						  final static class B<Y> implements I<Y> {}
+						
+						  static int testGenericSealedExhaustive(I<Integer> i) {
+						    return switch (i) {
+						      // Exhaustive as no A case possible!
+						      case B<Integer> bi -> 42;
+						    };
+						  }
+						  public static void main(String[] args) {
+						       System.out.println(testGenericSealedExhaustive(new B<Integer>()));
+						  }
+						}""",
 				},
 				"42");
 	}
@@ -6101,25 +6586,26 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					" public static void main(String argv[]) {\n"+
-					"   System.out.println(foo());\n"+
-					" }\n"+
-					"\n"+
-					" public static int foo() {\n"+
-					"   return switch (I.getIC()) {\n"+
-					"     case IC c -> 42;\n"+
-					"   };\n"+
-					" }\n"+
-					"}\n"+
-					"\n"+
-					"sealed interface I<T> permits IC {\n"+
-					" public static I getIC() {\n"+
-					"   return new IC(){};\n"+
-					" }\n"+
-					"}\n"+
-					"\n"+
-					"non-sealed interface IC<T> extends I {}",
+					"""
+						public class X {
+						 public static void main(String argv[]) {
+						   System.out.println(foo());
+						 }
+						
+						 public static int foo() {
+						   return switch (I.getIC()) {
+						     case IC c -> 42;
+						   };
+						 }
+						}
+						
+						sealed interface I<T> permits IC {
+						 public static I getIC() {
+						   return new IC(){};
+						 }
+						}
+						
+						non-sealed interface IC<T> extends I {}""",
 				},
 				"42");
 	}
@@ -6127,18 +6613,19 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"record R(int i) {}\n"+
-					"public class X {\n"+
-					"\n"+
-					"    public static int foo(R exp) {\n"+
-					"        return switch (exp) {\n"+
-					"            case R r -> 42;\n"+
-					"        };\n"+
-					"    }\n"+
-					"    public static void main(String argv[]) {\n"+
-					"       System.out.println(foo(new R(10)));\n"+
-					"    }\n"+
-					"}"
+					"""
+						record R(int i) {}
+						public class X {
+						
+						    public static int foo(R exp) {
+						        return switch (exp) {
+						            case R r -> 42;
+						        };
+						    }
+						    public static void main(String argv[]) {
+						       System.out.println(foo(new R(10)));
+						    }
+						}"""
 				},
 				"42");
 	}
@@ -6146,18 +6633,19 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"record R(X x) {}\n"+
-					"public class X {\n"+
-					"\n"+
-					"    public static int foo(R exp) {\n"+
-					"        return switch (exp) {\n"+
-					"            case R(Object o) -> 42;\n"+
-					"        };\n"+
-					"    }\n"+
-					"    public static void main(String argv[]) {\n"+
-					"       System.out.println(foo(new R(new X())));\n"+
-					"    }\n"+
-					"}"
+					"""
+						record R(X x) {}
+						public class X {
+						
+						    public static int foo(R exp) {
+						        return switch (exp) {
+						            case R(Object o) -> 42;
+						        };
+						    }
+						    public static void main(String argv[]) {
+						       System.out.println(foo(new R(new X())));
+						    }
+						}"""
 				},
 				"42");
 	}
@@ -6165,59 +6653,63 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"sealed interface I permits A, J {}\n"+
-					"sealed interface J extends I {}\n"+
-					"\n"+
-					"final class A implements I {}\n"+
-					"final record R() implements J {}\n"+
-					"\n"+
-					"public class X {\n"+
-					"\n"+
-					"    public static int foo(I i) {\n"+
-					"        return switch (i) {\n"+
-					"            case A a -> 0;\n"+
-					"        };\n"+
-					"    }\n"+
-					"\n"+
-					"    public static void main(String argv[]) {\n"+
-					"       Zork();\n"+
-					"    }\n"+
-					"}"
+					"""
+						sealed interface I permits A, J {}
+						sealed interface J extends I {}
+						
+						final class A implements I {}
+						final record R() implements J {}
+						
+						public class X {
+						
+						    public static int foo(I i) {
+						        return switch (i) {
+						            case A a -> 0;
+						        };
+						    }
+						
+						    public static void main(String argv[]) {
+						       Zork();
+						    }
+						}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
-				"	return switch (i) {\n" +
-				"	               ^\n" +
-				"A switch expression should have a default case\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 16)\n" +
-				"	Zork();\n" +
-				"	^^^^\n" +
-				"The method Zork() is undefined for the type X\n" +
-				"----------\n"
+				"""
+					----------
+					1. ERROR in X.java (at line 10)
+						return switch (i) {
+						               ^
+					A switch expression should have a default case
+					----------
+					2. ERROR in X.java (at line 16)
+						Zork();
+						^^^^
+					The method Zork() is undefined for the type X
+					----------
+					"""
 );
 	}
 	public void testIssueExhaustiveness_005() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"sealed interface I {}\n" +
-					"final class A implements I {}\n" +
-					"\n" +
-					"record R<T extends I>(T x, T  y) {}\n" +
-					"\n" +
-					"public class X {\n" +
-					"    public static int foo(R r) {\n" +
-					"       return  switch (r) {\n" +
-					"            case R(A a1, A a2) -> 0;\n" +
-					"        };\n" +
-					"    }\n" +
-					"\n" +
-					"    @SuppressWarnings(\"unchecked\")\n" +
-					"       public static void main(String argv[]) {\n" +
-					"       System.out.println(X.foo(new R(new A(), new A())));\n" +
-					"    }\n" +
-					"}"
+					"""
+						sealed interface I {}
+						final class A implements I {}
+						
+						record R<T extends I>(T x, T  y) {}
+						
+						public class X {
+						    public static int foo(R r) {
+						       return  switch (r) {
+						            case R(A a1, A a2) -> 0;
+						        };
+						    }
+						
+						    @SuppressWarnings("unchecked")
+						       public static void main(String argv[]) {
+						       System.out.println(X.foo(new R(new A(), new A())));
+						    }
+						}"""
 				},
 				"0");
 	}
@@ -6228,24 +6720,25 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"enum E {\n"
-					+ "	A1, A2;\n"
-					+ "}\n"
-					+ "public class X {\n"
-					+ "	public static void foo(E e) {\n"
-					+ "		switch (e) {\n"
-					+ "			case E.A1 -> {\n"
-					+ "				System.out.println(\"A1\");\n"
-					+ "			}\n"
-					+ "			case E.A2 -> {\n"
-					+ "				System.out.println(\"A2\");\n"
-					+ "			}\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "	public static void main(String[] args) {\n"
-					+ "		foo(E.A1);\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						enum E {
+							A1, A2;
+						}
+						public class X {
+							public static void foo(E e) {
+								switch (e) {
+									case E.A1 -> {
+										System.out.println("A1");
+									}
+									case E.A2 -> {
+										System.out.println("A2");
+									}
+								}
+							}
+							public static void main(String[] args) {
+								foo(E.A1);
+							}
+						}""",
 				},
 				"A1");
 	}
@@ -6256,25 +6749,26 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"enum E {\n"
-					+ "	A1, A2;\n"
-					+ "	enum InnerE {\n"
-					+ "		B1, B2;\n"
-					+ "	}\n"
-					+ "}\n"
-					+ "public class X {\n"
-					+ "	public static void foo(E.InnerE e) {\n"
-					+ "		switch (e) {\n"
-					+ "			case E.InnerE.B1 -> {\n"
-					+ "				System.out.println(\"B1\"); //$NON-NLS-1$\n"
-					+ "			} \n"
-					+ "			default -> {}\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "	public static void main(String[] args) { \n"
-					+ "		foo(E.InnerE.B1);\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						enum E {
+							A1, A2;
+							enum InnerE {
+								B1, B2;
+							}
+						}
+						public class X {
+							public static void foo(E.InnerE e) {
+								switch (e) {
+									case E.InnerE.B1 -> {
+										System.out.println("B1"); //$NON-NLS-1$
+									}\s
+									default -> {}
+								}
+							}
+							public static void main(String[] args) {\s
+								foo(E.InnerE.B1);
+							}
+						}""",
 				},
 				"B1");
 	}
@@ -6285,32 +6779,35 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"enum E {\n"
-					+ "	A1, A2;\n"
-					+ "	enum InnerE {\n"
-					+ "		B1, B2;\n"
-					+ "	}\n"
-					+ "}\n"
-					+ "public class X {\n"
-					+ "	public static void foo(E.InnerE e) {\n"
-					+ "		switch (e) {\n"
-					+ "			case E.A1 -> {\n"
-					+ "				System.out.println(\"B1\"); //$NON-NLS-1$\n"
-					+ "			} \n"
-					+ "			default -> {}\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "	public static void main(String[] args) { \n"
-					+ "		foo(E.InnerE.B1);\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						enum E {
+							A1, A2;
+							enum InnerE {
+								B1, B2;
+							}
+						}
+						public class X {
+							public static void foo(E.InnerE e) {
+								switch (e) {
+									case E.A1 -> {
+										System.out.println("B1"); //$NON-NLS-1$
+									}\s
+									default -> {}
+								}
+							}
+							public static void main(String[] args) {\s
+								foo(E.InnerE.B1);
+							}
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
-				"	case E.A1 -> {\n" +
-				"	     ^^^^\n" +
-				"Type mismatch: cannot convert from E to E.InnerE\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 10)
+						case E.A1 -> {
+						     ^^^^
+					Type mismatch: cannot convert from E to E.InnerE
+					----------
+					""");
 	}
 	public void testIssue1250_4() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
@@ -6319,57 +6816,59 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"interface I {}\n"
-					+ "enum E implements I {\n"
-					+ "	A0, A1, A2, A3, A4;\n"
-					+ "}\n"
-					+ "public class X {\n"
-					+ "	public String testMethod(I exp) {\n"
-					+ "		String res = \"\";\n"
-					+ "		switch (exp) {\n"
-					+ "			case E.A0 -> {\n"
-					+ "				res = \"const A0\";\n"
-					+ "				break;\n"
-					+ "			}\n"
-					+ "			case E.A1 -> {\n"
-					+ "				res = \"const A1\";\n"
-					+ "				break;\n"
-					+ "			}\n"
-					+ "			case E.A2 -> {\n"
-					+ "				res = \"const A2\";\n"
-					+ "				break;\n"
-					+ "			}\n"
-					+ "			case E.A3 -> {\n"
-					+ "				res = \"const A3\";\n"
-					+ "				break;\n"
-					+ "			}\n"
-					+ "			case E.A4 -> {\n"
-					+ "				res = \"const A4\";\n"
-					+ "				break;\n"
-					+ "			}\n"
-					+ "			default -> {\n"
-					+ "				res = \"default\";\n"
-					+ "			}\n"
-					+ "		}\n"
-					+ "		return res;\n"
-					+ "	}\n"
-					+ "	public static void main(String[] args) {\n"
-					+ "		System.out.println((new X()).testMethod(E.A2));\n"
-					+ "		System.out.println((new X()).testMethod(E.A3));\n"
-					+ "		System.out.println((new X()).testMethod(E.A4));\n"
-					+ "		System.out.println((new X()).testMethod(E.A0));\n"
-					+ "		System.out.println((new X()).testMethod(E.A1));\n"
-					+ "		System.out.println((new X()).testMethod(new I() {\n"
-					+ "		}));\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						interface I {}
+						enum E implements I {
+							A0, A1, A2, A3, A4;
+						}
+						public class X {
+							public String testMethod(I exp) {
+								String res = "";
+								switch (exp) {
+									case E.A0 -> {
+										res = "const A0";
+										break;
+									}
+									case E.A1 -> {
+										res = "const A1";
+										break;
+									}
+									case E.A2 -> {
+										res = "const A2";
+										break;
+									}
+									case E.A3 -> {
+										res = "const A3";
+										break;
+									}
+									case E.A4 -> {
+										res = "const A4";
+										break;
+									}
+									default -> {
+										res = "default";
+									}
+								}
+								return res;
+							}
+							public static void main(String[] args) {
+								System.out.println((new X()).testMethod(E.A2));
+								System.out.println((new X()).testMethod(E.A3));
+								System.out.println((new X()).testMethod(E.A4));
+								System.out.println((new X()).testMethod(E.A0));
+								System.out.println((new X()).testMethod(E.A1));
+								System.out.println((new X()).testMethod(new I() {
+								}));
+							}
+						}""",
 				},
-				"const A2\n" +
-				"const A3\n" +
-				"const A4\n" +
-				"const A0\n" +
-				"const A1\n" +
-				"default");
+				"""
+					const A2
+					const A3
+					const A4
+					const A0
+					const A1
+					default""");
 	}
 	public void testIssue1250_5() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
@@ -6378,59 +6877,61 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"interface I {\n"
-					+ "}\n"
-					+ "enum E implements I {\n"
-					+ "	A0, A1, A2, A3, A4;\n"
-					+ "}\n"
-					+ "enum E1 implements I {\n"
-					+ "	B0, B1;\n"
-					+ "}\n"
-					+ "public class X {\n"
-					+ "	public String foo(I exp) {\n"
-					+ "		String res = \"\";\n"
-					+ "		switch (exp) {\n"
-					+ "			case E.A0 -> {\n"
-					+ "				res = \"const A0\";\n"
-					+ "				break;\n"
-					+ "			}\n"
-					+ "			case E.A1 -> {\n"
-					+ "				res = \"const A1\";\n"
-					+ "				break;\n"
-					+ "			}\n"
-					+ "			case E1.B0 -> {\n"
-					+ "				res = \"const B0\";\n"
-					+ "				break;\n"
-					+ "			}\n"
-					+ "			case E e -> {\n"
-					+ "				res = e.toString();\n"
-					+ "			}\n"
-					+ "			case E1 e1 -> {\n"
-					+ "				res = e1.toString();\n"
-					+ "			}\n"
-					+ "			default -> {\n"
-					+ "				res = \"default\";\n"
-					+ "			}\n"
-					+ "		}\n"
-					+ "		return res;\n"
-					+ "	}\n"
-					+ "	public static void main(String[] args) {\n"
-					+ "		System.out.println((new X()).foo(E.A0));\n"
-					+ "		System.out.println((new X()).foo(E.A1));\n"
-					+ "		System.out.println((new X()).foo(E.A2));\n"
-					+ "		System.out.println((new X()).foo(E1.B0));\n"
-					+ "		System.out.println((new X()).foo(E1.B1));\n"
-					+ "		System.out.println((new X()).foo(new I() {\n"
-					+ "		}));\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						interface I {
+						}
+						enum E implements I {
+							A0, A1, A2, A3, A4;
+						}
+						enum E1 implements I {
+							B0, B1;
+						}
+						public class X {
+							public String foo(I exp) {
+								String res = "";
+								switch (exp) {
+									case E.A0 -> {
+										res = "const A0";
+										break;
+									}
+									case E.A1 -> {
+										res = "const A1";
+										break;
+									}
+									case E1.B0 -> {
+										res = "const B0";
+										break;
+									}
+									case E e -> {
+										res = e.toString();
+									}
+									case E1 e1 -> {
+										res = e1.toString();
+									}
+									default -> {
+										res = "default";
+									}
+								}
+								return res;
+							}
+							public static void main(String[] args) {
+								System.out.println((new X()).foo(E.A0));
+								System.out.println((new X()).foo(E.A1));
+								System.out.println((new X()).foo(E.A2));
+								System.out.println((new X()).foo(E1.B0));
+								System.out.println((new X()).foo(E1.B1));
+								System.out.println((new X()).foo(new I() {
+								}));
+							}
+						}""",
 				},
-				"const A0\n"
-				+ "const A1\n"
-				+ "A2\n"
-				+ "const B0\n"
-				+ "B1\n"
-				+ "default");
+				"""
+					const A0
+					const A1
+					A2
+					const B0
+					B1
+					default""");
 	}
 	public void testIssue1250_6() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
@@ -6439,37 +6940,38 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"interface I {\n"
-					+ "}\n"
-					+ "enum XEnum {\n"
-					+ "    A, B;\n"
-					+ "    interface I {}\n"
-					+ "    enum E implements I {\n"
-					+ "        A0, A1;\n"
-					+ "    }\n"
-					+ "}\n"
-					+ "public class X {\n"
-					+ "    public String foo(XEnum.I exp) {\n"
-					+ "        String res = \"\";\n"
-					+ "        switch (exp) {\n"
-					+ "            case XEnum.E.A0 -> {\n"
-					+ "                res = \"A0\";\n"
-					+ "                break;\n"
-					+ "            }\n"
-					+ "            case XEnum.E.A1 -> {\n"
-					+ "                res = \"A1\";\n"
-					+ "                break;\n"
-					+ "            }\n"
-					+ "            default -> {\n"
-					+ "                res = \"Ad\";\n"
-					+ "            }\n"
-					+ "        }\n"
-					+ "        return res;\n"
-					+ "    }\n"
-					+ "	public static void main(String[] args) {\n"
-					+ "		System.out.println((new X()).foo(XEnum.E.A1));\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						interface I {
+						}
+						enum XEnum {
+						    A, B;
+						    interface I {}
+						    enum E implements I {
+						        A0, A1;
+						    }
+						}
+						public class X {
+						    public String foo(XEnum.I exp) {
+						        String res = "";
+						        switch (exp) {
+						            case XEnum.E.A0 -> {
+						                res = "A0";
+						                break;
+						            }
+						            case XEnum.E.A1 -> {
+						                res = "A1";
+						                break;
+						            }
+						            default -> {
+						                res = "Ad";
+						            }
+						        }
+						        return res;
+						    }
+							public static void main(String[] args) {
+								System.out.println((new X()).foo(XEnum.E.A1));
+							}
+						}""",
 				},
 				"A1");
 	}
@@ -6480,32 +6982,33 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"interface I {\n"
-					+ "    interface InnerI {}\n"
-					+ "    enum E implements InnerI {\n"
-					+ "        A0, A1;\n"
-					+ "    }\n"
-					+ "}\n"
-					+ "public class X {\n"
-					+ "    public String foo(I.InnerI exp) {\n"
-					+ "        String res = \"\";\n"
-					+ "        res = switch (exp) {\n"
-					+ "            case I.E.A0 -> {\n"
-					+ "                yield \"A0\";\n"
-					+ "            }\n"
-					+ "            case I.E.A1 -> {\n"
-					+ "                yield \"A1\";\n"
-					+ "            }\n"
-					+ "            default -> {\n"
-					+ "                yield \"Ad\";\n"
-					+ "            }\n"
-					+ "        };\n"
-					+ "        return res;\n"
-					+ "    }\n"
-					+ "	public static void main(String[] args) {\n"
-					+ "		System.out.println((new X()).foo(I.E.A1));\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						interface I {
+						    interface InnerI {}
+						    enum E implements InnerI {
+						        A0, A1;
+						    }
+						}
+						public class X {
+						    public String foo(I.InnerI exp) {
+						        String res = "";
+						        res = switch (exp) {
+						            case I.E.A0 -> {
+						                yield "A0";
+						            }
+						            case I.E.A1 -> {
+						                yield "A1";
+						            }
+						            default -> {
+						                yield "Ad";
+						            }
+						        };
+						        return res;
+						    }
+							public static void main(String[] args) {
+								System.out.println((new X()).foo(I.E.A1));
+							}
+						}""",
 				},
 				"A1");
 	}
@@ -6516,450 +7019,498 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		this.runConformTest(
 				new String[] {
 					"p/q/X.java",
-					"package p.q;\n"
-					+ "interface I {\n"
-					+ "}\n"
-					+ "enum E implements I {\n"
-					+ "	A0, A1, A2, A3, A4;\n"
-					+ "}\n"
-					+ "enum E1 implements I {\n"
-					+ "	B0, B1;\n"
-					+ "}\n"
-					+ "public class X {\n"
-					+ "	public String foo(I exp) {\n"
-					+ "		String res = \"\";\n"
-					+ "		switch (exp) {\n"
-					+ "			case E.A0 -> {\n"
-					+ "				res = \"const A0\";\n"
-					+ "				break;\n"
-					+ "			}\n"
-					+ "			case E.A1 -> {\n"
-					+ "				res = \"const A1\";\n"
-					+ "				break;\n"
-					+ "			}\n"
-					+ "			case E1.B0 -> {\n"
-					+ "				res = \"const B0\";\n"
-					+ "				break;\n"
-					+ "			}\n"
-					+ "			case E e -> {\n"
-					+ "				res = e.toString();\n"
-					+ "			}\n"
-					+ "			case E1 e1 -> {\n"
-					+ "				res = e1.toString();\n"
-					+ "			}\n"
-					+ "			default -> {\n"
-					+ "				res = \"default\";\n"
-					+ "			}\n"
-					+ "		}\n"
-					+ "		return res;\n"
-					+ "	}\n"
-					+ "	public static void main(String[] args) {\n"
-					+ "		System.out.println((new X()).foo(E.A0));\n"
-					+ "		System.out.println((new X()).foo(E.A1));\n"
-					+ "		System.out.println((new X()).foo(E.A2));\n"
-					+ "		System.out.println((new X()).foo(E1.B0));\n"
-					+ "		System.out.println((new X()).foo(E1.B1));\n"
-					+ "		System.out.println((new X()).foo(new I() {\n"
-					+ "		}));\n"
-					+ "	}\n"
-					+ "}",
+					"""
+						package p.q;
+						interface I {
+						}
+						enum E implements I {
+							A0, A1, A2, A3, A4;
+						}
+						enum E1 implements I {
+							B0, B1;
+						}
+						public class X {
+							public String foo(I exp) {
+								String res = "";
+								switch (exp) {
+									case E.A0 -> {
+										res = "const A0";
+										break;
+									}
+									case E.A1 -> {
+										res = "const A1";
+										break;
+									}
+									case E1.B0 -> {
+										res = "const B0";
+										break;
+									}
+									case E e -> {
+										res = e.toString();
+									}
+									case E1 e1 -> {
+										res = e1.toString();
+									}
+									default -> {
+										res = "default";
+									}
+								}
+								return res;
+							}
+							public static void main(String[] args) {
+								System.out.println((new X()).foo(E.A0));
+								System.out.println((new X()).foo(E.A1));
+								System.out.println((new X()).foo(E.A2));
+								System.out.println((new X()).foo(E1.B0));
+								System.out.println((new X()).foo(E1.B1));
+								System.out.println((new X()).foo(new I() {
+								}));
+							}
+						}""",
 				},
-				"const A0\n"
-				+ "const A1\n"
-				+ "A2\n"
-				+ "const B0\n"
-				+ "B1\n"
-				+ "default");
+				"""
+					const A0
+					const A1
+					A2
+					const B0
+					B1
+					default""");
 	}
 	public void testIssue1351_1() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-								+ "	public static void foo() {\n"
-								+ "		Object o = new String(\"\");\n"
-								+ "		int len = 2;\n"
-								+ "		switch (o) {\n"
-								+ "		case String o1 when ((String) o).length() == o1.length() :\n"
-								+ "			o = null;\n"
-								+ "			o1 = null;\n"
-								+ "			break;\n"
-								+ "		default:\n"
-								+ "			break;\n"
-								+ "		}\n"
-								+ "	}\n"
-								+ "} ",
+						"""
+							public class X {
+								public static void foo() {
+									Object o = new String("");
+									int len = 2;
+									switch (o) {
+									case String o1 when ((String) o).length() == o1.length() :
+										o = null;
+										o1 = null;
+										break;
+									default:
+										break;
+									}
+								}
+							} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case String o1 when ((String) o).length() == o1.length() :\n" +
-				"	                              ^\n" +
-				"Local variable o referenced from a guard must be final or effectively final\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						case String o1 when ((String) o).length() == o1.length() :
+						                              ^
+					Local variable o referenced from a guard must be final or effectively final
+					----------
+					""");
 	}
 	public void testIssue1351_2() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void foo() {\n"
-						+ "		Object o = new String(\"\");\n"
-						+ "		int len = 2;\n"
-						+ "		switch (o) {\n"
-						+ "		case String o1 when o1.length() == ((String) o).length():\n"
-						+ "			o = null;\n"
-						+ "			o1 = null;\n"
-						+ "			break;\n"
-						+ "		default:\n"
-						+ "			break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "} ",
+						"""
+							public class X {
+								public static void foo() {
+									Object o = new String("");
+									int len = 2;
+									switch (o) {
+									case String o1 when o1.length() == ((String) o).length():
+										o = null;
+										o1 = null;
+										break;
+									default:
+										break;
+									}
+								}
+							} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case String o1 when o1.length() == ((String) o).length():\n" +
-				"	                    ^^\n" +
-				"Local variable o1 referenced from a guard must be final or effectively final\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						case String o1 when o1.length() == ((String) o).length():
+						                    ^^
+					Local variable o1 referenced from a guard must be final or effectively final
+					----------
+					""");
 	}
 	public void testIssue1351_3() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"class C {\n"
-						+ "	int v;\n"
-						+ "	public int value() { return this.v;\n}\n"
-						+ "}\n"
-						+ "public class X {\n"
-						+ "	public void foo(C c) {\n"
-						+ "		switch (c) {\n"
-						+ "		case C c1 when c1.v == c1.value():\n"
-						+ "			c1 = null;\n"
-						+ "			break;\n"
-						+ "		default:\n"
-						+ "			break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "}",
+						"""
+							class C {
+								int v;
+								public int value() { return this.v;
+							}
+							}
+							public class X {
+								public void foo(C c) {
+									switch (c) {
+									case C c1 when c1.v == c1.value():
+										c1 = null;
+										break;
+									default:
+										break;
+									}
+								}
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	case C c1 when c1.v == c1.value():\n" +
-				"	               ^^\n" +
-				"Local variable c1 referenced from a guard must be final or effectively final\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 9)
+						case C c1 when c1.v == c1.value():
+						               ^^
+					Local variable c1 referenced from a guard must be final or effectively final
+					----------
+					""");
 	}
 	public void testIssue1351_3a() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"class C {\n"
-						+ "	int v;\n"
-						+ "	public int value() { return this.v;\n}\n"
-						+ "}\n"
-						+ "public class X {\n"
-						+ "	public void foo(C c) {\n"
-						+ "		switch (c) {\n"
-						+ "		case C c1 when c1.value() == c1.v:\n"
-						+ "			c1 = null;\n"
-						+ "			break;\n"
-						+ "		default:\n"
-						+ "			break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "} ",
+						"""
+							class C {
+								int v;
+								public int value() { return this.v;
+							}
+							}
+							public class X {
+								public void foo(C c) {
+									switch (c) {
+									case C c1 when c1.value() == c1.v:
+										c1 = null;
+										break;
+									default:
+										break;
+									}
+								}
+							} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	case C c1 when c1.value() == c1.v:\n" +
-				"	               ^^\n" +
-				"Local variable c1 referenced from a guard must be final or effectively final\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 9)
+						case C c1 when c1.value() == c1.v:
+						               ^^
+					Local variable c1 referenced from a guard must be final or effectively final
+					----------
+					""");
 	}
 	public void testIssue1351_3b() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"interface I {\n"
-						+ "	int v = 0;\n"
-						+ "	public default int val() {\n"
-						+ "		return v;\n"
-						+ "	}\n"
-						+ "}\n"
-						+ "public class X {\n"
-						+ "	public void foo(I intf) {\n"
-						+ "		switch (intf) {\n"
-						+ "		case I i1 when i1.v > i1.val():\n"
-						+ "			i1 = null;\n"
-						+ "			break;\n"
-						+ "		default:\n"
-						+ "			break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "} ",
+						"""
+							interface I {
+								int v = 0;
+								public default int val() {
+									return v;
+								}
+							}
+							public class X {
+								public void foo(I intf) {
+									switch (intf) {
+									case I i1 when i1.v > i1.val():
+										i1 = null;
+										break;
+									default:
+										break;
+									}
+								}
+							} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
-				"	case I i1 when i1.v > i1.val():\n" +
-				"	               ^^\n" +
-				"Local variable i1 referenced from a guard must be final or effectively final\n" +
-				"----------\n" +
-				"2. WARNING in X.java (at line 10)\n" +
-				"	case I i1 when i1.v > i1.val():\n" +
-				"	                  ^\n" +
-				"The static field I.v should be accessed in a static way\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 10)
+						case I i1 when i1.v > i1.val():
+						               ^^
+					Local variable i1 referenced from a guard must be final or effectively final
+					----------
+					2. WARNING in X.java (at line 10)
+						case I i1 when i1.v > i1.val():
+						                  ^
+					The static field I.v should be accessed in a static way
+					----------
+					""");
 	}
 	public void testIssue1351_3c() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"interface I {\n"
-						+ "	int v = 1;\n"
-						+ "	public default int val() {\n"
-						+ "		return 0;\n"
-						+ "	}\n"
-						+ "}\n"
-						+ "public class X {\n"
-						+ "	public void foo(I intf) {\n"
-						+ "		switch (intf) {\n"
-						+ "		case I i1 when I.v > i1.val():\n"
-						+ "			i1 = null;\n"
-						+ "			break;\n"
-						+ "		default:\n"
-						+ "			break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "} ",
+						"""
+							interface I {
+								int v = 1;
+								public default int val() {
+									return 0;
+								}
+							}
+							public class X {
+								public void foo(I intf) {
+									switch (intf) {
+									case I i1 when I.v > i1.val():
+										i1 = null;
+										break;
+									default:
+										break;
+									}
+								}
+							} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
-				"	case I i1 when I.v > i1.val():\n" +
-				"	                     ^^\n" +
-				"Local variable i1 referenced from a guard must be final or effectively final\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 10)
+						case I i1 when I.v > i1.val():
+						                     ^^
+					Local variable i1 referenced from a guard must be final or effectively final
+					----------
+					""");
 	}
 	public void testIssue1351_4() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"class C {\n"
-						+ "	int v;\n"
-						+ "	public int value() { return this.v;\n}\n"
-						+ "}\n"
-						+ "public class X {\n"
-						+ "	C c0;\n"
-						+ "	public void foo(C c) {\n"
-						+ "		switch (c) {\n"
-						+ "		case C c1 when c0.v == c0.value():\n"
-						+ "			c0 = null;\n"
-						+ "			break;\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "} ",
+						"""
+							class C {
+								int v;
+								public int value() { return this.v;
+							}
+							}
+							public class X {
+								C c0;
+								public void foo(C c) {
+									switch (c) {
+									case C c1 when c0.v == c0.value():
+										c0 = null;
+										break;
+									}
+								}
+							} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	switch (c) {\n" +
-				"	        ^\n" +
-				"An enhanced switch statement should be exhaustive; a default label expected\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 9)
+						switch (c) {
+						        ^
+					An enhanced switch statement should be exhaustive; a default label expected
+					----------
+					""");
 	}
 	public void testIssue1351_5() {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	public static void foo() {\n"
-					+ "		Integer in = 0;\n"
-					+ "		switch (in) {\n"
-					+ "		    case Integer i ->\n"
-					+ "		        System.out.println(\"Boxed\");\n"
-					+ "		    case 95 ->\n"
-					+ "		        System.out.println(\"Literal!\");\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "} ",
+					"""
+						public class X {
+							public static void foo() {
+								Integer in = 0;
+								switch (in) {
+								    case Integer i ->
+								        System.out.println("Boxed");
+								    case 95 ->
+								        System.out.println("Literal!");
+								}
+							}
+						} """,
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case 95 ->\n" +
-				"	     ^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						case 95 ->
+						     ^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testIssue1351_6() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"+
-					"	static String foo(Color o) {\n" +
-					"		return switch (o) {\n" +
-					"	     case Color s when true  -> s.toString();\n" +
-					"	     case Red -> \"Red\";\n" +
-					"	     case null -> \"\";\n" +
-					"	   };\n" +
-					"	}\n" +
-					"} \n" +
-					"enum Color {\n" +
-					"	Red; \n" +
-					"}",
+					"""
+						public class X {
+							static String foo(Color o) {
+								return switch (o) {
+							     case Color s when true  -> s.toString();
+							     case Red -> "Red";
+							     case null -> "";
+							   };
+							}
+						}\s
+						enum Color {
+							Red;\s
+						}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case Red -> \"Red\";\n" +
-				"	     ^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						case Red -> "Red";
+						     ^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	public void testIssue1351_7() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "	public int foo(Byte exp) {\n"
-				+ "		int res = 0;\n"
-				+ "		switch (exp) {\n"
-				+ "			case Byte p when p.equals(exp), (byte) 0 -> {\n"
-				+ "				res = 6;\n"
-				+ "				break;\n"
-				+ "			}\n"
-				+ "			default -> {}\n"
-				+ "		}\n"
-				+ "		return res;\n"
-				+ "	}\n"
-				+ "}",
+				"""
+					public class X {
+						public int foo(Byte exp) {
+							int res = 0;
+							switch (exp) {
+								case Byte p when p.equals(exp), (byte) 0 -> {
+									res = 6;
+									break;
+								}
+								default -> {}
+							}
+							return res;
+						}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case Byte p when p.equals(exp), (byte) 0 -> {\n" +
-			"	                                ^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case Byte p when p.equals(exp), (byte) 0 -> {
+					                                ^^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				""");
 	}
 	public void testIssue1351_8() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "	public int foo(Byte exp) {\n"
-				+ "		int res = 0;\n"
-				+ "		switch (exp) {\n"
-				+ "			case (byte) 0, Byte p when p.equals(exp) -> {\n"
-				+ "				res = 6;\n"
-				+ "				break;\n"
-				+ "			}\n"
-				+ "			default -> {}\n"
-				+ "		}\n"
-				+ "		return res;\n"
-				+ "	}\n"
-				+ "}",
+				"""
+					public class X {
+						public int foo(Byte exp) {
+							int res = 0;
+							switch (exp) {
+								case (byte) 0, Byte p when p.equals(exp) -> {
+									res = 6;
+									break;
+								}
+								default -> {}
+							}
+							return res;
+						}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case (byte) 0, Byte p when p.equals(exp) -> {\n" +
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case (byte) 0, Byte p when p.equals(exp) -> {
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				""");
 	}
 	public void testIssue1351_9() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "	public int foo(Byte exp) {\n"
-				+ "		int res = 0;\n"
-				+ "		switch (exp) {\n"
-				+ "			case (byte) 0, (byte) 10, Byte p when p.equals(exp) -> {\n"
-				+ "				res = 6;\n"
-				+ "				break;\n"
-				+ "			}\n"
-				+ "			default -> {}\n"
-				+ "		}\n"
-				+ "		return res;\n"
-				+ "	}\n"
-				+ "}",
+				"""
+					public class X {
+						public int foo(Byte exp) {
+							int res = 0;
+							switch (exp) {
+								case (byte) 0, (byte) 10, Byte p when p.equals(exp) -> {
+									res = 6;
+									break;
+								}
+								default -> {}
+							}
+							return res;
+						}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case (byte) 0, (byte) 10, Byte p when p.equals(exp) -> {\n" +
-			"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case (byte) 0, (byte) 10, Byte p when p.equals(exp) -> {
+					                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				""");
 	}
 	public void testIssue1351_10() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "	public int foo(Byte exp) {\n"
-				+ "		int res = 0;\n"
-				+ "		switch (exp) {\n"
-				+ "			case Byte p when p.equals(exp), null -> {\n"
-				+ "				res = 6;\n"
-				+ "				break;\n"
-				+ "			}\n"
-				+ "			default -> {}\n"
-				+ "		}\n"
-				+ "		return res;\n"
-				+ "	}\n"
-				+ "}",
+				"""
+					public class X {
+						public int foo(Byte exp) {
+							int res = 0;
+							switch (exp) {
+								case Byte p when p.equals(exp), null -> {
+									res = 6;
+									break;
+								}
+								default -> {}
+							}
+							return res;
+						}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case Byte p when p.equals(exp), null -> {\n" +
-			"	                                ^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case Byte p when p.equals(exp), null -> {\n" +
-			"	                                ^^^^\n" +
-			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case Byte p when p.equals(exp), null -> {
+					                                ^^^^
+				Cannot mix pattern with other case labels
+				----------
+				2. ERROR in X.java (at line 5)
+					case Byte p when p.equals(exp), null -> {
+					                                ^^^^
+				A null case label has to be either the only expression in a case label or the first expression followed only by a default
+				----------
+				""");
 	}
 	public void testIssue1351_11() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "	public int foo(Byte exp) {\n"
-				+ "		int res = 0;\n"
-				+ "		switch (exp) {\n"
-				+ "			case Byte p when p.equals(exp), default -> {\n"
-				+ "				res = 6;\n"
-				+ "				break;\n"
-				+ "			}\n"
-				+ "		}\n"
-				+ "		return res;\n"
-				+ "	}\n"
-				+ "}",
+				"""
+					public class X {
+						public int foo(Byte exp) {
+							int res = 0;
+							switch (exp) {
+								case Byte p when p.equals(exp), default -> {
+									res = 6;
+									break;
+								}
+							}
+							return res;
+						}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case Byte p when p.equals(exp), default -> {\n" +
-			"	                                ^^^^^^^\n" +
-			"Cannot mix pattern with other case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case Byte p when p.equals(exp), default -> {\n" +
-			"	                                ^^^^^^^\n" +
-			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case Byte p when p.equals(exp), default -> {
+					                                ^^^^^^^
+				Cannot mix pattern with other case labels
+				----------
+				2. ERROR in X.java (at line 5)
+					case Byte p when p.equals(exp), default -> {
+					                                ^^^^^^^
+				A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default'\s
+				----------
+				""");
 	}
 
 	public void testDisambiguatedRestrictedIdentifierWhenAsFirstMethodInvokation() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	public static void main(String argv[]) {\n"
-					+ "		when(\"Pass\");\n"
-					+ "	}\n"
-					+ "	static void when(String arg) {\n"
-					+ "		System.out.println(arg);\n"
-					+ "	}\n"
-					+ "}"
+					"""
+						public class X {
+							public static void main(String argv[]) {
+								when("Pass");
+							}
+							static void when(String arg) {
+								System.out.println(arg);
+							}
+						}"""
 				},
 				"Pass");
 	}
@@ -6968,15 +7519,16 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"when.java",
-					"public class when {\n"
-					+ "	public static void main(String argv[]) {\n"
-					+ "		when x = new when();\n"
-					+ "		System.out.println(x);\n"
-					+ "	}\n"
-					+ "	public String toString() {\n"
-					+ "		return \"Pass\";\n"
-					+ "	}\n"
-					+ "}"
+					"""
+						public class when {
+							public static void main(String argv[]) {
+								when x = new when();
+								System.out.println(x);
+							}
+							public String toString() {
+								return "Pass";
+							}
+						}"""
 				},
 				"Pass");
 	}
@@ -6985,17 +7537,18 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"when.java",
-					"public class when {\n"
-					+ "	public String toString() {\n"
-					+ "		return switch((Object) this) {\n"
-					+ "			case when x -> \"Pass\";\n"
-					+ "			default -> \"Fail\";\n"
-					+ "		};\n"
-					+ "	}\n"
-					+ "	public static void main(String argv[]) {\n"
-					+ "		System.out.println(new when());\n"
-					+ "	}\n"
-					+ "}"
+					"""
+						public class when {
+							public String toString() {
+								return switch((Object) this) {
+									case when x -> "Pass";
+									default -> "Fail";
+								};
+							}
+							public static void main(String argv[]) {
+								System.out.println(new when());
+							}
+						}"""
 				},
 				"Pass");
 	}
@@ -7004,14 +7557,15 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	public static void main(String argv[]) {\n"
-					+ "		System.out.println( (Boolean) when(true) );\n"
-					+ "	}\n"
-					+ "	static Object when(Object arg) {\n"
-					+ "		return arg;\n"
-					+ "	}\n"
-					+ "}"
+					"""
+						public class X {
+							public static void main(String argv[]) {
+								System.out.println( (Boolean) when(true) );
+							}
+							static Object when(Object arg) {
+								return arg;
+							}
+						}"""
 				},
 				"true");
 	}
@@ -7020,19 +7574,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"when.java",
-					"class when {\n"
-					+ "  boolean when = true;\n"
-					+ "  static boolean when(when arg) {\n"
-					+ "    return switch(arg) {\n"
-					+ "      case when when when when.when && when.when(null) -> when.when;\n"
-					+ "      case null -> true;\n"
-					+ "      default -> false;\n"
-					+ "    };\n"
-					+ "  }\n"
-					+ "  public static void main(String[] args) {\n"
-					+ "    System.out.println(when(new when()));\n"
-					+ "  }\n"
-					+ "}"
+					"""
+						class when {
+						  boolean when = true;
+						  static boolean when(when arg) {
+						    return switch(arg) {
+						      case when when when when.when && when.when(null) -> when.when;
+						      case null -> true;
+						      default -> false;
+						    };
+						  }
+						  public static void main(String[] args) {
+						    System.out.println(when(new when()));
+						  }
+						}"""
 				},
 				"true");
 	}
@@ -7087,12 +7642,13 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 					""",
 				},
-				"absolute value 1: -1\n" +
-				"other integer: 0\n" +
-				"positive integer: 42\n" +
-				"other integer: -99\n" +
-				"positive integer: 123\n" +
-				"value unavailable: null"
+				"""
+					absolute value 1: -1
+					other integer: 0
+					positive integer: 42
+					other integer: -99
+					positive integer: 123
+					value unavailable: null"""
 );
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1767
@@ -7240,10 +7796,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					}
 					""",
 				},
-				"Small Triangle : 50.0\n"
-				+ "Large Triangle : 200.0\n"
-				+ "shape : 100.0\n"
-				+ "NULL");
+				"""
+					Small Triangle : 50.0
+					Large Triangle : 200.0
+					shape : 100.0
+					NULL""");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1853
 	// [switch][pattern] Scope of pattern binding extends illegally resulting in wrong diagnostic
@@ -7296,22 +7853,24 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					}
 					""",
 				},
-				"----------\n"
-				+ "1. ERROR in X.java (at line 1)\n"
-				+ "	public class X {\n"
-				+ "	^\n"
-				+ "Data cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 7)\n"
-				+ "	record WrapperRec(ExhaustiveSwitch.Data data) {}\n"
-				+ "	                  ^^^^^^^^^^^^^^^^\n"
-				+ "ExhaustiveSwitch cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 12)\n"
-				+ "	case WrapperRec(var data) when data.name.isEmpty() -> { }\n"
-				+ "	                ^^^^^^^^\n"
-				+ "Data cannot be resolved to a type\n"
-				+ "----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 1)
+						public class X {
+						^
+					Data cannot be resolved to a type
+					----------
+					2. ERROR in X.java (at line 7)
+						record WrapperRec(ExhaustiveSwitch.Data data) {}
+						                  ^^^^^^^^^^^^^^^^
+					ExhaustiveSwitch cannot be resolved to a type
+					----------
+					3. ERROR in X.java (at line 12)
+						case WrapperRec(var data) when data.name.isEmpty() -> { }
+						                ^^^^^^^^
+					Data cannot be resolved to a type
+					----------
+					""");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1856
 	// [switch][record patterns] NPE: Cannot invoke "org.eclipse.jdt.internal.compiler.lookup.MethodBinding.isStatic()"
@@ -7338,27 +7897,29 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					}
 					""",
 				},
-				"----------\n"
-				+ "1. ERROR in X.java (at line 1)\n"
-				+ "	public class X {\n"
-				+ "	^\n"
-				+ "Data cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 7)\n"
-				+ "	record WrapperRec(ExhaustiveSwitch.Data data) {}\n"
-				+ "	                  ^^^^^^^^^^^^^^^^\n"
-				+ "ExhaustiveSwitch cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 12)\n"
-				+ "	case WrapperRec(ExhaustiveSwitch.Data data) when data.name.isEmpty() -> { }\n"
-				+ "	                ^^^^^^^^^^^^^^^^\n"
-				+ "ExhaustiveSwitch cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 12)\n"
-				+ "	case WrapperRec(ExhaustiveSwitch.Data data) when data.name.isEmpty() -> { }\n"
-				+ "	                ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Record component with type Data is not compatible with type ExhaustiveSwitch.Data\n"
-				+ "----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 1)
+						public class X {
+						^
+					Data cannot be resolved to a type
+					----------
+					2. ERROR in X.java (at line 7)
+						record WrapperRec(ExhaustiveSwitch.Data data) {}
+						                  ^^^^^^^^^^^^^^^^
+					ExhaustiveSwitch cannot be resolved to a type
+					----------
+					3. ERROR in X.java (at line 12)
+						case WrapperRec(ExhaustiveSwitch.Data data) when data.name.isEmpty() -> { }
+						                ^^^^^^^^^^^^^^^^
+					ExhaustiveSwitch cannot be resolved to a type
+					----------
+					4. ERROR in X.java (at line 12)
+						case WrapperRec(ExhaustiveSwitch.Data data) when data.name.isEmpty() -> { }
+						                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Record component with type Data is not compatible with type ExhaustiveSwitch.Data
+					----------
+					""");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1955
 	// [Patterns] Redesign resolution of patterns to follow natural visitation
@@ -7383,12 +7944,14 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					class C extends B {}
 					""",
 				},
-				"----------\n"
-				+ "1. ERROR in X.java (at line 8)\n"
-				+ "	case R(var varp) -> 1;\n"
-				+ "	     ^^^^^^^^^^^\n"
-				+ "This case label is dominated by one of the preceding case labels\n"
-				+ "----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						case R(var varp) -> 1;
+						     ^^^^^^^^^^^
+					This case label is dominated by one of the preceding case labels
+					----------
+					""");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
 	// [20][pattern switch] unnecessary code generated
@@ -7420,34 +7983,37 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				record S() {}
 				"""
 			},
-		 "R Only\n" +
-		 "Either S or an R\n" +
-		 "Either S or an R");
+		 """
+			R Only
+			Either S or an R
+			Either S or an R""");
 
 		String expectedOutput =
-				"  // Method descriptor #22 (Ljava/lang/Object;)V\n" +
-				"  // Stack: 2, Locals: 3\n" +
-				"  public static void foo(java.lang.Object o);\n" +
-				"     0  aload_0 [o]\n" +
-				"     1  dup\n" +
-				"     2  invokestatic java.util.Objects.requireNonNull(java.lang.Object) : java.lang.Object [30]\n" +
-				"     5  pop\n" +
-				"     6  astore_1\n" +
-				"     7  iconst_0\n" +
-				"     8  istore_2\n" +
-				"     9  aload_1\n" +
-				"    10  iload_2\n" +
-				"    11  invokedynamic 0 typeSwitch(java.lang.Object, int) : int [36]\n" +
-				"    16  tableswitch default: 56\n" +
-				"          case 0: 40\n" +
-				"          case 1: 48\n" +
-				"    40  getstatic java.lang.System.out : java.io.PrintStream [40]\n" +
-				"    43  ldc <String \"R Only\"> [46]\n" +
-				"    45  invokevirtual java.io.PrintStream.println(java.lang.String) : void [48]\n" +
-				"    48  getstatic java.lang.System.out : java.io.PrintStream [40]\n" +
-				"    51  ldc <String \"Either S or an R\"> [54]\n" +
-				"    53  invokevirtual java.io.PrintStream.println(java.lang.String) : void [48]\n" +
-				"    56  return\n";
+				"""
+			  // Method descriptor #22 (Ljava/lang/Object;)V
+			  // Stack: 2, Locals: 3
+			  public static void foo(java.lang.Object o);
+			     0  aload_0 [o]
+			     1  dup
+			     2  invokestatic java.util.Objects.requireNonNull(java.lang.Object) : java.lang.Object [30]
+			     5  pop
+			     6  astore_1
+			     7  iconst_0
+			     8  istore_2
+			     9  aload_1
+			    10  iload_2
+			    11  invokedynamic 0 typeSwitch(java.lang.Object, int) : int [36]
+			    16  tableswitch default: 56
+			          case 0: 40
+			          case 1: 48
+			    40  getstatic java.lang.System.out : java.io.PrintStream [40]
+			    43  ldc <String "R Only"> [46]
+			    45  invokevirtual java.io.PrintStream.println(java.lang.String) : void [48]
+			    48  getstatic java.lang.System.out : java.io.PrintStream [40]
+			    51  ldc <String "Either S or an R"> [54]
+			    53  invokevirtual java.io.PrintStream.println(java.lang.String) : void [48]
+			    56  return
+			""";
 
 		SwitchPatternTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
@@ -7768,12 +8334,14 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 13)\r\n" +
-			"	} && y != 0\r\n" +
-			"	     ^\n" +
-			"Local variable y referenced from a guard must be final or effectively final\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 13)\r
+					} && y != 0\r
+					     ^
+				Local variable y referenced from a guard must be final or effectively final
+				----------
+				""");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2077
 	// [Patterns] Incorrect complaint about non-final variable reference from guard expression
@@ -7807,12 +8375,14 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\r\n" +
-			"	case 1 -> { int y1 = 10; y1 = 30; yield y != y1; }\r\n" +
-			"	                                        ^\n" +
-			"Local variable y referenced from a guard must be final or effectively final\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 11)\r
+					case 1 -> { int y1 = 10; y1 = 30; yield y != y1; }\r
+					                                        ^
+				Local variable y referenced from a guard must be final or effectively final
+				----------
+				""");
 		    // We throw AbortMethod after first error, so second error doesn't surface
 	}
 }

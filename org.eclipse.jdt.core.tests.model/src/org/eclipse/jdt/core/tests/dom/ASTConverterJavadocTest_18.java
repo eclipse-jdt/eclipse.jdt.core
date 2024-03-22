@@ -783,17 +783,19 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 	public void testSnippetStartJavadoc1() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
-			"package javadoc;\n" +
-			"public class X {\n" +
-			"    /**\n" +
-			"     * Below is an example snippet\n" +
-			"     * {@snippet :\n" +
-			"     *  System.out.println(); \n" +
-			"     * }\n" +
-			"     */\n" +
-			"    public static void foo(Object object) {\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				package javadoc;
+				public class X {
+				    /**
+				     * Below is an example snippet
+				     * {@snippet :
+				     *  System.out.println();\s
+				     * }
+				     */
+				    public static void foo(Object object) {
+				    }
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		// Get comments
@@ -811,22 +813,24 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 	public void testSnippetStartJavadoc2() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
-			"package javadoc;\n" +
-			"public class X {\n" +
-			"    /**\n" +
-			"     * Below is an example snippet\n" +
-			"     * {@snippet \n" +
-			"	  * \n" +
-			"	  *		\n" +
-			"	  *			\n" +
-			"	  *\n" +
-			"	  *	:\n" +
-			"     *  System.out.println(); \n" +
-			"     * }\n" +
-			"     */\n" +
-			"    public static void foo(Object object) {\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				package javadoc;
+				public class X {
+				    /**
+				     * Below is an example snippet
+				     * {@snippet\s
+					  *\s
+					  *	\t
+					  *		\t
+					  *
+					  *	:
+				     *  System.out.println();\s
+				     * }
+				     */
+				    public static void foo(Object object) {
+				    }
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		// Get comments
@@ -844,22 +848,24 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 	public void testSnippetStartJavadoc3() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
-			"package javadoc;\n" +
-			"public class X {\n" +
-			"    /**\n" +
-			"     * Below is an example snippet\n" +
-			"     * {@snippet \n" +
-			"	  * \n" +
-			"	  *		\n" +
-			"	  			\n" +
-			"	  *\n" +
-			"	  *	:\n" +
-			"     *  System.out.println(); \n" +
-			"     * }\n" +
-			"     */\n" +
-			"    public static void foo(Object object) {\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				package javadoc;
+				public class X {
+				    /**
+				     * Below is an example snippet
+				     * {@snippet\s
+					  *\s
+					  *	\t
+					  		\t
+					  *
+					  *	:
+				     *  System.out.println();\s
+				     * }
+				     */
+				    public static void foo(Object object) {
+				    }
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		// Get comments
@@ -877,22 +883,24 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 	public void testSnippetStartJavadoc4() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
-			"package javadoc;\n" +
-			"public class X {\n" +
-			"    /**\n" +
-			"     * Below is an example snippet\n" +
-			"     * {@snippet \n" +
-			"	  * \n" +
-			"	  *		\n" +
-			"	  			\n" +
-			"	  *\n" +
-			"	  *	: a\n" +
-			"     *  System.out.println(); \n" +
-			"     * }\n" +
-			"     */\n" +
-			"    public static void foo(Object object) {\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				package javadoc;
+				public class X {
+				    /**
+				     * Below is an example snippet
+				     * {@snippet\s
+					  *\s
+					  *	\t
+					  		\t
+					  *
+					  *	: a
+				     *  System.out.println();\s
+				     * }
+				     */
+				    public static void foo(Object object) {
+				    }
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		// Get comments
@@ -910,18 +918,20 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 	public void testSnippetMultiLineTagsJavadoc1() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
-			"package javadoc;\n" +
-			"public class X {\n" +
-			"    /**\n" +
-			"     * Below is an example snippet\n" +
-			"     * {@snippet :\n" +
-			"     *  //Starting Code // @highlight substring=\"out\" :\n" +
-			"     *  System.out.println(); // @highlight substring=\"print\"\n" +
-			"     * }\n" +
-			"     */\n" +
-			"    public static void foo(Object object) {\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				package javadoc;
+				public class X {
+				    /**
+				     * Below is an example snippet
+				     * {@snippet :
+				     *  //Starting Code // @highlight substring="out" :
+				     *  System.out.println(); // @highlight substring="print"
+				     * }
+				     */
+				    public static void foo(Object object) {
+				    }
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		// Get comments
@@ -948,18 +958,20 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 	public void testSnippetMultiLineTagsJavadoc2() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
-			"package javadoc;\n" +
-			"public class X {\n" +
-			"    /**\n" +
-			"     * Below is an example snippet\n" +
-			"     * {@snippet :\n" +
-			"     *  //Starting Code // @highlight substring=\"out\" @highlight substring=\"Sys\" :\n" +
-			"     *  System.out.println(); // @highlight substring=\"print\"\n" +
-			"     * }\n" +
-			"     */\n" +
-			"    public static void foo(Object object) {\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				package javadoc;
+				public class X {
+				    /**
+				     * Below is an example snippet
+				     * {@snippet :
+				     *  //Starting Code // @highlight substring="out" @highlight substring="Sys" :
+				     *  System.out.println(); // @highlight substring="print"
+				     * }
+				     */
+				    public static void foo(Object object) {
+				    }
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		// Get comments
@@ -986,18 +998,20 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 	public void testSnippetMultiLineTagsJavadoc3() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
-			"package javadoc;\n" +
-			"public class X {\n" +
-			"    /**\n" +
-			"     * Below is an example snippet\n" +
-			"     * {@snippet :\n" +
-			"     *  //Starting Code // @highlight region substring=\"out\" :\n" +
-			"     *  System.out.println(); // @highlight substring=\"print\" @end\n" +
-			"     * }\n" +
-			"     */\n" +
-			"    public static void foo(Object object) {\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				package javadoc;
+				public class X {
+				    /**
+				     * Below is an example snippet
+				     * {@snippet :
+				     *  //Starting Code // @highlight region substring="out" :
+				     *  System.out.println(); // @highlight substring="print" @end
+				     * }
+				     */
+				    public static void foo(Object object) {
+				    }
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		// Get comments
@@ -1030,19 +1044,21 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 	public void testSnippetMultiLineTagsJavadoc4() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
-			"package javadoc;\n" +
-			"public class X {\n" +
-			"    /**\n" +
-			"     * Below is an example snippet\n" +
-			"     * {@snippet :\n" +
-			"     *  //Starting Code // @highlight substring=\"out\" :\n" +
-			"     *  System.out.println(); // @highlight substring=\"print\" :\n" +
-			"     *  System.out.println();\n" +
-			"     * }\n" +
-			"     */\n" +
-			"    public static void foo(Object object) {\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				package javadoc;
+				public class X {
+				    /**
+				     * Below is an example snippet
+				     * {@snippet :
+				     *  //Starting Code // @highlight substring="out" :
+				     *  System.out.println(); // @highlight substring="print" :
+				     *  System.out.println();
+				     * }
+				     */
+				    public static void foo(Object object) {
+				    }
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		// Get comments

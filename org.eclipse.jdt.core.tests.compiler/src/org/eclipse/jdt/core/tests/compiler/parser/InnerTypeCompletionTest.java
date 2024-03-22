@@ -30,36 +30,38 @@ public static Test suite() {
  */
 public void testAnonymousFirstMethod() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	void foo() {								\n" +
-		"		Object o = new Object() {				\n" +
-		"			void buzz() {						\n" +
-		"				int i = fred().xyz;				\n" +
-		"			}									\n" +
-		"			void fuzz() {						\n" +
-		"			}									\n" +
-		"		};										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				void foo() {							\t
+					Object o = new Object() {			\t
+						void buzz() {					\t
+							int i = fred().xyz;			\t
+						}								\t
+						void fuzz() {					\t
+						}								\t
+					};									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    Object o = new Object() {\n" +
-		"      void buzz() {\n" +
-		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
-		"      }\n" +
-		"      void fuzz() {\n" +
-		"      }\n" +
-		"    };\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    Object o = new Object() {
+			      void buzz() {
+			        int i = <CompleteOnMemberAccess:fred().x>;
+			      }
+			      void fuzz() {
+			      }
+			    };
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -73,32 +75,34 @@ public void testAnonymousFirstMethod() {
  */
 public void testAnonymousNoStatementBefore() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	void foo() {								\n" +
-		"		Object o = new Object() {				\n" +
-		"			void buzz() {						\n" +
-		"				int i = fred().xyz;				\n" +
-		"			}									\n" +
-		"		};										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				void foo() {							\t
+					Object o = new Object() {			\t
+						void buzz() {					\t
+							int i = fred().xyz;			\t
+						}								\t
+					};									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    Object o = new Object() {\n" +
-		"      void buzz() {\n" +
-		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
-		"      }\n" +
-		"    };\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    Object o = new Object() {
+			      void buzz() {
+			        int i = <CompleteOnMemberAccess:fred().x>;
+			      }
+			    };
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -113,34 +117,36 @@ public void testAnonymousNoStatementBefore() {
  */
 public void testAnonymousOneFieldBefore() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	void foo() {								\n" +
-		"		Object o = new Object() {				\n" +
-		"			int field = 1;						\n" +
-		"			void buzz() {						\n" +
-		"				int i = fred().xyz;				\n" +
-		"			}									\n" +
-		"		};										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				void foo() {							\t
+					Object o = new Object() {			\t
+						int field = 1;					\t
+						void buzz() {					\t
+							int i = fred().xyz;			\t
+						}								\t
+					};									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    Object o = new Object() {\n" +
-		"      int field;\n" +
-		"      void buzz() {\n" +
-		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
-		"      }\n" +
-		"    };\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    Object o = new Object() {
+			      int field;
+			      void buzz() {
+			        int i = <CompleteOnMemberAccess:fred().x>;
+			      }
+			    };
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -154,34 +160,36 @@ public void testAnonymousOneFieldBefore() {
  */
 public void testAnonymousOneStatementBefore() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	void foo() {								\n" +
-		"		int i = 1;								\n" +
-		"		Object o = new Object() {				\n" +
-		"			void buzz() {						\n" +
-		"				int i = fred().xyz;				\n" +
-		"			}									\n" +
-		"		};										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				void foo() {							\t
+					int i = 1;							\t
+					Object o = new Object() {			\t
+						void buzz() {					\t
+							int i = fred().xyz;			\t
+						}								\t
+					};									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    int i;\n" +
-		"    Object o = new Object() {\n" +
-		"      void buzz() {\n" +
-		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
-		"      }\n" +
-		"    };\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    int i;
+			    Object o = new Object() {
+			      void buzz() {
+			        int i = <CompleteOnMemberAccess:fred().x>;
+			      }
+			    };
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -195,36 +203,38 @@ public void testAnonymousOneStatementBefore() {
  */
 public void testAnonymousSecondMethod() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	void foo() {								\n" +
-		"		Object o = new Object() {				\n" +
-		"			void fuzz() {						\n" +
-		"			}									\n" +
-		"			void buzz() {						\n" +
-		"				int i = fred().xyz;				\n" +
-		"			}									\n" +
-		"		};										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				void foo() {							\t
+					Object o = new Object() {			\t
+						void fuzz() {					\t
+						}								\t
+						void buzz() {					\t
+							int i = fred().xyz;			\t
+						}								\t
+					};									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    Object o = new Object() {\n" +
-		"      void fuzz() {\n" +
-		"      }\n" +
-		"      void buzz() {\n" +
-		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
-		"      }\n" +
-		"    };\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    Object o = new Object() {
+			      void fuzz() {
+			      }
+			      void buzz() {
+			        int i = <CompleteOnMemberAccess:fred().x>;
+			      }
+			    };
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -238,38 +248,40 @@ public void testAnonymousSecondMethod() {
  */
 public void testLocalTypeFirstMethod() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	void foo() {								\n" +
-		"		class InnerBar {						\n" +
-		"			void buzz() {						\n" +
-		"				int i = fred().xyz;				\n" +
-		"			}									\n" +
-		"			void fuzz() {						\n" +
-		"			}									\n" +
-		"		};										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				void foo() {							\t
+					class InnerBar {					\t
+						void buzz() {					\t
+							int i = fred().xyz;			\t
+						}								\t
+						void fuzz() {					\t
+						}								\t
+					};									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    class InnerBar {\n" +
-		"      InnerBar() {\n" +
-		"      }\n" +
-		"      void buzz() {\n" +
-		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
-		"      }\n" +
-		"      void fuzz() {\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    class InnerBar {
+			      InnerBar() {
+			      }
+			      void buzz() {
+			        int i = <CompleteOnMemberAccess:fred().x>;
+			      }
+			      void fuzz() {
+			      }
+			    }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -283,34 +295,36 @@ public void testLocalTypeFirstMethod() {
  */
 public void testLocalTypeNoStatementBefore() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	void foo() {								\n" +
-		"		class InnerBar {						\n" +
-		"			void buzz() {						\n" +
-		"				int i = fred().xyz;				\n" +
-		"			}									\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				void foo() {							\t
+					class InnerBar {					\t
+						void buzz() {					\t
+							int i = fred().xyz;			\t
+						}								\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    class InnerBar {\n" +
-		"      InnerBar() {\n" +
-		"      }\n" +
-		"      void buzz() {\n" +
-		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    class InnerBar {
+			      InnerBar() {
+			      }
+			      void buzz() {
+			        int i = <CompleteOnMemberAccess:fred().x>;
+			      }
+			    }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -325,36 +339,38 @@ public void testLocalTypeNoStatementBefore() {
  */
 public void testLocalTypeOneFieldBefore() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	void foo() {								\n" +
-		"		class InnerBar {						\n" +
-		"			int field = 1;						\n" +
-		"			void buzz() {						\n" +
-		"				int i = fred().xyz;				\n" +
-		"			}									\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				void foo() {							\t
+					class InnerBar {					\t
+						int field = 1;					\t
+						void buzz() {					\t
+							int i = fred().xyz;			\t
+						}								\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    class InnerBar {\n" +
-		"      int field;\n" +
-		"      InnerBar() {\n" +
-		"      }\n" +
-		"      void buzz() {\n" +
-		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    class InnerBar {
+			      int field;
+			      InnerBar() {
+			      }
+			      void buzz() {
+			        int i = <CompleteOnMemberAccess:fred().x>;
+			      }
+			    }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -368,36 +384,38 @@ public void testLocalTypeOneFieldBefore() {
  */
 public void testLocalTypeOneStatementBefore() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	void foo() {								\n" +
-		"		int i = 1;								\n" +
-		"		class InnerBar {						\n" +
-		"			void buzz() {						\n" +
-		"				int i = fred().xyz;				\n" +
-		"			}									\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				void foo() {							\t
+					int i = 1;							\t
+					class InnerBar {					\t
+						void buzz() {					\t
+							int i = fred().xyz;			\t
+						}								\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    int i;\n" +
-		"    class InnerBar {\n" +
-		"      InnerBar() {\n" +
-		"      }\n" +
-		"      void buzz() {\n" +
-		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    int i;
+			    class InnerBar {
+			      InnerBar() {
+			      }
+			      void buzz() {
+			        int i = <CompleteOnMemberAccess:fred().x>;
+			      }
+			    }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:
@@ -411,38 +429,40 @@ public void testLocalTypeOneStatementBefore() {
  */
 public void testLocalTypeSecondMethod() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	void foo() {								\n" +
-		"		class InnerBar {						\n" +
-		"			void fuzz() {						\n" +
-		"			}									\n" +
-		"			void buzz() {						\n" +
-		"				int i = fred().xyz;				\n" +
-		"			}									\n" +
-		"		};										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				void foo() {							\t
+					class InnerBar {					\t
+						void fuzz() {					\t
+						}								\t
+						void buzz() {					\t
+							int i = fred().xyz;			\t
+						}								\t
+					};									\t
+				}										\t
+			}											\t
+			""",
 		// completeBehind:
 		"x",
 		// expectedCompletionNodeToString:
 		"<CompleteOnMemberAccess:fred().x>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    class InnerBar {\n" +
-		"      InnerBar() {\n" +
-		"      }\n" +
-		"      void fuzz() {\n" +
-		"      }\n" +
-		"      void buzz() {\n" +
-		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    class InnerBar {
+			      InnerBar() {
+			      }
+			      void fuzz() {
+			      }
+			      void buzz() {
+			        int i = <CompleteOnMemberAccess:fred().x>;
+			      }
+			    }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"x",
 		// expectedReplacedSource:

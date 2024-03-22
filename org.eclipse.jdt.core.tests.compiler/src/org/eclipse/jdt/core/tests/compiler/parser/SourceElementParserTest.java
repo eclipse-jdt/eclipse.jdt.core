@@ -398,33 +398,38 @@ public void setImports() {
 public void test01() {
 
 	String s =
-		"package a;\n"
-			+ "import java.lang.*;\n"
-			+ "import java.util.*;\n"
-			+ "\n"
-			+ "public class X {\n"
-			+ "void foo() {\n"
-			+ "System.out.println();\n"
-			+ "\n"
-			+ "public int h;\n"
-			+ "public int[] i = { 0, 1 };\n"
-			+ "\n"
-			+ "int bar" + "\\" + "u0065(){\n"
-			+ "void truc(){\n"
-			+ "}\n";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		
+		public class X {
+		void foo() {
+		System.out.println();
+		
+		public int h;
+		public int[] i = { 0, 1 };
+		
+		int bar\
+		\\\
+		u0065(){
+		void truc(){
+		}
+		""";
 
 	String expectedUnitToString =
-		"package a;\n"
-			+ "import java.lang.*;\n"
-			+ "import java.util.*;\n"
-			+ "public class X {\n"
-			+ "\tpublic int h;\n"
-			+ "\tpublic int[] i;\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tint bare() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			public int h;
+			public int[] i;
+			java.lang.Object(0)
+			void foo() {}
+			int bare() {}
+			void truc() {}
+		}""";
 
 	String testName = "test01: full parse";
 	fullParse(s,testName);
@@ -464,7 +469,10 @@ public void test01() {
 
 	assertEquals(" Invalid actual name for method foo", "foo", methods[0].getActualName());
 
-	assertEquals(" Invalid actual name for method bare", "bar" + "\\" + "u0065", methods[1].getActualName());
+	assertEquals(" Invalid actual name for method bare", """
+		bar\
+		\\\
+		u0065""", methods[1].getActualName());
 
 	assertEquals(
 		"Invalid source " + testName,
@@ -474,14 +482,17 @@ public void test01() {
 public void test02() {
 
 	String s =
-			"/** javadoc comment */\n"
-			+ "public class X {\n"
-			+ "}\n";
+			"""
+		/** javadoc comment */
+		public class X {
+		}
+		""";
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "}";
+			"""
+		public class X {
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test02: full parse";
 	fullParse(s,testName);
@@ -504,32 +515,37 @@ public void test02() {
 public void test03() {
 
 	String s =
-		"package a;\n"
-			+ "import java.lang.*;\n"
-			+ "import java.util.*;\n"
-			+ "\n"
-			+ "public class X {\n"
-			+ "void foo() {\n"
-			+ "System.out.println();\n"
-			+ "\n"
-			+ "public int h;\n"
-			+ "public int[] i = { 0, 1 };\n"
-			+ "\n"
-			+ "int bar" + "\\" + "u0065(){\n"
-			+ "void truc(){\n"
-			+ "}\n";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		
+		public class X {
+		void foo() {
+		System.out.println();
+		
+		public int h;
+		public int[] i = { 0, 1 };
+		
+		int bar\
+		\\\
+		u0065(){
+		void truc(){
+		}
+		""";
 
 	String expectedUnitToString =
-		"package a;\n"
-			+ "import java.lang.*;\n"
-			+ "import java.util.*;\n"
-			+ "public class X {\n"
-			+ "\tpublic int h;\n"
-			+ "\tpublic int[] i;\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tint bare() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			public int h;
+			public int[] i;
+			void foo() {}
+			int bare() {}
+			void truc() {}
+		}""";
 
 	String testName = "test03: diet parse";
 	dietParse(s,testName);
@@ -569,7 +585,10 @@ public void test03() {
 
 	assertEquals(" Invalid actual name for method foo", "foo", methods[0].getActualName());
 
-	assertEquals(" Invalid actual name for method bare", "bar" + "\\" + "u0065", methods[1].getActualName());
+	assertEquals(" Invalid actual name for method bare", """
+		bar\
+		\\\
+		u0065""", methods[1].getActualName());
 
 	assertEquals(
 		"Invalid source " + testName,
@@ -579,37 +598,40 @@ public void test03() {
 public void test04() {
 
 	String s =
-		"package a;											\n"
-			+ "import java.lang.*;							\n"
-			+ "import java.util.*;							\n"
-			+ "												\n"
-			+ "public class X {								\n"
-			+ "	void foo() {								\n"
-			+ "		System.out.println();					\n"
-			+ "												\n"
-			+ "		class L {								\n"
-			+ "			void baz(){}						\n"
-			+ "		}										\n"
-			+ "												\n"
-			+ "	public int h;								\n"
-			+ "	public int[] i = { 0, 1 };					\n"
-			+ "												\n"
-			+ "	void bar(){									\n"
-			+ "	void truc(){								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		import java.lang.*;						\t
+		import java.util.*;						\t
+													\t
+		public class X {							\t
+			void foo() {							\t
+				System.out.println();				\t
+													\t
+				class L {							\t
+					void baz(){}					\t
+				}									\t
+													\t
+			public int h;							\t
+			public int[] i = { 0, 1 };				\t
+													\t
+			void bar(){								\t
+			void truc(){							\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-		"package a;\n"
-			+ "import java.lang.*;\n"
-			+ "import java.util.*;\n"
-			+ "public class X {\n"
-			+ "\tpublic int h;\n"
-			+ "\tpublic int[] i;\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			public int h;
+			public int[] i;
+			java.lang.Object(0)
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 	String testName = "test04: full parse";
 	fullParse(s,testName);
 
@@ -658,36 +680,39 @@ public void test04() {
 public void test05() {
 
 	String s =
-		"package a;											\n"
-			+ "import java.lang.*;							\n"
-			+ "import java.util.*;							\n"
-			+ "												\n"
-			+ "public class X {								\n"
-			+ "	void foo() {								\n"
-			+ "		System.out.println();					\n"
-			+ "												\n"
-			+ "		class L {								\n"
-			+ "			void baz(){}						\n"
-			+ "		}										\n"
-			+ "												\n"
-			+ "	public int h;								\n"
-			+ "	public int[] i = { 0, 1 };					\n"
-			+ "												\n"
-			+ "	void bar(){									\n"
-			+ "	void truc(){								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		import java.lang.*;						\t
+		import java.util.*;						\t
+													\t
+		public class X {							\t
+			void foo() {							\t
+				System.out.println();				\t
+													\t
+				class L {							\t
+					void baz(){}					\t
+				}									\t
+													\t
+			public int h;							\t
+			public int[] i = { 0, 1 };				\t
+													\t
+			void bar(){								\t
+			void truc(){							\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-		"package a;\n"
-			+ "import java.lang.*;\n"
-			+ "import java.util.*;\n"
-			+ "public class X {\n"
-			+ "\tpublic int h;\n"
-			+ "\tpublic int[] i;\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			public int h;
+			public int[] i;
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test05: diet parse";
 	dietParse(s,testName);
@@ -737,37 +762,40 @@ public void test05() {
 public void test06() {
 
 	String s =
-		"package a;											\n"
-			+ "import java.lang.*;							\n"
-			+ "import java.util.*;							\n"
-			+ "												\n"
-			+ "public class X {								\n"
-			+ " X x;										\n"
-			+ " Object a, b = null;							\n"
-			+ "	void foo() {								\n"
-			+ "		System.out.println();					\n"
-			+ "												\n"
-			+ "	public int h;								\n"
-			+ "	public int[] i = { 0, 1 };					\n"
-			+ "												\n"
-			+ "	void bar(){									\n"
-			+ "	void truc(){								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		import java.lang.*;						\t
+		import java.util.*;						\t
+													\t
+		public class X {							\t
+		 X x;									\t
+		 Object a, b = null;						\t
+			void foo() {							\t
+				System.out.println();				\t
+													\t
+			public int h;							\t
+			public int[] i = { 0, 1 };				\t
+													\t
+			void bar(){								\t
+			void truc(){							\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-			"package a;\n"
-			+ "import java.lang.*;\n"
-			+ "import java.util.*;\n"
-			+ "public class X {\n"
-			+ "\tX x;\n"
-			+ "\tObject a;\n"
-			+ "\tObject b;\n"
-			+ "\tpublic int h;\n"
-			+ "\tpublic int[] i;\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+			"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			X x;
+			Object a;
+			Object b;
+			public int h;
+			public int[] i;
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test06: diet parse";
 	dietParse(s,testName);
@@ -828,38 +856,41 @@ public void test06() {
 public void test07() {
 
 	String s =
-		"package a;											\n"
-			+ "import java.lang.*;							\n"
-			+ "import java.util.*;							\n"
-			+ "												\n"
-			+ "public class X {								\n"
-			+ " X x;										\n"
-			+ " Object a, b = null;							\n"
-			+ "	void foo() {								\n"
-			+ "		System.out.println();					\n"
-			+ "												\n"
-			+ "	public int h;								\n"
-			+ "	public int[] i = { 0, 1 };					\n"
-			+ "												\n"
-			+ "	void bar(){									\n"
-			+ "	void truc(){								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		import java.lang.*;						\t
+		import java.util.*;						\t
+													\t
+		public class X {							\t
+		 X x;									\t
+		 Object a, b = null;						\t
+			void foo() {							\t
+				System.out.println();				\t
+													\t
+			public int h;							\t
+			public int[] i = { 0, 1 };				\t
+													\t
+			void bar(){								\t
+			void truc(){							\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-			"package a;\n"
-			+ "import java.lang.*;\n"
-			+ "import java.util.*;\n"
-			+ "public class X {\n"
-			+ "\tX x;\n"
-			+ "\tObject a;\n"
-			+ "\tObject b;\n"
-			+ "\tpublic int h;\n"
-			+ "\tpublic int[] i;\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+			"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			X x;
+			Object a;
+			Object b;
+			public int h;
+			public int[] i;
+			java.lang.Object(0)
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test07: full parse";
 	fullParse(s,testName);
@@ -920,24 +951,27 @@ public void test07() {
 public void test08() {
 
 	String s =
-		"public class X {									\n"
-			+ "	void foo() {								\n"
-			+ "		System.out.println();					\n"
-			+ " 	void baz(){}							\n"
-			+ " }											\n"
-			+ "												\n"
-			+ "	void bar(){									\n"
-			+ " }											\n"
-			+ "	void truc(){								\n"
-			+ " }											\n"
-			+ "}											\n";
+		"""
+		public class X {								\t
+			void foo() {							\t
+				System.out.println();				\t
+		 	void baz(){}						\t
+		 }										\t
+													\t
+			void bar(){								\t
+		 }										\t
+			void truc(){							\t
+		 }										\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+			"""
+		public class X {
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test08: diet parse";
 	dietParse(s,testName);
@@ -982,26 +1016,29 @@ public void test08() {
 public void test09() {
 
 	String s =
-		"public class X {									\n"
-			+ "	void foo() {								\n"
-			+ "		System.out.println();					\n"
-			+ " 	void baz(){}							\n"
-			+ " }											\n"
-			+ "												\n"
-			+ "	void bar(){									\n"
-			+ " }											\n"
-			+ "	void truc(){								\n"
-			+ " }											\n"
-			+ "}											\n";
+		"""
+		public class X {								\t
+			void foo() {							\t
+				System.out.println();				\t
+		 	void baz(){}						\t
+		 }										\t
+													\t
+			void bar(){								\t
+		 }										\t
+			void truc(){							\t
+		 }										\t
+		}										\t
+		""";
 
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+			"""
+		public class X {
+			java.lang.Object(0)
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test09: full parse";
 	fullParse(s,testName);
@@ -1047,28 +1084,31 @@ public void test09() {
 public void test10() {
 
 	String s =
-		"public class X {									\n"
-			+ "	void foo() {								\n"
-			+ "		System.out.println();					\n"
-			+ " 	void baz(){}							\n"
-			+ " }											\n"
-			+ "	/** comment                                 \n"
-			+ "  *                                          \n"
-			+ "  *                                          \n"
-			+ "  */                                         \n"
-			+ "                                             \n"
-			+ "	void bar(){									\n"
-			+ " }											\n"
-			+ "	void truc(){								\n"
-			+ " }											\n"
-			+ "}											\n";
+		"""
+		public class X {								\t
+			void foo() {							\t
+				System.out.println();				\t
+		 	void baz(){}						\t
+		 }										\t
+			/** comment                                \s
+		  *                                         \s
+		  *                                         \s
+		  */                                        \s
+		                                            \s
+			void bar(){								\t
+		 }										\t
+			void truc(){							\t
+		 }										\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+			"""
+		public class X {
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test10: diet parse";
 	dietParse(s,testName);
@@ -1113,32 +1153,35 @@ public void test10() {
 public void test11() {
 
 	String s =
-		"public class X {									\n"
-			+ "	void foo() {								\n"
-			+ "		System.out.println();					\n"
-			+ " 	void baz(){}  							\n"
-			+ "	/** comment                                 \n"
-			+ "  *                                          \n"
-			+ "  *                                          \n"
-			+ "  */                                         \n"
-			+ "  int[][] j[] = null, k; // comment          \n"
-			+ "                                             \n"
-			+ "	void bar(){									\n"
-			+ " }											\n"
-			+ "	void truc(){								\n"
-			+ " }											\n"
-			+ "}											\n";
+		"""
+		public class X {								\t
+			void foo() {							\t
+				System.out.println();				\t
+		 	void baz(){}  						\t
+			/** comment                                \s
+		  *                                         \s
+		  *                                         \s
+		  */                                        \s
+		  int[][] j[] = null, k; // comment         \s
+		                                            \s
+			void bar(){								\t
+		 }										\t
+			void truc(){							\t
+		 }										\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-			 "public class X {\n"
-			+ "\tint[][][] j;\n"
-			+ "\tint[][] k;\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid baz() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+			 """
+		public class X {
+			int[][][] j;
+			int[][] k;
+			java.lang.Object(0)
+			void foo() {}
+			void baz() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test11: full parse";
 	fullParse(s,testName);
@@ -1194,38 +1237,41 @@ public void test11() {
 public void test12() {
 
 	String s =
-			"import java.util.Enumeration;\n"
-			+ "import java.util.Hashtable;"
-			+ "\n"
-			+ "/** comment */\n"
-			+ "public class A2 {\n"
-			+ "	void foo() {\n"
-			+ "		System.out.println();\n"
-			+ " 	void baz(){}\n"
-			+ "	/** comment\n"
-			+ "  *\n"
-			+ "  *\n"
-			+ "  */\n"
-			+ "  static { } // comment\n"
-			+ "  \n"
-			+ "\n"
-			+ "	void bar(){\n"
-			+ " }\n"
-			+ "	void truc(){\n"
-			+ " }\n"
-			+ "}\n";
+			"""
+		import java.util.Enumeration;
+		import java.util.Hashtable;\
+		
+		/** comment */
+		public class A2 {
+			void foo() {
+				System.out.println();
+		 	void baz(){}
+			/** comment
+		  *
+		  *
+		  */
+		  static { } // comment
+		 \s
+		
+			void bar(){
+		 }
+			void truc(){
+		 }
+		}
+		""";
 
 	String expectedUnitToString =
-			"import java.util.Enumeration;\n"
-			+ "import java.util.Hashtable;\n"
-			+ "public class A2 {\n"
-			+ "\tstatic {}\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid baz() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+			"""
+		import java.util.Enumeration;
+		import java.util.Hashtable;
+		public class A2 {
+			static {}
+			java.lang.Object(0)
+			void foo() {}
+			void baz() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test12: full parse";
 	fullParse(s,testName);
@@ -1279,33 +1325,36 @@ public void test12() {
 public void test13() {
 
 	String s =
-			"import java.util.Enumeration;\n"
-			+ "import java.util.Hashtable;\n"
-			+ "\n"
-			+ "public class A2 {\n"
-			+ "	void foo() {\n"
-			+ "		System.out.println();\n"
-			+ " 	void baz(){}\n"
-			+ "  static { }\n"
-			+ "  \n"
-			+ "\n"
-			+ "	void bar(){\n"
-			+ " }\n"
-			+ "	void truc(){\n"
-			+ " }\n"
-			+ "}\n";
+			"""
+		import java.util.Enumeration;
+		import java.util.Hashtable;
+		
+		public class A2 {
+			void foo() {
+				System.out.println();
+		 	void baz(){}
+		  static { }
+		 \s
+		
+			void bar(){
+		 }
+			void truc(){
+		 }
+		}
+		""";
 
 	String expectedUnitToString =
-			"import java.util.Enumeration;\n"
-			+ "import java.util.Hashtable;\n"
-			+ "public class A2 {\n"
-			+ "\tstatic {}\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid baz() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+			"""
+		import java.util.Enumeration;
+		import java.util.Hashtable;
+		public class A2 {
+			static {}
+			java.lang.Object(0)
+			void foo() {}
+			void baz() {}
+			void bar() {}
+			void truc() {}
+		}""";
 	String testName = "test13: full parse";
 	fullParse(s,testName);
 
@@ -1359,30 +1408,33 @@ public void test13() {
 public void test14() {
 
 	String s =
-			"import java.util.Enumeration;\n"
-			+ "import java.util.Hashtable;\n"
-			+ "\n"
-			+ "public class A2 {\n"
-			+ "	void foo() {\n"
-			+ "		System.out.println();\n"
-			+ " 	void baz(){}\n"
-			+ "  static { }\n"
-			+ " }\n"
-			+ "\n"
-			+ "	void bar(){\n"
-			+ " }\n"
-			+ "	void truc(){\n"
-			+ " }\n"
-			+ "}\n";
+			"""
+		import java.util.Enumeration;
+		import java.util.Hashtable;
+		
+		public class A2 {
+			void foo() {
+				System.out.println();
+		 	void baz(){}
+		  static { }
+		 }
+		
+			void bar(){
+		 }
+			void truc(){
+		 }
+		}
+		""";
 
 	String expectedUnitToString =
-			"import java.util.Enumeration;\n"
-			+ "import java.util.Hashtable;\n"
-			+ "public class A2 {\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid truc() {}\n"
-			+ "}";
+			"""
+		import java.util.Enumeration;
+		import java.util.Hashtable;
+		public class A2 {
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test14: diet parse";
 	dietParse(s,testName);
@@ -1427,30 +1479,33 @@ public void test14() {
 public void test15() {
 
 	String s =
-			"public class X {								\n"
-			+ " class Y {									\n"
-			+ "	  void foo() {								\n"
-			+ "	   System.out.println();					\n"
-			+ "   }											\n"
-			+ " public int h;								\n"
-			+ " public int[] i = {0, 1};					\n"
-			+ "	void bar(){									\n"
-			+ "	void baz(){									\n"
-			+ " }											\n";
+			"""
+		public class X {							\t
+		 class Y {								\t
+			  void foo() {							\t
+			   System.out.println();				\t
+		   }										\t
+		 public int h;							\t
+		 public int[] i = {0, 1};				\t
+			void bar(){								\t
+			void baz(){								\t
+		 }										\t
+		""";
 
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tclass Y {\n"
-			+ "\t\tpublic int h;\n"
-			+ "\t\tpublic int[] i;\n"
-			+ "\t\tjava.lang.Object(0)\n"
-			+ "\t\tvoid foo() {}\n"
-			+ "\t\tvoid bar() {}\n"
-			+ "\t\tvoid baz() {}\n"
-			+ "\t}\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "}";
+			"""
+		public class X {
+			class Y {
+				public int h;
+				public int[] i;
+				java.lang.Object(0)
+				void foo() {}
+				void bar() {}
+				void baz() {}
+			}
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test15: full parse";
 	fullParse(s,testName);
@@ -1523,28 +1578,31 @@ public void test15() {
 public void test16() {
 
 	String s =
-			"public class X {								\n"
-			+ " class Y {									\n"
-			+ "	  void foo() {								\n"
-			+ "	   System.out.println();					\n"
-			+ "   }											\n"
-			+ " public int h;								\n"
-			+ " public int[] i = {0, 1};					\n"
-			+ "	void bar(){									\n"
-			+ "	void baz(){									\n"
-			+ " }											\n";
+			"""
+		public class X {							\t
+		 class Y {								\t
+			  void foo() {							\t
+			   System.out.println();				\t
+		   }										\t
+		 public int h;							\t
+		 public int[] i = {0, 1};				\t
+			void bar(){								\t
+			void baz(){								\t
+		 }										\t
+		""";
 
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tclass Y {\n"
-			+ "\t\tpublic int h;\n"
-			+ "\t\tpublic int[] i;\n"
-			+ "\t\tvoid foo() {}\n"
-			+ "\t\tvoid bar() {}\n"
-			+ "\t\tvoid baz() {}\n"
-			+ "\t}\n"
-			+ "}";
+			"""
+		public class X {
+			class Y {
+				public int h;
+				public int[] i;
+				void foo() {}
+				void bar() {}
+				void baz() {}
+			}
+		}""";
 
 	String testName = "test16: diet parse";
 	dietParse(s,testName);
@@ -1617,31 +1675,34 @@ public void test16() {
 public void test17() {
 
 	String s =
-			"public class X {								\n"
-			+ " class Y {									\n"
-			+ "	  void foo() {								\n"
-			+ "	   System.out.println();					\n"
-			+ "   }											\n"
-			+ " }											\n"
-			+ " public int h;								\n"
-			+ " public int[] i = {0, 1};					\n"
-			+ "	void bar(){									\n"
-			+ "	void baz(){									\n"
-			+ " }											\n";
+			"""
+		public class X {							\t
+		 class Y {								\t
+			  void foo() {							\t
+			   System.out.println();				\t
+		   }										\t
+		 }										\t
+		 public int h;							\t
+		 public int[] i = {0, 1};				\t
+			void bar(){								\t
+			void baz(){								\t
+		 }										\t
+		""";
 
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tclass Y {\n"
-			+ "\t\tjava.lang.Object(0)\n"
-			+ "\t\tvoid foo() {}\n"
-			+ "\t}\n"
-			+ "\tpublic int h;\n"
-			+ "\tpublic int[] i;\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid baz() {}\n"
-			+ "}";
+			"""
+		public class X {
+			class Y {
+				java.lang.Object(0)
+				void foo() {}
+			}
+			public int h;
+			public int[] i;
+			java.lang.Object(0)
+			void bar() {}
+			void baz() {}
+		}""";
 
 	String testName = "test17: full parse";
 	fullParse(s,testName);
@@ -1715,29 +1776,32 @@ public void test17() {
 public void test18() {
 
 	String s =
-			"public class X {								\n"
-			+ " class Y {									\n"
-			+ "	  void foo() {								\n"
-			+ "	   System.out.println();					\n"
-			+ "   }											\n"
-			+ " }											\n"
-			+ " public int h;								\n"
-			+ " public int[] i = {0, 1};					\n"
-			+ "	void bar(){									\n"
-			+ "	void baz(){									\n"
-			+ " }											\n";
+			"""
+		public class X {							\t
+		 class Y {								\t
+			  void foo() {							\t
+			   System.out.println();				\t
+		   }										\t
+		 }										\t
+		 public int h;							\t
+		 public int[] i = {0, 1};				\t
+			void bar(){								\t
+			void baz(){								\t
+		 }										\t
+		""";
 
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tclass Y {\n"
-			+ "\t\tvoid foo() {}\n"
-			+ "\t}\n"
-			+ "\tpublic int h;\n"
-			+ "\tpublic int[] i;\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid baz() {}\n"
-			+ "}";
+			"""
+		public class X {
+			class Y {
+				void foo() {}
+			}
+			public int h;
+			public int[] i;
+			void bar() {}
+			void baz() {}
+		}""";
 
 	String testName = "test18: diet parse";
 	dietParse(s,testName);
@@ -1811,27 +1875,30 @@ public void test18() {
 public void test19() {
 
 	String s =
-			"public class X {								\n"
-			+ "	void foo() {								\n"
-			+ "		System.out.println();					\n"
-			+ " }											\n"
-			+ "}											\n"
-			+ "	void bar(){									\n"
-			+ "  int x;										\n"
-			+ "	void baz(){									\n"
-			+ " }											\n"
-			+ " int y;										\n";
+			"""
+		public class X {							\t
+			void foo() {							\t
+				System.out.println();				\t
+		 }										\t
+		}										\t
+			void bar(){								\t
+		  int x;									\t
+			void baz(){								\t
+		 }										\t
+		 int y;									\t
+		""";
 
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\t{}\n"
-			+ "\tint y;\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid baz() {}\n"
-			+ "}";
+			"""
+		public class X {
+			{}
+			int y;
+			java.lang.Object(0)
+			void foo() {}
+			void bar() {}
+			void baz() {}
+		}""";
 
 	String testName = "test19: full parse";
 	fullParse(s,testName);
@@ -1886,28 +1953,31 @@ public void test19() {
 public void test20() {
 
 	String s =
-			"public class X {								\n"
-			+ "	void foo() {								\n"
-			+ "		System.out.println();					\n"
-			+ " }											\n"
-			+ "}											\n"
-			+ "	void bar(){									\n"
-			+ " public int x;								\n"
-			+ "	void baz(){									\n"
-			+ " }											\n"
-			+ " int y;										\n";
+			"""
+		public class X {							\t
+			void foo() {							\t
+				System.out.println();				\t
+		 }										\t
+		}										\t
+			void bar(){								\t
+		 public int x;							\t
+			void baz(){								\t
+		 }										\t
+		 int y;									\t
+		""";
 
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\t{}\n"
-			+ "\tpublic int x;\n"
-			+ "\tint y;\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid baz() {}\n"
-			+ "}";
+			"""
+		public class X {
+			{}
+			public int x;
+			int y;
+			java.lang.Object(0)
+			void foo() {}
+			void bar() {}
+			void baz() {}
+		}""";
 
 	String testName = "test20: full parse";
 	fullParse(s,testName);
@@ -1965,27 +2035,30 @@ public void test20() {
 public void test21() {
 
 	String s =
-			"public class X {								\n"
-			+ "	void foo() {								\n"
-			+ "		System.out.println();					\n"
-			+ " }											\n"
-			+ "}											\n"
-			+ "	void bar(){									\n"
-			+ " public int x;								\n"
-			+ "	void baz(){									\n"
-			+ " }											\n"
-			+ " int y;										\n";
+			"""
+		public class X {							\t
+			void foo() {							\t
+				System.out.println();				\t
+		 }										\t
+		}										\t
+			void bar(){								\t
+		 public int x;							\t
+			void baz(){								\t
+		 }										\t
+		 int y;									\t
+		""";
 
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\t{}\n"
-			+ "\tpublic int x;\n"
-			+ "\tint y;\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "\tvoid baz() {}\n"
-			+ "}";
+			"""
+		public class X {
+			{}
+			public int x;
+			int y;
+			void foo() {}
+			void bar() {}
+			void baz() {}
+		}""";
 
 	String testName = "test21: diet parse";
 	dietParse(s,testName);
@@ -2043,16 +2116,19 @@ public void test21() {
 public void test22() {
 
 	String s =
-			"public class X extends {						\n"
-			+ "	void foo() {								\n"
-			+ " }											\n"
-			+ "}											\n";
+			"""
+		public class X extends {					\t
+			void foo() {							\t
+		 }										\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "}";
+			"""
+		public class X {
+			java.lang.Object(0)
+			void foo() {}
+		}""";
 
 	String testName = "test22: full parse";
 	fullParse(s,testName);
@@ -2090,18 +2166,21 @@ public void test22() {
 public void test23() {
 
 	String s =
-			"public class X extends Thread {				\n"
-			+ "	void foo() throws							\n"
-			+ "	void bar() 									\n"
-			+ " }											\n"
-			+ "}											\n";
+			"""
+		public class X extends Thread {			\t
+			void foo() throws						\t
+			void bar() 								\t
+		 }										\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-			"public class X extends Thread {\n"
-			+ "\tThread(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "}";
+			"""
+		public class X extends Thread {
+			Thread(0)
+			void foo() {}
+			void bar() {}
+		}""";
 
 	String testName = "test23: full parse";
 	fullParse(s,testName);
@@ -2144,18 +2223,21 @@ public void test23() {
 public void test24() {
 
 	String s =
-			"public class X implements 						\n"
-			+ "	void foo() 									\n"
-			+ "	void bar() 									\n"
-			+ " }											\n"
-			+ "}											\n";
+			"""
+		public class X implements 					\t
+			void foo() 								\t
+			void bar() 								\t
+		 }										\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "}";
+			"""
+		public class X {
+			java.lang.Object(0)
+			void foo() {}
+			void bar() {}
+		}""";
 
 	String testName = "test24: full parse";
 	fullParse(s,testName);
@@ -2198,18 +2280,21 @@ public void test24() {
 public void test25() {
 
 	String s =
-			"public class X implements Y,					\n"
-			+ "	void foo() 									\n"
-			+ "	void bar() 									\n"
-			+ " }											\n"
-			+ "}											\n";
+			"""
+		public class X implements Y,				\t
+			void foo() 								\t
+			void bar() 								\t
+		 }										\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-			"public class X implements Y, {\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "\tvoid foo() {}\n"
-			+ "\tvoid bar() {}\n"
-			+ "}";
+			"""
+		public class X implements Y, {
+			java.lang.Object(0)
+			void foo() {}
+			void bar() {}
+		}""";
 
 	String testName = "test25: full parse";
 	fullParse(s,testName);
@@ -2255,20 +2340,23 @@ public void test25() {
 public void test26() {
 
 	String s =
-			"public class X implements 						\n"
-			+ " class Y { 									\n"
-			+ "	 void bar() 								\n"
-			+ " }											\n"
-			+ "}											\n";
+			"""
+		public class X implements 					\t
+		 class Y { 								\t
+			 void bar() 							\t
+		 }										\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tclass Y {\n"
-			+ "\t\tjava.lang.Object(0)\n"
-			+ "\t\tvoid bar() {}\n"
-			+ "\t}\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "}";
+			"""
+		public class X {
+			class Y {
+				java.lang.Object(0)
+				void bar() {}
+			}
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test26: full parse";
 	fullParse(s,testName);
@@ -2325,21 +2413,24 @@ public void test26() {
 public void test27() {
 
 	String s =
-		"public class X 		 						\n"
-		+ " fieldX;										\n"
-		+ " class Y { 									\n"
-		+ "	 void bar() 								\n"
-		+ " }											\n"
-		+ "}											\n";
+		"""
+		public class X 		 					\t
+		 fieldX;									\t
+		 class Y { 								\t
+			 void bar() 							\t
+		 }										\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tclass Y {\n"
-			+ "\t\tjava.lang.Object(0)\n"
-			+ "\t\tvoid bar() {}\n"
-			+ "\t}\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "}";
+			"""
+		public class X {
+			class Y {
+				java.lang.Object(0)
+				void bar() {}
+			}
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test27: full parse";
 	fullParse(s,testName);
@@ -2396,19 +2487,22 @@ public void test27() {
 public void test28() {
 
 	String s =
-			"public class X 		 						\n"
-			+ " fieldX;										\n"
-			+ " class Y  									\n"
-			+ " }											\n"
-			+ "}											\n";
+			"""
+		public class X 		 					\t
+		 fieldX;									\t
+		 class Y  								\t
+		 }										\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-			"public class X {\n"
-			+ "\tclass Y {\n"
-			+ "\t\tjava.lang.Object(0)\n"
-			+ "\t}\n"
-			+ "\tjava.lang.Object(0)\n"
-			+ "}";
+			"""
+		public class X {
+			class Y {
+				java.lang.Object(0)
+			}
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test28: full parse";
 	fullParse(s,testName);
@@ -2459,36 +2553,39 @@ public void test28() {
 public void test29() {
 
 	String s =
-		"package a;										\n" +
-		"import java.lang.*;							\n" +
-		"import java.util.*;							\n" +
-		"												\n" +
-		"public class X {								\n" +
-		"	void foo() {								\n" +
-		"		System.out.println();					\n" +
-		"												\n" +
-		"		class L extends {						\n" +
-		"			public int l;						\n" +
-		"			void baz(){}						\n" +
-		"		}										\n" +
-		"												\n" +
-		"	public int h;								\n" +
-		"												\n" +
-		"	void bar(){									\n" +
-		"	void truc(){								\n" +
-		"}	\n";
+		"""
+		package a;									\t
+		import java.lang.*;						\t
+		import java.util.*;						\t
+													\t
+		public class X {							\t
+			void foo() {							\t
+				System.out.println();				\t
+													\t
+				class L extends {					\t
+					public int l;					\t
+					void baz(){}					\t
+				}									\t
+													\t
+			public int h;							\t
+													\t
+			void bar(){								\t
+			void truc(){							\t
+		}\t
+		""";
 
 	String expectedUnitToString =
-		"package a;\n"
-		+ "import java.lang.*;\n"
-		+ "import java.util.*;\n"
-		+ "public class X {\n"
-		+ "\tpublic int h;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tvoid foo() {}\n"
-		+ "\tvoid bar() {}\n"
-		+ "\tvoid truc() {}\n"
-		+ "}";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			public int h;
+			java.lang.Object(0)
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test29: full parse";
 	fullParse(s,testName);
@@ -2542,35 +2639,38 @@ public void test29() {
 public void test30() {
 
 	String s =
-		"package a;										\n" +
-		"import java.lang.*;							\n" +
-		"import java.util.*;							\n" +
-		"												\n" +
-		"public class X {								\n" +
-		"	void foo() {								\n" +
-		"		System.out.println();					\n" +
-		"												\n" +
-		"		class L extends {						\n" +
-		"			public int l;						\n" +
-		"			void baz(){}						\n" +
-		"		}										\n" +
-		"												\n" +
-		"	public int h;								\n" +
-		"												\n" +
-		"	void bar(){									\n" +
-		"	void truc(){								\n" +
-		"}	\n";
+		"""
+		package a;									\t
+		import java.lang.*;						\t
+		import java.util.*;						\t
+													\t
+		public class X {							\t
+			void foo() {							\t
+				System.out.println();				\t
+													\t
+				class L extends {					\t
+					public int l;					\t
+					void baz(){}					\t
+				}									\t
+													\t
+			public int h;							\t
+													\t
+			void bar(){								\t
+			void truc(){							\t
+		}\t
+		""";
 
 	String expectedUnitToString =
-		"package a;\n"
-		+ "import java.lang.*;\n"
-		+ "import java.util.*;\n"
-		+ "public class X {\n"
-		+ "\tpublic int h;\n"
-		+ "\tvoid foo() {}\n"
-		+ "\tvoid bar() {}\n"
-		+ "\tvoid truc() {}\n"
-		+ "}";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			public int h;
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test30: diet parse";
 	dietParse(s,testName);
@@ -2624,35 +2724,38 @@ public void test30() {
 public void test31() {
 
 	String s =
-		"package a;											\n" +
-		"import java.lang.*;							\n" +
-		"import java.util.*;							\n" +
-		"												\n" +
-		"public class X {								\n" +
-		"	void foo() {								\n" +
-		"		System.out.println();					\n" +
-		"												\n" +
-		"		new X(){								\n" +
-		"			void baz() {}						\n" +
-		"		}.baz();								\n" +
-		"												\n" +
-		"	public int h;								\n" +
-		"												\n" +
-		"	void bar(){									\n" +
-		"	void truc(){								\n" +
-		"}	\n";
+		"""
+		package a;										\t
+		import java.lang.*;						\t
+		import java.util.*;						\t
+													\t
+		public class X {							\t
+			void foo() {							\t
+				System.out.println();				\t
+													\t
+				new X(){							\t
+					void baz() {}					\t
+				}.baz();							\t
+													\t
+			public int h;							\t
+													\t
+			void bar(){								\t
+			void truc(){							\t
+		}\t
+		""";
 
 	String expectedUnitToString =
-		"package a;\n"
-		+ "import java.lang.*;\n"
-		+ "import java.util.*;\n"
-		+ "public class X {\n"
-		+ "\tpublic int h;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tvoid foo() {}\n"
-		+ "\tvoid bar() {}\n"
-		+ "\tvoid truc() {}\n"
-		+ "}";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			public int h;
+			java.lang.Object(0)
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test31: full parse";
 	fullParse(s,testName);
@@ -2706,32 +2809,35 @@ public void test31() {
 public void test32() {
 
 	String s =
-		"package a;											\n" +
-		"import java.lang.*;							\n" +
-		"import java.util.*;							\n" +
-		"												\n" +
-		"public class X {								\n" +
-		"	void foo() {								\n" +
-		"		System.out.println();					\n" +
-		"												\n" +
-		"		new X(){								\n" +
-		"			void baz() {}						\n" +
-		"												\n" +
-		"		public int h;							\n" +
-		"												\n" +
-		"		void bar(){								\n" +
-		"		void truc(){							\n" +
-		"}	\n";
+		"""
+		package a;										\t
+		import java.lang.*;						\t
+		import java.util.*;						\t
+													\t
+		public class X {							\t
+			void foo() {							\t
+				System.out.println();				\t
+													\t
+				new X(){							\t
+					void baz() {}					\t
+													\t
+				public int h;						\t
+													\t
+				void bar(){							\t
+				void truc(){						\t
+		}\t
+		""";
 
 
 	String expectedUnitToString =
-		"package a;\n"
-		+ "import java.lang.*;\n"
-		+ "import java.util.*;\n"
-		+ "public class X {\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tvoid foo() {}\n"
-		+ "}";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			java.lang.Object(0)
+			void foo() {}
+		}""";
 
 	String testName = "test32: full parse";
 	fullParse(s,testName);
@@ -2771,31 +2877,34 @@ public void test32() {
 public void test33() {
 
 	String s =
-		"package a;											\n" +
-		"import java.lang.*;							\n" +
-		"import java.util.*;							\n" +
-		"												\n" +
-		"public class X {								\n" +
-		"	void foo() {								\n" +
-		"		System.out.println();					\n" +
-		"												\n" +
-		"		new X(){								\n" +
-		"			void baz() {}						\n" +
-		"												\n" +
-		"		public int h;							\n" +
-		"												\n" +
-		"		void bar(){								\n" +
-		"		void truc(){							\n" +
-		"}	\n";
+		"""
+		package a;										\t
+		import java.lang.*;						\t
+		import java.util.*;						\t
+													\t
+		public class X {							\t
+			void foo() {							\t
+				System.out.println();				\t
+													\t
+				new X(){							\t
+					void baz() {}					\t
+													\t
+				public int h;						\t
+													\t
+				void bar(){							\t
+				void truc(){						\t
+		}\t
+		""";
 
 
 	String expectedUnitToString =
-		"package a;\n"
-		+ "import java.lang.*;\n"
-		+ "import java.util.*;\n"
-		+ "public class X {\n"
-		+ "\tvoid foo() {}\n"
-		+ "}";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			void foo() {}
+		}""";
 
 	String testName = "test33: diet parse";
 	dietParse(s,testName);
@@ -2835,35 +2944,38 @@ public void test33() {
 public void test34() {
 
 	String s =
-		"package a;										\n" +
-		"import java.lang.*;							\n" +
-		"import java.util.*;							\n" +
-		"												\n" +
-		"public class X {								\n" +
-		"	void foo() {								\n" +
-		"		System.out.println();					\n" +
-		"												\n" +
-		"		new X(){								\n" +
-		"			void baz() 							\n" +
-		"	    }										\n" +
-		"	}											\n" +
-		"	public int h;								\n" +
-		"												\n" +
-		"	void bar(){									\n" +
-		"	void truc(){								\n" +
-		"}												\n";
+		"""
+		package a;									\t
+		import java.lang.*;						\t
+		import java.util.*;						\t
+													\t
+		public class X {							\t
+			void foo() {							\t
+				System.out.println();				\t
+													\t
+				new X(){							\t
+					void baz() 						\t
+			    }									\t
+			}										\t
+			public int h;							\t
+													\t
+			void bar(){								\t
+			void truc(){							\t
+		}											\t
+		""";
 
 	String expectedUnitToString =
-		"package a;\n"
-		+ "import java.lang.*;\n"
-		+ "import java.util.*;\n"
-		+ "public class X {\n"
-		+ "\tpublic int h;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tvoid foo() {}\n"
-		+ "\tvoid bar() {}\n"
-		+ "\tvoid truc() {}\n"
-		+ "}";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			public int h;
+			java.lang.Object(0)
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test34: full parse";
 	fullParse(s,testName);
@@ -2917,35 +3029,38 @@ public void test34() {
 public void test35() {
 
 	String s =
-		"package a;							\n"	+
-		"import java.lang.*;				\n"	+
-		"import java.util.*;				\n"	+
-		"									\n"	+
-		"public class X {					\n"	+
-		"	void foo() {					\n"	+
-		"		System.out.println();		\n"	+
-		"									\n"	+
-		"		class L extends {			\n"	+
-		"			public int l;			\n"	+
-		"			void baz(){}			\n"	+
-		"		}							\n"	+
-		"									\n"	+
-		"		int h;						\n"	+
-		"									\n"	+
-		"	void bar(){						\n"	+
-		"	void truc(){					\n"	+
-		"}									\n";
+		"""
+		package a;						\t
+		import java.lang.*;			\t
+		import java.util.*;			\t
+										\t
+		public class X {				\t
+			void foo() {				\t
+				System.out.println();	\t
+										\t
+				class L extends {		\t
+					public int l;		\t
+					void baz(){}		\t
+				}						\t
+										\t
+				int h;					\t
+										\t
+			void bar(){					\t
+			void truc(){				\t
+		}								\t
+		""";
 
 	String expectedUnitToString =
-		"package a;\n"
-		+ "import java.lang.*;\n"
-		+ "import java.util.*;\n"
-		+ "public class X {\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tvoid foo() {}\n"
-		+ "\tvoid bar() {}\n"
-		+ "\tvoid truc() {}\n"
-		+ "}";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			java.lang.Object(0)
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test35: full parse";
 	fullParse(s,testName);
@@ -2995,34 +3110,37 @@ public void test35() {
 public void test36() {
 
 	String s =
-		"package a;							\n"	+
-		"import java.lang.*;				\n"	+
-		"import java.util.*;				\n"	+
-		"									\n"	+
-		"public class X {					\n"	+
-		"	void foo() {					\n"	+
-		"		System.out.println();		\n"	+
-		"									\n"	+
-		"		class L extends {			\n"	+
-		"			public int l;			\n"	+
-		"			void baz(){}			\n"	+
-		"		}							\n"	+
-		"									\n"	+
-		"		int h;						\n"	+
-		"									\n"	+
-		"	void bar(){						\n"	+
-		"	void truc(){					\n"	+
-		"}									\n";
+		"""
+		package a;						\t
+		import java.lang.*;			\t
+		import java.util.*;			\t
+										\t
+		public class X {				\t
+			void foo() {				\t
+				System.out.println();	\t
+										\t
+				class L extends {		\t
+					public int l;		\t
+					void baz(){}		\t
+				}						\t
+										\t
+				int h;					\t
+										\t
+			void bar(){					\t
+			void truc(){				\t
+		}								\t
+		""";
 
 	String expectedUnitToString =
-		"package a;\n"
-		+ "import java.lang.*;\n"
-		+ "import java.util.*;\n"
-		+ "public class X {\n"
-		+ "\tvoid foo() {}\n"
-		+ "\tvoid bar() {}\n"
-		+ "\tvoid truc() {}\n"
-		+ "}";
+		"""
+		package a;
+		import java.lang.*;
+		import java.util.*;
+		public class X {
+			void foo() {}
+			void bar() {}
+			void truc() {}
+		}""";
 
 	String testName = "test36: diet parse";
 	dietParse(s,testName);
@@ -3072,25 +3190,28 @@ public void test36() {
 public void test37() {
 
 	String s =
-		"public class X {		 	\n" +
-		"  int x;			 		\n"	+
-		"							\n" +
-		"  int foo(){ }				\n" +
-		"							\n" +
-		"  class Y  {				\n"	+
-		"    int y;					\n" +
-		"}							\n";
+		"""
+		public class X {		 \t
+		  int x;			 	\t
+								\t
+		  int foo(){ }			\t
+								\t
+		  class Y  {			\t
+		    int y;				\t
+		}						\t
+		""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tclass Y {\n"
-		+ "\t\tint y;\n"
-		+ "\t\tjava.lang.Object(0)\n"
-		+ "\t}\n"
-		+ "\tint x;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tint foo() {}\n"
-		+ "}";
+		"""
+		public class X {
+			class Y {
+				int y;
+				java.lang.Object(0)
+			}
+			int x;
+			java.lang.Object(0)
+			int foo() {}
+		}""";
 
 	String testName = "test37: full parse";
 	fullParse(s,testName);
@@ -3155,23 +3276,26 @@ public void test37() {
 public void test38() {
 
 	String s =
-		"public class X {		 	\n" +
-		"  int x;			 		\n"	+
-		"							\n" +
-		"  int foo(){ }				\n" +
-		"							\n" +
-		"  class Y  {				\n"	+
-		"    int y;					\n" +
-		"}							\n";
+		"""
+		public class X {		 \t
+		  int x;			 	\t
+								\t
+		  int foo(){ }			\t
+								\t
+		  class Y  {			\t
+		    int y;				\t
+		}						\t
+		""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tclass Y {\n"
-		+ "\t\tint y;\n"
-		+ "\t}\n"
-		+ "\tint x;\n"
-		+ "\tint foo() {}\n"
-		+ "}";
+		"""
+		public class X {
+			class Y {
+				int y;
+			}
+			int x;
+			int foo() {}
+		}""";
 
 	String testName = "test38: diet parse";
 	dietParse(s,testName);
@@ -3236,25 +3360,28 @@ public void test38() {
 public void test39() {
 
 	String s =
-		"public class X {		 	\n" +
-		"  int x;			 		\n"	+
-		"							\n" +
-		"  int foo(){ }				\n" +
-		"							\n" +
-		"  class Y  				\n"	+
-		"}							\n" +
-		"  int y;					\n";
+		"""
+		public class X {		 \t
+		  int x;			 	\t
+								\t
+		  int foo(){ }			\t
+								\t
+		  class Y  			\t
+		}						\t
+		  int y;				\t
+		""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tclass Y {\n"
-		+ "\t\tjava.lang.Object(0)\n"
-		+ "\t}\n"
-		+ "\tint x;\n"
-		+ "\tint y;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tint foo() {}\n"
-		+ "}";
+		"""
+		public class X {
+			class Y {
+				java.lang.Object(0)
+			}
+			int x;
+			int y;
+			java.lang.Object(0)
+			int foo() {}
+		}""";
 
 	String testName = "test39: full parse";
 	fullParse(s,testName);
@@ -3318,23 +3445,26 @@ public void test39() {
 public void test40() {
 
 	String s =
-		"public class X {		 	\n" +
-		"  int x;			 		\n"	+
-		"							\n" +
-		"  int foo(){ }				\n" +
-		"							\n" +
-		"  class Y  				\n"	+
-		"}							\n" +
-		"  int y;					\n";
+		"""
+		public class X {		 \t
+		  int x;			 	\t
+								\t
+		  int foo(){ }			\t
+								\t
+		  class Y  			\t
+		}						\t
+		  int y;				\t
+		""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tclass Y {\n"
-		+ "\t}\n"
-		+ "\tint x;\n"
-		+ "\tint y;\n"
-		+ "\tint foo() {}\n"
-		+ "}";
+		"""
+		public class X {
+			class Y {
+			}
+			int x;
+			int y;
+			int foo() {}
+		}""";
 
 	String testName = "test40: diet parse";
 	dietParse(s,testName);
@@ -3398,21 +3528,26 @@ public void test40() {
 public void test41() {
 
 	String s =
-		"public class X {				\n"+
-		"	void hell" + "\\" + "u006f()\n"+
-		"	static void foo() {			\n"+
-		"		X x;					\n"+
-		"		x = new X(23);			\n"+
-		"		System.out.println();	\n"+
-		"								\n"+
-		"}								\n";
+		"""
+		public class X {			\t
+			void hell\
+		\\\
+		u006f()
+			static void foo() {		\t
+				X x;				\t
+				x = new X(23);		\t
+				System.out.println();\t
+									\t
+		}							\t
+		""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tvoid hello() {}\n"
-		+ "\tstatic void foo() {}\n"
-		+ "}";
+		"""
+		public class X {
+			java.lang.Object(0)
+			void hello() {}
+			static void foo() {}
+		}""";
 
 	String testName = "test41: full parse";
 	fullParse(s,testName);
@@ -3442,7 +3577,10 @@ public void test41() {
 	assertEquals("Invalid declaration source start for method foo", 41, methods[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for method foo", 130, methods[1].getDeclarationSourceEnd());
 
-	assertEquals(" Invalid actual name for method hello", "hell" + "\\" + "u006f", methods[0].getActualName());
+	assertEquals(" Invalid actual name for method hello", """
+		hell\
+		\\\
+		u006f""", methods[0].getActualName());
 
 	assertEquals(" Invalid actual name for method foo", "foo", methods[1].getActualName());
 
@@ -3461,10 +3599,11 @@ public void test42() {
 		"	int x				\n";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tint x;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "}";
+		"""
+		public class X {
+			int x;
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test42: full parse";
 	fullParse(s,testName);
@@ -3506,9 +3645,10 @@ public void test43() {
 		"	int x				\n";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tint x;\n"
-		+ "}";
+		"""
+		public class X {
+			int x;
+		}""";
 
 	String testName = "test43: diet parse";
 	dietParse(s,testName);
@@ -3550,11 +3690,12 @@ public void test44() {
 		"	int x, y			\n";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tint x;\n"
-		+ "\tint y;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "}";
+		"""
+		public class X {
+			int x;
+			int y;
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test44: full parse";
 	fullParse(s,testName);
@@ -3599,10 +3740,11 @@ public void test45() {
 		"	int x, y			\n";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tint x;\n"
-		+ "\tint y;\n"
-		+ "}";
+		"""
+		public class X {
+			int x;
+			int y;
+		}""";
 
 	String testName = "test45: diet parse";
 	dietParse(s,testName);
@@ -3647,10 +3789,11 @@ public void test46() {
 		"	String s = \"		\n";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tString s;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "}";
+		"""
+		public class X {
+			String s;
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test46: full parse";
 	fullParse(s,testName);
@@ -3692,9 +3835,10 @@ public void test47() {
 		"	String s = \"		\n";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tString s;\n"
-		+ "}";
+		"""
+		public class X {
+			String s;
+		}""";
 
 	String testName = "test47: diet parse";
 	dietParse(s,testName);
@@ -3736,9 +3880,10 @@ public void test48() {
 		"	String s = \"					\n";
 
 	String expectedUnitToString =
-		"public class X implements Y, String, {\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "}";
+		"""
+		public class X implements Y, String, {
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test48: full parse";
 	fullParse(s,testName);
@@ -3813,15 +3958,18 @@ public void test49() {
 public void test50() {
 
 	String s =
-		"public class X implements 		\n"+
-		"int x							\n"+
-		"}								\n";
+		"""
+		public class X implements 	\t
+		int x						\t
+		}							\t
+		""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tint x;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "}";
+		"""
+		public class X {
+			int x;
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test50: full parse";
 	fullParse(s,testName);
@@ -3859,14 +4007,17 @@ public void test50() {
 public void test51() {
 
 	String s =
-		"public class X implements 		\n"+
-		"int x							\n"+
-		"}								\n";
+		"""
+		public class X implements 	\t
+		int x						\t
+		}							\t
+		""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tint x;\n"
-		+ "}";
+		"""
+		public class X {
+			int x;
+		}""";
 
 	String testName = "test51: diet parse";
 	dietParse(s,testName);
@@ -3907,12 +4058,13 @@ public void test52() {
 		"public class X public int foo(int bar(static String s";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tstatic String s;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tpublic int foo() {}\n"
-		+ "\tint bar() {}\n"
-		+ "}";
+		"""
+		public class X {
+			static String s;
+			java.lang.Object(0)
+			public int foo() {}
+			int bar() {}
+		}""";
 
 	String testName = "test52: full parse";
 	fullParse(s,testName);
@@ -3963,11 +4115,12 @@ public void test53() {
 		"public class X public int foo(int x, int bar public String s;";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tpublic String s;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tpublic int foo(int x, int bar, ) {}\n"
-		+ "}";
+		"""
+		public class X {
+			public String s;
+			java.lang.Object(0)
+			public int foo(int x, int bar, ) {}
+		}""";
 
 	String testName = "test53: full parse";
 	fullParse(s,testName);
@@ -4011,19 +4164,22 @@ public void test53() {
 public void test54() {
 
 	String s =
-		"public class X 			\n" +
-		"	public int foo(			\n" +
-		"	int bar(				\n" +
-		" 	static String s, int x	\n";
+		"""
+		public class X 		\t
+			public int foo(		\t
+			int bar(			\t
+		 	static String s, int x\t
+		""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tstatic String s;\n"
-		+ "\tint x;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tpublic int foo() {}\n"
-		+ "\tint bar() {}\n"
-		+ "}";
+		"""
+		public class X {
+			static String s;
+			int x;
+			java.lang.Object(0)
+			public int foo() {}
+			int bar() {}
+		}""";
 
 	String testName = "test54: full parse";
 	fullParse(s,testName);
@@ -4075,18 +4231,21 @@ public void test54() {
 public void test55() {
 
 	String s =
-		"public class X 			\n" +
-		"	public int foo(			\n" +
-		"	int bar(				\n" +
-		" 	static String s, int x	\n";
+		"""
+		public class X 		\t
+			public int foo(		\t
+			int bar(			\t
+		 	static String s, int x\t
+		""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tstatic String s;\n"
-		+ "\tint x;\n"
-		+ "\tpublic int foo() {}\n"
-		+ "\tint bar() {}\n"
-		+ "}";
+		"""
+		public class X {
+			static String s;
+			int x;
+			public int foo() {}
+			int bar() {}
+		}""";
 
 	String testName = "test55: diet parse";
 	dietParse(s,testName);
@@ -4138,21 +4297,24 @@ public void test55() {
 public void test56() {
 
 	String s =
-		"class X {					\n" +
-		"	String s;				\n" +
-		"							\n" +
-		"	public void foo(		\n" +
-		"		static int x		\n" +
-		"}							\n";
+		"""
+		class X {				\t
+			String s;			\t
+								\t
+			public void foo(	\t
+				static int x	\t
+		}						\t
+		""";
 
 
 	String expectedUnitToString =
-		"class X {\n"
-		+ "\tString s;\n"
-		+ "\tstatic int x;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tpublic void foo() {}\n"
-		+ "}";
+		"""
+		class X {
+			String s;
+			static int x;
+			java.lang.Object(0)
+			public void foo() {}
+		}""";
 
 	String testName = "test56: full parse";
 	fullParse(s,testName);
@@ -4199,20 +4361,23 @@ public void test56() {
 public void test57() {
 
 	String s =
-		"class X {					\n" +
-		"	String s;				\n" +
-		"							\n" +
-		"	public void foo(		\n" +
-		"		static int x		\n" +
-		"}							\n";
+		"""
+		class X {				\t
+			String s;			\t
+								\t
+			public void foo(	\t
+				static int x	\t
+		}						\t
+		""";
 
 
 	String expectedUnitToString =
-		"class X {\n"
-		+ "\tString s;\n"
-		+ "\tstatic int x;\n"
-		+ "\tpublic void foo() {}\n"
-		+ "}";
+		"""
+		class X {
+			String s;
+			static int x;
+			public void foo() {}
+		}""";
 
 	String testName = "test57: diet parse";
 	dietParse(s,testName);
@@ -4259,17 +4424,20 @@ public void test57() {
 public void test58() {
 
 	String s =
-		"public class X {			\n"+
-		"	int foo(){				\n"+
-		"		String s = \"		\n"+
-		"	}						\n"+
-		"}							\n";
+		"""
+		public class X {		\t
+			int foo(){			\t
+				String s = "	\t
+			}					\t
+		}						\t
+		""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tint foo() {}\n"
-		+ "}";
+		"""
+		public class X {
+			java.lang.Object(0)
+			int foo() {}
+		}""";
 
 	String testName = "test58: full parse";
 	fullParse(s,testName);
@@ -4310,15 +4478,18 @@ public void test59() {
 
 	String s =
 
-		"class X {									\n" +
-		"	int foo(AA a, BB b, IOEx				\n" +
-		"											\n";
+		"""
+		class X {								\t
+			int foo(AA a, BB b, IOEx			\t
+												\t
+		""";
 
 	String expectedUnitToString =
-		"class X {\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tint foo(AA a, BB b, ) {}\n"
-		+ "}";
+		"""
+		class X {
+			java.lang.Object(0)
+			int foo(AA a, BB b, ) {}
+		}""";
 
 	String testName = "test59: full parse";
 	fullParse(s,testName);
@@ -4358,21 +4529,24 @@ public void test59() {
 public void test60() {
 
 	String s =
-		"public class X {							\n"+
-		"	final static int foo(){ 				\n"+
-		"		return \"1; 						\n"+
-		"	} 										\n"+
-		"	public static void main(String argv[]){ \n"+
-		"		foo();								\n"+
-		"	} 										\n"+
-		"}											\n";
+		"""
+		public class X {						\t
+			final static int foo(){ 			\t
+				return "1; 					\t
+			} 									\t
+			public static void main(String argv[]){\s
+				foo();							\t
+			} 									\t
+		}										\t
+		""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tfinal static int foo() {}\n"
-		+ "\tpublic static void main(String[] argv, ) {}\n"
-		+ "}";
+		"""
+		public class X {
+			java.lang.Object(0)
+			final static int foo() {}
+			public static void main(String[] argv, ) {}
+		}""";
 
 	String testName = "test60: full parse";
 	fullParse(s,testName);
@@ -4417,15 +4591,17 @@ public void test60() {
 public void test61() {
 
 	String s =
-		"public class X {							\n"+
-		"	{										\n"+
-		"     int x;";
+		"""
+		public class X {						\t
+			{									\t
+		     int x;""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\t{}\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "}";
+		"""
+		public class X {
+			{}
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test61: full parse";
 	fullParse(s,testName);
@@ -4463,16 +4639,18 @@ public void test61() {
 public void test62() {
 
 	String s =
-		"public class X {							\n"+
-		"   int foo(){								\n"+
-		"	  if(true){								\n"+
-		"     	int x;";
+		"""
+		public class X {						\t
+		   int foo(){							\t
+			  if(true){							\t
+		     	int x;""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tjava.lang.Object(0)\n"
-		+ "\tint foo() {}\n"
-		+ "}";
+		"""
+		public class X {
+			java.lang.Object(0)
+			int foo() {}
+		}""";
 
 	String testName = "test62: full parse";
 	fullParse(s,testName);
@@ -4513,20 +4691,23 @@ public void test62() {
 public void _test63() {
 
 	String s =
-		"public class X {							\n"+
-		"   int foo(){}								\n"+
-		"}											\n"+
-		"int x;\n";
+		"""
+		public class X {						\t
+		   int foo(){}							\t
+		}										\t
+		int x;
+		""";
 
 	String expectedUnitToString =
-		"final class test63$Implicit {\n"
-		+ "\tpublic class X {\n"
-		+ "\t\tjava.lang.Object(0)\n"
-		+ "\t\tint foo() {}\n"
-		+ "\t}\n"
-		+ "\tint x;\n"
-		+ "\tjava.lang.Object(0)\n"
-		+"}";
+		"""
+		final class test63$Implicit {
+			public class X {
+				java.lang.Object(0)
+				int foo() {}
+			}
+			int x;
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test63";
 	fullParse(s,testName);
@@ -4575,18 +4756,21 @@ public void _test63() {
 public void _test64() {
 
 	String s =
-		"public class X {							\n"+
-		"   int foo(){}								\n"+
-		"}											\n"+
-		"int x;\n";
+		"""
+		public class X {						\t
+		   int foo(){}							\t
+		}										\t
+		int x;
+		""";
 
 	String expectedUnitToString =
-			"final class test64$Implicit {\n"
-			+ "\tpublic class X {\n"
-			+ "\t\tint foo() {}\n"
-			+ "\t}\n"
-			+ "\tint x;\n"
-			+"}";
+			"""
+		final class test64$Implicit {
+			public class X {
+				int foo() {}
+			}
+			int x;
+		}""";
 
 
 	String testName = "test64";
@@ -4635,18 +4819,21 @@ public void _test64() {
 public void test65() {
 
 	String s =
-		"public class X {							\n"+
-		"   int foo(){}								\n"+
-		"}											\n"+
-		"int x();\n";
+		"""
+		public class X {						\t
+		   int foo(){}							\t
+		}										\t
+		int x();
+		""";
 
 	String expectedUnitToString =
-		"final class test65 {\n"
-		+ "\tpublic class X {\n"
-		+ "\t\tint foo() {}\n"
-		+ "\t}\n"
-		+ "\tint x() {}\n"
-		+ "}";
+		"""
+		final class test65 {
+			public class X {
+				int foo() {}
+			}
+			int x() {}
+		}""";
 
 	String testName = "test65";
 	dietParse(s,testName);
@@ -4696,18 +4883,21 @@ public void test65() {
 public void test66() {
 
 	String s =
-		"public interface X {						\n"+
-		"   int foo() {};							\n"+
-		"}											\n"+
-		"int x();\n";
+		"""
+		public interface X {					\t
+		   int foo() {};						\t
+		}										\t
+		int x();
+		""";
 
 	String expectedUnitToString =
-		"final class test66 {\n"
-		+ "\tpublic interface X {\n"
-		+ "\t\tint foo() {}\n"
-		+ "\t}\n"
-		+ "\tint x() {}\n"
-		+ "}";
+		"""
+		final class test66 {
+			public interface X {
+				int foo() {}
+			}
+			int x() {}
+		}""";
 
 	String testName = "test66";
 	dietParse(s,testName);
@@ -4757,16 +4947,18 @@ public void test66() {
 public void test67() {
 
 	String s =
-		"public interface X {						\n"+
-		"   int foo() {};							\n"+
-		"   int x();								\n"+
-		"}";
+		"""
+		public interface X {					\t
+		   int foo() {};						\t
+		   int x();							\t
+		}""";
 
 	String expectedUnitToString =
-		"public interface X {\n"
-		+ "\tint foo() {}\n"
-		+ "\tint x() {}\n"
-		+ "}";
+		"""
+		public interface X {
+			int foo() {}
+			int x() {}
+		}""";
 
 	String testName = "test67: diet parse";
 	dietParse(s,testName);
@@ -4811,16 +5003,18 @@ public void test67() {
 public void test68() {
 
 	String s =
-		"public interface X {						\n"+
-		"   int foo() {};							\n"+
-		"   int x();								\n"+
-		"}";
+		"""
+		public interface X {					\t
+		   int foo() {};						\t
+		   int x();							\t
+		}""";
 
 	String expectedUnitToString =
-		"public interface X {\n"
-		+ "\tint foo() {}\n"
-		+ "\tint x() {}\n"
-		+ "}";
+		"""
+		public interface X {
+			int foo() {}
+			int x() {}
+		}""";
 
 	String testName = "test68: full parse";
 	fullParse(s,testName);
@@ -4865,18 +5059,20 @@ public void test68() {
 public void test69() {
 
 	String s =
-		"public interface X {						\n"+
-		"float y;									\n"+
-		"   int foo()	;							\n"+
-		"   int x();								\n"+
-		"}";
+		"""
+		public interface X {					\t
+		float y;								\t
+		   int foo()	;						\t
+		   int x();							\t
+		}""";
 
 	String expectedUnitToString =
-		"public interface X {\n"
-		+ "\tfloat y;\n"
-		+ "\tint foo() {}\n"
-		+ "\tint x() {}\n"
-		+ "}";
+		"""
+		public interface X {
+			float y;
+			int foo() {}
+			int x() {}
+		}""";
 
 	String testName = "test69: full parse";
 	fullParse(s,testName);
@@ -4925,16 +5121,18 @@ public void test69() {
 public void test70() {
 
 	String s =
-		"public interface X {						\n"+
-		"   int foo();								\n"+
-		"   int x();								\n"+
-		"}";
+		"""
+		public interface X {					\t
+		   int foo();							\t
+		   int x();							\t
+		}""";
 
 	String expectedUnitToString =
-		"public interface X {\n"
-		+ "\tint foo() {}\n"
-		+ "\tint x() {}\n"
-		+ "}";
+		"""
+		public interface X {
+			int foo() {}
+			int x() {}
+		}""";
 
 	String testName = "test70: full parse";
 	fullParse(s,testName);
@@ -4979,18 +5177,20 @@ public void test70() {
 public void test71() {
 
 	String s =
-		"public interface X {						\n"+
-		"   int[] i = ;								\n"+
-		"   int foo() {}							\n"+
-		"   int x();								\n"+
-		"}";
+		"""
+		public interface X {					\t
+		   int[] i = ;							\t
+		   int foo() {}						\t
+		   int x();							\t
+		}""";
 
 	String expectedUnitToString =
-		"public interface X {\n"
-		+ "\tint[] i;\n"
-		+ "\tint foo() {}\n"
-		+ "\tint x() {}\n"
-		+ "}";
+		"""
+		public interface X {
+			int[] i;
+			int foo() {}
+			int x() {}
+		}""";
 
 	String testName = "test71: full parse";
 	fullParse(s,testName);
@@ -5039,18 +5239,20 @@ public void test71() {
 public void test72() {
 
 	String s =
-		"public class X {						\n"+
-		"   X() {								\n" +
-		"   	this();							\n" +
-		"	}									\n" +
-		"}";
+		"""
+		public class X {					\t
+		   X() {							\t
+		   	this();						\t
+			}								\t
+		}""";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tX() {\n"
-		+ "\t\tX(0)\n"
-		+ "\t}\n"
-		+ "}";
+		"""
+		public class X {
+			X() {
+				X(0)
+			}
+		}""";
 
 	String testName = "test72: full parse";
 	fullParse(s,testName);
@@ -5063,30 +5265,32 @@ public void test72() {
 public void test73() {
 
 	String s =
-		"public class X extends Toto {			\n"+
-		"   X() {								\n" +
-		"   	this();							\n" +
-		"	}									\n" +
-		"   X(int i) {							\n" +
-		"   	super();						\n" +
-		"	}									\n" +
-		"   X() {								\n" +
-		"   	this(0);						\n" +
-		"	}									\n" +
-		"}";
+		"""
+		public class X extends Toto {		\t
+		   X() {							\t
+		   	this();						\t
+			}								\t
+		   X(int i) {						\t
+		   	super();					\t
+			}								\t
+		   X() {							\t
+		   	this(0);					\t
+			}								\t
+		}""";
 
 	String expectedUnitToString =
-		"public class X extends Toto {\n"
-		+ "\tX() {\n"
-		+ "\t\tX(0)\n"
-		+ "\t}\n"
-		+ "\tX(int i, ) {\n"
-		+ "\t\tToto(0)\n"
-		+ "\t}\n"
-		+ "\tX() {\n"
-		+ "\t\tX(1)\n"
-		+ "\t}\n"
-		+ "}";
+		"""
+		public class X extends Toto {
+			X() {
+				X(0)
+			}
+			X(int i, ) {
+				Toto(0)
+			}
+			X() {
+				X(1)
+			}
+		}""";
 
 	String testName = "test73: full parse";
 	fullParse(s,testName);
@@ -5099,39 +5303,41 @@ public void test73() {
 public void test74() {
 
 	String s =
-		"public class X extends Toto {			\n"+
-		"	class Y extends Throwable {			\n" +
-		"	}									\n" +
-		"   X() {								\n" +
-		"   	this();							\n" +
-		"	}									\n" +
-		"   X(int i) {							\n" +
-		"   	super();						\n" +
-		"	}									\n" +
-		"   X() {								\n" +
-		"   	this(0);						\n" +
-		"	}									\n" +
-		"	public Object foo(int i) {			\n" +
-		"		return new Object() {};			\n" +
-		"	}									\n" +
-		"}";
+		"""
+		public class X extends Toto {		\t
+			class Y extends Throwable {		\t
+			}								\t
+		   X() {							\t
+		   	this();						\t
+			}								\t
+		   X(int i) {						\t
+		   	super();					\t
+			}								\t
+		   X() {							\t
+		   	this(0);					\t
+			}								\t
+			public Object foo(int i) {		\t
+				return new Object() {};		\t
+			}								\t
+		}""";
 
 	String expectedUnitToString =
-		"public class X extends Toto {\n"
-		+ "\tclass Y extends Throwable {\n"
-		+ "\t\tThrowable(0)\n"
-		+ "\t}\n"
-		+ "\tX() {\n"
-		+ "\t\tX(0)\n"
-		+ "\t}\n"
-		+ "\tX(int i, ) {\n"
-		+ "\t\tToto(0)\n"
-		+ "\t}\n"
-		+ "\tX() {\n"
-		+ "\t\tX(1)\n"
-		+ "\t}\n"
-		+ "\tpublic Object foo(int i, ) {}\n"
-		+ "}";
+		"""
+		public class X extends Toto {
+			class Y extends Throwable {
+				Throwable(0)
+			}
+			X() {
+				X(0)
+			}
+			X(int i, ) {
+				Toto(0)
+			}
+			X() {
+				X(1)
+			}
+			public Object foo(int i, ) {}
+		}""";
 
 	String testName = "test74: full parse";
 	fullParse(s,testName);
@@ -5146,19 +5352,21 @@ public void test74() {
  */
 public void test75() {
 	String s =
-		"public class P#AField {\n" +
-		"	public void setP#A(String P#A) {\n" +
-		"		this.P#A = P#A;\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class P#AField {
+			public void setP#A(String P#A) {
+				this.P#A = P#A;
+			}
+		}""";
 
 	String expectedUnitToString =
-		"public class P {\n" +
-		"	{}\n" +
-		"	public void setP;\n" +
-		"	java.lang.Object(0)\n" +
-		"	A(String P, ) {}\n" +
-		"}";
+		"""
+		public class P {
+			{}
+			public void setP;
+			java.lang.Object(0)
+			A(String P, ) {}
+		}""";
 
 	String testName = "test75: full parse";
 	fullParse(s,testName);
@@ -5171,20 +5379,23 @@ public void test75() {
 public void test76() {
 
 	String s =
-		"class X {\n" +
-		"  public static int j = 0;\n" +
-		"  /* static */ {\n" +
-		"  }" +
-		"  public static int i = 9;\n" +
-		"}\n";
+		"""
+		class X {
+		  public static int j = 0;
+		  /* static */ {
+		  }\
+		  public static int i = 9;
+		}
+		""";
 
 	String expectedUnitToString =
-		"class X {\n" +
-		"	public static int j;\n" +
-		"	{}\n" +
-		"	public static int i;\n" +
-		"	java.lang.Object(0)\n" +
-		"}";
+		"""
+		class X {
+			public static int j;
+			{}
+			public static int i;
+			java.lang.Object(0)
+		}""";
 
 	String testName = "test76: full parse";
 	fullParse(s,testName);
@@ -5239,17 +5450,18 @@ public void testBug99662() {
 public void _test77() {
 
 	String s =
-		"public class X {\n" +
-		"	void foo() {\n" +
-		"		class Y {\n" +
-		"			String s = null;\n" +
-		"			{\n" +
-		"				class Z {\n" +
-		"				}\n" +
-		"			}\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class X {
+			void foo() {
+				class Y {
+					String s = null;
+					{
+						class Z {
+						}
+					}
+				}
+			}
+		}""";
 
 	String expectedUnitToString =
 		"public class X implements Y, String, {\n"
@@ -5266,17 +5478,18 @@ public void _test77() {
 public void _test78() {
 
 	String s =
-		"public class X {\n" +
-		"	void foo() {\n" +
-		"		class Y {\n" +
-		"			String s = null;\n" +
-		"			{\n" +
-		"				class Z {\n" +
-		"				}\n" +
-		"			}\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class X {
+			void foo() {
+				class Y {
+					String s = null;
+					{
+						class Z {
+						}
+					}
+				}
+			}
+		}""";
 
 	String expectedUnitToString =
 		"public class X implements Y, String, {\n"
@@ -5293,17 +5506,18 @@ public void _test78() {
 public void _test79() {
 
 	String s =
-		"public class X {\n" +
-		"	void foo() {\n" +
-		"		class Y {\n" +
-		"			{\n" +
-		"				class Z {\n" +
-		"				}\n" +
-		"			}\n" +
-		"			String s = null;\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class X {
+			void foo() {
+				class Y {
+					{
+						class Z {
+						}
+					}
+					String s = null;
+				}
+			}
+		}""";
 
 	String expectedUnitToString =
 		"public class X implements Y, String, {\n"
@@ -5320,17 +5534,18 @@ public void _test79() {
 public void _test80() {
 
 	String s =
-		"public class X {\n" +
-		"	void foo() {\n" +
-		"		class Y {\n" +
-		"			{\n" +
-		"				class Z {\n" +
-		"				}\n" +
-		"			}\n" +
-		"			String s = null;\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class X {
+			void foo() {
+				class Y {
+					{
+						class Z {
+						}
+					}
+					String s = null;
+				}
+			}
+		}""";
 
 	String expectedUnitToString =
 		"public class X implements Y, String, {\n"
@@ -5351,67 +5566,69 @@ public void test81() {
 	options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 
 	String s =
-		"import java.util.Collection;\n" +
-		"\n" +
-		"public class X {\n" +
-		"	public abstract class AbstractData {}\n" +
-		"	\n" +
-		"	public interface IScalarData<T extends AbstractData> {}\n" +
-		"\n" +
-		"	private static interface ValueObjectPropertyIterator {\n" +
-		"		public <T extends AbstractData> void iterateOnValueObjectProperty(IScalarData<T> scalarObject, T valueObject, Class<?> valueObjectType, final String name, final Class<?> scalarType) throws Exception;\n" +
-		"	}\n" +
-		"\n" +
-		"	private static <T extends AbstractData> void iterateOnValueObjectProperties(IScalarData<T> scalarObject, T valueObject, ValueObjectPropertyIterator valueObjectPropertyIterator) {}\n" +
-		"	\n" +
-		"	public static <T extends AbstractData> void loadScalarFromValueObject(IScalarData<T> scalarObject, T valueObject) {\n" +
-		"		iterateOnValueObjectProperties(scalarObject, valueObject, new ValueObjectPropertyIterator() {\n" +
-		"			public <T extends AbstractData> void iterateOnValueObjectProperty(IScalarData<T> scalarObject, T valueObject, Class<?> valueObjectType, String name, Class<?> scalarType) throws Exception {\n" +
-		"				if (true) {\n" +
-		"					if (true) {\n" +
-		"						if (true) {\n" +
-		"							final Collection<IScalarData<AbstractData>> lazyCollection = createLazyCollection(\n" +
-		"									name, scalarType, null, null,\n" +
-		"									new CollectionProviderForTargetCollection<IScalarData<AbstractData>>() {\n" +
-		"										@Override\n" +
-		"										public Collection<IScalarData<AbstractData>> provideCollection(\n" +
-		"												final Collection<IScalarData<AbstractData> targetCollection, final Class<IScalarData<AbstractData>> scalarCollectionType) {\n" +
-		"											return null;\n" +
-		"										}\n" +
-		"									});\n" +
-		"						}\n" +
-		"					}\n" +
-		"				}\n" +
-		"			}\n" +
-		"\n" +
-		"			abstract class CollectionProviderForTargetCollection<S> {\n" +
-		"				abstract public Collection<S> provideCollection(Collection<S> targetCollection, Class<S> scalarCollectionType);\n" +
-		"			}\n" +
-		"\n" +
-		"			private <S> Collection<S> createLazyCollection(String name,\n" +
-		"					Class<?> scalarType, final Collection<AbstractData> valueObjectCollection,\n" +
-		"					final Class<S> scalarCollectionType, CollectionProviderForTargetCollection<S> collectionProvider) {\n" +
-		"				return null;\n" +
-		"			}\n" +
-		"		});\n" +
-		"	}\n" +
-		"}";
+		"""
+		import java.util.Collection;
+		
+		public class X {
+			public abstract class AbstractData {}
+		\t
+			public interface IScalarData<T extends AbstractData> {}
+		
+			private static interface ValueObjectPropertyIterator {
+				public <T extends AbstractData> void iterateOnValueObjectProperty(IScalarData<T> scalarObject, T valueObject, Class<?> valueObjectType, final String name, final Class<?> scalarType) throws Exception;
+			}
+		
+			private static <T extends AbstractData> void iterateOnValueObjectProperties(IScalarData<T> scalarObject, T valueObject, ValueObjectPropertyIterator valueObjectPropertyIterator) {}
+		\t
+			public static <T extends AbstractData> void loadScalarFromValueObject(IScalarData<T> scalarObject, T valueObject) {
+				iterateOnValueObjectProperties(scalarObject, valueObject, new ValueObjectPropertyIterator() {
+					public <T extends AbstractData> void iterateOnValueObjectProperty(IScalarData<T> scalarObject, T valueObject, Class<?> valueObjectType, String name, Class<?> scalarType) throws Exception {
+						if (true) {
+							if (true) {
+								if (true) {
+									final Collection<IScalarData<AbstractData>> lazyCollection = createLazyCollection(
+											name, scalarType, null, null,
+											new CollectionProviderForTargetCollection<IScalarData<AbstractData>>() {
+												@Override
+												public Collection<IScalarData<AbstractData>> provideCollection(
+														final Collection<IScalarData<AbstractData> targetCollection, final Class<IScalarData<AbstractData>> scalarCollectionType) {
+													return null;
+												}
+											});
+								}
+							}
+						}
+					}
+		
+					abstract class CollectionProviderForTargetCollection<S> {
+						abstract public Collection<S> provideCollection(Collection<S> targetCollection, Class<S> scalarCollectionType);
+					}
+		
+					private <S> Collection<S> createLazyCollection(String name,
+							Class<?> scalarType, final Collection<AbstractData> valueObjectCollection,
+							final Class<S> scalarCollectionType, CollectionProviderForTargetCollection<S> collectionProvider) {
+						return null;
+					}
+				});
+			}
+		}""";
 
 	String expectedUnitToString =
-		"import java.util.Collection;\n" +
-		"public class X {\n" +
-		"	public abstract class AbstractData {\n" +
-		"		java.lang.Object(0)\n" +
-		"	}\n" +
-		"	public interface IScalarData {\n" +
-		"	}\n" +
-		"	private static interface ValueObjectPropertyIterator {\n" +
-		"		public void iterateOnValueObjectProperty(IScalarData<T> scalarObject, T valueObject, Class<?> valueObjectType, String name, Class<?> scalarType, ) throws Exception, {}\n" +
-		"	}\n" +
-		"	java.lang.Object(0)\n" +
-		"	private static void iterateOnValueObjectProperties(IScalarData<T> scalarObject, T valueObject, ValueObjectPropertyIterator valueObjectPropertyIterator, ) {}\n" +
-		"	public static void loadScalarFromValueObject(IScalarData<T> scalarObject, T valueObject, ) {}\n" +
-		"}";
+		"""
+		import java.util.Collection;
+		public class X {
+			public abstract class AbstractData {
+				java.lang.Object(0)
+			}
+			public interface IScalarData {
+			}
+			private static interface ValueObjectPropertyIterator {
+				public void iterateOnValueObjectProperty(IScalarData<T> scalarObject, T valueObject, Class<?> valueObjectType, String name, Class<?> scalarType, ) throws Exception, {}
+			}
+			java.lang.Object(0)
+			private static void iterateOnValueObjectProperties(IScalarData<T> scalarObject, T valueObject, ValueObjectPropertyIterator valueObjectPropertyIterator, ) {}
+			public static void loadScalarFromValueObject(IScalarData<T> scalarObject, T valueObject, ) {}
+		}""";
 
 	String testName = "test81: full parse";
 	fullParse(s,testName, options);

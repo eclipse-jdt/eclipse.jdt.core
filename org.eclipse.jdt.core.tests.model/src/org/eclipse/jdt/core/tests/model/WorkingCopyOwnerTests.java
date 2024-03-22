@@ -202,10 +202,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy = getCompilationUnit("P/Y.java");
 			this.workingCopy.becomeWorkingCopy(null);
 			String newContents =
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}";
+				"""
+				public class Y {
+				  void foo() {
+				  }
+				}""";
 			this.workingCopy.getBuffer().setContents(newContents);
 			this.workingCopy.commitWorkingCopy(false, null);
 			assertSourceEquals(
@@ -231,10 +232,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy = getCompilationUnit("P/Y.java");
 			this.workingCopy.becomeWorkingCopy(null);
 			this.workingCopy.getBuffer().setContents(
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}"
+				"""
+					public class Y {
+					  void foo() {
+					  }
+					}"""
 			);
 			this.workingCopy.makeConsistent(null);
 
@@ -242,10 +244,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.commitWorkingCopy(false, null);
 			assertWorkingCopyDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" +
-				"	<project root>[*]: {CHILDREN}\n" +
-				"		<default>[*]: {CHILDREN}\n" +
-				"			[Working copy] Y.java[*]: {PRIMARY RESOURCE}"
+				"""
+					P[*]: {CHILDREN}
+						<project root>[*]: {CHILDREN}
+							<default>[*]: {CHILDREN}
+								[Working copy] Y.java[*]: {PRIMARY RESOURCE}"""
 			);
 		} finally {
 			stopDeltas();
@@ -266,22 +269,24 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy = getCompilationUnit("P/Y.java");
 			this.workingCopy.becomeWorkingCopy(null);
 			this.workingCopy.getBuffer().setContents(
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}"
+				"""
+					public class Y {
+					  void foo() {
+					  }
+					}"""
 			);
 
 			startDeltas();
 			this.workingCopy.commitWorkingCopy(false, null);
 			assertWorkingCopyDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" +
-				"	<project root>[*]: {CHILDREN}\n" +
-				"		<default>[*]: {CHILDREN}\n" +
-				"			[Working copy] Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-				"				Y[*]: {CHILDREN | FINE GRAINED}\n" +
-				"					foo()[+]: {}"
+				"""
+					P[*]: {CHILDREN}
+						<project root>[*]: {CHILDREN}
+							<default>[*]: {CHILDREN}
+								[Working copy] Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+									Y[*]: {CHILDREN | FINE GRAINED}
+										foo()[+]: {}"""
 			);
 		} finally {
 			stopDeltas();
@@ -304,10 +309,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy = cu.getWorkingCopy(null);
 			assertWorkingCopyDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" +
-				"	<project root>[*]: {CHILDREN}\n" +
-				"		<default>[*]: {CHILDREN}\n" +
-				"			[Working copy] Y.java[+]: {}"
+				"""
+					P[*]: {CHILDREN}
+						<project root>[*]: {CHILDREN}
+							<default>[*]: {CHILDREN}
+								[Working copy] Y.java[+]: {}"""
 			);
 		} finally {
 			stopDeltas();
@@ -331,10 +337,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.becomeWorkingCopy(null);
 			assertWorkingCopyDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" +
-				"	<project root>[*]: {CHILDREN}\n" +
-				"		<default>[*]: {CHILDREN}\n" +
-				"			[Working copy] Y.java[*]: {PRIMARY WORKING COPY}"
+				"""
+					P[*]: {CHILDREN}
+						<project root>[*]: {CHILDREN}
+							<default>[*]: {CHILDREN}
+								[Working copy] Y.java[*]: {PRIMARY WORKING COPY}"""
 			);
 		} finally {
 			stopDeltas();
@@ -355,10 +362,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.becomeWorkingCopy(null);
 			assertWorkingCopyDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" +
-				"	<project root>[*]: {CHILDREN}\n" +
-				"		<default>[*]: {CHILDREN}\n" +
-				"			[Working copy] Y.java[+]: {PRIMARY WORKING COPY}"
+				"""
+					P[*]: {CHILDREN}
+						<project root>[*]: {CHILDREN}
+							<default>[*]: {CHILDREN}
+								[Working copy] Y.java[+]: {PRIMARY WORKING COPY}"""
 			);
 		} finally {
 			stopDeltas();
@@ -383,10 +391,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.discardWorkingCopy();
 			assertWorkingCopyDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" +
-				"	<project root>[*]: {CHILDREN}\n" +
-				"		<default>[*]: {CHILDREN}\n" +
-				"			[Working copy] Y.java[-]: {}"
+				"""
+					P[*]: {CHILDREN}
+						<project root>[*]: {CHILDREN}
+							<default>[*]: {CHILDREN}
+								[Working copy] Y.java[-]: {}"""
 			);
 		} finally {
 			stopDeltas();
@@ -412,10 +421,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.discardWorkingCopy();
 			assertWorkingCopyDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" +
-				"	<project root>[*]: {CHILDREN}\n" +
-				"		<default>[*]: {CHILDREN}\n" +
-				"			Y.java[*]: {PRIMARY WORKING COPY}"
+				"""
+					P[*]: {CHILDREN}
+						<project root>[*]: {CHILDREN}
+							<default>[*]: {CHILDREN}
+								Y.java[*]: {PRIMARY WORKING COPY}"""
 			);
 		} finally {
 			stopDeltas();
@@ -445,12 +455,13 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.discardWorkingCopy();
 			assertWorkingCopyDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" +
-				"	<project root>[*]: {CHILDREN}\n" +
-				"		<default>[*]: {CHILDREN}\n" +
-				"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY WORKING COPY}\n" +
-				"				Y[*]: {CHILDREN | FINE GRAINED}\n" +
-				"					x[-]: {}"
+				"""
+					P[*]: {CHILDREN}
+						<project root>[*]: {CHILDREN}
+							<default>[*]: {CHILDREN}
+								Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY WORKING COPY}
+									Y[*]: {CHILDREN | FINE GRAINED}
+										x[-]: {}"""
 			);
 		} finally {
 			stopDeltas();
@@ -472,10 +483,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.discardWorkingCopy();
 			assertWorkingCopyDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" +
-				"	<project root>[*]: {CHILDREN}\n" +
-				"		<default>[*]: {CHILDREN}\n" +
-				"			Y.java[-]: {PRIMARY WORKING COPY}"
+				"""
+					P[*]: {CHILDREN}
+						<project root>[*]: {CHILDREN}
+							<default>[*]: {CHILDREN}
+								Y.java[-]: {PRIMARY WORKING COPY}"""
 			);
 		} finally {
 			stopDeltas();
@@ -497,10 +509,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			this.workingCopy.discardWorkingCopy();
 			assertWorkingCopyDeltas(
 				"Unexpected delta",
-				"P[*]: {CHILDREN}\n" +
-				"	<project root>[*]: {CHILDREN}\n" +
-				"		<default>[*]: {CHILDREN}\n" +
-				"			X.java[*]: {CONTENT | FINE GRAINED | PRIMARY WORKING COPY}"
+				"""
+					P[*]: {CHILDREN}
+						<project root>[*]: {CHILDREN}
+							<default>[*]: {CHILDREN}
+								X.java[*]: {CONTENT | FINE GRAINED | PRIMARY WORKING COPY}"""
 			);
 		} finally {
 			stopDeltas();
@@ -648,9 +661,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			public String findSource(String typeName, String packageName) {
 				if ("to.be".equals(packageName) && "Generated".equals(typeName)) {
 					return
-						"package to.be;\n" +
-						"public class Generated {\n" +
-						"}";
+						"""
+						package to.be;
+						public class Generated {
+						}""";
 				}
 				return super.findSource(typeName, packageName);
 			}
@@ -687,11 +701,13 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				}
 			};
 			assertProblems(
-				"1. ERROR in /P/X.java (at line 1)\n" +
-				"	public class X extends Y {\n" +
-				"	                       ^\n" +
-				"Y cannot be resolved to a type\n" +
-				"----------\n",
+				"""
+					1. ERROR in /P/X.java (at line 1)
+						public class X extends Y {
+						                       ^
+					Y cannot be resolved to a type
+					----------
+					""",
 				"/P/X.java",
 				"public class X extends Y {\n" +
 				"}",
@@ -957,9 +973,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			createFolder("/P/p1");
 			createFile(
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"}"
+				"""
+					package p1;
+					public class Y {
+					}"""
 			);
 			createFolder("/P/p2");
 			this.workingCopy = getCompilationUnit("P/p1/Y.java");
@@ -1041,9 +1058,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			"}"
 		);
 		this.workingCopy.getBuffer().setContents(
-			"public class X {\n" +
-			"  int field;\n" +
-			"}"
+			"""
+				public class X {
+				  int field;
+				}"""
 		);
 		try {
 			startDeltas();
@@ -1068,16 +1086,19 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			"}"
 		);
 		this.workingCopy.getBuffer().setContents(
-			"public class X {\n" +
-			"  int field;\n" +
-			"}"
+			"""
+				public class X {
+				  int field;
+				}"""
 		);
 		CompilationUnit ast = this.workingCopy.reconcile(JLS3_INTERNAL, false, null, null);
 		assertASTNodeEquals(
 			"Unexpected AST",
-			"public class X {\n" +
-			"  int field;\n" +
-			"}\n",
+			"""
+				public class X {
+				  int field;
+				}
+				""",
 			ast);
 	}
 
@@ -1091,9 +1112,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			"}"
 		);
 		this.workingCopy.getBuffer().setContents(
-			"public class X {\n" +
-			"  int field;\n" +
-			"}"
+			"""
+				public class X {
+				  int field;
+				}"""
 		);
 		CompilationUnit ast = this.workingCopy.reconcile(JLS3_INTERNAL, true/*force resolution*/, null, null);
 		TypeDeclaration type = (TypeDeclaration) ast.types().get(0);
@@ -1287,9 +1309,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
 		this.workingCopy = cu.getWorkingCopy(owner, null);
 		this.workingCopy.getBuffer().setContents(
-			"public class Y {\n" +
-			"  X field;\n" +
-			"}"
+			"""
+				public class Y {
+				  X field;
+				}"""
 		);
 		this.workingCopy.makeConsistent(null);
 
@@ -1395,17 +1418,19 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 			// create type Y in working copy
 			primaryWorkingCopy.getBuffer().setContents(
-				"package p;\n" +
-				"public class Y {\n" +
-				"}");
+				"""
+					package p;
+					public class Y {
+					}""");
 			primaryWorkingCopy.makeConsistent(null);
 
 			// create new working copy on X.java and add type X
 			this.workingCopy = getCompilationUnit("P/p/X.java").getWorkingCopy(null);
 			this.workingCopy.getBuffer().setContents(
-				"package p;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					}"""
 			);
 			this.workingCopy.makeConsistent(null);
 

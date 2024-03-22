@@ -77,59 +77,68 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 		String jarFileName = dirName + "org.eclipse.jdt.annotation_2.2.0.jar";
 		createJar(new String[] {
 				"module-info.java",
-				"module org.eclipse.jdt.annotation {\n" +
-				"	exports org.eclipse.jdt.annotation;\n" +
-				"}\n",
+				"""
+					module org.eclipse.jdt.annotation {
+						exports org.eclipse.jdt.annotation;
+					}
+					""",
 
 				"org/eclipse/jdt/annotation/DefaultLocation.java",
-				"package org.eclipse.jdt.annotation;\n" +
-				"\n" +
-				"public enum DefaultLocation {\n" +
-				"	\n" +
-				"	PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS\n" +
-				"}\n",
+				"""
+					package org.eclipse.jdt.annotation;
+					
+					public enum DefaultLocation {
+					\t
+						PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS
+					}
+					""",
 
 				"org/eclipse/jdt/annotation/NonNullByDefault.java",
-				"package org.eclipse.jdt.annotation;\n" +
-				"\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"import static org.eclipse.jdt.annotation.DefaultLocation.*;\n" +
-				"\n" +
-				"import java.lang.annotation.*;\n" +
-				" \n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ ElementType.MODULE, ElementType.PACKAGE, ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.LOCAL_VARIABLE })\n" +
-				"public @interface NonNullByDefault {\n" +
-				"	DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT };\n" +
-				"}",
+				"""
+					package org.eclipse.jdt.annotation;
+					
+					import java.lang.annotation.ElementType;
+					import static org.eclipse.jdt.annotation.DefaultLocation.*;
+					
+					import java.lang.annotation.*;
+					\s
+					@Documented
+					@Retention(RetentionPolicy.CLASS)
+					@Target({ ElementType.MODULE, ElementType.PACKAGE, ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.LOCAL_VARIABLE })
+					public @interface NonNullByDefault {
+						DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT };
+					}""",
 
 				"org/eclipse/jdt/annotation/NonNull.java",
-				"package org.eclipse.jdt.annotation;\n" +
-				"import static java.lang.annotation.ElementType.TYPE_USE;\n" +
-				"\n" +
-				"import java.lang.annotation.*;\n" +
-				" \n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ TYPE_USE })\n" +
-				"public @interface NonNull {\n" +
-				"	// marker annotation with no members\n" +
-				"}\n",
+				"""
+					package org.eclipse.jdt.annotation;
+					import static java.lang.annotation.ElementType.TYPE_USE;
+					
+					import java.lang.annotation.*;
+					\s
+					@Documented
+					@Retention(RetentionPolicy.CLASS)
+					@Target({ TYPE_USE })
+					public @interface NonNull {
+						// marker annotation with no members
+					}
+					""",
 
 				"org/eclipse/jdt/annotation/Nullable.java",
-				"package org.eclipse.jdt.annotation;\n" +
-				"\n" +
-				"import static java.lang.annotation.ElementType.TYPE_USE;\n" +
-				"\n" +
-				"import java.lang.annotation.*;\n" +
-				" \n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ TYPE_USE })\n" +
-				"public @interface Nullable {\n" +
-				"	// marker annotation with no members\n" +
-				"}\n"
+				"""
+					package org.eclipse.jdt.annotation;
+					
+					import static java.lang.annotation.ElementType.TYPE_USE;
+					
+					import java.lang.annotation.*;
+					\s
+					@Documented
+					@Retention(RetentionPolicy.CLASS)
+					@Target({ TYPE_USE })
+					public @interface Nullable {
+						// marker annotation with no members
+					}
+					"""
 			},
 			null,
 			jarFileName,
@@ -228,27 +237,33 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
 				"my.mod/module-info.java",
-				  "import org.eclipse.jdt.annotation.*;\n" +
-				  "@NonNullByDefault\n" +
-				  "module my.mod {\n" +
-				  "		requires static org.eclipse.jdt.annotation;\n" +
-				  "}\n",
+				  """
+					import org.eclipse.jdt.annotation.*;
+					@NonNullByDefault
+					module my.mod {
+							requires static org.eclipse.jdt.annotation;
+					}
+					""",
 				"my.mod/p/X.java",
-				  "package p;\n" +
-				  "public class X {\n" +
-				  "		String f; // missing nn init\n" +
-				  "    	void foo(String s) {\n" +
-				  "        this.f = s; // OK\n" +
-				  "    	}\n" +
-				  "}\n"
+				  """
+					package p;
+					public class X {
+							String f; // missing nn init
+					    	void foo(String s) {
+					        this.f = s; // OK
+					    	}
+					}
+					"""
 			};
 		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in my.mod\\p\\X.java (at line 3)\n" +
-			"	String f; // missing nn init\n" +
-			"	       ^\n" +
-			"The @NonNull field f may not have been initialized\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in my.mod\\p\\X.java (at line 3)
+					String f; // missing nn init
+					       ^
+				The @NonNull field f may not have been initialized
+				----------
+				""";
 		runner.runNegativeTest();
 	}
 
@@ -258,16 +273,20 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 		createJar(
 			new String[] {
 				"module-info.java",
-				"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-				"module mod.one {\n" +
-				"	requires org.eclipse.jdt.annotation;\n" +
-				"	exports p.q;\n" +
-				"}\n",
+				"""
+					@org.eclipse.jdt.annotation.NonNullByDefault
+					module mod.one {
+						requires org.eclipse.jdt.annotation;
+						exports p.q;
+					}
+					""",
 				"p/q/API.java",
-				"package p.q;\n" +
-				"public class API {\n" +
-				"	public String id(String in) { return in; }\n" +
-				"}\n"
+				"""
+					package p.q;
+					public class API {
+						public String id(String in) { return in; }
+					}
+					"""
 			},
 			null, // extra path & content
 			jarPath,
@@ -282,29 +301,35 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 		runner.libsOnModulePath = true;
 		runner.testFiles = new String[] {
 				"my.mod/module-info.java",
-				  "import org.eclipse.jdt.annotation.*;\n" +
-				  "@NonNullByDefault\n" +
-				  "module my.mod {\n" +
-				  "		requires static org.eclipse.jdt.annotation;\n" +
-				  "		requires mod.one;\n" +
-				  "}\n",
+				  """
+					import org.eclipse.jdt.annotation.*;
+					@NonNullByDefault
+					module my.mod {
+							requires static org.eclipse.jdt.annotation;
+							requires mod.one;
+					}
+					""",
 				"my.mod/p/X.java",
-				  "package p;\n" +
-				  "import p.q.API;\n" +
-				  "public class X {\n" +
-				  "    	void foo(API api) {\n" +
-				  "        api.id(api.id(\"\")); // OK\n" +
-				  "        api.id(null); // NOK\n" +
-				  "    	}\n" +
-				  "}\n"
+				  """
+					package p;
+					import p.q.API;
+					public class X {
+					    	void foo(API api) {
+					        api.id(api.id("")); // OK
+					        api.id(null); // NOK
+					    	}
+					}
+					"""
 			};
 		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in my.mod\\p\\X.java (at line 6)\n" +
-			"	api.id(null); // NOK\n" +
-			"	       ^^^^\n" +
-			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in my.mod\\p\\X.java (at line 6)
+					api.id(null); // NOK
+					       ^^^^
+				Null type mismatch: required \'@NonNull String\' but the provided value is null
+				----------
+				""";
 		runner.javacTestOptions =
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 		runner.runNegativeTest();
@@ -315,52 +340,60 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
 				"my.mod/module-info.java",
-				  "import org.eclipse.jdt.annotation.*;\n" +
-				  "@NonNullByDefault\n" +
-				  "module my.mod {\n" +
-				  "		requires static org.eclipse.jdt.annotation;\n" +
-				  "}\n",
+				  """
+					import org.eclipse.jdt.annotation.*;
+					@NonNullByDefault
+					module my.mod {
+							requires static org.eclipse.jdt.annotation;
+					}
+					""",
 				"my.mod/p/X.java",
-				  "package p;\n" +
-				  "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-				  "public class X {\n" +
-				  "		String f; // missing nn init\n" +
-				  "    	void foo(String s) {\n" +
-				  "        this.f = s; // OK\n" +
-				  "    	}\n" +
-				  "}\n",
+				  """
+					package p;
+					@org.eclipse.jdt.annotation.NonNullByDefault
+					public class X {
+							String f; // missing nn init
+					    	void foo(String s) {
+					        this.f = s; // OK
+					    	}
+					}
+					""",
 				"my.mod/p/Y.java",
-				  "package p;\n" +
-				  "import static org.eclipse.jdt.annotation.DefaultLocation.*;\n" +
-				  "@org.eclipse.jdt.annotation.NonNullByDefault(PARAMETER)\n" + // not: FIELD, due to details not redundant
-				  "public class Y {\n" +
-				  "		String f; // missing init is NOT a problem\n" +
-				  "    	void foo(String s) {\n" +
-				  "        this.f = s; // OK\n" +
-				  "    	}\n" +
-				  "}\n",
+				  """
+					package p;
+					import static org.eclipse.jdt.annotation.DefaultLocation.*;
+					@org.eclipse.jdt.annotation.NonNullByDefault(PARAMETER)
+					public class Y {
+							String f; // missing init is NOT a problem
+					    	void foo(String s) {
+					        this.f = s; // OK
+					    	}
+					}
+					""",
 				"my.mod/p2/package-info.java",
 				  "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 				  "package p2;\n"
 			};
 		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. WARNING in my.mod\\p\\X.java (at line 2)\n" +
-			"	@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Nullness default is redundant with a default specified for the enclosing module my.mod\n" +
-			"----------\n" +
-			"2. ERROR in my.mod\\p\\X.java (at line 4)\n" +
-			"	String f; // missing nn init\n" +
-			"	       ^\n" +
-			"The @NonNull field f may not have been initialized\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. WARNING in my.mod\\p2\\package-info.java (at line 1)\n" +
-			"	@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Nullness default is redundant with a default specified for the enclosing module my.mod\n" +
-			"----------\n";
+			"""
+				----------
+				1. WARNING in my.mod\\p\\X.java (at line 2)
+					@org.eclipse.jdt.annotation.NonNullByDefault
+					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Nullness default is redundant with a default specified for the enclosing module my.mod
+				----------
+				2. ERROR in my.mod\\p\\X.java (at line 4)
+					String f; // missing nn init
+					       ^
+				The @NonNull field f may not have been initialized
+				----------
+				----------
+				1. WARNING in my.mod\\p2\\package-info.java (at line 1)
+					@org.eclipse.jdt.annotation.NonNullByDefault
+					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Nullness default is redundant with a default specified for the enclosing module my.mod
+				----------
+				""";
 		runner.runNegativeTest();
 	}
 	public void testBug536037a() {
@@ -368,12 +401,14 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 		runConformTestWithLibs(
 			new String[] {
 				"Bar.java",
-				"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-				"public class Bar {\n" +
-				"    static void bar(Iterable<String> list) {\n" +
-				"        for(var s : list);\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					@org.eclipse.jdt.annotation.NonNullByDefault
+					public class Bar {
+					    static void bar(Iterable<String> list) {
+					        for(var s : list);
+					    }
+					}
+					"""
 			},
 			null,
 			"");
@@ -388,48 +423,56 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 		runNegativeTestWithLibs(
 			new String[] {
 				"test/NonNull.java",
-				"package test;\n" +
-				"import java.lang.annotation.*;\n" +
-				"@Target({ElementType.LOCAL_VARIABLE,ElementType.PARAMETER}) public @interface NonNull {}\n",
+				"""
+					package test;
+					import java.lang.annotation.*;
+					@Target({ElementType.LOCAL_VARIABLE,ElementType.PARAMETER}) public @interface NonNull {}
+					""",
 				"test/Nullable.java",
-				"package test;\n" +
-				"import java.lang.annotation.*;\n" +
-				"@Target({ElementType.LOCAL_VARIABLE,ElementType.PARAMETER}) public @interface Nullable {}\n",
+				"""
+					package test;
+					import java.lang.annotation.*;
+					@Target({ElementType.LOCAL_VARIABLE,ElementType.PARAMETER}) public @interface Nullable {}
+					""",
 				"Bar.java",
-				"import test.*;\n" +
-				"public class Bar {\n" +
-				"    static void bar1(@Nullable String s1, Iterable<String> list) {\n" +
-				"		@NonNull var s2 = s1;\n" +
-				"		for (@NonNull var s : list);\n" +
-				"	 }\n" +
-				"    static void bar2(int[] array) {\n" +
-				"		@NonNull var i1 = 3;\n" +
-				"		for (@NonNull var s : array);\n" +
-				"	 }\n" +
-				"}\n"
+				"""
+					import test.*;
+					public class Bar {
+					    static void bar1(@Nullable String s1, Iterable<String> list) {
+							@NonNull var s2 = s1;
+							for (@NonNull var s : list);
+						 }
+					    static void bar2(int[] array) {
+							@NonNull var i1 = 3;
+							for (@NonNull var s : array);
+						 }
+					}
+					"""
 			},
 			options,
-			"----------\n" +
-			"1. ERROR in Bar.java (at line 4)\n" +
-			"	@NonNull var s2 = s1;\n" +
-			"	                  ^^\n" +
-			"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" +
-			"----------\n" +
-			"2. WARNING in Bar.java (at line 5)\n" +
-			"	for (@NonNull var s : list);\n" +
-			"	                      ^^^^\n" +
-			"Null type safety: The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" +
-			"----------\n" +
-			"3. ERROR in Bar.java (at line 8)\n" +
-			"	@NonNull var i1 = 3;\n" +
-			"	^^^^^^^^\n" +
-			"The nullness annotation @NonNull is not applicable for the primitive type int\n" +
-			"----------\n" +
-			"4. ERROR in Bar.java (at line 9)\n" +
-			"	for (@NonNull var s : array);\n" +
-			"	     ^^^^^^^^\n" +
-			"The nullness annotation @NonNull is not applicable for the primitive type int\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in Bar.java (at line 4)
+					@NonNull var s2 = s1;
+					                  ^^
+				Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable
+				----------
+				2. WARNING in Bar.java (at line 5)
+					for (@NonNull var s : list);
+					                      ^^^^
+				Null type safety: The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'
+				----------
+				3. ERROR in Bar.java (at line 8)
+					@NonNull var i1 = 3;
+					^^^^^^^^
+				The nullness annotation @NonNull is not applicable for the primitive type int
+				----------
+				4. ERROR in Bar.java (at line 9)
+					for (@NonNull var s : array);
+					     ^^^^^^^^
+				The nullness annotation @NonNull is not applicable for the primitive type int
+				----------
+				""");
 	}
 
 	public void testGH1152() {

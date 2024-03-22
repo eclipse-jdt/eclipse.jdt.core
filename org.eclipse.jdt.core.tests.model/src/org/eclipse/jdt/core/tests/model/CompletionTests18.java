@@ -57,12 +57,14 @@ public void test001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface Foo { \n" +
-			"	void run1(int s1, int s2);\n" +
-			"}\n" +
-			"interface X extends Foo{\n" +
-			"  static Foo f = (first, second) -> System.out.print(fir);\n" +
-			"}\n");
+			"""
+				interface Foo {\s
+					void run1(int s1, int s2);
+				}
+				interface X extends Foo{
+				  static Foo f = (first, second) -> System.out.print(fir);
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -78,14 +80,16 @@ public void test002() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface Foo { \n" +
-			"	void run1(int s1, int s2);\n" +
-			"}\n" +
-			"interface X extends Foo {\n" +
-			"  public static void main(String [] args) {\n" +
-			"      Foo f = (first, second) -> System.out.print(fir);\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				interface Foo {\s
+					void run1(int s1, int s2);
+				}
+				interface X extends Foo {
+				  public static void main(String [] args) {
+				      Foo f = (first, second) -> System.out.print(fir);
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -101,23 +105,25 @@ public void test003() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I { \n" +
-			"	J foo(String x, String y);\n" +
-			"}\n" +
-			"interface J {\n" +
-			"	K foo(String x, String y);\n" +
-			"}\n" +
-			"interface K {\n" +
-			"	int foo(String x, int y);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	static void goo(J i) {}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		goo ((first, second) -> {\n" +
-			"			return (xyz, pqr) -> first.c\n" +
-			"		});\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {\s
+					J foo(String x, String y);
+				}
+				interface J {
+					K foo(String x, String y);
+				}
+				interface K {
+					int foo(String x, int y);
+				}
+				public class X {
+					static void goo(J i) {}
+					public static void main(String[] args) {
+						goo ((first, second) -> {
+							return (xyz, pqr) -> first.c
+						});
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -148,12 +154,14 @@ public void test004() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface Foo {\n" +
-			"	int run1(int s1, int s2);\n" +
-			"}\n" +
-			"interface X extends Foo{\n" +
-			"    static Foo f = (lpx5, lpx6) -> {lpx\n" +
-			"}\n");
+			"""
+				interface Foo {
+					int run1(int s1, int s2);
+				}
+				interface X extends Foo{
+				    static Foo f = (lpx5, lpx6) -> {lpx
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -171,18 +179,20 @@ public void test005() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	int foo(int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	void go() {\n" +
-			"		I i = (argument) -> {\n" +
-			"			if (true) {\n" +
-			"				return arg\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					int foo(int x);
+				}
+				public class X {
+					void go() {
+						I i = (argument) -> {
+							if (true) {
+								return arg
+							}
+						}
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -199,16 +209,18 @@ public void test006() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	int foo(int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	void go() {\n" +
-			"		I i = (argument) -> {\n" +
-			"			argument == 0 ? arg\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					int foo(int x);
+				}
+				public class X {
+					void go() {
+						I i = (argument) -> {
+							argument == 0 ? arg
+						}
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -225,16 +237,18 @@ public void test006b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	int foo(int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	void go() {\n" +
-			"		I i = (argument) -> \n" +
-			"			argument == 0 ? arg\n" +
-			"		;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					int foo(int x);
+				}
+				public class X {
+					void go() {
+						I i = (argument) ->\s
+							argument == 0 ? arg
+						;
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -252,18 +266,20 @@ public void test007() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"public interface Foo { \n" +
-			"	int run(int s1, int s2); \n" +
-			"}\n" +
-			"interface X {\n" +
-			"    static Foo f = (int x5, int x11) -> x\n" +
-			"    static int x1 = 2;\n" +
-			"}\n" +
-			"class C {\n" +
-			"	void method1(){\n" +
-			"		int p = X.\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public interface Foo {\s
+					int run(int s1, int s2);\s
+				}
+				interface X {
+				    static Foo f = (int x5, int x11) -> x
+				    static int x1 = 2;
+				}
+				class C {
+					void method1(){
+						int p = X.
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -282,16 +298,18 @@ public void test008() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"    void doit();\n" +
-			"}\n" +
-			"interface J {\n" +
-			"}\n" +
-			"public class X { \n" +
-			"	/* BEFORE */\n" +
-			"	Object o = (I & J) () -> {};\n" +
-			"	/* AFTER */\n" +
-			"}\n");
+			"""
+				interface I {
+				    void doit();
+				}
+				interface J {
+				}
+				public class X {\s
+					/* BEFORE */
+					Object o = (I & J) () -> {};
+					/* AFTER */
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -330,16 +348,18 @@ public void test009() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"    void doit();\n" +
-			"}\n" +
-			"interface J {\n" +
-			"}\n" +
-			"public class X { \n" +
-			"	/* BEFORE */\n" +
-			"	Object o = (I & J) () -> {};\n" +
-			"	/* AFTER */\n" +
-			"}\n");
+			"""
+				interface I {
+				    void doit();
+				}
+				interface J {
+				}
+				public class X {\s
+					/* BEFORE */
+					Object o = (I & J) () -> {};
+					/* AFTER */
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -377,21 +397,23 @@ public void test010() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"  String foo(X x, X i); \n" +
-			"} \n" +
-			"public class X  {\n" +
-			"	static void goo(I i) {\n" +
-			"	}\n" +
-			"	static void goo(String s) {\n" +
-			"	}\n" +
-			"	public static void main(String[] args) { \n" +
-			"		goo((x, y) -> {\n" +
-			"			x.\n" +
-			"			return x + y;\n" +
-			"		});\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+				  String foo(X x, X i);\s
+				}\s
+				public class X  {
+					static void goo(I i) {
+					}
+					static void goo(String s) {
+					}
+					public static void main(String[] args) {\s
+						goo((x, y) -> {
+							x.
+							return x + y;
+						});
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -421,16 +443,18 @@ public void test011() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		syso\n" +
-			"		I i = () -> {\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+					public static void main(String[] args) {
+						syso
+						I i = () -> {
+						};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -439,29 +463,32 @@ public void test011() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=94\n" +
-			"completion range=[90, 93]\n" +
-			"completion token=\"syso\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=94
+		completion range=[90, 93]
+		completion token="syso"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
 public void test012() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = () -> {\n" +
-			"		    syso\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+					public static void main(String[] args) {
+						I i = () -> {
+						    syso
+						};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -470,29 +497,32 @@ public void test012() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=114\n" +
-			"completion range=[110, 113]\n" +
-			"completion token=\"syso\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=114
+		completion range=[110, 113]
+		completion token="syso"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
 public void test013() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = () -> {\n" +
-			"		};\n" +
-			"		syso\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+					public static void main(String[] args) {
+						I i = () -> {
+						};
+						syso
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -501,30 +531,33 @@ public void test013() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=115\n" +
-			"completion range=[111, 114]\n" +
-			"completion token=\"syso\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=115
+		completion range=[111, 114]
+		completion token="syso"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
 public void test014() throws JavaModelException { // ensure higher relevance for matching return type.
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	int [] foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] arrayOfStrings) {\n" +
-			"       int [] arrayOfInts = null;\n" +
-			"		I i = () -> {\n" +
-			"           return arrayO\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					int [] foo();
+				}
+				public class X {
+					public static void main(String[] arrayOfStrings) {
+				       int [] arrayOfInts = null;
+						I i = () -> {
+				           return arrayO
+						};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -541,20 +574,22 @@ public void test015a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"       {\n" +
-			"		I i = () -> {\n" +
-			"           {\n" +
-			"               syso\n" +
-			"           }\n" +
-			"		};\n" +
-			"       }\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+					public static void main(String[] args) {
+				       {
+						I i = () -> {
+				           {
+				               syso
+				           }
+						};
+				       }
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -563,33 +598,36 @@ public void test015a() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=145\n" +
-			"completion range=[141, 144]\n" +
-			"completion token=\"syso\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=145
+		completion range=[141, 144]
+		completion token="syso"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/650, Templates not working in Lambda internal block.
 public void test015b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"       {\n" +
-			"		I i = () -> {\n" +
-			"           if (args.length > 3) {\n" +
-			"               syso\n" +
-			"           }\n" +
-			"		};\n" +
-			"       }\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+					public static void main(String[] args) {
+				       {
+						I i = () -> {
+				           if (args.length > 3) {
+				               syso
+				           }
+						};
+				       }
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -598,34 +636,37 @@ public void test015b() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=166\n" +
-			"completion range=[162, 165]\n" +
-			"completion token=\"syso\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=166
+		completion range=[162, 165]
+		completion token="syso"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/650, Templates not working in Lambda internal block.
 public void test015c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"       {\n" +
-			"		I i = () -> {\n" +
-			"           {\n" +
-			"               if (args.length > 3)\n" +
-			"                   syso\n" +
-			"           }\n" +
-			"		};\n" +
-			"       }\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+					public static void main(String[] args) {
+				       {
+						I i = () -> {
+				           {
+				               if (args.length > 3)
+				                   syso
+				           }
+						};
+				       }
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -634,32 +675,35 @@ public void test015c() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=185\n" +
-			"completion range=[181, 184]\n" +
-			"completion token=\"syso\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=185
+		completion range=[181, 184]
+		completion token="syso"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
 public void test016() throws JavaModelException { // ensure higher relevance for matching return type.
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		class Y {\n" +
-			"			I i = () -> {\n" +
-			"               xyzBefore = 10;\n" +
-			"               xyz\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+					public static void main(String[] args) {
+						class Y {
+							I i = () -> {
+				               xyzBefore = 10;
+				               xyz
+							}
+						}
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -674,18 +718,20 @@ public void test017() throws JavaModelException { // ensure higher relevance for
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"   public static X xField;\n" +
-			"   public static X goo() { return null; }\n" +
-			"	public static void main(String[] args) {\n" +
-			"			I i = () -> {\n" +
-			"               xyz\n" +
-			"	}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+				   public static X xField;
+				   public static X goo() { return null; }
+					public static void main(String[] args) {
+							I i = () -> {
+				               xyz
+					}
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -698,39 +744,42 @@ public void test017() throws JavaModelException { // ensure higher relevance for
 	String completeBehind = "xyz";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertEquals("completion offset=192\n" +
-			"completion range=[189, 191]\n" +
-			"completion token=\"xyz\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}\n" +
-			"visibleElements={\n" +
-			"	xField {key=LX;.xField)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
-			"	goo() {key=LX;.goo()LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
-			"}" , requestor.getContext());
+	assertEquals("""
+		completion offset=192
+		completion range=[189, 191]
+		completion token="xyz"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}
+		visibleElements={
+			xField {key=LX;.xField)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],
+			goo() {key=LX;.goo()LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],
+		}""" , requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
 public void test018() throws JavaModelException { // computing visible elements in lambda scope.
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo(String x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	static X xField;\n" +
-			"	static X goo(String s) {\n" +
-			"       return null;\n" +
-			"	}\n" +
-			"	static void goo(I i) {\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		goo((xyz) -> {\n" +
-			"			System.out.println(xyz.);\n" +
-			"		});\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo(String x);
+				}
+				public class X {
+					static X xField;
+					static X goo(String s) {
+				       return null;
+					}
+					static void goo(I i) {
+					}
+					public static void main(String[] args) {
+						goo((xyz) -> {
+							System.out.println(xyz.);
+						});
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -743,47 +792,50 @@ public void test018() throws JavaModelException { // computing visible elements 
 	String completeBehind = "xyz.";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertEquals("completion offset=233\n" +
-			"completion range=[233, 232]\n" +
-			"completion token=\"\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures={Z,C,I,J,F,D,[C,Ljava.lang.String;,Ljava.lang.Object;}\n" +
-			"expectedTypesKeys={Z,C,I,J,F,D,[C,Ljava/lang/String;,Ljava/lang/Object;}\n" +
-			"completion token location=UNKNOWN\n" +
-			"visibleElements={\n" +
-			"	xField {key=LX;.xField)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
-			"	goo(String) {key=LX;.goo(Ljava/lang/String;)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
-			"}" , requestor.getContext());
+	assertEquals("""
+		completion offset=233
+		completion range=[233, 232]
+		completion token=""
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures={Z,C,I,J,F,D,[C,Ljava.lang.String;,Ljava.lang.Object;}
+		expectedTypesKeys={Z,C,I,J,F,D,[C,Ljava/lang/String;,Ljava/lang/Object;}
+		completion token location=UNKNOWN
+		visibleElements={
+			xField {key=LX;.xField)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],
+			goo(String) {key=LX;.goo(Ljava/lang/String;)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],
+		}""" , requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
 public void test018a() throws JavaModelException { // computing visible elements in lambda scope.
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo(X x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	static X xField;\n" +
-			"	static X goo(String s) {\n" +
-			"       return null;\n" +
-			"	}\n" +
-			"	static void goo(I i) {\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"       X xLocal = null;\n" +
-			"       args = null;\n" +
-			"       if (args != null) {\n" +
-			"           xField = null;\n" +
-			"       else \n" +
-			"           xField = null;\n" +
-			"       while (true);\n" +
-			"		goo((xyz) -> {\n" +
-			"           X xLambdaLocal = null;\n" +
-			"			System.out.println(xyz.)\n" +
-			"		});\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo(X x);
+				}
+				public class X {
+					static X xField;
+					static X goo(String s) {
+				       return null;
+					}
+					static void goo(I i) {
+					}
+					public static void main(String[] args) {
+				       X xLocal = null;
+				       args = null;
+				       if (args != null) {
+				           xField = null;
+				       else\s
+				           xField = null;
+				       while (true);
+						goo((xyz) -> {
+				           X xLambdaLocal = null;
+							System.out.println(xyz.)
+						});
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -797,37 +849,40 @@ public void test018a() throws JavaModelException { // computing visible elements
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertEquals(
-			"completion offset=419\n" +
-			"completion range=[419, 418]\n" +
-			"completion token=\"\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures={Z,C,I,J,F,D,[C,Ljava.lang.String;,Ljava.lang.Object;}\n" +
-			"expectedTypesKeys={Z,C,I,J,F,D,[C,Ljava/lang/String;,Ljava/lang/Object;}\n" +
-			"completion token location=UNKNOWN\n" +
-			"visibleElements={\n" +
-			"	xLambdaLocal [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]]],\n" +
-			"	xyz [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]]],\n" +
-			"	xLocal [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]]],\n" +
-			"	xField {key=LX;.xField)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
-			"	goo(String) {key=LX;.goo(Ljava/lang/String;)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
-			"}" , requestor.getContext());
+			"""
+				completion offset=419
+				completion range=[419, 418]
+				completion token=""
+				completion token kind=TOKEN_KIND_NAME
+				expectedTypesSignatures={Z,C,I,J,F,D,[C,Ljava.lang.String;,Ljava.lang.Object;}
+				expectedTypesKeys={Z,C,I,J,F,D,[C,Ljava/lang/String;,Ljava/lang/Object;}
+				completion token location=UNKNOWN
+				visibleElements={
+					xLambdaLocal [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]]],
+					xyz [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]]],
+					xLocal [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]]],
+					xField {key=LX;.xField)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],
+					goo(String) {key=LX;.goo(Ljava/lang/String;)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],
+				}""" , requestor.getContext());
 }
 public void testUnspecifiedReference() throws JavaModelException { // ensure completion on ambiguous reference works and shows both types and names.
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"    void doit(X x);\n" +
-			"}\n" +
-			"public class X { \n" +
-			"	static void goo(I i) {\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		goo((StringParameter) -> {\n" +
-			"			Stri\n" +
-			"		});\n" +
-			"	} \n" +
-			"}\n");
+			"""
+				interface I {
+				    void doit(X x);
+				}
+				public class X {\s
+					static void goo(I i) {
+					}
+					public static void main(String[] args) {
+						goo((StringParameter) -> {
+							Stri
+						});
+					}\s
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -854,18 +909,20 @@ public void testBrokenMethodCall() throws JavaModelException { // ensure complet
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"    void doit(X x);\n" +
-			"}\n" +
-			"public class X { \n" +
-			"	static void goo(I i) {\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		goo((StringParameter) -> {\n" +
-			"			StringP\n" +
-			"		})\n" +
-			"	} \n" +
-			"}\n");
+			"""
+				interface I {
+				    void doit(X x);
+				}
+				public class X {\s
+					static void goo(I i) {
+					}
+					public static void main(String[] args) {
+						goo((StringParameter) -> {
+							StringP
+						})
+					}\s
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -879,18 +936,20 @@ public void testExpressionBody() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"    void doit(X x);\n" +
-			"}\n" +
-			"public class X { \n" +
-			"   void foo() {}\n" +
-			"   int field;\n" +
-			"	static void goo(I i) {\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		goo((xyz) -> xyz.)\n" +
-			"	} \n" +
-			"}\n");
+			"""
+				interface I {
+				    void doit(X x);
+				}
+				public class X {\s
+				   void foo() {}
+				   int field;
+					static void goo(I i) {
+					}
+					public static void main(String[] args) {
+						goo((xyz) -> xyz.)
+					}\s
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -918,18 +977,20 @@ public void testExpressionBody2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"    void doit(X x);\n" +
-			"}\n" +
-			"public class X { \n" +
-			"   void foo() {}\n" +
-			"   int field;\n" +
-			"	static void goo(I i) {\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		  goo(xyz -> xyz.)\n" +
-			"	} \n" +
-			"}\n");
+			"""
+				interface I {
+				    void doit(X x);
+				}
+				public class X {\s
+				   void foo() {}
+				   int field;
+					static void goo(I i) {
+					}
+					public static void main(String[] args) {
+						  goo(xyz -> xyz.)
+					}\s
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -959,14 +1020,15 @@ public void testBug405125a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Foo.java",
-				"public interface Foo {\n" +
-				"	int run(int s1, int s2);\n" +
-				"}\n" +
-				"interface B {\n" +
-				"	static Foo f = (int x5, int x2) -> bar\n" +
-				"	static int x4 = 3;\n" +
-				"  	static int bars () { return 2; }\n" +
-				"}");
+				"""
+					public interface Foo {
+						int run(int s1, int s2);
+					}
+					interface B {
+						static Foo f = (int x5, int x2) -> bar
+						static int x4 = 3;
+					  	static int bars () { return 2; }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -987,14 +1049,15 @@ public void testBug405125b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Foo.java",
-				"public interface Foo {\n" +
-				"	int run(int s1, int s2);\n" +
-				"}\n" +
-				"interface B {\n" +
-				"	static Foo f = (int x5, int x2) -> anot\n" +
-				"	static int another = 3;\n" +
-				"  	static int two () { return 2; }\n" +
-				"}");
+				"""
+					public interface Foo {
+						int run(int s1, int s2);
+					}
+					interface B {
+						static Foo f = (int x5, int x2) -> anot
+						static int another = 3;
+					  	static int two () { return 2; }
+					}""");
 
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -1016,17 +1079,19 @@ public void test425084() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	I goo() {\n" +
-			"       int tryit = 0;\n" +
-			"		return () -> {\n" +
-			"			try\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+					I goo() {
+				       int tryit = 0;
+						return () -> {
+							try
+						};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1044,14 +1109,16 @@ public void test422901() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	I i = () -> {\n" +
-			"		syso    // no proposals here.\n" +
-			"	};\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+					I i = () -> {
+						syso    // no proposals here.
+					};
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1060,29 +1127,32 @@ public void test422901() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=67\n" +
-			"completion range=[63, 66]\n" +
-			"completion token=\"syso\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=67
+		completion range=[63, 66]
+		completion token="syso"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
 public void test422901a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"   void foo() {\n" +
-			"	    I i = () -> {\n" +
-			"		    syso    // no proposals here.\n" +
-			"	    };\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				interface I {
+					void foo();
+				}
+				public class X {
+				   void foo() {
+					    I i = () -> {
+						    syso    // no proposals here.
+					    };
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1091,28 +1161,31 @@ public void test422901a() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=91\n" +
-			"completion range=[87, 90]\n" +
-			"completion token=\"syso\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=91
+		completion range=[87, 90]
+		completion token="syso"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426851, [1.8][content assist] content assist for a type use annotation
 public void test426851() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.lang.annotation.ElementType;\n" +
-			"import java.lang.annotation.Target;\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface TypeUse {\n" +
-			"}\n" +
-			"@Ty\n" +
-			"interface I {\n" +
-			"	default void foo() { }\n" +
-			"}\n");
+			"""
+				import java.lang.annotation.ElementType;
+				import java.lang.annotation.Target;
+				@Target(ElementType.TYPE_USE)
+				@interface TypeUse {
+				}
+				@Ty
+				interface I {
+					default void foo() { }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1127,16 +1200,18 @@ public void test427532() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.io.Serializable;\n" +
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = (I & Serializable) () -> {};\n" +
-			"		syso\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.io.Serializable;
+				interface I {
+					void foo();
+				}
+				public class X {
+					public static void main(String[] args) {
+						I i = (I & Serializable) () -> {};
+						syso
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1145,29 +1220,32 @@ public void test427532() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=160\n" +
-			"completion range=[156, 159]\n" +
-			"completion token=\"syso\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=160
+		completion range=[156, 159]
+		completion token="syso"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427532, [1.8][code assist] Completion engine does not like intersection casts
 public void test427532a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.io.Serializable;\n" +
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		syso\n" +
-			"		I i = (I & Serializable) () -> {};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.io.Serializable;
+				interface I {
+					void foo();
+				}
+				public class X {
+					public static void main(String[] args) {
+						syso
+						I i = (I & Serializable) () -> {};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1176,30 +1254,33 @@ public void test427532a() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=123\n" +
-			"completion range=[119, 122]\n" +
-			"completion token=\"syso\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=123
+		completion range=[119, 122]
+		completion token="syso"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427532, [1.8][code assist] Completion engine does not like intersection casts
 public void test427532b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.io.Serializable;\n" +
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = (I & Serializable) () -> {\n" +
-			"                 syso\n" +
-			"             };\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.io.Serializable;
+				interface I {
+					void foo();
+				}
+				public class X {
+					public static void main(String[] args) {
+						I i = (I & Serializable) () -> {
+				                 syso
+				             };
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1208,30 +1289,33 @@ public void test427532b() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=173\n" +
-			"completion range=[169, 172]\n" +
-			"completion token=\"syso\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=173
+		completion range=[169, 172]
+		completion token="syso"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427464, [1.8][content assist] CCE : MethodDeclaration incompatible with CompletionOnAnnotationOfType
 public void test427464() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"@interface Annotation {}\n" +
-			"interface FI1 {\n" +
-			"	int foo(int x) throws Exception;\n" +
-			"}\n" +
-			"class Test {\n" +
-			"	private void foo() {\n" +
-			"		FI1 fi1 = (x) -> { \n" +
-			"			@Ann\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				@interface Annotation {}
+				interface FI1 {
+					int foo(int x) throws Exception;
+				}
+				class Test {
+					private void foo() {
+						FI1 fi1 = (x) -> {\s
+							@Ann
+						};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1246,15 +1330,17 @@ public void test428735() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.List;\n" +
-			"class Person {\n" +
-			"   String getLastName() { return null; }\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	void test1 (List<Person> people) {\n" +
-			"		people.stream().forEach(p -> System.out.println(p.get)); // NOK\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.List;
+				class Person {
+				   String getLastName() { return null; }
+				}
+				public class X {
+					void test1 (List<Person> people) {
+						people.stream().forEach(p -> System.out.println(p.get)); // NOK
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1270,18 +1356,20 @@ public void test428735a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.List;\n" +
-			"class Person {\n" +
-			"   String getLastName() { return null; }\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	void test1 (List<Person> people) {\n" +
-			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
-			"	}\n" +
-			"   void test2(List<Person> people) {\n" +
-			"       people.sort((x,y) -> x.get);  // OK\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				import java.util.List;
+				class Person {
+				   String getLastName() { return null; }
+				}
+				public class X {
+					void test1 (List<Person> people) {
+						people.stream().forEach(p -> System.out.println(p.)); // NOK
+					}
+				   void test2(List<Person> people) {
+				       people.sort((x,y) -> x.get);  // OK
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1297,18 +1385,20 @@ public void test428735b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.List;\n" +
-			"class Person {\n" +
-			"   String getLastName() { return null; }\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	void test1 (List<Person> people) {\n" +
-			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
-			"	}\n" +
-			"   void test2(List<Person> people) {\n" +
-			"       people.sort((x,y) -> x.getLastName().compareTo(y.get));\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				import java.util.List;
+				class Person {
+				   String getLastName() { return null; }
+				}
+				public class X {
+					void test1 (List<Person> people) {
+						people.stream().forEach(p -> System.out.println(p.)); // NOK
+					}
+				   void test2(List<Person> people) {
+				       people.sort((x,y) -> x.getLastName().compareTo(y.get));
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1324,18 +1414,20 @@ public void test428735c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.List;\n" +
-			"class Person {\n" +
-			"   String getLastName() { return null; }\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	void test1 (List<Person> people) {\n" +
-			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
-			"	}\n" +
-			"   void test2(List<Person> people) {\n" +
-			"       people.sort((x,y) -> x.getLastName() + y.get);\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				import java.util.List;
+				class Person {
+				   String getLastName() { return null; }
+				}
+				public class X {
+					void test1 (List<Person> people) {
+						people.stream().forEach(p -> System.out.println(p.)); // NOK
+					}
+				   void test2(List<Person> people) {
+				       people.sort((x,y) -> x.getLastName() + y.get);
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1351,18 +1443,20 @@ public void test428735d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.List;\n" +
-			"class Person {\n" +
-			"   String getLastName() { return null; }\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	void test1 (List<Person> people) {\n" +
-			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
-			"	}\n" +
-			"   void test2(List<Person> people) {\n" +
-			"       people.sort((x,y) -> \"\" + x.get); \n" +
-			"   }\n" +
-			"}\n");
+			"""
+				import java.util.List;
+				class Person {
+				   String getLastName() { return null; }
+				}
+				public class X {
+					void test1 (List<Person> people) {
+						people.stream().forEach(p -> System.out.println(p.)); // NOK
+					}
+				   void test2(List<Person> people) {
+				       people.sort((x,y) -> "" + x.get);\s
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1378,17 +1472,19 @@ public void test428735e() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.List;\n" +
-			"class Person {\n" +
-			"   String getLastName() { return null; }\n" +
-			"}\n" +
-			"public class X {\n" +
-			"   void test2(List<Person> people) {\n" +
-			"       people.sort((x,y) -> {\n" +
-			"              if (true) return \"\" + x.get); \n" +
-			"              else return \"\";\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				import java.util.List;
+				class Person {
+				   String getLastName() { return null; }
+				}
+				public class X {
+				   void test2(List<Person> people) {
+				       people.sort((x,y) -> {
+				              if (true) return "" + x.get);\s
+				              else return "";
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1405,17 +1501,19 @@ public void test428735f() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.List;\n" +
-			"class Person {\n" +
-			"   String getLastName() { return null; }\n" +
-			"}\n" +
-			"public class X {\n" +
-			"   void test2(List<Person> people) {\n" +
-			"       people.sort((x,y) -> {\n" +
-			"              if (true) return \"\" + x.get; \n" +
-			"              else return \"\";});\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				import java.util.List;
+				class Person {
+				   String getLastName() { return null; }
+				}
+				public class X {
+				   void test2(List<Person> people) {
+				       people.sort((x,y) -> {
+				              if (true) return "" + x.get;\s
+				              else return "";});
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1431,19 +1529,21 @@ public void test402081() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"    String foo(String x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    public  String longMethodName(String x) {\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"    void foo() {\n" +
-			"    	X x = new X();\n" +
-			"    	I i = x::long\n" +
-			"       System.out.println();\n" +
-			"    }\n" +
-			"}\n");
+			"""
+				interface I {
+				    String foo(String x);
+				}
+				public class X {
+				    public  String longMethodName(String x) {
+				        return null;
+				    }
+				    void foo() {
+				    	X x = new X();
+				    	I i = x::long
+				       System.out.println();
+				    }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1458,22 +1558,24 @@ public void test402081a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"interface I {\n" +
-				"    String foo(String x);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    public  String longMethodName(String x) {\n" +
-				"        return null;\n" +
-				"    }\n" +
-				"}\n" +
-				"public class Y {\n" +
-				"    X x;" +
-				"    void foo()\n" +
-				"    {\n" +
-				"    	Y y = new Y();\n" +
-				"    	I i = y.x::longMethodN    \n" +
-				"    }\n" +
-				"}\n");
+				"""
+					interface I {
+					    String foo(String x);
+					}
+					public class X {
+					    public  String longMethodName(String x) {
+					        return null;
+					    }
+					}
+					public class Y {
+					    X x;\
+					    void foo()
+					    {
+					    	Y y = new Y();
+					    	I i = y.x::longMethodN   \s
+					    }
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -1489,17 +1591,19 @@ public void test402081b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"interface I {\n" +
-				"    String foo(X<String> xs, String x);\n" +
-				"}\n" +
-				"public class X<T> {\n" +
-				"    public  String longMethodName(String x) {\n" +
-				"        return null;\n" +
-				"    }\n" +
-				"    void foo() {\n" +
-				"    	I i = X<String>::lo\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					interface I {
+					    String foo(X<String> xs, String x);
+					}
+					public class X<T> {
+					    public  String longMethodName(String x) {
+					        return null;
+					    }
+					    void foo() {
+					    	I i = X<String>::lo
+					    }
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -1515,20 +1619,22 @@ public void test402081c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"interface I {\n" +
-				"    String foo(String x);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"    public  String longMethodName(String x) {\n" +
-				"        return null;\n" +
-				"    }\n" +
-				"}\n" +
-				"public class X extends Y {\n" +
-				"    void foo() {\n" +
-				"    	X x = new X();\n" +
-				"    	I i = super::lo;\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					interface I {
+					    String foo(String x);
+					}
+					class Y {
+					    public  String longMethodName(String x) {
+					        return null;
+					    }
+					}
+					public class X extends Y {
+					    void foo() {
+					    	X x = new X();
+					    	I i = super::lo;
+					    }
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -1544,20 +1650,22 @@ public void test402081d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"interface I {\n" +
-				"    String foo(String x);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"    public  String longMethodName(String x) {\n" +
-				"        return null;\n" +
-				"    }\n" +
-				"}\n" +
-				"public class X extends Y {\n" +
-				"    void foo() {\n" +
-				"    	X x = new X();\n" +
-				"    	I i = this::lo;\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					interface I {
+					    String foo(String x);
+					}
+					class Y {
+					    public  String longMethodName(String x) {
+					        return null;
+					    }
+					}
+					public class X extends Y {
+					    void foo() {
+					    	X x = new X();
+					    	I i = this::lo;
+					    }
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -1573,18 +1681,20 @@ public void test431402() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"import java.util.function.Predicate;\n" +
-				"public class X {\n" +
-				"	private static void writeIt(Object list) {\n" +
-				"		list = replace(s -> true);\n" +
-				"		Object asList = null;\n" +
-				"		if(Boolean.TRUE) {\n" +
-				"			Object s = removeAll(asli);\n" +
-				"		}\n" +
-				"	}\n" +
-				"	private static Object replace(Predicate<String> tester) { return tester; }\n" +
-				"	Object removeAll(Object o1) { return o1; }\n" +
-				"}\n");
+				"""
+					import java.util.function.Predicate;
+					public class X {
+						private static void writeIt(Object list) {
+							list = replace(s -> true);
+							Object asList = null;
+							if(Boolean.TRUE) {
+								Object s = removeAll(asli);
+							}
+						}
+						private static Object replace(Predicate<String> tester) { return tester; }
+						Object removeAll(Object o1) { return o1; }
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -1600,61 +1710,63 @@ public void test432527() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 						"/Completion/src/test/X.java",
-						"import java.util.LinkedList;\n" +
-						"import java.util.List;\n" +
-						"public class X {\n" +
-						"	private Map	map;\n" +
-						"	public X() {\n" +
-						"		map = new Map();\n" +
-						"	}\n" +
-						"	public LinkedList<Node> getPath(int xFrom, int yFrom, int xTo, int yTo) {\n" +
-						"		LinkedList<Node> result = new LinkedList<>();\n" +
-						"		Node node = null;\n" +
-						"		int[] nodeCoords = null;\n" +
-						"		boolean nodeAdded = false;\n" +
-						"		if (nodeCoords != null) {\n" +
-						"			// something\n" +
-						"		}\n" +
-						"		else {\n" +
-						"			node = map.getGraph()\n" +
-						"					.getNodes()\n" +
-						"					.stream()\n" +
-						"					.filter((n) -> (n.x() / 100) == (xTo / 100) && (n.y() / 100) == (yTo / 100))\n" +
-						"					.min((n1, n2) -> (int) Math.round(Math.sqrt(Math.pow(n1.x() - xTo, 2) + Math.pow(n1.y() - yTo, 2)) - Math.sqrt(Math.pow(n2.x() - xTo, 2) + Math.pow(n2.y() - yTo, 2))))\n" +
-						"					.get();\n" +
-						"			nodeAdded = true;\n" +
-						"		}\n" +
-						"		if (nodeAdded) {\n" +
-						"			 /*here*/remov\n" +
-						"		}\n" +
-						"		return result;\n" +
-						"	}\n" +
-						"	\n" +
-						"	private void removeNodeFromGraph(Node node) {\n" +
-						"		map.getGraph().removeNode(node.id());\n" +
-						"	}\n" +
-						"	\n" +
-						"	\n" +
-						"	public class Map {\n" +
-						"		Graph graph = new Graph();\n" +
-						"		\n" +
-						"		public Graph getGraph() {return graph;}\n" +
-						"	}\n" +
-						"	\n" +
-						"	public class Graph {\n" +
-						"		List<Node> nodes;\n" +
-						"		\n" +
-						"		public List<Node> getNodes() {return nodes;}\n" +
-						"		public void addNode(Node node) {nodes.add(node);}\n" +
-						"		public void removeNode(Node node) {nodes.remove(node);}\n" +
-						"		public void removeNode(int id) {nodes.remove(nodes.stream().filter(node -> id == node.id()).findFirst());}\n" +
-						"	}\n" +
-						"	public class Node {\n" +
-						"		public int id() {return hashCode();}\n" +
-						"		public int x() {return 0;}\n" +
-						"		public int y() {return 0;}\n" +
-						"	}\n" +
-						"}\n");
+						"""
+							import java.util.LinkedList;
+							import java.util.List;
+							public class X {
+								private Map	map;
+								public X() {
+									map = new Map();
+								}
+								public LinkedList<Node> getPath(int xFrom, int yFrom, int xTo, int yTo) {
+									LinkedList<Node> result = new LinkedList<>();
+									Node node = null;
+									int[] nodeCoords = null;
+									boolean nodeAdded = false;
+									if (nodeCoords != null) {
+										// something
+									}
+									else {
+										node = map.getGraph()
+												.getNodes()
+												.stream()
+												.filter((n) -> (n.x() / 100) == (xTo / 100) && (n.y() / 100) == (yTo / 100))
+												.min((n1, n2) -> (int) Math.round(Math.sqrt(Math.pow(n1.x() - xTo, 2) + Math.pow(n1.y() - yTo, 2)) - Math.sqrt(Math.pow(n2.x() - xTo, 2) + Math.pow(n2.y() - yTo, 2))))
+												.get();
+										nodeAdded = true;
+									}
+									if (nodeAdded) {
+										 /*here*/remov
+									}
+									return result;
+								}
+							\t
+								private void removeNodeFromGraph(Node node) {
+									map.getGraph().removeNode(node.id());
+								}
+							\t
+							\t
+								public class Map {
+									Graph graph = new Graph();
+								\t
+									public Graph getGraph() {return graph;}
+								}
+							\t
+								public class Graph {
+									List<Node> nodes;
+								\t
+									public List<Node> getNodes() {return nodes;}
+									public void addNode(Node node) {nodes.add(node);}
+									public void removeNode(Node node) {nodes.remove(node);}
+									public void removeNode(int id) {nodes.remove(nodes.stream().filter(node -> id == node.id()).findFirst());}
+								}
+								public class Node {
+									public int id() {return hashCode();}
+									public int x() {return 0;}
+									public int y() {return 0;}
+								}
+							}
+							""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -1692,21 +1804,23 @@ public void test430656() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"import java.util.ArrayList;\n" +
-				"import java.util.Collections;\n" +
-				"import java.util.Comparator;\n" +
-				"import java.util.List;\n" +
-				"public class X {\n" +
-				"	public void bar() {\n" +
-				"		List<Person> people = new ArrayList<>();\n" +
-				"		Collections.sort(people, Comparator.comparing(Person::get)); \n" +
-				"	}\n" +
-				"}\n" +
-				"class Person {\n" +
-				"	String getLastName() {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					import java.util.ArrayList;
+					import java.util.Collections;
+					import java.util.Comparator;
+					import java.util.List;
+					public class X {
+						public void bar() {
+							List<Person> people = new ArrayList<>();
+							Collections.sort(people, Comparator.comparing(Person::get));\s
+						}
+					}
+					class Person {
+						String getLastName() {
+							return null;
+						}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -1723,19 +1837,21 @@ public void test433178() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"    String foo(String x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    public  String longMethodName(String x) {\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"    void foo() {\n" +
-			"    	X x = new X();\n" +
-			"    	I i = x::ne\n" +
-			"       System.out.println();\n" +
-			"    }\n" +
-			"}\n");
+			"""
+				interface I {
+				    String foo(String x);
+				}
+				public class X {
+				    public  String longMethodName(String x) {
+				        return null;
+				    }
+				    void foo() {
+				    	X x = new X();
+				    	I i = x::ne
+				       System.out.println();
+				    }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1752,19 +1868,21 @@ public void test433178a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface I {\n" +
-			"    String foo(String x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    public  String longMethodName(String x) {\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"    void foo() {\n" +
-			"    	X x = new X();\n" +
-			"    	I i = I::ne\n" +
-			"       System.out.println();\n" +
-			"    }\n" +
-			"}\n");
+			"""
+				interface I {
+				    String foo(String x);
+				}
+				public class X {
+				    public  String longMethodName(String x) {
+				        return null;
+				    }
+				    void foo() {
+				    	X x = new X();
+				    	I i = I::ne
+				       System.out.println();
+				    }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1779,11 +1897,13 @@ public void test435219() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new Thread(()->System.o);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class X {
+					public static void main(String[] args) {
+						new Thread(()->System.o);
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1798,11 +1918,13 @@ public void test435219a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new Thread(()->System.out.p);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class X {
+					public static void main(String[] args) {
+						new Thread(()->System.out.p);
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1837,11 +1959,13 @@ public void test435219b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new Thread(()->System.out.println(\"foo\")).st);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class X {
+					public static void main(String[] args) {
+						new Thread(()->System.out.println("foo")).st);
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1858,14 +1982,16 @@ public void test435219c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		List<Integer> list = Arrays.asList(1, 2, 3);\n" +
-			"		list.stream().map((x) -> x * x.h);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					public static void main(String[] args) {
+						List<Integer> list = Arrays.asList(1, 2, 3);
+						list.stream().map((x) -> x * x.h);
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1882,14 +2008,16 @@ public void test435219d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		List<Integer> list = Arrays.asList(1, 2, 3);\n" +
-			"		list.stream().map((x) -> x * x.hashCode()).forEach(System.out::pri);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					public static void main(String[] args) {
+						List<Integer> list = Arrays.asList(1, 2, 3);
+						list.stream().map((x) -> x * x.hashCode()).forEach(System.out::pri);
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1924,16 +2052,18 @@ public void test435219e() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);\n" +
-			"		   double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)\n" +
-			"		        //                        .y                   .n             .y\n" +
-			"		      .reduce((sum, cost) -> sum.dou\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					public static void main(String[] args) {
+						List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);
+						   double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)
+						        //                        .y                   .n             .y
+						      .reduce((sum, cost) -> sum.dou
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1950,16 +2080,18 @@ public void test435219f() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);\n" +
-			"		   double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)\n" +
-			"		        //                        .y                   .n             .y\n" +
-			"		      .reduce((sum, cost) -> sum.doubleValue() + cost.doubleValue()).g\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					public static void main(String[] args) {
+						List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);
+						   double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)
+						        //                        .y                   .n             .y
+						      .reduce((sum, cost) -> sum.doubleValue() + cost.doubleValue()).g
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -1975,16 +2107,18 @@ public void test435219g() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);\n" +
-			"		   double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)\n" +
-			"		        //                        .y                   .n             .y\n" +
-			"		      .reduce((sum, cost) -> sum.doubleValue() + cost.dou\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					public static void main(String[] args) {
+						List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);
+						   double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)
+						        //                        .y                   .n             .y
+						      .reduce((sum, cost) -> sum.doubleValue() + cost.dou
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2001,14 +2135,16 @@ public void test435682() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		List<String> words = Arrays.asList(\"hi\", \"hello\", \"hola\", \"bye\", \"goodbye\");\n" +
-			"		List<String> list1 = words.stream().map(so -> so.tr).collect(Collectors.toList());\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					public static void main(String[] args) {
+						List<String> words = Arrays.asList("hi", "hello", "hola", "bye", "goodbye");
+						List<String> list1 = words.stream().map(so -> so.tr).collect(Collectors.toList());
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2023,14 +2159,16 @@ public void test435682a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		List<String> words = Arrays.asList(\"hi\", \"hello\", \"hola\", \"bye\", \"goodbye\");\n" +
-			"		List<String> list1 = words.stream().map((String so) -> so.tr).collect(Collectors.toList());\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					public static void main(String[] args) {
+						List<String> words = Arrays.asList("hi", "hello", "hola", "bye", "goodbye");
+						List<String> list1 = words.stream().map((String so) -> so.tr).collect(Collectors.toList());
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2045,18 +2183,20 @@ public void test430667() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"interface D_FI {\n" +
-			"	void print(String value, int n);\n" +
-			"}\n" +
-			"class D_DemoRefactorings {\n" +
-			"	\n" +
-			"	D_FI fi1= (String value, int n) -> {\n" +
-			"		for (int j = 0; j < n; j++) {\n" +
-			"			System.out.println(value); 			\n" +
-			"		}\n" +
-			"	};\n" +
-			"	D_F\n" +
-			"}\n");
+			"""
+				interface D_FI {
+					void print(String value, int n);
+				}
+				class D_DemoRefactorings {
+				\t
+					D_FI fi1= (String value, int n) -> {
+						for (int j = 0; j < n; j++) {
+							System.out.println(value); 		\t
+						}
+					};
+					D_F
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2072,18 +2212,20 @@ public void test430667a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"class D_DemoRefactorings {\n" +
-			"	\n" +
-			"	D_FI fi1= (String value, int n) -> {\n" +
-			"		for (int j = 0; j < n; j++) {\n" +
-			"			System.out.println(value); 			\n" +
-			"		}\n" +
-			"	};\n" +
-			"	/*HERE*/D_F\n" +
-			"}\n" +
-			"interface D_FI {\n" +
-			"	void print(String value, int n);\n" +
-			"}\n"
+			"""
+				class D_DemoRefactorings {
+				\t
+					D_FI fi1= (String value, int n) -> {
+						for (int j = 0; j < n; j++) {
+							System.out.println(value); 		\t
+						}
+					};
+					/*HERE*/D_F
+				}
+				interface D_FI {
+					void print(String value, int n);
+				}
+				"""
 			);
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
@@ -2100,17 +2242,19 @@ public void test430667b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"class D_DemoRefactorings {\n" +
-			"	/*HERE*/D_F\n" +
-			"	D_FI fi1= (String value, int n) -> {\n" +
-			"		for (int j = 0; j < n; j++) {\n" +
-			"			System.out.println(value); 			\n" +
-			"		}\n" +
-			"	};\n" +
-			"}\n" +
-			"interface D_FI {\n" +
-			"	void print(String value, int n);\n" +
-			"}\n"
+			"""
+				class D_DemoRefactorings {
+					/*HERE*/D_F
+					D_FI fi1= (String value, int n) -> {
+						for (int j = 0; j < n; j++) {
+							System.out.println(value); 		\t
+						}
+					};
+				}
+				interface D_FI {
+					void print(String value, int n);
+				}
+				"""
 			);
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
@@ -2127,10 +2271,12 @@ public void test443932() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.function.IntFunction;\n" +
-			"public class X {\n" +
-			"	IntFunction<String> ts= Integer::toString;\n" +
-			"}\n");
+			"""
+				import java.util.function.IntFunction;
+				public class X {
+					IntFunction<String> ts= Integer::toString;
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2155,13 +2301,15 @@ public void test444300() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"public class Test {\n" +
-			"	List<String> words = Arrays.asList(\"hi\", \"hello\", \"hola\", \"bye\", \"goodbye\");\n" +
-			"	List<String> list1 = words.stream().map(so -> so.ch).collect(Collectors.toList());\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				import java.util.stream.Collectors;
+				public class Test {
+					List<String> words = Arrays.asList("hi", "hello", "hola", "bye", "goodbye");
+					List<String> list1 = words.stream().map(so -> so.ch).collect(Collectors.toList());
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2178,12 +2326,14 @@ public void test435219h() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	List<Integer> list = Arrays.asList(1, 2, 3);\n" +
-			"	List<String> list1 = list.stream().map((x) -> x * x.h).collect(Collectors.toList());\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					List<Integer> list = Arrays.asList(1, 2, 3);
+					List<String> list1 = list.stream().map((x) -> x * x.h).collect(Collectors.toList());
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2201,12 +2351,14 @@ public void test435219i() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"		List<Integer> list = Arrays.asList(1, 2, 3);\n" +
-			"		Object o = list.stream().map((x) -> x * x.hashCode()).forEach(System.out::pri);\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+						List<Integer> list = Arrays.asList(1, 2, 3);
+						Object o = list.stream().map((x) -> x * x.hashCode()).forEach(System.out::pri);
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2242,13 +2394,15 @@ public void test435219j() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"		List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);\n" +
-			"		double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)\n" +
-			"		      .reduce((sum, cost) -> sum.dou\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+						List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);
+						double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)
+						      .reduce((sum, cost) -> sum.dou
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2266,13 +2420,15 @@ public void test435219k() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"		List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);\n" +
-			"		double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)\n" +
-			"		      .reduce((sum, cost) -> sum.doubleValue() + cost.doubleValue()).g\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+						List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);
+						double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)
+						      .reduce((sum, cost) -> sum.doubleValue() + cost.doubleValue()).g
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2289,13 +2445,15 @@ public void test435219l() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"		List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);\n" +
-			"		double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)\n" +
-			"		      .reduce((sum, cost) -> sum.doubleValue() + cost.dou\n" +
-			"}\n");
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+						List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);
+						double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)
+						      .reduce((sum, cost) -> sum.doubleValue() + cost.dou
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2312,32 +2470,38 @@ public void test435281() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/FI1.java",
-			"package p4a;\n" +
-			"@FunctionalInterface\n" +
-			"public interface FI1<R> {\n" +
-			"    public R foo1();\n" +
-			"}\n");
+			"""
+				package p4a;
+				@FunctionalInterface
+				public interface FI1<R> {
+				    public R foo1();
+				}
+				""");
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/FI2.java",
-			"package p4a;\n" +
-			"@FunctionalInterface\n" +
-			"public interface FI2 {\n" +
-			"    public void foo2();\n" +
-			"}\n");
+			"""
+				package p4a;
+				@FunctionalInterface
+				public interface FI2 {
+				    public void foo2();
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/Test.java",
-			"package p4b;\n" +
-			"import p4a.FI1;\n" +
-			"public class Test {\n" +
-			"	{\n" +
-			"                new FI2() {};\n" +
-			"		FI1 fi1 = () -> new FI2() {\n" +
-			"		    @Override\n" +
-			"		    public void foo2() {}\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package p4b;
+				import p4a.FI1;
+				public class Test {
+					{
+				                new FI2() {};
+						FI1 fi1 = () -> new FI2() {
+						    @Override
+						    public void foo2() {}
+						};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2352,20 +2516,22 @@ public void test431811() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/FI1.java",
-			"interface Intf {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X implements Intf {\n" +
-			"    class Inner {\n" +
-			"        {\n" +
-			"            X.super.hashCode();\n" +
-			"        }\n" +
-			"    }\n" +
-			"    @Override\n" +
-			"    public void foo() {\n" +
-			"        Intf.su;\n" +
-			"    }\n" +
-			"}\n");
+			"""
+				interface Intf {
+					void foo();
+				}
+				public class X implements Intf {
+				    class Inner {
+				        {
+				            X.super.hashCode();
+				        }
+				    }
+				    @Override
+				    public void foo() {
+				        Intf.su;
+				    }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2380,15 +2546,17 @@ public void test447774() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.io.Serializable;\n" +
-			"import java.util.function.Function;\n" +
-			"import java.util.function.Predicate;\n" +
-			"public final class X {\n" +
-			"    public static <T, R> Predicate<T> apply(Predicate<R> predicate, Function<? super T, ? extends R> function) {\n" +
-			"	     syso\n" +
-			"        return (Predicate<T> & Serializable) t -> predicate.test(function.apply(t));\n" +
-			"    }\n" +
-			"}\n");
+			"""
+				import java.io.Serializable;
+				import java.util.function.Function;
+				import java.util.function.Predicate;
+				public final class X {
+				    public static <T, R> Predicate<T> apply(Predicate<R> predicate, Function<? super T, ? extends R> function) {
+					     syso
+				        return (Predicate<T> & Serializable) t -> predicate.test(function.apply(t));
+				    }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2397,37 +2565,40 @@ public void test447774() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=248\n" +
-			"completion range=[244, 247]\n" +
-			"completion token=\"syso\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=248
+		completion range=[244, 247]
+		completion token="syso"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449358, Content assist inside lambda broken in all methods except last
 public void test449358() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Optional;\n" +
-			"public class LambdaBug {\n" +
-			"	private final String field = \"final field\";\n" +
-			"	void localmethod1() {\n" +
-			"		Optional.of(\"test\").map(s -> {\n" +
-			"			String local;\n" +
-			"			/*HERE*/localMeth\n" +
-			"			return s;\n" +
-			"		}).get();\n" +
-			"	}\n" +
-			"	void localmethod2() {\n" +
-			"		Optional.of(\"test\").map(s -> {\n" +
-			"			String local;\n" +
-			"			// content assist works there\n" +
-			"			return s;\n" +
-			"		}).get();\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Optional;
+				public class LambdaBug {
+					private final String field = "final field";
+					void localmethod1() {
+						Optional.of("test").map(s -> {
+							String local;
+							/*HERE*/localMeth
+							return s;
+						}).get();
+					}
+					void localmethod2() {
+						Optional.of("test").map(s -> {
+							String local;
+							// content assist works there
+							return s;
+						}).get();
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2444,23 +2615,25 @@ public void test449358a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.Optional;\n" +
-			"public class LambdaBug {\n" +
-			"	private final String field = \"final field\";\n" +
-			"	void localmethod1() {\n" +
-			"		Optional.of(\"test\").map(s -> {\n" +
-			"			String local;\n" +
-			"			return s;\n" +
-			"		}).get();\n" +
-			"	}\n" +
-			"	void localmethod2() {\n" +
-			"		Optional.of(\"test\").map(s -> {\n" +
-			"			String local;\n" +
-			"			/*HERE*/localMeth\n" +
-			"			return s;\n" +
-			"		}).get();\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Optional;
+				public class LambdaBug {
+					private final String field = "final field";
+					void localmethod1() {
+						Optional.of("test").map(s -> {
+							String local;
+							return s;
+						}).get();
+					}
+					void localmethod2() {
+						Optional.of("test").map(s -> {
+							String local;
+							/*HERE*/localMeth
+							return s;
+						}).get();
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2476,16 +2649,18 @@ public void testBug459189_001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"public class X {\n"+
-			"	Integer foo(){\n"+
-			"		I <Integer, X> i2 = (x) -> {ret /* type ctrl-space after ret */};\n"+
-			"		return 0;\n"+
-			"	}\n"+
-			"	Integer bar(Integer x) { return null;}\n"+
-			"}\n"+
-			"interface I <T,R> {\n"+
-			"	R apply(T t);\n"+
-			"}\n");
+			"""
+				public class X {
+					Integer foo(){
+						I <Integer, X> i2 = (x) -> {ret /* type ctrl-space after ret */};
+						return 0;
+					}
+					Integer bar(Integer x) { return null;}
+				}
+				interface I <T,R> {
+					R apply(T t);
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -2503,16 +2678,18 @@ public void testBug459189_002() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"	Integer bar(Integer x) { return null;}\n"+
-			"public class X {\n"+
-			"	Integer foo(){\n"+
-			"		I <Integer, X> i2 = (x) -> {/* HERE */ret /* type ctrl-space after ret */};\n"+
-			"		return 0;\n"+
-			"	}\n"+
-			"}\n"+
-			"interface I <T,R> {\n"+
-			"	R apply(T t);\n"+
-			"}\n");
+			"""
+					Integer bar(Integer x) { return null;}
+				public class X {
+					Integer foo(){
+						I <Integer, X> i2 = (x) -> {/* HERE */ret /* type ctrl-space after ret */};
+						return 0;
+					}
+				}
+				interface I <T,R> {
+					R apply(T t);
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -2530,16 +2707,18 @@ public void testBug459189_003() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"public class X {\n"+
-			"	Integer foo(){\n"+
-			"		I <Integer, X> i2 = (x) -> {try{} /* HERE */\n"+
-			"		return 0;\n"+
-			"	}\n"+
-			"	Integer bar(Integer x) { return null;}\n"+
-			"}\n"+
-			"interface I <T,R> {\n"+
-			"	R apply(T t);\n"+
-			"}\n");
+			"""
+				public class X {
+					Integer foo(){
+						I <Integer, X> i2 = (x) -> {try{} /* HERE */
+						return 0;
+					}
+					Integer bar(Integer x) { return null;}
+				}
+				interface I <T,R> {
+					R apply(T t);
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -2556,16 +2735,18 @@ public void testBug459189_004() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"public class X {\n"+
-			"	Integer foo(){\n"+
-			"		I <Integer, X> i2 = (x) -> {do{} /* HERE */\n"+
-			"		return 0;\n"+
-			"	}\n"+
-			"	Integer bar(Integer x) { return null;}\n"+
-			"}\n"+
-			"interface I <T,R> {\n"+
-			"	R apply(T t);\n"+
-			"}\n");
+			"""
+				public class X {
+					Integer foo(){
+						I <Integer, X> i2 = (x) -> {do{} /* HERE */
+						return 0;
+					}
+					Integer bar(Integer x) { return null;}
+				}
+				interface I <T,R> {
+					R apply(T t);
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -2581,23 +2762,27 @@ public void testBug460410() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.function.Supplier;\n" +
-			"public class X {\n"+
-			"	public static void main(String[] args) {\n"+
-			"		ArrayList<Supplier<Runnable>> list = new ArrayList<>();\n"+
-			"		list.forEach((supp) -> {\n"+
-			"			Supplier<Bug460/* HERE */>}\n"+
-			"		});\n"+
-			"	}\n"+
-			"	public static class Bug460410 {" +
-			"	}" +
-			"}\n");
+			"""
+				import java.util.ArrayList;
+				import java.util.function.Supplier;
+				public class X {
+					public static void main(String[] args) {
+						ArrayList<Supplier<Runnable>> list = new ArrayList<>();
+						list.forEach((supp) -> {
+							Supplier<Bug460/* HERE */>}
+						});
+					}
+					public static class Bug460410 {\
+					}\
+				}
+				""");
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/Bug460411.java",
-			"package abc;" +
-			"public class Bug460411 {\n"+
-			"}\n");
+			"""
+				package abc;\
+				public class Bug460411 {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -2614,23 +2799,27 @@ public void testBug462015() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"package abc;\n" +
-			"import java.util.ArrayList;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"public class X {\n"+
-			"	public static void main(String[] args) {\n"+
-			"		ArrayList<Entry> list = new ArrayList<>();\n"+
-			"		list.stream().collect(Collectors.averagingInt(e -> e.a/* HERE */));\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package abc;
+				import java.util.ArrayList;
+				import java.util.stream.Collectors;
+				public class X {
+					public static void main(String[] args) {
+						ArrayList<Entry> list = new ArrayList<>();
+						list.stream().collect(Collectors.averagingInt(e -> e.a/* HERE */));
+					}
+				}
+				""");
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/Entry.java",
-			"package abc;" +
-			"public class Entry {\n"+
-			"	public String age() {\n"+
-			"		return \"10\";"+
-			"	}"+
-			"}\n");
+			"""
+				package abc;\
+				public class Entry {
+					public String age() {
+						return "10";\
+					}\
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -2647,19 +2836,21 @@ public void testBug481564() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.function.Consumer;\n" +
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"		new Thread(() -> {\n" +
-			"			som/*here*/\n" +
-			"		});\n" +
-			"	}\n" +
-			"	public void poisonMethod() {\n" +
-			"		ArrayList<String> views = new ArrayList<>();\n" +
-			"		views.stream().filter(String::isEmpty).forEach(s -> s.length());\n" +
-			"	}\n" +
-			"	public void someMethod() {}\n" +
-			"}\n");
+			"""
+				import java.util.function.Consumer;
+				public class X {
+					public void foo() {
+						new Thread(() -> {
+							som/*here*/
+						});
+					}
+					public void poisonMethod() {
+						ArrayList<String> views = new ArrayList<>();
+						views.stream().filter(String::isEmpty).forEach(s -> s.length());
+					}
+					public void someMethod() {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -2675,23 +2866,24 @@ public void testBug481215a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.function.Consumer;\n" +
-			"public class X {\n" +
-			"	public static void main() {\n" +
-			"		MyGeneric<String> mystring = new MyGeneric<>(\"\");\n" +
-			"		complete((String result) -> {\n" +
-			"			mystring.get(res/* HERE */);\n" +
-			"		}, new Consumer<Throwable>() {\n" +
-			"			@Override\n" +
-			"			public void accept(Throwable t) { t.printStackTrace(); }\n" +
-			"		});\n" +
-			"	}\n" +
-			"	public static class MyGeneric<T> {\n" +
-			"		public MyGeneric(T t) {}\n" +
-			"		public T get(String value) { return null; }\n" +
-			"	}\n" +
-			"	static void complete(Consumer<String> success, Consumer<Throwable> failure) {}\n" +
-			"}");
+			"""
+				import java.util.function.Consumer;
+				public class X {
+					public static void main() {
+						MyGeneric<String> mystring = new MyGeneric<>("");
+						complete((String result) -> {
+							mystring.get(res/* HERE */);
+						}, new Consumer<Throwable>() {
+							@Override
+							public void accept(Throwable t) { t.printStackTrace(); }
+						});
+					}
+					public static class MyGeneric<T> {
+						public MyGeneric(T t) {}
+						public T get(String value) { return null; }
+					}
+					static void complete(Consumer<String> success, Consumer<Throwable> failure) {}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -2710,20 +2902,21 @@ public void testBug481215b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.function.Consumer;\n" +
-			"public class X {\n" +
-			"	public static void main() {\n" +
-			"		MyGeneric<String> mystring = new MyGeneric<>(\"\");\n" +
-			"		complete((String result) -> {\n" +
-			"			mystring.get(res/* HERE */);\n" +
-			"		}, t -> t.printStackTrace());\n" +
-			"	}\n" +
-			"	public static class MyGeneric<T> {\n" +
-			"		public MyGeneric(T t) {}\n" +
-			"		public T get(String value) { return null; }\n" +
-			"	}\n" +
-			"	static void complete(Consumer<String> success, Consumer<Throwable> failure) {}\n" +
-			"}");
+			"""
+				import java.util.function.Consumer;
+				public class X {
+					public static void main() {
+						MyGeneric<String> mystring = new MyGeneric<>("");
+						complete((String result) -> {
+							mystring.get(res/* HERE */);
+						}, t -> t.printStackTrace());
+					}
+					public static class MyGeneric<T> {
+						public MyGeneric(T t) {}
+						public T get(String value) { return null; }
+					}
+					static void complete(Consumer<String> success, Consumer<Throwable> failure) {}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -2742,20 +2935,21 @@ public void testBug481215c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.function.Consumer;\n" +
-			"public class X {\n" +
-			"	public static void main() {\n" +
-			"		MyGeneric<String> mystring = new MyGeneric<>(\"\");\n" +
-			"		complete((String result) -> {\n" +
-			"			mystring.get(res/* HERE */);\n" +
-			"		}, t -> {t.printStackTrace();});\n" +
-			"	}\n" +
-			"	public static class MyGeneric<T> {\n" +
-			"		public MyGeneric(T t) {}\n" +
-			"		public T get(String value) { return null; }\n" +
-			"	}\n" +
-			"	static void complete(Consumer<String> success, Consumer<Throwable> failure) {}\n" +
-			"}");
+			"""
+				import java.util.function.Consumer;
+				public class X {
+					public static void main() {
+						MyGeneric<String> mystring = new MyGeneric<>("");
+						complete((String result) -> {
+							mystring.get(res/* HERE */);
+						}, t -> {t.printStackTrace();});
+					}
+					public static class MyGeneric<T> {
+						public MyGeneric(T t) {}
+						public T get(String value) { return null; }
+					}
+					static void complete(Consumer<String> success, Consumer<Throwable> failure) {}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -2774,28 +2968,30 @@ public void testBug481215d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"import java.util.function.Consumer;\n" +
-			"public class X {\n" +
-			"	public static void main() {\n" +
-			"		MyGeneric<String> mystring = new MyGeneric<>(\"\");\n" +
-			"		complete((String result) -> {\n" +
-			"			mystring.get(result);\n" +
-			"			Consumer<String> success = (String result2) -> {\n" +
-			"				mystring.get(res/* HERE */);\n" +
-			"				};\n" +
-			"		}, new Consumer<Throwable>() {\n" +
-			"			@Override\n" +
-			"			public void accept(Throwable t) {\n" +
-			"				t.printStackTrace();\n" +
-			"			}\n" +
-			"		});\n" +
-			"	}\n" +
-			"	public static class MyGeneric<T> {\n" +
-			"		public MyGeneric(T t) {}\n" +
-			"		public T get(String value) { return null; }\n" +
-			"	}\n" +
-			"	static void complete(Consumer<String> success, Consumer<Throwable> failure) {}\n" +
-			"}\n");
+			"""
+				import java.util.function.Consumer;
+				public class X {
+					public static void main() {
+						MyGeneric<String> mystring = new MyGeneric<>("");
+						complete((String result) -> {
+							mystring.get(result);
+							Consumer<String> success = (String result2) -> {
+								mystring.get(res/* HERE */);
+								};
+						}, new Consumer<Throwable>() {
+							@Override
+							public void accept(Throwable t) {
+								t.printStackTrace();
+							}
+						});
+					}
+					public static class MyGeneric<T> {
+						public MyGeneric(T t) {}
+						public T get(String value) { return null; }
+					}
+					static void complete(Consumer<String> success, Consumer<Throwable> failure) {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -2816,17 +3012,19 @@ public void test484479() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Bar.java",
-			"interface Supplier<T> {\n" +
-			"   T get();\n" +
-			"}\n" +
-			"public interface Bar {\n" +
-			"    static public Bar print() {\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"}\n" +
-			"class A {\n" +
-			"    	Supplier<Bar> c = Bar::pr\n" +
-			"}\n");
+			"""
+				interface Supplier<T> {
+				   T get();
+				}
+				public interface Bar {
+				    static public Bar print() {
+				        return null;
+				    }
+				}
+				class A {
+				    	Supplier<Bar> c = Bar::pr
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2844,15 +3042,17 @@ public void test473008a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-			"interface FooFunctional {\n" +
-			"   void function();\n" +
-			"}\n" +
-			"public class Foo {\n" +
-			"    private FooFunctional lambda = this::bar;\n" +
-			"    public void bar() {\n" +
-			"      new StringBuffer" +
-			"    }\n" +
-			"}\n");
+			"""
+				interface FooFunctional {
+				   void function();
+				}
+				public class Foo {
+				    private FooFunctional lambda = this::bar;
+				    public void bar() {
+				      new StringBuffer\
+				    }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2870,15 +3070,17 @@ public void test473008b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-			"interface FooFunctional {\n" +
-			"   void function();\n" +
-			"}\n" +
-			"public class Foo {\n" +
-			"    public void bar() {\n" +
-			"      private FooFunctional lambda = this::bar;\n" +
-			"      new StringBuffer" +
-			"    }\n" +
-			"}\n");
+			"""
+				interface FooFunctional {
+				   void function();
+				}
+				public class Foo {
+				    public void bar() {
+				      private FooFunctional lambda = this::bar;
+				      new StringBuffer\
+				    }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2896,15 +3098,17 @@ public void test473008c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-			"interface FooFunctional {\n" +
-			"   void function();\n" +
-			"}\n" +
-			"public class Foo {\n" +
-			"    public void bar() {\n" +
-			"      private FooFunctional lambda = () -> bar();\n" +
-			"      new StringBuffer" +
-			"    }\n" +
-			"}\n");
+			"""
+				interface FooFunctional {
+				   void function();
+				}
+				public class Foo {
+				    public void bar() {
+				      private FooFunctional lambda = () -> bar();
+				      new StringBuffer\
+				    }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2922,17 +3126,19 @@ public void test489962() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/CC.java",
-			"public class CC extends S1 {\n" +
-			"	private int i = disp\n" +
-			"}\n" +
-			"abstract class S1 implements I1 {}\n" +
-			"interface I1 extends I2 {}\n" +
-			"interface I2 {\n" +
-			"	default int dispose() {\n" +
-			"		return 0;\n" +
-			"	}\n" +
-			"	default void disperse() {}\n" +
-			"}\n");
+			"""
+				public class CC extends S1 {
+					private int i = disp
+				}
+				abstract class S1 implements I1 {}
+				interface I1 extends I2 {}
+				interface I2 {
+					default int dispose() {
+						return 0;
+					}
+					default void disperse() {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2950,17 +3156,19 @@ public void test492947() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"public class X {\n" +
-			"	public interface SomeInterface {\n" +
-			"		public void someMethod(String builder);\n" +
-			"}\n" +
-			"	public enum SomeEnum {\n" +
-			"		SOME_ENUM((String bui) -> {\n" +
-			"			bui.toCh\n" +
-			"		});\n" +
-			"		SomeEnum(SomeInterface callable) {}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class X {
+					public interface SomeInterface {
+						public void someMethod(String builder);
+				}
+					public enum SomeEnum {
+						SOME_ENUM((String bui) -> {
+							bui.toCh
+						});
+						SomeEnum(SomeInterface callable) {}
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -2977,16 +3185,18 @@ public void test492947b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"public class X {\n" +
-			"	public interface SomeInterface {\n" +
-			"		public void someMethod(StringBuilder builder);\n" +
-			"}\n" +
-			"	public enum SomeEnum {\n" +
-			"		SOME_ENUM((StringBui bui) -> {\n" +
-			"		});\n" +
-			"		SomeEnum(SomeInterface callable) {}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class X {
+					public interface SomeInterface {
+						public void someMethod(StringBuilder builder);
+				}
+					public enum SomeEnum {
+						SOME_ENUM((StringBui bui) -> {
+						});
+						SomeEnum(SomeInterface callable) {}
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -3006,16 +3216,18 @@ public void _test492947c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"public class X {\n" +
-			"	public interface SomeInterface {\n" +
-			"		public void someMethod(StringBuilder builder);\n" +
-			"}\n" +
-			"	public enum SomeEnum {\n" +
-			"		SOME_ENUM((StringBui) -> {\n" +
-			"		});\n" +
-			"		SomeEnum(SomeInterface callable) {}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class X {
+					public interface SomeInterface {
+						public void someMethod(StringBuilder builder);
+				}
+					public enum SomeEnum {
+						SOME_ENUM((StringBui) -> {
+						});
+						SomeEnum(SomeInterface callable) {}
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -3032,14 +3244,16 @@ public void _test492947d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"public class X {\n" +
-			"	public Main(SomeInterface arg) {}\n" +
-			"	public interface SomeInterface {\n" +
-			"		public void someMethod(StringBuilder builder);\n" +
-			"}\n" +
-			"	Main m = new Main((StringBui) -> {\n" +
-			"		});\n" +
-			"}\n");
+			"""
+				public class X {
+					public Main(SomeInterface arg) {}
+					public interface SomeInterface {
+						public void someMethod(StringBuilder builder);
+				}
+					Main m = new Main((StringBui) -> {
+						});
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -3056,47 +3270,49 @@ public void testBug493705() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/HelloWorld.java",
-			"package b493705;\n" +
-			"\n" +
-			"import java.util.function.BiFunction;\n" +
-			"\n" +
-			"class Control { }\n" +
-			"class Composite extends Control { }\n" +
-			"class Label extends Control {\n" +
-			"	public Label(Composite p, int i) {}\n" +
-			"}\n" +
-			"\n" +
-			"class Viewer { }\n" +
-			"interface ViewerSupplier {\n" +
-			"	ViewerUI<? extends Viewer> getViewerUI();\n" +
-			"}\n" +
-			"class ViewerUI<V extends Viewer> extends SwtUI<Control>{\n" +
-			"\n" +
-			"}\n" +
-			"interface ControlSupplier {\n" +
-			"	SwtUI<? extends Control> getControlUI();\n" +
-			"}\n" +
-			"class SwtUI<T> {\n" +
-			"	public SwtUI<T> child(ControlSupplier supplier) {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	public SwtUI<T> child(ViewerSupplier supplier) {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	public static <T extends Control> SwtUI<T> create(BiFunction<Composite, Integer, T> ctor) {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	public SwtUI<T> text(String text) {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n" +
-			"public class HelloWorld {\n" +
-			"	void test(SwtUI<Composite> root) {\n" +
-			"		root.child(() -> SwtUI.create(Label::new)\n" +
-			"				.text(\"Selection\").\n" +
-			"				);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package b493705;
+				
+				import java.util.function.BiFunction;
+				
+				class Control { }
+				class Composite extends Control { }
+				class Label extends Control {
+					public Label(Composite p, int i) {}
+				}
+				
+				class Viewer { }
+				interface ViewerSupplier {
+					ViewerUI<? extends Viewer> getViewerUI();
+				}
+				class ViewerUI<V extends Viewer> extends SwtUI<Control>{
+				
+				}
+				interface ControlSupplier {
+					SwtUI<? extends Control> getControlUI();
+				}
+				class SwtUI<T> {
+					public SwtUI<T> child(ControlSupplier supplier) {
+						return null;
+					}
+					public SwtUI<T> child(ViewerSupplier supplier) {
+						return null;
+					}
+					public static <T extends Control> SwtUI<T> create(BiFunction<Composite, Integer, T> ctor) {
+						return null;
+					}
+					public SwtUI<T> text(String text) {
+						return null;
+					}
+				}
+				public class HelloWorld {
+					void test(SwtUI<Composite> root) {
+						root.child(() -> SwtUI.create(Label::new)
+								.text("Selection").
+								);
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -3132,11 +3348,13 @@ public void test515809() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
-			"public class X {\n" +
-			"	void test() {\n" +
-			"		new Thread(() -> sysout);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class X {
+					void test() {
+						new Thread(() -> sysout);
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -3145,27 +3363,30 @@ public void test515809() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
-	assertEquals("completion offset=57\n" +
-			"completion range=[51, 56]\n" +
-			"completion token=\"sysout\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", requestor.getContext());
+	assertEquals("""
+		completion offset=57
+		completion range=[51, 56]
+		completion token="sysout"
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", requestor.getContext());
 }
 //https://bugs.eclipse.org/485492
 public void test485492a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-			"import java.util.function.Function;\n" +
-			"public enum Foo {\n" +
-			"	BAR((z) -> {\n" +
-			"	z.has\n" +
-			"		return z;\n" +
-			"	});\n" +
-			"	Foo(Function<String, String> func) { }\n" +
-			"}\n");
+			"""
+				import java.util.function.Function;
+				public enum Foo {
+					BAR((z) -> {
+					z.has
+						return z;
+					});
+					Foo(Function<String, String> func) { }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -3181,13 +3402,15 @@ public void test485492b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-			"import java.util.function.Function;\n" +
-			"public enum Foo {\n" +
-			"	BAR((zilch) -> {\n" +
-			"		return zil;\n" +
-			"	});\n" +
-			"	Foo(Function<String, String> func) { }\n" +
-			"}\n");
+			"""
+				import java.util.function.Function;
+				public enum Foo {
+					BAR((zilch) -> {
+						return zil;
+					});
+					Foo(Function<String, String> func) { }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -3204,13 +3427,15 @@ public void test485492c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-			"import java.util.function.Function;\n" +
-			"public enum Foo {\n" +
-			"	BAR((z) -> {\n" +
-			"		return z.has;\n" +
-			"	});\n" +
-			"	Foo(Function<String, String> func) { }\n" +
-			"}\n");
+			"""
+				import java.util.function.Function;
+				public enum Foo {
+					BAR((z) -> {
+						return z.has;
+					});
+					Foo(Function<String, String> func) { }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 	requestor.allowAllRequiredProposals();
@@ -3226,14 +3451,16 @@ public void testBug528938a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/X.java",
-		"public class X {\n" +
-		"	final String zzz = \"z\";\n" +
-		"	void foo(String s){\n" +
-		"		switch(s) {\n" +
-		"			case zz\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class X {
+				final String zzz = "z";
+				void foo(String s){
+					switch(s) {
+						case zz
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -3249,14 +3476,16 @@ public void testBug528938b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/X.java",
-		"public class X {\n" +
-		"	static final String zzz = \"z\";\n" +
-		"	void foo(String s){\n" +
-		"		switch(s) {\n" +
-		"			case zz\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class X {
+				static final String zzz = "z";
+				void foo(String s){
+					switch(s) {
+						case zz
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -3276,14 +3505,16 @@ public void testBug529349a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/p/SuperSuper.java",
-		"package p;\n" +
-		"public class SuperSuper {}\n" +
-		"class Super extends SuperSuper {}\n" +
-		"class Y {\n" +
-		"	static class Super {}\n" +
-		"}\n" +
-		"class X extends Sup {\n" +
-		"}\n");
+		"""
+			package p;
+			public class SuperSuper {}
+			class Super extends SuperSuper {}
+			class Y {
+				static class Super {}
+			}
+			class X extends Sup {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -3301,15 +3532,17 @@ public void testBug473654() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/Foo.java",
-		"class Foo {\n" +
-		"    Runnable foo() {\n" +
-		"        return () -> new Object() {\n" +
-		"            // press Ctrl+Space before the comment\n" +
-		"        };\n" +
-		"    }\n" +
-		"    \n" +
-		"    static void bar() { /**/ }\n" +
-		"}\n");
+		"""
+			class Foo {
+			    Runnable foo() {
+			        return () -> new Object() {
+			            // press Ctrl+Space before the comment
+			        };
+			    }
+			   \s
+			    static void bar() { /**/ }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -3348,19 +3581,21 @@ public void testBug537679() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/p/SuperSuper.java",
-		"import static java.util.stream.Collectors.toList;\n" +
-		"import java.util.List;\n" +
-		"\n" +
-		"public class Test {\n" +
-		"	void foo(List<Object> list) {\n" +
-		"		bar(list.stream().map(m -> new Object() {\n" +
-		"			// here\n" +
-		"		}).collect(toList()));\n" +
-		"	}\n" +
-		"\n" +
-		"	private void bar(List<Object> collect) {\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			import static java.util.stream.Collectors.toList;
+			import java.util.List;
+			
+			public class Test {
+				void foo(List<Object> list) {
+					bar(list.stream().map(m -> new Object() {
+						// here
+					}).collect(toList()));
+				}
+			
+				private void bar(List<Object> collect) {
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -3398,16 +3633,18 @@ public void testBug460750a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-			"public class Foo {\n" +
-			"	 enum MyEnum {\n" +
-			"		  FOO, BAR\n" +
-			"		}\n" +
-			"	public void setMyEnumValue(MyEnum myEnumValue) {\n" +
-			"	}\n" +
-			"	public void meth() {\n" +
-			"		this.setMyEnumValue(new String().isEmpty() ? MyEnum.FOO:BAR);\n" +
-			"	    }\n" +
-			"}\n");
+			"""
+				public class Foo {
+					 enum MyEnum {
+						  FOO, BAR
+						}
+					public void setMyEnumValue(MyEnum myEnumValue) {
+					}
+					public void meth() {
+						this.setMyEnumValue(new String().isEmpty() ? MyEnum.FOO:BAR);
+					    }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -3425,19 +3662,21 @@ public void testBug460750b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/EnumRelatedCompletions.java",
-			"public class EnumRelatedCompletions {\n" +
-			"	 enum MyEnum {\n" +
-			"		  FOO, BAR, QUZ \n" +
-			"		}\n" +
-			"	public void setMyEnumValue(MyEnum myEnumValue) {\n" +
-			"	}\n" +
-			"	public void meth() {\n" +
-			"		this.setMyEnumValue(new String().isEmpty() ? MyEnum.FOO:BAR);\n" +
-			"	    MyEnum e= MyEnum.FOO;\n" +
-			"	    if(e  !=QUZ) {    	\n" +
-			"	    }\n" +
-			"	    }\n" +
-			"}\n");
+			"""
+				public class EnumRelatedCompletions {
+					 enum MyEnum {
+						  FOO, BAR, QUZ\s
+						}
+					public void setMyEnumValue(MyEnum myEnumValue) {
+					}
+					public void meth() {
+						this.setMyEnumValue(new String().isEmpty() ? MyEnum.FOO:BAR);
+					    MyEnum e= MyEnum.FOO;
+					    if(e  !=QUZ) {    \t
+					    }
+					    }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -3458,17 +3697,19 @@ public void testBug535743a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/FooNPE.java",
-				"package test;\n" +
-				 		"public class FooNPE {\n" +
-				 		"	public static void main(String[] args) {	\n" +
-				 		"		java.util.function.Consumer<Object> consumer = object -> {new SomeClass().something(obj -> {/*nop*/}).\n" +
-				 		"		};\n" +
-				 		"	}\n" +
-				 		"class SomeClass {\n" +
-				 		"public void something(java.util.function.Consumer<Object> otherConsumer) {\n" +
-				 		" }\n" +
-				 		"}\n" +
-				 		"}\n");
+				"""
+					package test;
+					public class FooNPE {
+						public static void main(String[] args) {\t
+							java.util.function.Consumer<Object> consumer = object -> {new SomeClass().something(obj -> {/*nop*/}).
+							};
+						}
+					class SomeClass {
+					public void something(java.util.function.Consumer<Object> otherConsumer) {
+					 }
+					}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -3487,18 +3728,20 @@ public void testBug535743b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/FooNPE.java",
-			"package test;\n" +
-			 		"public class FooNPE {\n" +
-			 		"	public static void main(String[] args) {	\n" +
-			 		"		java.util.function.Consumer<Object> consumer = object -> {new SomeClass().something(obj -> {}).\n" +
-			 		"		};\n" +
-			 		"	}\n" +
-			 		"class SomeClass {\n" +
-			 		"public Object something(java.util.function.Consumer<Object> otherConsumer) {\n" +
-			 		"return new Object(); \n" +
-			 		" }\n" +
-			 		"}\n" +
-			 		"}\n");
+			"""
+				package test;
+				public class FooNPE {
+					public static void main(String[] args) {\t
+						java.util.function.Consumer<Object> consumer = object -> {new SomeClass().something(obj -> {}).
+						};
+					}
+				class SomeClass {
+				public Object something(java.util.function.Consumer<Object> otherConsumer) {
+				return new Object();\s
+				 }
+				}
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
 	String str = this.workingCopies[0].getSource();
@@ -3512,25 +3755,27 @@ public void testBug526044() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/p/Test.java",
-			"package p;\n" +
-			"import java.util.stream.Stream;\n" +
-			"import java.util.Optional;\n" +
-			"interface ProcessHandle {\n" +
-			"	static Stream<ProcessHandle> allProcesses();\n" +
-			"	Info info();\n" +
-			"}\n" +
-			"interface Info {\n" +
-			"	Optional<String> command();\n" +
-			"}\n" +
-			"public class Test {\n" +
-			"	void foo() {\n" +
-			"		ProcessHandle.allProcesses().forEach(p -> {\n" +
-			"			p.info().command().ifPresent(o -> {\n" +
-			"				System.out.println(o);\n" +
-			"			}).\n" +
-			"		});" +
-			"	}\n" +
-			"}\n");
+			"""
+				package p;
+				import java.util.stream.Stream;
+				import java.util.Optional;
+				interface ProcessHandle {
+					static Stream<ProcessHandle> allProcesses();
+					Info info();
+				}
+				interface Info {
+					Optional<String> command();
+				}
+				public class Test {
+					void foo() {
+						ProcessHandle.allProcesses().forEach(p -> {
+							p.info().command().ifPresent(o -> {
+								System.out.println(o);
+							}).
+						});\
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -3546,20 +3791,24 @@ public void testBug539546() throws Exception {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/p/Test.java",
-			"package p;\n" +
-			"public class Test {\n" +
-			"	public Test(Runnable run) {}\n" +
-			"}\n");
+			"""
+				package p;
+				public class Test {
+					public Test(Runnable run) {}
+				}
+				""");
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/p/Test.java",
-			"package p;\n" +
-			"public class Main {\n" +
-			"	public void myTestOfStackOverflow() {\n" +
-			"		() -> {\n" +
-			"			new Test(() -> {}).\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package p;
+				public class Main {
+					public void myTestOfStackOverflow() {
+						() -> {
+							new Test(() -> {}).
+						}
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[1].getSource();
@@ -3575,97 +3824,99 @@ public void testBug477626() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/p/Snippet29.java",
-			"package p;\n" +
-			"import java.util.Arrays;\n" +
-			"import java.util.function.Consumer;\n" +
-			"\n" +
-			"public class Snippet29 {\n" +
-			"\n" +
-			"class Display {\n" +
-			"	public void asyncExec(Runnable runnable) { }\n" +
-			"}\n" +
-			"class Shell {\n" +
-			"	Shell(Display display) {}\n" +
-			"	public Shell(Shell shell, int i) { }\n" +
-			"	public void setLayout(GridLayout gridLayout) { }\n" +
-			"	public void setText(String string) { }\n" +
-			"	public void pack() { }\n" +
-			"	public Point getLocation() { return null; }\n" +
-			"	public void open() { }\n" +
-			"	public void close() { }\n" +
-			"	public void setLocation(int i, int j) { }\n" +
-			"}\n" +
-			"class Point {\n" +
-			"	int x, y;\n" +
-			"}\n" +
-			"class GridLayout {\n" +
-			"	public GridLayout() { }\n" +
-			"	public GridLayout(int i, boolean b) { }\n" +
-			"}\n" +
-			"class GridData {\n" +
-			"	public GridData(int fill, int fill2, boolean b, boolean c, int i, int j) { }\n" +
-			"	public GridData(int fill, int fill2, boolean b, boolean c) { }\n" +
-			"}\n" +
-			"class Widget {\n" +
-			"	public void setText(String string) { }\n" +
-			"	public void setLayoutData(GridData gridData) { }\n" +
-			"}\n" +
-			"class Button extends Widget {\n" +
-			"	Button(Shell shell, int style) { }\n" +
-			"	public void addListener(int selection, Consumer<Event> listener) { }\n" +
-			"}\n" +
-			"class Label extends Widget {\n" +
-			"	public Label(Shell dialog, int none) { }\n" +
-			"}\n" +
-			"class Event {}\n" +
-			"class SWT {\n" +
-			"	public static final int PUSH = 1;\n" +
-			"	public static final int Selection = 2;\n" +
-			"	protected static final int DIALOG_TRIM = 3;\n" +
-			"	protected static final int APPLICATION_MODAL = 4;\n" +
-			"	protected static final int NONE = 5;\n" +
-			"	protected static final int FILL = 6;\n" +
-			"}\n" +
-			"class Timer {\n" +
-			"	public void schedule(TimerTask timerTask, int i) { }\n" +
-			"}\n" +
-			"abstract class TimerTask implements Runnable {}\n" +
-			"public static void main (String [] args) {\n" +
-			"	Display display = new Display ();\n" +
-			"	Shell shell = new Shell (display);\n" +
-			"	shell.setLayout(new GridLayout());\n" +
-			"	Button b = new Button(shell, SWT.PUSH);\n" +
-			"	b.setText(\"Open dialog in 3s\");\n" +
-			"	b.addListener(SWT.Selection, e -> {\n" +
-			"		new Timer().schedule(new TimerTask() {\n" +
-			"			@Override\n" +
-			"			public void run() {\n" +
-			"				display.asyncExec(new Runnable() {\n" +
-			"					@Override\n" +
-			"					public void run() {\n" +
-			"						Shell dialog = new Shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);\n" +
-			"						dialog.setText(\"Question\");\n" +
-			"						dialog.setLayout(new GridLayout(3, true));\n" +
-			"						Label label = new Label(dialog, SWT.NONE);\n" +
-			"						label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));\n" +
-			"						label.setText(\"Do you really want to clear the runtime workspace?\");\n" +
-			"						Arrays.asList(\"Yes\", \"No\", \"Cancel\").forEach(t -> {\n" +
-			"							Button button = new Button(dialog, SWT.PUSH);\n" +
-			"							button.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));\n" +
-			"							button.setText(t);\n" +
-			"							button.addListener(SWT.Selection, e -> { dialog.close(); });\n" +
-			"						});\n" +
-			"						dialog.pack();\n" +
-			"						dialog.setLocation(shell.getLocation().x + 40, shell.getLocation().y + 80);\n" +
-			"						dialog.open();\n" +
-			"					}\n" +
-			"				}).;\n" +
-			"			}\n" +
-			"		}, 2000);\n" +
-			"	});\n" +
-			"}\n" +
-			"\n" +
-			"} \n");
+			"""
+				package p;
+				import java.util.Arrays;
+				import java.util.function.Consumer;
+				
+				public class Snippet29 {
+				
+				class Display {
+					public void asyncExec(Runnable runnable) { }
+				}
+				class Shell {
+					Shell(Display display) {}
+					public Shell(Shell shell, int i) { }
+					public void setLayout(GridLayout gridLayout) { }
+					public void setText(String string) { }
+					public void pack() { }
+					public Point getLocation() { return null; }
+					public void open() { }
+					public void close() { }
+					public void setLocation(int i, int j) { }
+				}
+				class Point {
+					int x, y;
+				}
+				class GridLayout {
+					public GridLayout() { }
+					public GridLayout(int i, boolean b) { }
+				}
+				class GridData {
+					public GridData(int fill, int fill2, boolean b, boolean c, int i, int j) { }
+					public GridData(int fill, int fill2, boolean b, boolean c) { }
+				}
+				class Widget {
+					public void setText(String string) { }
+					public void setLayoutData(GridData gridData) { }
+				}
+				class Button extends Widget {
+					Button(Shell shell, int style) { }
+					public void addListener(int selection, Consumer<Event> listener) { }
+				}
+				class Label extends Widget {
+					public Label(Shell dialog, int none) { }
+				}
+				class Event {}
+				class SWT {
+					public static final int PUSH = 1;
+					public static final int Selection = 2;
+					protected static final int DIALOG_TRIM = 3;
+					protected static final int APPLICATION_MODAL = 4;
+					protected static final int NONE = 5;
+					protected static final int FILL = 6;
+				}
+				class Timer {
+					public void schedule(TimerTask timerTask, int i) { }
+				}
+				abstract class TimerTask implements Runnable {}
+				public static void main (String [] args) {
+					Display display = new Display ();
+					Shell shell = new Shell (display);
+					shell.setLayout(new GridLayout());
+					Button b = new Button(shell, SWT.PUSH);
+					b.setText("Open dialog in 3s");
+					b.addListener(SWT.Selection, e -> {
+						new Timer().schedule(new TimerTask() {
+							@Override
+							public void run() {
+								display.asyncExec(new Runnable() {
+									@Override
+									public void run() {
+										Shell dialog = new Shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+										dialog.setText("Question");
+										dialog.setLayout(new GridLayout(3, true));
+										Label label = new Label(dialog, SWT.NONE);
+										label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
+										label.setText("Do you really want to clear the runtime workspace?");
+										Arrays.asList("Yes", "No", "Cancel").forEach(t -> {
+											Button button = new Button(dialog, SWT.PUSH);
+											button.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+											button.setText(t);
+											button.addListener(SWT.Selection, e -> { dialog.close(); });
+										});
+										dialog.pack();
+										dialog.setLocation(shell.getLocation().x + 40, shell.getLocation().y + 80);
+										dialog.open();
+									}
+								}).;
+							}
+						}, 2000);
+					});
+				}
+				
+				}\s
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -3680,21 +3931,23 @@ public void testBug477626() throws Exception {
 public void testBug490096() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Completion/src/ShowSOEInEclipseMars2.java",
-			"import java.util.concurrent.CompletableFuture;\n" +
-			"\n" +
-			"public class ShowSOEInEclipseMars2 {\n" +
-			" \n" +
-			"public void crashWithStackOverflowError() {\n" +
-			"   \n" +
-			" CompletableFuture<Double> intermediate = CompletableFuture.supplyAsync(() -> {\n" +
-			"  try {\n" +
-			"   CompletableFuture.supplyAsync(() -> { return 0D; }).;\n" +
-			"  } catch (Exception e) {\n" +
-			"  }\n" +
-			"  return 1D;\n" +
-			" });\n" +
-			" }\n" +
-			"}\n");
+			"""
+				import java.util.concurrent.CompletableFuture;
+				
+				public class ShowSOEInEclipseMars2 {
+				\s
+				public void crashWithStackOverflowError() {
+				  \s
+				 CompletableFuture<Double> intermediate = CompletableFuture.supplyAsync(() -> {
+				  try {
+				   CompletableFuture.supplyAsync(() -> { return 0D; }).;
+				  } catch (Exception e) {
+				  }
+				  return 1D;
+				 });
+				 }
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "}).";
@@ -3778,21 +4031,23 @@ public void testBug490096() throws JavaModelException {
 public void testBug490096a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Completion/src/ShowSOEInEclipseMars2.java",
-			"import java.util.concurrent.CompletableFuture;\n" +
-			"\n" +
-			"public class ShowSOEInEclipseMars2 {\n" +
-			" \n" +
-			"public void crashWithStackOverflowError() {\n" +
-			"   \n" +
-			" CompletableFuture<Double> intermediate = CompletableFuture.supplyAsync(() -> {\n" +
-			"  try {\n" +
-			"   CompletableFuture.supplyAsync(() -> { return 0D; }).a;\n" +
-			"  } catch (Exception e) {\n" +
-			"  }\n" +
-			"  return 1D;\n" +
-			" });\n" +
-			" }\n" +
-			"}\n");
+			"""
+				import java.util.concurrent.CompletableFuture;
+				
+				public class ShowSOEInEclipseMars2 {
+				\s
+				public void crashWithStackOverflowError() {
+				  \s
+				 CompletableFuture<Double> intermediate = CompletableFuture.supplyAsync(() -> {
+				  try {
+				   CompletableFuture.supplyAsync(() -> { return 0D; }).a;
+				  } catch (Exception e) {
+				  }
+				  return 1D;
+				 });
+				 }
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "}).a";
@@ -3818,13 +4073,14 @@ public void testCompletionConstructorRelevance() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Foo.java",
-            "import java.util.Queue;\n" +
-            "\n" +
-            "public class Foo {\n" +
-            "	public void foo () {\n" +
-            "		Queue<String> res = new LinkedBlockingQueue<>();\n" +
-            "	}\n" +
-            "}");
+            """
+				import java.util.Queue;
+				
+				public class Foo {
+					public void foo () {
+						Queue<String> res = new LinkedBlockingQueue<>();
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     requestor.setAllowsRequiredProposals(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF, true);
@@ -3849,16 +4105,18 @@ public void testBug570593_SingleTypeParam() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "\n" +
-            "public class Bug570593 {\n" +
-            "	private List<XBug570593>\n" +
-            "}");
+            """
+				import java.util.List;
+				
+				public class Bug570593 {
+					private List<XBug570593>
+				}""");
 	this.workingCopies[1] = getWorkingCopy(
             "/Completion/src/XBug570593Type.java",
-            "\n" +
-            "public class XBug570593Type {\n" +
-            "}");
+            """
+				
+				public class XBug570593Type {
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -3877,16 +4135,18 @@ public void testBug570593_MultipleTypeParams_OnFirstTP() throws JavaModelExcepti
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.Map;\n" +
-            "\n" +
-            "public class Bug570593 {\n" +
-            "	private Map<XBug570593,V>\n" +
-            "}");
+            """
+				import java.util.Map;
+				
+				public class Bug570593 {
+					private Map<XBug570593,V>
+				}""");
 	this.workingCopies[1] = getWorkingCopy(
             "/Completion/src/XBug570593Type.java",
-            "\n" +
-            "public class XBug570593Type {\n" +
-            "}");
+            """
+				
+				public class XBug570593Type {
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -3905,16 +4165,18 @@ public void testBug570593_MultipleTypeParams_OnSecondTP() throws JavaModelExcept
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.Map;\n" +
-            "\n" +
-            "public class Bug570593 {\n" +
-            "	private Map<Long,XBug570593>\n" +
-            "}");
+            """
+				import java.util.Map;
+				
+				public class Bug570593 {
+					private Map<Long,XBug570593>
+				}""");
 	this.workingCopies[1] = getWorkingCopy(
             "/Completion/src/XBug570593Type.java",
-            "\n" +
-            "public class XBug570593Type {\n" +
-            "}");
+            """
+				
+				public class XBug570593Type {
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -3933,16 +4195,18 @@ public void testBug570593_SingleTypeParam_NestedSingleParam() throws JavaModelEx
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "\n" +
-            "public class Bug570593 {\n" +
-            "	private List<List<XBug570593>>\n" +
-            "}");
+            """
+				import java.util.List;
+				
+				public class Bug570593 {
+					private List<List<XBug570593>>
+				}""");
 	this.workingCopies[1] = getWorkingCopy(
             "/Completion/src/XBug570593Type.java",
-            "\n" +
-            "public class XBug570593Type {\n" +
-            "}");
+            """
+				
+				public class XBug570593Type {
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -3961,17 +4225,19 @@ public void testBug570593_SingleTypeParam_NestedMultiParams_OnFirst() throws Jav
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "import java.util.Map;\n" +
-            "\n" +
-            "public class Bug570593 {\n" +
-            "	private List<Map<XBug570593,V>>\n" +
-            "}");
+            """
+				import java.util.List;
+				import java.util.Map;
+				
+				public class Bug570593 {
+					private List<Map<XBug570593,V>>
+				}""");
 	this.workingCopies[1] = getWorkingCopy(
             "/Completion/src/XBug570593Type.java",
-            "\n" +
-            "public class XBug570593Type {\n" +
-            "}");
+            """
+				
+				public class XBug570593Type {
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -3990,17 +4256,19 @@ public void testBug570593_SingleTypeParam_NestedMultiParams_OnSecond() throws Ja
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "import java.util.Map;\n" +
-            "\n" +
-            "public class Bug570593 {\n" +
-            "	private List<Map<Long,XBug570593>>\n" +
-            "}");
+            """
+				import java.util.List;
+				import java.util.Map;
+				
+				public class Bug570593 {
+					private List<Map<Long,XBug570593>>
+				}""");
 	this.workingCopies[1] = getWorkingCopy(
             "/Completion/src/XBug570593Type.java",
-            "\n" +
-            "public class XBug570593Type {\n" +
-            "}");
+            """
+				
+				public class XBug570593Type {
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4019,17 +4287,19 @@ public void testBug570593_MultiTypeParam_OnFirst_NestedSingleParam() throws Java
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "import java.util.Map;\n" +
-            "\n" +
-            "public class Bug570593 {\n" +
-            "	private Map<List<XBug570593>,V>\n" +
-            "}");
+            """
+				import java.util.List;
+				import java.util.Map;
+				
+				public class Bug570593 {
+					private Map<List<XBug570593>,V>
+				}""");
 	this.workingCopies[1] = getWorkingCopy(
             "/Completion/src/XBug570593Type.java",
-            "\n" +
-            "public class XBug570593Type {\n" +
-            "}");
+            """
+				
+				public class XBug570593Type {
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4048,17 +4318,19 @@ public void testBug570593_MultiTypeParam_OnSecond_NestedSingleParam() throws Jav
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "import java.util.Map;\n" +
-            "\n" +
-            "public class Bug570593 {\n" +
-            "	private Map<Long,List<XBug570593>>\n" +
-            "}");
+            """
+				import java.util.List;
+				import java.util.Map;
+				
+				public class Bug570593 {
+					private Map<Long,List<XBug570593>>
+				}""");
 	this.workingCopies[1] = getWorkingCopy(
             "/Completion/src/XBug570593Type.java",
-            "\n" +
-            "public class XBug570593Type {\n" +
-            "}");
+            """
+				
+				public class XBug570593Type {
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4077,17 +4349,19 @@ public void testBug570593_MultiTypeParam_NestedMultiParam_OnFirst() throws JavaM
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "import java.util.Map;\n" +
-            "\n" +
-            "public class Bug570593 {\n" +
-            "	private Map<Long,Map<XBug570593,R>>\n" +
-            "}");
+            """
+				import java.util.List;
+				import java.util.Map;
+				
+				public class Bug570593 {
+					private Map<Long,Map<XBug570593,R>>
+				}""");
 	this.workingCopies[1] = getWorkingCopy(
             "/Completion/src/XBug570593Type.java",
-            "\n" +
-            "public class XBug570593Type {\n" +
-            "}");
+            """
+				
+				public class XBug570593Type {
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4106,17 +4380,19 @@ public void testBug570593_MultiTypeParam_NestedMultiParam_OnSecond() throws Java
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "import java.util.Map;\n" +
-            "\n" +
-            "public class Bug570593 {\n" +
-            "	private Map<Long,Map<String,XBug570593>>\n" +
-            "}");
+            """
+				import java.util.List;
+				import java.util.Map;
+				
+				public class Bug570593 {
+					private Map<Long,Map<String,XBug570593>>
+				}""");
 	this.workingCopies[1] = getWorkingCopy(
             "/Completion/src/XBug570593Type.java",
-            "\n" +
-            "public class XBug570593Type {\n" +
-            "}");
+            """
+				
+				public class XBug570593Type {
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4135,14 +4411,15 @@ public void testBug572315_OnFieldAboveAnnotatedMember_VariableNameSuggestion() t
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "\n" +
-            "public class Bug572315 {\n" +
-            "	private List<String> \n" +
-            "	@Deprecated \n" +
-            "	private void test(){ \n" +
-            "	} \n" +
-            "}");
+            """
+				import java.util.List;
+				
+				public class Bug572315 {
+					private List<String>\s
+					@Deprecated\s
+					private void test(){\s
+					}\s
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4162,14 +4439,15 @@ public void testBug572315_OnFieldAboveParameterizedAnnotatedMember_VariableNameS
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "\n" +
-            "public class Bug572315 {\n" +
-            "	private List<String> \n" +
-            "	@SuppressWarnings({\"unchecked\"}) \n" +
-            "	private void test(){ \n" +
-            "	} \n" +
-            "}");
+            """
+				import java.util.List;
+				
+				public class Bug572315 {
+					private List<String>\s
+					@SuppressWarnings({"unchecked"})\s
+					private void test(){\s
+					}\s
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4189,11 +4467,12 @@ public void testBug572315_OnField_VariableNameSuggestion() throws JavaModelExcep
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "\n" +
-            "public class Bug572315 {\n" +
-            "	private List<String> \n" +
-            "}");
+            """
+				import java.util.List;
+				
+				public class Bug572315 {
+					private List<String>\s
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4213,12 +4492,13 @@ public void testBug572315_OnFieldAboveMember_VariableNameSuggestion() throws Jav
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "\n" +
-            "public class Bug572315 {\n" +
-            "	private List<String> \n" +
-            "	private int count;" +
-            "}");
+            """
+				import java.util.List;
+				
+				public class Bug572315 {
+					private List<String>\s
+					private int count;\
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4238,13 +4518,14 @@ public void testBug572315_OnFieldAboveAnnotatedField_VariableNameSuggestion() th
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "\n" +
-            "public class Bug572315 {\n" +
-            "	private List<String> \n" +
-            "	@Deprecated \n" +
-            "	private int count;" +
-            "}");
+            """
+				import java.util.List;
+				
+				public class Bug572315 {
+					private List<String>\s
+					@Deprecated\s
+					private int count;\
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4264,13 +4545,14 @@ public void testBug572315_OnFieldAboveAnnotatedMemberWithSemicolon_VariableNameS
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "\n" +
-            "public class Bug572315 {\n" +
-            "	private List<String> ;\n" +
-            "	@Deprecated \n" +
-            "	private int count;" +
-            "}");
+            """
+				import java.util.List;
+				
+				public class Bug572315 {
+					private List<String> ;
+					@Deprecated\s
+					private int count;\
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4290,14 +4572,15 @@ public void testBug572315_OnFieldAboveAnnotatedMemberWhichIsAnnotated_VariableNa
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "\n" +
-            "public class Bug572315 {\n" +
-            "	@Deprecated \n" +
-            "	private List<String> \n" +
-            "	@Deprecated \n" +
-            "	private int count;" +
-            "}");
+            """
+				import java.util.List;
+				
+				public class Bug572315 {
+					@Deprecated\s
+					private List<String>\s
+					@Deprecated\s
+					private int count;\
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4317,15 +4600,16 @@ public void testBug572315_OnLocalVariableAboveAnnotatedMember_VariableNameSugges
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug570593.java",
-            "import java.util.List;\n" +
-            "\n" +
-            "public class Bug572315 {\n" +
-            "   private void foo() {\n" +
-            "   List<String> \n" +
-            "   @Deprecated()\n" +
-            "   Integer age;\n" +
-            "   }\n" +
-            "}");
+            """
+				import java.util.List;
+				
+				public class Bug572315 {
+				   private void foo() {
+				   List<String>\s
+				   @Deprecated()
+				   Integer age;
+				   }
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4344,25 +4628,29 @@ public void testBug530556() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"Completion/src/Callback.java",
-		"@FunctionalInterface\n" +
-		"public interface Callback<P,R> {\n" +
-		"    public R call(P param);\n" +
-		"}\n");
+		"""
+			@FunctionalInterface
+			public interface Callback<P,R> {
+			    public R call(P param);
+			}
+			""");
 	this.workingCopies[0] = getWorkingCopy(
 		"Completion/src/EnumLambdaFreeze.java",
-		"public enum EnumLambdaFreeze {\n" +
-		"	k1( s_arg -> {\n" +
-		"		// freezes as soon as i'm typing a dot after s_arg\n" +
-		"		s_arg.\n" +
-		"		return( \"\" );\n" +
-		"	}, s_arg -> {\n" +
-		"		return( \"\" );\n" +
-		"	} ),\n" +
-		"	k2( s_arg -> s_arg, s_arg -> s_arg );\n" +
-		"	\n" +
-		"	private EnumLambdaFreeze( Callback<String, String> callback1, \n" +
-		"                                  Callback<String, String> callback2 ){ }\n" +
-		"}\n");
+		"""
+			public enum EnumLambdaFreeze {
+				k1( s_arg -> {
+					// freezes as soon as i'm typing a dot after s_arg
+					s_arg.
+					return( "" );
+				}, s_arg -> {
+					return( "" );
+				} ),
+				k2( s_arg -> s_arg, s_arg -> s_arg );
+			\t
+				private EnumLambdaFreeze( Callback<String, String> callback1,\s
+			                                  Callback<String, String> callback2 ){ }
+			}
+			""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4373,100 +4661,103 @@ public void testBug530556() throws JavaModelException {
     this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 
     assertResults(
-            "CASE_INSENSITIVE_ORDER[FIELD_REF]{CASE_INSENSITIVE_ORDER, Ljava.lang.String;, Ljava.util.Comparator<Ljava.lang.String;>;, CASE_INSENSITIVE_ORDER, null, 49}\n" +
-            "copyValueOf[METHOD_REF]{copyValueOf(), Ljava.lang.String;, ([C)Ljava.lang.String;, copyValueOf, (arg0), 49}\n" +
-            "copyValueOf[METHOD_REF]{copyValueOf(), Ljava.lang.String;, ([CII)Ljava.lang.String;, copyValueOf, (arg0, arg1, arg2), 49}\n" +
-            "format[METHOD_REF]{format(), Ljava.lang.String;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1), 49}\n" +
-            "format[METHOD_REF]{format(), Ljava.lang.String;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1, arg2), 49}\n" +
-            "join[METHOD_REF]{join(), Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.Iterable<+Ljava.lang.CharSequence;>;)Ljava.lang.String;, join, (arg0, arg1), 49}\n" +
-            "join[METHOD_REF]{join(), Ljava.lang.String;, (Ljava.lang.CharSequence;[Ljava.lang.CharSequence;)Ljava.lang.String;, join, (arg0, arg1), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (C)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (D)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (F)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (I)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (J)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (Ljava.lang.Object;)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (Z)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, ([C)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, ([CII)Ljava.lang.String;, valueOf, (arg0, arg1, arg2), 49}\n" +
-            "charAt[METHOD_REF]{charAt(), Ljava.lang.String;, (I)C, charAt, (arg0), 60}\n" +
-            "chars[METHOD_REF]{chars(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, chars, null, 60}\n" +
-            "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
-            "codePointAt[METHOD_REF]{codePointAt(), Ljava.lang.String;, (I)I, codePointAt, (arg0), 60}\n" +
-            "codePointBefore[METHOD_REF]{codePointBefore(), Ljava.lang.String;, (I)I, codePointBefore, (arg0), 60}\n" +
-            "codePointCount[METHOD_REF]{codePointCount(), Ljava.lang.String;, (II)I, codePointCount, (arg0, arg1), 60}\n" +
-            "codePoints[METHOD_REF]{codePoints(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, codePoints, null, 60}\n" +
-            "compareTo[METHOD_REF]{compareTo(), Ljava.lang.String;, (Ljava.lang.String;)I, compareTo, (arg0), 60}\n" +
-            "compareToIgnoreCase[METHOD_REF]{compareToIgnoreCase(), Ljava.lang.String;, (Ljava.lang.String;)I, compareToIgnoreCase, (arg0), 60}\n" +
-            "concat[METHOD_REF]{concat(), Ljava.lang.String;, (Ljava.lang.String;)Ljava.lang.String;, concat, (arg0), 60}\n" +
-            "contains[METHOD_REF]{contains(), Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contains, (arg0), 60}\n" +
-            "contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contentEquals, (arg0), 60}\n" +
-            "contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.StringBuffer;)Z, contentEquals, (arg0), 60}\n" +
-            "endsWith[METHOD_REF]{endsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, endsWith, (arg0), 60}\n" +
-            "equals[METHOD_REF]{equals(), Ljava.lang.String;, (Ljava.lang.Object;)Z, equals, (arg0), 60}\n" +
-            "equalsIgnoreCase[METHOD_REF]{equalsIgnoreCase(), Ljava.lang.String;, (Ljava.lang.String;)Z, equalsIgnoreCase, (arg0), 60}\n" +
-            "finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-            "getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, ()[B, getBytes, null, 60}\n" +
-            "getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (II[BI)V, getBytes, (arg0, arg1, arg2, arg3), 60}\n" +
-            "getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (Ljava.lang.String;)[B, getBytes, (arg0), 60}\n" +
-            "getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (Ljava.nio.charset.Charset;)[B, getBytes, (arg0), 60}\n" +
-            "getChars[METHOD_REF]{getChars(), Ljava.lang.String;, (II[CI)V, getChars, (arg0, arg1, arg2, arg3), 60}\n" +
-            "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n" +
-            "hashCode[METHOD_REF]{hashCode(), Ljava.lang.String;, ()I, hashCode, null, 60}\n" +
-            "indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (I)I, indexOf, (arg0), 60}\n" +
-            "indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (II)I, indexOf, (arg0, arg1), 60}\n" +
-            "indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, indexOf, (arg0), 60}\n" +
-            "indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, indexOf, (arg0, arg1), 60}\n" +
-            "intern[METHOD_REF]{intern(), Ljava.lang.String;, ()Ljava.lang.String;, intern, null, 60}\n" +
-            "isEmpty[METHOD_REF]{isEmpty(), Ljava.lang.String;, ()Z, isEmpty, null, 60}\n" +
-            "lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (I)I, lastIndexOf, (arg0), 60}\n" +
-            "lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (II)I, lastIndexOf, (arg0, arg1), 60}\n" +
-            "lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, lastIndexOf, (arg0), 60}\n" +
-            "lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, lastIndexOf, (arg0, arg1), 60}\n" +
-            "length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, 60}\n" +
-            "matches[METHOD_REF]{matches(), Ljava.lang.String;, (Ljava.lang.String;)Z, matches, (arg0), 60}\n" +
-            "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
-            "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
-            "offsetByCodePoints[METHOD_REF]{offsetByCodePoints(), Ljava.lang.String;, (II)I, offsetByCodePoints, (arg0, arg1), 60}\n" +
-            "regionMatches[METHOD_REF]{regionMatches(), Ljava.lang.String;, (ILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3), 60}\n" +
-            "regionMatches[METHOD_REF]{regionMatches(), Ljava.lang.String;, (ZILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3, arg4), 60}\n" +
-            "replace[METHOD_REF]{replace(), Ljava.lang.String;, (CC)Ljava.lang.String;, replace, (arg0, arg1), 60}\n" +
-            "replace[METHOD_REF]{replace(), Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.CharSequence;)Ljava.lang.String;, replace, (arg0, arg1), 60}\n" +
-            "replaceAll[METHOD_REF]{replaceAll(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceAll, (arg0, arg1), 60}\n" +
-            "replaceFirst[METHOD_REF]{replaceFirst(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceFirst, (arg0, arg1), 60}\n" +
-            "split[METHOD_REF]{split(), Ljava.lang.String;, (Ljava.lang.String;)[Ljava.lang.String;, split, (arg0), 60}\n" +
-            "split[METHOD_REF]{split(), Ljava.lang.String;, (Ljava.lang.String;I)[Ljava.lang.String;, split, (arg0, arg1), 60}\n" +
-            "startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), 60}\n" +
-            "startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), 60}\n" +
-            "subSequence[METHOD_REF]{subSequence(), Ljava.lang.String;, (II)Ljava.lang.CharSequence;, subSequence, (arg0, arg1), 60}\n" +
-            "substring[METHOD_REF]{substring(), Ljava.lang.String;, (I)Ljava.lang.String;, substring, (arg0), 60}\n" +
-            "substring[METHOD_REF]{substring(), Ljava.lang.String;, (II)Ljava.lang.String;, substring, (arg0, arg1), 60}\n" +
-            "toCharArray[METHOD_REF]{toCharArray(), Ljava.lang.String;, ()[C, toCharArray, null, 60}\n" +
-            "toLowerCase[METHOD_REF]{toLowerCase(), Ljava.lang.String;, ()Ljava.lang.String;, toLowerCase, null, 60}\n" +
-            "toLowerCase[METHOD_REF]{toLowerCase(), Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toLowerCase, (arg0), 60}\n" +
-            "toString[METHOD_REF]{toString(), Ljava.lang.String;, ()Ljava.lang.String;, toString, null, 60}\n" +
-            "toUpperCase[METHOD_REF]{toUpperCase(), Ljava.lang.String;, ()Ljava.lang.String;, toUpperCase, null, 60}\n" +
-            "toUpperCase[METHOD_REF]{toUpperCase(), Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toUpperCase, (arg0), 60}\n" +
-            "trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, trim, null, 60}\n" +
-            "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
-            "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
-            "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+            """
+				CASE_INSENSITIVE_ORDER[FIELD_REF]{CASE_INSENSITIVE_ORDER, Ljava.lang.String;, Ljava.util.Comparator<Ljava.lang.String;>;, CASE_INSENSITIVE_ORDER, null, 49}
+				copyValueOf[METHOD_REF]{copyValueOf(), Ljava.lang.String;, ([C)Ljava.lang.String;, copyValueOf, (arg0), 49}
+				copyValueOf[METHOD_REF]{copyValueOf(), Ljava.lang.String;, ([CII)Ljava.lang.String;, copyValueOf, (arg0, arg1, arg2), 49}
+				format[METHOD_REF]{format(), Ljava.lang.String;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1), 49}
+				format[METHOD_REF]{format(), Ljava.lang.String;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1, arg2), 49}
+				join[METHOD_REF]{join(), Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.Iterable<+Ljava.lang.CharSequence;>;)Ljava.lang.String;, join, (arg0, arg1), 49}
+				join[METHOD_REF]{join(), Ljava.lang.String;, (Ljava.lang.CharSequence;[Ljava.lang.CharSequence;)Ljava.lang.String;, join, (arg0, arg1), 49}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (C)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (D)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (F)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (I)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (J)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (Ljava.lang.Object;)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (Z)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, ([C)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, ([CII)Ljava.lang.String;, valueOf, (arg0, arg1, arg2), 49}
+				charAt[METHOD_REF]{charAt(), Ljava.lang.String;, (I)C, charAt, (arg0), 60}
+				chars[METHOD_REF]{chars(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, chars, null, 60}
+				clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+				codePointAt[METHOD_REF]{codePointAt(), Ljava.lang.String;, (I)I, codePointAt, (arg0), 60}
+				codePointBefore[METHOD_REF]{codePointBefore(), Ljava.lang.String;, (I)I, codePointBefore, (arg0), 60}
+				codePointCount[METHOD_REF]{codePointCount(), Ljava.lang.String;, (II)I, codePointCount, (arg0, arg1), 60}
+				codePoints[METHOD_REF]{codePoints(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, codePoints, null, 60}
+				compareTo[METHOD_REF]{compareTo(), Ljava.lang.String;, (Ljava.lang.String;)I, compareTo, (arg0), 60}
+				compareToIgnoreCase[METHOD_REF]{compareToIgnoreCase(), Ljava.lang.String;, (Ljava.lang.String;)I, compareToIgnoreCase, (arg0), 60}
+				concat[METHOD_REF]{concat(), Ljava.lang.String;, (Ljava.lang.String;)Ljava.lang.String;, concat, (arg0), 60}
+				contains[METHOD_REF]{contains(), Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contains, (arg0), 60}
+				contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contentEquals, (arg0), 60}
+				contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.StringBuffer;)Z, contentEquals, (arg0), 60}
+				endsWith[METHOD_REF]{endsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, endsWith, (arg0), 60}
+				equals[METHOD_REF]{equals(), Ljava.lang.String;, (Ljava.lang.Object;)Z, equals, (arg0), 60}
+				equalsIgnoreCase[METHOD_REF]{equalsIgnoreCase(), Ljava.lang.String;, (Ljava.lang.String;)Z, equalsIgnoreCase, (arg0), 60}
+				finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}
+				getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, ()[B, getBytes, null, 60}
+				getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (II[BI)V, getBytes, (arg0, arg1, arg2, arg3), 60}
+				getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (Ljava.lang.String;)[B, getBytes, (arg0), 60}
+				getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (Ljava.nio.charset.Charset;)[B, getBytes, (arg0), 60}
+				getChars[METHOD_REF]{getChars(), Ljava.lang.String;, (II[CI)V, getChars, (arg0, arg1, arg2, arg3), 60}
+				getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.String;, ()I, hashCode, null, 60}
+				indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (I)I, indexOf, (arg0), 60}
+				indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (II)I, indexOf, (arg0, arg1), 60}
+				indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, indexOf, (arg0), 60}
+				indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, indexOf, (arg0, arg1), 60}
+				intern[METHOD_REF]{intern(), Ljava.lang.String;, ()Ljava.lang.String;, intern, null, 60}
+				isEmpty[METHOD_REF]{isEmpty(), Ljava.lang.String;, ()Z, isEmpty, null, 60}
+				lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (I)I, lastIndexOf, (arg0), 60}
+				lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (II)I, lastIndexOf, (arg0, arg1), 60}
+				lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, lastIndexOf, (arg0), 60}
+				lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, lastIndexOf, (arg0, arg1), 60}
+				length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, 60}
+				matches[METHOD_REF]{matches(), Ljava.lang.String;, (Ljava.lang.String;)Z, matches, (arg0), 60}
+				notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}
+				notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}
+				offsetByCodePoints[METHOD_REF]{offsetByCodePoints(), Ljava.lang.String;, (II)I, offsetByCodePoints, (arg0, arg1), 60}
+				regionMatches[METHOD_REF]{regionMatches(), Ljava.lang.String;, (ILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3), 60}
+				regionMatches[METHOD_REF]{regionMatches(), Ljava.lang.String;, (ZILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3, arg4), 60}
+				replace[METHOD_REF]{replace(), Ljava.lang.String;, (CC)Ljava.lang.String;, replace, (arg0, arg1), 60}
+				replace[METHOD_REF]{replace(), Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.CharSequence;)Ljava.lang.String;, replace, (arg0, arg1), 60}
+				replaceAll[METHOD_REF]{replaceAll(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceAll, (arg0, arg1), 60}
+				replaceFirst[METHOD_REF]{replaceFirst(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceFirst, (arg0, arg1), 60}
+				split[METHOD_REF]{split(), Ljava.lang.String;, (Ljava.lang.String;)[Ljava.lang.String;, split, (arg0), 60}
+				split[METHOD_REF]{split(), Ljava.lang.String;, (Ljava.lang.String;I)[Ljava.lang.String;, split, (arg0, arg1), 60}
+				startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), 60}
+				startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), 60}
+				subSequence[METHOD_REF]{subSequence(), Ljava.lang.String;, (II)Ljava.lang.CharSequence;, subSequence, (arg0, arg1), 60}
+				substring[METHOD_REF]{substring(), Ljava.lang.String;, (I)Ljava.lang.String;, substring, (arg0), 60}
+				substring[METHOD_REF]{substring(), Ljava.lang.String;, (II)Ljava.lang.String;, substring, (arg0, arg1), 60}
+				toCharArray[METHOD_REF]{toCharArray(), Ljava.lang.String;, ()[C, toCharArray, null, 60}
+				toLowerCase[METHOD_REF]{toLowerCase(), Ljava.lang.String;, ()Ljava.lang.String;, toLowerCase, null, 60}
+				toLowerCase[METHOD_REF]{toLowerCase(), Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toLowerCase, (arg0), 60}
+				toString[METHOD_REF]{toString(), Ljava.lang.String;, ()Ljava.lang.String;, toString, null, 60}
+				toUpperCase[METHOD_REF]{toUpperCase(), Ljava.lang.String;, ()Ljava.lang.String;, toUpperCase, null, 60}
+				toUpperCase[METHOD_REF]{toUpperCase(), Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toUpperCase, (arg0), 60}
+				trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, trim, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}""",
             requestor.getResults());
 }
 public void testBug539685a() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"Completion/src/ReproduceHang.java",
-		"import java.util.Objects;\n" +
-		"import java.util.function.Function;\n" +
-		"\n" +
-		"public class ReproduceHang {\n" +
-		"    public static void main(String[] args) {\n" +
-		"        Function<String, Object> localVar = (value -> new Object() {\n" +
-		"            private final int i = Objects.requireNull(1);\n" +
-		"        });\n" +
-		"    }\n" +
-		"}\n");
+		"""
+			import java.util.Objects;
+			import java.util.function.Function;
+			
+			public class ReproduceHang {
+			    public static void main(String[] args) {
+			        Function<String, Object> localVar = (value -> new Object() {
+			            private final int i = Objects.requireNull(1);
+			        });
+			    }
+			}
+			""");
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
 
@@ -4476,33 +4767,35 @@ public void testBug539685a() throws Exception {
     this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 
     assertResults(
-            "requireNonNull[METHOD_REF]{requireNonNull, Ljava.util.Objects;, <T:Ljava.lang.Object;>(TT;)TT;, requireNonNull, (arg0), 51}\n" +
-            "requireNonNull[METHOD_REF]{requireNonNull, Ljava.util.Objects;, <T:Ljava.lang.Object;>(TT;Ljava.lang.String;)TT;, requireNonNull, (arg0, arg1), 51}\n" +
-            "requireNonNull[METHOD_REF]{requireNonNull, Ljava.util.Objects;, <T:Ljava.lang.Object;>(TT;Ljava.util.function.Supplier<Ljava.lang.String;>;)TT;, requireNonNull, (arg0, arg1), 51}",
+            """
+				requireNonNull[METHOD_REF]{requireNonNull, Ljava.util.Objects;, <T:Ljava.lang.Object;>(TT;)TT;, requireNonNull, (arg0), 51}
+				requireNonNull[METHOD_REF]{requireNonNull, Ljava.util.Objects;, <T:Ljava.lang.Object;>(TT;Ljava.lang.String;)TT;, requireNonNull, (arg0, arg1), 51}
+				requireNonNull[METHOD_REF]{requireNonNull, Ljava.util.Objects;, <T:Ljava.lang.Object;>(TT;Ljava.util.function.Supplier<Ljava.lang.String;>;)TT;, requireNonNull, (arg0, arg1), 51}""",
             requestor.getResults());
 }
 public void testBug558530() throws Exception {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug558530.java",
-            "import java.util.function.Function;\n" +
-            "\n" +
-            "public class LambdaCrash {\n" +
-            "\n" +
-            "    public enum Problem {\n" +
-            "        ONE(s -> s.trim())\n" +
-            "        TWO(k -> k." +
-            "        ;\n" +
-            "\n" +
-            "        private final Function<String, String> function;\n" +
-            "\n" +
-            "        private Problem(Function<String, String> function) {\n" +
-            "            this.function = function;\n" +
-            "        }\n" +
-            "\n" +
-            "    }\n" +
-            "\n" +
-            "}");
+            """
+				import java.util.function.Function;
+				
+				public class LambdaCrash {
+				
+				    public enum Problem {
+				        ONE(s -> s.trim())
+				        TWO(k -> k.\
+				        ;
+				
+				        private final Function<String, String> function;
+				
+				        private Problem(Function<String, String> function) {
+				            this.function = function;
+				        }
+				
+				    }
+				
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4513,120 +4806,123 @@ public void testBug558530() throws Exception {
     this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 
     assertResults(
-            "CASE_INSENSITIVE_ORDER[FIELD_REF]{CASE_INSENSITIVE_ORDER, Ljava.lang.String;, Ljava.util.Comparator<Ljava.lang.String;>;, CASE_INSENSITIVE_ORDER, null, 49}\n" +
-            "finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}\n" +
-            "getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (II[BI)V, getBytes, (arg0, arg1, arg2, arg3), 55}\n" +
-            "getChars[METHOD_REF]{getChars(), Ljava.lang.String;, (II[CI)V, getChars, (arg0, arg1, arg2, arg3), 55}\n" +
-            "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}\n" +
-            "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}\n" +
-            "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n" +
-            "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n" +
-            "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n" +
-            "charAt[METHOD_REF]{charAt(), Ljava.lang.String;, (I)C, charAt, (arg0), 60}\n" +
-            "chars[METHOD_REF]{chars(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, chars, null, 60}\n" +
-            "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
-            "codePointAt[METHOD_REF]{codePointAt(), Ljava.lang.String;, (I)I, codePointAt, (arg0), 60}\n" +
-            "codePointBefore[METHOD_REF]{codePointBefore(), Ljava.lang.String;, (I)I, codePointBefore, (arg0), 60}\n" +
-            "codePointCount[METHOD_REF]{codePointCount(), Ljava.lang.String;, (II)I, codePointCount, (arg0, arg1), 60}\n" +
-            "codePoints[METHOD_REF]{codePoints(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, codePoints, null, 60}\n" +
-            "compareTo[METHOD_REF]{compareTo(), Ljava.lang.String;, (Ljava.lang.String;)I, compareTo, (arg0), 60}\n" +
-            "compareToIgnoreCase[METHOD_REF]{compareToIgnoreCase(), Ljava.lang.String;, (Ljava.lang.String;)I, compareToIgnoreCase, (arg0), 60}\n" +
-            "contains[METHOD_REF]{contains(), Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contains, (arg0), 60}\n" +
-            "contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contentEquals, (arg0), 60}\n" +
-            "contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.StringBuffer;)Z, contentEquals, (arg0), 60}\n" +
-            "endsWith[METHOD_REF]{endsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, endsWith, (arg0), 60}\n" +
-            "equals[METHOD_REF]{equals(), Ljava.lang.String;, (Ljava.lang.Object;)Z, equals, (arg0), 60}\n" +
-            "equalsIgnoreCase[METHOD_REF]{equalsIgnoreCase(), Ljava.lang.String;, (Ljava.lang.String;)Z, equalsIgnoreCase, (arg0), 60}\n" +
-            "getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, ()[B, getBytes, null, 60}\n" +
-            "getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (Ljava.lang.String;)[B, getBytes, (arg0), 60}\n" +
-            "getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (Ljava.nio.charset.Charset;)[B, getBytes, (arg0), 60}\n" +
-            "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n" +
-            "hashCode[METHOD_REF]{hashCode(), Ljava.lang.String;, ()I, hashCode, null, 60}\n" +
-            "indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (I)I, indexOf, (arg0), 60}\n" +
-            "indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (II)I, indexOf, (arg0, arg1), 60}\n" +
-            "indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, indexOf, (arg0), 60}\n" +
-            "indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, indexOf, (arg0, arg1), 60}\n" +
-            "isEmpty[METHOD_REF]{isEmpty(), Ljava.lang.String;, ()Z, isEmpty, null, 60}\n" +
-            "lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (I)I, lastIndexOf, (arg0), 60}\n" +
-            "lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (II)I, lastIndexOf, (arg0, arg1), 60}\n" +
-            "lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, lastIndexOf, (arg0), 60}\n" +
-            "lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, lastIndexOf, (arg0, arg1), 60}\n" +
-            "length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, 60}\n" +
-            "matches[METHOD_REF]{matches(), Ljava.lang.String;, (Ljava.lang.String;)Z, matches, (arg0), 60}\n" +
-            "offsetByCodePoints[METHOD_REF]{offsetByCodePoints(), Ljava.lang.String;, (II)I, offsetByCodePoints, (arg0, arg1), 60}\n" +
-            "regionMatches[METHOD_REF]{regionMatches(), Ljava.lang.String;, (ILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3), 60}\n" +
-            "regionMatches[METHOD_REF]{regionMatches(), Ljava.lang.String;, (ZILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3, arg4), 60}\n" +
-            "split[METHOD_REF]{split(), Ljava.lang.String;, (Ljava.lang.String;)[Ljava.lang.String;, split, (arg0), 60}\n" +
-            "split[METHOD_REF]{split(), Ljava.lang.String;, (Ljava.lang.String;I)[Ljava.lang.String;, split, (arg0, arg1), 60}\n" +
-            "startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), 60}\n" +
-            "startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), 60}\n" +
-            "subSequence[METHOD_REF]{subSequence(), Ljava.lang.String;, (II)Ljava.lang.CharSequence;, subSequence, (arg0, arg1), 60}\n" +
-            "toCharArray[METHOD_REF]{toCharArray(), Ljava.lang.String;, ()[C, toCharArray, null, 60}\n" +
-            "copyValueOf[METHOD_REF]{copyValueOf(), Ljava.lang.String;, ([C)Ljava.lang.String;, copyValueOf, (arg0), 79}\n" +
-            "copyValueOf[METHOD_REF]{copyValueOf(), Ljava.lang.String;, ([CII)Ljava.lang.String;, copyValueOf, (arg0, arg1, arg2), 79}\n" +
-            "format[METHOD_REF]{format(), Ljava.lang.String;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1), 79}\n" +
-            "format[METHOD_REF]{format(), Ljava.lang.String;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1, arg2), 79}\n" +
-            "join[METHOD_REF]{join(), Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.Iterable<+Ljava.lang.CharSequence;>;)Ljava.lang.String;, join, (arg0, arg1), 79}\n" +
-            "join[METHOD_REF]{join(), Ljava.lang.String;, (Ljava.lang.CharSequence;[Ljava.lang.CharSequence;)Ljava.lang.String;, join, (arg0, arg1), 79}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (C)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (D)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (F)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (I)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (J)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (Ljava.lang.Object;)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (Z)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, ([C)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
-            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, ([CII)Ljava.lang.String;, valueOf, (arg0, arg1, arg2), 79}\n" +
-            "concat[METHOD_REF]{concat(), Ljava.lang.String;, (Ljava.lang.String;)Ljava.lang.String;, concat, (arg0), 90}\n" +
-            "intern[METHOD_REF]{intern(), Ljava.lang.String;, ()Ljava.lang.String;, intern, null, 90}\n" +
-            "replace[METHOD_REF]{replace(), Ljava.lang.String;, (CC)Ljava.lang.String;, replace, (arg0, arg1), 90}\n" +
-            "replace[METHOD_REF]{replace(), Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.CharSequence;)Ljava.lang.String;, replace, (arg0, arg1), 90}\n" +
-            "replaceAll[METHOD_REF]{replaceAll(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceAll, (arg0, arg1), 90}\n" +
-            "replaceFirst[METHOD_REF]{replaceFirst(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceFirst, (arg0, arg1), 90}\n" +
-            "substring[METHOD_REF]{substring(), Ljava.lang.String;, (I)Ljava.lang.String;, substring, (arg0), 90}\n" +
-            "substring[METHOD_REF]{substring(), Ljava.lang.String;, (II)Ljava.lang.String;, substring, (arg0, arg1), 90}\n" +
-            "toLowerCase[METHOD_REF]{toLowerCase(), Ljava.lang.String;, ()Ljava.lang.String;, toLowerCase, null, 90}\n" +
-            "toLowerCase[METHOD_REF]{toLowerCase(), Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toLowerCase, (arg0), 90}\n" +
-            "toString[METHOD_REF]{toString(), Ljava.lang.String;, ()Ljava.lang.String;, toString, null, 90}\n" +
-            "toUpperCase[METHOD_REF]{toUpperCase(), Ljava.lang.String;, ()Ljava.lang.String;, toUpperCase, null, 90}\n" +
-            "toUpperCase[METHOD_REF]{toUpperCase(), Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toUpperCase, (arg0), 90}\n" +
-            "trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, trim, null, 90}",
+            """
+				CASE_INSENSITIVE_ORDER[FIELD_REF]{CASE_INSENSITIVE_ORDER, Ljava.lang.String;, Ljava.util.Comparator<Ljava.lang.String;>;, CASE_INSENSITIVE_ORDER, null, 49}
+				finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}
+				getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (II[BI)V, getBytes, (arg0, arg1, arg2, arg3), 55}
+				getChars[METHOD_REF]{getChars(), Ljava.lang.String;, (II[CI)V, getChars, (arg0, arg1, arg2, arg3), 55}
+				notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}
+				notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}
+				charAt[METHOD_REF]{charAt(), Ljava.lang.String;, (I)C, charAt, (arg0), 60}
+				chars[METHOD_REF]{chars(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, chars, null, 60}
+				clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+				codePointAt[METHOD_REF]{codePointAt(), Ljava.lang.String;, (I)I, codePointAt, (arg0), 60}
+				codePointBefore[METHOD_REF]{codePointBefore(), Ljava.lang.String;, (I)I, codePointBefore, (arg0), 60}
+				codePointCount[METHOD_REF]{codePointCount(), Ljava.lang.String;, (II)I, codePointCount, (arg0, arg1), 60}
+				codePoints[METHOD_REF]{codePoints(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, codePoints, null, 60}
+				compareTo[METHOD_REF]{compareTo(), Ljava.lang.String;, (Ljava.lang.String;)I, compareTo, (arg0), 60}
+				compareToIgnoreCase[METHOD_REF]{compareToIgnoreCase(), Ljava.lang.String;, (Ljava.lang.String;)I, compareToIgnoreCase, (arg0), 60}
+				contains[METHOD_REF]{contains(), Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contains, (arg0), 60}
+				contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contentEquals, (arg0), 60}
+				contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.StringBuffer;)Z, contentEquals, (arg0), 60}
+				endsWith[METHOD_REF]{endsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, endsWith, (arg0), 60}
+				equals[METHOD_REF]{equals(), Ljava.lang.String;, (Ljava.lang.Object;)Z, equals, (arg0), 60}
+				equalsIgnoreCase[METHOD_REF]{equalsIgnoreCase(), Ljava.lang.String;, (Ljava.lang.String;)Z, equalsIgnoreCase, (arg0), 60}
+				getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, ()[B, getBytes, null, 60}
+				getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (Ljava.lang.String;)[B, getBytes, (arg0), 60}
+				getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (Ljava.nio.charset.Charset;)[B, getBytes, (arg0), 60}
+				getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.String;, ()I, hashCode, null, 60}
+				indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (I)I, indexOf, (arg0), 60}
+				indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (II)I, indexOf, (arg0, arg1), 60}
+				indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, indexOf, (arg0), 60}
+				indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, indexOf, (arg0, arg1), 60}
+				isEmpty[METHOD_REF]{isEmpty(), Ljava.lang.String;, ()Z, isEmpty, null, 60}
+				lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (I)I, lastIndexOf, (arg0), 60}
+				lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (II)I, lastIndexOf, (arg0, arg1), 60}
+				lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, lastIndexOf, (arg0), 60}
+				lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, lastIndexOf, (arg0, arg1), 60}
+				length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, 60}
+				matches[METHOD_REF]{matches(), Ljava.lang.String;, (Ljava.lang.String;)Z, matches, (arg0), 60}
+				offsetByCodePoints[METHOD_REF]{offsetByCodePoints(), Ljava.lang.String;, (II)I, offsetByCodePoints, (arg0, arg1), 60}
+				regionMatches[METHOD_REF]{regionMatches(), Ljava.lang.String;, (ILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3), 60}
+				regionMatches[METHOD_REF]{regionMatches(), Ljava.lang.String;, (ZILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3, arg4), 60}
+				split[METHOD_REF]{split(), Ljava.lang.String;, (Ljava.lang.String;)[Ljava.lang.String;, split, (arg0), 60}
+				split[METHOD_REF]{split(), Ljava.lang.String;, (Ljava.lang.String;I)[Ljava.lang.String;, split, (arg0, arg1), 60}
+				startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), 60}
+				startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), 60}
+				subSequence[METHOD_REF]{subSequence(), Ljava.lang.String;, (II)Ljava.lang.CharSequence;, subSequence, (arg0, arg1), 60}
+				toCharArray[METHOD_REF]{toCharArray(), Ljava.lang.String;, ()[C, toCharArray, null, 60}
+				copyValueOf[METHOD_REF]{copyValueOf(), Ljava.lang.String;, ([C)Ljava.lang.String;, copyValueOf, (arg0), 79}
+				copyValueOf[METHOD_REF]{copyValueOf(), Ljava.lang.String;, ([CII)Ljava.lang.String;, copyValueOf, (arg0, arg1, arg2), 79}
+				format[METHOD_REF]{format(), Ljava.lang.String;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1), 79}
+				format[METHOD_REF]{format(), Ljava.lang.String;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1, arg2), 79}
+				join[METHOD_REF]{join(), Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.Iterable<+Ljava.lang.CharSequence;>;)Ljava.lang.String;, join, (arg0, arg1), 79}
+				join[METHOD_REF]{join(), Ljava.lang.String;, (Ljava.lang.CharSequence;[Ljava.lang.CharSequence;)Ljava.lang.String;, join, (arg0, arg1), 79}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (C)Ljava.lang.String;, valueOf, (arg0), 79}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (D)Ljava.lang.String;, valueOf, (arg0), 79}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (F)Ljava.lang.String;, valueOf, (arg0), 79}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (I)Ljava.lang.String;, valueOf, (arg0), 79}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (J)Ljava.lang.String;, valueOf, (arg0), 79}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (Ljava.lang.Object;)Ljava.lang.String;, valueOf, (arg0), 79}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (Z)Ljava.lang.String;, valueOf, (arg0), 79}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, ([C)Ljava.lang.String;, valueOf, (arg0), 79}
+				valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, ([CII)Ljava.lang.String;, valueOf, (arg0, arg1, arg2), 79}
+				concat[METHOD_REF]{concat(), Ljava.lang.String;, (Ljava.lang.String;)Ljava.lang.String;, concat, (arg0), 90}
+				intern[METHOD_REF]{intern(), Ljava.lang.String;, ()Ljava.lang.String;, intern, null, 90}
+				replace[METHOD_REF]{replace(), Ljava.lang.String;, (CC)Ljava.lang.String;, replace, (arg0, arg1), 90}
+				replace[METHOD_REF]{replace(), Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.CharSequence;)Ljava.lang.String;, replace, (arg0, arg1), 90}
+				replaceAll[METHOD_REF]{replaceAll(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceAll, (arg0, arg1), 90}
+				replaceFirst[METHOD_REF]{replaceFirst(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceFirst, (arg0, arg1), 90}
+				substring[METHOD_REF]{substring(), Ljava.lang.String;, (I)Ljava.lang.String;, substring, (arg0), 90}
+				substring[METHOD_REF]{substring(), Ljava.lang.String;, (II)Ljava.lang.String;, substring, (arg0, arg1), 90}
+				toLowerCase[METHOD_REF]{toLowerCase(), Ljava.lang.String;, ()Ljava.lang.String;, toLowerCase, null, 90}
+				toLowerCase[METHOD_REF]{toLowerCase(), Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toLowerCase, (arg0), 90}
+				toString[METHOD_REF]{toString(), Ljava.lang.String;, ()Ljava.lang.String;, toString, null, 90}
+				toUpperCase[METHOD_REF]{toUpperCase(), Ljava.lang.String;, ()Ljava.lang.String;, toUpperCase, null, 90}
+				toUpperCase[METHOD_REF]{toUpperCase(), Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toUpperCase, (arg0), 90}
+				trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, trim, null, 90}""",
             requestor.getResults());
 }
 public void testBug548779() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n" +
-            "\n" +
-            "public class Test {\n" +
-            "	String val = \"\";\n" +
-            "	{\n" +
-            "//		val.match\n" +
-            "	}\n" +
-            "}\n" +
-            "\n" +
-            "interface ConditionChecker {\n" +
-            "	boolean check(String line);\n" +
-            "}\n" +
-            "\n" +
-            "enum MyGuesser {\n" +
-            "	INT_LONG(\"INT_LONG\", (line) -> {\n" +
-            "		return line.contains(\"int\");\n" +
-            "	}, (line) -> {\n" +
-            "		return line.contains(\"long\");\n" +
-            "	});\n" +
-            "\n" +
-            "	String name;\n" +
-            "	ConditionChecker checker;\n" +
-            "	ConditionChecker checkerOld;\n" +
-            "\n" +
-            "	MyGuesser(String name, ConditionChecker checker, ConditionChecker checkerOld) {\n" +
-            "		this.name = name;\n" +
-            "		this.checker = checker;\n" +
-            "		this.checkerOld = checkerOld;\n" +
-            "	}\n" +
-            "}\n");
+            """
+				package test;
+				
+				public class Test {
+					String val = "";
+					{
+				//		val.match
+					}
+				}
+				
+				interface ConditionChecker {
+					boolean check(String line);
+				}
+				
+				enum MyGuesser {
+					INT_LONG("INT_LONG", (line) -> {
+						return line.contains("int");
+					}, (line) -> {
+						return line.contains("long");
+					});
+				
+					String name;
+					ConditionChecker checker;
+					ConditionChecker checkerOld;
+				
+					MyGuesser(String name, ConditionChecker checker, ConditionChecker checkerOld) {
+						this.name = name;
+						this.checker = checker;
+						this.checkerOld = checkerOld;
+					}
+				}
+				""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4637,111 +4933,114 @@ public void testBug548779() throws JavaModelException {
     this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 
     assertResults(
-            "copyValueOf[METHOD_REF]{copyValueOf, Ljava.lang.String;, ([C)Ljava.lang.String;, copyValueOf, (arg0), 49}\n" +
-            "copyValueOf[METHOD_REF]{copyValueOf, Ljava.lang.String;, ([CII)Ljava.lang.String;, copyValueOf, (arg0, arg1, arg2), 49}\n" +
-            "format[METHOD_REF]{format, Ljava.lang.String;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1), 49}\n" +
-            "format[METHOD_REF]{format, Ljava.lang.String;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1, arg2), 49}\n" +
-            "join[METHOD_REF]{join, Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.Iterable<+Ljava.lang.CharSequence;>;)Ljava.lang.String;, join, (arg0, arg1), 49}\n" +
-            "join[METHOD_REF]{join, Ljava.lang.String;, (Ljava.lang.CharSequence;[Ljava.lang.CharSequence;)Ljava.lang.String;, join, (arg0, arg1), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (C)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (D)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (F)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (I)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (J)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (Ljava.lang.Object;)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (Z)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, ([C)Ljava.lang.String;, valueOf, (arg0), 49}\n" +
-            "valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, ([CII)Ljava.lang.String;, valueOf, (arg0, arg1, arg2), 49}\n" +
-            "finalize[METHOD_REF]{finalize, Ljava.lang.Object;, ()V, finalize, null, 55}\n" +
-            "getBytes[METHOD_REF]{getBytes, Ljava.lang.String;, (II[BI)V, getBytes, (arg0, arg1, arg2, arg3), 55}\n" +
-            "getChars[METHOD_REF]{getChars, Ljava.lang.String;, (II[CI)V, getChars, (arg0, arg1, arg2, arg3), 55}\n" +
-            "notify[METHOD_REF]{notify, Ljava.lang.Object;, ()V, notify, null, 55}\n" +
-            "notifyAll[METHOD_REF]{notifyAll, Ljava.lang.Object;, ()V, notifyAll, null, 55}\n" +
-            "wait[METHOD_REF]{wait, Ljava.lang.Object;, ()V, wait, null, 55}\n" +
-            "wait[METHOD_REF]{wait, Ljava.lang.Object;, (J)V, wait, (millis), 55}\n" +
-            "wait[METHOD_REF]{wait, Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n" +
-            "charAt[METHOD_REF]{charAt, Ljava.lang.String;, (I)C, charAt, (arg0), 60}\n" +
-            "chars[METHOD_REF]{chars, Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, chars, null, 60}\n" +
-            "clone[METHOD_REF]{clone, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
-            "codePointAt[METHOD_REF]{codePointAt, Ljava.lang.String;, (I)I, codePointAt, (arg0), 60}\n" +
-            "codePointBefore[METHOD_REF]{codePointBefore, Ljava.lang.String;, (I)I, codePointBefore, (arg0), 60}\n" +
-            "codePointCount[METHOD_REF]{codePointCount, Ljava.lang.String;, (II)I, codePointCount, (arg0, arg1), 60}\n" +
-            "codePoints[METHOD_REF]{codePoints, Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, codePoints, null, 60}\n" +
-            "compareTo[METHOD_REF]{compareTo, Ljava.lang.String;, (Ljava.lang.String;)I, compareTo, (arg0), 60}\n" +
-            "compareToIgnoreCase[METHOD_REF]{compareToIgnoreCase, Ljava.lang.String;, (Ljava.lang.String;)I, compareToIgnoreCase, (arg0), 60}\n" +
-            "concat[METHOD_REF]{concat, Ljava.lang.String;, (Ljava.lang.String;)Ljava.lang.String;, concat, (arg0), 60}\n" +
-            "getBytes[METHOD_REF]{getBytes, Ljava.lang.String;, ()[B, getBytes, null, 60}\n" +
-            "getBytes[METHOD_REF]{getBytes, Ljava.lang.String;, (Ljava.lang.String;)[B, getBytes, (arg0), 60}\n" +
-            "getBytes[METHOD_REF]{getBytes, Ljava.lang.String;, (Ljava.nio.charset.Charset;)[B, getBytes, (arg0), 60}\n" +
-            "getClass[METHOD_REF]{getClass, Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n" +
-            "hashCode[METHOD_REF]{hashCode, Ljava.lang.String;, ()I, hashCode, null, 60}\n" +
-            "indexOf[METHOD_REF]{indexOf, Ljava.lang.String;, (I)I, indexOf, (arg0), 60}\n" +
-            "indexOf[METHOD_REF]{indexOf, Ljava.lang.String;, (II)I, indexOf, (arg0, arg1), 60}\n" +
-            "indexOf[METHOD_REF]{indexOf, Ljava.lang.String;, (Ljava.lang.String;)I, indexOf, (arg0), 60}\n" +
-            "indexOf[METHOD_REF]{indexOf, Ljava.lang.String;, (Ljava.lang.String;I)I, indexOf, (arg0, arg1), 60}\n" +
-            "intern[METHOD_REF]{intern, Ljava.lang.String;, ()Ljava.lang.String;, intern, null, 60}\n" +
-            "lastIndexOf[METHOD_REF]{lastIndexOf, Ljava.lang.String;, (I)I, lastIndexOf, (arg0), 60}\n" +
-            "lastIndexOf[METHOD_REF]{lastIndexOf, Ljava.lang.String;, (II)I, lastIndexOf, (arg0, arg1), 60}\n" +
-            "lastIndexOf[METHOD_REF]{lastIndexOf, Ljava.lang.String;, (Ljava.lang.String;)I, lastIndexOf, (arg0), 60}\n" +
-            "lastIndexOf[METHOD_REF]{lastIndexOf, Ljava.lang.String;, (Ljava.lang.String;I)I, lastIndexOf, (arg0, arg1), 60}\n" +
-            "length[METHOD_REF]{length, Ljava.lang.String;, ()I, length, null, 60}\n" +
-            "offsetByCodePoints[METHOD_REF]{offsetByCodePoints, Ljava.lang.String;, (II)I, offsetByCodePoints, (arg0, arg1), 60}\n" +
-            "replace[METHOD_REF]{replace, Ljava.lang.String;, (CC)Ljava.lang.String;, replace, (arg0, arg1), 60}\n" +
-            "replace[METHOD_REF]{replace, Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.CharSequence;)Ljava.lang.String;, replace, (arg0, arg1), 60}\n" +
-            "replaceAll[METHOD_REF]{replaceAll, Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceAll, (arg0, arg1), 60}\n" +
-            "replaceFirst[METHOD_REF]{replaceFirst, Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceFirst, (arg0, arg1), 60}\n" +
-            "split[METHOD_REF]{split, Ljava.lang.String;, (Ljava.lang.String;)[Ljava.lang.String;, split, (arg0), 60}\n" +
-            "split[METHOD_REF]{split, Ljava.lang.String;, (Ljava.lang.String;I)[Ljava.lang.String;, split, (arg0, arg1), 60}\n" +
-            "subSequence[METHOD_REF]{subSequence, Ljava.lang.String;, (II)Ljava.lang.CharSequence;, subSequence, (arg0, arg1), 60}\n" +
-            "substring[METHOD_REF]{substring, Ljava.lang.String;, (I)Ljava.lang.String;, substring, (arg0), 60}\n" +
-            "substring[METHOD_REF]{substring, Ljava.lang.String;, (II)Ljava.lang.String;, substring, (arg0, arg1), 60}\n" +
-            "toCharArray[METHOD_REF]{toCharArray, Ljava.lang.String;, ()[C, toCharArray, null, 60}\n" +
-            "toLowerCase[METHOD_REF]{toLowerCase, Ljava.lang.String;, ()Ljava.lang.String;, toLowerCase, null, 60}\n" +
-            "toLowerCase[METHOD_REF]{toLowerCase, Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toLowerCase, (arg0), 60}\n" +
-            "toString[METHOD_REF]{toString, Ljava.lang.String;, ()Ljava.lang.String;, toString, null, 60}\n" +
-            "toUpperCase[METHOD_REF]{toUpperCase, Ljava.lang.String;, ()Ljava.lang.String;, toUpperCase, null, 60}\n" +
-            "toUpperCase[METHOD_REF]{toUpperCase, Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toUpperCase, (arg0), 60}\n" +
-            "trim[METHOD_REF]{trim, Ljava.lang.String;, ()Ljava.lang.String;, trim, null, 60}\n" +
-            "contains[METHOD_REF]{contains, Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contains, (arg0), 90}\n" +
-            "contentEquals[METHOD_REF]{contentEquals, Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contentEquals, (arg0), 90}\n" +
-            "contentEquals[METHOD_REF]{contentEquals, Ljava.lang.String;, (Ljava.lang.StringBuffer;)Z, contentEquals, (arg0), 90}\n" +
-            "endsWith[METHOD_REF]{endsWith, Ljava.lang.String;, (Ljava.lang.String;)Z, endsWith, (arg0), 90}\n" +
-            "equals[METHOD_REF]{equals, Ljava.lang.String;, (Ljava.lang.Object;)Z, equals, (arg0), 90}\n" +
-            "equalsIgnoreCase[METHOD_REF]{equalsIgnoreCase, Ljava.lang.String;, (Ljava.lang.String;)Z, equalsIgnoreCase, (arg0), 90}\n" +
-            "isEmpty[METHOD_REF]{isEmpty, Ljava.lang.String;, ()Z, isEmpty, null, 90}\n" +
-            "matches[METHOD_REF]{matches, Ljava.lang.String;, (Ljava.lang.String;)Z, matches, (arg0), 90}\n" +
-            "regionMatches[METHOD_REF]{regionMatches, Ljava.lang.String;, (ILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3), 90}\n" +
-            "regionMatches[METHOD_REF]{regionMatches, Ljava.lang.String;, (ZILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3, arg4), 90}\n" +
-            "startsWith[METHOD_REF]{startsWith, Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), 90}\n" +
-            "startsWith[METHOD_REF]{startsWith, Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), 90}",
+            """
+				copyValueOf[METHOD_REF]{copyValueOf, Ljava.lang.String;, ([C)Ljava.lang.String;, copyValueOf, (arg0), 49}
+				copyValueOf[METHOD_REF]{copyValueOf, Ljava.lang.String;, ([CII)Ljava.lang.String;, copyValueOf, (arg0, arg1, arg2), 49}
+				format[METHOD_REF]{format, Ljava.lang.String;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1), 49}
+				format[METHOD_REF]{format, Ljava.lang.String;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1, arg2), 49}
+				join[METHOD_REF]{join, Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.Iterable<+Ljava.lang.CharSequence;>;)Ljava.lang.String;, join, (arg0, arg1), 49}
+				join[METHOD_REF]{join, Ljava.lang.String;, (Ljava.lang.CharSequence;[Ljava.lang.CharSequence;)Ljava.lang.String;, join, (arg0, arg1), 49}
+				valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (C)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (D)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (F)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (I)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (J)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (Ljava.lang.Object;)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, (Z)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, ([C)Ljava.lang.String;, valueOf, (arg0), 49}
+				valueOf[METHOD_REF]{valueOf, Ljava.lang.String;, ([CII)Ljava.lang.String;, valueOf, (arg0, arg1, arg2), 49}
+				finalize[METHOD_REF]{finalize, Ljava.lang.Object;, ()V, finalize, null, 55}
+				getBytes[METHOD_REF]{getBytes, Ljava.lang.String;, (II[BI)V, getBytes, (arg0, arg1, arg2, arg3), 55}
+				getChars[METHOD_REF]{getChars, Ljava.lang.String;, (II[CI)V, getChars, (arg0, arg1, arg2, arg3), 55}
+				notify[METHOD_REF]{notify, Ljava.lang.Object;, ()V, notify, null, 55}
+				notifyAll[METHOD_REF]{notifyAll, Ljava.lang.Object;, ()V, notifyAll, null, 55}
+				wait[METHOD_REF]{wait, Ljava.lang.Object;, ()V, wait, null, 55}
+				wait[METHOD_REF]{wait, Ljava.lang.Object;, (J)V, wait, (millis), 55}
+				wait[METHOD_REF]{wait, Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}
+				charAt[METHOD_REF]{charAt, Ljava.lang.String;, (I)C, charAt, (arg0), 60}
+				chars[METHOD_REF]{chars, Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, chars, null, 60}
+				clone[METHOD_REF]{clone, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+				codePointAt[METHOD_REF]{codePointAt, Ljava.lang.String;, (I)I, codePointAt, (arg0), 60}
+				codePointBefore[METHOD_REF]{codePointBefore, Ljava.lang.String;, (I)I, codePointBefore, (arg0), 60}
+				codePointCount[METHOD_REF]{codePointCount, Ljava.lang.String;, (II)I, codePointCount, (arg0, arg1), 60}
+				codePoints[METHOD_REF]{codePoints, Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, codePoints, null, 60}
+				compareTo[METHOD_REF]{compareTo, Ljava.lang.String;, (Ljava.lang.String;)I, compareTo, (arg0), 60}
+				compareToIgnoreCase[METHOD_REF]{compareToIgnoreCase, Ljava.lang.String;, (Ljava.lang.String;)I, compareToIgnoreCase, (arg0), 60}
+				concat[METHOD_REF]{concat, Ljava.lang.String;, (Ljava.lang.String;)Ljava.lang.String;, concat, (arg0), 60}
+				getBytes[METHOD_REF]{getBytes, Ljava.lang.String;, ()[B, getBytes, null, 60}
+				getBytes[METHOD_REF]{getBytes, Ljava.lang.String;, (Ljava.lang.String;)[B, getBytes, (arg0), 60}
+				getBytes[METHOD_REF]{getBytes, Ljava.lang.String;, (Ljava.nio.charset.Charset;)[B, getBytes, (arg0), 60}
+				getClass[METHOD_REF]{getClass, Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}
+				hashCode[METHOD_REF]{hashCode, Ljava.lang.String;, ()I, hashCode, null, 60}
+				indexOf[METHOD_REF]{indexOf, Ljava.lang.String;, (I)I, indexOf, (arg0), 60}
+				indexOf[METHOD_REF]{indexOf, Ljava.lang.String;, (II)I, indexOf, (arg0, arg1), 60}
+				indexOf[METHOD_REF]{indexOf, Ljava.lang.String;, (Ljava.lang.String;)I, indexOf, (arg0), 60}
+				indexOf[METHOD_REF]{indexOf, Ljava.lang.String;, (Ljava.lang.String;I)I, indexOf, (arg0, arg1), 60}
+				intern[METHOD_REF]{intern, Ljava.lang.String;, ()Ljava.lang.String;, intern, null, 60}
+				lastIndexOf[METHOD_REF]{lastIndexOf, Ljava.lang.String;, (I)I, lastIndexOf, (arg0), 60}
+				lastIndexOf[METHOD_REF]{lastIndexOf, Ljava.lang.String;, (II)I, lastIndexOf, (arg0, arg1), 60}
+				lastIndexOf[METHOD_REF]{lastIndexOf, Ljava.lang.String;, (Ljava.lang.String;)I, lastIndexOf, (arg0), 60}
+				lastIndexOf[METHOD_REF]{lastIndexOf, Ljava.lang.String;, (Ljava.lang.String;I)I, lastIndexOf, (arg0, arg1), 60}
+				length[METHOD_REF]{length, Ljava.lang.String;, ()I, length, null, 60}
+				offsetByCodePoints[METHOD_REF]{offsetByCodePoints, Ljava.lang.String;, (II)I, offsetByCodePoints, (arg0, arg1), 60}
+				replace[METHOD_REF]{replace, Ljava.lang.String;, (CC)Ljava.lang.String;, replace, (arg0, arg1), 60}
+				replace[METHOD_REF]{replace, Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.CharSequence;)Ljava.lang.String;, replace, (arg0, arg1), 60}
+				replaceAll[METHOD_REF]{replaceAll, Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceAll, (arg0, arg1), 60}
+				replaceFirst[METHOD_REF]{replaceFirst, Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceFirst, (arg0, arg1), 60}
+				split[METHOD_REF]{split, Ljava.lang.String;, (Ljava.lang.String;)[Ljava.lang.String;, split, (arg0), 60}
+				split[METHOD_REF]{split, Ljava.lang.String;, (Ljava.lang.String;I)[Ljava.lang.String;, split, (arg0, arg1), 60}
+				subSequence[METHOD_REF]{subSequence, Ljava.lang.String;, (II)Ljava.lang.CharSequence;, subSequence, (arg0, arg1), 60}
+				substring[METHOD_REF]{substring, Ljava.lang.String;, (I)Ljava.lang.String;, substring, (arg0), 60}
+				substring[METHOD_REF]{substring, Ljava.lang.String;, (II)Ljava.lang.String;, substring, (arg0, arg1), 60}
+				toCharArray[METHOD_REF]{toCharArray, Ljava.lang.String;, ()[C, toCharArray, null, 60}
+				toLowerCase[METHOD_REF]{toLowerCase, Ljava.lang.String;, ()Ljava.lang.String;, toLowerCase, null, 60}
+				toLowerCase[METHOD_REF]{toLowerCase, Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toLowerCase, (arg0), 60}
+				toString[METHOD_REF]{toString, Ljava.lang.String;, ()Ljava.lang.String;, toString, null, 60}
+				toUpperCase[METHOD_REF]{toUpperCase, Ljava.lang.String;, ()Ljava.lang.String;, toUpperCase, null, 60}
+				toUpperCase[METHOD_REF]{toUpperCase, Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toUpperCase, (arg0), 60}
+				trim[METHOD_REF]{trim, Ljava.lang.String;, ()Ljava.lang.String;, trim, null, 60}
+				contains[METHOD_REF]{contains, Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contains, (arg0), 90}
+				contentEquals[METHOD_REF]{contentEquals, Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contentEquals, (arg0), 90}
+				contentEquals[METHOD_REF]{contentEquals, Ljava.lang.String;, (Ljava.lang.StringBuffer;)Z, contentEquals, (arg0), 90}
+				endsWith[METHOD_REF]{endsWith, Ljava.lang.String;, (Ljava.lang.String;)Z, endsWith, (arg0), 90}
+				equals[METHOD_REF]{equals, Ljava.lang.String;, (Ljava.lang.Object;)Z, equals, (arg0), 90}
+				equalsIgnoreCase[METHOD_REF]{equalsIgnoreCase, Ljava.lang.String;, (Ljava.lang.String;)Z, equalsIgnoreCase, (arg0), 90}
+				isEmpty[METHOD_REF]{isEmpty, Ljava.lang.String;, ()Z, isEmpty, null, 90}
+				matches[METHOD_REF]{matches, Ljava.lang.String;, (Ljava.lang.String;)Z, matches, (arg0), 90}
+				regionMatches[METHOD_REF]{regionMatches, Ljava.lang.String;, (ILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3), 90}
+				regionMatches[METHOD_REF]{regionMatches, Ljava.lang.String;, (ZILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3, arg4), 90}
+				startsWith[METHOD_REF]{startsWith, Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), 90}
+				startsWith[METHOD_REF]{startsWith, Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), 90}""",
     		requestor.getResults());
 }
 public void testBug543617() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test.module;\n" +
-            "\n" +
-            "import java.util.Collections;\n" +
-            "import java.util.Iterator;\n" +
-            "import java.util.List;\n" +
-            "\n" +
-            "public class TestApp {\n" +
-            "	private <E> void print(Iterator<E> iterator) {\n" +
-            "                // doesn't shows chain proposals\n" +
-            "		iterator.forEachRemaining(e -> load(C1)); \n" +
-            "\n" +
-            "		this.load(C2); \n" +
-            "	}\n" +
-            "\n" +
-            "	public List<String> findAll() {\n" +
-            "		return load(Collections.EMPTY_LIST);\n" +
-            "	}\n" +
-            "\n" +
-            "	public List<String> load(List<Long> ids) {\n" +
-            "		return null;\n" +
-            "	}\n" +
-            "}\n");
+            """
+				package test.module;
+				
+				import java.util.Collections;
+				import java.util.Iterator;
+				import java.util.List;
+				
+				public class TestApp {
+					private <E> void print(Iterator<E> iterator) {
+				                // doesn't shows chain proposals
+						iterator.forEachRemaining(e -> load(C1));\s
+				
+						this.load(C2);\s
+					}
+				
+					public List<String> findAll() {
+						return load(Collections.EMPTY_LIST);
+					}
+				
+					public List<String> load(List<Long> ids) {
+						return null;
+					}
+				}
+				""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4780,13 +5079,15 @@ public void testBug543617() throws JavaModelException {
 public void testBug539617_alloc() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Completion/src/CodeCompletion.java",
-			"public class CodeCompletion {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new Thread( () -> {\n" +
-			"			Double d = new Double(\n" +
-			"		});\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class CodeCompletion {
+					public static void main(String[] args) {
+						new Thread( () -> {
+							Double d = new Double(
+						});
+					}
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "new Double(";
@@ -4801,15 +5102,17 @@ public void testBug539617_alloc() throws JavaModelException {
 public void testBug539617_msg() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Completion/src/CodeCompletion.java",
-			"public class CodeCompletion {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new Thread( () -> {\n" +
-			"			Double d = meth(\n" +
-			"		});\n" +
-			"	}\n" +
-			"	static Double meth(String arg) { return null; }\n" +
-			"	static Number meth(String arg, boolean flag) { return null; }\n" +
-			"}\n");
+			"""
+				public class CodeCompletion {
+					public static void main(String[] args) {
+						new Thread( () -> {
+							Double d = meth(
+						});
+					}
+					static Double meth(String arg) { return null; }
+					static Number meth(String arg, boolean flag) { return null; }
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "meth(";
@@ -4829,20 +5132,24 @@ public void testBug473654_comment33() throws Exception {
 	this.workingCopies[1] = getWorkingCopy("/Completion/src/SpecificThing.java",
 			"public class SpecificThing extends GenericThing {}\n");
 	this.workingCopies[2] = getWorkingCopy("/Completion/src/CodeCompletion.java",
-			"import java.util.function.Supplier;\n" +
-			"public class TestCase<S extends GenericThing> {\n" +
-			"	TestCase(Supplier<S> s) {}\n" +
-			"}\n");
+			"""
+				import java.util.function.Supplier;
+				public class TestCase<S extends GenericThing> {
+					TestCase(Supplier<S> s) {}
+				}
+				""");
 	this.workingCopies[3] = getWorkingCopy("/Completion/src/Test.java",
-			"public class Test extends TestCase<SpecificThing> {\n" +
-			"	private final Foo foo;\n" +
-			"	public Test(Foo foo, Bar bar) {\n" +
-			"		super(() -> new SpecificThing(foo, bar) {\n" +
-			"				// press Ctrl+Space before the comment\n" +
-			"		});\n" +
-			"		this.foo = foo;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class Test extends TestCase<SpecificThing> {
+					private final Foo foo;
+					public Test(Foo foo, Bar bar) {
+						super(() -> new SpecificThing(foo, bar) {
+								// press Ctrl+Space before the comment
+						});
+						this.foo = foo;
+					}
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[3].getSource();
 	String completeBefore = "// press Ctrl+Space before the comment";
@@ -4880,22 +5187,24 @@ public void testBug546097() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/TestClass.java",
-            "import java.util.concurrent.Callable;\n" +
-            "\n" +
-            "\n" +
-            "public class TestClass {\n" +
-            "	public enum TestEnum {\n" +
-            "		ENUM1(() -> ),\n" +
-            "		ENUM2(() -> );\n" +
-            "\n" +
-            "		private Callable<Object> callable;\n" +
-            "\n" +
-            "		private TestEnum(Callable<Object> callable) {\n" +
-            "		{\n" +
-            "			this.callable = callable;\n" +
-            "		}\n" +
-            "	}\n" +
-            "}\n");
+            """
+				import java.util.concurrent.Callable;
+				
+				
+				public class TestClass {
+					public enum TestEnum {
+						ENUM1(() -> ),
+						ENUM2(() -> );
+				
+						private Callable<Object> callable;
+				
+						private TestEnum(Callable<Object> callable) {
+						{
+							this.callable = callable;
+						}
+					}
+				}
+				""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4922,18 +5231,19 @@ public void testBug573105_OnLambdaParamAtNestedMethodInvocationInsideLambda_Memb
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573105.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.nio.file.Files;\n" +
-            "import java.nio.file.Paths;\n" +
-            "\n" +
-            "public class Bug573105 {\n" +
-            "	private void test(){ \n" +
-            "		Stream.of(new Element()).map(element -> Files.lines(Paths.get(element.)))\n"+
-            "	} \n" +
-            "	private class Element {\n"+
-            "		public java.net.URI foo(){return null;}\n"+
-            "	}\n"+
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.nio.file.Files;
+				import java.nio.file.Paths;
+				
+				public class Bug573105 {
+					private void test(){\s
+						Stream.of(new Element()).map(element -> Files.lines(Paths.get(element.)))
+					}\s
+					private class Element {
+						public java.net.URI foo(){return null;}
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4952,17 +5262,18 @@ public void testBug573105_OnLambdaParamAtMethodInvocationInsideLambda_MemberComp
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573105.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.nio.file.Paths;\n" +
-            "\n" +
-            "public class Bug573105 {\n" +
-            "	private void test(){ \n" +
-            "		Stream.of(new Element()).map(element -> Paths.get(element.))\n"+
-            "	} \n" +
-            "	private class Element {\n"+
-            "		public java.net.URI foo(){return null;}\n"+
-            "	}\n"+
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.nio.file.Paths;
+				
+				public class Bug573105 {
+					private void test(){\s
+						Stream.of(new Element()).map(element -> Paths.get(element.))
+					}\s
+					private class Element {
+						public java.net.URI foo(){return null;}
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -4980,18 +5291,19 @@ public void testBug573105_OnLambdaParamAtMethodInvocationInsideLambdaWithSemicol
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573105.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.nio.file.Files;\n" +
-            "import java.nio.file.Paths;\n" +
-            "\n" +
-            "public class Bug573105 {\n" +
-            "	private void test(){ \n" +
-            "		Stream.of(new Element()).map(element -> Files.lines(Paths.get(element.)));\n"+
-            "	} \n" +
-            "	private class Element {\n"+
-            "		public java.net.URI foo(){return null;}\n"+
-            "	}\n"+
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.nio.file.Files;
+				import java.nio.file.Paths;
+				
+				public class Bug573105 {
+					private void test(){\s
+						Stream.of(new Element()).map(element -> Files.lines(Paths.get(element.)));
+					}\s
+					private class Element {
+						public java.net.URI foo(){return null;}
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5010,20 +5322,21 @@ public void testBug573105_OnLambdaParamAtMethodInvocationInsideLambdaBlock_Membe
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573105.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.nio.file.Files;\n" +
-            "import java.nio.file.Paths;\n" +
-            "\n" +
-            "public class Bug573105 {\n" +
-            "	private void test(){ \n" +
-            "		Stream.of(new Element()).map(element -> {" +
-            "			return Files.lines(Paths.get(element.)))\n" +
-            "		}"+
-            "	} \n" +
-            "	private class Element {\n"+
-            "		public java.net.URI foo(){return null;}\n"+
-            "	}\n"+
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.nio.file.Files;
+				import java.nio.file.Paths;
+				
+				public class Bug573105 {
+					private void test(){\s
+						Stream.of(new Element()).map(element -> {\
+							return Files.lines(Paths.get(element.)))
+						}\
+					}\s
+					private class Element {
+						public java.net.URI foo(){return null;}
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5041,17 +5354,18 @@ public void testBug573105_OnLambdaParamAtMethodInvocationInsideLambdaInCondition
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573105.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.nio.file.Paths;\n" +
-            "\n" +
-            "public class Bug573105 {\n" +
-            "	private void test(boolean flag){ \n" +
-            "		Stream.of(new Element()).map(flag ? null : element -> Paths.get(element.))\n"+
-            "	} \n" +
-            "	private class Element {\n"+
-            "		public java.net.URI foo(){return null;}\n"+
-            "	}\n"+
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.nio.file.Paths;
+				
+				public class Bug573105 {
+					private void test(boolean flag){\s
+						Stream.of(new Element()).map(flag ? null : element -> Paths.get(element.))
+					}\s
+					private class Element {
+						public java.net.URI foo(){return null;}
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5069,21 +5383,23 @@ public void testBug482663() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/CompletionParserResumeFailure.java",
-			"import java.util.Map;\n" +
-			"import java.util.stream.Stream;\n" +
-			"class Path {}\n" +
-			"public class CompletionParserResumeFailure\n" +
-			"{\n" +
-			"    Stream<Path> list(Path dir) throws IOException { return null; }\n" +
-			"    public void freeze()\n" +
-			"    {\n" +
-			"        list(null).map(p -> new Object()\n" +
-			"            {\n" +
-			"                public String name = p.getFileName().toString();\n" +
-			"                public Map<String, Date> clients = p;\n" +
-			"            });\n" +
-			"    }\n" +
-			"}\n");
+			"""
+				import java.util.Map;
+				import java.util.stream.Stream;
+				class Path {}
+				public class CompletionParserResumeFailure
+				{
+				    Stream<Path> list(Path dir) throws IOException { return null; }
+				    public void freeze()
+				    {
+				        list(null).map(p -> new Object()
+				            {
+				                public String name = p.getFileName().toString();
+				                public Map<String, Date> clients = p;
+				            });
+				    }
+				}
+				""");
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
 
@@ -5093,33 +5409,36 @@ public void testBug482663() throws Exception {
     this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 
 	assertResults(
-			"DateFormat[TYPE_REF]{java.text.DateFormat, java.text, Ljava.text.DateFormat;, null, null, 69}\n" +
-			"DateFormatSymbols[TYPE_REF]{java.text.DateFormatSymbols, java.text, Ljava.text.DateFormatSymbols;, null, null, 69}\n" +
-			"Date[TYPE_REF]{java.sql.Date, java.sql, Ljava.sql.Date;, null, null, 73}\n" +
-			"Date[TYPE_REF]{java.util.Date, java.util, Ljava.util.Date;, null, null, 73}",
+			"""
+				DateFormat[TYPE_REF]{java.text.DateFormat, java.text, Ljava.text.DateFormat;, null, null, 69}
+				DateFormatSymbols[TYPE_REF]{java.text.DateFormatSymbols, java.text, Ljava.text.DateFormatSymbols;, null, null, 69}
+				Date[TYPE_REF]{java.sql.Date, java.sql, Ljava.sql.Date;, null, null, 73}
+				Date[TYPE_REF]{java.util.Date, java.util, Ljava.util.Date;, null, null, 73}""",
 			requestor.getResults());
 }
 public void testBug574215() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/jdt/Something.java",
-			"package jdt;\n" +
-			"class S {\n" +
-			"	void foo() {}\n" +
-			"	String bar;\n" +
-			"}\n" +
-			"public class Something {\n" +
-			"	private void test(S s, int i) {\n" +
-			"		Runnable r = () -> {\n" +
-			"			if (i > 2) {\n" +
-			"				System.out.println(\"a\");\n" +
-			"			} else {\n" +
-			"				s. // <--\n" +
-			"				System.out.println(\"b\");\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package jdt;
+				class S {
+					void foo() {}
+					String bar;
+				}
+				public class Something {
+					private void test(S s, int i) {
+						Runnable r = () -> {
+							if (i > 2) {
+								System.out.println("a");
+							} else {
+								s. // <--
+								System.out.println("b");
+							}
+						}
+					}
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF, true);
 	String str = this.workingCopies[0].getSource();
@@ -5127,43 +5446,46 @@ public void testBug574215() throws CoreException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"bar[FIELD_REF]{bar, Ljdt.S;, Ljava.lang.String;, bar, null, 60}\n" +
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-			"foo[METHOD_REF]{foo(), Ljdt.S;, ()V, foo, null, 60}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			"""
+				bar[FIELD_REF]{bar, Ljdt.S;, Ljava.lang.String;, bar, null, 60}
+				clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+				equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}
+				finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}
+				foo[METHOD_REF]{foo(), Ljdt.S;, ()V, foo, null, 60}
+				getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}
+				notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}
+				notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}
+				toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}""",
 			requestor.getResults());
 }
 public void testBug574215_withToken() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/jdt/Something.java",
-			"package jdt;\n" +
-			"class S {\n" +
-			"	void foo() {}\n" +
-			"	int found;\n" +
-			"	String bar;\n" +
-			"}\n" +
-			"public class Something {\n" +
-			"	private void test(S s, int i) {\n" +
-			"		Runnable r = () -> {\n" +
-			"			if (i > 2) {\n" +
-			"				System.out.println(\"a\");\n" +
-			"			} else {\n" +
-			"				s.fo // <--\n" +
-			"				System.out.println(\"b\");\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package jdt;
+				class S {
+					void foo() {}
+					int found;
+					String bar;
+				}
+				public class Something {
+					private void test(S s, int i) {
+						Runnable r = () -> {
+							if (i > 2) {
+								System.out.println("a");
+							} else {
+								s.fo // <--
+								System.out.println("b");
+							}
+						}
+					}
+				}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF, true);
 	String str = this.workingCopies[0].getSource();
@@ -5179,18 +5501,19 @@ public void testBug573313_MethodParametersCompletions_CorrectCompletionsForType(
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573313.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.util.ArrayList;\n" +
-            "import java.util.concurrent.Callable;\n" +
-            "import java.util.concurrent.TimeUnit;\n" +
-            "\n" +
-            "public class Bug573313 {\n" +
-            "	private void test(){ \n" +
-            "		foo(5, SE, null);\n"+
-            "	} \n" +
-            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
-            "	} \n" +
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.util.ArrayList;
+				import java.util.concurrent.Callable;
+				import java.util.concurrent.TimeUnit;
+				
+				public class Bug573313 {
+					private void test(){\s
+						foo(5, SE, null);
+					}\s
+					private void foo(int i, TimeUnit unit, Callable<String> callback) {\s
+					}\s
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5207,18 +5530,19 @@ public void testBug573313_MethodParametersCompletions_QualifiedName_CorrectCompl
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573313.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.util.ArrayList;\n" +
-            "import java.util.concurrent.Callable;\n" +
-            "import java.util.concurrent.TimeUnit;\n" +
-            "\n" +
-            "public class Bug573313 {\n" +
-            "	private void test(){ \n" +
-            "		foo(5, TimeUnit.SE, null);\n"+
-            "	} \n" +
-            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
-            "	} \n" +
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.util.ArrayList;
+				import java.util.concurrent.Callable;
+				import java.util.concurrent.TimeUnit;
+				
+				public class Bug573313 {
+					private void test(){\s
+						foo(5, TimeUnit.SE, null);
+					}\s
+					private void foo(int i, TimeUnit unit, Callable<String> callback) {\s
+					}\s
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5235,18 +5559,19 @@ public void testBug573313_MethodParametersCompletions_InCompleteMessageSend_Corr
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573313.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.util.ArrayList;\n" +
-            "import java.util.concurrent.Callable;\n" +
-            "import java.util.concurrent.TimeUnit;\n" +
-            "\n" +
-            "public class Bug573313 {\n" +
-            "	private void test(){ \n" +
-            "		foo(5, SE);\n"+
-            "	} \n" +
-            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
-            "	} \n" +
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.util.ArrayList;
+				import java.util.concurrent.Callable;
+				import java.util.concurrent.TimeUnit;
+				
+				public class Bug573313 {
+					private void test(){\s
+						foo(5, SE);
+					}\s
+					private void foo(int i, TimeUnit unit, Callable<String> callback) {\s
+					}\s
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5264,18 +5589,19 @@ public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnLas
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573313.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.util.ArrayList;\n" +
-            "import java.util.concurrent.Callable;\n" +
-            "import java.util.concurrent.TimeUnit;\n" +
-            "\n" +
-            "public class Bug573313 {\n" +
-            "	private void test(){ \n" +
-            "		foo(5, () -> \"call\", SE);\n"+
-            "	} \n" +
-            "	private void foo(int i, Callable<String> callback, TimeUnit unit) { \n" +
-            "	} \n" +
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.util.ArrayList;
+				import java.util.concurrent.Callable;
+				import java.util.concurrent.TimeUnit;
+				
+				public class Bug573313 {
+					private void test(){\s
+						foo(5, () -> "call", SE);
+					}\s
+					private void foo(int i, Callable<String> callback, TimeUnit unit) {\s
+					}\s
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5292,18 +5618,19 @@ public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnMid
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573313.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.util.ArrayList;\n" +
-            "import java.util.concurrent.Callable;\n" +
-            "import java.util.concurrent.TimeUnit;\n" +
-            "\n" +
-            "public class Bug573313 {\n" +
-            "	private void test(){ \n" +
-            "		foo(5, , null);\n"+
-            "	} \n" +
-            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
-            "	} \n" +
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.util.ArrayList;
+				import java.util.concurrent.Callable;
+				import java.util.concurrent.TimeUnit;
+				
+				public class Bug573313 {
+					private void test(){\s
+						foo(5, , null);
+					}\s
+					private void foo(int i, TimeUnit unit, Callable<String> callback) {\s
+					}\s
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5322,18 +5649,19 @@ public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnMid
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573313.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.util.ArrayList;\n" +
-            "import java.util.concurrent.Callable;\n" +
-            "import java.util.concurrent.TimeUnit;\n" +
-            "\n" +
-            "public class Bug573313 {\n" +
-            "	private void test(){ \n" +
-            "		foo(5,, null);\n"+
-            "	} \n" +
-            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
-            "	} \n" +
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.util.ArrayList;
+				import java.util.concurrent.Callable;
+				import java.util.concurrent.TimeUnit;
+				
+				public class Bug573313 {
+					private void test(){\s
+						foo(5,, null);
+					}\s
+					private void foo(int i, TimeUnit unit, Callable<String> callback) {\s
+					}\s
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5352,18 +5680,19 @@ public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnLas
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573313.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.util.ArrayList;\n" +
-            "import java.util.concurrent.Callable;\n" +
-            "import java.util.concurrent.TimeUnit;\n" +
-            "\n" +
-            "public class Bug573313 {\n" +
-            "	private void test(){ \n" +
-            "		foo(5,null,);\n"+
-            "	} \n" +
-            "	private void foo(int i, Callable<String> callback, TimeUnit unit) { \n" +
-            "	} \n" +
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.util.ArrayList;
+				import java.util.concurrent.Callable;
+				import java.util.concurrent.TimeUnit;
+				
+				public class Bug573313 {
+					private void test(){\s
+						foo(5,null,);
+					}\s
+					private void foo(int i, Callable<String> callback, TimeUnit unit) {\s
+					}\s
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5382,24 +5711,25 @@ public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnMid
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573313.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.util.ArrayList;\n" +
-            "import java.util.concurrent.Callable;\n" +
-            "import java.util.concurrent.TimeUnit;\n" +
-            "\n" +
-            "public class Bug573313 {\n" +
-            "	private void test(){ \n" +
-            "		foo(5,defaultParam();\n"+
-            "	} \n" +
-            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
-            "	} \n" +
-            "	private TimeUnit defaultParam(int amout) {\n" +
-            "		return null;" +
-            "	}" +
-            "	private Callable defaultParam() {\n" +
-            "		return null;" +
-            "	}" +
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.util.ArrayList;
+				import java.util.concurrent.Callable;
+				import java.util.concurrent.TimeUnit;
+				
+				public class Bug573313 {
+					private void test(){\s
+						foo(5,defaultParam();
+					}\s
+					private void foo(int i, TimeUnit unit, Callable<String> callback) {\s
+					}\s
+					private TimeUnit defaultParam(int amout) {
+						return null;\
+					}\
+					private Callable defaultParam() {
+						return null;\
+					}\
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5418,24 +5748,25 @@ public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnMid
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug573313.java",
-            "import java.util.stream.Stream;\n" +
-            "import java.util.ArrayList;\n" +
-            "import java.util.concurrent.Callable;\n" +
-            "import java.util.concurrent.TimeUnit;\n" +
-            "\n" +
-            "public class Bug573313 {\n" +
-            "	private void test(){ \n" +
-            "		foo(5,defaultParam(),null);\n"+
-            "	} \n" +
-            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
-            "	} \n" +
-            "	private TimeUnit defaultParam1(int amout) {\n" +
-            "		return null;" +
-            "	}" +
-            "	private Callable defaultParam2() {\n" +
-            "		return null;" +
-            "	}" +
-            "}");
+            """
+				import java.util.stream.Stream;
+				import java.util.ArrayList;
+				import java.util.concurrent.Callable;
+				import java.util.concurrent.TimeUnit;
+				
+				public class Bug573313 {
+					private void test(){\s
+						foo(5,defaultParam(),null);
+					}\s
+					private void foo(int i, TimeUnit unit, Callable<String> callback) {\s
+					}\s
+					private TimeUnit defaultParam1(int amout) {
+						return null;\
+					}\
+					private Callable defaultParam2() {
+						return null;\
+					}\
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5455,11 +5786,13 @@ public void testBug573789_atFirstChainMethodWithToken() throws JavaModelExceptio
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/App.java",
-			"public class App {\n" +
-			"	public static void main(String[] args) {\n"+
-			"		(new StringBuilder()).append(1).append(2).toString();\n"+
-			"	}\n" +
-			"}\n");
+			"""
+				public class App {
+					public static void main(String[] args) {
+						(new StringBuilder()).append(1).append(2).toString();
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5475,11 +5808,13 @@ public void testBug573789_atFirstChainMethod() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/App.java",
-			"public class App {\n" +
-			"	public static void main(String[] args) {\n"+
-			"		(new StringBuilder()).append(1).append(2).toString();\n"+
-			"	}\n" +
-			"}\n");
+			"""
+				public class App {
+					public static void main(String[] args) {
+						(new StringBuilder()).append(1).append(2).toString();
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5495,11 +5830,13 @@ public void testBug573789_atSecondChainMethodWithToken() throws JavaModelExcepti
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/App.java",
-			"public class App {\n" +
-			"	public static void main(String[] args) {\n"+
-			"		(new StringBuilder()).append(1).append(2).toString();\n"+
-			"	}\n" +
-			"}\n");
+			"""
+				public class App {
+					public static void main(String[] args) {
+						(new StringBuilder()).append(1).append(2).toString();
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5515,11 +5852,13 @@ public void testBug573789_atFirstChainMethod_noBraces() throws JavaModelExceptio
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/App.java",
-			"public class App {\n" +
-			"	public static void main(String[] args) {\n"+
-			"		new StringBuilder().append(1).append(2).toString();\n"+
-			"	}\n" +
-			"}\n");
+			"""
+				public class App {
+					public static void main(String[] args) {
+						new StringBuilder().append(1).append(2).toString();
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5561,10 +5900,11 @@ public void testBug573789_staticOnlyMethodCompletion() throws JavaModelException
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
     String result = requestor.getResults();
-    assertResults("boo[METHOD_REF]{boo(), LApp;, ()LApp;, boo, null, 51}\n"
-    		+ "class[FIELD_REF]{class, null, Ljava.lang.Class<LApp;>;, class, null, 51}\n"
-    		+ "foo[METHOD_REF]{foo(), LApp;, ()LApp;, foo, null, 51}\n"
-    		+ "main[METHOD_REF]{main(), LApp;, ([Ljava.lang.String;)V, main, (args), 51}", result);
+    assertResults("""
+		boo[METHOD_REF]{boo(), LApp;, ()LApp;, boo, null, 51}
+		class[FIELD_REF]{class, null, Ljava.lang.Class<LApp;>;, class, null, 51}
+		foo[METHOD_REF]{foo(), LApp;, ()LApp;, foo, null, 51}
+		main[METHOD_REF]{main(), LApp;, ([Ljava.lang.String;)V, main, (args), 51}""", result);
 }
 public void testBug573789_allMethodCompletion_withToken() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -5607,16 +5947,17 @@ public void test574366_onParameterizedClassConstructor_insideLambda() throws Jav
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug574366.java",
-            "import java.util.ArrayList;\n" +
-            "import java.util.Arrays;\n" +
-			"public class Temp {\n"
-			+ "    public static void main(String[] args) {\n"
-			+ "    	Arrays.asList(1,2,3).stream()\n"
-			+ "    		.map(i -> {\n"
-			+ "    			return new ArrayList<>(1);\n"
-			+ "    		}).toArray();\n"
-			+ "    }\n"
-			+ "}");
+            """
+				import java.util.ArrayList;
+				import java.util.Arrays;
+				public class Temp {
+				    public static void main(String[] args) {
+				    	Arrays.asList(1,2,3).stream()
+				    		.map(i -> {
+				    			return new ArrayList<>(1);
+				    		}).toArray();
+				    }
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5635,16 +5976,17 @@ public void test574366_onParameterizedInterfaceConstructor_insideLambda() throws
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug574366.java",
-            "import java.util.List;\n" +
-            "import java.util.Arrays;\n" +
-			"public class Temp {\n"
-			+ "    public static void main(String[] args) {\n"
-			+ "    	Arrays.asList(1,2,3).stream()\n"
-			+ "    		.map(i -> {\n"
-			+ "    			return new List<>(1);\n"
-			+ "    		}).toArray();\n"
-			+ "    }\n"
-			+ "}");
+            """
+				import java.util.List;
+				import java.util.Arrays;
+				public class Temp {
+				    public static void main(String[] args) {
+				    	Arrays.asList(1,2,3).stream()
+				    		.map(i -> {
+				    			return new List<>(1);
+				    		}).toArray();
+				    }
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5662,14 +6004,15 @@ public void test574366_onParameterizedClassConstructor_enclosedInstance() throws
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug574366.java",
-			"public class Temp {\n"
-			+ "    public void foo() {\n"
-			+ "			Enclosed<String> list = new Temp().new Enclosed<>(1);"
-			+ "    }\n"
-			+ "	public class Enclosed<T> {"
-			+ "		public Enclosed(int i){}\n"
-			+ "	}\n"
-			+ "}");
+			"""
+				public class Temp {
+				    public void foo() {
+							Enclosed<String> list = new Temp().new Enclosed<>(1);\
+				    }
+					public class Enclosed<T> {\
+						public Enclosed(int i){}
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5688,14 +6031,15 @@ public void test574366_onParameterizedInterfaceConstructor_enclosedInstance() th
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug574366.java",
-			"public class Temp {\n"
-			+ "    public void foo() {\n"
-			+ "			Enclosed<String> list = new Temp().new Enclosed<>(1);"
-			+ "    }\n"
-			+ "	public interface Enclosed<T> {"
-			+ "		public Enclosed(int i){}\n"
-			+ "	}\n"
-			+ "}");
+			"""
+				public class Temp {
+				    public void foo() {
+							Enclosed<String> list = new Temp().new Enclosed<>(1);\
+				    }
+					public interface Enclosed<T> {\
+						public Enclosed(int i){}
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5713,12 +6057,13 @@ public void testBug563020_lambdaWithMethodRef_overloadedMethodRef_expectCompleti
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug563020.java",
-			"import java.util.Arrays;\n"
-			+ "public class Bug563020 {\n"
-			+ "    public void foo() {\n"
-			+ "			Arrays.asList(\"1\").stream().map(String::toUpperCase)."
-			+ "    }\n"
-			+ "}");
+			"""
+				import java.util.Arrays;
+				public class Bug563020 {
+				    public void foo() {
+							Arrays.asList("1").stream().map(String::toUpperCase).\
+				    }
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5730,23 +6075,25 @@ public void testBug563020_lambdaWithMethodRef_overloadedMethodRef_expectCompleti
 
     String result = requestor.getResults();
 	assertTrue(String.format("Result doesn't contain expected methods (%s)", result),
-    		result.contains("iterator[METHOD_REF]{iterator(), Ljava.util.stream.BaseStream<Ljava.lang.String;Ljava.util.stream.Stream<Ljava.lang.String;>;>;, ()Ljava.util.Iterator<Ljava.lang.String;>;, iterator, null, 60}\n"
-    				+ "limit[METHOD_REF]{limit(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (J)Ljava.util.stream.Stream<Ljava.lang.String;>;, limit, (arg0), 60}\n"
-    				+ "map[METHOD_REF]{map(), Ljava.util.stream.Stream<Ljava.lang.String;>;, <R:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.String;+TR;>;)Ljava.util.stream.Stream<TR;>;, map, (arg0), 60}\n"
-    				+ "mapToDouble[METHOD_REF]{mapToDouble(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToDoubleFunction<-Ljava.lang.String;>;)Ljava.util.stream.DoubleStream;, mapToDouble, (arg0), 60}\n"
-    				+ "mapToInt[METHOD_REF]{mapToInt(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToIntFunction<-Ljava.lang.String;>;)Ljava.util.stream.IntStream;, mapToInt, (arg0), 60}\n"
-    				+ "mapToLong[METHOD_REF]{mapToLong(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToLongFunction<-Ljava.lang.String;>;)Ljava.util.stream.LongStream;, mapToLong, (arg0), 60}"));
+    		result.contains("""
+				iterator[METHOD_REF]{iterator(), Ljava.util.stream.BaseStream<Ljava.lang.String;Ljava.util.stream.Stream<Ljava.lang.String;>;>;, ()Ljava.util.Iterator<Ljava.lang.String;>;, iterator, null, 60}
+				limit[METHOD_REF]{limit(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (J)Ljava.util.stream.Stream<Ljava.lang.String;>;, limit, (arg0), 60}
+				map[METHOD_REF]{map(), Ljava.util.stream.Stream<Ljava.lang.String;>;, <R:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.String;+TR;>;)Ljava.util.stream.Stream<TR;>;, map, (arg0), 60}
+				mapToDouble[METHOD_REF]{mapToDouble(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToDoubleFunction<-Ljava.lang.String;>;)Ljava.util.stream.DoubleStream;, mapToDouble, (arg0), 60}
+				mapToInt[METHOD_REF]{mapToInt(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToIntFunction<-Ljava.lang.String;>;)Ljava.util.stream.IntStream;, mapToInt, (arg0), 60}
+				mapToLong[METHOD_REF]{mapToLong(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToLongFunction<-Ljava.lang.String;>;)Ljava.util.stream.LongStream;, mapToLong, (arg0), 60}"""));
 }
 public void testBug563020_lambdaWithMethodRef_exactMethodRef_expectCompletions() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug563020.java",
-			"import java.util.Arrays;\n"
-			+ "public class Bug563020 {\n"
-			+ "    public void foo() {\n"
-			+ "			Arrays.asList(\"1\").stream().map(String::toString)."
-			+ "    }\n"
-			+ "}");
+			"""
+				import java.util.Arrays;
+				public class Bug563020 {
+				    public void foo() {
+							Arrays.asList("1").stream().map(String::toString).\
+				    }
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5758,23 +6105,25 @@ public void testBug563020_lambdaWithMethodRef_exactMethodRef_expectCompletions()
 
     String result = requestor.getResults();
 	assertTrue(String.format("Result doesn't contain expected methods (%s)", result),
-    		result.contains("iterator[METHOD_REF]{iterator(), Ljava.util.stream.BaseStream<Ljava.lang.String;Ljava.util.stream.Stream<Ljava.lang.String;>;>;, ()Ljava.util.Iterator<Ljava.lang.String;>;, iterator, null, 60}\n"
-    				+ "limit[METHOD_REF]{limit(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (J)Ljava.util.stream.Stream<Ljava.lang.String;>;, limit, (arg0), 60}\n"
-    				+ "map[METHOD_REF]{map(), Ljava.util.stream.Stream<Ljava.lang.String;>;, <R:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.String;+TR;>;)Ljava.util.stream.Stream<TR;>;, map, (arg0), 60}\n"
-    				+ "mapToDouble[METHOD_REF]{mapToDouble(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToDoubleFunction<-Ljava.lang.String;>;)Ljava.util.stream.DoubleStream;, mapToDouble, (arg0), 60}\n"
-    				+ "mapToInt[METHOD_REF]{mapToInt(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToIntFunction<-Ljava.lang.String;>;)Ljava.util.stream.IntStream;, mapToInt, (arg0), 60}\n"
-    				+ "mapToLong[METHOD_REF]{mapToLong(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToLongFunction<-Ljava.lang.String;>;)Ljava.util.stream.LongStream;, mapToLong, (arg0), 60}"));
+    		result.contains("""
+				iterator[METHOD_REF]{iterator(), Ljava.util.stream.BaseStream<Ljava.lang.String;Ljava.util.stream.Stream<Ljava.lang.String;>;>;, ()Ljava.util.Iterator<Ljava.lang.String;>;, iterator, null, 60}
+				limit[METHOD_REF]{limit(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (J)Ljava.util.stream.Stream<Ljava.lang.String;>;, limit, (arg0), 60}
+				map[METHOD_REF]{map(), Ljava.util.stream.Stream<Ljava.lang.String;>;, <R:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.String;+TR;>;)Ljava.util.stream.Stream<TR;>;, map, (arg0), 60}
+				mapToDouble[METHOD_REF]{mapToDouble(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToDoubleFunction<-Ljava.lang.String;>;)Ljava.util.stream.DoubleStream;, mapToDouble, (arg0), 60}
+				mapToInt[METHOD_REF]{mapToInt(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToIntFunction<-Ljava.lang.String;>;)Ljava.util.stream.IntStream;, mapToInt, (arg0), 60}
+				mapToLong[METHOD_REF]{mapToLong(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToLongFunction<-Ljava.lang.String;>;)Ljava.util.stream.LongStream;, mapToLong, (arg0), 60}"""));
 }
 public void testBug563020_lambdaWithMethodRef_overloadedMethodref_expectCompletionForNextChain() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug563020.java",
-			"import java.util.Arrays;\n"
-			+ "public class Bug563020 {\n"
-			+ "    public void foo() {\n"
-			+ "			Arrays.asList(\"1\").stream().map(String::toUpperCase).sorted("
-			+ "    }\n"
-			+ "}");
+			"""
+				import java.util.Arrays;
+				public class Bug563020 {
+				    public void foo() {
+							Arrays.asList("1").stream().map(String::toUpperCase).sorted(\
+				    }
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5793,12 +6142,13 @@ public void testBug563020_lambdaWithMethodRef_overloadedMethodref_expectCompleti
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug563020.java",
-			"import java.util.Arrays;\n"
-			+ "public class Bug563020 {\n"
-			+ "    public void foo() {\n"
-			+ "			Arrays.asList(\"1\").stream().map(String::toUpperCase).mapTo"
-			+ "    }\n"
-			+ "}");
+			"""
+				import java.util.Arrays;
+				public class Bug563020 {
+				    public void foo() {
+							Arrays.asList("1").stream().map(String::toUpperCase).mapTo\
+				    }
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5810,24 +6160,27 @@ public void testBug563020_lambdaWithMethodRef_overloadedMethodref_expectCompleti
 
     String result = requestor.getResults();
 	assertTrue(String.format("Result doesn't contain expected methods (%s)", result),
-    		result.contains("mapToDouble[METHOD_REF]{mapToDouble(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToDoubleFunction<-Ljava.lang.String;>;)Ljava.util.stream.DoubleStream;, mapToDouble, (arg0), 60}\n"
-    				+ "mapToInt[METHOD_REF]{mapToInt(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToIntFunction<-Ljava.lang.String;>;)Ljava.util.stream.IntStream;, mapToInt, (arg0), 60}\n"
-    				+ "mapToLong[METHOD_REF]{mapToLong(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToLongFunction<-Ljava.lang.String;>;)Ljava.util.stream.LongStream;, mapToLong, (arg0), 60}"));
+    		result.contains("""
+				mapToDouble[METHOD_REF]{mapToDouble(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToDoubleFunction<-Ljava.lang.String;>;)Ljava.util.stream.DoubleStream;, mapToDouble, (arg0), 60}
+				mapToInt[METHOD_REF]{mapToInt(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToIntFunction<-Ljava.lang.String;>;)Ljava.util.stream.IntStream;, mapToInt, (arg0), 60}
+				mapToLong[METHOD_REF]{mapToLong(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToLongFunction<-Ljava.lang.String;>;)Ljava.util.stream.LongStream;, mapToLong, (arg0), 60}"""));
 }
 public void testBug563020_methodref_checkParserForBug559677_expectCompletions() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/Bug563020.java",
-			"public class Bug563020 {\n" +
-			"	private void myRun() {\n" +
-			"	}\n" +
-			"	private void myMethod(final Runnable r) {\n" +
-			"	}\n" +
-			"	public void test() {\n" +
-			"		// second opening brace causes endless loop while saving\n" +
-			"		myMethod((this::myRun);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Bug563020 {
+					private void myRun() {
+					}
+					private void myMethod(final Runnable r) {
+					}
+					public void test() {
+						// second opening brace causes endless loop while saving
+						myMethod((this::myRun);
+					}
+				}
+				"""
 			);
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5846,19 +6199,21 @@ public void testBug574912() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/LambdaFreeze.java",
-			"import java.util.Calendar;\n" +
-			"import java.util.Date;\n" +
-			"import java.util.function.Supplier;\n" +
-			"\n" +
-			"public class LambdaFreeze{\n" +
-			"\n" +
-			"   public static final Supplier<Date> SUPPLIER = () -> {\n" +
-			"      Calendar calendar = Calendar.getInstance();\n" +
-			"      calendar.set(Calendar., // try to autocomplete after the \".\" here freezes eclipse's main thread\n" +
-			"                   0);\n" +
-			"      return calendar.getTime();\n" +
-			"   };\n" +
-			"}\n");
+			"""
+				import java.util.Calendar;
+				import java.util.Date;
+				import java.util.function.Supplier;
+				
+				public class LambdaFreeze{
+				
+				   public static final Supplier<Date> SUPPLIER = () -> {
+				      Calendar calendar = Calendar.getInstance();
+				      calendar.set(Calendar., // try to autocomplete after the "." here freezes eclipse's main thread
+				                   0);
+				      return calendar.getTime();
+				   };
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -5867,80 +6222,83 @@ public void testBug574912() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("Calendar.Builder[TYPE_REF]{Builder, java.util, Ljava.util.Calendar$Builder;, null, null, 51}\n" +
-			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ljava.util.Calendar;>;, class, null, 51}\n" +
-			"getAvailableCalendarTypes[METHOD_REF]{getAvailableCalendarTypes(), Ljava.util.Calendar;, ()Ljava.util.Set<Ljava.lang.String;>;, getAvailableCalendarTypes, null, 51}\n" +
-			"getAvailableLocales[METHOD_REF]{getAvailableLocales(), Ljava.util.Calendar;, ()[Ljava.util.Locale;, getAvailableLocales, null, 51}\n" +
-			"getInstance[METHOD_REF]{getInstance(), Ljava.util.Calendar;, ()Ljava.util.Calendar;, getInstance, null, 51}\n" +
-			"getInstance[METHOD_REF]{getInstance(), Ljava.util.Calendar;, (Ljava.util.Locale;)Ljava.util.Calendar;, getInstance, (arg0), 51}\n" +
-			"getInstance[METHOD_REF]{getInstance(), Ljava.util.Calendar;, (Ljava.util.TimeZone;)Ljava.util.Calendar;, getInstance, (arg0), 51}\n" +
-			"getInstance[METHOD_REF]{getInstance(), Ljava.util.Calendar;, (Ljava.util.TimeZone;Ljava.util.Locale;)Ljava.util.Calendar;, getInstance, (arg0, arg1), 51}\n" +
-			"ALL_STYLES[FIELD_REF]{ALL_STYLES, Ljava.util.Calendar;, I, ALL_STYLES, null, 81}\n" +
-			"AM[FIELD_REF]{AM, Ljava.util.Calendar;, I, AM, null, 81}\n" +
-			"AM_PM[FIELD_REF]{AM_PM, Ljava.util.Calendar;, I, AM_PM, null, 81}\n" +
-			"APRIL[FIELD_REF]{APRIL, Ljava.util.Calendar;, I, APRIL, null, 81}\n" +
-			"AUGUST[FIELD_REF]{AUGUST, Ljava.util.Calendar;, I, AUGUST, null, 81}\n" +
-			"DATE[FIELD_REF]{DATE, Ljava.util.Calendar;, I, DATE, null, 81}\n" +
-			"DAY_OF_MONTH[FIELD_REF]{DAY_OF_MONTH, Ljava.util.Calendar;, I, DAY_OF_MONTH, null, 81}\n" +
-			"DAY_OF_WEEK[FIELD_REF]{DAY_OF_WEEK, Ljava.util.Calendar;, I, DAY_OF_WEEK, null, 81}\n" +
-			"DAY_OF_WEEK_IN_MONTH[FIELD_REF]{DAY_OF_WEEK_IN_MONTH, Ljava.util.Calendar;, I, DAY_OF_WEEK_IN_MONTH, null, 81}\n" +
-			"DAY_OF_YEAR[FIELD_REF]{DAY_OF_YEAR, Ljava.util.Calendar;, I, DAY_OF_YEAR, null, 81}\n" +
-			"DECEMBER[FIELD_REF]{DECEMBER, Ljava.util.Calendar;, I, DECEMBER, null, 81}\n" +
-			"DST_OFFSET[FIELD_REF]{DST_OFFSET, Ljava.util.Calendar;, I, DST_OFFSET, null, 81}\n" +
-			"ERA[FIELD_REF]{ERA, Ljava.util.Calendar;, I, ERA, null, 81}\n" +
-			"FEBRUARY[FIELD_REF]{FEBRUARY, Ljava.util.Calendar;, I, FEBRUARY, null, 81}\n" +
-			"FIELD_COUNT[FIELD_REF]{FIELD_COUNT, Ljava.util.Calendar;, I, FIELD_COUNT, null, 81}\n" +
-			"FRIDAY[FIELD_REF]{FRIDAY, Ljava.util.Calendar;, I, FRIDAY, null, 81}\n" +
-			"HOUR[FIELD_REF]{HOUR, Ljava.util.Calendar;, I, HOUR, null, 81}\n" +
-			"HOUR_OF_DAY[FIELD_REF]{HOUR_OF_DAY, Ljava.util.Calendar;, I, HOUR_OF_DAY, null, 81}\n" +
-			"JANUARY[FIELD_REF]{JANUARY, Ljava.util.Calendar;, I, JANUARY, null, 81}\n" +
-			"JULY[FIELD_REF]{JULY, Ljava.util.Calendar;, I, JULY, null, 81}\n" +
-			"JUNE[FIELD_REF]{JUNE, Ljava.util.Calendar;, I, JUNE, null, 81}\n" +
-			"LONG[FIELD_REF]{LONG, Ljava.util.Calendar;, I, LONG, null, 81}\n" +
-			"LONG_FORMAT[FIELD_REF]{LONG_FORMAT, Ljava.util.Calendar;, I, LONG_FORMAT, null, 81}\n" +
-			"LONG_STANDALONE[FIELD_REF]{LONG_STANDALONE, Ljava.util.Calendar;, I, LONG_STANDALONE, null, 81}\n" +
-			"MARCH[FIELD_REF]{MARCH, Ljava.util.Calendar;, I, MARCH, null, 81}\n" +
-			"MAY[FIELD_REF]{MAY, Ljava.util.Calendar;, I, MAY, null, 81}\n" +
-			"MILLISECOND[FIELD_REF]{MILLISECOND, Ljava.util.Calendar;, I, MILLISECOND, null, 81}\n" +
-			"MINUTE[FIELD_REF]{MINUTE, Ljava.util.Calendar;, I, MINUTE, null, 81}\n" +
-			"MONDAY[FIELD_REF]{MONDAY, Ljava.util.Calendar;, I, MONDAY, null, 81}\n" +
-			"MONTH[FIELD_REF]{MONTH, Ljava.util.Calendar;, I, MONTH, null, 81}\n" +
-			"NARROW_FORMAT[FIELD_REF]{NARROW_FORMAT, Ljava.util.Calendar;, I, NARROW_FORMAT, null, 81}\n" +
-			"NARROW_STANDALONE[FIELD_REF]{NARROW_STANDALONE, Ljava.util.Calendar;, I, NARROW_STANDALONE, null, 81}\n" +
-			"NOVEMBER[FIELD_REF]{NOVEMBER, Ljava.util.Calendar;, I, NOVEMBER, null, 81}\n" +
-			"OCTOBER[FIELD_REF]{OCTOBER, Ljava.util.Calendar;, I, OCTOBER, null, 81}\n" +
-			"PM[FIELD_REF]{PM, Ljava.util.Calendar;, I, PM, null, 81}\n" +
-			"SATURDAY[FIELD_REF]{SATURDAY, Ljava.util.Calendar;, I, SATURDAY, null, 81}\n" +
-			"SECOND[FIELD_REF]{SECOND, Ljava.util.Calendar;, I, SECOND, null, 81}\n" +
-			"SEPTEMBER[FIELD_REF]{SEPTEMBER, Ljava.util.Calendar;, I, SEPTEMBER, null, 81}\n" +
-			"SHORT[FIELD_REF]{SHORT, Ljava.util.Calendar;, I, SHORT, null, 81}\n" +
-			"SHORT_FORMAT[FIELD_REF]{SHORT_FORMAT, Ljava.util.Calendar;, I, SHORT_FORMAT, null, 81}\n" +
-			"SHORT_STANDALONE[FIELD_REF]{SHORT_STANDALONE, Ljava.util.Calendar;, I, SHORT_STANDALONE, null, 81}\n" +
-			"SUNDAY[FIELD_REF]{SUNDAY, Ljava.util.Calendar;, I, SUNDAY, null, 81}\n" +
-			"THURSDAY[FIELD_REF]{THURSDAY, Ljava.util.Calendar;, I, THURSDAY, null, 81}\n" +
-			"TUESDAY[FIELD_REF]{TUESDAY, Ljava.util.Calendar;, I, TUESDAY, null, 81}\n" +
-			"UNDECIMBER[FIELD_REF]{UNDECIMBER, Ljava.util.Calendar;, I, UNDECIMBER, null, 81}\n" +
-			"WEDNESDAY[FIELD_REF]{WEDNESDAY, Ljava.util.Calendar;, I, WEDNESDAY, null, 81}\n" +
-			"WEEK_OF_MONTH[FIELD_REF]{WEEK_OF_MONTH, Ljava.util.Calendar;, I, WEEK_OF_MONTH, null, 81}\n" +
-			"WEEK_OF_YEAR[FIELD_REF]{WEEK_OF_YEAR, Ljava.util.Calendar;, I, WEEK_OF_YEAR, null, 81}\n" +
-			"YEAR[FIELD_REF]{YEAR, Ljava.util.Calendar;, I, YEAR, null, 81}\n" +
-			"ZONE_OFFSET[FIELD_REF]{ZONE_OFFSET, Ljava.util.Calendar;, I, ZONE_OFFSET, null, 81}",
+	assertResults("""
+		Calendar.Builder[TYPE_REF]{Builder, java.util, Ljava.util.Calendar$Builder;, null, null, 51}
+		class[FIELD_REF]{class, null, Ljava.lang.Class<Ljava.util.Calendar;>;, class, null, 51}
+		getAvailableCalendarTypes[METHOD_REF]{getAvailableCalendarTypes(), Ljava.util.Calendar;, ()Ljava.util.Set<Ljava.lang.String;>;, getAvailableCalendarTypes, null, 51}
+		getAvailableLocales[METHOD_REF]{getAvailableLocales(), Ljava.util.Calendar;, ()[Ljava.util.Locale;, getAvailableLocales, null, 51}
+		getInstance[METHOD_REF]{getInstance(), Ljava.util.Calendar;, ()Ljava.util.Calendar;, getInstance, null, 51}
+		getInstance[METHOD_REF]{getInstance(), Ljava.util.Calendar;, (Ljava.util.Locale;)Ljava.util.Calendar;, getInstance, (arg0), 51}
+		getInstance[METHOD_REF]{getInstance(), Ljava.util.Calendar;, (Ljava.util.TimeZone;)Ljava.util.Calendar;, getInstance, (arg0), 51}
+		getInstance[METHOD_REF]{getInstance(), Ljava.util.Calendar;, (Ljava.util.TimeZone;Ljava.util.Locale;)Ljava.util.Calendar;, getInstance, (arg0, arg1), 51}
+		ALL_STYLES[FIELD_REF]{ALL_STYLES, Ljava.util.Calendar;, I, ALL_STYLES, null, 81}
+		AM[FIELD_REF]{AM, Ljava.util.Calendar;, I, AM, null, 81}
+		AM_PM[FIELD_REF]{AM_PM, Ljava.util.Calendar;, I, AM_PM, null, 81}
+		APRIL[FIELD_REF]{APRIL, Ljava.util.Calendar;, I, APRIL, null, 81}
+		AUGUST[FIELD_REF]{AUGUST, Ljava.util.Calendar;, I, AUGUST, null, 81}
+		DATE[FIELD_REF]{DATE, Ljava.util.Calendar;, I, DATE, null, 81}
+		DAY_OF_MONTH[FIELD_REF]{DAY_OF_MONTH, Ljava.util.Calendar;, I, DAY_OF_MONTH, null, 81}
+		DAY_OF_WEEK[FIELD_REF]{DAY_OF_WEEK, Ljava.util.Calendar;, I, DAY_OF_WEEK, null, 81}
+		DAY_OF_WEEK_IN_MONTH[FIELD_REF]{DAY_OF_WEEK_IN_MONTH, Ljava.util.Calendar;, I, DAY_OF_WEEK_IN_MONTH, null, 81}
+		DAY_OF_YEAR[FIELD_REF]{DAY_OF_YEAR, Ljava.util.Calendar;, I, DAY_OF_YEAR, null, 81}
+		DECEMBER[FIELD_REF]{DECEMBER, Ljava.util.Calendar;, I, DECEMBER, null, 81}
+		DST_OFFSET[FIELD_REF]{DST_OFFSET, Ljava.util.Calendar;, I, DST_OFFSET, null, 81}
+		ERA[FIELD_REF]{ERA, Ljava.util.Calendar;, I, ERA, null, 81}
+		FEBRUARY[FIELD_REF]{FEBRUARY, Ljava.util.Calendar;, I, FEBRUARY, null, 81}
+		FIELD_COUNT[FIELD_REF]{FIELD_COUNT, Ljava.util.Calendar;, I, FIELD_COUNT, null, 81}
+		FRIDAY[FIELD_REF]{FRIDAY, Ljava.util.Calendar;, I, FRIDAY, null, 81}
+		HOUR[FIELD_REF]{HOUR, Ljava.util.Calendar;, I, HOUR, null, 81}
+		HOUR_OF_DAY[FIELD_REF]{HOUR_OF_DAY, Ljava.util.Calendar;, I, HOUR_OF_DAY, null, 81}
+		JANUARY[FIELD_REF]{JANUARY, Ljava.util.Calendar;, I, JANUARY, null, 81}
+		JULY[FIELD_REF]{JULY, Ljava.util.Calendar;, I, JULY, null, 81}
+		JUNE[FIELD_REF]{JUNE, Ljava.util.Calendar;, I, JUNE, null, 81}
+		LONG[FIELD_REF]{LONG, Ljava.util.Calendar;, I, LONG, null, 81}
+		LONG_FORMAT[FIELD_REF]{LONG_FORMAT, Ljava.util.Calendar;, I, LONG_FORMAT, null, 81}
+		LONG_STANDALONE[FIELD_REF]{LONG_STANDALONE, Ljava.util.Calendar;, I, LONG_STANDALONE, null, 81}
+		MARCH[FIELD_REF]{MARCH, Ljava.util.Calendar;, I, MARCH, null, 81}
+		MAY[FIELD_REF]{MAY, Ljava.util.Calendar;, I, MAY, null, 81}
+		MILLISECOND[FIELD_REF]{MILLISECOND, Ljava.util.Calendar;, I, MILLISECOND, null, 81}
+		MINUTE[FIELD_REF]{MINUTE, Ljava.util.Calendar;, I, MINUTE, null, 81}
+		MONDAY[FIELD_REF]{MONDAY, Ljava.util.Calendar;, I, MONDAY, null, 81}
+		MONTH[FIELD_REF]{MONTH, Ljava.util.Calendar;, I, MONTH, null, 81}
+		NARROW_FORMAT[FIELD_REF]{NARROW_FORMAT, Ljava.util.Calendar;, I, NARROW_FORMAT, null, 81}
+		NARROW_STANDALONE[FIELD_REF]{NARROW_STANDALONE, Ljava.util.Calendar;, I, NARROW_STANDALONE, null, 81}
+		NOVEMBER[FIELD_REF]{NOVEMBER, Ljava.util.Calendar;, I, NOVEMBER, null, 81}
+		OCTOBER[FIELD_REF]{OCTOBER, Ljava.util.Calendar;, I, OCTOBER, null, 81}
+		PM[FIELD_REF]{PM, Ljava.util.Calendar;, I, PM, null, 81}
+		SATURDAY[FIELD_REF]{SATURDAY, Ljava.util.Calendar;, I, SATURDAY, null, 81}
+		SECOND[FIELD_REF]{SECOND, Ljava.util.Calendar;, I, SECOND, null, 81}
+		SEPTEMBER[FIELD_REF]{SEPTEMBER, Ljava.util.Calendar;, I, SEPTEMBER, null, 81}
+		SHORT[FIELD_REF]{SHORT, Ljava.util.Calendar;, I, SHORT, null, 81}
+		SHORT_FORMAT[FIELD_REF]{SHORT_FORMAT, Ljava.util.Calendar;, I, SHORT_FORMAT, null, 81}
+		SHORT_STANDALONE[FIELD_REF]{SHORT_STANDALONE, Ljava.util.Calendar;, I, SHORT_STANDALONE, null, 81}
+		SUNDAY[FIELD_REF]{SUNDAY, Ljava.util.Calendar;, I, SUNDAY, null, 81}
+		THURSDAY[FIELD_REF]{THURSDAY, Ljava.util.Calendar;, I, THURSDAY, null, 81}
+		TUESDAY[FIELD_REF]{TUESDAY, Ljava.util.Calendar;, I, TUESDAY, null, 81}
+		UNDECIMBER[FIELD_REF]{UNDECIMBER, Ljava.util.Calendar;, I, UNDECIMBER, null, 81}
+		WEDNESDAY[FIELD_REF]{WEDNESDAY, Ljava.util.Calendar;, I, WEDNESDAY, null, 81}
+		WEEK_OF_MONTH[FIELD_REF]{WEEK_OF_MONTH, Ljava.util.Calendar;, I, WEEK_OF_MONTH, null, 81}
+		WEEK_OF_YEAR[FIELD_REF]{WEEK_OF_YEAR, Ljava.util.Calendar;, I, WEEK_OF_YEAR, null, 81}
+		YEAR[FIELD_REF]{YEAR, Ljava.util.Calendar;, I, YEAR, null, 81}
+		ZONE_OFFSET[FIELD_REF]{ZONE_OFFSET, Ljava.util.Calendar;, I, ZONE_OFFSET, null, 81}""",
 			result);
 }
 public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtion_insideIfBlock_followedByChainedStatments() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Bug574823.java",
-			"import java.util.ArrayList;\n" +
-			"public class Bug574823 {\n" +
-			"	public void foo() {\n" +
-			"		ArrayList<String> ints = new ArrayList<String>();\n" +
-			"		if(ints.subList(1,1).) {\n" +
-			"			String message = \"PASS\";\n" +
-			"			System.out.println(message);\n" +
-			"		}\n"+
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.ArrayList;
+				public class Bug574823 {
+					public void foo() {
+						ArrayList<String> ints = new ArrayList<String>();
+						if(ints.subList(1,1).) {
+							String message = "PASS";
+							System.out.println(message);
+						}
+					}
+				}
+				"""
 			);
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -5959,14 +6317,16 @@ public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtion_in
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Bug574823.java",
-			"import java.util.ArrayList;\n" +
-			"public class Bug574823 {\n" +
-			"	public void foo() {\n" +
-			"		ArrayList<String> ints = new ArrayList<String>();\n" +
-			"		if(ints.subList(1,1).)\n" +
-			"			System.out.println(message);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.ArrayList;
+				public class Bug574823 {
+					public void foo() {
+						ArrayList<String> ints = new ArrayList<String>();
+						if(ints.subList(1,1).)
+							System.out.println(message);
+					}
+				}
+				"""
 			);
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -5985,15 +6345,17 @@ public void testBug574823_completeOn_methodInvocationWithParams_inWhileConidtion
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Bug574823.java",
-			"import java.util.ArrayList;\n" +
-			"public class Bug574823 {\n" +
-			"	public void foo() {\n" +
-			"		ArrayList<String> ints = new ArrayList<String>();\n" +
-			"		while(ints.subList(1,1).){\n" +
-			"			System.out.println(message);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.ArrayList;
+				public class Bug574823 {
+					public void foo() {
+						ArrayList<String> ints = new ArrayList<String>();
+						while(ints.subList(1,1).){
+							System.out.println(message);
+						}
+					}
+				}
+				"""
 			);
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -6012,15 +6374,17 @@ public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtionWit
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Bug574823.java",
-			"import java.util.ArrayList;\n" +
-			"public class Bug574823 {\n" +
-			"	public void foo() {\n" +
-			"		ArrayList<String> ints = new ArrayList<String>();\n" +
-			"		while(ints.subList(1,1). != null){\n" +
-			"			System.out.println(message);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.ArrayList;
+				public class Bug574823 {
+					public void foo() {
+						ArrayList<String> ints = new ArrayList<String>();
+						while(ints.subList(1,1). != null){
+							System.out.println(message);
+						}
+					}
+				}
+				"""
 			);
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -6037,19 +6401,21 @@ public void testBug574912_comment6() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/LambdaFreeze2.java",
-			"import java.util.Calendar;\n" +
-			"import java.util.Date;\n" +
-			"import java.util.function.Supplier;\n" +
-			"\n" +
-			"public class LambdaFreeze2 {\n" +
-			"	static int num = 13;\n" +
-			"\n" +
-			"	public static final Supplier<Date> SUPPLIER = () -> {\n" +
-			"		Calendar calendar = Calendar.getInstance();\n" +
-			"		calendar.set(Calendar.ALL_STYLES, calendar.getMinimum(0));\n" +
-			"		return calendar.getTime();\n" +
-			"	};\n" +
-			"}\n");
+			"""
+				import java.util.Calendar;
+				import java.util.Date;
+				import java.util.function.Supplier;
+				
+				public class LambdaFreeze2 {
+					static int num = 13;
+				
+					public static final Supplier<Date> SUPPLIER = () -> {
+						Calendar calendar = Calendar.getInstance();
+						calendar.set(Calendar.ALL_STYLES, calendar.getMinimum(0));
+						return calendar.getTime();
+					};
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6065,19 +6431,21 @@ public void testBug574912_comment6b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/LambdaFreeze2.java",
-			"import java.util.Calendar;\n" +
-			"import java.util.Date;\n" +
-			"import java.util.function.Supplier;\n" +
-			"\n" +
-			"public class LambdaFreeze2 {\n" +
-			"	static int xyz = 13;\n" +
-			"\n" +
-			"	public static final Supplier<Date> SUPPLIER = () -> {\n" +
-			"		Calendar calendar = Calendar.getInstance();\n" +
-			"		calendar.set(Calendar.ALL_STYLES, calendar.getMinimum(xy0));\n" + // once we have a non-empty assist id, use it!
-			"		return calendar.getTime();\n" +
-			"	};\n" +
-			"}\n");
+			"""
+				import java.util.Calendar;
+				import java.util.Date;
+				import java.util.function.Supplier;
+				
+				public class LambdaFreeze2 {
+					static int xyz = 13;
+				
+					public static final Supplier<Date> SUPPLIER = () -> {
+						Calendar calendar = Calendar.getInstance();
+						calendar.set(Calendar.ALL_STYLES, calendar.getMinimum(xy0));
+						return calendar.getTime();
+					};
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6093,23 +6461,25 @@ public void testBug574882() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/ForLoop.java",
-			"import java.util.concurrent.ExecutorService;\n" +
-			"import java.util.concurrent.Executors;\n" +
-			"import java.util.concurrent.atomic.AtomicInteger;\n" +
-			"\n" +
-			"public class ForLoop {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		AtomicInteger executions = new AtomicInteger();\n" +
-			"		ExecutorService pool = Executors.newFixedThreadPool(1);\n" +
-			"		for (int i = 0; i < 42; i++) {\n" +
-			"			pool.execute(() -> {\n" +
-			"				// sys| offers sysout etc templates here \n" +
-			"				executions.incrementAndGet();\n" +
-			"				// sys | content assist doesn't offer \"sysout\" etc templates here\n" +
-			"			});\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.concurrent.ExecutorService;
+				import java.util.concurrent.Executors;
+				import java.util.concurrent.atomic.AtomicInteger;
+				
+				public class ForLoop {
+					public static void main(String[] args) {
+						AtomicInteger executions = new AtomicInteger();
+						ExecutorService pool = Executors.newFixedThreadPool(1);
+						for (int i = 0; i < 42; i++) {
+							pool.execute(() -> {
+								// sys| offers sysout etc templates here\s
+								executions.incrementAndGet();
+								// sys | content assist doesn't offer "sysout" etc templates here
+							});
+						}
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, true, false, false, false, false, false, false);
 	requestor.allowAllRequiredProposals();
@@ -6118,37 +6488,41 @@ public void testBug574882() throws Exception {
 	int cursorLocation = str.lastIndexOf(completeBefore);
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("ForLoop[TYPE_REF]{ForLoop, , LForLoop;, null, null, 52}\n" +
-			"args[LOCAL_VARIABLE_REF]{args, null, [Ljava.lang.String;, args, null, 52}\n" +
-			"executions[LOCAL_VARIABLE_REF]{executions, null, LAtomicInteger;, executions, null, 52}\n" +
-			"i[LOCAL_VARIABLE_REF]{i, null, I, i, null, 52}\n" +
-			"main[METHOD_REF]{main(), LForLoop;, ([Ljava.lang.String;)V, main, (args), 52}\n" +
-			"pool[LOCAL_VARIABLE_REF]{pool, null, Ljava.util.concurrent.ExecutorService;, pool, null, 52}",
+	assertResults("""
+		ForLoop[TYPE_REF]{ForLoop, , LForLoop;, null, null, 52}
+		args[LOCAL_VARIABLE_REF]{args, null, [Ljava.lang.String;, args, null, 52}
+		executions[LOCAL_VARIABLE_REF]{executions, null, LAtomicInteger;, executions, null, 52}
+		i[LOCAL_VARIABLE_REF]{i, null, I, i, null, 52}
+		main[METHOD_REF]{main(), LForLoop;, ([Ljava.lang.String;)V, main, (args), 52}
+		pool[LOCAL_VARIABLE_REF]{pool, null, Ljava.util.concurrent.ExecutorService;, pool, null, 52}""",
 			result);
-	assertEquals("completion offset=449\n" +
-			"completion range=[449, 448]\n" +
-			"completion token=\"\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"completion token location={STATEMENT_START}", // this is required for sysout template proposal
+	assertEquals("""
+		completion offset=449
+		completion range=[449, 448]
+		completion token=""
+		completion token kind=TOKEN_KIND_NAME
+		expectedTypesSignatures=null
+		expectedTypesKeys=null
+		completion token location={STATEMENT_START}""", // this is required for sysout template proposal
 			requestor.getContext());
 }
 public void testBug575149_expectOverloadedMethodsAndVariablesRankedWithExpectedType() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug443091.java",
-			"import java.util.function.Consumer;\n" +
-			"import java.util.function.Function;\n" +
-			"\n" +
-			"public class Bug443091 {\n" +
-			"	private void foo() {\n" +
-			" 		Consumer<Integer> capture = null;\n" +
-			"		forEach()" +
-			"	}\n" +
-			"	private void forEach(Consumer<Integer> in) {}\n" +
-			"	private void forEach(Function<Integer, String> in) {}\n" +
-			"}\n");
+			"""
+				import java.util.function.Consumer;
+				import java.util.function.Function;
+				
+				public class Bug443091 {
+					private void foo() {
+				 		Consumer<Integer> capture = null;
+						forEach()\
+					}
+					private void forEach(Consumer<Integer> in) {}
+					private void forEach(Function<Integer, String> in) {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6158,11 +6532,12 @@ public void testBug575149_expectOverloadedMethodsAndVariablesRankedWithExpectedT
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
 	assertResults(
-			"capture[LOCAL_VARIABLE_REF]{capture, null, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, capture, null, 52}\n"
-			+ "forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;)V, forEach, (in), 56}\n"
-			+ "forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Function<Ljava.lang.Integer;Ljava.lang.String;>;)V, forEach, (in), 56}\n"
-			+ "[LAMBDA_EXPRESSION]{->, Ljava.util.function.Function<Ljava.lang.Integer;Ljava.lang.String;>;, (Ljava.lang.Integer;)Ljava.lang.String;, apply, (arg0), 89}\n"
-			+ "[LAMBDA_EXPRESSION]{->, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, (Ljava.lang.Integer;)V, accept, (t), 89}",
+			"""
+				capture[LOCAL_VARIABLE_REF]{capture, null, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, capture, null, 52}
+				forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;)V, forEach, (in), 56}
+				forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Function<Ljava.lang.Integer;Ljava.lang.String;>;)V, forEach, (in), 56}
+				[LAMBDA_EXPRESSION]{->, Ljava.util.function.Function<Ljava.lang.Integer;Ljava.lang.String;>;, (Ljava.lang.Integer;)Ljava.lang.String;, apply, (arg0), 89}
+				[LAMBDA_EXPRESSION]{->, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, (Ljava.lang.Integer;)V, accept, (t), 89}""",
 			result);
 	assertTrue("expected type signatures don't match", CharOperation.equals(requestor.getExpectedTypesSignatures(),
 			new char[][] {"Ljava.util.function.Function<Ljava.lang.Integer;Ljava.lang.String;>;".toCharArray(),
@@ -6172,17 +6547,19 @@ public void testBug575149_expectRemainingOverloadedMethodsMatchingFilledArgument
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug443091.java",
-			"import java.util.function.Consumer;\n" +
-			"import java.util.function.Function;\n" +
-			"\n" +
-			"public class Bug443091 {\n" +
-			"	private void foo() {\n" +
-			" 		Consumer<Integer> capture = null;\n" +
-			"		forEach(capture, )" +
-			"	}\n" +
-			"	private void forEach(Consumer<Integer> in) {}\n" +
-			"	private void forEach(Consumer<Integer> in, Integer limit) {}\n" +
-			"}\n");
+			"""
+				import java.util.function.Consumer;
+				import java.util.function.Function;
+				
+				public class Bug443091 {
+					private void foo() {
+				 		Consumer<Integer> capture = null;
+						forEach(capture, )\
+					}
+					private void forEach(Consumer<Integer> in) {}
+					private void forEach(Consumer<Integer> in, Integer limit) {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6191,9 +6568,10 @@ public void testBug575149_expectRemainingOverloadedMethodsMatchingFilledArgument
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}\n"
-			+ "forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;)V, forEach, (in), 56}\n"
-			+ "forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;Ljava.lang.Integer;)V, forEach, (in, limit), 56}",
+	assertResults("""
+		hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}
+		forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;)V, forEach, (in), 56}
+		forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;Ljava.lang.Integer;)V, forEach, (in, limit), 56}""",
 			result);
 	assertTrue("expected type signatures don't match", CharOperation.equals(requestor.getExpectedTypesSignatures(), new char[][] {"Ljava.lang.Integer;".toCharArray()}, true));
 }
@@ -6201,18 +6579,20 @@ public void testBug575149_expectOverloadsOverEnumLiterals() throws JavaModelExce
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug443091.java",
-			"import java.util.function.Consumer;\n" +
-			"import java.util.function.Function;\n" +
-			"\n" +
-			"public class Bug443091 {\n" +
-			"	private void foo() {\n" +
-			" 		Consumer<Integer> capture = null;\n" +
-			"		forEach(capture, )" +
-			"	}\n" +
-			"	private Thread.State defaultState() { return null;} \n" +
-			"	private void forEach(Consumer<Integer> in, Thread.State state) {}\n" +
-			"	private void forEach(Consumer<Integer> in, Thread.State state, Integer limit) {}\n" +
-			"}\n");
+			"""
+				import java.util.function.Consumer;
+				import java.util.function.Function;
+				
+				public class Bug443091 {
+					private void foo() {
+				 		Consumer<Integer> capture = null;
+						forEach(capture, )\
+					}
+					private Thread.State defaultState() { return null;}\s
+					private void forEach(Consumer<Integer> in, Thread.State state) {}
+					private void forEach(Consumer<Integer> in, Thread.State state, Integer limit) {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6221,15 +6601,16 @@ public void testBug575149_expectOverloadsOverEnumLiterals() throws JavaModelExce
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("BLOCKED[FIELD_REF]{State.BLOCKED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, BLOCKED, null, 49}\n" +
-			"NEW[FIELD_REF]{State.NEW, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, NEW, null, 49}\n" +
-			"RUNNABLE[FIELD_REF]{State.RUNNABLE, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, RUNNABLE, null, 49}\n" +
-			"TERMINATED[FIELD_REF]{State.TERMINATED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TERMINATED, null, 49}\n" +
-			"TIMED_WAITING[FIELD_REF]{State.TIMED_WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TIMED_WAITING, null, 49}\n" +
-			"WAITING[FIELD_REF]{State.WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, WAITING, null, 49}\n" +
-			"defaultState[METHOD_REF]{defaultState(), LBug443091;, ()Ljava.lang.Thread$State;, defaultState, null, 52}\n" +
-			"forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;Ljava.lang.Thread$State;)V, forEach, (in, state), 56}\n" +
-			"forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;Ljava.lang.Thread$State;Ljava.lang.Integer;)V, forEach, (in, state, limit), 56}",
+	assertResults("""
+		BLOCKED[FIELD_REF]{State.BLOCKED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, BLOCKED, null, 49}
+		NEW[FIELD_REF]{State.NEW, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, NEW, null, 49}
+		RUNNABLE[FIELD_REF]{State.RUNNABLE, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, RUNNABLE, null, 49}
+		TERMINATED[FIELD_REF]{State.TERMINATED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TERMINATED, null, 49}
+		TIMED_WAITING[FIELD_REF]{State.TIMED_WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TIMED_WAITING, null, 49}
+		WAITING[FIELD_REF]{State.WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, WAITING, null, 49}
+		defaultState[METHOD_REF]{defaultState(), LBug443091;, ()Ljava.lang.Thread$State;, defaultState, null, 52}
+		forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;Ljava.lang.Thread$State;)V, forEach, (in, state), 56}
+		forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;Ljava.lang.Thread$State;Ljava.lang.Integer;)V, forEach, (in, state, limit), 56}""",
 			result);
 	assertTrue("expected type signatures don't match", CharOperation.equals(requestor.getExpectedTypesSignatures(), new char[][] {"Ljava.lang.Thread$State;".toCharArray()}, true));
 }
@@ -6237,14 +6618,16 @@ public void testBug443091_expectLambdaCompletions_forFunctionalInterfaceArgument
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug443091.java",
-			"import java.util.function.Consumer;\n" +
-			"\n" +
-			"public class Bug443091 {\n" +
-			"	private void foo() {\n" +
-			"		forEach(capture)" +
-			"	}\n" +
-			"	private void forEach(Consumer<Integer> in) {}\n" +
-			"}\n");
+			"""
+				import java.util.function.Consumer;
+				
+				public class Bug443091 {
+					private void foo() {
+						forEach(capture)\
+					}
+					private void forEach(Consumer<Integer> in) {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6261,13 +6644,15 @@ public void testBug443091_expectLambdaCompletions_forFunctionalInterfaceVariable
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug443091.java",
-			"import java.util.function.Consumer;\n" +
-			"\n" +
-			"public class Bug443091 {\n" +
-			"	private void foo() {\n" +
-			" 		Consumer<Integer> in = \n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.function.Consumer;
+				
+				public class Bug443091 {
+					private void foo() {
+				 		Consumer<Integer> in =\s
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6276,40 +6661,42 @@ public void testBug443091_expectLambdaCompletions_forFunctionalInterfaceVariable
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 47}\n"
-			+ "foo[METHOD_REF]{foo(), LBug443091;, ()V, foo, null, 47}\n"
-			+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 47}\n"
-			+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 47}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 47}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 47}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 47}\n"
-			+ "Bug443091[TYPE_REF]{Bug443091, , LBug443091;, null, null, 52}\n"
-			+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 52}\n"
-			+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}\n"
-			+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 52}\n"
-			+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}\n"
-			+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 52}\n"
-			+ "Consumer<java.lang.Integer>[TYPE_REF]{Consumer, java.util.function, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, null, null, 82}\n"
-			+ "[LAMBDA_EXPRESSION]{->, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, (Ljava.lang.Integer;)V, accept, (t), 89}",
+	assertResults("""
+		finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 47}
+		foo[METHOD_REF]{foo(), LBug443091;, ()V, foo, null, 47}
+		notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 47}
+		notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 47}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 47}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 47}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 47}
+		Bug443091[TYPE_REF]{Bug443091, , LBug443091;, null, null, 52}
+		clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 52}
+		equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}
+		getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 52}
+		hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}
+		toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 52}
+		Consumer<java.lang.Integer>[TYPE_REF]{Consumer, java.util.function, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, null, null, 82}
+		[LAMBDA_EXPRESSION]{->, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, (Ljava.lang.Integer;)V, accept, (t), 89}""",
 			result);
 }
 public void testBug576068() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug576068.java",
-			"public class Bug576068 {\n" +
-			"\n" +
-			"	// Type a new member here and content assist won't find anything.\n" +
-			"\n" +
-			"	public void methodA(){\n" +
-			"		switch( 1 ){\n" +
-			"			case 0:\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public void methodB(){\n" +
-			"		Runnable r = ()->{};\n" +
-			"	}\n" +
-			"}");
+			"""
+				public class Bug576068 {
+				
+					// Type a new member here and content assist won't find anything.
+				
+					public void methodA(){
+						switch( 1 ){
+							case 0:
+						}
+					}
+					public void methodB(){
+						Runnable r = ()->{};
+					}
+				}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
 	String str = this.workingCopies[0].getSource();
@@ -6317,43 +6704,46 @@ public void testBug576068() throws JavaModelException {
 	int cursorLocation = str.indexOf(completeBefore);
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("[POTENTIAL_METHOD_DECLARATION]{, LBug576068;, ()V, , null, 39}\n" +
-			"abstract[KEYWORD]{abstract, null, null, abstract, null, 49}\n" +
-			"class[KEYWORD]{class, null, null, class, null, 49}\n" +
-			"enum[KEYWORD]{enum, null, null, enum, null, 49}\n" +
-			"final[KEYWORD]{final, null, null, final, null, 49}\n" +
-			"interface[KEYWORD]{interface, null, null, interface, null, 49}\n" +
-			"native[KEYWORD]{native, null, null, native, null, 49}\n" +
-			"private[KEYWORD]{private, null, null, private, null, 49}\n" +
-			"protected[KEYWORD]{protected, null, null, protected, null, 49}\n" +
-			"public[KEYWORD]{public, null, null, public, null, 49}\n" +
-			"static[KEYWORD]{static, null, null, static, null, 49}\n" +
-			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, 49}\n" +
-			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, 49}\n" +
-			"transient[KEYWORD]{transient, null, null, transient, null, 49}\n" +
-			"volatile[KEYWORD]{volatile, null, null, volatile, null, 49}\n" +
-			"Bug576068[TYPE_REF]{Bug576068, , LBug576068;, null, null, 52}\n" +
-			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 52}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}\n" +
-			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, 52}\n" +
-			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}\n" +
-			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 52}",
+	assertResults("""
+		[POTENTIAL_METHOD_DECLARATION]{, LBug576068;, ()V, , null, 39}
+		abstract[KEYWORD]{abstract, null, null, abstract, null, 49}
+		class[KEYWORD]{class, null, null, class, null, 49}
+		enum[KEYWORD]{enum, null, null, enum, null, 49}
+		final[KEYWORD]{final, null, null, final, null, 49}
+		interface[KEYWORD]{interface, null, null, interface, null, 49}
+		native[KEYWORD]{native, null, null, native, null, 49}
+		private[KEYWORD]{private, null, null, private, null, 49}
+		protected[KEYWORD]{protected, null, null, protected, null, 49}
+		public[KEYWORD]{public, null, null, public, null, 49}
+		static[KEYWORD]{static, null, null, static, null, 49}
+		strictfp[KEYWORD]{strictfp, null, null, strictfp, null, 49}
+		synchronized[KEYWORD]{synchronized, null, null, synchronized, null, 49}
+		transient[KEYWORD]{transient, null, null, transient, null, 49}
+		volatile[KEYWORD]{volatile, null, null, volatile, null, 49}
+		Bug576068[TYPE_REF]{Bug576068, , LBug576068;, null, null, 52}
+		clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 52}
+		equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}
+		finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, 52}
+		hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}
+		toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 52}""",
 			result);
 }
 public void testBug577883_expectCompletions_onLambdaVars_inNestedLambdas() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug577883.java",
-			"import java.util.stream.Stream;\n" +
-			"\n" +
-			"public class Bug577883 {\n" +
-			"	private static class Int { void boo(){} }\n"+
-			"	private void foo() {\n" +
-			"		Runnable run = () -> {\n" +
-			"			Stream.of(new Int()).map(t -> t.)\n"+
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.stream.Stream;
+				
+				public class Bug577883 {
+					private static class Int { void boo(){} }
+					private void foo() {
+						Runnable run = () -> {
+							Stream.of(new Int()).map(t -> t.)
+						};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6362,35 +6752,38 @@ public void testBug577883_expectCompletions_onLambdaVars_inNestedLambdas() throw
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("boo[METHOD_REF]{boo(), LBug577883$Int;, ()V, boo, null, 55}\n"
-			+ "finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}\n"
-			+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}\n"
-			+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
-			+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 80}\n"
-			+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 80}\n"
-			+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 85}\n"
-			+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 85}\n"
-			+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 90}",
+	assertResults("""
+		boo[METHOD_REF]{boo(), LBug577883$Int;, ()V, boo, null, 55}
+		finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}
+		notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}
+		notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}
+		equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 80}
+		hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 80}
+		getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 85}
+		toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 85}
+		clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 90}""",
 			result);
 }
 public void testBug577883_expectCompletions_onLambdaVars_inNestedLambdasL2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug577883.java",
-			"import java.util.stream.Stream;\n" +
-			"import java.util.Optional;\n" +
-			"\n" +
-			"public class Bug577883 {\n" +
-			"	private static class Int { Integer boo(){ return 0;} }\n"+
-			"	private void foo() {\n" +
-			"		Runnable run = () -> {\n" +
-			"			Stream.of(new Int()).map(t -> Optional.ofNullable(t).map(t -> t.))\n"+
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.stream.Stream;
+				import java.util.Optional;
+				
+				public class Bug577883 {
+					private static class Int { Integer boo(){ return 0;} }
+					private void foo() {
+						Runnable run = () -> {
+							Stream.of(new Int()).map(t -> Optional.ofNullable(t).map(t -> t.))
+						};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6399,38 +6792,41 @@ public void testBug577883_expectCompletions_onLambdaVars_inNestedLambdasL2() thr
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}\n"
-			+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}\n"
-			+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
-			+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 80}\n"
-			+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 80}\n"
-			+ "boo[METHOD_REF]{boo(), LBug577883$Int;, ()Ljava.lang.Integer;, boo, null, 85}\n"
-			+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 85}\n"
-			+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 85}\n"
-			+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 90}",
+	assertResults("""
+		finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}
+		notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}
+		notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}
+		equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 80}
+		hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 80}
+		boo[METHOD_REF]{boo(), LBug577883$Int;, ()Ljava.lang.Integer;, boo, null, 85}
+		getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 85}
+		toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 85}
+		clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 90}""",
 			result);
 }
 public void testBug577883_expectCompletions_onIntermediateLambdaVars_inNestedLambdas() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug577883.java",
-			"import java.util.stream.Stream;\n" +
-			"import java.util.Optional;\n" +
-			"\n" +
-			"public class Bug577883 {\n" +
-			"	private static class Int { " +
-			"		Integer boo(){ return 0;} " +
-			"		boolean canBoo(){ return true;} " +
-			"	}\n"+
-			"	private void foo() {\n" +
-			"		Runnable run = () -> {\n" +
-			"			Stream.of(new Int()).map(t -> Optional.ofNullable(t).map(t -> t.boo() && t.))\n"+
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.stream.Stream;
+				import java.util.Optional;
+				
+				public class Bug577883 {
+					private static class Int { \
+						Integer boo(){ return 0;} \
+						boolean canBoo(){ return true;} \
+					}
+					private void foo() {
+						Runnable run = () -> {
+							Stream.of(new Int()).map(t -> Optional.ofNullable(t).map(t -> t.boo() && t.))
+						};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6439,43 +6835,46 @@ public void testBug577883_expectCompletions_onIntermediateLambdaVars_inNestedLam
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}\n"
-			+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}\n"
-			+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
-			+ "boo[METHOD_REF]{boo(), LBug577883$Int;, ()Ljava.lang.Integer;, boo, null, 60}\n"
-			+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
-			+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n"
-			+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n"
-			+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n"
-			+ "canBoo[METHOD_REF]{canBoo(), LBug577883$Int;, ()Z, canBoo, null, 90}\n"
-			+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 90}",
+	assertResults("""
+		finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}
+		notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}
+		notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}
+		boo[METHOD_REF]{boo(), LBug577883$Int;, ()Ljava.lang.Integer;, boo, null, 60}
+		clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+		getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}
+		hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}
+		toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}
+		canBoo[METHOD_REF]{canBoo(), LBug577883$Int;, ()Z, canBoo, null, 90}
+		equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 90}""",
 			result);
 }
 public void testBug577883_expectCompletions_onOuterLambdaVars_inNestedLambdas() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug577883.java",
-			"import java.util.stream.Stream;\n" +
-			"import java.util.Optional;\n" +
-			"import java.util.function.Consumer;\n" +
-			"\n" +
-			"public class Bug577883 {\n" +
-			"	private static class Int { " +
-			"		Integer boo(){ return 0;} " +
-			"		boolean canBoo(){ return true;} " +
-			"	}\n"+
-			"	private static class Dbl { " +
-			"		Double boo(){ return 0.0;} " +
-			"	}\n"+
-			"	private void foo() {\n" +
-			"		Consumer<Dbl> consu = (d) -> {\n" +
-			"			Stream.of(new Int()).filter(t -> d.)\n"+
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.stream.Stream;
+				import java.util.Optional;
+				import java.util.function.Consumer;
+				
+				public class Bug577883 {
+					private static class Int { \
+						Integer boo(){ return 0;} \
+						boolean canBoo(){ return true;} \
+					}
+					private static class Dbl { \
+						Double boo(){ return 0.0;} \
+					}
+					private void foo() {
+						Consumer<Dbl> consu = (d) -> {
+							Stream.of(new Int()).filter(t -> d.)
+						};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6484,31 +6883,34 @@ public void testBug577883_expectCompletions_onOuterLambdaVars_inNestedLambdas() 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}\n"
-			+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}\n"
-			+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n"
-			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
-			+ "boo[METHOD_REF]{boo(), LBug577883$Dbl;, ()Ljava.lang.Double;, boo, null, 60}\n"
-			+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
-			+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n"
-			+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n"
-			+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n"
-			+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 90}",
+	assertResults("""
+		finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}
+		notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}
+		notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}
+		boo[METHOD_REF]{boo(), LBug577883$Dbl;, ()Ljava.lang.Double;, boo, null, 60}
+		clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+		getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}
+		hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}
+		toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}
+		equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 90}""",
 			result);
 }
 public void testBug577885_expectCompletions_onMethodArguments_followingMethodInvocationWithMethodRefArguments() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug577885.java",
-			"import java.util.stream.Stream;\n" +
-			"\n" +
-			"public class Bug577885 {\n" +
-			"	private void foo() {\n" +
-			" 		Stream.of(\"1\").map(Long::valueOf).filter()\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.stream.Stream;
+				
+				public class Bug577885 {
+					private void foo() {
+				 		Stream.of("1").map(Long::valueOf).filter()
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6525,15 +6927,17 @@ public void testBug577885_expectCompletions_onMethodArguments_followingMethodInv
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug577885.java",
-			"import java.util.stream.Stream;\n" +
-			"\n" +
-			"public class Bug577885 {\n" +
-			"	private void foo() {\n" +
-			"		Runnable run = () -> {\n" +
-			" 			Stream.of(\"1\").map(Long::valueOf).filter()\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.stream.Stream;
+				
+				public class Bug577885 {
+					private void foo() {
+						Runnable run = () -> {
+				 			Stream.of("1").map(Long::valueOf).filter()
+						};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6550,15 +6954,17 @@ public void testBug578116_expectCompletions_forConstructorsInsideLamndaBlock() t
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug578116.java",
-			"import java.util.ArrayList;\n" +
-			"\n" +
-			"public class Bug578116 {\n" +
-			"	private void foo() {\n" +
-			"		Runnable run = () -> {\n" +
-			"			ArrayList<String> list = new \n"+
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.ArrayList;
+				
+				public class Bug578116 {
+					private void foo() {
+						Runnable run = () -> {
+							ArrayList<String> list = new\s
+						};
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6575,13 +6981,15 @@ public void testBug578817() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Bug578817.java",
-			"import java.util.Map;\n" +
-			"\n" +
-			"public class Bug578817 {\n" +
-			"	private void foo() {\n" +
-			"		Map map = new LinkedHashMap\n"+
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Map;
+				
+				public class Bug578817 {
+					private void foo() {
+						Map map = new LinkedHashMap
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.setAllowsRequiredProposals(CompletionProposal.TYPE_REF, CompletionProposal.TYPE_REF, true);
@@ -6591,11 +6999,12 @@ public void testBug578817() throws JavaModelException {
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 	String result = requestor.getResults();
-	assertResults("LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, ()V, LinkedHashMap, null, 81}\n"
-			+ "LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (I)V, LinkedHashMap, (arg0), 81}\n"
-			+ "LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (IF)V, LinkedHashMap, (arg0, arg1), 81}\n"
-			+ "LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (IFZ)V, LinkedHashMap, (arg0, arg1, arg2), 81}\n"
-			+ "LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (Ljava.util.Map<+TK;+TV;>;)V, LinkedHashMap, (arg0), 81}", result);
+	assertResults("""
+		LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, ()V, LinkedHashMap, null, 81}
+		LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (I)V, LinkedHashMap, (arg0), 81}
+		LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (IF)V, LinkedHashMap, (arg0, arg1), 81}
+		LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (IFZ)V, LinkedHashMap, (arg0, arg1, arg2), 81}
+		LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (Ljava.util.Map<+TK;+TV;>;)V, LinkedHashMap, (arg0), 81}""", result);
 
 	requestor = new CompletionTestsRequestor2(true);
 	requestor.setAllowsRequiredProposals(CompletionProposal.TYPE_REF, CompletionProposal.TYPE_REF, true);
@@ -6609,16 +7018,18 @@ public void testBug578817() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"import java.util.List;\n" +
-				"class Person {\n" +
-				"   String getLastName() { return null; }\n" +
-				"   Person getLastPerson() { return null; }\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	void test1 (List<Person> people) {\n" +
-				"		people.stream().forEach(p -> System.out.println(p.get)); \n" +
-				"	}\n" +
-				"}\n");
+				"""
+					import java.util.List;
+					class Person {
+					   String getLastName() { return null; }
+					   Person getLastPerson() { return null; }
+					}
+					public class X {
+						void test1 (List<Person> people) {
+							people.stream().forEach(p -> System.out.println(p.get));\s
+						}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		requestor.allowAllRequiredProposals();
@@ -6635,29 +7046,30 @@ public void testGH109_expectCompletions_insideLambdaNestedBlocks() throws JavaMo
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/GH109.java",
-			"import java.util.stream.Stream;\n"
-			+ "\n"
-			+ "public class GH109\n"
-			+ "{\n"
-			+ "  public static void main(String[] args)\n"
-			+ "  {\n"
-			+ "    if(args.length > 0) {\n"
-			+ "      Stream.of(args).forEach(name -> {\n"
-			+ "        try\n"
-			+ "        {\n"
-			+ "          if (name.startsWith(\"A\"))\n"
-			+ "          {\n"
-			+ "            name.\n"
-			+ "          }\n"
-			+ "          \n"
-			+ "        }\n"
-			+ "        catch (Exception e)\n"
-			+ "        {\n"
-			+ "        }\n"
-			+ "      });\n"
-			+ "    }\n"
-			+ "  }\n"
-			+ "}");
+			"""
+				import java.util.stream.Stream;
+				
+				public class GH109
+				{
+				  public static void main(String[] args)
+				  {
+				    if(args.length > 0) {
+				      Stream.of(args).forEach(name -> {
+				        try
+				        {
+				          if (name.startsWith("A"))
+				          {
+				            name.
+				          }
+				         \s
+				        }
+				        catch (Exception e)
+				        {
+				        }
+				      });
+				    }
+				  }
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6675,11 +7087,13 @@ public void testGH109_expectCompletions_insideLambdaNestedBlocks() throws JavaMo
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"Completion/src/A.java",
-				"public class A {\n" +
-				"  public void test() {\n" +
-				"    List<String> list = new java.util.ArrayL\n" +
-				"  }\n" +
-				"}\n");
+				"""
+					public class A {
+					  public void test() {
+					    List<String> list = new java.util.ArrayL
+					  }
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		requestor.allowAllRequiredProposals();
@@ -6688,9 +7102,10 @@ public void testGH109_expectCompletions_insideLambdaNestedBlocks() throws JavaMo
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 		assertResults(
-				"ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList;, ()V, null, null, ArrayList, null, [84, 84], 54}\n" +
-				"ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList;, (I)V, null, null, ArrayList, (arg0), [84, 84], 54}\n" +
-				"ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList;, (Ljava.util.Collection<+TE;>;)V, null, null, ArrayList, (arg0), [84, 84], 54}",
+				"""
+					ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList;, ()V, null, null, ArrayList, null, [84, 84], 54}
+					ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList;, (I)V, null, null, ArrayList, (arg0), [84, 84], 54}
+					ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList;, (Ljava.util.Collection<+TE;>;)V, null, null, ArrayList, (arg0), [84, 84], 54}""",
 				requestor.getResults());
 	}
 
@@ -6698,29 +7113,30 @@ public void testGH109_expectCompletionsWithCast_insideLambdaNestedBlocksWithInst
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/GH109.java",
-			"import java.util.stream.Stream;\n"
-			+ "\n"
-			+ "public class GH109\n"
-			+ "{\n"
-			+ "  public static void main(String[] args)\n"
-			+ "  {\n"
-			+ "    if(args.length > 0) {\n"
-			+ "      Stream.of(args).map(Object.class::cast).forEach(name -> {\n"
-			+ "        try\n"
-			+ "        {\n"
-			+ "          if (name instanceof String)\n"
-			+ "          {\n"
-			+ "            name.sta\n"
-			+ "          }\n"
-			+ "          \n"
-			+ "        }\n"
-			+ "        catch (Exception e)\n"
-			+ "        {\n"
-			+ "        }\n"
-			+ "      });\n"
-			+ "    }\n"
-			+ "  }\n"
-			+ "}");
+			"""
+				import java.util.stream.Stream;
+				
+				public class GH109
+				{
+				  public static void main(String[] args)
+				  {
+				    if(args.length > 0) {
+				      Stream.of(args).map(Object.class::cast).forEach(name -> {
+				        try
+				        {
+				          if (name instanceof String)
+				          {
+				            name.sta
+				          }
+				         \s
+				        }
+				        catch (Exception e)
+				        {
+				        }
+				      });
+				    }
+				  }
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6737,12 +7153,13 @@ public void testGH583_onArrayCreationSupplier_expectNewMethodRefCompletions() th
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/GH583.java",
-			"import java.util.Arrays;\n"
-					+ "public class GH583 {\n"
-					+ "    public void foo() {\n"
-					+ "			Arrays.asList(\"1\").stream().toArray(String[]::)"
-					+ "    }\n"
-					+ "}");
+			"""
+				import java.util.Arrays;
+				public class GH583 {
+				    public void foo() {
+							Arrays.asList("1").stream().toArray(String[]::)\
+				    }
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6761,11 +7178,12 @@ public void testGH767() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-					"public class Foo {\n"
-					+ "    public void foo() {\n"
-					+ "			\"abc\".substring(i)."
-					+ "    }\n"
-					+ "}");
+					"""
+						public class Foo {
+						    public void foo() {
+									"abc".substring(i).\
+						    }
+						}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -6784,11 +7202,12 @@ public void testIntersection18GH831() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-			"public class Foo {\n"
-			+ "    public void foo() {\n"
-			+ "			java.util.Optional.of(true ? 0 : \"\")."
-			+ "    }\n"
-			+ "}");
+			"""
+				public class Foo {
+				    public void foo() {
+							java.util.Optional.of(true ? 0 : "").\
+				    }
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();

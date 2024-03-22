@@ -97,18 +97,18 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 			return;
 		}
 		try {
-			StringBuilder source = new StringBuilder();
-			source.append("import static java.lang.Math.max;\n");
-			source.append("class Bug573589 {\n");
-			source.append("		public int fooMax() {\n");
-			source.append("			return max(10, 11);\n");
-			source.append("		}\n");
-			source.append("		public static void call() {\n");
-			source.append("			new Bug573589().fooMax();\n");
-			source.append("		}\n");
-			source.append("}\n");
-
-			compileAndDeploy15(source.toString(), "Bug573589");
+			String str = """
+				import static java.lang.Math.max;
+				class Bug573589 {
+						public int fooMax() {
+							return max(10, 11);
+						}
+						public static void call() {
+							new Bug573589().fooMax();
+						}
+				}
+				""";
+			compileAndDeploy15(str, "Bug573589");
 			refreshProject();
 
 			Optional<IMarker> problem = evaluate("Bug573589", "1+1");
@@ -125,18 +125,18 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 			return;
 		}
 		try {
-			StringBuilder source = new StringBuilder();
-			source.append("import static java.lang.Math.max;\n");
-			source.append("class Bug573589 {\n");
-			source.append("		public int fooMax() {\n");
-			source.append("			return max(10, 11);\n");
-			source.append("		}\n");
-			source.append("		public static void call() {\n");
-			source.append("			new Bug573589().fooMax();\n");
-			source.append("		}\n");
-			source.append("}\n");
-
-			Map<String, String> result = compileAndDeploy15(source.toString(), "Bug573589", "attached");
+			String str = """
+				import static java.lang.Math.max;
+				class Bug573589 {
+						public int fooMax() {
+							return max(10, 11);
+						}
+						public static void call() {
+							new Bug573589().fooMax();
+						}
+				}
+				""";
+			Map<String, String> result = compileAndDeploy15(str, "Bug573589", "attached");
 			addLibrary(this.project, result.get(BIN_DIR), result.get(SOURCE_DIRECTORY));
 			refreshProject();
 

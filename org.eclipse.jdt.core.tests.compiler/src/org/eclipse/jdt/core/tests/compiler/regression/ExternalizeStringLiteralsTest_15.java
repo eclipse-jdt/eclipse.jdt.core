@@ -47,25 +47,28 @@ public void test001() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X\n" +
-			"{\n" +
-			"    String x = \"\"\"\n" +
-			"        abcdefg\n" +
-			"        hijklmn\n" +
-			"        \"\"\";\n" +
-			"}"
+			"""
+				public class X
+				{
+				    String x = \"""
+				        abcdefg
+				        hijklmn
+				        \""";
+				}"""
 		},
 		null,
 		customOptions,
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	String x = \"\"\"\n" +
-		"        abcdefg\n" +
-		"        hijklmn\n" +
-		"        \"\"\";\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				String x = \"""
+			        abcdefg
+			        hijklmn
+			        \""";
+				           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			""",
 		JAVAC_OPTIONS);
 }
 public void test002() {
@@ -79,22 +82,25 @@ public void test002() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X\n" +
-			"{\n" +
-			"    String x = \"\"\"\n" +
-			"        abcdefg\n" +
-			"        hijklmn\n" +
-			"        \"\"\"; //$NON-NLS-1$ //$NON-NLS-2$\n" +
-			"}"
+			"""
+				public class X
+				{
+				    String x = \"""
+				        abcdefg
+				        hijklmn
+				        \"""; //$NON-NLS-1$ //$NON-NLS-2$
+				}"""
 		},
 		null,
 		customOptions,
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	\"\"\"; //$NON-NLS-1$ //$NON-NLS-2$\n" +
-		"	                   ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				\"""; //$NON-NLS-1$ //$NON-NLS-2$
+				                   ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			""",
 		JAVAC_OPTIONS);
 }
 public void test003() {
@@ -108,32 +114,35 @@ public void test003() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X\n" +
-			"{\n" +
-			"    String x = \"\"\"\n" +
-			"        abcdefg\n" +
-			"        hijklmn\n" +
-			"        \"\"\";\n" +
-			"    @SuppressWarnings(\"nls\")\n" +
-			"    void foo() {\n" +
-			"        String x2 = \"\"\"\n" +
-			"            abcdefg\n" +
-			"            hijklmn\n" +
-			"            \"\"\";\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X
+				{
+				    String x = \"""
+				        abcdefg
+				        hijklmn
+				        \""";
+				    @SuppressWarnings("nls")
+				    void foo() {
+				        String x2 = \"""
+				            abcdefg
+				            hijklmn
+				            \""";
+				    }
+				}"""
 		},
 		null,
 		customOptions,
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	String x = \"\"\"\n" +
-		"        abcdefg\n" +
-		"        hijklmn\n" +
-		"        \"\"\";\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				String x = \"""
+			        abcdefg
+			        hijklmn
+			        \""";
+				           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			""",
 		JAVAC_OPTIONS);
 }
 public void test004() {
@@ -146,25 +155,28 @@ public void test004() {
 		true,
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"\n" +
-			"	void foo() {\n" +
-			"		String s6 = \"\"\"\n" +
-			"			SUCCESS\n" +
-			"			\"\"\";\n" +
-			"		System.out.println(s6);\n" +
-			"	}\n" +
-			"}",
+			"""
+				class X {
+				
+					void foo() {
+						String s6 = \"""
+							SUCCESS
+							\""";
+						System.out.println(s6);
+					}
+				}""",
 		},
 		null, customOptions,
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	String s6 = \"\"\"\n" +
-		"			SUCCESS\n" +
-		"			\"\"\";\n" +
-		"	            ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				String s6 = \"""
+						SUCCESS
+						\""";
+				            ^^^^^^^^^^^^^^^^^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 public void test005() {
@@ -176,15 +188,16 @@ public void test005() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		String s6 = \"\"\"\n" +
-			"			SUCCESS\n" +
-			"			\"\"\"; //$NON-NLS-1$\n" +
-			"		System.out.println(s6);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+				
+					public static void main(String[] args) {
+						String s6 = \"""
+							SUCCESS
+							\"""; //$NON-NLS-1$
+						System.out.println(s6);
+					}
+				}""",
 		},
 		"SUCCESS",
 		null,
@@ -203,47 +216,50 @@ public void test006() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	@Annot({\n" +
-			"		@A(name = \"\"\"\n" +
-			"           name\n" +
-			"           \"\"\", //$NON-NLS-1$\n" +
-			" 		value = \"\"\"\n" +
-			"           Test\n" +
-			"           \"\"\") //$NON-NLS-1$\n" +
-			"	})\n" +
-			"	@X2(\"\"\"\n" +
-			"   \"\"\") //$NON-NLS-1$\n" +
-			"	void foo() {\n" +
-			"	}\n" +
-			"}\n" +
-			"@interface Annot {\n" +
-			"	A[] value();\n" +
-			"}\n" +
-			"@interface A {\n" +
-			"	String name();\n" +
-			"	String value();\n" +
-			"}\n" +
-			"@interface X2 {\n" +
-			"	String value();\n" +
-			"}",
+			"""
+				public class X {
+					@Annot({
+						@A(name = \"""
+				           name
+				           \""", //$NON-NLS-1$
+				 		value = \"""
+				           Test
+				           \""") //$NON-NLS-1$
+					})
+					@X2(\"""
+				   \""") //$NON-NLS-1$
+					void foo() {
+					}
+				}
+				@interface Annot {
+					A[] value();
+				}
+				@interface A {
+					String name();
+					String value();
+				}
+				@interface X2 {
+					String value();
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	\"\"\", //$NON-NLS-1$\n" +
-		"	     ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	\"\"\") //$NON-NLS-1$\n" +
-		"	     ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 11)\n" +
-		"	\"\"\") //$NON-NLS-1$\n" +
-		"	     ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				\""", //$NON-NLS-1$
+				     ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			2. ERROR in X.java (at line 8)
+				\""") //$NON-NLS-1$
+				     ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			3. ERROR in X.java (at line 11)
+				\""") //$NON-NLS-1$
+				     ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			""",
 		null,
 		true,
 		customOptions);

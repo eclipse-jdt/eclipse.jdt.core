@@ -87,64 +87,72 @@ public class JavadocTestMixed extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/** */\n"
-					+ "public class X {\n"
-					+ "  /** */\n"
-					+ "  public int x;\n"
-					+ "  /** */\n"
-					+ "	 public X() {}\n"
-					+ "  /** */\n"
-					+ "	 public void foo() {}\n"
-					+ "}\n" });
+				"""
+					package test;
+					/** */
+					public class X {
+					  /** */
+					  public int x;
+					  /** */
+						 public X() {}
+					  /** */
+						 public void foo() {}
+					}
+					""" });
 	}
 
 	public void test002() {
 		runConformTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/** */\n"
-					+ "class X {\n"
-					+ "  /** */\n"
-					+ "  int x;\n"
-					+ "  /** */\n"
-					+ "	 X() {}\n"
-					+ "  /** */\n"
-					+ "  void foo() {}\n"
-					+ "}\n" });
+				"""
+					package test;
+					/** */
+					class X {
+					  /** */
+					  int x;
+					  /** */
+						 X() {}
+					  /** */
+					  void foo() {}
+					}
+					""" });
 	}
 
 	public void test003() {
 		runConformTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/** */\n"
-					+ "class X {\n"
-					+ "  /** */\n"
-					+ "  protected int x;\n"
-					+ "  /** */\n"
-					+ "  protected X() {}\n"
-					+ "  /** */\n"
-					+ "  protected void foo() {}\n"
-					+ "}\n" });
+				"""
+					package test;
+					/** */
+					class X {
+					  /** */
+					  protected int x;
+					  /** */
+					  protected X() {}
+					  /** */
+					  protected void foo() {}
+					}
+					""" });
 	}
 
 	public void test004() {
 		runConformTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/** */\n"
-					+ "class X {\n"
-					+ "  /** */\n"
-					+ "  private int x;\n"
-					+ "  /** */\n"
-					+ "  private X() {}\n"
-					+ "  /** */\n"
-					+ "  private void foo() {}\n"
-					+ "}\n" });
+				"""
+					package test;
+					/** */
+					class X {
+					  /** */
+					  private int x;
+					  /** */
+					  private X() {}
+					  /** */
+					  private void foo() {}
+					}
+					""" });
 	}
 
 	public void test005() {
@@ -152,14 +160,16 @@ public class JavadocTestMixed extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "	public X() {}\n"
-					+ "\n"
-					+ "	public void foo() {}\n"
-					+ "}\n" });
+				"""
+					package test;
+					public class X {
+						public int x;
+					
+						public X() {}
+					
+						public void foo() {}
+					}
+					""" });
 	}
 
 	public void test006() {
@@ -167,18 +177,22 @@ public class JavadocTestMixed extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	String s1 = \"non-terminated;\n" +
-				"	void foo() {}\n" +
-				"	String s2 = \"terminated\";\n" +
-				"}\n"
+				"""
+					public class X {
+						String s1 = "non-terminated;
+						void foo() {}
+						String s2 = "terminated";
+					}
+					"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 2)\n" +
-				"	String s1 = \"non-terminated;\n" +
-				"	            ^^^^^^^^^^^^^^^^\n" +
-				"String literal is not properly closed by a double-quote\n" +
-				"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					String s1 = "non-terminated;
+					            ^^^^^^^^^^^^^^^^
+				String literal is not properly closed by a double-quote
+				----------
+				"""
 		);
 	}
 
@@ -186,24 +200,28 @@ public class JavadocTestMixed extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/** Field javadoc comment */\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "	/** Constructor javadoc comment */\n"
-					+ "	public X() {\n"
-					+ "	}\n"
-					+ "	/** Method javadoc comment */\n"
-					+ "	public void foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 2)\n"
-				+ "	public class X {\n"
-				+ "	             ^\n"
-				+ "Javadoc: Missing comment for public declaration\n"
-				+ "----------\n",
+				"""
+					package test;
+					public class X {
+						/** Field javadoc comment */
+						public int x;
+					
+						/** Constructor javadoc comment */
+						public X() {
+						}
+						/** Method javadoc comment */
+						public void foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 2)
+					public class X {
+					             ^
+				Javadoc: Missing comment for public declaration
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -211,24 +229,28 @@ public class JavadocTestMixed extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/** Class javadoc comment */\n"
-					+ "public class X {\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "	/** Constructor javadoc comment */\n"
-					+ "	public X() {\n"
-					+ "	}\n"
-					+ "	/** Method javadoc comment */\n"
-					+ "	public void foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 4)\n"
-				+ "	public int x;\n"
-				+ "	           ^\n"
-				+ "Javadoc: Missing comment for public declaration\n"
-				+ "----------\n",
+				"""
+					package test;
+					/** Class javadoc comment */
+					public class X {
+						public int x;
+					
+						/** Constructor javadoc comment */
+						public X() {
+						}
+						/** Method javadoc comment */
+						public void foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 4)
+					public int x;
+					           ^
+				Javadoc: Missing comment for public declaration
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -236,24 +258,28 @@ public class JavadocTestMixed extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/** Class javadoc comment */\n"
-					+ "public class X {\n"
-					+ "	/** Field javadoc comment */\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "	public X() {\n"
-					+ "	}\n"
-					+ "	/** Method javadoc comment */\n"
-					+ "	public void foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 7)\n"
-				+ "	public X() {\n"
-				+ "	       ^^^\n"
-				+ "Javadoc: Missing comment for public declaration\n"
-				+ "----------\n",
+				"""
+					package test;
+					/** Class javadoc comment */
+					public class X {
+						/** Field javadoc comment */
+						public int x;
+					
+						public X() {
+						}
+						/** Method javadoc comment */
+						public void foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 7)
+					public X() {
+					       ^^^
+				Javadoc: Missing comment for public declaration
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -261,24 +287,28 @@ public class JavadocTestMixed extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/** Class javadoc comment */\n"
-					+ "public class X {\n"
-					+ "	/** Field javadoc comment */\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "	/** Constructor javadoc comment */\n"
-					+ "	public X() {\n"
-					+ "	}\n"
-					+ "	public void foo(int a) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 10)\n"
-				+ "	public void foo(int a) {\n"
-				+ "	            ^^^^^^^^^^\n"
-				+ "Javadoc: Missing comment for public declaration\n"
-				+ "----------\n",
+				"""
+					package test;
+					/** Class javadoc comment */
+					public class X {
+						/** Field javadoc comment */
+						public int x;
+					
+						/** Constructor javadoc comment */
+						public X() {
+						}
+						public void foo(int a) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 10)
+					public void foo(int a) {
+					            ^^^^^^^^^^
+				Javadoc: Missing comment for public declaration
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -289,91 +319,97 @@ public class JavadocTestMixed extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/**\n"
-					+ " * Valid class javadoc\n"
-					+ " * @author ffr\n"
-					+ " * @see \"Test class X\"\n"
-					+ " */\n"
-					+ "public class X {\n"
-					+ "/**\n"
-					+ " * Valid field javadoc\n"
-					+ " * @see <a href=\"http://www.ibm.com\">Valid URL</a>\n"
-					+ " */\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "/**\n"
-					+ " * Valid constructor javadoc\n"
-					+ " * @param str Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public X(String str) {\n"
-					+ "	}\n"
-					+ "/**\n"
-					+ " * Valid method javadoc\n"
-					+ " * @param list Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @return Valid return tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public String foo(java.util.Vector list) {\n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					package test;
+					/**
+					 * Valid class javadoc
+					 * @author ffr
+					 * @see "Test class X"
+					 */
+					public class X {
+					/**
+					 * Valid field javadoc
+					 * @see <a href="http://www.ibm.com">Valid URL</a>
+					 */
+						public int x;
+					
+					/**
+					 * Valid constructor javadoc
+					 * @param str Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public X(String str) {
+						}
+					/**
+					 * Valid method javadoc
+					 * @param list Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @return Valid return tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public String foo(java.util.Vector list) {
+							return "";
+						}
+					}
+					""" });
 	}
 
 	public void test022() {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/**\n"
-					+ " * Unexpected tag in class javadoc\n"
-					+ " * @author ffr\n"
-					+ " * @see \"Test class X\"\n"
-					+ " * @param x\n"
-					+ " */\n"
-					+ "public class X {\n"
-					+ "/**\n"
-					+ " * Valid field javadoc\n"
-					+ " * @see <a href=\"http://www.ibm.com\">Valid URL</a>\n"
-					+ " */\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "/**\n"
-					+ " * Valid constructor javadoc\n"
-					+ " * @param str Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public X(String str) {\n"
-					+ "	}\n"
-					+ "/**\n"
-					+ " * Valid method javadoc\n"
-					+ " * @param list Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @return Valid return tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public String foo(java.util.Vector list) {\n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @param x\n"
-				+ "	   ^^^^^\n"
-				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n",
+				"""
+					package test;
+					/**
+					 * Unexpected tag in class javadoc
+					 * @author ffr
+					 * @see "Test class X"
+					 * @param x
+					 */
+					public class X {
+					/**
+					 * Valid field javadoc
+					 * @see <a href="http://www.ibm.com">Valid URL</a>
+					 */
+						public int x;
+					
+					/**
+					 * Valid constructor javadoc
+					 * @param str Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public X(String str) {
+						}
+					/**
+					 * Valid method javadoc
+					 * @param list Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @return Valid return tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public String foo(java.util.Vector list) {
+							return "";
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @param x
+					   ^^^^^
+				Javadoc: Unexpected tag
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -381,49 +417,53 @@ public class JavadocTestMixed extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/**\n"
-					+ " * Valid class javadoc\n"
-					+ " * @author ffr\n"
-					+ " * @see \"Test class X\"\n"
-					+ " */\n"
-					+ "public class X {\n"
-					+ "/**\n"
-					+ " * Unexpected tag in field javadoc\n"
-					+ " * @throws InvalidException\n"
-					+ " * @see <a href=\"http://www.ibm.com\">Valid URL</a>\n"
-					+ " */\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "/**\n"
-					+ " * Valid constructor javadoc\n"
-					+ " * @param str Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public X(String str) {\n"
-					+ "	}\n"
-					+ "/**\n"
-					+ " * Valid method javadoc\n"
-					+ " * @param list Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @return Valid return tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public String foo(java.util.Vector list) {\n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @throws InvalidException\n"
-				+ "	   ^^^^^^\n"
-				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n",
+				"""
+					package test;
+					/**
+					 * Valid class javadoc
+					 * @author ffr
+					 * @see "Test class X"
+					 */
+					public class X {
+					/**
+					 * Unexpected tag in field javadoc
+					 * @throws InvalidException
+					 * @see <a href="http://www.ibm.com">Valid URL</a>
+					 */
+						public int x;
+					
+					/**
+					 * Valid constructor javadoc
+					 * @param str Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public X(String str) {
+						}
+					/**
+					 * Valid method javadoc
+					 * @param list Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @return Valid return tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public String foo(java.util.Vector list) {
+							return "";
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 10)
+					* @throws InvalidException
+					   ^^^^^^
+				Javadoc: Unexpected tag
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -431,53 +471,57 @@ public class JavadocTestMixed extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/**\n"
-					+ " * Valid class javadoc\n"
-					+ " * @author ffr\n"
-					+ " * @see \"Test class X\"\n"
-					+ " */\n"
-					+ "public class X {\n"
-					+ "/**\n"
-					+ " * Valid field javadoc\n"
-					+ " * @see <a href=\"http://www.ibm.com\">Valid URL</a>\n"
-					+ " */\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "/**\n"
-					+ " * Wrong tags order in constructor javadoc\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @param str Valid param tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public X(String str) {\n"
-					+ "	}\n"
-					+ "/**\n"
-					+ " * Valid method javadoc\n"
-					+ " * @param list Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @return Valid return tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public String foo(java.util.Vector list) {\n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 19)\n"
-				+ "	* @param str Valid param tag\n"
-				+ "	   ^^^^^\n"
-				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 22)\n"
-				+ "	public X(String str) {\n"
-				+ "	                ^^^\n"
-				+ "Javadoc: Missing tag for parameter str\n"
-				+ "----------\n",
+				"""
+					package test;
+					/**
+					 * Valid class javadoc
+					 * @author ffr
+					 * @see "Test class X"
+					 */
+					public class X {
+					/**
+					 * Valid field javadoc
+					 * @see <a href="http://www.ibm.com">Valid URL</a>
+					 */
+						public int x;
+					
+					/**
+					 * Wrong tags order in constructor javadoc
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @see X Valid see tag
+					 * @param str Valid param tag
+					 * @deprecated
+					 */
+						public X(String str) {
+						}
+					/**
+					 * Valid method javadoc
+					 * @param list Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @return Valid return tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public String foo(java.util.Vector list) {
+							return "";
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 19)
+					* @param str Valid param tag
+					   ^^^^^
+				Javadoc: Unexpected tag
+				----------
+				2. ERROR in test\\X.java (at line 22)
+					public X(String str) {
+					                ^^^
+				Javadoc: Missing tag for parameter str
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -485,53 +529,57 @@ public class JavadocTestMixed extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/**\n"
-					+ " * Valid class javadoc\n"
-					+ " * @author ffr\n"
-					+ " * @see \"Test class X\"\n"
-					+ " */\n"
-					+ "public class X {\n"
-					+ "/**\n"
-					+ " * Valid field javadoc\n"
-					+ " * @see <a href=\"http://www.ibm.com\">Valid URL</a>\n"
-					+ " */\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "/**\n"
-					+ " * Valid constructor javadoc\n"
-					+ " * @param str Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public X(String str) {\n"
-					+ "	}\n"
-					+ "/**\n"
-					+ " * Wrong param tag in method javadoc\n"
-					+ " * @param vector Invalid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @return Valid return tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public String foo(java.util.Vector list) {\n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 26)\n"
-				+ "	* @param vector Invalid param tag\n"
-				+ "	         ^^^^^^\n"
-				+ "Javadoc: Parameter vector is not declared\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 33)\n"
-				+ "	public String foo(java.util.Vector list) {\n"
-				+ "	                                   ^^^^\n"
-				+ "Javadoc: Missing tag for parameter list\n"
-				+ "----------\n",
+				"""
+					package test;
+					/**
+					 * Valid class javadoc
+					 * @author ffr
+					 * @see "Test class X"
+					 */
+					public class X {
+					/**
+					 * Valid field javadoc
+					 * @see <a href="http://www.ibm.com">Valid URL</a>
+					 */
+						public int x;
+					
+					/**
+					 * Valid constructor javadoc
+					 * @param str Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public X(String str) {
+						}
+					/**
+					 * Wrong param tag in method javadoc
+					 * @param vector Invalid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @return Valid return tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public String foo(java.util.Vector list) {
+							return "";
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 26)
+					* @param vector Invalid param tag
+					         ^^^^^^
+				Javadoc: Parameter vector is not declared
+				----------
+				2. ERROR in test\\X.java (at line 33)
+					public String foo(java.util.Vector list) {
+					                                   ^^^^
+				Javadoc: Missing tag for parameter list
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -539,62 +587,66 @@ public class JavadocTestMixed extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/**\n"
-					+ " * Invalid see tag in class javadoc\n"
-					+ " * @author ffr\n"
-					+ " * @see \"Test class X\n"
-					+ " */\n"
-					+ "public class X {\n"
-					+ "/**\n"
-					+ " * Invalid field javadoc\n"
-					+ " * @see <a href=\"http://www.ibm.com\">Valid URL</a>unexpected text\n"
-					+ " */\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "/**\n"
-					+ " * Missing throws tag in constructor javadoc\n"
-					+ " * @param str Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public X(String str) throws java.io.IOException {\n"
-					+ "	}\n"
-					+ "/**\n"
-					+ " * Missing return tag in method javadoc\n"
-					+ " * @param list Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public String foo(java.util.Vector list) {\n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 5)\n"
-				+ "	* @see \"Test class X\n"
-				+ "	       ^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid reference\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see <a href=\"http://www.ibm.com\">Valid URL</a>unexpected text\n"
-				+ "	                                              ^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Unexpected text\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 22)\n"
-				+ "	public X(String str) throws java.io.IOException {\n"
-				+ "	                            ^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IOException\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 32)\n"
-				+ "	public String foo(java.util.Vector list) {\n"
-				+ "	       ^^^^^^\n"
-				+ "Javadoc: Missing tag for return type\n"
-				+ "----------\n",
+				"""
+					package test;
+					/**
+					 * Invalid see tag in class javadoc
+					 * @author ffr
+					 * @see "Test class X
+					 */
+					public class X {
+					/**
+					 * Invalid field javadoc
+					 * @see <a href="http://www.ibm.com">Valid URL</a>unexpected text
+					 */
+						public int x;
+					
+					/**
+					 * Missing throws tag in constructor javadoc
+					 * @param str Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public X(String str) throws java.io.IOException {
+						}
+					/**
+					 * Missing return tag in method javadoc
+					 * @param list Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public String foo(java.util.Vector list) {
+							return "";
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 5)
+					* @see "Test class X
+					       ^^^^^^^^^^^^^
+				Javadoc: Invalid reference
+				----------
+				2. ERROR in test\\X.java (at line 10)
+					* @see <a href="http://www.ibm.com">Valid URL</a>unexpected text
+					                                              ^^^^^^^^^^^^^^^^^^
+				Javadoc: Unexpected text
+				----------
+				3. ERROR in test\\X.java (at line 22)
+					public X(String str) throws java.io.IOException {
+					                            ^^^^^^^^^^^^^^^^^^^
+				Javadoc: Missing tag for declared exception IOException
+				----------
+				4. ERROR in test\\X.java (at line 32)
+					public String foo(java.util.Vector list) {
+					       ^^^^^^
+				Javadoc: Missing tag for return type
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -605,229 +657,247 @@ public class JavadocTestMixed extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/**\n"
-					+ " * Valid class javadoc on invalid declaration\n"
-					+ " * @author ffr\n"
-					+ " * @see \"Test class X\"\n"
-					+ " */\n"
-					+ "protected class X {\n"
-					+ "/**\n"
-					+ " * Valid field javadoc\n"
-					+ " * @see <a href=\"http://www.ibm.com\">Valid URL</a>\n"
-					+ " */\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "/**\n"
-					+ " * Valid constructor javadoc\n"
-					+ " * @param str Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public X(String str) {\n"
-					+ "	}\n"
-					+ "/**\n"
-					+ " * Valid method javadoc\n"
-					+ " * @param list Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @return Valid return tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public String foo(java.util.Vector list) {\n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 7)\n"
-				+ "	protected class X {\n"
-				+ "	                ^\n"
-				+ "Illegal modifier for the class X; only public, abstract & final are permitted\n"
-				+ "----------\n");
+				"""
+					package test;
+					/**
+					 * Valid class javadoc on invalid declaration
+					 * @author ffr
+					 * @see "Test class X"
+					 */
+					protected class X {
+					/**
+					 * Valid field javadoc
+					 * @see <a href="http://www.ibm.com">Valid URL</a>
+					 */
+						public int x;
+					
+					/**
+					 * Valid constructor javadoc
+					 * @param str Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public X(String str) {
+						}
+					/**
+					 * Valid method javadoc
+					 * @param list Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @return Valid return tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public String foo(java.util.Vector list) {
+							return "";
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 7)
+					protected class X {
+					                ^
+				Illegal modifier for the class X; only public, abstract & final are permitted
+				----------
+				""");
 	}
 
 	public void test031() {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/**\n"
-					+ " * Valid class javadoc\n"
-					+ " * @author ffr\n"
-					+ " * @see \"Test class X\"\n"
-					+ " */\n"
-					+ "public class X {\n"
-					+ "/**\n"
-					+ " * Valid field javadoc on invalid declaration\n"
-					+ " * @see <a href=\"http://www.ibm.com\">Valid URL</a>\n"
-					+ " */\n"
-					+ "	public int x\n"
-					+ "\n"
-					+ "/**\n"
-					+ " * Valid constructor javadoc\n"
-					+ " * @param str Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public X(String str) {\n"
-					+ "	}\n"
-					+ "/**\n"
-					+ " * Valid method javadoc\n"
-					+ " * @param list Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @return Valid return tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public String foo(java.util.Vector list) {\n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 12)\n"
-				+ "	public int x\n"
-				+ "	           ^\n"
-				+ "Syntax error, insert \";\" to complete ClassBodyDeclarations\n"
-				+ "----------\n");
+				"""
+					package test;
+					/**
+					 * Valid class javadoc
+					 * @author ffr
+					 * @see "Test class X"
+					 */
+					public class X {
+					/**
+					 * Valid field javadoc on invalid declaration
+					 * @see <a href="http://www.ibm.com">Valid URL</a>
+					 */
+						public int x
+					
+					/**
+					 * Valid constructor javadoc
+					 * @param str Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public X(String str) {
+						}
+					/**
+					 * Valid method javadoc
+					 * @param list Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @return Valid return tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public String foo(java.util.Vector list) {
+							return "";
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 12)
+					public int x
+					           ^
+				Syntax error, insert ";" to complete ClassBodyDeclarations
+				----------
+				""");
 	}
 
 	public void test032() {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/**\n"
-					+ " * Valid class javadoc\n"
-					+ " * @author ffr\n"
-					+ " * @see \"Test class X\"\n"
-					+ " */\n"
-					+ "public class X {\n"
-					+ "/**\n"
-					+ " * Valid field javadoc\n"
-					+ " * @see <a href=\"http://www.ibm.com\">Valid URL</a>\n"
-					+ " */\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "/**\n"
-					+ " * Valid constructor javadoc on invalid declaration\n"
-					+ " * @param str Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public X(String str) \n"
-					+ "	}\n"
-					+ "/**\n"
-					+ " * Valid method javadoc\n"
-					+ " * @param list Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @return Valid return tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public String foo(java.util.Vector list) {\n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 22)\n"
-				+ "	public X(String str) \n"
-				+ "	                   ^\n"
-				+ "Syntax error on token \")\", { expected after this token\n"
-				+ "----------\n");
+				"""
+					package test;
+					/**
+					 * Valid class javadoc
+					 * @author ffr
+					 * @see "Test class X"
+					 */
+					public class X {
+					/**
+					 * Valid field javadoc
+					 * @see <a href="http://www.ibm.com">Valid URL</a>
+					 */
+						public int x;
+					
+					/**
+					 * Valid constructor javadoc on invalid declaration
+					 * @param str Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public X(String str)\s
+						}
+					/**
+					 * Valid method javadoc
+					 * @param list Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @return Valid return tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public String foo(java.util.Vector list) {
+							return "";
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 22)
+					public X(String str)\s
+					                   ^
+				Syntax error on token ")", { expected after this token
+				----------
+				""");
 	}
 
 	public void _test033() {
 		runNegativeTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "/**\n"
-					+ " * Valid class javadoc\n"
-					+ " * @author ffr\n"
-					+ " * @see \"Test class X\"\n"
-					+ " */\n"
-					+ "public class X {\n"
-					+ "/**\n"
-					+ " * Valid field javadoc\n"
-					+ " * @see <a href=\"http://www.ibm.com\">Valid URL</a>\n"
-					+ " */\n"
-					+ "	public int x;\n"
-					+ "\n"
-					+ "/**\n"
-					+ " * Valid constructor javadoc\n"
-					+ " * @param str Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public X(String str) {\n"
-					+ "	}\n"
-					+ "/**\n"
-					+ " * Valid method javadoc on invalid declaration\n"
-					+ " * @param list Valid param tag\n"
-					+ " * @throws NullPointerException Valid throws tag\n"
-					+ " * @exception IllegalArgumentException Valid throws tag\n"
-					+ " * @return Valid return tag\n"
-					+ " * @see X Valid see tag\n"
-					+ " * @deprecated\n"
-					+ " */\n"
-					+ "	public String foo(java.util.Vector ) {\n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n" },
+				"""
+					package test;
+					/**
+					 * Valid class javadoc
+					 * @author ffr
+					 * @see "Test class X"
+					 */
+					public class X {
+					/**
+					 * Valid field javadoc
+					 * @see <a href="http://www.ibm.com">Valid URL</a>
+					 */
+						public int x;
+					
+					/**
+					 * Valid constructor javadoc
+					 * @param str Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public X(String str) {
+						}
+					/**
+					 * Valid method javadoc on invalid declaration
+					 * @param list Valid param tag
+					 * @throws NullPointerException Valid throws tag
+					 * @exception IllegalArgumentException Valid throws tag
+					 * @return Valid return tag
+					 * @see X Valid see tag
+					 * @deprecated
+					 */
+						public String foo(java.util.Vector ) {
+							return "";
+						}
+					}
+					""" },
 					this.complianceLevel < ClassFileConstants.JDK1_5
-					? "----------\n"
-						+ "1. ERROR in test\\X.java (at line 23)\n"
-						+ "	}\n"
-						+ "	^\n"
-						+ "Syntax error, insert \"}\" to complete ClassBody\n"
-						+ "----------\n"
-						+ "2. ERROR in test\\X.java (at line 26)\n"
-						+ "	* @param list Valid param tag\n"
-						+ "	         ^^^^\n"
-						+ "Javadoc: Parameter list is not declared\n"
-						+ "----------\n"
-						+ "3. ERROR in test\\X.java (at line 33)\n"
-						+ "	public String foo(java.util.Vector ) {\n"
-						+ "	                            ^^^^^^\n"
-						+ "Syntax error on token \"Vector\", VariableDeclaratorId expected after this token\n"
-						+ "----------\n"
-						+ "4. ERROR in test\\X.java (at line 36)\n"
-						+ "	}\n"
-						+ "	^\n"
-						+ "Syntax error on token \"}\", delete this token\n"
-						+ "----------\n"
-					: "----------\n"
-						+ "1. ERROR in test\\X.java (at line 23)\n"
-						+ "	}\n"
-						+ "	^\n"
-						+ "Syntax error, insert \"}\" to complete ClassBody\n"
-						+ "----------\n"
-						+ "2. ERROR in test\\X.java (at line 26)\n"
-						+ "	* @param list Valid param tag\n"
-						+ "	         ^^^^\n"
-						+ "Javadoc: Parameter list is not declared\n"
-						+ "----------\n"
-						+ "3. ERROR in test\\X.java (at line 33)\n"
-						+ "	public String foo(java.util.Vector ) {\n"
-						+ "	                           ^\n"
-						+ "Syntax error on token \".\", ... expected\n"
-						+ "----------\n"
-						+ "4. ERROR in test\\X.java (at line 36)\n"
-						+ "	}\n"
-						+ "	^\n"
-						+ "Syntax error on token \"}\", delete this token\n"
-						+ "----------\n");
+					? """
+						----------
+						1. ERROR in test\\X.java (at line 23)
+							}
+							^
+						Syntax error, insert "}" to complete ClassBody
+						----------
+						2. ERROR in test\\X.java (at line 26)
+							* @param list Valid param tag
+							         ^^^^
+						Javadoc: Parameter list is not declared
+						----------
+						3. ERROR in test\\X.java (at line 33)
+							public String foo(java.util.Vector ) {
+							                            ^^^^^^
+						Syntax error on token "Vector", VariableDeclaratorId expected after this token
+						----------
+						4. ERROR in test\\X.java (at line 36)
+							}
+							^
+						Syntax error on token "}", delete this token
+						----------
+						"""
+					: """
+						----------
+						1. ERROR in test\\X.java (at line 23)
+							}
+							^
+						Syntax error, insert "}" to complete ClassBody
+						----------
+						2. ERROR in test\\X.java (at line 26)
+							* @param list Valid param tag
+							         ^^^^
+						Javadoc: Parameter list is not declared
+						----------
+						3. ERROR in test\\X.java (at line 33)
+							public String foo(java.util.Vector ) {
+							                           ^
+						Syntax error on token ".", ... expected
+						----------
+						4. ERROR in test\\X.java (at line 36)
+							}
+							^
+						Syntax error on token "}", delete this token
+						----------
+						""");
 	}
 
 	public void test040() {
@@ -835,20 +905,22 @@ public class JavadocTestMixed extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-					"	/**\n" +
-					"	/**\n" +
-					"	/**\n" +
-					"	/** \n" +
-					"	 * @param str\n" +
-					"	 * @param x\n" +
-					"	 */\n" +
-					"	public void bar(String str, int x) {\n" +
-					"	}\n" +
-					"	public void foo() {\n" +
-					"		bar(\"toto\", 0 /* block comment inline */);\n" +
-					"	}\n" +
-					"}\n" });
+				"""
+					public class X {
+						/**
+						/**
+						/**
+						/**\s
+						 * @param str
+						 * @param x
+						 */
+						public void bar(String str, int x) {
+						}
+						public void foo() {
+							bar("toto", 0 /* block comment inline */);
+						}
+					}
+					""" });
 	}
 
 	public void test041() {
@@ -856,21 +928,25 @@ public class JavadocTestMixed extends JavadocTest {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-					"	/**\n" +
-					"	 * @see String\n" +
-					"	 * @see #\n" +
-					"	 * @return String\n" +
-					"	 */\n" +
-					"	String bar() {return \"\";}\n" +
-					"}\n"
+				"""
+					public class X {
+						/**
+						 * @see String
+						 * @see #
+						 * @return String
+						 */
+						String bar() {return "";}
+					}
+					"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	* @see #\n" +
-				"	       ^\n" +
-				"Javadoc: Invalid reference\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @see #
+					       ^
+				Javadoc: Invalid reference
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 			);
 	}

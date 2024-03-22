@@ -113,18 +113,20 @@ public void test0001() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX.java",
-				"package a;\n"+
-				"public class XX {\n"+
-				"  void foo() {}\n"+
-				"}");
+				"""
+					package a;
+					public class XX {
+					  void foo() {}
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX.java",
-				"package b;\n"+
-				"public class XX {\n"+
-				"  void foo() {}\n"+
-				"}");
+				"""
+					package b;
+					public class XX {
+					  void foo() {}
+					}""");
 
 		// create P2
 		this.createJavaProject(
@@ -144,12 +146,13 @@ public void test0001() throws Exception {
 			"1.4");
 		this.createFile(
 			"/P2/src/YY.java",
-			"public class YY {\n"+
-			"  void foo() {\n"+
-			"    XX x = null;\n"+
-			"    x.fo\n"+
-			"  }\n"+
-			"}");
+			"""
+				public class YY {
+				  void foo() {
+				    XX x = null;
+				    x.fo
+				  }
+				}""");
 
 		waitUntilIndexesReady();
 
@@ -207,18 +210,20 @@ public void test0002() throws Exception {
 		this.createFolder("/P1/src/a");
 		this.createFile(
 				"/P1/src/a/XX.java",
-				"package a;\n"+
-				"public class XX {\n"+
-				"  void foo() {}\n"+
-				"}");
+				"""
+					package a;
+					public class XX {
+					  void foo() {}
+					}""");
 
 		this.createFolder("/P1/src/b");
 		this.createFile(
 				"/P1/src/b/XX.java",
-				"package b;\n"+
-				"public class XX {\n"+
-				"  void foo() {}\n"+
-				"}");
+				"""
+					package b;
+					public class XX {
+					  void foo() {}
+					}""");
 
 		// create P2
 		this.createJavaProject(
@@ -238,12 +243,13 @@ public void test0002() throws Exception {
 			"1.4");
 		this.createFile(
 			"/P2/src/YY.java",
-			"public class YY {\n"+
-			"  void foo() {\n"+
-			"    XX x = null;\n"+
-			"    x.fo\n"+
-			"  }\n"+
-			"}");
+			"""
+				public class YY {
+				  void foo() {
+				    XX x = null;
+				    x.fo
+				  }
+				}""");
 
 		waitUntilIndexesReady();
 

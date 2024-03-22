@@ -139,9 +139,10 @@ public void test0004(){
  */
 public void test0005(){
 	String str =
-		"package p;\n" +
-		"import yyy;\n" +
-		"abst";
+		"""
+		package p;
+		import yyy;
+		abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.indexOf("abst") + completeBehind.length() - 1;
@@ -151,9 +152,11 @@ public void test0005(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -170,9 +173,10 @@ public void test0005(){
  */
 public void test0006(){
 	String str =
-		"package p;\n" +
-		"import yyy;\n" +
-		"abst zzz";
+		"""
+		package p;
+		import yyy;
+		abst zzz""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.indexOf("abst") + completeBehind.length() - 1;
@@ -182,9 +186,11 @@ public void test0006(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -201,9 +207,10 @@ public void test0006(){
  */
 public void test0007(){
 	String str =
-		"package p;\n" +
-		"import yyy;\n" +
-		"public abst";
+		"""
+		package p;
+		import yyy;
+		public abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.indexOf("abst") + completeBehind.length() - 1;
@@ -213,9 +220,11 @@ public void test0007(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -232,9 +241,10 @@ public void test0007(){
  */
 public void test0008(){
 	String str =
-		"package p;\n" +
-		"import yyy;\n" +
-		"public abst zzz";
+		"""
+		package p;
+		import yyy;
+		public abst zzz""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.indexOf("abst") + completeBehind.length() - 1;
@@ -244,9 +254,11 @@ public void test0008(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -263,9 +275,10 @@ public void test0008(){
  */
 public void test0009(){
 	String str =
-		"package p;\n" +
-		"import yyy;\n" +
-		"abstract abst";
+		"""
+		package p;
+		import yyy;
+		abstract abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -275,9 +288,11 @@ public void test0009(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -294,9 +309,10 @@ public void test0009(){
  */
 public void test0010(){
 	String str =
-		"package p;\n" +
-		"import yyy;\n" +
-		"abstract abst zzz";
+		"""
+		package p;
+		import yyy;
+		abstract abst zzz""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -306,9 +322,11 @@ public void test0010(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -325,9 +343,10 @@ public void test0010(){
  */
 public void test0011(){
 	String str =
-		"package p;\n" +
-		"import \n" +
-		"abst";
+		"""
+		package p;
+		import\s
+		abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -355,10 +374,11 @@ public void test0011(){
  */
 public void test0012(){
 	String str =
-		"package p;\n" +
-		"import yyy;\n" +
-		"public class X {}\n" +
-		"abst";
+		"""
+		package p;
+		import yyy;
+		public class X {}
+		abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -368,13 +388,15 @@ public void test0012(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -391,10 +413,11 @@ public void test0012(){
  */
 public void test0013(){
 	String str =
-		"package p;\n" +
-		"import yyy;\n" +
-		"public class X {}\n" +
-		"abst zzz";
+		"""
+		package p;
+		import yyy;
+		public class X {}
+		abst zzz""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -404,13 +427,15 @@ public void test0013(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -427,9 +452,10 @@ public void test0013(){
  */
 public void test0014(){
 	String str =
-		"package p;\n" +
-		"import yyy;\n" +
-		"final abst";
+		"""
+		package p;
+		import yyy;
+		final abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -439,9 +465,11 @@ public void test0014(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -458,10 +486,12 @@ public void test0014(){
  */
 public void test0015(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  abst\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  abst
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -471,12 +501,14 @@ public void test0015(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  <CompleteOnType:abst>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  <CompleteOnType:abst>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -493,10 +525,12 @@ public void test0015(){
  */
 public void test0016(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  abst zzz\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  abst zzz
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -506,12 +540,14 @@ public void test0016(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  <CompleteOnType:abst>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  <CompleteOnType:abst>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -528,10 +564,12 @@ public void test0016(){
  */
 public void test0017(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public abst zzz\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public abst zzz
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -541,12 +579,14 @@ public void test0017(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  <CompleteOnType:abst>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  <CompleteOnType:abst>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -563,10 +603,12 @@ public void test0017(){
  */
 public void test0018(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  final abst\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  final abst
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -576,12 +618,14 @@ public void test0018(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  <CompleteOnType:abst>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  <CompleteOnType:abst>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -598,10 +642,12 @@ public void test0018(){
  */
 public void test0019(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  abstract abst\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  abstract abst
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -611,12 +657,14 @@ public void test0019(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  <CompleteOnType:abst>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  <CompleteOnType:abst>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -633,10 +681,12 @@ public void test0019(){
  */
 public void test0020(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  static abst\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  static abst
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -646,14 +696,16 @@ public void test0020(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  <CompleteOnType:abst>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  <CompleteOnType:abst>;
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -670,12 +722,14 @@ public void test0020(){
  */
 public void test0021_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    abst\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    abst
+		  }
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -685,13 +739,15 @@ public void test0021_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -708,12 +764,14 @@ public void test0021_Diet(){
  */
 public void test0021_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    abst\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    abst
+		  }
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -723,14 +781,16 @@ public void test0021_Method(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:abst>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:abst>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -747,12 +807,14 @@ public void test0021_Method(){
  */
 public void test0022_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    abst zzz\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    abst zzz
+		  }
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -762,13 +824,15 @@ public void test0022_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -785,12 +849,14 @@ public void test0022_Diet(){
  */
 public void test0022_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    abst zzz\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    abst zzz
+		  }
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -800,14 +866,16 @@ public void test0022_Method(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:abst>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:abst>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -824,12 +892,14 @@ public void test0022_Method(){
  */
 public void test0023_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    bre\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    bre
+		  }
+		}
+		""";
 
 	String completeBehind = "bre";
 	int cursorLocation = str.lastIndexOf("bre") + completeBehind.length() - 1;
@@ -839,13 +909,15 @@ public void test0023_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -862,12 +934,14 @@ public void test0023_Diet(){
  */
 public void test0023_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    bre\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    bre
+		  }
+		}
+		""";
 
 	String completeBehind = "bre";
 	int cursorLocation = str.lastIndexOf("bre") + completeBehind.length() - 1;
@@ -877,14 +951,16 @@ public void test0023_Method(){
 	String completionIdentifier = "bre";
 	String expectedReplacedSource = "bre";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:bre>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:bre>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -901,14 +977,16 @@ public void test0023_Method(){
  */
 public void test0024_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    for(int i; i < 10; i++) {\n" +
-		"      bre\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    for(int i; i < 10; i++) {
+		      bre
+		    }
+		  }
+		}
+		""";
 
 	String completeBehind = "bre";
 	int cursorLocation = str.lastIndexOf("bre") + completeBehind.length() - 1;
@@ -918,13 +996,15 @@ public void test0024_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -941,14 +1021,16 @@ public void test0024_Diet(){
  */
 public void test0024_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    for(int i; i < 10; i++) {\n" +
-		"      bre\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    for(int i; i < 10; i++) {
+		      bre
+		    }
+		  }
+		}
+		""";
 
 	String completeBehind = "bre";
 	int cursorLocation = str.lastIndexOf("bre") + completeBehind.length() - 1;
@@ -958,17 +1040,19 @@ public void test0024_Method(){
 	String completionIdentifier = "bre";
 	String expectedReplacedSource = "bre";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    int i;\n" +
-			"    {\n" +
-			"      <CompleteOnName:bre>;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    int i;
+		    {
+		      <CompleteOnName:bre>;
+		    }
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -985,12 +1069,14 @@ public void test0024_Method(){
  */
 public void test0025_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    cas\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    cas
+		  }
+		}
+		""";
 
 	String completeBehind = "cas";
 	int cursorLocation = str.lastIndexOf("cas") + completeBehind.length() - 1;
@@ -1000,13 +1086,15 @@ public void test0025_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1023,12 +1111,14 @@ public void test0025_Diet(){
  */
 public void test0025_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    cas\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    cas
+		  }
+		}
+		""";
 
 	String completeBehind = "cas";
 	int cursorLocation = str.lastIndexOf("cas") + completeBehind.length() - 1;
@@ -1038,14 +1128,16 @@ public void test0025_Method(){
 	String completionIdentifier = "cas";
 	String expectedReplacedSource = "cas";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:cas>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:cas>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -1062,14 +1154,16 @@ public void test0025_Method(){
  */
 public void test0026_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    switch(0) {\n" +
-		"      cas\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    switch(0) {
+		      cas
+		    }
+		  }
+		}
+		""";
 
 	String completeBehind = "cas";
 	int cursorLocation = str.lastIndexOf("cas") + completeBehind.length() - 1;
@@ -1079,13 +1173,15 @@ public void test0026_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1102,14 +1198,16 @@ public void test0026_Diet(){
  */
 public void test0026_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    switch(0) {\n" +
-		"      cas\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    switch(0) {
+		      cas
+		    }
+		  }
+		}
+		""";
 
 	String completeBehind = "cas";
 	int cursorLocation = str.lastIndexOf("cas") + completeBehind.length() - 1;
@@ -1119,14 +1217,16 @@ public void test0026_Method(){
 	String completionIdentifier = "cas";
 	String expectedReplacedSource = "cas";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnKeyword:cas>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnKeyword:cas>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -1143,12 +1243,14 @@ public void test0026_Method(){
  */
 public void test0027_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     cat\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     cat
+		  }
+		}
+		""";
 
 	String completeBehind = "cat";
 	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
@@ -1158,13 +1260,15 @@ public void test0027_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1181,12 +1285,14 @@ public void test0027_Diet(){
  */
 public void test0027_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     cat\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     cat
+		  }
+		}
+		""";
 
 	String completeBehind = "cat";
 	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
@@ -1196,14 +1302,16 @@ public void test0027_Method(){
 	String completionIdentifier = "cat";
 	String expectedReplacedSource = "cat";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:cat>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:cat>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -1220,13 +1328,15 @@ public void test0027_Method(){
  */
 public void test0028_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    try {\n" +
-		"    } cat\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    try {
+		    } cat
+		  }
+		}
+		""";
 
 	String completeBehind = "cat";
 	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
@@ -1236,13 +1346,15 @@ public void test0028_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1259,13 +1371,15 @@ public void test0028_Diet(){
  */
 public void test0028_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    try {\n" +
-		"    } cat\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    try {
+		    } cat
+		  }
+		}
+		""";
 
 	String completeBehind = "cat";
 	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
@@ -1275,14 +1389,16 @@ public void test0028_Method(){
 	String completionIdentifier = "cat";
 	String expectedReplacedSource = "cat";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnKeyword:cat>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnKeyword:cat>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -1407,9 +1523,10 @@ public void test0032(){
  */
 public void test0033(){
 	String str =
-		"public class X {\n" +
-		"  cla\n" +
-		"}";
+		"""
+		public class X {
+		  cla
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -1419,11 +1536,13 @@ public void test0033(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:cla>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:cla>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1440,9 +1559,10 @@ public void test0033(){
  */
 public void test0034(){
 	String str =
-		"public class X {\n" +
-		"  public cla\n" +
-		"}";
+		"""
+		public class X {
+		  public cla
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -1452,11 +1572,13 @@ public void test0034(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:cla>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:cla>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1473,9 +1595,10 @@ public void test0034(){
  */
 public void test0035(){
 	String str =
-		"public class X {\n" +
-		"  public final cla\n" +
-		"}";
+		"""
+		public class X {
+		  public final cla
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -1485,11 +1608,13 @@ public void test0035(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:cla>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:cla>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1506,9 +1631,10 @@ public void test0035(){
  */
 public void test0036(){
 	String str =
-		"public class X {\n" +
-		"  public final cla Y\n" +
-		"}";
+		"""
+		public class X {
+		  public final cla Y
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -1518,11 +1644,13 @@ public void test0036(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:cla>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:cla>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1539,11 +1667,12 @@ public void test0036(){
  */
 public void test0037_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    cla\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    cla
+		  }
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -1553,12 +1682,14 @@ public void test0037_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1575,11 +1706,12 @@ public void test0037_Diet(){
  */
 public void test0037_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    cla\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    cla
+		  }
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -1589,13 +1721,15 @@ public void test0037_Method(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:cla>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:cla>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -1612,11 +1746,12 @@ public void test0037_Method(){
  */
 public void test0038_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    final cla\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    final cla
+		  }
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -1626,12 +1761,14 @@ public void test0038_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1648,11 +1785,12 @@ public void test0038_Diet(){
  */
 public void test0038_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    final cla\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    final cla
+		  }
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -1662,13 +1800,15 @@ public void test0038_Method(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:cla>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:cla>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -1685,11 +1825,12 @@ public void test0038_Method(){
  */
 public void test0039_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    final cla Y\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    final cla Y
+		  }
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -1699,12 +1840,14 @@ public void test0039_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1721,11 +1864,12 @@ public void test0039_Diet(){
  */
 public void test0039_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    final cla Y\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    final cla Y
+		  }
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -1735,13 +1879,15 @@ public void test0039_Method(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:cla>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:cla>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -1758,12 +1904,14 @@ public void test0039_Method(){
  */
 public void test0040_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     con\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     con
+		  }
+		}
+		""";
 
 	String completeBehind = "con";
 	int cursorLocation = str.lastIndexOf("con") + completeBehind.length() - 1;
@@ -1773,13 +1921,15 @@ public void test0040_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1796,12 +1946,14 @@ public void test0040_Diet(){
  */
 public void test0040_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     con\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     con
+		  }
+		}
+		""";
 
 	String completeBehind = "con";
 	int cursorLocation = str.lastIndexOf("con") + completeBehind.length() - 1;
@@ -1811,14 +1963,16 @@ public void test0040_Method(){
 	String completionIdentifier = "con";
 	String expectedReplacedSource = "con";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:con>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:con>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -1835,14 +1989,16 @@ public void test0040_Method(){
  */
 public void test0041_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     for(int i; i < 5; i++) {\n" +
-		"       con\n" +
-		"     }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     for(int i; i < 5; i++) {
+		       con
+		     }
+		  }
+		}
+		""";
 
 	String completeBehind = "con";
 	int cursorLocation = str.lastIndexOf("con") + completeBehind.length() - 1;
@@ -1852,13 +2008,15 @@ public void test0041_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1875,14 +2033,16 @@ public void test0041_Diet(){
  */
 public void test0041_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     for(int i; i < 5; i++) {\n" +
-		"       con\n" +
-		"     }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     for(int i; i < 5; i++) {
+		       con
+		     }
+		  }
+		}
+		""";
 
 	String completeBehind = "con";
 	int cursorLocation = str.lastIndexOf("con") + completeBehind.length() - 1;
@@ -1892,17 +2052,19 @@ public void test0041_Method(){
 	String completionIdentifier = "con";
 	String expectedReplacedSource = "con";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    int i;\n" +
-			"    {\n" +
-			"      <CompleteOnName:con>;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    int i;
+		    {
+		      <CompleteOnName:con>;
+		    }
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -1919,12 +2081,14 @@ public void test0041_Method(){
  */
 public void test0042_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     def\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     def
+		  }
+		}
+		""";
 
 	String completeBehind = "def";
 	int cursorLocation = str.lastIndexOf("def") + completeBehind.length() - 1;
@@ -1934,13 +2098,15 @@ public void test0042_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -1957,12 +2123,14 @@ public void test0042_Diet(){
  */
 public void test0042_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     def\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     def
+		  }
+		}
+		""";
 
 	String completeBehind = "def";
 	int cursorLocation = str.lastIndexOf("def") + completeBehind.length() - 1;
@@ -1972,14 +2140,16 @@ public void test0042_Method(){
 	String completionIdentifier = "def";
 	String expectedReplacedSource = "def";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:def>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:def>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -1996,15 +2166,17 @@ public void test0042_Method(){
  */
 public void test0043_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     switch(0) {\n" +
-		"       case 1 : break;\n" +
-		"       def\n" +
-		"     }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     switch(0) {
+		       case 1 : break;
+		       def
+		     }
+		  }
+		}
+		""";
 
 	String completeBehind = "def";
 	int cursorLocation = str.lastIndexOf("def") + completeBehind.length() - 1;
@@ -2014,13 +2186,15 @@ public void test0043_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2037,15 +2211,17 @@ public void test0043_Diet(){
  */
 public void test0043_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     switch(0) {\n" +
-		"       case 1 : break;\n" +
-		"       def\n" +
-		"     }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     switch(0) {
+		       case 1 : break;
+		       def
+		     }
+		  }
+		}
+		""";
 
 	String completeBehind = "def";
 	int cursorLocation = str.lastIndexOf("def") + completeBehind.length() - 1;
@@ -2055,16 +2231,18 @@ public void test0043_Method(){
 	String completionIdentifier = "def";
 	String expectedReplacedSource = "def";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    {\n" +
-			"      <CompleteOnName:def>;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    {
+		      <CompleteOnName:def>;
+		    }
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -2081,12 +2259,14 @@ public void test0043_Method(){
  */
 public void test0044_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     do\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     do
+		  }
+		}
+		""";
 
 	String completeBehind = "do";
 	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
@@ -2096,13 +2276,15 @@ public void test0044_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2119,12 +2301,14 @@ public void test0044_Diet(){
  */
 public void test0044_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     do\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     do
+		  }
+		}
+		""";
 
 	String completeBehind = "do";
 	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
@@ -2134,14 +2318,16 @@ public void test0044_Method(){
 	String completionIdentifier = "do";
 	String expectedReplacedSource = "do";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:do>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:do>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -2158,12 +2344,14 @@ public void test0044_Method(){
  */
 public void test0045_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     els\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     els
+		  }
+		}
+		""";
 
 	String completeBehind = "els";
 	int cursorLocation = str.lastIndexOf("els") + completeBehind.length() - 1;
@@ -2173,13 +2361,15 @@ public void test0045_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2196,12 +2386,14 @@ public void test0045_Diet(){
  */
 public void test0045_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     els\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     els
+		  }
+		}
+		""";
 
 	String completeBehind = "els";
 	int cursorLocation = str.lastIndexOf("els") + completeBehind.length() - 1;
@@ -2211,14 +2403,16 @@ public void test0045_Method(){
 	String completionIdentifier = "els";
 	String expectedReplacedSource = "els";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:els>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:els>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -2235,13 +2429,15 @@ public void test0045_Method(){
  */
 public void test0046_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     if(true) {\n" +
-		"     } els\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     if(true) {
+		     } els
+		  }
+		}
+		""";
 
 	String completeBehind = "els";
 	int cursorLocation = str.lastIndexOf("els") + completeBehind.length() - 1;
@@ -2251,13 +2447,15 @@ public void test0046_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2274,13 +2472,15 @@ public void test0046_Diet(){
  */
 public void test0046_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     if(true) {\n" +
-		"     } els\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     if(true) {
+		     } els
+		  }
+		}
+		""";
 
 	String completeBehind = "els";
 	int cursorLocation = str.lastIndexOf("els") + completeBehind.length() - 1;
@@ -2290,14 +2490,16 @@ public void test0046_Method(){
 	String completionIdentifier = "els";
 	String expectedReplacedSource = "els";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:els>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:els>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -2405,10 +2607,12 @@ public void test0050(){
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:ext> {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:ext> {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2435,10 +2639,12 @@ public void test0051(){
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:ext> {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:ext> {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2465,12 +2671,14 @@ public void test0052(){
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:ext> {\n" +
-		"  {\n" +
-		"  }\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:ext> {
+		  {
+		  }
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2497,10 +2705,12 @@ public void test0053(){
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:ext> {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:ext> {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2527,10 +2737,12 @@ public void test0054(){
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"class X implements Y {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X implements Y {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2547,12 +2759,14 @@ public void test0054(){
  */
 public void test0055_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -2562,13 +2776,15 @@ public void test0055_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2585,12 +2801,14 @@ public void test0055_Diet(){
  */
 public void test0055_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -2600,14 +2818,16 @@ public void test0055_Method(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:fin>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:fin>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -2624,13 +2844,15 @@ public void test0055_Method(){
  */
 public void test0056_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     try {" +
-		"     } fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     try {\
+		     } fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -2640,13 +2862,15 @@ public void test0056_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2663,13 +2887,15 @@ public void test0056_Diet(){
  */
 public void test0056_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     try {" +
-		"     } fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     try {\
+		     } fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -2679,14 +2905,16 @@ public void test0056_Method(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnKeyword:fin>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnKeyword:fin>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -2703,12 +2931,14 @@ public void test0056_Method(){
  */
 public void test0057_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     for" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     for\
+		  }
+		}
+		""";
 
 	String completeBehind = "for";
 	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
@@ -2718,13 +2948,15 @@ public void test0057_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2741,12 +2973,14 @@ public void test0057_Diet(){
  */
 public void test0057_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     for" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     for\
+		  }
+		}
+		""";
 
 	String completeBehind = "for";
 	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
@@ -2756,14 +2990,16 @@ public void test0057_Method(){
 	String completionIdentifier = "for";
 	String expectedReplacedSource = "for";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:for>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:for>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -2780,12 +3016,14 @@ public void test0057_Method(){
  */
 public void test0058_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     if" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     if\
+		  }
+		}
+		""";
 
 	String completeBehind = "if";
 	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
@@ -2795,13 +3033,15 @@ public void test0058_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2818,12 +3058,14 @@ public void test0058_Diet(){
  */
 public void test0058_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     if" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     if\
+		  }
+		}
+		""";
 
 	String completeBehind = "if";
 	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
@@ -2833,14 +3075,16 @@ public void test0058_Method(){
 	String completionIdentifier = "if";
 	String expectedReplacedSource = "if";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:if>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:if>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -2857,12 +3101,14 @@ public void test0058_Method(){
  */
 public void test0059_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     swi" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     swi\
+		  }
+		}
+		""";
 
 	String completeBehind = "swi";
 	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
@@ -2872,13 +3118,15 @@ public void test0059_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -2895,12 +3143,14 @@ public void test0059_Diet(){
  */
 public void test0059_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     swi" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     swi\
+		  }
+		}
+		""";
 
 	String completeBehind = "swi";
 	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
@@ -2910,14 +3160,16 @@ public void test0059_Method(){
 	String completionIdentifier = "swi";
 	String expectedReplacedSource = "swi";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:swi>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:swi>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -3025,10 +3277,12 @@ public void test0063(){
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:impl> {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:impl> {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3055,10 +3309,12 @@ public void test0064(){
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:impl> {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:impl> {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3085,12 +3341,14 @@ public void test0065(){
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:impl> {\n" +
-		"  {\n" +
-		"  }\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:impl> {
+		  {
+		  }
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3117,10 +3375,12 @@ public void test0066(){
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:impl> {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:impl> {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3147,10 +3407,12 @@ public void test0067(){
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"class X implements Y {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X implements Y {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3223,9 +3485,10 @@ public void test0069(){
  */
 public void test0070(){
 	String str =
-		"package p;\n" +
-		"import p2.Y;\n" +
-		"impo";
+		"""
+		package p;
+		import p2.Y;
+		impo""";
 
 	String completeBehind = "impo";
 	int cursorLocation = str.lastIndexOf("impo") + completeBehind.length() - 1;
@@ -3235,9 +3498,11 @@ public void test0070(){
 	String completionIdentifier = "impo";
 	String expectedReplacedSource = "impo";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import p2.Y;\n" +
-		"import <CompleteOnKeyword:impo>;\n";
+		"""
+		package p;
+		import p2.Y;
+		import <CompleteOnKeyword:impo>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3389,9 +3654,10 @@ public void test0075(){
  */
 public void test0076(){
 	String str =
-		"public class X {\n" +
-		"  int\n" +
-		"}";
+		"""
+		public class X {
+		  int
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -3401,11 +3667,13 @@ public void test0076(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:int>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:int>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3422,9 +3690,10 @@ public void test0076(){
  */
 public void test0077(){
 	String str =
-		"public class X {\n" +
-		"  public int\n" +
-		"}";
+		"""
+		public class X {
+		  public int
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -3434,11 +3703,13 @@ public void test0077(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:int>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:int>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3455,9 +3726,10 @@ public void test0077(){
  */
 public void test0078(){
 	String str =
-		"public class X {\n" +
-		"  public abstract int\n" +
-		"}";
+		"""
+		public class X {
+		  public abstract int
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -3467,11 +3739,13 @@ public void test0078(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:int>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:int>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3488,9 +3762,10 @@ public void test0078(){
  */
 public void test0079(){
 	String str =
-		"public class X {\n" +
-		"  public abstract int Y\n" +
-		"}";
+		"""
+		public class X {
+		  public abstract int Y
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -3500,11 +3775,13 @@ public void test0079(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:int>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:int>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3521,11 +3798,12 @@ public void test0079(){
  */
 public void test0080_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    int\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    int
+		  }
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -3535,12 +3813,14 @@ public void test0080_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3557,11 +3837,12 @@ public void test0080_Diet(){
  */
 public void test0080_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    int\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    int
+		  }
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -3571,13 +3852,15 @@ public void test0080_Method(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:int>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:int>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -3594,11 +3877,12 @@ public void test0080_Method(){
  */
 public void test0081_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    abstract int\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    abstract int
+		  }
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -3608,12 +3892,14 @@ public void test0081_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3630,11 +3916,12 @@ public void test0081_Diet(){
  */
 public void test0081_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    abstract int\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    abstract int
+		  }
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -3644,13 +3931,15 @@ public void test0081_Method(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:int>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:int>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -3667,11 +3956,12 @@ public void test0081_Method(){
  */
 public void test0082_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    abstract int Y\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    abstract int Y
+		  }
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -3681,12 +3971,14 @@ public void test0082_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3703,11 +3995,12 @@ public void test0082_Diet(){
  */
 public void test0082_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    abstract int Y\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    abstract int Y
+		  }
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -3717,13 +4010,15 @@ public void test0082_Method(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:int>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:int>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -3917,11 +4212,13 @@ public void test0089(){
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pac>;\n" +
-		"class X {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		import <CompleteOnKeyword:pac>;
+		class X {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3938,11 +4235,12 @@ public void test0089(){
  */
 public void test0090_Diet(){
 	String str =
-		"public class X {\n" +
-		"  int foo() {\n" +
-		"    ret\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  int foo() {
+		    ret
+		  }
+		}""";
 
 	String completeBehind = "ret";
 	int cursorLocation = str.lastIndexOf("ret") + completeBehind.length() - 1;
@@ -3952,12 +4250,14 @@ public void test0090_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  int foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  int foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -3974,11 +4274,12 @@ public void test0090_Diet(){
  */
 public void test0090_Method(){
 	String str =
-		"public class X {\n" +
-		"  int foo() {\n" +
-		"    ret\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  int foo() {
+		    ret
+		  }
+		}""";
 
 	String completeBehind = "ret";
 	int cursorLocation = str.lastIndexOf("ret") + completeBehind.length() - 1;
@@ -3988,13 +4289,15 @@ public void test0090_Method(){
 	String completionIdentifier = "ret";
 	String expectedReplacedSource = "ret";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  int foo() {\n" +
-			"    <CompleteOnName:ret>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  int foo() {
+		    <CompleteOnName:ret>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -4011,11 +4314,12 @@ public void test0090_Method(){
  */
 public void test0091_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    thr\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    thr
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -4025,12 +4329,14 @@ public void test0091_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4047,11 +4353,12 @@ public void test0091_Diet(){
  */
 public void test0091_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    thr\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    thr
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -4061,13 +4368,15 @@ public void test0091_Method(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:thr>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:thr>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -4084,11 +4393,12 @@ public void test0091_Method(){
  */
 public void test0092_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    try\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    try
+		  }
+		}""";
 
 	String completeBehind = "try";
 	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
@@ -4098,12 +4408,14 @@ public void test0092_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4120,11 +4432,12 @@ public void test0092_Diet(){
  */
 public void test0092_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    try\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    try
+		  }
+		}""";
 
 	String completeBehind = "try";
 	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
@@ -4134,13 +4447,15 @@ public void test0092_Method(){
 	String completionIdentifier = "try";
 	String expectedReplacedSource = "try";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:try>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:try>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -4157,11 +4472,12 @@ public void test0092_Method(){
  */
 public void test0093_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(try\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(try
+		  }
+		}""";
 
 	String completeBehind = "try";
 	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
@@ -4171,12 +4487,14 @@ public void test0093_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4193,11 +4511,12 @@ public void test0093_Diet(){
  */
 public void test0093_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(try\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(try
+		  }
+		}""";
 
 	String completeBehind = "try";
 	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
@@ -4207,14 +4526,16 @@ public void test0093_Method(){
 	String completionIdentifier = "try";
 	String expectedReplacedSource = "try";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:try>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:try>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -4231,11 +4552,12 @@ public void test0093_Method(){
  */
 public void test0094_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(do\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(do
+		  }
+		}""";
 
 	String completeBehind = "do";
 	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
@@ -4245,12 +4567,14 @@ public void test0094_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4267,11 +4591,12 @@ public void test0094_Diet(){
  */
 public void test0094_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(do\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(do
+		  }
+		}""";
 
 	String completeBehind = "do";
 	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
@@ -4281,14 +4606,16 @@ public void test0094_Method(){
 	String completionIdentifier = "do";
 	String expectedReplacedSource = "do";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:do>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:do>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -4305,11 +4632,12 @@ public void test0094_Method(){
  */
 public void test0095_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(for\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(for
+		  }
+		}""";
 
 	String completeBehind = "for";
 	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
@@ -4319,12 +4647,14 @@ public void test0095_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4341,11 +4671,12 @@ public void test0095_Diet(){
  */
 public void test0095_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(for\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(for
+		  }
+		}""";
 
 	String completeBehind = "for";
 	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
@@ -4355,14 +4686,16 @@ public void test0095_Method(){
 	String completionIdentifier = "for";
 	String expectedReplacedSource = "for";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:for>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:for>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -4379,11 +4712,12 @@ public void test0095_Method(){
  */
 public void test0096_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(if\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(if
+		  }
+		}""";
 
 	String completeBehind = "if";
 	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
@@ -4393,12 +4727,14 @@ public void test0096_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4415,11 +4751,12 @@ public void test0096_Diet(){
  */
 public void test0096_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(if\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(if
+		  }
+		}""";
 
 	String completeBehind = "if";
 	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
@@ -4429,14 +4766,16 @@ public void test0096_Method(){
 	String completionIdentifier = "if";
 	String expectedReplacedSource = "if";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:if>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:if>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -4453,11 +4792,12 @@ public void test0096_Method(){
  */
 public void test0097_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(swi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(swi
+		  }
+		}""";
 
 	String completeBehind = "swi";
 	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
@@ -4467,12 +4807,14 @@ public void test0097_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4489,11 +4831,12 @@ public void test0097_Diet(){
  */
 public void test0097_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(swi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(swi
+		  }
+		}""";
 
 	String completeBehind = "swi";
 	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
@@ -4503,14 +4846,16 @@ public void test0097_Method(){
 	String completionIdentifier = "swi";
 	String expectedReplacedSource = "swi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:swi>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:swi>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -4527,11 +4872,12 @@ public void test0097_Method(){
  */
 public void test0098_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    new\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    new
+		  }
+		}""";
 
 	String completeBehind = "new";
 	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
@@ -4541,12 +4887,14 @@ public void test0098_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4563,11 +4911,12 @@ public void test0098_Diet(){
  */
 public void test0098_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    new\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    new
+		  }
+		}""";
 
 	String completeBehind = "new";
 	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
@@ -4577,13 +4926,15 @@ public void test0098_Method(){
 	String completionIdentifier = "new";
 	String expectedReplacedSource = "new";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:new>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:new>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -4600,11 +4951,12 @@ public void test0098_Method(){
  */
 public void test0099_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    new X\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    new X
+		  }
+		}""";
 
 	String completeBehind = "new";
 	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
@@ -4614,12 +4966,14 @@ public void test0099_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4636,11 +4990,12 @@ public void test0099_Diet(){
  */
 public void test0099_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    new X\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    new X
+		  }
+		}""";
 
 	String completeBehind = "new";
 	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
@@ -4650,13 +5005,15 @@ public void test0099_Method(){
 	String completionIdentifier = "new";
 	String expectedReplacedSource = "new";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:new>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:new>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -4673,11 +5030,12 @@ public void test0099_Method(){
  */
 public void test0100_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    new X()\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    new X()
+		  }
+		}""";
 
 	String completeBehind = "new";
 	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
@@ -4687,12 +5045,14 @@ public void test0100_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4709,11 +5069,12 @@ public void test0100_Diet(){
  */
 public void test0100_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    new X()\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    new X()
+		  }
+		}""";
 
 	String completeBehind = "new";
 	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
@@ -4723,13 +5084,15 @@ public void test0100_Method(){
 	String completionIdentifier = "new";
 	String expectedReplacedSource = "new";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:new>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:new>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -4746,10 +5109,11 @@ public void test0100_Method(){
  */
 public void test0101(){
 	String str =
-		"public class X {\n" +
-		"  void foo() thr\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() thr
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -4759,12 +5123,14 @@ public void test0101(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() throws <CompleteOnKeyword:thr> {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() throws <CompleteOnKeyword:thr> {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4781,10 +5147,11 @@ public void test0101(){
  */
 public void test0102(){
 	String str =
-		"public class X {\n" +
-		"  void foo() thr {\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() thr {
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -4794,12 +5161,14 @@ public void test0102(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() throws <CompleteOnKeyword:thr> {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() throws <CompleteOnKeyword:thr> {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4816,10 +5185,11 @@ public void test0102(){
  */
 public void test0103(){
 	String str =
-		"public class X {\n" +
-		"  void foo() thr E {\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() thr E {
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -4829,12 +5199,14 @@ public void test0103(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() throws <CompleteOnKeyword:thr> {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() throws <CompleteOnKeyword:thr> {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4851,10 +5223,11 @@ public void test0103(){
  */
 public void test0104(){
 	String str =
-		"public class X {\n" +
-		"  void foo() throws E thr\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() throws E thr
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -4864,12 +5237,14 @@ public void test0104(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() throws E {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() throws E {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4886,10 +5261,11 @@ public void test0104(){
  */
 public void test0105(){
 	String str =
-		"public class X {\n" +
-		"  X() thr\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  X() thr
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -4899,10 +5275,12 @@ public void test0105(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  X() throws <CompleteOnKeyword:thr> {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  X() throws <CompleteOnKeyword:thr> {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4919,10 +5297,11 @@ public void test0105(){
  */
 public void test0106(){
 	String str =
-		"public class X {\n" +
-		"  int foo()[] thr\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  int foo()[] thr
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -4932,12 +5311,14 @@ public void test0106(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  int[] foo() throws <CompleteOnKeyword:thr> {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  int[] foo() throws <CompleteOnKeyword:thr> {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4954,11 +5335,12 @@ public void test0106(){
  */
 public void test0107_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    whi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    whi
+		  }
+		}""";
 
 	String completeBehind = "whi";
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
@@ -4968,12 +5350,14 @@ public void test0107_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -4990,11 +5374,12 @@ public void test0107_Diet(){
  */
 public void test0107_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    whi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    whi
+		  }
+		}""";
 
 	String completeBehind = "whi";
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
@@ -5004,13 +5389,15 @@ public void test0107_Method(){
 	String completionIdentifier = "whi";
 	String expectedReplacedSource = "whi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:whi>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:whi>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -5027,11 +5414,12 @@ public void test0107_Method(){
  */
 public void test0108_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(whi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(whi
+		  }
+		}""";
 
 	String completeBehind = "whi";
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
@@ -5041,12 +5429,14 @@ public void test0108_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5063,11 +5453,12 @@ public void test0108_Diet(){
  */
 public void test0108_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(whi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(whi
+		  }
+		}""";
 
 	String completeBehind = "whi";
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
@@ -5077,14 +5468,16 @@ public void test0108_Method(){
 	String completionIdentifier = "whi";
 	String expectedReplacedSource = "whi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:whi>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:whi>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -5101,11 +5494,12 @@ public void test0108_Method(){
  */
 public void test0109_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    ass\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    ass
+		  }
+		}""";
 
 	String completeBehind = "ass";
 	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
@@ -5115,12 +5509,14 @@ public void test0109_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5137,11 +5533,12 @@ public void test0109_Diet(){
  */
 public void test0109_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    ass\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    ass
+		  }
+		}""";
 
 	String completeBehind = "ass";
 	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
@@ -5151,13 +5548,15 @@ public void test0109_Method(){
 	String completionIdentifier = "ass";
 	String expectedReplacedSource = "ass";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:ass>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:ass>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -5174,11 +5573,12 @@ public void test0109_Method(){
  */
 public void test0110_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(ass\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(ass
+		  }
+		}""";
 
 	String completeBehind = "ass";
 	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
@@ -5188,12 +5588,14 @@ public void test0110_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5210,11 +5612,12 @@ public void test0110_Diet(){
  */
 public void test0110_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(ass\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(ass
+		  }
+		}""";
 
 	String completeBehind = "ass";
 	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
@@ -5224,14 +5627,16 @@ public void test0110_Method(){
 	String completionIdentifier = "ass";
 	String expectedReplacedSource = "ass";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:ass>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:ass>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -5393,11 +5798,13 @@ public void test0116(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:fin>;\n" +
-		"class X {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		import <CompleteOnKeyword:fin>;
+		class X {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5414,9 +5821,10 @@ public void test0116(){
  */
 public void test0117(){
 	String str =
-		"public class X {\n" +
-		"  fin\n" +
-		"}";
+		"""
+		public class X {
+		  fin
+		}""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -5426,11 +5834,13 @@ public void test0117(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:fin>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:fin>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5447,9 +5857,10 @@ public void test0117(){
  */
 public void test0118(){
 	String str =
-		"public class X {\n" +
-		"  public fin\n" +
-		"}";
+		"""
+		public class X {
+		  public fin
+		}""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -5459,11 +5870,13 @@ public void test0118(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:fin>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:fin>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5480,9 +5893,10 @@ public void test0118(){
  */
 public void test0119(){
 	String str =
-		"public class X {\n" +
-		"  fin zzz\n" +
-		"}";
+		"""
+		public class X {
+		  fin zzz
+		}""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -5492,11 +5906,13 @@ public void test0119(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:fin>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:fin>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5513,9 +5929,10 @@ public void test0119(){
  */
 public void test0120(){
 	String str =
-		"public class X {\n" +
-		"  final fin\n" +
-		"}";
+		"""
+		public class X {
+		  final fin
+		}""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -5525,11 +5942,13 @@ public void test0120(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:fin>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:fin>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5546,9 +5965,10 @@ public void test0120(){
  */
 public void test0121(){
 	String str =
-		"public class X {\n" +
-		"  abstract fin\n" +
-		"}";
+		"""
+		public class X {
+		  abstract fin
+		}""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -5558,11 +5978,13 @@ public void test0121(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:fin>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:fin>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5579,9 +6001,10 @@ public void test0121(){
  */
 public void test0122(){
 	String str =
-		"public class X {\n" +
-		"  nat\n" +
-		"}";
+		"""
+		public class X {
+		  nat
+		}""";
 
 	String completeBehind = "nat";
 	int cursorLocation = str.lastIndexOf("nat") + completeBehind.length() - 1;
@@ -5591,11 +6014,13 @@ public void test0122(){
 	String completionIdentifier = "nat";
 	String expectedReplacedSource = "nat";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:nat>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:nat>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5612,9 +6037,10 @@ public void test0122(){
  */
 public void test0123(){
 	String str =
-		"public class X {\n" +
-		"  public nat\n" +
-		"}";
+		"""
+		public class X {
+		  public nat
+		}""";
 
 	String completeBehind = "nat";
 	int cursorLocation = str.lastIndexOf("nat") + completeBehind.length() - 1;
@@ -5624,11 +6050,13 @@ public void test0123(){
 	String completionIdentifier = "nat";
 	String expectedReplacedSource = "nat";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:nat>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:nat>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5645,9 +6073,10 @@ public void test0123(){
  */
 public void test0124(){
 	String str =
-		"public class X {\n" +
-		"  transient nat\n" +
-		"}";
+		"""
+		public class X {
+		  transient nat
+		}""";
 
 	String completeBehind = "nat";
 	int cursorLocation = str.lastIndexOf("nat") + completeBehind.length() - 1;
@@ -5657,11 +6086,13 @@ public void test0124(){
 	String completionIdentifier = "nat";
 	String expectedReplacedSource = "nat";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:nat>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:nat>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5678,9 +6109,10 @@ public void test0124(){
  */
 public void test0125(){
 	String str =
-		"public class X {\n" +
-		"  transient nat\n" +
-		"}";
+		"""
+		public class X {
+		  transient nat
+		}""";
 
 	String completeBehind = "nat";
 	int cursorLocation = str.lastIndexOf("nat") + completeBehind.length() - 1;
@@ -5690,11 +6122,13 @@ public void test0125(){
 	String completionIdentifier = "nat";
 	String expectedReplacedSource = "nat";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:nat>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:nat>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5711,9 +6145,10 @@ public void test0125(){
  */
 public void test0126(){
 	String str =
-		"public class X {\n" +
-		"  volatile nat\n" +
-		"}";
+		"""
+		public class X {
+		  volatile nat
+		}""";
 
 	String completeBehind = "nat";
 	int cursorLocation = str.lastIndexOf("nat") + completeBehind.length() - 1;
@@ -5723,11 +6158,13 @@ public void test0126(){
 	String completionIdentifier = "nat";
 	String expectedReplacedSource = "nat";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:nat>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:nat>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5744,9 +6181,10 @@ public void test0126(){
  */
 public void test0127(){
 	String str =
-		"public class X {\n" +
-		"  str\n" +
-		"}";
+		"""
+		public class X {
+		  str
+		}""";
 
 	String completeBehind = "str";
 	int cursorLocation = str.lastIndexOf("str") + completeBehind.length() - 1;
@@ -5756,11 +6194,13 @@ public void test0127(){
 	String completionIdentifier = "str";
 	String expectedReplacedSource = "str";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:str>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:str>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5777,9 +6217,10 @@ public void test0127(){
  */
 public void test0128(){
 	String str =
-		"public class X {\n" +
-		"  public str\n" +
-		"}";
+		"""
+		public class X {
+		  public str
+		}""";
 
 	String completeBehind = "str";
 	int cursorLocation = str.lastIndexOf("str") + completeBehind.length() - 1;
@@ -5789,11 +6230,13 @@ public void test0128(){
 	String completionIdentifier = "str";
 	String expectedReplacedSource = "str";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:str>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:str>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5810,9 +6253,10 @@ public void test0128(){
  */
 public void test0129(){
 	String str =
-		"public class X {\n" +
-		"  transient str\n" +
-		"}";
+		"""
+		public class X {
+		  transient str
+		}""";
 
 	String completeBehind = "str";
 	int cursorLocation = str.lastIndexOf("str") + completeBehind.length() - 1;
@@ -5822,11 +6266,13 @@ public void test0129(){
 	String completionIdentifier = "str";
 	String expectedReplacedSource = "str";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:str>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:str>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5843,9 +6289,10 @@ public void test0129(){
  */
 public void test0130(){
 	String str =
-		"public class X {\n" +
-		"  transient str\n" +
-		"}";
+		"""
+		public class X {
+		  transient str
+		}""";
 
 	String completeBehind = "str";
 	int cursorLocation = str.lastIndexOf("str") + completeBehind.length() - 1;
@@ -5855,11 +6302,13 @@ public void test0130(){
 	String completionIdentifier = "str";
 	String expectedReplacedSource = "str";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:str>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:str>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5876,9 +6325,10 @@ public void test0130(){
  */
 public void test0131(){
 	String str =
-		"public class X {\n" +
-		"  volatile str\n" +
-		"}";
+		"""
+		public class X {
+		  volatile str
+		}""";
 
 	String completeBehind = "str";
 	int cursorLocation = str.lastIndexOf("str") + completeBehind.length() - 1;
@@ -5888,11 +6338,13 @@ public void test0131(){
 	String completionIdentifier = "str";
 	String expectedReplacedSource = "str";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:str>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:str>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5909,9 +6361,10 @@ public void test0131(){
  */
 public void test0132(){
 	String str =
-		"public class X {\n" +
-		"  vol\n" +
-		"}";
+		"""
+		public class X {
+		  vol
+		}""";
 
 	String completeBehind = "vol";
 	int cursorLocation = str.lastIndexOf("vol") + completeBehind.length() - 1;
@@ -5921,11 +6374,13 @@ public void test0132(){
 	String completionIdentifier = "vol";
 	String expectedReplacedSource = "vol";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:vol>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:vol>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5942,9 +6397,10 @@ public void test0132(){
  */
 public void test0133(){
 	String str =
-		"public class X {\n" +
-		"  public vol\n" +
-		"}";
+		"""
+		public class X {
+		  public vol
+		}""";
 
 	String completeBehind = "vol";
 	int cursorLocation = str.lastIndexOf("vol") + completeBehind.length() - 1;
@@ -5954,11 +6410,13 @@ public void test0133(){
 	String completionIdentifier = "vol";
 	String expectedReplacedSource = "vol";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:vol>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:vol>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -5975,9 +6433,10 @@ public void test0133(){
  */
 public void test0134(){
 	String str =
-		"public class X {\n" +
-		"  transient vol\n" +
-		"}";
+		"""
+		public class X {
+		  transient vol
+		}""";
 
 	String completeBehind = "vol";
 	int cursorLocation = str.lastIndexOf("vol") + completeBehind.length() - 1;
@@ -5987,11 +6446,13 @@ public void test0134(){
 	String completionIdentifier = "vol";
 	String expectedReplacedSource = "vol";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:vol>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:vol>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6008,9 +6469,10 @@ public void test0134(){
  */
 public void test0135(){
 	String str =
-		"public class X {\n" +
-		"  volatile vol\n" +
-		"}";
+		"""
+		public class X {
+		  volatile vol
+		}""";
 
 	String completeBehind = "vol";
 	int cursorLocation = str.lastIndexOf("vol") + completeBehind.length() - 1;
@@ -6020,11 +6482,13 @@ public void test0135(){
 	String completionIdentifier = "vol";
 	String expectedReplacedSource = "vol";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:vol>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:vol>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6041,9 +6505,10 @@ public void test0135(){
  */
 public void test0136(){
 	String str =
-		"public class X {\n" +
-		"  native vol\n" +
-		"}";
+		"""
+		public class X {
+		  native vol
+		}""";
 
 	String completeBehind = "vol";
 	int cursorLocation = str.lastIndexOf("vol") + completeBehind.length() - 1;
@@ -6053,11 +6518,13 @@ public void test0136(){
 	String completionIdentifier = "vol";
 	String expectedReplacedSource = "vol";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:vol>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:vol>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6074,9 +6541,10 @@ public void test0136(){
  */
 public void test0137(){
 	String str =
-		"public class X {\n" +
-		"  tra\n" +
-		"}";
+		"""
+		public class X {
+		  tra
+		}""";
 
 	String completeBehind = "tra";
 	int cursorLocation = str.lastIndexOf("tra") + completeBehind.length() - 1;
@@ -6086,11 +6554,13 @@ public void test0137(){
 	String completionIdentifier = "tra";
 	String expectedReplacedSource = "tra";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:tra>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:tra>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6107,9 +6577,10 @@ public void test0137(){
  */
 public void test0138(){
 	String str =
-		"public class X {\n" +
-		"  public tra\n" +
-		"}";
+		"""
+		public class X {
+		  public tra
+		}""";
 
 	String completeBehind = "tra";
 	int cursorLocation = str.lastIndexOf("tra") + completeBehind.length() - 1;
@@ -6119,11 +6590,13 @@ public void test0138(){
 	String completionIdentifier = "tra";
 	String expectedReplacedSource = "tra";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:tra>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:tra>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6140,9 +6613,10 @@ public void test0138(){
  */
 public void test0139(){
 	String str =
-		"public class X {\n" +
-		"  transient tra\n" +
-		"}";
+		"""
+		public class X {
+		  transient tra
+		}""";
 
 	String completeBehind = "tra";
 	int cursorLocation = str.lastIndexOf("tra") + completeBehind.length() - 1;
@@ -6152,11 +6626,13 @@ public void test0139(){
 	String completionIdentifier = "tra";
 	String expectedReplacedSource = "tra";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:tra>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:tra>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6173,9 +6649,10 @@ public void test0139(){
  */
 public void test0140(){
 	String str =
-		"public class X {\n" +
-		"  volatile tra\n" +
-		"}";
+		"""
+		public class X {
+		  volatile tra
+		}""";
 
 	String completeBehind = "tra";
 	int cursorLocation = str.lastIndexOf("tra") + completeBehind.length() - 1;
@@ -6185,11 +6662,13 @@ public void test0140(){
 	String completionIdentifier = "tra";
 	String expectedReplacedSource = "tra";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:tra>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:tra>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6206,9 +6685,10 @@ public void test0140(){
  */
 public void test0141(){
 	String str =
-		"public class X {\n" +
-		"  native tra\n" +
-		"}";
+		"""
+		public class X {
+		  native tra
+		}""";
 
 	String completeBehind = "tra";
 	int cursorLocation = str.lastIndexOf("tra") + completeBehind.length() - 1;
@@ -6218,11 +6698,13 @@ public void test0141(){
 	String completionIdentifier = "tra";
 	String expectedReplacedSource = "tra";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:tra>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:tra>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6239,9 +6721,10 @@ public void test0141(){
  */
 public void test0142(){
 	String str =
-		"public class X {\n" +
-		"  syn\n" +
-		"}";
+		"""
+		public class X {
+		  syn
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -6251,11 +6734,13 @@ public void test0142(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:syn>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:syn>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6272,9 +6757,10 @@ public void test0142(){
  */
 public void test0143(){
 	String str =
-		"public class X {\n" +
-		"  public syn\n" +
-		"}";
+		"""
+		public class X {
+		  public syn
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -6284,11 +6770,13 @@ public void test0143(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:syn>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:syn>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6305,9 +6793,10 @@ public void test0143(){
  */
 public void test0144(){
 	String str =
-		"public class X {\n" +
-		"  transient syn\n" +
-		"}";
+		"""
+		public class X {
+		  transient syn
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -6317,11 +6806,13 @@ public void test0144(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:syn>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:syn>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6338,9 +6829,10 @@ public void test0144(){
  */
 public void test0145(){
 	String str =
-		"public class X {\n" +
-		"  transient syn\n" +
-		"}";
+		"""
+		public class X {
+		  transient syn
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -6350,11 +6842,13 @@ public void test0145(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:syn>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:syn>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6371,9 +6865,10 @@ public void test0145(){
  */
 public void test0146(){
 	String str =
-		"public class X {\n" +
-		"  volatile syn\n" +
-		"}";
+		"""
+		public class X {
+		  volatile syn
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -6383,11 +6878,13 @@ public void test0146(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:syn>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:syn>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6404,11 +6901,12 @@ public void test0146(){
  */
 public void test0147_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    syn\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    syn
+		  }
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -6418,12 +6916,14 @@ public void test0147_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6440,11 +6940,12 @@ public void test0147_Diet(){
  */
 public void test0147_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    syn\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    syn
+		  }
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -6454,13 +6955,15 @@ public void test0147_Method(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:syn>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:syn>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -6477,11 +6980,12 @@ public void test0147_Method(){
  */
 public void test0148_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(syn\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(syn
+		  }
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -6491,12 +6995,14 @@ public void test0148_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6513,11 +7019,12 @@ public void test0148_Diet(){
  */
 public void test0148_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    if(syn\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    if(syn
+		  }
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -6527,13 +7034,16 @@ public void test0148_Method(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:syn>)\n        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:syn>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -6550,9 +7060,10 @@ public void test0148_Method(){
  */
 public void test0149(){
 	String str =
-		"public class X {\n" +
-		"  sta\n" +
-		"}";
+		"""
+		public class X {
+		  sta
+		}""";
 
 	String completeBehind = "sta";
 	int cursorLocation = str.lastIndexOf("sta") + completeBehind.length() - 1;
@@ -6562,11 +7073,13 @@ public void test0149(){
 	String completionIdentifier = "sta";
 	String expectedReplacedSource = "sta";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:sta>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:sta>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6583,9 +7096,10 @@ public void test0149(){
  */
 public void test0150(){
 	String str =
-		"public class X {\n" +
-		"  public sta\n" +
-		"}";
+		"""
+		public class X {
+		  public sta
+		}""";
 
 	String completeBehind = "sta";
 	int cursorLocation = str.lastIndexOf("sta") + completeBehind.length() - 1;
@@ -6595,11 +7109,13 @@ public void test0150(){
 	String completionIdentifier = "sta";
 	String expectedReplacedSource = "sta";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:sta>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:sta>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6735,11 +7251,13 @@ public void test0155(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pub>;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		import <CompleteOnKeyword:pub>;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6756,9 +7274,10 @@ public void test0155(){
  */
 public void test0156(){
 	String str =
-		"public class X{\n" +
-		"  pub\n" +
-		"}";
+		"""
+		public class X{
+		  pub
+		}""";
 
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
@@ -6768,11 +7287,13 @@ public void test0156(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pub>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pub>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6789,9 +7310,10 @@ public void test0156(){
  */
 public void test0157(){
 	String str =
-		"public class X{\n" +
-		"  public pub\n" +
-		"}";
+		"""
+		public class X{
+		  public pub
+		}""";
 
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
@@ -6801,11 +7323,13 @@ public void test0157(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pub>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pub>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6822,9 +7346,10 @@ public void test0157(){
  */
 public void test0158(){
 	String str =
-		"public class X{\n" +
-		"  private pub\n" +
-		"}";
+		"""
+		public class X{
+		  private pub
+		}""";
 
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
@@ -6834,11 +7359,13 @@ public void test0158(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pub>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pub>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6855,9 +7382,10 @@ public void test0158(){
  */
 public void test0159(){
 	String str =
-		"public class X{\n" +
-		"  protected pub\n" +
-		"}";
+		"""
+		public class X{
+		  protected pub
+		}""";
 
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
@@ -6867,11 +7395,13 @@ public void test0159(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pub>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pub>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -6888,9 +7418,10 @@ public void test0159(){
  */
 public void test0160(){
 	String str =
-		"public class X{\n" +
-		"  abstract pub\n" +
-		"}";
+		"""
+		public class X{
+		  abstract pub
+		}""";
 
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
@@ -6900,11 +7431,13 @@ public void test0160(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pub>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pub>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7040,11 +7573,13 @@ public void test0165(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pro>;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		import <CompleteOnKeyword:pro>;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7061,9 +7596,10 @@ public void test0165(){
  */
 public void test0166(){
 	String str =
-		"public class X{\n" +
-		"  pro\n" +
-		"}";
+		"""
+		public class X{
+		  pro
+		}""";
 
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
@@ -7073,11 +7609,13 @@ public void test0166(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pro>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pro>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7094,9 +7632,10 @@ public void test0166(){
  */
 public void test0167(){
 	String str =
-		"public class X{\n" +
-		"  public pro\n" +
-		"}";
+		"""
+		public class X{
+		  public pro
+		}""";
 
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
@@ -7106,11 +7645,13 @@ public void test0167(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pro>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pro>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7127,9 +7668,10 @@ public void test0167(){
  */
 public void test0168(){
 	String str =
-		"public class X{\n" +
-		"  private pro\n" +
-		"}";
+		"""
+		public class X{
+		  private pro
+		}""";
 
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
@@ -7139,11 +7681,13 @@ public void test0168(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pro>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pro>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7160,9 +7704,10 @@ public void test0168(){
  */
 public void test0169(){
 	String str =
-		"public class X{\n" +
-		"  protected pro\n" +
-		"}";
+		"""
+		public class X{
+		  protected pro
+		}""";
 
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
@@ -7172,11 +7717,13 @@ public void test0169(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pro>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pro>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7193,9 +7740,10 @@ public void test0169(){
  */
 public void test0170(){
 	String str =
-		"public class X{\n" +
-		"  abstract pro\n" +
-		"}";
+		"""
+		public class X{
+		  abstract pro
+		}""";
 
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
@@ -7205,11 +7753,13 @@ public void test0170(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pro>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pro>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7345,11 +7895,13 @@ public void test0175(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pri>;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		import <CompleteOnKeyword:pri>;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7366,9 +7918,10 @@ public void test0175(){
  */
 public void test0176(){
 	String str =
-		"public class X{\n" +
-		"  pri\n" +
-		"}";
+		"""
+		public class X{
+		  pri
+		}""";
 
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
@@ -7378,11 +7931,13 @@ public void test0176(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pri>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pri>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7399,9 +7954,10 @@ public void test0176(){
  */
 public void test0177(){
 	String str =
-		"public class X{\n" +
-		"  public pri\n" +
-		"}";
+		"""
+		public class X{
+		  public pri
+		}""";
 
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
@@ -7411,11 +7967,13 @@ public void test0177(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pri>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pri>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7432,9 +7990,10 @@ public void test0177(){
  */
 public void test0178(){
 	String str =
-		"public class X{\n" +
-		"  private pri\n" +
-		"}";
+		"""
+		public class X{
+		  private pri
+		}""";
 
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
@@ -7444,11 +8003,13 @@ public void test0178(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pri>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pri>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7465,9 +8026,10 @@ public void test0178(){
  */
 public void test0179(){
 	String str =
-		"public class X{\n" +
-		"  protected pri\n" +
-		"}";
+		"""
+		public class X{
+		  protected pri
+		}""";
 
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
@@ -7477,11 +8039,13 @@ public void test0179(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pri>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pri>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7498,9 +8062,10 @@ public void test0179(){
  */
 public void test0180(){
 	String str =
-		"public class X{\n" +
-		"  abstract pri\n" +
-		"}";
+		"""
+		public class X{
+		  abstract pri
+		}""";
 
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
@@ -7510,11 +8075,13 @@ public void test0180(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pri>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pri>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7531,11 +8098,13 @@ public void test0180(){
  */
 public void test0181_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     sup\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     sup
+		  }
+		}
+		""";
 
 	String completeBehind = "sup";
 	int cursorLocation = str.lastIndexOf("sup") + completeBehind.length() - 1;
@@ -7545,12 +8114,14 @@ public void test0181_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7567,11 +8138,13 @@ public void test0181_Diet(){
  */
 public void test0181_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     sup\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     sup
+		  }
+		}
+		""";
 
 	String completeBehind = "sup";
 	int cursorLocation = str.lastIndexOf("sup") + completeBehind.length() - 1;
@@ -7581,13 +8154,15 @@ public void test0181_Method(){
 	String completionIdentifier = "sup";
 	String expectedReplacedSource = "sup";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:sup>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:sup>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7604,11 +8179,13 @@ public void test0181_Method(){
  */
 public void test0182_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     thi\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     thi
+		  }
+		}
+		""";
 
 	String completeBehind = "thi";
 	int cursorLocation = str.lastIndexOf("thi") + completeBehind.length() - 1;
@@ -7618,12 +8195,14 @@ public void test0182_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7640,11 +8219,13 @@ public void test0182_Diet(){
  */
 public void test0182_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     thi\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     thi
+		  }
+		}
+		""";
 
 	String completeBehind = "thi";
 	int cursorLocation = str.lastIndexOf("thi") + completeBehind.length() - 1;
@@ -7654,13 +8235,15 @@ public void test0182_Method(){
 	String completionIdentifier = "thi";
 	String expectedReplacedSource = "thi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:thi>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:thi>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7677,11 +8260,13 @@ public void test0182_Method(){
  */
 public void test0183_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     tru\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     tru
+		  }
+		}
+		""";
 
 	String completeBehind = "tru";
 	int cursorLocation = str.lastIndexOf("tru") + completeBehind.length() - 1;
@@ -7691,12 +8276,14 @@ public void test0183_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7713,11 +8300,13 @@ public void test0183_Diet(){
  */
 public void test0183_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     tru\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     tru
+		  }
+		}
+		""";
 
 	String completeBehind = "tru";
 	int cursorLocation = str.lastIndexOf("tru") + completeBehind.length() - 1;
@@ -7727,13 +8316,15 @@ public void test0183_Method(){
 	String completionIdentifier = "tru";
 	String expectedReplacedSource = "tru";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:tru>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:tru>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7750,11 +8341,13 @@ public void test0183_Method(){
  */
 public void test0184_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     fal\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     fal
+		  }
+		}
+		""";
 
 	String completeBehind = "fal";
 	int cursorLocation = str.lastIndexOf("fal") + completeBehind.length() - 1;
@@ -7764,12 +8357,14 @@ public void test0184_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7786,11 +8381,13 @@ public void test0184_Diet(){
  */
 public void test0184_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     fal\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     fal
+		  }
+		}
+		""";
 
 	String completeBehind = "fal";
 	int cursorLocation = str.lastIndexOf("fal") + completeBehind.length() - 1;
@@ -7800,13 +8397,15 @@ public void test0184_Method(){
 	String completionIdentifier = "fal";
 	String expectedReplacedSource = "fal";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:fal>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:fal>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7823,11 +8422,13 @@ public void test0184_Method(){
  */
 public void test0185_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     nul\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     nul
+		  }
+		}
+		""";
 
 	String completeBehind = "nul";
 	int cursorLocation = str.lastIndexOf("nul") + completeBehind.length() - 1;
@@ -7837,12 +8438,14 @@ public void test0185_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7859,11 +8462,13 @@ public void test0185_Diet(){
  */
 public void test0185_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     nul\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     nul
+		  }
+		}
+		""";
 
 	String completeBehind = "nul";
 	int cursorLocation = str.lastIndexOf("nul") + completeBehind.length() - 1;
@@ -7873,13 +8478,15 @@ public void test0185_Method(){
 	String completionIdentifier = "nul";
 	String expectedReplacedSource = "nul";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:nul>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:nul>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7896,11 +8503,13 @@ public void test0185_Method(){
  */
 public void test0186_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     if(zzz ins\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     if(zzz ins
+		  }
+		}
+		""";
 
 	String completeBehind = "ins";
 	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
@@ -7910,12 +8519,14 @@ public void test0186_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -7932,11 +8543,13 @@ public void test0186_Diet(){
  */
 public void test0186_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     if(zzz ins\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     if(zzz ins
+		  }
+		}
+		""";
 
 	String completeBehind = "ins";
 	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
@@ -7946,13 +8559,15 @@ public void test0186_Method(){
 	String completionIdentifier = "ins";
 	String expectedReplacedSource = "ins";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnKeyword:ins>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnKeyword:ins>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7969,11 +8584,13 @@ public void test0186_Method(){
  */
 public void test0187_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     ins\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     ins
+		  }
+		}
+		""";
 
 	String completeBehind = "ins";
 	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
@@ -7983,12 +8600,14 @@ public void test0187_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8005,11 +8624,13 @@ public void test0187_Diet(){
  */
 public void test0187_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     ins\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     ins
+		  }
+		}
+		""";
 
 	String completeBehind = "ins";
 	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
@@ -8019,13 +8640,15 @@ public void test0187_Method(){
 	String completionIdentifier = "ins";
 	String expectedReplacedSource = "ins";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:ins>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:ins>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -8042,11 +8665,13 @@ public void test0187_Method(){
  */
 public void test0188_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     if(zzz zzz ins\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     if(zzz zzz ins
+		  }
+		}
+		""";
 
 	String completeBehind = "ins";
 	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
@@ -8056,12 +8681,14 @@ public void test0188_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8078,11 +8705,13 @@ public void test0188_Diet(){
  */
 public void test0188_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     if(zzz zzz ins\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     if(zzz zzz ins
+		  }
+		}
+		""";
 
 	String completeBehind = "ins";
 	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
@@ -8092,14 +8721,16 @@ public void test0188_Method(){
 	String completionIdentifier = "ins";
 	String expectedReplacedSource = "ins";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    zzz zzz;\n" +
-			"    <CompleteOnName:ins>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    zzz zzz;
+		    <CompleteOnName:ins>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -8116,12 +8747,13 @@ public void test0188_Method(){
  */
 public void test0189_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    do{\n" +
-		"    } whi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    do{
+		    } whi
+		  }
+		}""";
 
 	String completeBehind = "whi";
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
@@ -8131,12 +8763,14 @@ public void test0189_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8153,12 +8787,13 @@ public void test0189_Diet(){
  */
 public void test0189_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    do{\n" +
-		"    } whi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    do{
+		    } whi
+		  }
+		}""";
 
 	String completeBehind = "whi";
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
@@ -8168,13 +8803,15 @@ public void test0189_Method(){
 	String completionIdentifier = "whi";
 	String expectedReplacedSource = "whi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnKeyword:whi>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnKeyword:whi>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -8191,14 +8828,16 @@ public void test0189_Method(){
  */
 public void test0190_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    try {\n" +
-		"    } catch(E e) {\n" +
-		"    } cat\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    try {
+		    } catch(E e) {
+		    } cat
+		  }
+		}
+		""";
 
 	String completeBehind = "cat";
 	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
@@ -8208,13 +8847,15 @@ public void test0190_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8231,14 +8872,16 @@ public void test0190_Diet(){
  */
 public void test0190_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    try {\n" +
-		"    } catch(E e) {\n" +
-		"    } cat\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    try {
+		    } catch(E e) {
+		    } cat
+		  }
+		}
+		""";
 
 	String completeBehind = "cat";
 	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
@@ -8248,14 +8891,16 @@ public void test0190_Method(){
 	String completionIdentifier = "cat";
 	String expectedReplacedSource = "cat";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:cat>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:cat>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -8272,14 +8917,16 @@ public void test0190_Method(){
  */
 public void test0191_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     try {" +
-		"     } catch(E e) {" +
-		"     } fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     try {\
+		     } catch(E e) {\
+		     } fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -8289,13 +8936,15 @@ public void test0191_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8312,14 +8961,16 @@ public void test0191_Diet(){
  */
 public void test0191_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     try {" +
-		"     } catch(E e) {" +
-		"     } fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     try {\
+		     } catch(E e) {\
+		     } fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -8329,14 +8980,16 @@ public void test0191_Method(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:fin>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:fin>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -8353,14 +9006,16 @@ public void test0191_Method(){
  */
 public void test0192_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     try {" +
-		"     } finally {" +
-		"     } fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     try {\
+		     } finally {\
+		     } fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -8370,13 +9025,15 @@ public void test0192_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8393,14 +9050,16 @@ public void test0192_Diet(){
  */
 public void test0192_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     try {" +
-		"     } finally {" +
-		"     } fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		     try {\
+		     } finally {\
+		     } fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -8410,14 +9069,16 @@ public void test0192_Method(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:fin>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:fin>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -8434,11 +9095,13 @@ public void test0192_Method(){
  */
 public void test0193_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     X.thi\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     X.thi
+		  }
+		}
+		""";
 
 	String completeBehind = "thi";
 	int cursorLocation = str.lastIndexOf("thi") + completeBehind.length() - 1;
@@ -8448,12 +9111,14 @@ public void test0193_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8470,11 +9135,13 @@ public void test0193_Diet(){
  */
 public void test0193_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"     X.thi\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		     X.thi
+		  }
+		}
+		""";
 
 	String completeBehind = "thi";
 	int cursorLocation = str.lastIndexOf("thi") + completeBehind.length() - 1;
@@ -8484,13 +9151,15 @@ public void test0193_Method(){
 	String completionIdentifier = "thi";
 	String expectedReplacedSource = "X.thi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:X.thi>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:X.thi>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -8590,9 +9259,10 @@ public void test0195(){
  */
 public void test0196(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"abst";
+		"""
+		#
+		package p;
+		abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.indexOf("abst") + completeBehind.length() - 1;
@@ -8620,9 +9290,10 @@ public void test0196(){
  */
 public void test0197(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"abst zzz";
+		"""
+		#
+		package p;
+		abst zzz""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.indexOf("abst") + completeBehind.length() - 1;
@@ -8650,10 +9321,11 @@ public void test0197(){
  */
 public void test0198(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"import yyy;\n" +
-		"abst";
+		"""
+		#
+		package p;
+		import yyy;
+		abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.indexOf("abst") + completeBehind.length() - 1;
@@ -8663,9 +9335,11 @@ public void test0198(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8682,10 +9356,11 @@ public void test0198(){
  */
 public void test0199(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"import yyy;\n" +
-		"abst zzz";
+		"""
+		#
+		package p;
+		import yyy;
+		abst zzz""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.indexOf("abst") + completeBehind.length() - 1;
@@ -8695,9 +9370,11 @@ public void test0199(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8714,10 +9391,11 @@ public void test0199(){
  */
 public void test0200(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"import yyy;\n" +
-		"public abst";
+		"""
+		#
+		package p;
+		import yyy;
+		public abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.indexOf("abst") + completeBehind.length() - 1;
@@ -8727,9 +9405,11 @@ public void test0200(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8746,10 +9426,11 @@ public void test0200(){
  */
 public void test0201(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"import yyy;\n" +
-		"public abst zzz";
+		"""
+		#
+		package p;
+		import yyy;
+		public abst zzz""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.indexOf("abst") + completeBehind.length() - 1;
@@ -8759,9 +9440,11 @@ public void test0201(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8778,10 +9461,11 @@ public void test0201(){
  */
 public void test0202(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"import yyy;\n" +
-		"abstract abst";
+		"""
+		#
+		package p;
+		import yyy;
+		abstract abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -8791,9 +9475,11 @@ public void test0202(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8810,10 +9496,11 @@ public void test0202(){
  */
 public void test0203(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"import yyy;\n" +
-		"abstract abst zzz";
+		"""
+		#
+		package p;
+		import yyy;
+		abstract abst zzz""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -8823,9 +9510,11 @@ public void test0203(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8842,10 +9531,11 @@ public void test0203(){
  */
 public void test0204(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"import \n" +
-		"abst";
+		"""
+		#
+		package p;
+		import\s
+		abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -8873,11 +9563,12 @@ public void test0204(){
  */
 public void test0205(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"import yyy;\n" +
-		"public class X {}\n" +
-		"abst";
+		"""
+		#
+		package p;
+		import yyy;
+		public class X {}
+		abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -8887,13 +9578,15 @@ public void test0205(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8910,11 +9603,12 @@ public void test0205(){
  */
 public void test0206(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"import yyy;\n" +
-		"public class X {}\n" +
-		"abst zzz";
+		"""
+		#
+		package p;
+		import yyy;
+		public class X {}
+		abst zzz""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -8924,13 +9618,15 @@ public void test0206(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8947,10 +9643,11 @@ public void test0206(){
  */
 public void test0207(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"import yyy;\n" +
-		"final abst";
+		"""
+		#
+		package p;
+		import yyy;
+		final abst""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -8960,9 +9657,11 @@ public void test0207(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import yyy;\n" +
-		"import <CompleteOnKeyword:abst>;\n";
+		"""
+		package p;
+		import yyy;
+		import <CompleteOnKeyword:abst>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -8979,11 +9678,13 @@ public void test0207(){
  */
 public void test0208(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"public class X {\n" +
-		"  abst\n" +
-		"}\n";
+		"""
+		#
+		package p;
+		public class X {
+		  abst
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -8993,12 +9694,14 @@ public void test0208(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  <CompleteOnType:abst>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  <CompleteOnType:abst>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9015,11 +9718,13 @@ public void test0208(){
  */
 public void test0209(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"public class X {\n" +
-		"  abst zzz\n" +
-		"}\n";
+		"""
+		#
+		package p;
+		public class X {
+		  abst zzz
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -9029,12 +9734,14 @@ public void test0209(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  <CompleteOnType:abst>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  <CompleteOnType:abst>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9051,11 +9758,13 @@ public void test0209(){
  */
 public void test0210(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"public class X {\n" +
-		"  public abst zzz\n" +
-		"}\n";
+		"""
+		#
+		package p;
+		public class X {
+		  public abst zzz
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -9065,12 +9774,14 @@ public void test0210(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  <CompleteOnType:abst>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  <CompleteOnType:abst>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9087,11 +9798,13 @@ public void test0210(){
  */
 public void test0211(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"public class X {\n" +
-		"  final abst\n" +
-		"}\n";
+		"""
+		#
+		package p;
+		public class X {
+		  final abst
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -9101,12 +9814,14 @@ public void test0211(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  <CompleteOnType:abst>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  <CompleteOnType:abst>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9123,11 +9838,13 @@ public void test0211(){
  */
 public void test0212(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"public class X {\n" +
-		"  abstract abst\n" +
-		"}\n";
+		"""
+		#
+		package p;
+		public class X {
+		  abstract abst
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -9137,12 +9854,14 @@ public void test0212(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  <CompleteOnType:abst>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  <CompleteOnType:abst>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9159,11 +9878,13 @@ public void test0212(){
  */
 public void test0213(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"public class X {\n" +
-		"  static abst\n" +
-		"}\n";
+		"""
+		#
+		package p;
+		public class X {
+		  static abst
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -9173,14 +9894,16 @@ public void test0213(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  <CompleteOnType:abst>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  <CompleteOnType:abst>;
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9197,13 +9920,15 @@ public void test0213(){
  */
 public void test0214_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    abst\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    abst
+		  }
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -9213,13 +9938,15 @@ public void test0214_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9236,13 +9963,15 @@ public void test0214_Diet(){
  */
 public void test0214_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    abst\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    abst
+		  }
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -9252,14 +9981,16 @@ public void test0214_Method(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:abst>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:abst>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -9276,13 +10007,15 @@ public void test0214_Method(){
  */
 public void test0216_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    abst zzz\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    abst zzz
+		  }
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -9292,13 +10025,15 @@ public void test0216_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9315,13 +10050,15 @@ public void test0216_Diet(){
  */
 public void test0216_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    abst zzz\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    abst zzz
+		  }
+		}
+		""";
 
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
@@ -9331,14 +10068,16 @@ public void test0216_Method(){
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:abst>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:abst>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -9355,13 +10094,15 @@ public void test0216_Method(){
  */
 public void test0217_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    bre\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    bre
+		  }
+		}
+		""";
 
 	String completeBehind = "bre";
 	int cursorLocation = str.lastIndexOf("bre") + completeBehind.length() - 1;
@@ -9371,13 +10112,15 @@ public void test0217_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9394,13 +10137,15 @@ public void test0217_Diet(){
  */
 public void test0217_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    bre\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    bre
+		  }
+		}
+		""";
 
 	String completeBehind = "bre";
 	int cursorLocation = str.lastIndexOf("bre") + completeBehind.length() - 1;
@@ -9410,14 +10155,16 @@ public void test0217_Method(){
 	String completionIdentifier = "bre";
 	String expectedReplacedSource = "bre";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:bre>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:bre>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -9434,15 +10181,17 @@ public void test0217_Method(){
  */
 public void test0218_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    for(int i; i < 10; i++) {\n" +
-		"      bre\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    for(int i; i < 10; i++) {
+		      bre
+		    }
+		  }
+		}
+		""";
 
 	String completeBehind = "bre";
 	int cursorLocation = str.lastIndexOf("bre") + completeBehind.length() - 1;
@@ -9452,13 +10201,15 @@ public void test0218_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9475,15 +10226,17 @@ public void test0218_Diet(){
  */
 public void test0218_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    for(int i; i < 10; i++) {\n" +
-		"      bre\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    for(int i; i < 10; i++) {
+		      bre
+		    }
+		  }
+		}
+		""";
 
 	String completeBehind = "bre";
 	int cursorLocation = str.lastIndexOf("bre") + completeBehind.length() - 1;
@@ -9493,17 +10246,19 @@ public void test0218_Method(){
 	String completionIdentifier = "bre";
 	String expectedReplacedSource = "bre";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    int i;\n" +
-			"    {\n" +
-			"      <CompleteOnName:bre>;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    int i;
+		    {
+		      <CompleteOnName:bre>;
+		    }
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -9520,13 +10275,15 @@ public void test0218_Method(){
  */
 public void test0219_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    cas\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    cas
+		  }
+		}
+		""";
 
 	String completeBehind = "cas";
 	int cursorLocation = str.lastIndexOf("cas") + completeBehind.length() - 1;
@@ -9536,13 +10293,15 @@ public void test0219_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9559,13 +10318,15 @@ public void test0219_Diet(){
  */
 public void test0219_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    cas\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    cas
+		  }
+		}
+		""";
 
 	String completeBehind = "cas";
 	int cursorLocation = str.lastIndexOf("cas") + completeBehind.length() - 1;
@@ -9575,14 +10336,16 @@ public void test0219_Method(){
 	String completionIdentifier = "cas";
 	String expectedReplacedSource = "cas";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:cas>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:cas>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -9599,15 +10362,17 @@ public void test0219_Method(){
  */
 public void test0220_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    switch(0) {\n" +
-		"      cas\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    switch(0) {
+		      cas
+		    }
+		  }
+		}
+		""";
 
 	String completeBehind = "cas";
 	int cursorLocation = str.lastIndexOf("cas") + completeBehind.length() - 1;
@@ -9617,13 +10382,15 @@ public void test0220_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9640,15 +10407,17 @@ public void test0220_Diet(){
  */
 public void test0220_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    switch(0) {\n" +
-		"      cas\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    switch(0) {
+		      cas
+		    }
+		  }
+		}
+		""";
 
 	String completeBehind = "cas";
 	int cursorLocation = str.lastIndexOf("cas") + completeBehind.length() - 1;
@@ -9658,16 +10427,18 @@ public void test0220_Method(){
 	String completionIdentifier = "cas";
 	String expectedReplacedSource = "cas";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    {\n" +
-			"      <CompleteOnKeyword:cas>;\n" +
-			"    }\n"+
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    {
+		      <CompleteOnKeyword:cas>;
+		    }
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -9684,13 +10455,15 @@ public void test0220_Method(){
  */
 public void test0221_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    cat\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    cat
+		  }
+		}
+		""";
 
 	String completeBehind = "cat";
 	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
@@ -9700,13 +10473,15 @@ public void test0221_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9723,13 +10498,15 @@ public void test0221_Diet(){
  */
 public void test0221_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    cat\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    cat
+		  }
+		}
+		""";
 
 	String completeBehind = "cat";
 	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
@@ -9739,14 +10516,16 @@ public void test0221_Method(){
 	String completionIdentifier = "cat";
 	String expectedReplacedSource = "cat";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:cat>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:cat>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -9763,14 +10542,16 @@ public void test0221_Method(){
  */
 public void test0222_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    try {\n" +
-		"    } cat\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    try {
+		    } cat
+		  }
+		}
+		""";
 
 	String completeBehind = "cat";
 	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
@@ -9780,13 +10561,15 @@ public void test0222_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9803,14 +10586,16 @@ public void test0222_Diet(){
  */
 public void test0222_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    try {\n" +
-		"    } cat\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    try {
+		    } cat
+		  }
+		}
+		""";
 
 	String completeBehind = "cat";
 	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
@@ -9820,14 +10605,16 @@ public void test0222_Method(){
 	String completionIdentifier = "cat";
 	String expectedReplacedSource = "cat";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnKeyword:cat>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnKeyword:cat>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -9956,10 +10743,11 @@ public void test0226(){
  */
 public void test0227(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  cla\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  cla
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -9969,11 +10757,13 @@ public void test0227(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:cla>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:cla>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -9990,10 +10780,11 @@ public void test0227(){
  */
 public void test0228(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public cla\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public cla
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -10003,11 +10794,13 @@ public void test0228(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:cla>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:cla>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10024,10 +10817,11 @@ public void test0228(){
  */
 public void test0229(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public final cla\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public final cla
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -10037,11 +10831,13 @@ public void test0229(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:cla>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:cla>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10058,10 +10854,11 @@ public void test0229(){
  */
 public void test0230(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public final cla Y\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public final cla Y
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -10071,11 +10868,13 @@ public void test0230(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:cla>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:cla>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10092,12 +10891,13 @@ public void test0230(){
  */
 public void test0231_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    cla\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    cla
+		  }
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -10107,12 +10907,14 @@ public void test0231_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10129,12 +10931,13 @@ public void test0231_Diet(){
  */
 public void test0231_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    cla\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    cla
+		  }
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -10144,13 +10947,15 @@ public void test0231_Method(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:cla>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:cla>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -10167,12 +10972,13 @@ public void test0231_Method(){
  */
 public void test0232_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    final cla\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    final cla
+		  }
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -10182,12 +10988,14 @@ public void test0232_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10204,12 +11012,13 @@ public void test0232_Diet(){
  */
 public void test0232_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    final cla\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    final cla
+		  }
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -10219,13 +11028,15 @@ public void test0232_Method(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:cla>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:cla>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -10242,12 +11053,13 @@ public void test0232_Method(){
  */
 public void test0233_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    final cla Y\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    final cla Y
+		  }
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -10257,12 +11069,14 @@ public void test0233_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10279,12 +11093,13 @@ public void test0233_Diet(){
  */
 public void test0233_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    final cla Y\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    final cla Y
+		  }
+		}""";
 
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
@@ -10294,13 +11109,15 @@ public void test0233_Method(){
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:cla>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:cla>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -10317,13 +11134,15 @@ public void test0233_Method(){
  */
 public void test0234_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    con\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    con
+		  }
+		}
+		""";
 
 	String completeBehind = "con";
 	int cursorLocation = str.lastIndexOf("con") + completeBehind.length() - 1;
@@ -10333,13 +11152,15 @@ public void test0234_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10356,13 +11177,15 @@ public void test0234_Diet(){
  */
 public void test0234_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    con\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    con
+		  }
+		}
+		""";
 
 	String completeBehind = "con";
 	int cursorLocation = str.lastIndexOf("con") + completeBehind.length() - 1;
@@ -10372,14 +11195,16 @@ public void test0234_Method(){
 	String completionIdentifier = "con";
 	String expectedReplacedSource = "con";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:con>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:con>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -10396,15 +11221,17 @@ public void test0234_Method(){
  */
 public void test0235_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    for(int i; i < 5; i++) {\n" +
-		"      con\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    for(int i; i < 5; i++) {
+		      con
+		    }
+		  }
+		}
+		""";
 
 	String completeBehind = "con";
 	int cursorLocation = str.lastIndexOf("con") + completeBehind.length() - 1;
@@ -10414,13 +11241,15 @@ public void test0235_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10437,15 +11266,17 @@ public void test0235_Diet(){
  */
 public void test0235_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    for(int i; i < 5; i++) {\n" +
-		"      con\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    for(int i; i < 5; i++) {
+		      con
+		    }
+		  }
+		}
+		""";
 
 	String completeBehind = "con";
 	int cursorLocation = str.lastIndexOf("con") + completeBehind.length() - 1;
@@ -10455,17 +11286,19 @@ public void test0235_Method(){
 	String completionIdentifier = "con";
 	String expectedReplacedSource = "con";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    int i;\n" +
-			"    {\n" +
-			"      <CompleteOnName:con>;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    int i;
+		    {
+		      <CompleteOnName:con>;
+		    }
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -10482,13 +11315,15 @@ public void test0235_Method(){
  */
 public void test0236_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    def\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    def
+		  }
+		}
+		""";
 
 	String completeBehind = "def";
 	int cursorLocation = str.lastIndexOf("def") + completeBehind.length() - 1;
@@ -10498,13 +11333,15 @@ public void test0236_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10521,13 +11358,15 @@ public void test0236_Diet(){
  */
 public void test0236_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    def\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    def
+		  }
+		}
+		""";
 
 	String completeBehind = "def";
 	int cursorLocation = str.lastIndexOf("def") + completeBehind.length() - 1;
@@ -10537,14 +11376,16 @@ public void test0236_Method(){
 	String completionIdentifier = "def";
 	String expectedReplacedSource = "def";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:def>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:def>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -10561,16 +11402,18 @@ public void test0236_Method(){
  */
 public void test0237_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    switch(0) {\n" +
-		"      case 1 : break;\n" +
-		"      def\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    switch(0) {
+		      case 1 : break;
+		      def
+		    }
+		  }
+		}
+		""";
 
 	String completeBehind = "def";
 	int cursorLocation = str.lastIndexOf("def") + completeBehind.length() - 1;
@@ -10580,13 +11423,15 @@ public void test0237_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10603,16 +11448,18 @@ public void test0237_Diet(){
  */
 public void test0237_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    switch(0) {\n" +
-		"      case 1 : break;\n" +
-		"      def\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    switch(0) {
+		      case 1 : break;
+		      def
+		    }
+		  }
+		}
+		""";
 
 	String completeBehind = "def";
 	int cursorLocation = str.lastIndexOf("def") + completeBehind.length() - 1;
@@ -10622,16 +11469,18 @@ public void test0237_Method(){
 	String completionIdentifier = "def";
 	String expectedReplacedSource = "def";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    {\n" +
-			"      <CompleteOnName:def>;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    {
+		      <CompleteOnName:def>;
+		    }
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -10648,13 +11497,15 @@ public void test0237_Method(){
  */
 public void test0238_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    do\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    do
+		  }
+		}
+		""";
 
 	String completeBehind = "do";
 	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
@@ -10664,13 +11515,15 @@ public void test0238_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10687,13 +11540,15 @@ public void test0238_Diet(){
  */
 public void test0238_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    do\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    do
+		  }
+		}
+		""";
 
 	String completeBehind = "do";
 	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
@@ -10703,14 +11558,16 @@ public void test0238_Method(){
 	String completionIdentifier = "do";
 	String expectedReplacedSource = "do";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:do>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:do>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -10727,13 +11584,15 @@ public void test0238_Method(){
  */
 public void test0239_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    els\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    els
+		  }
+		}
+		""";
 
 	String completeBehind = "els";
 	int cursorLocation = str.lastIndexOf("els") + completeBehind.length() - 1;
@@ -10743,13 +11602,15 @@ public void test0239_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10766,13 +11627,15 @@ public void test0239_Diet(){
  */
 public void test0239_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    els\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    els
+		  }
+		}
+		""";
 
 	String completeBehind = "els";
 	int cursorLocation = str.lastIndexOf("els") + completeBehind.length() - 1;
@@ -10782,14 +11645,16 @@ public void test0239_Method(){
 	String completionIdentifier = "els";
 	String expectedReplacedSource = "els";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:els>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:els>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -10806,14 +11671,16 @@ public void test0239_Method(){
  */
 public void test0240_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    if(true) {\n" +
-		"    } els\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    if(true) {
+		    } els
+		  }
+		}
+		""";
 
 	String completeBehind = "els";
 	int cursorLocation = str.lastIndexOf("els") + completeBehind.length() - 1;
@@ -10823,13 +11690,15 @@ public void test0240_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -10846,14 +11715,16 @@ public void test0240_Diet(){
  */
 public void test0240_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    if(true) {\n" +
-		"    } els\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    if(true) {
+		    } els
+		  }
+		}
+		""";
 
 	String completeBehind = "els";
 	int cursorLocation = str.lastIndexOf("els") + completeBehind.length() - 1;
@@ -10863,14 +11734,16 @@ public void test0240_Method(){
 	String completionIdentifier = "els";
 	String expectedReplacedSource = "els";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:els>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:els>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -10982,10 +11855,12 @@ public void test0244(){
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:ext> {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:ext> {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11013,10 +11888,12 @@ public void test0245(){
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:ext> {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:ext> {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11044,12 +11921,14 @@ public void test0246(){
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:ext> {\n" +
-		"  {\n" +
-		"  }\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:ext> {
+		  {
+		  }
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11077,10 +11956,12 @@ public void test0247(){
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:ext> {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:ext> {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11108,10 +11989,12 @@ public void test0248(){
 	String completionIdentifier = "ext";
 	String expectedReplacedSource = "ext";
 	String expectedUnitDisplayString =
-		"class X implements Y {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X implements Y {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11128,13 +12011,15 @@ public void test0248(){
  */
 public void test0249_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -11144,13 +12029,15 @@ public void test0249_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11167,13 +12054,15 @@ public void test0249_Diet(){
  */
 public void test0249_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -11183,14 +12072,16 @@ public void test0249_Method(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:fin>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:fin>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -11207,14 +12098,16 @@ public void test0249_Method(){
  */
 public void test0250_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    try {" +
-		"    } fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    try {\
+		    } fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -11224,13 +12117,15 @@ public void test0250_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11247,14 +12142,16 @@ public void test0250_Diet(){
  */
 public void test0250_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    try {" +
-		"    } fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    try {\
+		    } fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -11264,14 +12161,16 @@ public void test0250_Method(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnKeyword:fin>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnKeyword:fin>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -11288,13 +12187,15 @@ public void test0250_Method(){
  */
 public void test0251_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    for" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    for\
+		  }
+		}
+		""";
 
 	String completeBehind = "for";
 	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
@@ -11304,13 +12205,15 @@ public void test0251_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11327,13 +12230,15 @@ public void test0251_Diet(){
  */
 public void test0251_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    for" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    for\
+		  }
+		}
+		""";
 
 	String completeBehind = "for";
 	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
@@ -11343,14 +12248,16 @@ public void test0251_Method(){
 	String completionIdentifier = "for";
 	String expectedReplacedSource = "for";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:for>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:for>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -11367,13 +12274,15 @@ public void test0251_Method(){
  */
 public void test0252_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    if" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    if\
+		  }
+		}
+		""";
 
 	String completeBehind = "if";
 	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
@@ -11383,13 +12292,15 @@ public void test0252_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11406,13 +12317,15 @@ public void test0252_Diet(){
  */
 public void test0252_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    if" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    if\
+		  }
+		}
+		""";
 
 	String completeBehind = "if";
 	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
@@ -11422,14 +12335,16 @@ public void test0252_Method(){
 	String completionIdentifier = "if";
 	String expectedReplacedSource = "if";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:if>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:if>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -11446,13 +12361,15 @@ public void test0252_Method(){
  */
 public void test0253_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    swi" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    swi\
+		  }
+		}
+		""";
 
 	String completeBehind = "swi";
 	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
@@ -11462,13 +12379,15 @@ public void test0253_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11485,13 +12404,15 @@ public void test0253_Diet(){
  */
 public void test0253_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    swi" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    swi\
+		  }
+		}
+		""";
 
 	String completeBehind = "swi";
 	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
@@ -11501,14 +12422,16 @@ public void test0253_Method(){
 	String completionIdentifier = "swi";
 	String expectedReplacedSource = "swi";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:swi>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:swi>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -11620,10 +12543,12 @@ public void test0257(){
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:impl> {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:impl> {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11651,10 +12576,12 @@ public void test0258(){
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:impl> {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:impl> {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11682,12 +12609,14 @@ public void test0259(){
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:impl> {\n" +
-		"  {\n" +
-		"  }\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:impl> {
+		  {
+		  }
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11715,10 +12644,12 @@ public void test0260(){
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"class X extends <CompleteOnKeyword:impl> {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X extends <CompleteOnKeyword:impl> {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11746,10 +12677,12 @@ public void test0261(){
 	String completionIdentifier = "impl";
 	String expectedReplacedSource = "impl";
 	String expectedUnitDisplayString =
-		"class X implements Y {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		class X implements Y {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11794,9 +12727,10 @@ public void test0262(){
  */
 public void test0263(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"impo";
+		"""
+		#
+		package p;
+		impo""";
 
 	String completeBehind = "impo";
 	int cursorLocation = str.lastIndexOf("impo") + completeBehind.length() - 1;
@@ -11824,10 +12758,11 @@ public void test0263(){
  */
 public void test0264(){
 	String str =
-		"#\n" +
-		"package p;\n" +
-		"import p2.Y;\n" +
-		"impo";
+		"""
+		#
+		package p;
+		import p2.Y;
+		impo""";
 
 	String completeBehind = "impo";
 	int cursorLocation = str.lastIndexOf("impo") + completeBehind.length() - 1;
@@ -11837,9 +12772,11 @@ public void test0264(){
 	String completionIdentifier = "impo";
 	String expectedReplacedSource = "impo";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"import p2.Y;\n" +
-		"import <CompleteOnKeyword:impo>;\n";
+		"""
+		package p;
+		import p2.Y;
+		import <CompleteOnKeyword:impo>;
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -11996,10 +12933,11 @@ public void test0269(){
  */
 public void test0270(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  int\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  int
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -12009,11 +12947,13 @@ public void test0270(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:int>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:int>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12030,10 +12970,11 @@ public void test0270(){
  */
 public void test0271(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public int\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public int
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -12043,11 +12984,13 @@ public void test0271(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:int>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:int>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12064,10 +13007,11 @@ public void test0271(){
  */
 public void test0272(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public abstract int\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public abstract int
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -12077,11 +13021,13 @@ public void test0272(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:int>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:int>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12098,10 +13044,11 @@ public void test0272(){
  */
 public void test0273(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public abstract int Y\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public abstract int Y
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -12111,11 +13058,13 @@ public void test0273(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:int>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:int>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12132,12 +13081,13 @@ public void test0273(){
  */
 public void test0274_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    int\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    int
+		  }
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -12147,12 +13097,14 @@ public void test0274_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12169,12 +13121,13 @@ public void test0274_Diet(){
  */
 public void test0274_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    int\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    int
+		  }
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -12184,13 +13137,15 @@ public void test0274_Method(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:int>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:int>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -12207,12 +13162,13 @@ public void test0274_Method(){
  */
 public void test0275_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    abstract int\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    abstract int
+		  }
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -12222,12 +13178,14 @@ public void test0275_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12244,12 +13202,13 @@ public void test0275_Diet(){
  */
 public void test0275_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    abstract int\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    abstract int
+		  }
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -12259,13 +13218,15 @@ public void test0275_Method(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:int>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:int>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -12282,12 +13243,13 @@ public void test0275_Method(){
  */
 public void test0276_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    abstract int Y\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    abstract int Y
+		  }
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -12297,12 +13259,14 @@ public void test0276_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12319,12 +13283,13 @@ public void test0276_Diet(){
  */
 public void test0276_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    abstract int Y\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    abstract int Y
+		  }
+		}""";
 
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
@@ -12334,13 +13299,15 @@ public void test0276_Method(){
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:int>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:int>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -12469,9 +13436,10 @@ public void test0280(){
  */
 public void test0281(){
 	String str =
-		"#\n" +
-		"package p;" +
-		"pac";
+		"""
+		#
+		package p;\
+		pac""";
 
 	String completeBehind = "pac";
 	int cursorLocation = str.lastIndexOf("pac") + completeBehind.length() - 1;
@@ -12499,9 +13467,10 @@ public void test0281(){
  */
 public void test0282(){
 	String str =
-		"#\n" +
-		"import p;" +
-		"pac";
+		"""
+		#
+		import p;\
+		pac""";
 
 	String completeBehind = "pac";
 	int cursorLocation = str.lastIndexOf("pac") + completeBehind.length() - 1;
@@ -12529,9 +13498,10 @@ public void test0282(){
  */
 public void test0283(){
 	String str =
-		"#\n" +
-		"class X {}" +
-		"pac";
+		"""
+		#
+		class X {}\
+		pac""";
 
 	String completeBehind = "pac";
 	int cursorLocation = str.lastIndexOf("pac") + completeBehind.length() - 1;
@@ -12541,11 +13511,13 @@ public void test0283(){
 	String completionIdentifier = "pac";
 	String expectedReplacedSource = "pac";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pac>;\n" +
-		"class X {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		import <CompleteOnKeyword:pac>;
+		class X {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12562,12 +13534,13 @@ public void test0283(){
  */
 public void test0284_Diet(){
 	String str =
-		"public class X {\n" +
-		"  int foo() {\n" +
-		"    #\n" +
-		"    ret\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  int foo() {
+		    #
+		    ret
+		  }
+		}""";
 
 	String completeBehind = "ret";
 	int cursorLocation = str.lastIndexOf("ret") + completeBehind.length() - 1;
@@ -12577,12 +13550,14 @@ public void test0284_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  int foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  int foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12599,12 +13574,13 @@ public void test0284_Diet(){
  */
 public void test0284_Method(){
 	String str =
-		"public class X {\n" +
-		"  int foo() {\n" +
-		"    #\n" +
-		"    ret\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  int foo() {
+		    #
+		    ret
+		  }
+		}""";
 
 	String completeBehind = "ret";
 	int cursorLocation = str.lastIndexOf("ret") + completeBehind.length() - 1;
@@ -12614,13 +13590,15 @@ public void test0284_Method(){
 	String completionIdentifier = "ret";
 	String expectedReplacedSource = "ret";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  int foo() {\n" +
-			"    <CompleteOnName:ret>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  int foo() {
+		    <CompleteOnName:ret>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -12637,12 +13615,13 @@ public void test0284_Method(){
  */
 public void test0285_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    thr\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    thr
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -12652,12 +13631,14 @@ public void test0285_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12674,12 +13655,13 @@ public void test0285_Diet(){
  */
 public void test0285_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    thr\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    thr
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -12689,13 +13671,15 @@ public void test0285_Method(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:thr>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:thr>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -12712,12 +13696,13 @@ public void test0285_Method(){
  */
 public void test0286_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    try\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    try
+		  }
+		}""";
 
 	String completeBehind = "try";
 	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
@@ -12727,12 +13712,14 @@ public void test0286_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12749,12 +13736,13 @@ public void test0286_Diet(){
  */
 public void test0286_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    try\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    try
+		  }
+		}""";
 
 	String completeBehind = "try";
 	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
@@ -12764,13 +13752,15 @@ public void test0286_Method(){
 	String completionIdentifier = "try";
 	String expectedReplacedSource = "try";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:try>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:try>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -12787,12 +13777,13 @@ public void test0286_Method(){
  */
 public void test0287_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(try\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(try
+		  }
+		}""";
 
 	String completeBehind = "try";
 	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
@@ -12802,12 +13793,14 @@ public void test0287_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12824,12 +13817,13 @@ public void test0287_Diet(){
  */
 public void test0287_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(try\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(try
+		  }
+		}""";
 
 	String completeBehind = "try";
 	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
@@ -12839,14 +13833,16 @@ public void test0287_Method(){
 	String completionIdentifier = "try";
 	String expectedReplacedSource = "try";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:try>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:try>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -12863,12 +13859,13 @@ public void test0287_Method(){
  */
 public void test0288_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(do\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(do
+		  }
+		}""";
 
 	String completeBehind = "do";
 	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
@@ -12878,12 +13875,14 @@ public void test0288_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12900,12 +13899,13 @@ public void test0288_Diet(){
  */
 public void test0288_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(do\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(do
+		  }
+		}""";
 
 	String completeBehind = "do";
 	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
@@ -12915,14 +13915,16 @@ public void test0288_Method(){
 	String completionIdentifier = "do";
 	String expectedReplacedSource = "do";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:do>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:do>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -12939,12 +13941,13 @@ public void test0288_Method(){
  */
 public void test0289_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(for\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(for
+		  }
+		}""";
 
 	String completeBehind = "for";
 	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
@@ -12954,12 +13957,14 @@ public void test0289_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -12976,12 +13981,13 @@ public void test0289_Diet(){
  */
 public void test0289_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(for\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(for
+		  }
+		}""";
 
 	String completeBehind = "for";
 	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
@@ -12991,14 +13997,16 @@ public void test0289_Method(){
 	String completionIdentifier = "for";
 	String expectedReplacedSource = "for";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:for>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:for>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -13015,12 +14023,13 @@ public void test0289_Method(){
  */
 public void test0290_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(if\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(if
+		  }
+		}""";
 
 	String completeBehind = "if";
 	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
@@ -13030,12 +14039,14 @@ public void test0290_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13052,12 +14063,13 @@ public void test0290_Diet(){
  */
 public void test0290_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(if\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(if
+		  }
+		}""";
 
 	String completeBehind = "if";
 	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
@@ -13067,14 +14079,16 @@ public void test0290_Method(){
 	String completionIdentifier = "if";
 	String expectedReplacedSource = "if";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:if>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:if>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -13091,12 +14105,13 @@ public void test0290_Method(){
  */
 public void test0291_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(swi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(swi
+		  }
+		}""";
 
 	String completeBehind = "swi";
 	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
@@ -13106,12 +14121,14 @@ public void test0291_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13128,12 +14145,13 @@ public void test0291_Diet(){
  */
 public void test0291_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(swi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(swi
+		  }
+		}""";
 
 	String completeBehind = "swi";
 	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
@@ -13143,14 +14161,16 @@ public void test0291_Method(){
 	String completionIdentifier = "swi";
 	String expectedReplacedSource = "swi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:swi>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:swi>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -13167,12 +14187,13 @@ public void test0291_Method(){
  */
 public void test0292_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    new\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    new
+		  }
+		}""";
 
 	String completeBehind = "new";
 	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
@@ -13182,12 +14203,14 @@ public void test0292_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13204,12 +14227,13 @@ public void test0292_Diet(){
  */
 public void test0292_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    new\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    new
+		  }
+		}""";
 
 	String completeBehind = "new";
 	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
@@ -13219,13 +14243,15 @@ public void test0292_Method(){
 	String completionIdentifier = "new";
 	String expectedReplacedSource = "new";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:new>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:new>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -13242,12 +14268,13 @@ public void test0292_Method(){
  */
 public void test0293_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    new X\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    new X
+		  }
+		}""";
 
 	String completeBehind = "new";
 	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
@@ -13257,12 +14284,14 @@ public void test0293_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13279,12 +14308,13 @@ public void test0293_Diet(){
  */
 public void test0293_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    new X\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    new X
+		  }
+		}""";
 
 	String completeBehind = "new";
 	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
@@ -13294,13 +14324,15 @@ public void test0293_Method(){
 	String completionIdentifier = "new";
 	String expectedReplacedSource = "new";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:new>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:new>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -13317,12 +14349,13 @@ public void test0293_Method(){
  */
 public void test0294_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    new X()\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    new X()
+		  }
+		}""";
 
 	String completeBehind = "new";
 	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
@@ -13332,12 +14365,14 @@ public void test0294_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13354,12 +14389,13 @@ public void test0294_Diet(){
  */
 public void test0294_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    new X()\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    new X()
+		  }
+		}""";
 
 	String completeBehind = "new";
 	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
@@ -13369,13 +14405,15 @@ public void test0294_Method(){
 	String completionIdentifier = "new";
 	String expectedReplacedSource = "new";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:new>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:new>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -13392,11 +14430,12 @@ public void test0294_Method(){
  */
 public void test0295(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  void foo() thr\n" +
-		"  }\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  void foo() thr
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -13406,12 +14445,14 @@ public void test0295(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() throws <CompleteOnKeyword:thr> {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() throws <CompleteOnKeyword:thr> {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13428,11 +14469,12 @@ public void test0295(){
  */
 public void test0296(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  void foo() thr {\n" +
-		"  }\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  void foo() thr {
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -13442,12 +14484,14 @@ public void test0296(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() throws <CompleteOnKeyword:thr> {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() throws <CompleteOnKeyword:thr> {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13464,11 +14508,12 @@ public void test0296(){
  */
 public void test0297(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  void foo() thr E {\n" +
-		"  }\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  void foo() thr E {
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -13478,12 +14523,14 @@ public void test0297(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() throws <CompleteOnKeyword:thr> {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() throws <CompleteOnKeyword:thr> {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13500,11 +14547,12 @@ public void test0297(){
  */
 public void test0298(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  void foo() throws E thr\n" +
-		"  }\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  void foo() throws E thr
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -13514,12 +14562,14 @@ public void test0298(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() throws E {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() throws E {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13536,11 +14586,12 @@ public void test0298(){
  */
 public void test0299(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  X() thr\n" +
-		"  }\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  X() thr
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -13550,10 +14601,12 @@ public void test0299(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  X() throws <CompleteOnKeyword:thr> {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  X() throws <CompleteOnKeyword:thr> {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13570,11 +14623,12 @@ public void test0299(){
  */
 public void test0300(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  int foo()[] thr\n" +
-		"  }\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  int foo()[] thr
+		  }
+		}""";
 
 	String completeBehind = "thr";
 	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
@@ -13584,12 +14638,14 @@ public void test0300(){
 	String completionIdentifier = "thr";
 	String expectedReplacedSource = "thr";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  int[] foo() throws <CompleteOnKeyword:thr> {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  int[] foo() throws <CompleteOnKeyword:thr> {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13606,12 +14662,13 @@ public void test0300(){
  */
 public void test0301_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    whi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    whi
+		  }
+		}""";
 
 	String completeBehind = "whi";
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
@@ -13621,12 +14678,14 @@ public void test0301_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13643,12 +14702,13 @@ public void test0301_Diet(){
  */
 public void test0301_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    whi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    whi
+		  }
+		}""";
 
 	String completeBehind = "whi";
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
@@ -13658,13 +14718,15 @@ public void test0301_Method(){
 	String completionIdentifier = "whi";
 	String expectedReplacedSource = "whi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:whi>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:whi>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -13681,12 +14743,13 @@ public void test0301_Method(){
  */
 public void test0302_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(whi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(whi
+		  }
+		}""";
 
 	String completeBehind = "whi";
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
@@ -13696,12 +14759,14 @@ public void test0302_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13718,12 +14783,13 @@ public void test0302_Diet(){
  */
 public void test0302_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(whi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(whi
+		  }
+		}""";
 
 	String completeBehind = "whi";
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
@@ -13733,14 +14799,16 @@ public void test0302_Method(){
 	String completionIdentifier = "whi";
 	String expectedReplacedSource = "whi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:whi>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:whi>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -13757,12 +14825,13 @@ public void test0302_Method(){
  */
 public void test0303_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    ass\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    ass
+		  }
+		}""";
 
 	String completeBehind = "ass";
 	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
@@ -13772,12 +14841,14 @@ public void test0303_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13794,12 +14865,13 @@ public void test0303_Diet(){
  */
 public void test0303_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    ass\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    ass
+		  }
+		}""";
 
 	String completeBehind = "ass";
 	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
@@ -13809,13 +14881,15 @@ public void test0303_Method(){
 	String completionIdentifier = "ass";
 	String expectedReplacedSource = "ass";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:ass>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:ass>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -13832,12 +14906,13 @@ public void test0303_Method(){
  */
 public void test0304_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(ass\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(ass
+		  }
+		}""";
 
 	String completeBehind = "ass";
 	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
@@ -13847,12 +14922,14 @@ public void test0304_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -13869,12 +14946,13 @@ public void test0304_Diet(){
  */
 public void test0304_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(ass\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(ass
+		  }
+		}""";
 
 	String completeBehind = "ass";
 	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
@@ -13884,14 +14962,16 @@ public void test0304_Method(){
 	String completionIdentifier = "ass";
 	String expectedReplacedSource = "ass";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:ass>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:ass>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -14059,11 +15139,13 @@ public void test0310(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:fin>;\n" +
-		"class X {\n" +
-		"  X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		import <CompleteOnKeyword:fin>;
+		class X {
+		  X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14080,10 +15162,11 @@ public void test0310(){
  */
 public void test0311(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  fin\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  fin
+		}""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -14093,11 +15176,13 @@ public void test0311(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:fin>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:fin>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14114,10 +15199,11 @@ public void test0311(){
  */
 public void test0312(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public fin\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public fin
+		}""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -14127,11 +15213,13 @@ public void test0312(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:fin>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:fin>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14148,10 +15236,11 @@ public void test0312(){
  */
 public void test0313(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  fin zzz\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  fin zzz
+		}""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -14161,11 +15250,13 @@ public void test0313(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:fin>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:fin>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14182,10 +15273,11 @@ public void test0313(){
  */
 public void test0314(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  final fin\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  final fin
+		}""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -14195,11 +15287,13 @@ public void test0314(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:fin>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:fin>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14216,10 +15310,11 @@ public void test0314(){
  */
 public void test0315(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  abstract fin\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  abstract fin
+		}""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -14229,11 +15324,13 @@ public void test0315(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:fin>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:fin>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14250,10 +15347,11 @@ public void test0315(){
  */
 public void test0316(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  nat\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  nat
+		}""";
 
 	String completeBehind = "nat";
 	int cursorLocation = str.lastIndexOf("nat") + completeBehind.length() - 1;
@@ -14263,11 +15361,13 @@ public void test0316(){
 	String completionIdentifier = "nat";
 	String expectedReplacedSource = "nat";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:nat>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:nat>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14284,10 +15384,11 @@ public void test0316(){
  */
 public void test0317(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public nat\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public nat
+		}""";
 
 	String completeBehind = "nat";
 	int cursorLocation = str.lastIndexOf("nat") + completeBehind.length() - 1;
@@ -14297,11 +15398,13 @@ public void test0317(){
 	String completionIdentifier = "nat";
 	String expectedReplacedSource = "nat";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:nat>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:nat>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14318,10 +15421,11 @@ public void test0317(){
  */
 public void test0318(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  transient nat\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  transient nat
+		}""";
 
 	String completeBehind = "nat";
 	int cursorLocation = str.lastIndexOf("nat") + completeBehind.length() - 1;
@@ -14331,11 +15435,13 @@ public void test0318(){
 	String completionIdentifier = "nat";
 	String expectedReplacedSource = "nat";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:nat>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:nat>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14352,10 +15458,11 @@ public void test0318(){
  */
 public void test0319(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  transient nat\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  transient nat
+		}""";
 
 	String completeBehind = "nat";
 	int cursorLocation = str.lastIndexOf("nat") + completeBehind.length() - 1;
@@ -14365,11 +15472,13 @@ public void test0319(){
 	String completionIdentifier = "nat";
 	String expectedReplacedSource = "nat";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:nat>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:nat>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14386,10 +15495,11 @@ public void test0319(){
  */
 public void test0320(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  volatile nat\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  volatile nat
+		}""";
 
 	String completeBehind = "nat";
 	int cursorLocation = str.lastIndexOf("nat") + completeBehind.length() - 1;
@@ -14399,11 +15509,13 @@ public void test0320(){
 	String completionIdentifier = "nat";
 	String expectedReplacedSource = "nat";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:nat>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:nat>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14420,10 +15532,11 @@ public void test0320(){
  */
 public void test0321(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  str\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  str
+		}""";
 
 	String completeBehind = "str";
 	int cursorLocation = str.lastIndexOf("str") + completeBehind.length() - 1;
@@ -14433,11 +15546,13 @@ public void test0321(){
 	String completionIdentifier = "str";
 	String expectedReplacedSource = "str";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:str>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:str>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14454,10 +15569,11 @@ public void test0321(){
  */
 public void test0322(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public str\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public str
+		}""";
 
 	String completeBehind = "str";
 	int cursorLocation = str.lastIndexOf("str") + completeBehind.length() - 1;
@@ -14467,11 +15583,13 @@ public void test0322(){
 	String completionIdentifier = "str";
 	String expectedReplacedSource = "str";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:str>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:str>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14488,10 +15606,11 @@ public void test0322(){
  */
 public void test0323(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  transient str\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  transient str
+		}""";
 
 	String completeBehind = "str";
 	int cursorLocation = str.lastIndexOf("str") + completeBehind.length() - 1;
@@ -14501,11 +15620,13 @@ public void test0323(){
 	String completionIdentifier = "str";
 	String expectedReplacedSource = "str";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:str>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:str>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14522,10 +15643,11 @@ public void test0323(){
  */
 public void test0324(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  transient str\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  transient str
+		}""";
 
 	String completeBehind = "str";
 	int cursorLocation = str.lastIndexOf("str") + completeBehind.length() - 1;
@@ -14535,11 +15657,13 @@ public void test0324(){
 	String completionIdentifier = "str";
 	String expectedReplacedSource = "str";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:str>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:str>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14556,10 +15680,11 @@ public void test0324(){
  */
 public void test0325(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  volatile str\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  volatile str
+		}""";
 
 	String completeBehind = "str";
 	int cursorLocation = str.lastIndexOf("str") + completeBehind.length() - 1;
@@ -14569,11 +15694,13 @@ public void test0325(){
 	String completionIdentifier = "str";
 	String expectedReplacedSource = "str";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:str>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:str>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14590,10 +15717,11 @@ public void test0325(){
  */
 public void test0326(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  vol\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  vol
+		}""";
 
 	String completeBehind = "vol";
 	int cursorLocation = str.lastIndexOf("vol") + completeBehind.length() - 1;
@@ -14603,11 +15731,13 @@ public void test0326(){
 	String completionIdentifier = "vol";
 	String expectedReplacedSource = "vol";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:vol>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:vol>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14624,10 +15754,11 @@ public void test0326(){
  */
 public void test0327(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public vol\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public vol
+		}""";
 
 	String completeBehind = "vol";
 	int cursorLocation = str.lastIndexOf("vol") + completeBehind.length() - 1;
@@ -14637,11 +15768,13 @@ public void test0327(){
 	String completionIdentifier = "vol";
 	String expectedReplacedSource = "vol";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:vol>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:vol>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14658,10 +15791,11 @@ public void test0327(){
  */
 public void test0328(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  transient vol\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  transient vol
+		}""";
 
 	String completeBehind = "vol";
 	int cursorLocation = str.lastIndexOf("vol") + completeBehind.length() - 1;
@@ -14671,11 +15805,13 @@ public void test0328(){
 	String completionIdentifier = "vol";
 	String expectedReplacedSource = "vol";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:vol>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:vol>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14692,10 +15828,11 @@ public void test0328(){
  */
 public void test0329(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  volatile vol\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  volatile vol
+		}""";
 
 	String completeBehind = "vol";
 	int cursorLocation = str.lastIndexOf("vol") + completeBehind.length() - 1;
@@ -14705,11 +15842,13 @@ public void test0329(){
 	String completionIdentifier = "vol";
 	String expectedReplacedSource = "vol";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:vol>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:vol>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14726,10 +15865,11 @@ public void test0329(){
  */
 public void test0330(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  native vol\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  native vol
+		}""";
 
 	String completeBehind = "vol";
 	int cursorLocation = str.lastIndexOf("vol") + completeBehind.length() - 1;
@@ -14739,11 +15879,13 @@ public void test0330(){
 	String completionIdentifier = "vol";
 	String expectedReplacedSource = "vol";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:vol>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:vol>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14760,10 +15902,11 @@ public void test0330(){
  */
 public void test0331(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  tra\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  tra
+		}""";
 
 	String completeBehind = "tra";
 	int cursorLocation = str.lastIndexOf("tra") + completeBehind.length() - 1;
@@ -14773,11 +15916,13 @@ public void test0331(){
 	String completionIdentifier = "tra";
 	String expectedReplacedSource = "tra";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:tra>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:tra>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14794,10 +15939,11 @@ public void test0331(){
  */
 public void test0332(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public tra\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public tra
+		}""";
 
 	String completeBehind = "tra";
 	int cursorLocation = str.lastIndexOf("tra") + completeBehind.length() - 1;
@@ -14807,11 +15953,13 @@ public void test0332(){
 	String completionIdentifier = "tra";
 	String expectedReplacedSource = "tra";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:tra>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:tra>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14828,10 +15976,11 @@ public void test0332(){
  */
 public void test0333(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  transient tra\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  transient tra
+		}""";
 
 	String completeBehind = "tra";
 	int cursorLocation = str.lastIndexOf("tra") + completeBehind.length() - 1;
@@ -14841,11 +15990,13 @@ public void test0333(){
 	String completionIdentifier = "tra";
 	String expectedReplacedSource = "tra";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:tra>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:tra>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14862,10 +16013,11 @@ public void test0333(){
  */
 public void test0334(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  volatile tra\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  volatile tra
+		}""";
 
 	String completeBehind = "tra";
 	int cursorLocation = str.lastIndexOf("tra") + completeBehind.length() - 1;
@@ -14875,11 +16027,13 @@ public void test0334(){
 	String completionIdentifier = "tra";
 	String expectedReplacedSource = "tra";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:tra>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:tra>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14896,10 +16050,11 @@ public void test0334(){
  */
 public void test0335(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  native tra\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  native tra
+		}""";
 
 	String completeBehind = "tra";
 	int cursorLocation = str.lastIndexOf("tra") + completeBehind.length() - 1;
@@ -14909,11 +16064,13 @@ public void test0335(){
 	String completionIdentifier = "tra";
 	String expectedReplacedSource = "tra";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:tra>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:tra>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14930,10 +16087,11 @@ public void test0335(){
  */
 public void test0336(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  syn\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  syn
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -14943,11 +16101,13 @@ public void test0336(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:syn>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:syn>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14964,10 +16124,11 @@ public void test0336(){
  */
 public void test0337(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public syn\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public syn
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -14977,11 +16138,13 @@ public void test0337(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:syn>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:syn>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -14998,10 +16161,11 @@ public void test0337(){
  */
 public void test0338(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  transient syn\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  transient syn
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -15011,11 +16175,13 @@ public void test0338(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:syn>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:syn>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15032,10 +16198,11 @@ public void test0338(){
  */
 public void test0339(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  transient syn\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  transient syn
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -15045,11 +16212,13 @@ public void test0339(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:syn>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:syn>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15066,10 +16235,11 @@ public void test0339(){
  */
 public void test0340(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  volatile syn\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  volatile syn
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -15079,11 +16249,13 @@ public void test0340(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:syn>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:syn>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15100,12 +16272,13 @@ public void test0340(){
  */
 public void test0341_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    syn\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    syn
+		  }
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -15115,12 +16288,14 @@ public void test0341_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15137,12 +16312,13 @@ public void test0341_Diet(){
  */
 public void test0341_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    syn\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    syn
+		  }
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -15152,13 +16328,15 @@ public void test0341_Method(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:syn>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:syn>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -15175,12 +16353,13 @@ public void test0341_Method(){
  */
 public void test0342_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(syn\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(syn
+		  }
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -15190,12 +16369,14 @@ public void test0342_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15212,12 +16393,13 @@ public void test0342_Diet(){
  */
 public void test0342_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    if(syn\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    if(syn
+		  }
+		}""";
 
 	String completeBehind = "syn";
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
@@ -15227,14 +16409,16 @@ public void test0342_Method(){
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    if (<CompleteOnName:syn>)\n" +
-			"        ;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    if (<CompleteOnName:syn>)
+		        ;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -15251,10 +16435,11 @@ public void test0342_Method(){
  */
 public void test0343(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  sta\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  sta
+		}""";
 
 	String completeBehind = "sta";
 	int cursorLocation = str.lastIndexOf("sta") + completeBehind.length() - 1;
@@ -15264,11 +16449,13 @@ public void test0343(){
 	String completionIdentifier = "sta";
 	String expectedReplacedSource = "sta";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:sta>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:sta>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15285,10 +16472,11 @@ public void test0343(){
  */
 public void test0344(){
 	String str =
-		"#\n" +
-		"public class X {\n" +
-		"  public sta\n" +
-		"}";
+		"""
+		#
+		public class X {
+		  public sta
+		}""";
 
 	String completeBehind = "sta";
 	int cursorLocation = str.lastIndexOf("sta") + completeBehind.length() - 1;
@@ -15298,11 +16486,13 @@ public void test0344(){
 	String completionIdentifier = "sta";
 	String expectedReplacedSource = "sta";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:sta>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:sta>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15431,9 +16621,10 @@ public void test0348(){
  */
 public void test0349(){
 	String str =
-		"#\n" +
-		"public class X{}\n" +
-		"pub";
+		"""
+		#
+		public class X{}
+		pub""";
 
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
@@ -15443,11 +16634,13 @@ public void test0349(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pub>;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		import <CompleteOnKeyword:pub>;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15464,10 +16657,11 @@ public void test0349(){
  */
 public void test0350(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  pub\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  pub
+		}""";
 
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
@@ -15477,11 +16671,13 @@ public void test0350(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pub>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pub>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15498,10 +16694,11 @@ public void test0350(){
  */
 public void test0351(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  public pub\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  public pub
+		}""";
 
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
@@ -15511,11 +16708,13 @@ public void test0351(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pub>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pub>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15532,10 +16731,11 @@ public void test0351(){
  */
 public void test0352(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  private pub\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  private pub
+		}""";
 
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
@@ -15545,11 +16745,13 @@ public void test0352(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pub>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pub>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15566,10 +16768,11 @@ public void test0352(){
  */
 public void test0353(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  protected pub\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  protected pub
+		}""";
 
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
@@ -15579,11 +16782,13 @@ public void test0353(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pub>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pub>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15600,10 +16805,11 @@ public void test0353(){
  */
 public void test0354(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  abstract pub\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  abstract pub
+		}""";
 
 	String completeBehind = "pub";
 	int cursorLocation = str.lastIndexOf("pub") + completeBehind.length() - 1;
@@ -15613,11 +16819,13 @@ public void test0354(){
 	String completionIdentifier = "pub";
 	String expectedReplacedSource = "pub";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pub>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pub>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15746,9 +16954,10 @@ public void test0358(){
  */
 public void test0359(){
 	String str =
-		"#\n" +
-		"public class X{}\n" +
-		"pro";
+		"""
+		#
+		public class X{}
+		pro""";
 
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
@@ -15758,11 +16967,13 @@ public void test0359(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pro>;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		import <CompleteOnKeyword:pro>;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15779,10 +16990,11 @@ public void test0359(){
  */
 public void test0360(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  pro\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  pro
+		}""";
 
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
@@ -15792,11 +17004,13 @@ public void test0360(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pro>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pro>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15813,10 +17027,11 @@ public void test0360(){
  */
 public void test0361(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  public pro\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  public pro
+		}""";
 
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
@@ -15826,11 +17041,13 @@ public void test0361(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pro>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pro>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15847,10 +17064,11 @@ public void test0361(){
  */
 public void test0362(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  private pro\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  private pro
+		}""";
 
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
@@ -15860,11 +17078,13 @@ public void test0362(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pro>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pro>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15881,10 +17101,11 @@ public void test0362(){
  */
 public void test0363(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  protected pro\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  protected pro
+		}""";
 
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
@@ -15894,11 +17115,13 @@ public void test0363(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pro>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pro>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -15915,10 +17138,11 @@ public void test0363(){
  */
 public void test0364(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  abstract pro\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  abstract pro
+		}""";
 
 	String completeBehind = "pro";
 	int cursorLocation = str.lastIndexOf("pro") + completeBehind.length() - 1;
@@ -15928,11 +17152,13 @@ public void test0364(){
 	String completionIdentifier = "pro";
 	String expectedReplacedSource = "pro";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pro>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pro>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16061,9 +17287,10 @@ public void test0368(){
  */
 public void test0369(){
 	String str =
-		"#\n" +
-		"public class X{}\n" +
-		"pri";
+		"""
+		#
+		public class X{}
+		pri""";
 
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
@@ -16073,11 +17300,13 @@ public void test0369(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"import <CompleteOnKeyword:pri>;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		import <CompleteOnKeyword:pri>;
+		public class X {
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16094,10 +17323,11 @@ public void test0369(){
  */
 public void test0370(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  pri\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  pri
+		}""";
 
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
@@ -16107,11 +17337,13 @@ public void test0370(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pri>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pri>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16128,10 +17360,11 @@ public void test0370(){
  */
 public void test0371(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  public pri\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  public pri
+		}""";
 
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
@@ -16141,11 +17374,13 @@ public void test0371(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pri>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pri>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16162,10 +17397,11 @@ public void test0371(){
  */
 public void test0372(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  private pri\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  private pri
+		}""";
 
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
@@ -16175,11 +17411,13 @@ public void test0372(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pri>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pri>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16196,10 +17434,11 @@ public void test0372(){
  */
 public void test0373(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  protected pri\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  protected pri
+		}""";
 
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
@@ -16209,11 +17448,13 @@ public void test0373(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pri>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pri>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16230,10 +17471,11 @@ public void test0373(){
  */
 public void test0374(){
 	String str =
-		"#\n" +
-		"public class X{\n" +
-		"  abstract pri\n" +
-		"}";
+		"""
+		#
+		public class X{
+		  abstract pri
+		}""";
 
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf("pri") + completeBehind.length() - 1;
@@ -16243,11 +17485,13 @@ public void test0374(){
 	String completionIdentifier = "pri";
 	String expectedReplacedSource = "pri";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <CompleteOnType:pri>;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <CompleteOnType:pri>;
+		  public X() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16264,12 +17508,14 @@ public void test0374(){
  */
 public void test0375_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    sup\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    sup
+		  }
+		}
+		""";
 
 	String completeBehind = "sup";
 	int cursorLocation = str.lastIndexOf("sup") + completeBehind.length() - 1;
@@ -16279,12 +17525,14 @@ public void test0375_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16301,12 +17549,14 @@ public void test0375_Diet(){
  */
 public void test0375_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    sup\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    sup
+		  }
+		}
+		""";
 
 	String completeBehind = "sup";
 	int cursorLocation = str.lastIndexOf("sup") + completeBehind.length() - 1;
@@ -16316,13 +17566,15 @@ public void test0375_Method(){
 	String completionIdentifier = "sup";
 	String expectedReplacedSource = "sup";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:sup>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:sup>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -16339,12 +17591,14 @@ public void test0375_Method(){
  */
 public void test0376_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    thi\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    thi
+		  }
+		}
+		""";
 
 	String completeBehind = "thi";
 	int cursorLocation = str.lastIndexOf("thi") + completeBehind.length() - 1;
@@ -16354,12 +17608,14 @@ public void test0376_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16376,12 +17632,14 @@ public void test0376_Diet(){
  */
 public void test0376_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    thi\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    thi
+		  }
+		}
+		""";
 
 	String completeBehind = "thi";
 	int cursorLocation = str.lastIndexOf("thi") + completeBehind.length() - 1;
@@ -16391,13 +17649,15 @@ public void test0376_Method(){
 	String completionIdentifier = "thi";
 	String expectedReplacedSource = "thi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:thi>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:thi>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -16414,12 +17674,14 @@ public void test0376_Method(){
  */
 public void test0377_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    tru\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    tru
+		  }
+		}
+		""";
 
 	String completeBehind = "tru";
 	int cursorLocation = str.lastIndexOf("tru") + completeBehind.length() - 1;
@@ -16429,12 +17691,14 @@ public void test0377_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16451,12 +17715,14 @@ public void test0377_Diet(){
  */
 public void test0377_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    tru\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    tru
+		  }
+		}
+		""";
 
 	String completeBehind = "tru";
 	int cursorLocation = str.lastIndexOf("tru") + completeBehind.length() - 1;
@@ -16466,13 +17732,15 @@ public void test0377_Method(){
 	String completionIdentifier = "tru";
 	String expectedReplacedSource = "tru";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:tru>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:tru>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -16489,12 +17757,14 @@ public void test0377_Method(){
  */
 public void test0378_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    fal\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    fal
+		  }
+		}
+		""";
 
 	String completeBehind = "fal";
 	int cursorLocation = str.lastIndexOf("fal") + completeBehind.length() - 1;
@@ -16504,12 +17774,14 @@ public void test0378_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16526,12 +17798,14 @@ public void test0378_Diet(){
  */
 public void test0378_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    fal\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    fal
+		  }
+		}
+		""";
 
 	String completeBehind = "fal";
 	int cursorLocation = str.lastIndexOf("fal") + completeBehind.length() - 1;
@@ -16541,13 +17815,15 @@ public void test0378_Method(){
 	String completionIdentifier = "fal";
 	String expectedReplacedSource = "fal";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:fal>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:fal>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -16564,12 +17840,14 @@ public void test0378_Method(){
  */
 public void test0379_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    nul\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    nul
+		  }
+		}
+		""";
 
 	String completeBehind = "nul";
 	int cursorLocation = str.lastIndexOf("nul") + completeBehind.length() - 1;
@@ -16579,12 +17857,14 @@ public void test0379_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16601,12 +17881,14 @@ public void test0379_Diet(){
  */
 public void test0379_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    nul\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    nul
+		  }
+		}
+		""";
 
 	String completeBehind = "nul";
 	int cursorLocation = str.lastIndexOf("nul") + completeBehind.length() - 1;
@@ -16616,13 +17898,15 @@ public void test0379_Method(){
 	String completionIdentifier = "nul";
 	String expectedReplacedSource = "nul";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:nul>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:nul>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -16639,12 +17923,14 @@ public void test0379_Method(){
  */
 public void test0380_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    if(zzz ins\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    if(zzz ins
+		  }
+		}
+		""";
 
 	String completeBehind = "ins";
 	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
@@ -16654,12 +17940,14 @@ public void test0380_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16676,12 +17964,14 @@ public void test0380_Diet(){
  */
 public void test0380_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    if(zzz ins\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    if(zzz ins
+		  }
+		}
+		""";
 
 	String completeBehind = "ins";
 	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
@@ -16691,13 +17981,15 @@ public void test0380_Method(){
 	String completionIdentifier = "ins";
 	String expectedReplacedSource = "ins";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnKeyword:ins>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnKeyword:ins>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -16714,12 +18006,14 @@ public void test0380_Method(){
  */
 public void test0381_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    ins\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    ins
+		  }
+		}
+		""";
 
 	String completeBehind = "ins";
 	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
@@ -16729,12 +18023,14 @@ public void test0381_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16751,12 +18047,14 @@ public void test0381_Diet(){
  */
 public void test0381_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    ins\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    ins
+		  }
+		}
+		""";
 
 	String completeBehind = "ins";
 	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
@@ -16766,13 +18064,15 @@ public void test0381_Method(){
 	String completionIdentifier = "ins";
 	String expectedReplacedSource = "ins";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:ins>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:ins>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -16789,12 +18089,14 @@ public void test0381_Method(){
  */
 public void test0382_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    if(zzz zzz ins\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    if(zzz zzz ins
+		  }
+		}
+		""";
 
 	String completeBehind = "ins";
 	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
@@ -16804,12 +18106,14 @@ public void test0382_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16826,12 +18130,14 @@ public void test0382_Diet(){
  */
 public void test0382_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    if(zzz zzz ins\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    if(zzz zzz ins
+		  }
+		}
+		""";
 
 	String completeBehind = "ins";
 	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
@@ -16841,14 +18147,16 @@ public void test0382_Method(){
 	String completionIdentifier = "ins";
 	String expectedReplacedSource = "ins";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    zzz zzz;\n" +
-			"    <CompleteOnName:ins>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    zzz zzz;
+		    <CompleteOnName:ins>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -16865,13 +18173,14 @@ public void test0382_Method(){
  */
 public void test0384_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    do{\n" +
-		"    } whi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    do{
+		    } whi
+		  }
+		}""";
 
 	String completeBehind = "whi";
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
@@ -16881,12 +18190,14 @@ public void test0384_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16903,13 +18214,14 @@ public void test0384_Diet(){
  */
 public void test0384_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
-		"    do{\n" +
-		"    } whi\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {
+		  void foo() {
+		    #
+		    do{
+		    } whi
+		  }
+		}""";
 
 	String completeBehind = "whi";
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
@@ -16919,13 +18231,15 @@ public void test0384_Method(){
 	String completionIdentifier = "whi";
 	String expectedReplacedSource = "whi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnKeyword:whi>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnKeyword:whi>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -16942,15 +18256,17 @@ public void test0384_Method(){
  */
 public void test0385_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    try {\n" +
-		"    } catch(E e) {\n" +
-		"    } cat\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    try {
+		    } catch(E e) {
+		    } cat
+		  }
+		}
+		""";
 
 	String completeBehind = "cat";
 	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
@@ -16960,13 +18276,15 @@ public void test0385_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -16983,15 +18301,17 @@ public void test0385_Diet(){
  */
 public void test0385_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    try {\n" +
-		"    } catch(E e) {\n" +
-		"    } cat\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    try {
+		    } catch(E e) {
+		    } cat
+		  }
+		}
+		""";
 
 	String completeBehind = "cat";
 	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
@@ -17001,14 +18321,16 @@ public void test0385_Method(){
 	String completionIdentifier = "cat";
 	String expectedReplacedSource = "cat";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:cat>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:cat>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -17025,15 +18347,17 @@ public void test0385_Method(){
  */
 public void test0386_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    try {" +
-		"    } catch(E e) {" +
-		"    } fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    try {\
+		    } catch(E e) {\
+		    } fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -17043,13 +18367,15 @@ public void test0386_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -17066,15 +18392,17 @@ public void test0386_Diet(){
  */
 public void test0386_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    try {" +
-		"    } catch(E e) {" +
-		"    } fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    try {\
+		    } catch(E e) {\
+		    } fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -17084,14 +18412,16 @@ public void test0386_Method(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:fin>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:fin>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -17108,15 +18438,17 @@ public void test0386_Method(){
  */
 public void test0387_Diet(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    try {" +
-		"    } finally {" +
-		"    } fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    try {\
+		    } finally {\
+		    } fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -17126,13 +18458,15 @@ public void test0387_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"package p;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -17149,15 +18483,17 @@ public void test0387_Diet(){
  */
 public void test0387_Method(){
 	String str =
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    try {" +
-		"    } finally {" +
-		"    } fin" +
-		"  }\n" +
-		"}\n";
+		"""
+		package p;
+		public class X {
+		  void foo(){
+		    #
+		    try {\
+		    } finally {\
+		    } fin\
+		  }
+		}
+		""";
 
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
@@ -17167,14 +18503,16 @@ public void test0387_Method(){
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
 	String expectedUnitDisplayString =
-			"package p;\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:fin>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		package p;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:fin>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -17191,12 +18529,14 @@ public void test0387_Method(){
  */
 public void test0388_Diet(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    X.thi\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    X.thi
+		  }
+		}
+		""";
 
 	String completeBehind = "thi";
 	int cursorLocation = str.lastIndexOf("thi") + completeBehind.length() - 1;
@@ -17206,12 +18546,14 @@ public void test0388_Diet(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 		str.toCharArray(),
@@ -17228,12 +18570,14 @@ public void test0388_Diet(){
  */
 public void test0388_Method(){
 	String str =
-		"public class X {\n" +
-		"  void foo(){\n" +
-		"    #\n" +
-		"    X.thi\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  void foo(){
+		    #
+		    X.thi
+		  }
+		}
+		""";
 
 	String completeBehind = "thi";
 	int cursorLocation = str.lastIndexOf("thi") + completeBehind.length() - 1;
@@ -17243,13 +18587,15 @@ public void test0388_Method(){
 	String completionIdentifier = "thi";
 	String expectedReplacedSource = "X.thi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:X.thi>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <CompleteOnName:X.thi>;
+		  }
+		}
+		""";
 
 	checkMethodParse(
 		str.toCharArray(),

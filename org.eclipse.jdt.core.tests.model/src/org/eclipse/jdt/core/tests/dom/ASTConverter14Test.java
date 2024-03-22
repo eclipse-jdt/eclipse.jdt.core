@@ -94,26 +94,27 @@ public class ASTConverter14Test extends ConverterTestSetup {
 	 */
 	public void test0001() throws JavaModelException {
 		String contents =
-			"	public class X {\n" +
-			"   enum Day\n" +
-			"   {\n" +
-			"   	SUNDAY, MONDAY, TUESDAY, WEDNESDAY,\n" +
-			"   	THURSDAY, FRIDAY, SATURDAY;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Day day = Day.SUNDAY;\n" +
-			"		int k = switch (day) {\n" +
-			"    	case MONDAY  -> throw new NullPointerException();\n" +
-			"    	case TUESDAY -> 1;\n" +
-			"\n" +
-			"	 	case WEDNESDAY -> {yield 10;}\n" +
-			"    	default      -> {\n" +
-			"        	int g = day.toString().length();\n" +
-			"        	yield g;\n" +
-			"   	}};\n" +
-			"   	System.out.println(k);\n" +
-			"	}\n" +
-			"}" ;
+			"""
+				public class X {
+			   enum Day
+			   {
+			   	SUNDAY, MONDAY, TUESDAY, WEDNESDAY,
+			   	THURSDAY, FRIDAY, SATURDAY;
+				}
+				public static void main(String[] args) {
+					Day day = Day.SUNDAY;
+					int k = switch (day) {
+			    	case MONDAY  -> throw new NullPointerException();
+			    	case TUESDAY -> 1;
+			
+				 	case WEDNESDAY -> {yield 10;}
+			    	default      -> {
+			        	int g = day.toString().length();
+			        	yield g;
+			   	}};
+			   	System.out.println(k);
+				}
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
@@ -135,36 +136,37 @@ public class ASTConverter14Test extends ConverterTestSetup {
 	 */
 	public void _test0002() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" +
-			"	String aa(Day day) throws Exception {\n" +
-			"		var today = \"\";\n" +
-			"		switch (day) {\n" +
-			"			case SATURDAY,SUNDAY ->\n" +
-			"				today=\"Weekend\";\n" +
-			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY ->\n" +
-			"				today=\"Working\";\n" +
-			"			default ->\n" +
-			"				throw new Exception(\"Invalid day: \" + day.name());\n" +
-			"		}\n" +
-			"		return today;\n" +
-			"	}\n" +
-			"	\n" +
-			"	String bb(Day day) throws Exception {\n" +
-			"		var today = \"\";\n" +
-			"		switch (day) {\n" +
-			"			case SATURDAY,SUNDAY:\n" +
-			"				today = \"Weekend day\";\n" +
-			"				break;\n" +
-			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY:\n" +
-			"				today = \"Working day\";\n" +
-			"				break;\n" +
-			"			default:\n" +
-			"				throw new Exception(\"Invalid day: \" + day.name());\n" +
-			"		}\n" +
-			"		return today;\n" +
-			"	}\n" +
-			"}" ;
+			"""
+			public class X {
+				static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}
+				String aa(Day day) throws Exception {
+					var today = "";
+					switch (day) {
+						case SATURDAY,SUNDAY ->
+							today="Weekend";
+						case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY ->
+							today="Working";
+						default ->
+							throw new Exception("Invalid day: " + day.name());
+					}
+					return today;
+				}
+			\t
+				String bb(Day day) throws Exception {
+					var today = "";
+					switch (day) {
+						case SATURDAY,SUNDAY:
+							today = "Weekend day";
+							break;
+						case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY:
+							today = "Working day";
+							break;
+						default:
+							throw new Exception("Invalid day: " + day.name());
+					}
+					return today;
+				}
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
@@ -183,34 +185,35 @@ public class ASTConverter14Test extends ConverterTestSetup {
 
 	public void _test0003() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" +
-			"	String aa(Day day) throws Exception {\n" +
-			"		var today = \"\";\n" +
-			"		switch (day) {\n" +
-			"			case SATURDAY,SUNDAY ->\n" +
-			"				today=\"Weekend\";\n" +
-			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY ->\n" +
-			"				today=\"Working\";\n" +
-			"			default ->\n" +
-			"				throw new Exception(\"Invalid day: \" + day.name());\n" +
-			"		}\n" +
-			"		return today;\n" +
-			"	}\n" +
-			"	\n" +
-			"	String bb(Day day) throws Exception {\n" +
-			"		String today = \"\";\n" +
-			"		today = switch (day) {\n" +
-			"			case SATURDAY,SUNDAY:\n" +
-			"				yield \"Weekend day\";\n" +
-			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY:\n" +
-			"				yield \"Week day\";\n" +
-			"			default:\n" +
-			"				yield \"Any day\";\n" +
-			"		};\n" +
-			"		return today;\n" +
-			"	}\n" +
-			"}" ;
+			"""
+			public class X {
+				static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}
+				String aa(Day day) throws Exception {
+					var today = "";
+					switch (day) {
+						case SATURDAY,SUNDAY ->
+							today="Weekend";
+						case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY ->
+							today="Working";
+						default ->
+							throw new Exception("Invalid day: " + day.name());
+					}
+					return today;
+				}
+			\t
+				String bb(Day day) throws Exception {
+					String today = "";
+					today = switch (day) {
+						case SATURDAY,SUNDAY:
+							yield "Weekend day";
+						case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY:
+							yield "Week day";
+						default:
+							yield "Any day";
+					};
+					return today;
+				}
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 				contents,
@@ -227,20 +230,21 @@ public class ASTConverter14Test extends ConverterTestSetup {
 
 	public void test0004() throws JavaModelException {
 		String contents =
-				"public class X {\n" +
-				"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" +
-				"	String bb(Day day) throws Exception {\n" +
-				"		String today = switch (day) {\n" +
-				"			case SATURDAY,SUNDAY:\n" +
-				"				yield \"Weekend day\";\n" +
-				"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY:\n" +
-				"				yield \"Week day\";\n" +
-				"			default:\n" +
-				"				yield \"Any day\";\n" +
-				"		};\n" +
-				"		return today;\n" +
-				"	}\n" +
-				"}" ;
+				"""
+			public class X {
+				static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}
+				String bb(Day day) throws Exception {
+					String today = switch (day) {
+						case SATURDAY,SUNDAY:
+							yield "Weekend day";
+						case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY:
+							yield "Week day";
+						default:
+							yield "Any day";
+					};
+					return today;
+				}
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 				contents,
@@ -279,17 +283,18 @@ public class ASTConverter14Test extends ConverterTestSetup {
 	@Deprecated
 	public void _test0005() throws JavaModelException {
 		String contents =
-				"public class X {\n" +
-				"	public String test001() {\n" +
-				"		int i = 0;\n" +
-				"		String ret = switch(i%2) {\n" +
-				"		case 0 -> \"odd\";\n" +
-				"		case 1 -> \"even\";\n" +
-				"		default -> \"\";\n" +
-				"		};\n" +
-				"		return ret;\n" +
-				"	}" +
-				"}" ;
+				"""
+			public class X {
+				public String test001() {
+					int i = 0;
+					String ret = switch(i%2) {
+					case 0 -> "odd";
+					case 1 -> "even";
+					default -> "";
+					};
+					return ret;
+				}\
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 				contents,
@@ -335,35 +340,37 @@ public class ASTConverter14Test extends ConverterTestSetup {
 		IJavaProject p =  createJavaProject("Foo", new String[] {"src"}, new String[] {jclLib}, "bin", "14"); // FIXME jcl12?
 		try {
 			String source =
-				"import java.util.*;\n" +
-				"public class X {\n" +
-				"	void testForeach1(int i, List<String> list) {\n" +
-				"		for (String s : switch(i) { case 1 -> list; default -> ; }) {\n" +
-				"			\n" +
-				"		}\n" +
-				"		Throwable t = switch (i) {\n" +
-				"			case 1 -> new Exception();\n" +
-				"			case 2 -> new RuntimeException();\n" + // trigger !typeUniformAcrossAllArms
-				"			default -> missing;\n" +
-				"		};\n" +
-				"	}\n" +
-				"	void testForeach0(int i, List<String> list) {\n" + // errors in first arm
-				"		for (String s : switch(i) { case 1 -> ; default -> list; }) {\n" +
-				"			\n" +
-				"		}\n" +
-				"		Throwable t = switch (i) {\n" +
-				"			case 0 -> missing;\n" +
-				"			case 1 -> new Exception();\n" +
-				"			default -> new RuntimeException();\n" + // trigger !typeUniformAcrossAllArms
-				"		};\n" +
-				"	}\n" +
-				"	void testForeachAll(int i) {\n" + // only erroneous arms
-				"		Throwable t = switch (i) {\n" +
-				"			case 0 -> missing;\n" +
-				"			default -> absent;\n" +
-				"		};\n" +
-				"	}\n" +
-				"}\n";
+				"""
+				import java.util.*;
+				public class X {
+					void testForeach1(int i, List<String> list) {
+						for (String s : switch(i) { case 1 -> list; default -> ; }) {
+						\t
+						}
+						Throwable t = switch (i) {
+							case 1 -> new Exception();
+							case 2 -> new RuntimeException();
+							default -> missing;
+						};
+					}
+					void testForeach0(int i, List<String> list) {
+						for (String s : switch(i) { case 1 -> ; default -> list; }) {
+						\t
+						}
+						Throwable t = switch (i) {
+							case 0 -> missing;
+							case 1 -> new Exception();
+							default -> new RuntimeException();
+						};
+					}
+					void testForeachAll(int i) {
+						Throwable t = switch (i) {
+							case 0 -> missing;
+							default -> absent;
+						};
+					}
+				}
+				""";
 			createFile("Foo/src/X.java", source);
 			ICompilationUnit cuD = getCompilationUnit("/Foo/src/X.java");
 
@@ -376,36 +383,38 @@ public class ASTConverter14Test extends ConverterTestSetup {
 			org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
 			IProblem[] problems = cuAST.getProblems();
 			assertProblems("Unexpected problems",
-					"1. ERROR in /Foo/src/X.java (at line 4)\n" +
-					"	for (String s : switch(i) { case 1 -> list; default -> ; }) {\n" +
-					"	                                                    ^^\n" +
-					"Syntax error on token \"->\", Expression expected after this token\n" +
-					"----------\n" +
-					"2. ERROR in /Foo/src/X.java (at line 10)\n" +
-					"	default -> missing;\n" +
-					"	           ^^^^^^^\n" +
-					"missing cannot be resolved to a variable\n" +
-					"----------\n" +
-					"3. ERROR in /Foo/src/X.java (at line 14)\n" +
-					"	for (String s : switch(i) { case 1 -> ; default -> list; }) {\n" +
-					"	                                   ^^\n" +
-					"Syntax error on token \"->\", Expression expected after this token\n" +
-					"----------\n" +
-					"4. ERROR in /Foo/src/X.java (at line 18)\n" +
-					"	case 0 -> missing;\n" +
-					"	          ^^^^^^^\n" +
-					"missing cannot be resolved to a variable\n" +
-					"----------\n" +
-					"5. ERROR in /Foo/src/X.java (at line 25)\n" +
-					"	case 0 -> missing;\n" +
-					"	          ^^^^^^^\n" +
-					"missing cannot be resolved to a variable\n" +
-					"----------\n" +
-					"6. ERROR in /Foo/src/X.java (at line 26)\n" +
-					"	default -> absent;\n" +
-					"	           ^^^^^^\n" +
-					"absent cannot be resolved to a variable\n" +
-					"----------\n",
+					"""
+						1. ERROR in /Foo/src/X.java (at line 4)
+							for (String s : switch(i) { case 1 -> list; default -> ; }) {
+							                                                    ^^
+						Syntax error on token "->", Expression expected after this token
+						----------
+						2. ERROR in /Foo/src/X.java (at line 10)
+							default -> missing;
+							           ^^^^^^^
+						missing cannot be resolved to a variable
+						----------
+						3. ERROR in /Foo/src/X.java (at line 14)
+							for (String s : switch(i) { case 1 -> ; default -> list; }) {
+							                                   ^^
+						Syntax error on token "->", Expression expected after this token
+						----------
+						4. ERROR in /Foo/src/X.java (at line 18)
+							case 0 -> missing;
+							          ^^^^^^^
+						missing cannot be resolved to a variable
+						----------
+						5. ERROR in /Foo/src/X.java (at line 25)
+							case 0 -> missing;
+							          ^^^^^^^
+						missing cannot be resolved to a variable
+						----------
+						6. ERROR in /Foo/src/X.java (at line 26)
+							default -> absent;
+							           ^^^^^^
+						absent cannot be resolved to a variable
+						----------
+						""",
 					problems, source.toCharArray());
 		} finally {
 			deleteProject(p);
@@ -419,23 +428,25 @@ public class ASTConverter14Test extends ConverterTestSetup {
 			return;
 		}
 		String source =
-			"public class Switch {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		foo(Day.TUESDAY);\n" +
-			"	}\n" +
-			"\n" +
-			"	private static void foo(Day day) {\n" +
-			"		switch (day) {\n" +
-			"		case SUNDAY, MONDAY, FRIDAY -> System.out.println(6);\n" +
-			"		case TUESDAY -> System.out.println(7);\n" +
-			"		case THURSDAY, SATURDAY -> System.out.println(8);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n" +
-			"\n" +
-			"enum Day {\n" +
-			"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" +
-			"}\n";
+			"""
+			public class Switch {
+				public static void main(String[] args) {
+					foo(Day.TUESDAY);
+				}
+			
+				private static void foo(Day day) {
+					switch (day) {
+					case SUNDAY, MONDAY, FRIDAY -> System.out.println(6);
+					case TUESDAY -> System.out.println(7);
+					case THURSDAY, SATURDAY -> System.out.println(8);
+					}
+				}
+			}
+			
+			enum Day {
+				MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter14/src/Switch.java", true/*resolve*/);
 		try {
 		buildAST(
@@ -459,19 +470,20 @@ public class ASTConverter14Test extends ConverterTestSetup {
 			return;
 		}
 		String contents =
-				"public class X {\n" +
-						"	public String test001() {\n" +
-						"		String s = \"\"\"\n" +
-						"      	<html>\n" +
-						"        <body>\n" +
-						"            <p>Hello, world</p>\n" +
-						"        </body>\n" +
-						"    	</html>\n" +
-						"    	\"\"\";\n" +
-						"    	System.out.println(s);" +
-						"		return s;\n" +
-						"	}" +
-						"}" ;
+				"""
+			public class X {
+				public String test001() {
+					String s = \"""
+			      	<html>
+			        <body>
+			            <p>Hello, world</p>
+			        </body>
+			    	</html>
+			    	\""";
+			    	System.out.println(s);\
+					return s;
+				}\
+			}""" ;
 		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
 		try {
 		buildAST(
@@ -496,15 +508,16 @@ public class ASTConverter14Test extends ConverterTestSetup {
 			return;
 		}
 		String sourceCode =
-				"public class GH949 {" +
-				"public void test(String s){" +
-				"switch (s){" +
-				"case \"1\" ->System.out.println(\"One\");" +
-				"case \"2\" ->System.out.println(\"Two\");" +
-				"case \"3\" ->System.out.println(\"Three\");" +
-				"}" +
-				"}" +
-				"}";
+				"""
+			public class GH949 {\
+			public void test(String s){\
+			switch (s){\
+			case "1" ->System.out.println("One");\
+			case "2" ->System.out.println("Two");\
+			case "3" ->System.out.println("Three");\
+			}\
+			}\
+			}""";
 
 		this.workingCopies = new ICompilationUnit[] {
 				getWorkingCopy("/Converter14/src/GH949.java", sourceCode, true/* resolve */)

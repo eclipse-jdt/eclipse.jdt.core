@@ -71,59 +71,62 @@ public class StringConcatTest extends AbstractComparableTest {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "  public static void main(String[] args) {\n"
-					+ "    int one = 1;\n"
-					+ "    float two = 2;\n"
-					+ "    double three = 3d;\n"
-					+ "    long four = 4L;\n"
-					+ "    byte five = (byte) 5;\n"
-					+ "    short six = 6;\n"
-					+ "    char seven = 7;\n"
-					+ "    boolean b = false;\n"
-					+ "    String s = \"one=\" + one + \", two=\" + two + \", three=\" + three +\", four=\" + four +\", five=\" + five + \", six=\" + six + \", seven=\" + seven + \", boolean b=\" + b;\n"
-					+ "    s += \".\";\n"
-					+ "    System.out.println(s);\n"
-					+ "  }\n"
-					+ "} ",
+					"""
+						public class X {
+						  public static void main(String[] args) {
+						    int one = 1;
+						    float two = 2;
+						    double three = 3d;
+						    long four = 4L;
+						    byte five = (byte) 5;
+						    short six = 6;
+						    char seven = 7;
+						    boolean b = false;
+						    String s = "one=" + one + ", two=" + two + ", three=" + three +", four=" + four +", five=" + five + ", six=" + six + ", seven=" + seven + ", boolean b=" + b;
+						    s += ".";
+						    System.out.println(s);
+						  }
+						} """,
 				},
 				"one=1, two=2.0, three=3.0, four=4, five=5, six=6, seven=, boolean b=false."
 			);
-		String expectedOutput = "  // Stack: 10, Locals: 12\n" +
-				"  public static void main(java.lang.String[] args);\n" +
-				"     0  iconst_1\n" +
-				"     1  istore_1 [one]\n" +
-				"     2  fconst_2\n" +
-				"     3  fstore_2 [two]\n" +
-				"     4  ldc2_w <Double 3.0> [16]\n" +
-				"     7  dstore_3 [three]\n" +
-				"     8  ldc2_w <Long 4> [18]\n" +
-				"    11  lstore 5 [four]\n" +
-				"    13  iconst_5\n" +
-				"    14  istore 7 [five]\n" +
-				"    16  bipush 6\n" +
-				"    18  istore 8 [six]\n" +
-				"    20  bipush 7\n" +
-				"    22  istore 9 [seven]\n" +
-				"    24  iconst_0\n" +
-				"    25  istore 10 [b]\n" +
-				"    27  iload_1 [one]\n" +
-				"    28  fload_2 [two]\n" +
-				"    29  dload_3 [three]\n" +
-				"    30  lload 5 [four]\n" +
-				"    32  iload 7 [five]\n" +
-				"    34  iload 8 [six]\n" +
-				"    36  iload 9 [seven]\n" +
-				"    38  iload 10 [b]\n" +
-				"    40  invokedynamic 0 makeConcatWithConstants(int, float, double, long, byte, short, char, boolean) : java.lang.String [20]\n" +
-				"    45  astore 11 [s]\n" +
-				"    47  aload 11 [s]\n" +
-				"    49  invokedynamic 1 makeConcatWithConstants(java.lang.String) : java.lang.String [24]\n" +
-				"    54  astore 11 [s]\n" +
-				"    56  getstatic java.lang.System.out : java.io.PrintStream [27]\n" +
-				"    59  aload 11 [s]\n" +
-				"    61  invokevirtual java.io.PrintStream.println(java.lang.String) : void [33]\n" +
-				"    64  return\n";
+		String expectedOutput = """
+			  // Stack: 10, Locals: 12
+			  public static void main(java.lang.String[] args);
+			     0  iconst_1
+			     1  istore_1 [one]
+			     2  fconst_2
+			     3  fstore_2 [two]
+			     4  ldc2_w <Double 3.0> [16]
+			     7  dstore_3 [three]
+			     8  ldc2_w <Long 4> [18]
+			    11  lstore 5 [four]
+			    13  iconst_5
+			    14  istore 7 [five]
+			    16  bipush 6
+			    18  istore 8 [six]
+			    20  bipush 7
+			    22  istore 9 [seven]
+			    24  iconst_0
+			    25  istore 10 [b]
+			    27  iload_1 [one]
+			    28  fload_2 [two]
+			    29  dload_3 [three]
+			    30  lload 5 [four]
+			    32  iload 7 [five]
+			    34  iload 8 [six]
+			    36  iload 9 [seven]
+			    38  iload 10 [b]
+			    40  invokedynamic 0 makeConcatWithConstants(int, float, double, long, byte, short, char, boolean) : java.lang.String [20]
+			    45  astore 11 [s]
+			    47  aload 11 [s]
+			    49  invokedynamic 1 makeConcatWithConstants(java.lang.String) : java.lang.String [24]
+			    54  astore 11 [s]
+			    56  getstatic java.lang.System.out : java.io.PrintStream [27]
+			    59  aload 11 [s]
+			    61  invokevirtual java.io.PrintStream.println(java.lang.String) : void [33]
+			    64  return
+			""";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM, true);
 	}
 	// Test string concat for a simple BinaryExpression
@@ -131,30 +134,33 @@ public class StringConcatTest extends AbstractComparableTest {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "  public static void main(String[] args) {\n"
-					+ "	  new X().foo();\n"
-					+ "  }\n"
-					+ "  public void foo() {\n"
-					+ "	  int one = 1;\n"
-					+ "	  String s = \"one=\" + one;\n"
-					+ "	  System.out.println(s);\n"
-					+ "  }\n"
-					+ "}",
+					"""
+						public class X {
+						  public static void main(String[] args) {
+							  new X().foo();
+						  }
+						  public void foo() {
+							  int one = 1;
+							  String s = "one=" + one;
+							  System.out.println(s);
+						  }
+						}""",
 				},
 				"one=1"
 			);
-		String expectedOutput = "  // Stack: 2, Locals: 3\n" +
-				"  public void foo();\n" +
-				"     0  iconst_1\n" +
-				"     1  istore_1 [one]\n" +
-				"     2  iload_1 [one]\n" +
-				"     3  invokedynamic 0 makeConcatWithConstants(int) : java.lang.String [22]\n" +
-				"     8  astore_2 [s]\n" +
-				"     9  getstatic java.lang.System.out : java.io.PrintStream [26]\n" +
-				"    12  aload_2 [s]\n" +
-				"    13  invokevirtual java.io.PrintStream.println(java.lang.String) : void [32]\n" +
-				"    16  return\n";
+		String expectedOutput = """
+			  // Stack: 2, Locals: 3
+			  public void foo();
+			     0  iconst_1
+			     1  istore_1 [one]
+			     2  iload_1 [one]
+			     3  invokedynamic 0 makeConcatWithConstants(int) : java.lang.String [22]
+			     8  astore_2 [s]
+			     9  getstatic java.lang.System.out : java.io.PrintStream [26]
+			    12  aload_2 [s]
+			    13  invokevirtual java.io.PrintStream.println(java.lang.String) : void [32]
+			    16  return
+			""";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM, true);
 	}
 	// Test binary expression whose first operand is a field and therefore already loaded into the stack
@@ -162,64 +168,67 @@ public class StringConcatTest extends AbstractComparableTest {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	String v;\n"
-					+ "  public static void main(String[] args) {\n"
-					+ "	  new X().foo();\n"
-					+ "  }\n"
-					+ "  public void foo() {\n"
-					+ "	  int one = 1;\n"
-					+ "	    float two = 2;\n"
-					+ "	    double three = 3d;\n"
-					+ "	    long four = 4L;\n"
-					+ "	    byte five = (byte) 5;\n"
-					+ "	    short six = 6;\n"
-					+ "	    char seven = 7;\n"
-					+ "	    boolean b = false;\n"
-					+ "	  v += \",one=\" + one + \", two=\" + two + \", three=\" + three +\", four=\" + four +\", five=\" + five + \", six=\" + six + \", seven=\" + seven + \", boolean b=\" + b;\n"
-					+ "	  System.out.println(this.v);\n"
-					+ "  }\n"
-					+ "}",
+					"""
+						public class X {
+							String v;
+						  public static void main(String[] args) {
+							  new X().foo();
+						  }
+						  public void foo() {
+							  int one = 1;
+							    float two = 2;
+							    double three = 3d;
+							    long four = 4L;
+							    byte five = (byte) 5;
+							    short six = 6;
+							    char seven = 7;
+							    boolean b = false;
+							  v += ",one=" + one + ", two=" + two + ", three=" + three +", four=" + four +", five=" + five + ", six=" + six + ", seven=" + seven + ", boolean b=" + b;
+							  System.out.println(this.v);
+						  }
+						}""",
 				},
 				"null,one=1, two=2.0, three=3.0, four=4, five=5, six=6, seven=, boolean b=false"
 			);
-		String expectedOutput = "  // Stack: 12, Locals: 11\n" +
-				"  public void foo();\n" +
-				"     0  iconst_1\n" +
-				"     1  istore_1 [one]\n" +
-				"     2  fconst_2\n" +
-				"     3  fstore_2 [two]\n" +
-				"     4  ldc2_w <Double 3.0> [24]\n" +
-				"     7  dstore_3 [three]\n" +
-				"     8  ldc2_w <Long 4> [26]\n" +
-				"    11  lstore 5 [four]\n" +
-				"    13  iconst_5\n" +
-				"    14  istore 7 [five]\n" +
-				"    16  bipush 6\n" +
-				"    18  istore 8 [six]\n" +
-				"    20  bipush 7\n" +
-				"    22  istore 9 [seven]\n" +
-				"    24  iconst_0\n" +
-				"    25  istore 10 [b]\n" +
-				"    27  aload_0 [this]\n" +
-				"    28  dup\n" +
-				"    29  getfield X.v : java.lang.String [28]\n" +
-				"    32  invokestatic java.lang.String.valueOf(java.lang.Object) : java.lang.String [30]\n" +
-				"    35  iload_1 [one]\n" +
-				"    36  fload_2 [two]\n" +
-				"    37  dload_3 [three]\n" +
-				"    38  lload 5 [four]\n" +
-				"    40  iload 7 [five]\n" +
-				"    42  iload 8 [six]\n" +
-				"    44  iload 9 [seven]\n" +
-				"    46  iload 10 [b]\n" +
-				"    48  invokedynamic 0 makeConcatWithConstants(java.lang.String, int, float, double, long, byte, short, char, boolean) : java.lang.String [36]\n" +
-				"    53  putfield X.v : java.lang.String [28]\n" +
-				"    56  getstatic java.lang.System.out : java.io.PrintStream [40]\n" +
-				"    59  aload_0 [this]\n" +
-				"    60  getfield X.v : java.lang.String [28]\n" +
-				"    63  invokevirtual java.io.PrintStream.println(java.lang.String) : void [46]\n" +
-				"    66  return\n";
+		String expectedOutput = """
+			  // Stack: 12, Locals: 11
+			  public void foo();
+			     0  iconst_1
+			     1  istore_1 [one]
+			     2  fconst_2
+			     3  fstore_2 [two]
+			     4  ldc2_w <Double 3.0> [24]
+			     7  dstore_3 [three]
+			     8  ldc2_w <Long 4> [26]
+			    11  lstore 5 [four]
+			    13  iconst_5
+			    14  istore 7 [five]
+			    16  bipush 6
+			    18  istore 8 [six]
+			    20  bipush 7
+			    22  istore 9 [seven]
+			    24  iconst_0
+			    25  istore 10 [b]
+			    27  aload_0 [this]
+			    28  dup
+			    29  getfield X.v : java.lang.String [28]
+			    32  invokestatic java.lang.String.valueOf(java.lang.Object) : java.lang.String [30]
+			    35  iload_1 [one]
+			    36  fload_2 [two]
+			    37  dload_3 [three]
+			    38  lload 5 [four]
+			    40  iload 7 [five]
+			    42  iload 8 [six]
+			    44  iload 9 [seven]
+			    46  iload 10 [b]
+			    48  invokedynamic 0 makeConcatWithConstants(java.lang.String, int, float, double, long, byte, short, char, boolean) : java.lang.String [36]
+			    53  putfield X.v : java.lang.String [28]
+			    56  getstatic java.lang.System.out : java.io.PrintStream [40]
+			    59  aload_0 [this]
+			    60  getfield X.v : java.lang.String [28]
+			    63  invokevirtual java.io.PrintStream.println(java.lang.String) : void [46]
+			    66  return
+			""";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM, true);
 	}
 	// Test a binary expression (with string concat) whose one operand is not a string type
@@ -227,29 +236,32 @@ public class StringConcatTest extends AbstractComparableTest {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n"
-					+ "	int count = 0;\n"
-					+ "  public static void main(String[] args) {\n"
-					+ "	  new X().foo();\n"
-					+ "  }\n"
-					+ "  public void foo() {\n"
-					+ "	  System.out.println(this.toString());\n"
-					+ "  }\n"
-					+ "  public String toString() {\n"
-					+ "	  return \"count=\" + (this.count + 1);\n"
-					+ "  }\n"
-					+ "} ",
+					"""
+						public class X {
+							int count = 0;
+						  public static void main(String[] args) {
+							  new X().foo();
+						  }
+						  public void foo() {
+							  System.out.println(this.toString());
+						  }
+						  public String toString() {
+							  return "count=" + (this.count + 1);
+						  }
+						} """,
 				},
 				"count=1"
 			);
-		String expectedOutput = "  // Stack: 2, Locals: 1\n" +
-				"  public java.lang.String toString();\n" +
-				"     0  aload_0 [this]\n" +
-				"     1  getfield X.count : int [12]\n" +
-				"     4  iconst_1\n" +
-				"     5  iadd\n" +
-				"     6  invokedynamic 0 makeConcatWithConstants(int) : java.lang.String [42]\n" +
-				"    11  areturn\n";
+		String expectedOutput = """
+			  // Stack: 2, Locals: 1
+			  public java.lang.String toString();
+			     0  aload_0 [this]
+			     1  getfield X.count : int [12]
+			     4  iconst_1
+			     5  iadd
+			     6  invokedynamic 0 makeConcatWithConstants(int) : java.lang.String [42]
+			    11  areturn
+			""";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM, true);
 	}
 
@@ -258,43 +270,47 @@ public class StringConcatTest extends AbstractComparableTest {
 		this.runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	public static void main(String[] args) {\n"
-						+ "		int first = 11;\n"
-						+ "		int second = 42;\n"
-						+ "		String actual =\n"
-						+ "				\"X \" + 0 + \" \" +\n"
-						+ "				\"a \" + first + \" \" +\n"
-						+ "				\"a \" + first + \" \" +\n"
-						+ "				\"X \" + 1 + \" \" +\n"
-						+ "				\"b \" + second + \" \" +\n"
-						+ "				\"b \" + second + \" \" +\n"
-						+ "				\"b \" + second + \" \" +\n"
-						+ "				\"b \" + second;\n"
-						+ "		System.out.println(actual);\n"
-						+ "	}\n"
-						+ "}\n",
+						"""
+							public class X {
+								public static void main(String[] args) {
+									int first = 11;
+									int second = 42;
+									String actual =
+											"X " + 0 + " " +
+											"a " + first + " " +
+											"a " + first + " " +
+											"X " + 1 + " " +
+											"b " + second + " " +
+											"b " + second + " " +
+											"b " + second + " " +
+											"b " + second;
+									System.out.println(actual);
+								}
+							}
+							""",
 				},
 				"X 0 a 11 a 11 X 1 b 42 b 42 b 42 b 42"
 				);
-		String expectedOutput = "  // Stack: 6, Locals: 4\n"
-				+ "  public static void main(java.lang.String[] args);\n"
-				+ "     0  bipush 11\n"
-				+ "     2  istore_1 [first]\n"
-				+ "     3  bipush 42\n"
-				+ "     5  istore_2 [second]\n"
-				+ "     6  iload_1 [first]\n"
-				+ "     7  iload_1 [first]\n"
-				+ "     8  iload_2 [second]\n"
-				+ "     9  iload_2 [second]\n"
-				+ "    10  iload_2 [second]\n"
-				+ "    11  iload_2 [second]\n"
-				+ "    12  invokedynamic 0 makeConcatWithConstants(int, int, int, int, int, int) : java.lang.String [16]\n"
-				+ "    17  astore_3 [actual]\n"
-				+ "    18  getstatic java.lang.System.out : java.io.PrintStream [20]\n"
-				+ "    21  aload_3 [actual]\n"
-				+ "    22  invokevirtual java.io.PrintStream.println(java.lang.String) : void [26]\n"
-				+ "    25  return\n";
+		String expectedOutput = """
+			  // Stack: 6, Locals: 4
+			  public static void main(java.lang.String[] args);
+			     0  bipush 11
+			     2  istore_1 [first]
+			     3  bipush 42
+			     5  istore_2 [second]
+			     6  iload_1 [first]
+			     7  iload_1 [first]
+			     8  iload_2 [second]
+			     9  iload_2 [second]
+			    10  iload_2 [second]
+			    11  iload_2 [second]
+			    12  invokedynamic 0 makeConcatWithConstants(int, int, int, int, int, int) : java.lang.String [16]
+			    17  astore_3 [actual]
+			    18  getstatic java.lang.System.out : java.io.PrintStream [20]
+			    21  aload_3 [actual]
+			    22  invokevirtual java.io.PrintStream.println(java.lang.String) : void [26]
+			    25  return
+			""";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM, true);
 	}
 }

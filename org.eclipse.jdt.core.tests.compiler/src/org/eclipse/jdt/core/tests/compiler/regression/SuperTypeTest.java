@@ -50,27 +50,28 @@ public class SuperTypeTest extends AbstractRegressionTest {
 			new String[] {
 				/* org.eclipse.curiosity.A */
 				"org/eclipse/curiosity/A.java",
-				"package org.eclipse.curiosity;\n" +
-				"public abstract class A implements InterfaceA {\n" +
-				"	private void e() {\n" +
-				"	}\n" +
-				"	public void f() {\n" +
-				"		this.e();\n" +
-				"	}\n" +
-				"}",
+				"""
+					package org.eclipse.curiosity;
+					public abstract class A implements InterfaceA {
+						private void e() {
+						}
+						public void f() {
+							this.e();
+						}
+					}""",
 				/* org.eclipse.curiosity.InterfaceA */
 				"org/eclipse/curiosity/InterfaceA.java",
 				"package org.eclipse.curiosity;\n" +
 				"public interface InterfaceA extends InterfaceBase {}\n",
 				"org/eclipse/curiosity/InterfaceBase.java",
-				/* org.eclipse.curiosity.InterfaceBase */
-				"package org.eclipse.curiosity;\n" +
-				"public interface InterfaceBase {\n" +
-				"    public void a();\n" +
-				"    public void b();\n" +
-				"    public void c();\n" +
-				"    public void d();\n" +
-				"}"
+				"""
+					package org.eclipse.curiosity;
+					public interface InterfaceBase {
+					    public void a();
+					    public void b();
+					    public void c();
+					    public void d();
+					}"""
 			}
 		);
 	}
@@ -78,33 +79,37 @@ public class SuperTypeTest extends AbstractRegressionTest {
 public void test002() {
 	String[] sources = new String[] {
 		"p1/Test.java",
-		"package p1; \n"+
-		"public class Test { \n"+
-		"	public static void main(String[] arguments) { \n"+
-		"		new Test().foo(); \n"+
-		"	} \n"+
-		"	class M { \n"+
-		"	} \n"+
-		"	void foo(){ \n"+
-		"		class Y extends Secondary { \n"+
-		"			M m; \n"+
-		"		}; \n"+
-		"		System.out.println(\"SUCCESS\");	\n" +
-		"	} \n"+
-		"} \n" +
-		"class Secondary { \n" +
-		"	class M {} \n" +
-		"} \n"
+		"""
+			package p1;\s
+			public class Test {\s
+				public static void main(String[] arguments) {\s
+					new Test().foo();\s
+				}\s
+				class M {\s
+				}\s
+				void foo(){\s
+					class Y extends Secondary {\s
+						M m;\s
+					};\s
+					System.out.println("SUCCESS");\t
+				}\s
+			}\s
+			class Secondary {\s
+				class M {}\s
+			}\s
+			"""
 	};
 	if (this.complianceLevel == ClassFileConstants.JDK1_3) {
 		runNegativeTest(
 			sources,
-			"----------\n" +
-			"1. ERROR in p1\\Test.java (at line 10)\n" +
-			"	M m; \n" +
-			"	^\n" +
-			"The type M is defined in an inherited type and an enclosing scope\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\Test.java (at line 10)
+					M m;\s
+					^
+				The type M is defined in an inherited type and an enclosing scope
+				----------
+				""");
 	} else {
 		runConformTest(
 			sources,
@@ -116,34 +121,38 @@ public void test002() {
 public void test003() {
 	String[] sources = new String[] {
 		"p1/Test.java",
-		"package p1; \n"+
-		"public class Test { \n"+
-		"	public static void main(String[] arguments) { \n"+
-		"		new Test().foo(); \n"+
-		"	} \n"+
-		"	String bar() { \n"+
-		"		return \"FAILED\";	\n" +
-		"	} \n"+
-		"	void foo(){ \n"+
-		"		class Y extends Secondary { \n"+
-		"			String z = bar();	\n" +
-		"		}; \n"+
-		"		System.out.println(new Y().z);	\n" +
-		"	} \n"+
-		"} \n" +
-		"class Secondary { \n" +
-		"	String bar(){ return \"SUCCESS\"; } \n" +
-		"} \n"
+		"""
+			package p1;\s
+			public class Test {\s
+				public static void main(String[] arguments) {\s
+					new Test().foo();\s
+				}\s
+				String bar() {\s
+					return "FAILED";\t
+				}\s
+				void foo(){\s
+					class Y extends Secondary {\s
+						String z = bar();\t
+					};\s
+					System.out.println(new Y().z);\t
+				}\s
+			}\s
+			class Secondary {\s
+				String bar(){ return "SUCCESS"; }\s
+			}\s
+			"""
 	};
 	if (this.complianceLevel == ClassFileConstants.JDK1_3) {
 		runNegativeTest(
 			sources,
-			"----------\n" +
-			"1. ERROR in p1\\Test.java (at line 11)\n" +
-			"	String z = bar();	\n" +
-			"	           ^^^\n" +
-			"The method bar is defined in an inherited type and an enclosing scope\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\Test.java (at line 11)
+					String z = bar();\t
+					           ^^^
+				The method bar is defined in an inherited type and an enclosing scope
+				----------
+				""");
 	} else {
 		runConformTest(
 			sources,
@@ -155,32 +164,36 @@ public void test003() {
 public void test004() {
 	String[] sources = new String[] {
 		"p1/Test.java",
-		"package p1; \n"+
-		"public class Test { \n"+
-		"	public static void main(String[] arguments) { \n"+
-		"		new Test().foo(); \n"+
-		"	} \n"+
-		"	String bar = \"FAILED\";"+
-		"	void foo(){ \n"+
-		"		class Y extends Secondary { \n"+
-		"			String z = bar; \n"+
-		"		}; \n"+
-		"		System.out.println(new Y().z);	\n" +
-		"	} \n"+
-		"} \n" +
-		"class Secondary { \n" +
-		"	String bar = \"SUCCESS\"; \n" +
-		"} \n"
+		"""
+			package p1;\s
+			public class Test {\s
+				public static void main(String[] arguments) {\s
+					new Test().foo();\s
+				}\s
+				String bar = "FAILED";\
+				void foo(){\s
+					class Y extends Secondary {\s
+						String z = bar;\s
+					};\s
+					System.out.println(new Y().z);\t
+				}\s
+			}\s
+			class Secondary {\s
+				String bar = "SUCCESS";\s
+			}\s
+			"""
 	};
 	if (this.complianceLevel == ClassFileConstants.JDK1_3) {
 		runNegativeTest(
 			sources,
-			"----------\n" +
-			"1. ERROR in p1\\Test.java (at line 8)\n" +
-			"	String z = bar; \n" +
-			"	           ^^^\n" +
-			"The field bar is defined in an inherited type and an enclosing scope \n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in p1\\Test.java (at line 8)
+					String z = bar;\s
+					           ^^^
+				The field bar is defined in an inherited type and an enclosing scope\s
+				----------
+				""");
 	} else {
 		runConformTest(
 			sources,
@@ -193,24 +206,26 @@ public void test005() {
 	this.runConformTest(
 		new String[] {
 			"p1/Test.java",
-			"package p1; \n"+
-			"public class Test { \n"+
-			"	public static void main(String[] arguments) { \n"+
-			"		new Test().foo(); \n"+
-			"	} \n"+
-			"	String bar() { \n"+
-			"		return \"SUCCESS\";	\n" +
-			"	} \n"+
-			"	void foo(){ \n"+
-			"		class Y extends Secondary { \n"+
-			"			String z = bar();	\n" +
-			"		}; \n"+
-			"		System.out.println(new Y().z);	\n" +
-			"	} \n"+
-			"} \n" +
-			"class Secondary { \n" +
-			"	private String bar(){ return \"FAILED\"; } \n" +
-			"} \n"
+			"""
+				package p1;\s
+				public class Test {\s
+					public static void main(String[] arguments) {\s
+						new Test().foo();\s
+					}\s
+					String bar() {\s
+						return "SUCCESS";\t
+					}\s
+					void foo(){\s
+						class Y extends Secondary {\s
+							String z = bar();\t
+						};\s
+						System.out.println(new Y().z);\t
+					}\s
+				}\s
+				class Secondary {\s
+					private String bar(){ return "FAILED"; }\s
+				}\s
+				"""
 		},
 		"SUCCESS");
 }
@@ -220,22 +235,24 @@ public void test006() {
 	this.runConformTest(
 		new String[] {
 			"p1/Test.java",
-			"package p1; \n"+
-			"public class Test { \n"+
-			"	public static void main(String[] arguments) { \n"+
-			"		new Test().foo(); \n"+
-			"	} \n"+
-			"	String bar = \"SUCCESS\";"+
-			"	void foo(){ \n"+
-			"		class Y extends Secondary { \n"+
-			"			String z = bar; \n"+
-			"		}; \n"+
-			"		System.out.println(new Y().z);	\n" +
-			"	} \n"+
-			"} \n" +
-			"class Secondary { \n" +
-			"	private String bar = \"FAILED\"; \n" +
-			"} \n"
+			"""
+				package p1;\s
+				public class Test {\s
+					public static void main(String[] arguments) {\s
+						new Test().foo();\s
+					}\s
+					String bar = "SUCCESS";\
+					void foo(){\s
+						class Y extends Secondary {\s
+							String z = bar;\s
+						};\s
+						System.out.println(new Y().z);\t
+					}\s
+				}\s
+				class Secondary {\s
+					private String bar = "FAILED";\s
+				}\s
+				"""
 		},
 		"SUCCESS");
 }
@@ -245,31 +262,35 @@ public void test007() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/Test.java",
-			"package p1; \n"+
-			"public class Test { \n"+
-			"	public static void main(String[] arguments) { \n"+
-			"		new Test().foo(); \n"+
-			"	} \n"+
-			"	String bar() { \n"+
-			"		return \"FAILED\";	\n" +
-			"	} \n"+
-			"	void foo(){ \n"+
-			"		class Y extends Secondary { \n"+
-			"			String z = bar();	\n" +
-			"		}; \n"+
-			"		System.out.println(new Y().z);	\n" +
-			"	} \n"+
-			"} \n" +
-			"class Secondary { \n" +
-			"	String bar(int i){ return \"SUCCESS\"; } \n" +
-			"} \n"
+			"""
+				package p1;\s
+				public class Test {\s
+					public static void main(String[] arguments) {\s
+						new Test().foo();\s
+					}\s
+					String bar() {\s
+						return "FAILED";\t
+					}\s
+					void foo(){\s
+						class Y extends Secondary {\s
+							String z = bar();\t
+						};\s
+						System.out.println(new Y().z);\t
+					}\s
+				}\s
+				class Secondary {\s
+					String bar(int i){ return "SUCCESS"; }\s
+				}\s
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in p1\\Test.java (at line 11)\n" +
-		"	String z = bar();	\n" +
-		"	           ^^^\n" +
-		"The method bar(int) in the type Secondary is not applicable for the arguments ()\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in p1\\Test.java (at line 11)
+				String z = bar();\t
+				           ^^^
+			The method bar(int) in the type Secondary is not applicable for the arguments ()
+			----------
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
@@ -278,10 +299,12 @@ public void test008() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X implements I {}\n" +
-			"class Y extends X implements I, J {}" +
-			"interface I {}\n" +
-			"interface J {}\n"
+			"""
+				public class X implements I {}
+				class Y extends X implements I, J {}\
+				interface I {}
+				interface J {}
+				"""
 		},
 		""
 	);
@@ -296,21 +319,24 @@ public void test009() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X implements I {}\n" +
-			"class Y extends X implements I, J {}\n" +
-			"interface I {}\n" +
-			"interface J {}\n"
+			"""
+				public class X implements I {}
+				class Y extends X implements I, J {}
+				interface I {}
+				interface J {}
+				"""
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 2)\n" +
-		"	class Y extends X implements I, J {}\n" +
-		"	                             ^\n" +
-		"Redundant superinterface I for the type Y, already defined by X\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				class Y extends X implements I, J {}
+				                             ^
+			Redundant superinterface I for the type Y, already defined by X
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -324,22 +350,25 @@ public void test010() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X implements I {}\n" +
-			"class Y extends X {}\n" +
-			"class Z extends Y implements J, I {}\n" +
-			"interface I {}\n" +
-			"interface J {}\n"
+			"""
+				public class X implements I {}
+				class Y extends X {}
+				class Z extends Y implements J, I {}
+				interface I {}
+				interface J {}
+				"""
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 3)\n" +
-		"	class Z extends Y implements J, I {}\n" +
-		"	                                ^\n" +
-		"Redundant superinterface I for the type Z, already defined by X\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				class Z extends Y implements J, I {}
+				                                ^
+			Redundant superinterface I for the type Z, already defined by X
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -351,11 +380,13 @@ public void test011() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X implements I {}\n" +
-			"class Y extends X {}\n" +
-			"class Z extends Y implements J {}" +
-			"interface I {}\n" +
-			"interface J {}\n"
+			"""
+				public class X implements I {}
+				class Y extends X {}
+				class Z extends Y implements J {}\
+				interface I {}
+				interface J {}
+				"""
 		},
 		"",
 		null /* no extra class libraries */,
@@ -374,21 +405,24 @@ public void test012() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X implements J {}\n" +
-			"class Y extends X implements I {}\n" +
-			"interface I {}\n" +
-			"interface J extends I {}\n"
+			"""
+				public class X implements J {}
+				class Y extends X implements I {}
+				interface I {}
+				interface J extends I {}
+				"""
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 2)\n" +
-		"	class Y extends X implements I {}\n" +
-		"	                             ^\n" +
-		"Redundant superinterface I for the type Y, already defined by J\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				class Y extends X implements I {}
+				                             ^
+			Redundant superinterface I for the type Y, already defined by J
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -402,53 +436,55 @@ public void test013() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"import java.util.*;\n" +
-			"interface X<E> extends List<E>, Collection<E>, Iterable<E> {}\n" +
-			"interface Y<E> extends Collection<E>, List<E> {}\n" +
-			"interface XXX<E> extends Iterable<E>, List<E>, Collection<E> {}\n" +
-			"abstract class Z implements List<Object>, Collection<Object> {}\n" +
-			"abstract class ZZ implements Collection<Object>, List<Object> {}"
+			"""
+				import java.util.*;
+				interface X<E> extends List<E>, Collection<E>, Iterable<E> {}
+				interface Y<E> extends Collection<E>, List<E> {}
+				interface XXX<E> extends Iterable<E>, List<E>, Collection<E> {}
+				abstract class Z implements List<Object>, Collection<Object> {}
+				abstract class ZZ implements Collection<Object>, List<Object> {}"""
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	interface X<E> extends List<E>, Collection<E>, Iterable<E> {}\n" +
-		"	                                ^^^^^^^^^^\n" +
-		"Redundant superinterface Collection<E> for the type X<E>, already defined by List<E>\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	interface X<E> extends List<E>, Collection<E>, Iterable<E> {}\n" +
-		"	                                               ^^^^^^^^\n" +
-		"Redundant superinterface Iterable<E> for the type X<E>, already defined by List<E>\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 3)\n" +
-		"	interface Y<E> extends Collection<E>, List<E> {}\n" +
-		"	                       ^^^^^^^^^^\n" +
-		"Redundant superinterface Collection<E> for the type Y<E>, already defined by List<E>\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 4)\n" +
-		"	interface XXX<E> extends Iterable<E>, List<E>, Collection<E> {}\n" +
-		"	                         ^^^^^^^^\n" +
-		"Redundant superinterface Iterable<E> for the type XXX<E>, already defined by List<E>\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 4)\n" +
-		"	interface XXX<E> extends Iterable<E>, List<E>, Collection<E> {}\n" +
-		"	                                               ^^^^^^^^^^\n" +
-		"Redundant superinterface Collection<E> for the type XXX<E>, already defined by List<E>\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 5)\n" +
-		"	abstract class Z implements List<Object>, Collection<Object> {}\n" +
-		"	                                          ^^^^^^^^^^\n" +
-		"Redundant superinterface Collection<Object> for the type Z, already defined by List<Object>\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 6)\n" +
-		"	abstract class ZZ implements Collection<Object>, List<Object> {}\n" +
-		"	                             ^^^^^^^^^^\n" +
-		"Redundant superinterface Collection<Object> for the type ZZ, already defined by List<Object>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				interface X<E> extends List<E>, Collection<E>, Iterable<E> {}
+				                                ^^^^^^^^^^
+			Redundant superinterface Collection<E> for the type X<E>, already defined by List<E>
+			----------
+			2. ERROR in X.java (at line 2)
+				interface X<E> extends List<E>, Collection<E>, Iterable<E> {}
+				                                               ^^^^^^^^
+			Redundant superinterface Iterable<E> for the type X<E>, already defined by List<E>
+			----------
+			3. ERROR in X.java (at line 3)
+				interface Y<E> extends Collection<E>, List<E> {}
+				                       ^^^^^^^^^^
+			Redundant superinterface Collection<E> for the type Y<E>, already defined by List<E>
+			----------
+			4. ERROR in X.java (at line 4)
+				interface XXX<E> extends Iterable<E>, List<E>, Collection<E> {}
+				                         ^^^^^^^^
+			Redundant superinterface Iterable<E> for the type XXX<E>, already defined by List<E>
+			----------
+			5. ERROR in X.java (at line 4)
+				interface XXX<E> extends Iterable<E>, List<E>, Collection<E> {}
+				                                               ^^^^^^^^^^
+			Redundant superinterface Collection<E> for the type XXX<E>, already defined by List<E>
+			----------
+			6. ERROR in X.java (at line 5)
+				abstract class Z implements List<Object>, Collection<Object> {}
+				                                          ^^^^^^^^^^
+			Redundant superinterface Collection<Object> for the type Z, already defined by List<Object>
+			----------
+			7. ERROR in X.java (at line 6)
+				abstract class ZZ implements Collection<Object>, List<Object> {}
+				                             ^^^^^^^^^^
+			Redundant superinterface Collection<Object> for the type ZZ, already defined by List<Object>
+			----------
+			""",
 		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=288749
@@ -469,13 +505,14 @@ public void test014() {
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X implements I, J {}\n" +
-		"	                          ^\n" +
-		"Redundant superinterface I for the type X, already defined by J\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 1)
+				public class X implements I, J {}
+				                          ^
+			Redundant superinterface I for the type X, already defined by J
+			----------
+			""",
 		JavacTestOptions.SKIP);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911 (as is)
@@ -487,33 +524,36 @@ public void test015() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"interface IVerticalRulerColumn {}\n" +
-			"interface IVerticalRulerInfo {}\n" +
-			"interface IVerticalRulerInfoExtension {}\n" +
-			"interface IChangeRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfoExtension {}\n" +
-			"interface IRevisionRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-			"public final class X implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension, IChangeRulerColumn, IRevisionRulerColumn {}\n"
+			"""
+				interface IVerticalRulerColumn {}
+				interface IVerticalRulerInfo {}
+				interface IVerticalRulerInfoExtension {}
+				interface IChangeRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfoExtension {}
+				interface IRevisionRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				public final class X implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension, IChangeRulerColumn, IRevisionRulerColumn {}
+				"""
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	public final class X implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension, IChangeRulerColumn, IRevisionRulerColumn {}\n" +
-		"	                                ^^^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerColumn for the type X, already defined by IChangeRulerColumn\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	public final class X implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension, IChangeRulerColumn, IRevisionRulerColumn {}\n" +
-		"	                                                      ^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerInfo for the type X, already defined by IRevisionRulerColumn\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 6)\n" +
-		"	public final class X implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension, IChangeRulerColumn, IRevisionRulerColumn {}\n" +
-		"	                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by IChangeRulerColumn\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				public final class X implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension, IChangeRulerColumn, IRevisionRulerColumn {}
+				                                ^^^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerColumn for the type X, already defined by IChangeRulerColumn
+			----------
+			2. ERROR in X.java (at line 6)
+				public final class X implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension, IChangeRulerColumn, IRevisionRulerColumn {}
+				                                                      ^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerInfo for the type X, already defined by IRevisionRulerColumn
+			----------
+			3. ERROR in X.java (at line 6)
+				public final class X implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension, IChangeRulerColumn, IRevisionRulerColumn {}
+				                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by IChangeRulerColumn
+			----------
+			""",
 		JavacTestOptions.SKIP);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911 (variation)
@@ -525,35 +565,38 @@ public void test016() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"interface IVerticalRulerColumn {}\n" +
-			"interface IVerticalRulerInfo {}\n" +
-			"interface IVerticalRulerInfoExtension {}\n" +
-			"interface IChangeRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfoExtension {}\n" +
-			"interface IRevisionRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-			"class Z implements IChangeRulerColumn {}\n" +
-			"class Y extends Z implements IRevisionRulerColumn {}\n" +
-			"public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n"
+			"""
+				interface IVerticalRulerColumn {}
+				interface IVerticalRulerInfo {}
+				interface IVerticalRulerInfoExtension {}
+				interface IChangeRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfoExtension {}
+				interface IRevisionRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				class Z implements IChangeRulerColumn {}
+				class Y extends Z implements IRevisionRulerColumn {}
+				public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				"""
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-		"	                                          ^^^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerColumn for the type X, already defined by IRevisionRulerColumn\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-		"	                                                                ^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerInfo for the type X, already defined by IRevisionRulerColumn\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 8)\n" +
-		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-		"	                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by IRevisionRulerColumn\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				                                          ^^^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerColumn for the type X, already defined by IRevisionRulerColumn
+			----------
+			2. ERROR in X.java (at line 8)
+				public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				                                                                ^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerInfo for the type X, already defined by IRevisionRulerColumn
+			----------
+			3. ERROR in X.java (at line 8)
+				public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by IRevisionRulerColumn
+			----------
+			""",
 		JavacTestOptions.SKIP);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911 (variation)
@@ -565,38 +608,41 @@ public void test017() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"interface IVerticalRulerColumn {}\n" +
-			"interface IVerticalRulerInfo {}\n" +
-			"interface IVerticalRulerInfoExtension {}\n" +
-			"interface IChangeRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfoExtension {}\n" +
-			"interface IRevisionRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-			"class Z implements IRevisionRulerColumn{}\n" +
-			"class C extends Z {}\n" +
-			"class B extends C implements IChangeRulerColumn {}\n" +
-			"class H extends B {}\n" +
-			"class Y extends H  {}\n" +
-			"public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n"
+			"""
+				interface IVerticalRulerColumn {}
+				interface IVerticalRulerInfo {}
+				interface IVerticalRulerInfoExtension {}
+				interface IChangeRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfoExtension {}
+				interface IRevisionRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				class Z implements IRevisionRulerColumn{}
+				class C extends Z {}
+				class B extends C implements IChangeRulerColumn {}
+				class H extends B {}
+				class Y extends H  {}
+				public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				"""
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-		"	                                          ^^^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerColumn for the type X, already defined by IRevisionRulerColumn\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 11)\n" +
-		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-		"	                                                                ^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerInfo for the type X, already defined by IRevisionRulerColumn\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 11)\n" +
-		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-		"	                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by IRevisionRulerColumn\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 11)
+				public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				                                          ^^^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerColumn for the type X, already defined by IRevisionRulerColumn
+			----------
+			2. ERROR in X.java (at line 11)
+				public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				                                                                ^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerInfo for the type X, already defined by IRevisionRulerColumn
+			----------
+			3. ERROR in X.java (at line 11)
+				public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by IRevisionRulerColumn
+			----------
+			""",
 		JavacTestOptions.SKIP);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911 (variation)
@@ -608,43 +654,46 @@ public void test018() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"interface IVerticalRulerColumn {}\n" +
-			"interface IVerticalRulerInfo {}\n" +
-			"interface IVerticalRulerInfoExtension {}\n" +
-			"interface IChangeRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfoExtension {}\n" +
-			"interface IRevisionRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-			"class Z implements IVerticalRulerInfoExtension {}\n" +
-			"class C extends Z {}\n" +
-			"class B extends C implements IChangeRulerColumn {}\n" +
-			"class H extends B implements IVerticalRulerInfo {}\n" +
-			"class Y extends H  implements IVerticalRulerColumn {}\n" +
-			"public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n"
+			"""
+				interface IVerticalRulerColumn {}
+				interface IVerticalRulerInfo {}
+				interface IVerticalRulerInfoExtension {}
+				interface IChangeRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfoExtension {}
+				interface IRevisionRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				class Z implements IVerticalRulerInfoExtension {}
+				class C extends Z {}
+				class B extends C implements IChangeRulerColumn {}
+				class H extends B implements IVerticalRulerInfo {}
+				class Y extends H  implements IVerticalRulerColumn {}
+				public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				"""
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	class Y extends H  implements IVerticalRulerColumn {}\n" +
-		"	                              ^^^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerColumn for the type Y, already defined by IChangeRulerColumn\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 11)\n" +
-		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-		"	                                          ^^^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerColumn for the type X, already defined by Y\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 11)\n" +
-		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-		"	                                                                ^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerInfo for the type X, already defined by H\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 11)\n" +
-		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
-		"	                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by Z\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				class Y extends H  implements IVerticalRulerColumn {}
+				                              ^^^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerColumn for the type Y, already defined by IChangeRulerColumn
+			----------
+			2. ERROR in X.java (at line 11)
+				public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				                                          ^^^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerColumn for the type X, already defined by Y
+			----------
+			3. ERROR in X.java (at line 11)
+				public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				                                                                ^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerInfo for the type X, already defined by H
+			----------
+			4. ERROR in X.java (at line 11)
+				public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}
+				                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by Z
+			----------
+			""",
 		JavacTestOptions.SKIP);
 }
 }

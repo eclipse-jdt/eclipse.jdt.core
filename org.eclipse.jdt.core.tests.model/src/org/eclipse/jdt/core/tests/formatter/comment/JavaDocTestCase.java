@@ -154,90 +154,96 @@ public class JavaDocTestCase extends MultiLineTestCase {
 	}
 
 	public void testMultiLineCommentCodeSnippet4() {
-		String input= "/**\n" +
-				" * <pre>\n" +
-				" * public Object[] getChildren(Object parentElement) {\n" +
-				" *     if (parentElement instanceof MovingBox) {\n" +
-				" *         MovingBox box = (MovingBox) parentElement;\n" +
-				" *         return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box\n" +
-				" *                 .getGames().toArray());\n" +
-				" *     }\n" +
-				" *     return EMPTY_ARRAY;\n" +
-				" * }\n" +
-				" * </pre>\n" +
-				" */";
-		String expected= "/**\n" +
-				" * <pre>\n" +
-				" * public Object[] getChildren(Object parentElement) {\n" +
-				" * 	if (parentElement instanceof MovingBox) {\n" +
-				" * 		MovingBox box = (MovingBox) parentElement;\n" +
-				" * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(),\n" +
-				" * 				box.getGames().toArray());\n" +
-				" * 	}\n" +
-				" * 	return EMPTY_ARRAY;\n" +
-				" * }\n" +
-				" * </pre>\n" +
-				" */";
+		String input= """
+			/**
+			 * <pre>
+			 * public Object[] getChildren(Object parentElement) {
+			 *     if (parentElement instanceof MovingBox) {
+			 *         MovingBox box = (MovingBox) parentElement;
+			 *         return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box
+			 *                 .getGames().toArray());
+			 *     }
+			 *     return EMPTY_ARRAY;
+			 * }
+			 * </pre>
+			 */""";
+		String expected= """
+			/**
+			 * <pre>
+			 * public Object[] getChildren(Object parentElement) {
+			 * 	if (parentElement instanceof MovingBox) {
+			 * 		MovingBox box = (MovingBox) parentElement;
+			 * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(),
+			 * 				box.getGames().toArray());
+			 * 	}
+			 * 	return EMPTY_ARRAY;
+			 * }
+			 * </pre>
+			 */""";
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "80"); //$NON-NLS-1$
 		String result= testFormat(input);
 		assertEquals(expected, result);
 	}
 
 	public void testMultiLineCommentCodeSnippet5() {
-		String input= "/**\n" +
-				" * <Pre>\n" +
-				" * public Object[] getChildren(Object parentElement) {\n" +
-				" *     if (parentElement instanceof MovingBox) {\n" +
-				" *         MovingBox box = (MovingBox) parentElement;\n" +
-				" *         return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box\n" +
-				" *                 .getGames().toArray());\n" +
-				" *     }\n" +
-				" *     return EMPTY_ARRAY;\n" +
-				" * }\n" +
-				" * </Pre>\n" +
-				" */";
-		String expected= "/**\n" +
-				" * <Pre>\n" +
-				" * public Object[] getChildren(Object parentElement) {\n" +
-				" * 	if (parentElement instanceof MovingBox) {\n" +
-				" * 		MovingBox box = (MovingBox) parentElement;\n" +
-				" * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(),\n" +
-				" * 				box.getGames().toArray());\n" +
-				" * 	}\n" +
-				" * 	return EMPTY_ARRAY;\n" +
-				" * }\n" +
-				" * </Pre>\n" +
-				" */";
+		String input= """
+			/**
+			 * <Pre>
+			 * public Object[] getChildren(Object parentElement) {
+			 *     if (parentElement instanceof MovingBox) {
+			 *         MovingBox box = (MovingBox) parentElement;
+			 *         return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box
+			 *                 .getGames().toArray());
+			 *     }
+			 *     return EMPTY_ARRAY;
+			 * }
+			 * </Pre>
+			 */""";
+		String expected= """
+			/**
+			 * <Pre>
+			 * public Object[] getChildren(Object parentElement) {
+			 * 	if (parentElement instanceof MovingBox) {
+			 * 		MovingBox box = (MovingBox) parentElement;
+			 * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(),
+			 * 				box.getGames().toArray());
+			 * 	}
+			 * 	return EMPTY_ARRAY;
+			 * }
+			 * </Pre>
+			 */""";
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "80"); //$NON-NLS-1$
 		String result= testFormat(input);
 		assertEquals(expected, result);
 	}
 
 	public void testMultiLineCommentCodeSnippet6() {
-		String input= "/**\n" +
-				" * <PRE>\n" +
-				" * public Object[] getChildren(Object parentElement) {\n" +
-				" *     if (parentElement instanceof MovingBox) {\n" +
-				" *         MovingBox box = (MovingBox) parentElement;\n" +
-				" *         return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box\n" +
-				" *                 .getGames().toArray());\n" +
-				" *     }\n" +
-				" *     return EMPTY_ARRAY;\n" +
-				" * }\n" +
-				" * </PRE>\n" +
-				" */";
-		String expected= "/**\n" +
-				" * <PRE>\n" +
-				" * public Object[] getChildren(Object parentElement) {\n" +
-				" * 	if (parentElement instanceof MovingBox) {\n" +
-				" * 		MovingBox box = (MovingBox) parentElement;\n" +
-				" * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(),\n" +
-				" * 				box.getGames().toArray());\n" +
-				" * 	}\n" +
-				" * 	return EMPTY_ARRAY;\n" +
-				" * }\n" +
-				" * </PRE>\n" +
-				" */";
+		String input= """
+			/**
+			 * <PRE>
+			 * public Object[] getChildren(Object parentElement) {
+			 *     if (parentElement instanceof MovingBox) {
+			 *         MovingBox box = (MovingBox) parentElement;
+			 *         return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box
+			 *                 .getGames().toArray());
+			 *     }
+			 *     return EMPTY_ARRAY;
+			 * }
+			 * </PRE>
+			 */""";
+		String expected= """
+			/**
+			 * <PRE>
+			 * public Object[] getChildren(Object parentElement) {
+			 * 	if (parentElement instanceof MovingBox) {
+			 * 		MovingBox box = (MovingBox) parentElement;
+			 * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(),
+			 * 				box.getGames().toArray());
+			 * 	}
+			 * 	return EMPTY_ARRAY;
+			 * }
+			 * </PRE>
+			 */""";
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "80"); //$NON-NLS-1$
 		String result= testFormat(input);
 		assertEquals(expected, result);
@@ -811,11 +817,12 @@ public class JavaDocTestCase extends MultiLineTestCase {
 	public void test152850() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 
-		String input = "/**\n" +
-				" * Any text\n" +
-				" * \n" +
-				" * @param b\n" +
-				" */";
+		String input = """
+			/**
+			 * Any text
+			 *\s
+			 * @param b
+			 */""";
 		TextEdit edit = ToolFactory.createCodeFormatter(CommentFormatterUtil.createOptions(options)).format(getCommentKind(), input, 0, input.length(), 0, "\n");
 		assertNotNull(edit);
 		assertEquals("No edit", 0, edit.getChildrenSize());
@@ -981,32 +988,34 @@ public class JavaDocTestCase extends MultiLineTestCase {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 
 		String input =
-				"package a;\r\n" +
-				"\r\n" +
-				"public class Test {\r\n" +
-				"\r\n" +
-				"	private int field;\r\n" +
-				"	\r\n" +
-				"	/**\r\n" +
-				"	 * fds \r\n" +
-				"	 */\r\n" +
-				"	public void foo() {\r\n" +
-				"	}\r\n" +
-				"}";
+				"""
+			package a;\r
+			\r
+			public class Test {\r
+			\r
+				private int field;\r
+				\r
+				/**\r
+				 * fds \r
+				 */\r
+				public void foo() {\r
+				}\r
+			}""";
 
 		String expected =
-				"package a;\r\n" +
-				"\r\n" +
-				"public class Test {\r\n" +
-				"\r\n" +
-				"	private int field;\r\n" +
-				"	\r\n" +
-				"	/**\r\n" +
-				"	 * fds\r\n" +
-				"	 */\r\n" +
-				"	public void foo() {\r\n" +
-				"	}\r\n" +
-				"}";
+				"""
+			package a;\r
+			\r
+			public class Test {\r
+			\r
+				private int field;\r
+				\r
+				/**\r
+				 * fds\r
+				 */\r
+				public void foo() {\r
+				}\r
+			}""";
 
 		String result = testFormat(input, 62, 19, CodeFormatter.K_JAVA_DOC, options);
 		assertEquals(expected, result);

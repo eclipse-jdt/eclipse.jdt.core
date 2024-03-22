@@ -71,12 +71,13 @@ public class ASTConverter10Test extends ConverterTestSetup {
 
 	public void testBug527558_001() throws JavaModelException {
 		String contents =
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		var x = new X();\n" +
-				"       for (var i = 0; i < 10; ++i) {}\n" +
-				"	}\n" +
-				"}";
+				"""
+			public class X {
+				public static void main(String[] args) {
+					var x = new X();
+			       for (var i = 0; i < 10; ++i) {}
+				}
+			}""";
 			this.workingCopy = getWorkingCopy("/Converter10/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(contents, this.workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -92,14 +93,16 @@ public class ASTConverter10Test extends ConverterTestSetup {
 	}
 	public void testBug527558_002() throws JavaModelException {
 		String contents =
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		var i = y -> 1;\n" +
-				"	}\n" +
-				"}\n" +
-				"interface I {\n" +
-				"	public int foo(int i);\n" +
-				"}\n";
+				"""
+			public class X {
+				public static void main(String[] args) {
+					var i = y -> 1;
+				}
+			}
+			interface I {
+				public int foo(int i);
+			}
+			""";
 			this.workingCopy = getWorkingCopy("/Converter10/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(contents, this.workingCopy, false);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -114,11 +117,12 @@ public class ASTConverter10Test extends ConverterTestSetup {
 	}
 	public void testBug532421_001() throws JavaModelException {
 		String contents =
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		var arr1 = new String[10];\n" +
-				"	}\n" +
-				"}";
+				"""
+			public class X {
+				public static void main(String[] args) {
+					var arr1 = new String[10];
+				}
+			}""";
 			this.workingCopy = getWorkingCopy("/Converter10/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(contents, this.workingCopy, false);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -134,12 +138,13 @@ public class ASTConverter10Test extends ConverterTestSetup {
 	}
 	public void testBug532421_002() throws JavaModelException {
 		String contents =
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		var list = new Y<String>();\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y<T> {}";
+				"""
+			public class X {
+				public static void main(String[] args) {
+					var list = new Y<String>();
+				}
+			}
+			class Y<T> {}""";
 			this.workingCopy = getWorkingCopy("/Converter10/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(contents, this.workingCopy, false);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -155,12 +160,13 @@ public class ASTConverter10Test extends ConverterTestSetup {
 	}
 	public void testBug532535_001() throws JavaModelException {
 		String contents =
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		var s = new Y();\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {}";
+				"""
+			public class X {
+				public static void main(String[] args) {
+					var s = new Y();
+				}
+			}
+			class Y {}""";
 			this.workingCopy = getWorkingCopy("/Converter10/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(contents, this.workingCopy, false);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -183,13 +189,14 @@ public class ASTConverter10Test extends ConverterTestSetup {
 	}
 	public void testBug532535_002() throws JavaModelException {
 		String contents =
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"for (var x= 10; x < 20; x++) {\n" +
-				"		// do nothing\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {}";
+				"""
+			public class X {
+				public static void main(String[] args) {
+			for (var x= 10; x < 20; x++) {
+					// do nothing
+				}
+			}
+			class Y {}""";
 			this.workingCopy = getWorkingCopy("/Converter10/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(contents, this.workingCopy, false);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -225,23 +232,27 @@ public class ASTConverter10Test extends ConverterTestSetup {
 
 			String srcFilePathInWS = srcFolderInWS + "/cardManager/CardManagerFragment.java";
 			createFile(srcFilePathInWS,
-					"package cardManager;\n" +
-					"\n" +
-					"public class CardManagerFragment {\n" +
-					"    private view.View i;\n" +
-					"\n" +
-					"    private <T> T a() {\n" +
-					"        return this.i.findViewById(-1);\n" +
-					"    }\n" +
-					"}\n");
+					"""
+						package cardManager;
+						
+						public class CardManagerFragment {
+						    private view.View i;
+						
+						    private <T> T a() {
+						        return this.i.findViewById(-1);
+						    }
+						}
+						""");
 
 			jarPath = getWorkspacePath() + "Converter10/P.jar";
 			createJar(new String[] {
 				"view/View.java",
-				"package view;\n" +
-				"public class View {\n" +
-				"	public final <T extends View> T findViewById(int i) { return null; }\n" +
-				"}\n"
+				"""
+					package view;
+					public class View {
+						public final <T extends View> T findViewById(int i) { return null; }
+					}
+					"""
 				},
 				jarPath,
 				options);

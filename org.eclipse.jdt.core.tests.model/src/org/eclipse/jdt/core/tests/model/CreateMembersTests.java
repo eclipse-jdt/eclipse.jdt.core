@@ -60,12 +60,13 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		IType type = types[0];
 		type.createMethod("\tpublic void foo() {\n\t\tSystem.out.println(\"Hello World\");\n\t}\n", null, true, new NullProgressMonitor());
 		String expectedSource =
-			"public class A {\n" +
-			"\n" +
-			"	public void foo() {\n" +
-			"		System.out.println(\"Hello World\");\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class A {
+			
+				public void foo() {
+					System.out.println("Hello World");
+				}
+			}""";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
 
@@ -80,11 +81,12 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		IField sibling = type.getField("j");
 		type.createField("int i;", sibling, true, null);
 		String expectedSource =
-			"public enum E {\n" +
-			"	E1, E2;\n" +
-			"	int i;\n" +
-			"	int j;\n" +
-			"}";
+			"""
+			public enum E {
+				E1, E2;
+				int i;
+				int j;
+			}""";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
 
@@ -99,11 +101,12 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		IMethod sibling = type.getMethod("foo", new String[]{});
 		type.createMethod("String bar();", sibling, true, null);
 		String expectedSource =
-			"public @interface Annot {\n" +
-			"	String bar();\n" +
-			"\n" +
-			"	String foo();\n" +
-			"}";
+			"""
+			public @interface Annot {
+				String bar();
+			
+				String foo();
+			}""";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
 
@@ -132,10 +135,12 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		IType type = types[0];
 		type.createField("int i;", null, true, null);
 		String expectedSource =
-			"public enum E2 {\n" +
-			"	A, B, C;\n\n" +
-			"	int i;\n" +
-			"}";
+			"""
+			public enum E2 {
+				A, B, C;
+			
+				int i;
+			}""";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
 
@@ -149,10 +154,12 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		IType type = types[0];
 		type.createType("class DD {}", null, true, null);
 		String expectedSource =
-			"public enum E3 {\n" +
-			"	A, B, C;\n\n" +
-			"	class DD {}\n" +
-			"}";
+			"""
+			public enum E3 {
+				A, B, C;
+			
+				class DD {}
+			}""";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
 
@@ -179,10 +186,11 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		IType type = types[0];
 		type.createType("record Point() {}", null, true, null);
 		String expectedSource =
-				"public class Outer {\n" +
-				"\n" +
-				"	record Point() {}\n" +
-				"}";
+				"""
+			public class Outer {
+			
+				record Point() {}
+			}""";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
 	// Not required now as record is not a preview feature since Java 16
@@ -214,10 +222,11 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		IType type = types[0];
 		type.createType("record Point() {}", null, true, null);
 		String expectedSource =
-				"public record OuterRecord() {\n" +
-				"\n" +
-				"	record Point() {}\n" +
-				"}";
+				"""
+			public record OuterRecord() {
+			
+				record Point() {}
+			}""";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 }
 
@@ -230,12 +239,13 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		IType type = types[0];
 		type.createType("record Point() {}", null, true, null);
 		String expectedSource =
-				"package testBug565015;\n" +
-				"\n" +
-				"public record PkgRecord() {\n" +
-				"\n" +
-				"	record Point() {}\n" +
-				"}";
+				"""
+			package testBug565015;
+			
+			public record PkgRecord() {
+			
+				record Point() {}
+			}""";
 		assertSourceEquals("Unexpected source", expectedSource, compilationUnit.getSource());
 	}
 }

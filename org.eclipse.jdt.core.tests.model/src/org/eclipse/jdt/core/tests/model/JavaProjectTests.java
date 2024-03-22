@@ -341,9 +341,10 @@ public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelExceptio
 	Object[] resources = root.getNonJavaResources();
 	assertResourceNamesEqual(
 		"unexpected non Java resources",
-		".classpath\n" +
-		".project\n" +
-		".settings",
+		"""
+			.classpath
+			.project
+			.settings""",
 		resources);
 	IFile resource = (IFile)resources[0];
 	IPath newPath = root.getUnderlyingResource().getFullPath().append("TestNonJavaResource.abc");
@@ -359,10 +360,11 @@ public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelExceptio
 		resources = root.getNonJavaResources();
 		assertResourcesEqual(
 			"incorrect non java resources",
-			"/JavaProjectTests/.classpath\n" +
-			"/JavaProjectTests/.project\n" +
-			"/JavaProjectTests/.settings\n" +
-			"/JavaProjectTests/TestNonJavaResource.abc",
+			"""
+				/JavaProjectTests/.classpath
+				/JavaProjectTests/.project
+				/JavaProjectTests/.settings
+				/JavaProjectTests/TestNonJavaResource.abc""",
 			resources);
 	} finally {
 		// clean up
@@ -419,9 +421,10 @@ public void testAddZIPArchive3() throws CoreException, IOException {
 		createJar(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					}"""
 			},
 			getExternalResourcePath("externalLib.abc"));
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
@@ -478,9 +481,10 @@ public void testAddZIPArchive5() throws Exception {
 		createJar(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					}"""
 			},
 			getExternalResourcePath("externalLib.abc"));
 		IJavaProject p = importJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
@@ -518,9 +522,10 @@ public void testAddZIPArchive6() throws Exception {
 		waitForAutoBuild();
 		assertElementDescendants(
 			"Unexpected project content",
-			"P\n" +
-			"  internalLib.abc\n" +
-			"    <default> (...)",
+			"""
+				P
+				  internalLib.abc
+				    <default> (...)""",
 			p
 		);
 	} finally {
@@ -538,11 +543,12 @@ public void testAddProjectPrerequisite() throws CoreException {
 		waitForAutoBuild();
 		editFile(
 			"/P2/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"src\" path=\"/P1\"/>\n" +
-			"    <classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				    <classpathentry kind="src" path="/P1"/>
+				    <classpathentry kind="output" path=""/>
+				</classpath>"""
 		);
 		waitForAutoBuild();
 		IProject[] referencedProjects = getProject("P2").getReferencedProjects();
@@ -640,9 +646,10 @@ public void testChangeZIPArchive1() throws CoreException, IOException {
 		createJar(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					}"""
 			},
 			getExternalResourcePath("externalLib.abc"));
 		refreshExternalArchives(p);
@@ -671,9 +678,10 @@ public void testChangeZIPArchive2() throws CoreException, IOException {
 		createJar(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					}"""
 			},
 			getExternalResourcePath("externalLib.abc"));
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "bin");
@@ -683,9 +691,10 @@ public void testChangeZIPArchive2() throws CoreException, IOException {
 		createJar(
 			new String[] {
 				"p2/X.java",
-				"package p2;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package p2;
+					public class X {
+					}"""
 			},
 			getExternalResourcePath("externalLib.abc"));
 		refreshExternalArchives(p);
@@ -719,21 +728,23 @@ public void testChangeZIPArchive3() throws CoreException, IOException {
 		createJar(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					}"""
 			},
 			libPath);
 		p.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		assertElementDescendants(
 			"Unexpected project content",
-			"P\n" +
-			"  internalLib.abc\n" +
-			"    <default> (...)\n" +
-			"    p (...)\n" +
-			"      X.class\n" +
-			"        class X\n" +
-			"          X()",
+			"""
+				P
+				  internalLib.abc
+				    <default> (...)
+				    p (...)
+				      X.class
+				        class X
+				          X()""",
 			p
 		);
 	} finally {
@@ -754,10 +765,11 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
 		project.setOutputLocation(folder.getFullPath(), null);
 		assertDeltas(
 			"Unexpected delta 1",
-			"JavaProjectTests[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		bin[+]: {}\n" +
-			"	ResourceDelta(/JavaProjectTests/.classpath)[*]",
+			"""
+				JavaProjectTests[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}
+					<project root>[*]: {CHILDREN}
+						bin[+]: {}
+					ResourceDelta(/JavaProjectTests/.classpath)[*]""",
 			listener);
 	} finally {
 		stopDeltas(listener);
@@ -767,10 +779,11 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
 			project.setOutputLocation(folder.getFullPath(), null);
 			assertDeltas(
 				"Unexpected delta 2",
-				"JavaProjectTests[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
-				"	<project root>[*]: {CHILDREN}\n" +
-				"		bin[-]: {}\n" +
-				"	ResourceDelta(/JavaProjectTests/.classpath)[*]",
+				"""
+					JavaProjectTests[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}
+						<project root>[*]: {CHILDREN}
+							bin[-]: {}
+						ResourceDelta(/JavaProjectTests/.classpath)[*]""",
 				listener);
 		} finally {
 			stopDeltas(listener);
@@ -826,9 +839,10 @@ public void lastlyTestDeletePackageWithAutobuild() throws CoreException {
 		waitForManualRefresh();
 		assertDeltas(
 			"Unexpected delta",
-			"JavaProjectTests[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		x.y[-]: {}",
+			"""
+				JavaProjectTests[*]: {CHILDREN}
+					<project root>[*]: {CHILDREN}
+						x.y[-]: {}""",
 		listener);
 	} finally {
 		stopDeltas(listener);
@@ -1088,9 +1102,10 @@ public void testGetNonJavaResources1() throws CoreException {
 		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
 		assertResourcesEqual(
 			"Unexpected non-java resources for project",
-			"/P/.classpath\n" +
-			"/P/.project\n" +
-			"/P/.settings",
+			"""
+				/P/.classpath
+				/P/.project
+				/P/.settings""",
 			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
@@ -1105,9 +1120,10 @@ public void testGetNonJavaResources2() throws CoreException {
 		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin1", new String[] {"bin2"});
 		assertResourcesEqual(
 			"Unexpected non-java resources for project",
-			"/P/.classpath\n" +
-			"/P/.project\n" +
-			"/P/.settings",
+			"""
+				/P/.classpath
+				/P/.project
+				/P/.settings""",
 			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
@@ -1122,9 +1138,10 @@ public void testGetNonJavaResources3() throws CoreException {
 		this.createFolder("/P/p1");
 		assertResourcesEqual(
 			"Unexpected non-java resources for project",
-			"/P/.classpath\n" +
-			"/P/.project\n" +
-			"/P/.settings",
+			"""
+				/P/.classpath
+				/P/.project
+				/P/.settings""",
 			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
@@ -1140,10 +1157,11 @@ public void testGetNonJavaResources4() throws CoreException {
 		this.createFolder("/P/x.y");
 		assertResourcesEqual(
 			"Unexpected non-java resources for project",
-			"/P/.classpath\n" +
-			"/P/.project\n" +
-			"/P/.settings\n" +
-			"/P/x.y",
+			"""
+				/P/.classpath
+				/P/.project
+				/P/.settings
+				/P/x.y""",
 			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
@@ -1159,9 +1177,10 @@ public void testGetNonJavaResources5() throws CoreException {
 		addLibraryEntry(project, file.getLocation(), false/*not exported*/);
 		assertResourcesEqual(
 			"Unexpected non-java resources for project",
-			"/P/.classpath\n" +
-			"/P/.project\n" +
-			"/P/.settings",
+			"""
+				/P/.classpath
+				/P/.project
+				/P/.settings""",
 			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
@@ -1257,10 +1276,11 @@ public void testOutputLocationNotAddedAsPackageFragment() throws JavaModelExcept
 	IJavaElement[] packages= root.getChildren();
 	assertElementsEqual(
 		"unexpected package fragments in source folder",
-		"<default> [in <project root> [in JavaProjectTests]]\n" +
-		"q [in <project root> [in JavaProjectTests]]\n" +
-		"x [in <project root> [in JavaProjectTests]]\n" +
-		"x.y [in <project root> [in JavaProjectTests]]",
+		"""
+			<default> [in <project root> [in JavaProjectTests]]
+			q [in <project root> [in JavaProjectTests]]
+			x [in <project root> [in JavaProjectTests]]
+			x.y [in <project root> [in JavaProjectTests]]""",
 		packages);
 
 
@@ -1326,11 +1346,12 @@ public void testPackageFragmentIsStructureKnown2() throws CoreException {
 		IPackageFragment pkg = getPackage("/P/pack");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry excluding=\"pack/\" kind=\"src\" path=\"\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry excluding="pack/" kind="src" path=""/>
+					<classpathentry kind="output" path=""/>
+				</classpath>"""
 		);
 		JavaModelException exception = null;
 		try {
@@ -1576,9 +1597,10 @@ public void testPackageFragmentRootNonJavaResources1() throws JavaModelException
 	Object[] resources = root.getNonJavaResources();
 	assertResourceNamesEqual(
 		"unexpected non java resources",
-		".classpath\n" +
-		".project\n" +
-		".settings",
+		"""
+			.classpath
+			.project
+			.settings""",
 		resources);
 }
 
@@ -1978,11 +2000,12 @@ public void testProjectImport() throws CoreException {
 				createJavaProject("P2");
 				editFile(
 					"/P2/.classpath",
-					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-					"<classpath>\n" +
-					"    <classpathentry kind=\"src\" path=\"/P1\"/>\n" +
-					"    <classpathentry kind=\"output\" path=\"\"/>\n" +
-					"</classpath>"
+					"""
+						<?xml version="1.0" encoding="UTF-8"?>
+						<classpath>
+						    <classpathentry kind="src" path="/P1"/>
+						    <classpathentry kind="output" path=""/>
+						</classpath>"""
 				);
 			}
 		};
@@ -2021,32 +2044,34 @@ public void testProjectImport2() throws CoreException {
 				createProject("P2");
 				createFile(
 					"/P2/.classpath",
-					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-					"<classpath>\n" +
-					"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
-					"</classpath>"
+					"""
+						<?xml version="1.0" encoding="UTF-8"?>
+						<classpath>
+							<classpathentry kind="con" path="org.eclipse.jdt.core.tests.model.TEST_CONTAINER"/>
+						</classpath>"""
 				);
 				ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
 				getWorkspace().checkpoint(false/*don't build*/);
 				editFile(
 					"/P2/.project",
-					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-					"<projectDescription>\n" +
-					"	<name>P2</name>\n" +
-					"	<comment></comment>\n" +
-					"	<projects>\n" +
-					"	</projects>\n" +
-					"	<buildSpec>\n" +
-					"		<buildCommand>\n" +
-					"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
-					"			<arguments>\n" +
-					"			</arguments>\n" +
-					"		</buildCommand>\n" +
-					"	</buildSpec>\n" +
-					"	<natures>\n" +
-					"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
-					"	</natures>\n" +
-					"</projectDescription>"
+					"""
+						<?xml version="1.0" encoding="UTF-8"?>
+						<projectDescription>
+							<name>P2</name>
+							<comment></comment>
+							<projects>
+							</projects>
+							<buildSpec>
+								<buildCommand>
+									<name>org.eclipse.jdt.core.javabuilder</name>
+									<arguments>
+									</arguments>
+								</buildCommand>
+							</buildSpec>
+							<natures>
+								<nature>org.eclipse.jdt.core.javanature</nature>
+							</natures>
+						</projectDescription>"""
 				);
 				ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
 			}
@@ -2086,32 +2111,34 @@ public void testProjectImport3() throws CoreException {
 		createProject("P2");
 		createFile(
 			"/P2/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="con" path="org.eclipse.jdt.core.tests.model.TEST_CONTAINER"/>
+				</classpath>"""
 		);
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
 		JavaCore.addPreProcessingResourceChangedListener(resourceChangeListener, IResourceChangeEvent.POST_CHANGE);
 		editFile(
 			"/P2/.project",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<projectDescription>\n" +
-			"	<name>P2</name>\n" +
-			"	<comment></comment>\n" +
-			"	<projects>\n" +
-			"	</projects>\n" +
-			"	<buildSpec>\n" +
-			"		<buildCommand>\n" +
-			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
-			"			<arguments>\n" +
-			"			</arguments>\n" +
-			"		</buildCommand>\n" +
-			"	</buildSpec>\n" +
-			"	<natures>\n" +
-			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
-			"	</natures>\n" +
-			"</projectDescription>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<projectDescription>
+					<name>P2</name>
+					<comment></comment>
+					<projects>
+					</projects>
+					<buildSpec>
+						<buildCommand>
+							<name>org.eclipse.jdt.core.javabuilder</name>
+							<arguments>
+							</arguments>
+						</buildCommand>
+					</buildSpec>
+					<natures>
+						<nature>org.eclipse.jdt.core.javanature</nature>
+					</natures>
+				</projectDescription>"""
 		);
 		waitForManualRefresh();
 		waitForAutoBuild();
@@ -2280,10 +2307,11 @@ public void testRootGetPackageFragments() throws JavaModelException {
 	IJavaElement[] fragments= root.getChildren();
 	assertElementsEqual(
 		"unexpected package fragments in source folder",
-		"<default> [in <project root> [in JavaProjectTests]]\n" +
-		"q [in <project root> [in JavaProjectTests]]\n" +
-		"x [in <project root> [in JavaProjectTests]]\n" +
-		"x.y [in <project root> [in JavaProjectTests]]",
+		"""
+			<default> [in <project root> [in JavaProjectTests]]
+			q [in <project root> [in JavaProjectTests]]
+			x [in <project root> [in JavaProjectTests]]
+			x.y [in <project root> [in JavaProjectTests]]""",
 		fragments);
 
 	root= getPackageFragmentRoot("JavaProjectTests", "lib.jar");
@@ -2305,11 +2333,12 @@ public void testRootGetPackageFragments2() throws CoreException {
 		this.createFolder("/P/bin2");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"src\" output=\"bin2\" path=\"\"/>\n" +
-			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				    <classpathentry kind="src" output="bin2" path=""/>
+				    <classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 		IPackageFragmentRoot root = getPackageFragmentRoot("/P");
 		assertElementsEqual(
@@ -2339,12 +2368,13 @@ public void testRootGetPackageFragments3() throws CoreException {
 		IJavaProject p2 = createJavaProject("Bug65693_2");
 		editFile(
 			"/Bug65693_2/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"src\" path=\"\"/>\n" +
-			"    <classpathentry kind=\"lib\" path=\"/Bug65693_1\"/>\n" +
-			"    <classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				    <classpathentry kind="src" path=""/>
+				    <classpathentry kind="lib" path="/Bug65693_1"/>
+				    <classpathentry kind="output" path=""/>
+				</classpath>"""
 		);
 		waitForManualRefresh();
 		IPackageFragment pkg = p1.getPackageFragmentRoot(p1.getProject()).getPackageFragment("");
@@ -2439,31 +2469,33 @@ public void testUserLibrary() throws JavaModelException {
 
 	assertSourceEquals(
 		"Invalid library contents",
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-		"<userlibrary systemlibrary=\"false\" version=\"2\">\n" +
-		"	<archive path=\"/tmp/test.jar\">\n" +
-		"		<attributes>\n" +
-		"			<attribute name=\"javadoc_location\" value=\"http://www.sample-url.org/doc/\"/>\n" +
-		"			<attribute name=\"org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY\" value=\"/tmp\"/>\n" +
-		"		</attributes>\n" +
-		"		<accessrules>\n" +
-		"			<accessrule kind=\"nonaccessible\" pattern=\"**/forbidden/**\"/>\n" +
-		"			<accessrule kind=\"discouraged\" pattern=\"**/discouraged/**\"/>\n" +
-		"			<accessrule kind=\"accessible\" pattern=\"**/accessible/**\"/>\n" +
-		"		</accessrules>\n" +
-		"	</archive>\n" +
-		"	<archive path=\"/tmp/test.jar\">\n" +
-		"		<attributes>\n" +
-		"			<attribute name=\"javadoc_location\" value=\"http://www.sample-url.org/doc/\"/>\n" +
-		"			<attribute name=\"org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY\" value=\"/tmp\"/>\n" +
-		"		</attributes>\n" +
-		"		<accessrules>\n" +
-		"			<accessrule kind=\"nonaccessible\" pattern=\"/org/eclipse/forbidden/**\"/>\n" +
-		"			<accessrule kind=\"discouraged\" pattern=\"/org/eclipse/discouraged/**\"/>\n" +
-		"			<accessrule kind=\"accessible\" pattern=\"/org/eclipse/accessible/**\"/>\n" +
-		"		</accessrules>\n" +
-		"	</archive>\n" +
-		"</userlibrary>\n",
+		"""
+			<?xml version="1.0" encoding="UTF-8"?>
+			<userlibrary systemlibrary="false" version="2">
+				<archive path="/tmp/test.jar">
+					<attributes>
+						<attribute name="javadoc_location" value="http://www.sample-url.org/doc/"/>
+						<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/tmp"/>
+					</attributes>
+					<accessrules>
+						<accessrule kind="nonaccessible" pattern="**/forbidden/**"/>
+						<accessrule kind="discouraged" pattern="**/discouraged/**"/>
+						<accessrule kind="accessible" pattern="**/accessible/**"/>
+					</accessrules>
+				</archive>
+				<archive path="/tmp/test.jar">
+					<attributes>
+						<attribute name="javadoc_location" value="http://www.sample-url.org/doc/"/>
+						<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/tmp"/>
+					</attributes>
+					<accessrules>
+						<accessrule kind="nonaccessible" pattern="/org/eclipse/forbidden/**"/>
+						<accessrule kind="discouraged" pattern="/org/eclipse/discouraged/**"/>
+						<accessrule kind="accessible" pattern="/org/eclipse/accessible/**"/>
+					</accessrules>
+				</archive>
+			</userlibrary>
+			""",
 		libraryPreference);
 }
 
@@ -2516,18 +2548,19 @@ public void testBug360164() throws IOException, CoreException {
 	try {
 		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", libPath}, "bin", JavaCore.VERSION_1_4);
 		IFile file = createFile("/P/src/X.java",
-				"import p360164.Provider;\n" +
-				"import p360164.MyEnum;\n" +
-				"public class X {\n" +
-				"    int foo(Provider p) {\n" +
-				"        MyEnum e = p.getE();\n" +
-				"        switch (e.getValue()) {\n" +
-				"        case MyEnum.ONE_COMPAT: return 1;\n" +
-				"        case MyEnum.TWO_COMPAT: return 2;\n" +
-				"        }\n" +
-				"        return 0;\n" +
-				"    }\n" +
-				"}"
+				"""
+					import p360164.Provider;
+					import p360164.MyEnum;
+					public class X {
+					    int foo(Provider p) {
+					        MyEnum e = p.getE();
+					        switch (e.getValue()) {
+					        case MyEnum.ONE_COMPAT: return 1;
+					        case MyEnum.TWO_COMPAT: return 2;
+					        }
+					        return 0;
+					    }
+					}"""
 		);
 		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(file);
 		ProblemRequestor problemRequestor = new ProblemRequestor();
@@ -2548,24 +2581,27 @@ public void testBug360164a() throws IOException, CoreException {
 	try {
 		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", libPath}, "bin", JavaCore.VERSION_1_4);
 		IFile file = createFile("/P/src/X.java",
-				"import p360164.Provider;\n" +
-				"import p360164.MyEnum;\n" +
-				"public class X {\n" +
-				"    String foo(Provider p) {\n" +
-				"        MyEnum e = p.getE();\n" +
-				"        return e.toString();\n" +
-				"    }\n" +
-				"}"
+				"""
+					import p360164.Provider;
+					import p360164.MyEnum;
+					public class X {
+					    String foo(Provider p) {
+					        MyEnum e = p.getE();
+					        return e.toString();
+					    }
+					}"""
 		);
 		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(file);
 		ProblemRequestor problemRequestor = new ProblemRequestor();
 		WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
 		unit.getWorkingCopy(owner, null);
 		assertProblems("Unexpected problems",
-				"----------\n" +
-				"1. ERROR in /P/src/X.java\n" +
-				"The type java.lang.Enum cannot be resolved. It is indirectly referenced from required type p360164.MyEnum\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in /P/src/X.java
+					The type java.lang.Enum cannot be resolved. It is indirectly referenced from required type p360164.MyEnum
+					----------
+					""",
 				problemRequestor);
 	} finally {
 		this.deleteProject("P");
@@ -2577,18 +2613,19 @@ public void testBug360317() throws IOException, CoreException {
 	String libPath = getWorkspacePath()+"JavaProjectTests/bin/bug360164.jar";
 	try {
 		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", libPath}, "bin", JavaCore.VERSION_1_4);
-		String sourceX = "import p360164.Provider;\n" +
-						 "import p360164.MyEnum;\n" +
-						 "public class X {\n" +
-						 "    int foo(Provider p) {\n" +
-						 "        MyEnum e = p.getE();\n" +
-						 "        switch (e) {\n" +
-						 "        case ONE: return 1;\n" +
-						 "        case TWO: return 2;\n" +
-						 "        }\n" +
-						 "        return 0;\n" +
-						 "    }\n" +
-						 "}";
+		String sourceX = """
+			import p360164.Provider;
+			import p360164.MyEnum;
+			public class X {
+			    int foo(Provider p) {
+			        MyEnum e = p.getE();
+			        switch (e) {
+			        case ONE: return 1;
+			        case TWO: return 2;
+			        }
+			        return 0;
+			    }
+			}""";
 		IFile file = createFile("/P/src/X.java", sourceX);
 		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(file);
 		ProblemRequestor problemRequestor = new ProblemRequestor();
@@ -2596,12 +2633,14 @@ public void testBug360317() throws IOException, CoreException {
 		WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
 		unit.getWorkingCopy(owner, null);
 		assertProblems("Unexpected problems",
-				"----------\n" +
-				"1. ERROR in /P/src/X.java (at line 6)\n" +
-				"	switch (e) {\n" +
-				"	        ^\n" +
-				"Cannot switch on an enum value for source level below 1.5. Only convertible int values are permitted\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in /P/src/X.java (at line 6)
+						switch (e) {
+						        ^
+					Cannot switch on an enum value for source level below 1.5. Only convertible int values are permitted
+					----------
+					""",
 				problemRequestor);
 	} finally {
 		this.deleteProject("P");
@@ -2664,16 +2703,18 @@ public void testBug351697() throws Exception {
 		createFolder("/P/temp_folder");
 
 		IFile toEdit = createFile("/P/src/p/P.java",
-				"package p;" +
-				"public class P {" +
-				"	Q b = new Q();" +
-				"	public void foo() {" +
-				"	}");
+				"""
+					package p;\
+					public class P {\
+						Q b = new Q();\
+						public void foo() {\
+						}""");
 
 		IFile toDelete = createFile("/P/src/q/Q.java",
-				"package q;" +
-				"public class Q {" +
-				"}");
+				"""
+					package q;\
+					public class Q {\
+					}""");
 		proj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 
 		moveFile("/P/bin/q/Q.class", "/P/temp_folder/Q.class");
@@ -2712,9 +2753,11 @@ public void testBug462756() throws CoreException {
 		IJavaProject proj = this.createJavaProject("P", new String[] {"src"}, new String[]{}, "bin");
 		proj.getProject().open(null);
 		createFolder("/P/.settings");
-		String content = "org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.7\n" +
-				"org.eclipse.jdt.core.compiler.compliance=1.7\n" +
-				"org.eclipse.jdt.core.compiler.source=1.7\n";
+		String content = """
+			org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.7
+			org.eclipse.jdt.core.compiler.compliance=1.7
+			org.eclipse.jdt.core.compiler.source=1.7
+			""";
 
 		IFile file = getFile("/P/.settings/org.eclipse.jdt.core.prefs");
 		try (BufferedWriter output = new BufferedWriter(new FileWriter(file.getLocation().toFile()))) {
@@ -2754,13 +2797,14 @@ public void testBug490724() throws CoreException {
 		createFolder("/Bug490724_15/src/p2");
 		createFile(
 				"/Bug490724_15/src/p2/Klass.java",
-				"package p2;\n" +
-				"public class Klass<T> {\n" +
-				"	class MethodInfo<K> {\n" +
-				"		public class InnerMethodInfo<V> {}\n" +
-				"	}\n" +
-				"	void addMethod(MethodInfo<String>.InnerMethodInfo<String> mi) { }" +
-				"}"
+				"""
+					package p2;
+					public class Klass<T> {
+						class MethodInfo<K> {
+							public class InnerMethodInfo<V> {}
+						}
+						void addMethod(MethodInfo<String>.InnerMethodInfo<String> mi) { }\
+					}"""
 			);
 		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
@@ -2780,10 +2824,11 @@ public void testBug490724() throws CoreException {
 
 		createFolder("/BugBug490724_14/src/p1");
 		String source =
-			"package p1;\n" +
-			"public final class J13 {\n" +
-			"	private p2.Klass c; \n" +
-			"}";
+			"""
+			package p1;
+			public final class J13 {
+				private p2.Klass c;\s
+			}""";
 
 		createFile(
 			"/BugBug490724_14/src/p1/J13.java",
@@ -2840,10 +2885,11 @@ public void testBug491354() throws CoreException {
 
 		createFolder("/Bug491354_14/src/p1");
 		String source =
-				"package p1;\n" +
-				"import p.ServiceTracker;\n" +
-				"public final class HttpServiceTracker extends ServiceTracker {\n" +
-				"}";
+				"""
+			package p1;
+			import p.ServiceTracker;
+			public final class HttpServiceTracker extends ServiceTracker {
+			}""";
 
 		createFile(
 				"/Bug491354_14/src/p1/HttpServiceTracker.java",
@@ -2869,58 +2915,64 @@ public void testBug501220() throws CoreException {
 		jdkPrj = createJavaProject("JDK8", new String[]{"src"}, new String[] {"JCL_LIB"}, null, null, "bin", new String[]{"bin"}, null, null, "1.8");
 		createFolder("/JDK8/src/jdk8");
 		createFile("/JDK8/src/jdk8/MyConsumer.java",
-				"package jdk8;\n" +
-				"@FunctionalInterface\n" +
-				"public interface MyConsumer<T> {\n" +
-				"    void accept(T t);\n" +
-				"}\n");
+				"""
+					package jdk8;
+					@FunctionalInterface
+					public interface MyConsumer<T> {
+					    void accept(T t);
+					}
+					""");
 
 		swtPrj = createJavaProject("SWT", new String[]{"src"}, new String[] {"JCL_LIB"}, new String[]{"/JDK8"}, null, "bin", new String[]{"bin"}, null, null, "1.8");
 		createFolder("/SWT/src/swt");
 		createFile("/SWT/src/swt/EventObject.java",
-				"package swt;\n" +
-				"\n" +
-				"import jdk8.MyConsumer;\n" +
-				"\n" +
-				"public class EventObject {\n" +
-				"}");
+				"""
+					package swt;
+					
+					import jdk8.MyConsumer;
+					
+					public class EventObject {
+					}""");
 		createFile("/SWT/src/swt/SelectionListener.java",
-				"package swt;\n" +
-				"\n" +
-				"import java.util.EventObject;\n" +
-				"\n" +
-				"import jdk8.MyConsumer;\n" +
-				"\n" +
-				"public interface SelectionListener {\n" +
-				"	void widgetSelected(EventObject event);\n" +
-				"\n" +
-				"	static SelectionListener widgetSelected(MyConsumer<EventObject> c) {\n" +
-				"		return new SelectionListener() {\n" +
-				"			public void widgetSelected(EventObject e) {\n" +
-				"				c.accept(e);\n" +
-				"			}\n" +
-				"		};\n" +
-				"	}\n" +
-				"}");
+				"""
+					package swt;
+					
+					import java.util.EventObject;
+					
+					import jdk8.MyConsumer;
+					
+					public interface SelectionListener {
+						void widgetSelected(EventObject event);
+					
+						static SelectionListener widgetSelected(MyConsumer<EventObject> c) {
+							return new SelectionListener() {
+								public void widgetSelected(EventObject e) {
+									c.accept(e);
+								}
+							};
+						}
+					}""");
 		egitPrj = createJavaProject("EGit", new String[]{"src"}, new String[] {"JCL_LIB"}, new String[]{"/SWT"}, null, "bin", new String[]{"bin"}, null, null, "1.8");
 		egitPrj.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 		createFolder("/EGit/src/egit");
 		createFile("/EGit/src/egit/UIUtils.java",
-				"package egit; // Error: The type jdk8.MyConsumer cannot be resolved. It is indirectly referenced from required .class files\n" +
-				"\n" +
-				"import swt.EventObject;\n" +
-				"\n" +
-				"import swt.SelectionListener;\n" +
-				"\n" +
-				"public class UIUtils {\n" +
-				"	void foo() {\n" +
-				"		SelectionListener listener = new SelectionListener() {\n" +
-				"			public void widgetSelected(EventObject event) {\n" +
-				"			}\n" +
-				"		};\n" +
-				"		listener.toString();\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					package egit; // Error: The type jdk8.MyConsumer cannot be resolved. It is indirectly referenced from required .class files
+					
+					import swt.EventObject;
+					
+					import swt.SelectionListener;
+					
+					public class UIUtils {
+						void foo() {
+							SelectionListener listener = new SelectionListener() {
+								public void widgetSelected(EventObject event) {
+								}
+							};
+							listener.toString();
+						}
+					}
+					""");
 		egitPrj.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 		IMarker[] markers = egitPrj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 		assertMarkers("Unexpected markers", "",  markers);

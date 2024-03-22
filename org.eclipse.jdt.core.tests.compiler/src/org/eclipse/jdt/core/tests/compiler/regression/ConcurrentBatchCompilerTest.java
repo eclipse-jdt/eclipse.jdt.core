@@ -70,13 +70,15 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 			// expected error output for runner2 times COUNT:
 			final StringBuilder errorOutput = new StringBuilder();
 			for (int j=0; j<COUNT; j++)
-				errorOutput.append("----------\n" +
-						"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/test01/X.java (at line 12)\n" +
-						"	FileReader reader = getReader(\"somefile\");\n" +
-						"	           ^^^^^^\n" +
-						"Potential resource leak: \'reader\' may not be closed\n" +
-						"----------\n" +
-						"1 problem (1 error)\n");
+				errorOutput.append("""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/test01/X.java (at line 12)
+						FileReader reader = getReader("somefile");
+						           ^^^^^^
+					Potential resource leak: \'reader\' may not be closed
+					----------
+					1 problem (1 error)
+					""");
 
 			// collect exceptions indicating a failure:
 			final Throwable[] thrown = new Throwable[2];
@@ -168,25 +170,27 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 						runNegativeTest(
 							new String[] {
 								"test01/X.java",
-								"package test01;\n" +
-								"import java.io.File;\n" +
-								"import java.io.FileReader;\n" +
-								"import java.io.IOException;\n" +
-								"public class X {\n" +
-								"    FileReader getReader(String filename) throws IOException {\n" +
-								"        File file = new File(\"somefile\");\n" +
-								"        FileReader fileReader = new FileReader(file);\n" +
-								"        return fileReader;\n" + 		// don't complain here, pass responsibility to caller
-								"    }\n" +
-								"    void foo() throws IOException {\n" +
-								"        FileReader reader = getReader(\"somefile\");\n" +
-								"        char[] in = new char[50];\n" +
-								"        reader.read(in);\n" +
-								"    }\n" +
-								"    public static void main(String[] args) throws IOException {\n" +
-								"        new X().foo();\n" +
-								"    }\n" +
-								"}\n"
+								"""
+									package test01;
+									import java.io.File;
+									import java.io.FileReader;
+									import java.io.IOException;
+									public class X {
+									    FileReader getReader(String filename) throws IOException {
+									        File file = new File("somefile");
+									        FileReader fileReader = new FileReader(file);
+									        return fileReader;
+									    }
+									    void foo() throws IOException {
+									        FileReader reader = getReader("somefile");
+									        char[] in = new char[50];
+									        reader.read(in);
+									    }
+									    public static void main(String[] args) throws IOException {
+									        new X().foo();
+									    }
+									}
+									"""
 							},
 					        "\"" + OUTPUT_DIR +  File.separator + "test01/X.java\""
 				            + " -1.5 -g -preserveAllLocals -err:+resource"

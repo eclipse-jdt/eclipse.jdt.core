@@ -81,16 +81,18 @@ public void setUpSuite() throws Exception {
 	setUpJavaProject("TypeHierarchy");
 	addLibrary("myLib.jar", "myLibsrc.zip", new String[] {
 		"my/pkg/X.java",
-		"package my.pkg;\n" +
-		"public class X {\n" +
-		"}",
+		"""
+			package my.pkg;
+			public class X {
+			}""",
 		"my/pkg/Y.java",
-		"package my.pkg;\n" +
-		"public class Y {\n" +
-		"  void foo() {\n" +
-		"    new X() {};" +
-		"  }\n" +
-		"}",
+		"""
+			package my.pkg;
+			public class Y {
+			  void foo() {
+			    new X() {};\
+			  }
+			}""",
 	}, JavaCore.VERSION_1_4);
 
 	IPackageFragmentRoot root = this.currentProject.getPackageFragmentRoot(this.currentProject.getProject().getFile("lib.jar"));
@@ -101,33 +103,39 @@ public void setUpSuite() throws Exception {
 	IJavaProject project15 = createJavaProject("TypeHierarchy15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 	addLibrary(project15, "lib15.jar", "lib15src.zip", new String[] {
 		"util/AbstractList.java",
-		"package util;\n" +
-		"public class AbstractList<E> {\n" +
-		"}",
+		"""
+			package util;
+			public class AbstractList<E> {
+			}""",
 		"util/ArrayList.java",
-		"package util;\n" +
-		"public class ArrayList<E> extends AbstractList<E> implements List<E> {\n" +
-		"}",
+		"""
+			package util;
+			public class ArrayList<E> extends AbstractList<E> implements List<E> {
+			}""",
 		"util/List.java",
-		"package util;\n" +
-		"public interface List<E> {\n" +
-		"}",
+		"""
+			package util;
+			public interface List<E> {
+			}""",
 		"util/Map.java",
-		"package util;\n" +
-		"public class Map<K,V> extends AbstractList<V> {\n" +
-		"}",
+		"""
+			package util;
+			public class Map<K,V> extends AbstractList<V> {
+			}""",
 	}, JavaCore.VERSION_1_5);
 	createFile(
 		"/TypeHierarchy15/src/X.java",
-		"import util.*;\n" +
-		"public class X<E> extends ArrayList<E> implements List<E> {\n" +
-		"}"
+		"""
+			import util.*;
+			public class X<E> extends ArrayList<E> implements List<E> {
+			}"""
 	);
 	createFile(
 		"/TypeHierarchy15/src/Y.java",
-		"import util.*;\n" +
-		"public class Y extends ArrayList implements List {\n" +
-		"}"
+		"""
+			import util.*;
+			public class Y extends ArrayList implements List {
+			}"""
 	);
 	createFile(
 		"/TypeHierarchy15/src/I.java",
@@ -141,9 +149,10 @@ public void setUpSuite() throws Exception {
 	);
 	createFile(
 		"/TypeHierarchy15/src/X99606.java",
-		"public class X99606 extends Y99606<X99606.Color> {\n" +
-		"	static class Color {}\n" +
-		"}"
+		"""
+			public class X99606 extends Y99606<X99606.Color> {
+				static class Color {}
+			}"""
 	);
 	createFile(
 		"/TypeHierarchy15/src/Y99606.java",
@@ -176,17 +185,19 @@ public void setUpSuite() throws Exception {
 	);
 	createFile(
 		"/TypeHierarchy15/src/CycleChild.java",
-		"class CycleChild extends CycleParent implements Comparable<CycleChild> {\n" +
-		"	public int compareTo(CycleChild o) { return 0; }\n" +
-		"}"
+		"""
+			class CycleChild extends CycleParent implements Comparable<CycleChild> {
+				public int compareTo(CycleChild o) { return 0; }
+			}"""
 	);
 	createFile(
 		"/TypeHierarchy15/src/Try.java",
-		"public enum Try {\n" +
-		"    THIS,\n" +
-		"    THAT(),\n" +
-		"    ANONYMOUS() {}\n" +
-		"}"
+		"""
+			public enum Try {
+			    THIS,
+			    THAT(),
+			    ANONYMOUS() {}
+			}"""
 	);
 
 	IJavaProject project_16 = createJava16Project("TypeHierarchy_16", new String[] {"src"});
@@ -194,9 +205,10 @@ public void setUpSuite() throws Exception {
 	createFolder("/TypeHierarchy_16/src/pkg");
 	createFile(
 			"/TypeHierarchy_16/src/pkg/Rec1.java",
-			"public record Rec1 (int one) {\n" +
-			"   " +
-			"}"
+			"""
+				public record Rec1 (int one) {
+				   \
+				}"""
 		);
 }
 
@@ -440,18 +452,21 @@ public void testBinaryInWrongPackage() throws CoreException {
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
-			"pakage p;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				pakage p;
+				public class X {
+				}"""
 		);
 		getProject("P").build(IncrementalProjectBuilder.FULL_BUILD, null);
 		waitForAutoBuild();
 		getFile("/P/bin/p/X.class").copy(new Path("/P/lib/X.class"), false, null);
 		ITypeHierarchy hierarchy = getClassFile("P", "/P/lib", "", "X.class").getType().newSupertypeHierarchy(null);
 		assertHierarchyEquals(
-			"Focus: X [in X.class [in <default> [in lib [in P]]]]\n" +
-			"Super types:\n" +
-			"Sub types:\n",
+			"""
+				Focus: X [in X.class [in <default> [in lib [in P]]]]
+				Super types:
+				Sub types:
+				""",
 			hierarchy);
 	} finally {
 		deleteProject("P");
@@ -536,13 +551,15 @@ public void testBinaryTypeHiddenByOtherJar() throws CoreException, IOException {
 		Util.createJar(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}" ,
+				"""
+					package p;
+					public class X {
+					}""" ,
 				"p/Y.java",
-				"package p;\n" +
-				"public class Y extends X {\n" +
-				"}"
+				"""
+					package p;
+					public class Y extends X {
+					}"""
 			},
 			new HashMap(),
 			externalJar1
@@ -551,13 +568,15 @@ public void testBinaryTypeHiddenByOtherJar() throws CoreException, IOException {
 		Util.createJar(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}" ,
+				"""
+					package p;
+					public class X {
+					}""" ,
 				"p/Y.java",
-				"package p;\n" +
-				"public class Y extends X {\n" +
-				"}"
+				"""
+					package p;
+					public class Y extends X {
+					}"""
 			},
 			new HashMap(),
 			externalJar2
@@ -591,17 +610,19 @@ public void testBinaryTypeInDotClassJar() throws CoreException, IOException {
 		Util.createJar(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}" ,
+				"""
+					package p;
+					public class X {
+					}""" ,
 				"p/Y.java",
-				"package p;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"    new X() {\n" +
-				"    };\n" +
-				" }\n" +
-				"}"
+				"""
+					package p;
+					public class Y {
+					  void foo() {
+					    new X() {
+					    };
+					 }
+					}"""
 			},
 			new HashMap(),
 			externalJar
@@ -662,10 +683,12 @@ public void testCycle() throws JavaModelException {
 	IType type = getCompilationUnit("/TypeHierarchy/src/cycle/X.java").getType("X");
 	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
 	assertHierarchyEquals(
-		"Focus: X [in X.java [in cycle [in src [in TypeHierarchy]]]]\n" +
-		"Super types:\n" +
-		"  Y [in Y.java [in cycle [in src [in TypeHierarchy]]]]\n" +
-		"Sub types:\n",
+		"""
+			Focus: X [in X.java [in cycle [in src [in TypeHierarchy]]]]
+			Super types:
+			  Y [in Y.java [in cycle [in src [in TypeHierarchy]]]]
+			Sub types:
+			""",
 		hierarchy
 	);
 }
@@ -744,13 +767,15 @@ public void testExternalFolder() throws CoreException, IOException {
 		Util.compile(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p;
+					public class X {
+					}""",
 				"p/Y.java",
-				"package p;\n" +
-				"public class Y extends X {\n" +
-				"}",
+				"""
+					package p;
+					public class Y extends X {
+					}""",
 			},
 			new HashMap(),
 			getExternalResourcePath("externalLib"));
@@ -776,13 +801,15 @@ public void testZIPArchive() throws CoreException, IOException {
 		createJar(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p;
+					public class X {
+					}""",
 				"p/Y.java",
-				"package p;\n" +
-				"public class Y extends X {\n" +
-				"}",
+				"""
+					package p;
+					public class Y extends X {
+					}""",
 			},
 			getExternalResourcePath("externalLib.abc"));
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
@@ -918,10 +945,12 @@ public void testGeneric05() throws JavaModelException {
 	IType type = getCompilationUnit("/TypeHierarchy15/src/I.java").getType("I");
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
-		"Focus: I [in I.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
-		"Super types:\n" +
-		"Sub types:\n" +
-		"  A [in A.java [in <default> [in src [in TypeHierarchy15]]]]\n",
+		"""
+			Focus: I [in I.java [in <default> [in src [in TypeHierarchy15]]]]
+			Super types:
+			Sub types:
+			  A [in A.java [in <default> [in src [in TypeHierarchy15]]]]
+			""",
 		hierarchy
 	);
 }
@@ -1013,17 +1042,19 @@ public void testGeneric10() throws CoreException {
 	try {
 		createFile(
 			"/TypeHierarchy15/src/Y_140340.java",
-			"public class Y_140340 {\n" +
-			"  public static class Z {\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class Y_140340 {
+				  public static class Z {
+				  }
+				}"""
 		);
 		createFile(
 			"/TypeHierarchy15/src/X_140340.java",
-			"public class X_140340 implements I1_140340<Y_140340.Z> {\n" +
-			"}\n" +
-			"interface I1_140340<T> {\n" +
-			"}"
+			"""
+				public class X_140340 implements I1_140340<Y_140340.Z> {
+				}
+				interface I1_140340<T> {
+				}"""
 		);
 		IType type = getCompilationUnit("/TypeHierarchy15/src/X_140340.java").getType("X_140340");
 		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
@@ -1049,24 +1080,28 @@ public void testGeneric11() throws CoreException {
 		createFolder("/TypeHierarchy15/src/p215681");
 		createFile(
 			"/TypeHierarchy15/src/p215681/A_215681.java",
-			"package p215681;\r\n" +
-			"public class A_215681<E> {\n" +
-			"}"
+			"""
+				package p215681;\r
+				public class A_215681<E> {
+				}"""
 		);
 		createFolder("/TypeHierarchy15/src/q215681");
 		createFile(
 			"/TypeHierarchy15/src/q215681/A_215681.java",
-			"package q215681;\n" +
-			"import p215681.A_215681;\n" +
-			"public class A_215681 extends A_215681<Object> {\n" +
-			"}"
+			"""
+				package q215681;
+				import p215681.A_215681;
+				public class A_215681 extends A_215681<Object> {
+				}"""
 		);
 		IType type = getCompilationUnit("/TypeHierarchy15/src/q215681/A_215681.java").getType("A_215681");
 		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 		assertHierarchyEquals(
-			"Focus: A_215681 [in A_215681.java [in q215681 [in src [in TypeHierarchy15]]]]\n" +
-			"Super types:\n" +
-			"Sub types:\n",
+			"""
+				Focus: A_215681 [in A_215681.java [in q215681 [in src [in TypeHierarchy15]]]]
+				Super types:
+				Sub types:
+				""",
 			hierarchy
 		);
 	} finally {
@@ -1083,24 +1118,28 @@ public void testGeneric12() throws CoreException {
 		createFolder("/TypeHierarchy15/src/p215681");
 		createFile(
 			"/TypeHierarchy15/src/p215681/A_215681.java",
-			"package p215681;\r\n" +
-			"public interface A_215681<E> {\n" +
-			"}"
+			"""
+				package p215681;\r
+				public interface A_215681<E> {
+				}"""
 		);
 		createFolder("/TypeHierarchy15/src/q215681");
 		createFile(
 			"/TypeHierarchy15/src/q215681/A_215681.java",
-			"package q215681;\n" +
-			"import p215681.A_215681;\n" +
-			"public interface A_215681 extends A_215681<Object> {\n" +
-			"}"
+			"""
+				package q215681;
+				import p215681.A_215681;
+				public interface A_215681 extends A_215681<Object> {
+				}"""
 		);
 		IType type = getCompilationUnit("/TypeHierarchy15/src/q215681/A_215681.java").getType("A_215681");
 		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 		assertHierarchyEquals(
-			"Focus: A_215681 [in A_215681.java [in q215681 [in src [in TypeHierarchy15]]]]\n" +
-			"Super types:\n" +
-			"Sub types:\n",
+			"""
+				Focus: A_215681 [in A_215681.java [in q215681 [in src [in TypeHierarchy15]]]]
+				Super types:
+				Sub types:
+				""",
 			hierarchy
 		);
 	} finally {
@@ -1115,15 +1154,17 @@ public void testGetAllClassesInRegion() {
 	IType[] types = this.typeHierarchy.getAllClasses();
 	assertTypesEqual(
 		"Unexpected all classes in hierarchy",
-		"binary.Deep\n" +
-		"binary.X\n" +
-		"binary.Y\n" +
-		"binary.Y$Inner\n" +
-		"binary.Z\n" +
-		"java.lang.Object\n" +
-		"rich.A\n" +
-		"rich.B\n" +
-		"rich.C\n",
+		"""
+			binary.Deep
+			binary.X
+			binary.Y
+			binary.Y$Inner
+			binary.Z
+			java.lang.Object
+			rich.A
+			rich.B
+			rich.C
+			""",
 		types);
 }
 /**
@@ -1133,10 +1174,12 @@ public void testGetAllInterfacesInRegion() {
 	IType[] types = this.typeHierarchy.getAllInterfaces();
 	assertTypesEqual(
 		"Unexpected all interfaces in hierarchy",
-		"binary.I\n" +
-		"rich.I\n" +
-		"rich.I2\n" +
-		"rich.I3\n",
+		"""
+			binary.I
+			rich.I
+			rich.I2
+			rich.I3
+			""",
 		types);
 }
 /**
@@ -1149,9 +1192,11 @@ public void testGetAllSubtypes() throws JavaModelException {
 	IType[] types = hierarchy.getAllSubtypes(type);
 	this.assertTypesEqual(
 		"Unexpected sub types of X",
-		"p1.Deep\n" +
-		"p1.Y\n" +
-		"p1.Z\n",
+		"""
+			p1.Deep
+			p1.Y
+			p1.Z
+			""",
 		types
 	);
 }
@@ -1167,10 +1212,12 @@ public void testGetAllSubtypesFromBinary() throws JavaModelException {
 	IType[] types = hierarchy.getAllSubtypes(type);
 	assertTypesEqual(
 		"Unexpected all subtypes of binary.X",
-		"binary.Deep\n" +
-		"binary.Y\n" +
-		"binary.Y$Inner\n" +
-		"binary.Z\n",
+		"""
+			binary.Deep
+			binary.Y
+			binary.Y$Inner
+			binary.Z
+			""",
 		types);
 }
 
@@ -1184,9 +1231,11 @@ public void testGetAllSuperclasses() throws JavaModelException {
 	IType[] types = hierarchy.getAllSuperclasses(type);
 	assertTypesEqual(
 		"Unexpected all super classes of Z",
-		"java.lang.Object\n" +
-		"p1.X\n" +
-		"p1.Y\n",
+		"""
+			java.lang.Object
+			p1.X
+			p1.Y
+			""",
 		types);
 }
 
@@ -1204,10 +1253,12 @@ public void testGetAllSuperclassesFromBinary() throws JavaModelException {
 	IType[] types = hierarchy.getAllSupertypes(type);
 	assertTypesEqual(
 		"Unexpected all super classes of X53095",
-		"java.lang.RuntimeException\n" +
-		"java.lang.Exception\n" +
-		"java.lang.Throwable\n" +
-		"java.lang.Object\n",
+		"""
+			java.lang.RuntimeException
+			java.lang.Exception
+			java.lang.Throwable
+			java.lang.Object
+			""",
 		types,
 		false);
 }
@@ -1223,10 +1274,12 @@ public void testGetAllSuperclassesFromBinary2() throws JavaModelException {
 	IType[] types = hierarchy.getAllSupertypes(type);
 	assertTypesEqual(
 		"Unexpected all super classes of X54043",
-		"java.lang.RuntimeException\n" +
-		"java.lang.Exception\n" +
-		"java.lang.Throwable\n" +
-		"java.lang.Object\n",
+		"""
+			java.lang.RuntimeException
+			java.lang.Exception
+			java.lang.Throwable
+			java.lang.Object
+			""",
 		types,
 		false);
 }
@@ -1254,11 +1307,13 @@ public void testGetAllSupertypes() throws JavaModelException {
 	IType[] types = hierarchy.getAllSupertypes(type);
 	assertTypesEqual(
 		"Unexpected all super types of Z",
-		"java.lang.Object\n" +
-		"p1.I1\n" +
-		"p1.I2\n" +
-		"p1.X\n" +
-		"p1.Y\n",
+		"""
+			java.lang.Object
+			p1.I1
+			p1.I2
+			p1.X
+			p1.Y
+			""",
 		types);
 }
 /**
@@ -1272,10 +1327,12 @@ public void testGetAllSupertypes2() throws JavaModelException {
 	IType[] types = hierarchy.getAllSupertypes(type);
 	assertTypesEqual(
 		"Unexpected all super types of B",
-		"java.lang.Object\n" +
-		"p3.A\n" +
-		"p3.I\n" +
-		"p3.I1\n",
+		"""
+			java.lang.Object
+			p3.A
+			p3.I
+			p3.I1
+			""",
 		types);
 }
 /**
@@ -1315,13 +1372,15 @@ public void testGetAllTypes() throws JavaModelException {
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	this.assertTypesEqual(
 		"Unexpected types in hierarchy of Y",
-		"java.lang.Object\n" +
-		"p1.Deep\n" +
-		"p1.I1\n" +
-		"p1.I2\n" +
-		"p1.X\n" +
-		"p1.Y\n" +
-		"p1.Z\n",
+		"""
+			java.lang.Object
+			p1.Deep
+			p1.I1
+			p1.I2
+			p1.X
+			p1.Y
+			p1.Z
+			""",
 		hierarchy.getAllTypes()
 	);
 }
@@ -1414,9 +1473,11 @@ public void testGetRootInterfacesFromRegion() {
 	IType[] types = this.typeHierarchy.getRootInterfaces();
 	assertTypesEqual(
 		"Unexpected root classes",
-		"binary.I\n" +
-		"rich.I\n" +
-		"rich.I3\n",
+		"""
+			binary.I
+			rich.I
+			rich.I3
+			""",
 		types);
 }
 /**
@@ -1651,9 +1712,11 @@ public void testLocalType5() throws JavaModelException {
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertTypesEqual(
 		"Unexpected types in hierarchy",
-		"java.lang.Object\n" +
-		"q9.X\n" +
-		"q9.X$Local\n",
+		"""
+			java.lang.Object
+			q9.X
+			q9.X$Local
+			""",
 		hierarchy.getAllTypes());
 }
 /*
@@ -1665,10 +1728,11 @@ public void testMemberTypeSubtypeDifferentProject() throws CoreException {
 		createJavaProject("P1");
 		createFile(
 			"/P1/X.java",
-			"public class X {\n" +
-			"  public class Member {\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  public class Member {
+				  }
+				}"""
 			);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
 		createFile(
@@ -1718,26 +1782,31 @@ public void testMissingBinarySuperclass1() throws Exception {
 		IJavaProject project = createJavaProject("P", new String[0], "bin");
 		addClassFolder(project, "lib", new String[] {
 			"p/X213249.java",
-			"package p;\n" +
-			"public class X213249 {\n" +
-			"}",
+			"""
+				package p;
+				public class X213249 {
+				}""",
 			"p/Y213249.java",
-			"package p;\n" +
-			"public class Y213249 extends X213249 {\n" +
-			"}",
+			"""
+				package p;
+				public class Y213249 extends X213249 {
+				}""",
 			"p/Z213249.java",
-			"package p;\n" +
-			"public class Z213249 extends Y213249 {\n" +
-			"}",
+			"""
+				package p;
+				public class Z213249 extends Y213249 {
+				}""",
 		}, "1.4");
 		deleteFile("/P/lib/p/X213249.class");
 		IType type = getClassFile("/P/lib/p/Z213249.class").getType();
 		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 		assertHierarchyEquals(
-			"Focus: Z213249 [in Z213249.class [in p [in lib [in P]]]]\n" +
-			"Super types:\n" +
-			"  Y213249 [in Y213249.class [in p [in lib [in P]]]]\n" +
-			"Sub types:\n",
+			"""
+				Focus: Z213249 [in Z213249.class [in p [in lib [in P]]]]
+				Super types:
+				  Y213249 [in Y213249.class [in p [in lib [in P]]]]
+				Sub types:
+				""",
 			hierarchy);
 	} finally {
 		deleteProject("P");
@@ -1753,26 +1822,31 @@ public void testMissingBinarySuperclass2() throws Exception {
 		IJavaProject project = createJavaProject("P", new String[0], "bin");
 		addClassFolder(project, "lib", new String[] {
 			"p/X213249.java",
-			"package p;\n" +
-			"public class X213249 {\n" +
-			"}",
+			"""
+				package p;
+				public class X213249 {
+				}""",
 			"p/Y213249.java",
-			"package p;\n" +
-			"public class Y213249 extends X213249 {\n" +
-			"}",
+			"""
+				package p;
+				public class Y213249 extends X213249 {
+				}""",
 			"p/Z213249.java",
-			"package p;\n" +
-			"public class Z213249 extends Y213249 {\n" +
-			"}",
+			"""
+				package p;
+				public class Z213249 extends Y213249 {
+				}""",
 		}, "1.4");
 		deleteFile("/P/lib/p/X213249.class");
 		IType type = getClassFile("/P/lib/p/Z213249.class").getType();
 		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
 		assertHierarchyEquals(
-			"Focus: Z213249 [in Z213249.class [in p [in lib [in P]]]]\n" +
-			"Super types:\n" +
-			"  Y213249 [in Y213249.class [in p [in lib [in P]]]]\n" +
-			"Sub types:\n",
+			"""
+				Focus: Z213249 [in Z213249.class [in p [in lib [in P]]]]
+				Super types:
+				  Y213249 [in Y213249.class [in p [in lib [in P]]]]
+				Sub types:
+				""",
 			hierarchy);
 	} finally {
 		deleteProject("P");
@@ -1788,27 +1862,30 @@ public void testPotentialSubtypeInDependentProject() throws Exception {
 		createFolder("/P1/p1");
 		createFile(
 			"/P1/p1/X169678.java",
-			"package p1;\n" +
-			"public class X169678 {\n" +
-			"  public static class Y169678 {\n" +
-			"  }\n" +
-			"}"
+			"""
+				package p1;
+				public class X169678 {
+				  public static class Y169678 {
+				  }
+				}"""
 		);
 		createFile(
 			"/P1/p1/Z169678.java",
-			"package p1;\n" +
-			"public class Z169678 extends X169678.Y169678 {\n" +
-			"}"
+			"""
+				package p1;
+				public class Z169678 extends X169678.Y169678 {
+				}"""
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
 		createFolder("/P2/p2");
 		createFile(
 			"/P2/p2/Y169678.java",
-			"package p2;\n" +
-			"public class Y169678 {\n" +
-			"}\n" +
-			"class Z169678 extends Y169678 {\n" +
-			"}"
+			"""
+				package p2;
+				public class Y169678 {
+				}
+				class Z169678 extends Y169678 {
+				}"""
 		);
 		IType type = getCompilationUnit("/P1/p1/X169678.java").getType("X169678").getType("Y169678");
 		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
@@ -1885,10 +1962,12 @@ public void testRegion1() throws JavaModelException {
 	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
 	assertTypesEqual(
 		"Unexpected types in hierarchy",
-		"java.lang.Object\n" +
-		"q1.X\n" +
-		"q1.Z\n" +
-		"q2.Y\n",
+		"""
+			java.lang.Object
+			q1.X
+			q1.Z
+			q2.Y
+			""",
 		h.getAllTypes()
 	);
 }
@@ -1903,9 +1982,11 @@ public void testRegion2() throws JavaModelException {
 	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
 	assertTypesEqual(
 		"Unexpected types in hierarchy",
-		"java.lang.Object\n" +
-		"q1.X\n" +
-		"q2.Y\n",
+		"""
+			java.lang.Object
+			q1.X
+			q2.Y
+			""",
 		h.getAllTypes()
 	);
 }
@@ -1920,10 +2001,12 @@ public void testRegion3() throws JavaModelException {
 	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
 	assertTypesEqual(
 		"Unexpected types in hierarchy",
-		"java.lang.Object\n" +
-		"p9.X\n" +
-		"p9.X$1\n" +
-		"p9.X$Y\n",
+		"""
+			java.lang.Object
+			p9.X
+			p9.X$1
+			p9.X$Y
+			""",
 		h.getAllTypes()
 	);
 }
@@ -1985,17 +2068,19 @@ public void testRegion5() throws Exception {
 		createFolder("/P/p");
 		createFile(
 			"/P/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"}\n" +
-			"class Y extends X {\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				}
+				class Y extends X {
+				}"""
 		);
 		createFile(
 			"/P/p/Z.java",
-			"package p;\n" +
-			"public class Z extends Unknown {\n" +
-			"}"
+			"""
+				package p;
+				public class Z extends Unknown {
+				}"""
 		);
 		IPackageFragment pkg = getPackage("/P/p");
 		IRegion region = JavaCore.newRegion();
@@ -2032,38 +2117,43 @@ public void testResilienceToMissingBinaries() throws CoreException {
 		createFolder("/P/src/tools/");
 		createFile(
 			"/P/src/tools/DisplayTestResult2.java",
-			"package tools;\n" +
-			"import servlet.*;\n" +
-			"public class DisplayTestResult2 extends TmrServlet2 {\n" +
-			"}\n" +
-			"obscruction"
+			"""
+				package tools;
+				import servlet.*;
+				public class DisplayTestResult2 extends TmrServlet2 {
+				}
+				obscruction"""
 		);
 		createFolder("/P/src/servlet/");
 		createFile(
 				"/P/src/servlet/TmrServlet2.java",
-				"package servlet;\n" +
-				"public class TmrServlet2 extends TmrServlet {\n" +
-				"}\n" +
-				"obstruction"
+				"""
+					package servlet;
+					public class TmrServlet2 extends TmrServlet {
+					}
+					obstruction"""
 			);
 		createFile(
 				"/P/src/servlet/TmrServlet.java",
-				"package servlet;\n" +
-				"import gk.*;\n" +
-				"public class TmrServlet extends GKServlet {\n" +
-				"}\n" +
-				"obstruction"
+				"""
+					package servlet;
+					import gk.*;
+					public class TmrServlet extends GKServlet {
+					}
+					obstruction"""
 			);
 		IType type = getCompilationUnit("P", "src", "tools", "DisplayTestResult2.java").getType("DisplayTestResult2");
 		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
 		assertNotNull(hierarchy.getSupertypes(type));
 		assertHierarchyEquals(
-				"Focus: DisplayTestResult2 [in DisplayTestResult2.java [in tools [in src [in P]]]]\n" +
-				"Super types:\n" +
-				"  TmrServlet2 [in TmrServlet2.java [in servlet [in src [in P]]]]\n" +
-				"    TmrServlet [in TmrServlet.java [in servlet [in src [in P]]]]\n" +
-				"      GKServlet [in GKServlet.class [in gk [in /TypeHierarchy/test144976.jar [in P]]]]\n" +
-				"Sub types:\n",
+				"""
+					Focus: DisplayTestResult2 [in DisplayTestResult2.java [in tools [in src [in P]]]]
+					Super types:
+					  TmrServlet2 [in TmrServlet2.java [in servlet [in src [in P]]]]
+					    TmrServlet [in TmrServlet.java [in servlet [in src [in P]]]]
+					      GKServlet [in GKServlet.class [in gk [in /TypeHierarchy/test144976.jar [in P]]]]
+					Sub types:
+					""",
 			hierarchy);
 	} finally {
 		deleteProject("P");
@@ -2077,11 +2167,12 @@ public void testResolvedTypeAsFocus() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
 		String source =
-			"public class X {\n" +
-			"  Y<String> field;\n" +
-			"}\n" +
-			"class Y<E> {\n" +
-			"}";
+			"""
+			public class X {
+			  Y<String> field;
+			}
+			class Y<E> {
+			}""";
 		createFile("/P/X.java", source);
 		int start = source.indexOf("Y");
 		int end = source.indexOf("<String>");
@@ -2202,11 +2293,13 @@ public void testSourceRecordTypeGetSuperclass() throws JavaModelException {
 	assertTrue("Superclass not found for Rec1", superclass != null);
 	assertEquals("Unexpected super class for Rec1", "Record", superclass.getElementName());
 	assertHierarchyEquals(
-			"Focus: Rec1 [in Rec1.java [in pkg [in src [in TypeHierarchy_16]]]]\n" +
-			"Super types:\n" +
-			"  Record [in Record.class [in java.lang [in <module:java.base>]]]\n" +
-			"    Object [in Object.class [in java.lang [in <module:java.base>]]]\n" +
-			"Sub types:\n",
+			"""
+				Focus: Rec1 [in Rec1.java [in pkg [in src [in TypeHierarchy_16]]]]
+				Super types:
+				  Record [in Record.class [in java.lang [in <module:java.base>]]]
+				    Object [in Object.class [in java.lang [in <module:java.base>]]]
+				Sub types:
+				""",
 			hierarchy);
 }
 /**
@@ -2275,21 +2368,24 @@ public void testSupertypeHierarchyOnWorkingCopy() throws JavaModelException {
 	try {
 		workingCopy = cu.getWorkingCopy(null);
 		workingCopy.createType(
-			"class B{\n" +
-			"	void m(){\n" +
-			"	}\n" +
-			"	void f(){\n" +
-			"		m();\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				class B{
+					void m(){
+					}
+					void f(){
+						m();
+					}
+				}
+				""",
 			null,
 			true,
 			null);
 		workingCopy.createType(
-			"class A extends B{\n" +
-			"	void m(){\n" +
-			"	}\n" +
-			"}",
+			"""
+				class A extends B{
+					void m(){
+					}
+				}""",
 			null,
 			true,
 			null);
@@ -2320,10 +2416,12 @@ public void testSuperTypeHierarchyWithMissingBinary() throws JavaModelException 
 		IType type = cu.getType("Z");
 		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
 		assertHierarchyEquals(
-				"Focus: Z [in Z.java [in q3 [in src [in TypeHierarchy]]]]\n" +
-				"Super types:\n" +
-				"  Y49809 [in Y49809.class [in p49809 [in test49809.jar [in TypeHierarchy]]]]\n" +
-				"Sub types:\n",
+				"""
+					Focus: Z [in Z.java [in q3 [in src [in TypeHierarchy]]]]
+					Super types:
+					  Y49809 [in Y49809.class [in p49809 [in test49809.jar [in TypeHierarchy]]]]
+					Sub types:
+					""",
 			hierarchy
 		);
 	} finally {
@@ -2433,43 +2531,46 @@ public void testBug254738() throws CoreException {
 		createFolder("/P/src/abc");
 		createFile(
 			"/P/src/abc/Parent.java",
-			"package abc;\n" +
-			"public class Parent {\n" +
-			"	public void parentmethod() {\n" +
-			"   	new Object() {\n" +
-			"			void nestedonemethod() {\n" +
-			"           	new Object(){\n" +
-			"               	public int hashCode() {\n" +
-			"                   	return 0; \n" +
-			"                   } \n" +
-			"				}; \n" +
-			"         	}\n" +
-			"   	};\n" +
-			"	}\n" +
-			"}\n" +
-			"@Deprecated\n" +
-			"class Dep {\n" +
-			"        @Deprecated void a() {}\n" +
-			"        @Deprecated void b() {}\n" +
-			"        @Deprecated void c() {}\n" +
-			"        @Deprecated void d() {}\n" +
-			"        @Deprecated void e() {}\n" +
-			"        @Deprecated void f() {}\n" +
-			"        @Deprecated void g() {}\n" +
-			"        @Deprecated void h() {}\n" +
-			"        @Deprecated void i() {}\n" +
-			"        @Deprecated void j() {}\n" +
-			"        @Deprecated void k() {}\n" +
-			"}"
+			"""
+				package abc;
+				public class Parent {
+					public void parentmethod() {
+				   	new Object() {
+							void nestedonemethod() {
+				           	new Object(){
+				               	public int hashCode() {
+				                   	return 0;\s
+				                   }\s
+								};\s
+				         	}
+				   	};
+					}
+				}
+				@Deprecated
+				class Dep {
+				        @Deprecated void a() {}
+				        @Deprecated void b() {}
+				        @Deprecated void c() {}
+				        @Deprecated void d() {}
+				        @Deprecated void e() {}
+				        @Deprecated void f() {}
+				        @Deprecated void g() {}
+				        @Deprecated void h() {}
+				        @Deprecated void i() {}
+				        @Deprecated void j() {}
+				        @Deprecated void k() {}
+				}"""
 			);
 		IType focus  = getCompilationUnit("/P/src/abc/Parent.java").getType("Parent");
 		focus =	focus.getMethod("parentmethod", new String[]{}).getType("", 1).getMethod("nestedonemethod", new String[]{}).
 												getType("", 1);
 		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
 		assertHierarchyEquals(
-				"Focus: <anonymous #1> [in nestedonemethod() [in <anonymous #1> [in parentmethod() [in Parent [in Parent.java [in abc [in src [in P]]]]]]]]\n" +
-				"Super types:\n" +
-				"Sub types:\n",
+				"""
+					Focus: <anonymous #1> [in nestedonemethod() [in <anonymous #1> [in parentmethod() [in Parent [in Parent.java [in abc [in src [in P]]]]]]]]
+					Super types:
+					Sub types:
+					""",
 			hierarchy);
 	} finally {
 		deleteProjects(new String[] {"P"});
@@ -2509,17 +2610,19 @@ public void _testBug329663() throws JavaModelException, CoreException {
 				"public interface I{}");
 		createFile(
 				"/P1/p/X.java",
-				"package p;\n" +
-				"public class X implements I{\n" +
-				"}"
+				"""
+					package p;
+					public class X implements I{
+					}"""
 		);
 		createFolder("/P2/q");
 		createFile(
 				"/P2/q/Y.java",
-				"package q;\n" +
-				"import p.*;\n" +
-				"public class Y implements I {\n" +
-					"}"
+				"""
+					package q;
+					import p.*;
+					public class Y implements I {
+					}"""
 		);
 		IRegion region = JavaCore.newRegion();
 		region.add(p1);
@@ -2554,9 +2657,10 @@ try {
 			"public interface I{}");
 	createFile(
 			"/P1/p/X.java",
-			"package p;\n" +
-			"public class X implements I{\n" +
-				"}"
+			"""
+				package p;
+				public class X implements I{
+				}"""
 	);
 	createFolder("/P2/q");
 	createFile(
@@ -2565,9 +2669,10 @@ try {
 			"public interface I{}");
 	createFile(
 			"/P2/q/Y.java",
-			"package q;\n" +
-			"public class Y implements I {\n" +
-				"}"
+			"""
+				package q;
+				public class Y implements I {
+				}"""
 	);
 	IRegion region = JavaCore.newRegion();
 	region.add(p1);
@@ -2575,9 +2680,11 @@ try {
 	ITypeHierarchy hierarchy = JavaCore.newTypeHierarchy(region, null, null);
 	IType[] types = hierarchy.getRootInterfaces();
 	assertTypesEqual("Unexpected super interfaces",
-			"java.io.Serializable\n" +
-			"p.I\n" +
-			"q.I\n",
+			"""
+				java.io.Serializable
+				p.I
+				q.I
+				""",
 			types);
 }
 finally{
@@ -2593,32 +2700,36 @@ public void testBug300576() throws CoreException {
 		prj = createJavaProject("Bug300576", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
 		createFolder("/Bug300576/src/p");
 		createFile("/Bug300576/src/p/Outer.java",
-				"package p;\n" +
-				"class Outer {\n" +
-				"    enum A {\n" +
-				"        GREEN, DARK_GREEN, BLACK;\n" +
-				"        /** Javadoc of getNext() */\n" +
-				"        A getNext() {\n" +
-				"            switch (this) {\n" +
-				"                case GREEN : return DARK_GREEN;\n" +
-				"                case DARK_GREEN : return BLACK;\n" +
-				"                case BLACK : return GREEN;\n" +
-				"                default : return null;\n" +
-				"            }\n" +
-				"        }\n" +
-				"    }\n" +
-				"    {\n" +
-				"        A a= A.GREEN.getNext();\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					package p;
+					class Outer {
+					    enum A {
+					        GREEN, DARK_GREEN, BLACK;
+					        /** Javadoc of getNext() */
+					        A getNext() {
+					            switch (this) {
+					                case GREEN : return DARK_GREEN;
+					                case DARK_GREEN : return BLACK;
+					                case BLACK : return GREEN;
+					                default : return null;
+					            }
+					        }
+					    }
+					    {
+					        A a= A.GREEN.getNext();
+					    }
+					}
+					""");
 		IType a = getCompilationUnit("Bug300576", "src", "p", "Outer.java").getType("Outer").getType("A");
 		IRegion region = JavaCore.newRegion();
 		region.add(getPackageFragmentRoot("Bug300576", "src"));
 		ITypeHierarchy hierarchy = prj.newTypeHierarchy(a, region, new NullProgressMonitor());
 		assertHierarchyEquals(
-				"Focus: A [in Outer [in Outer.java [in p [in src [in Bug300576]]]]]\n" +
-				"Super types:\n" +
-				"Sub types:\n",
+				"""
+					Focus: A [in Outer [in Outer.java [in p [in src [in Bug300576]]]]]
+					Super types:
+					Sub types:
+					""",
 				hierarchy);
 	} finally {
 		if (prj != null)
@@ -2637,32 +2748,36 @@ public void testBug300576b() throws CoreException {
 				"package java.lang;\n" +
 				"public class Enum {}\n");
 		createFile("/Bug300576/src/p/Outer.java",
-				"package p;\n" +
-				"class Outer {\n" +
-				"    enum A {\n" +
-				"        GREEN, DARK_GREEN, BLACK;\n" +
-				"        /** Javadoc of getNext() */\n" +
-				"        A getNext() {\n" +
-				"            switch (this) {\n" +
-				"                case GREEN : return DARK_GREEN;\n" +
-				"                case DARK_GREEN : return BLACK;\n" +
-				"                case BLACK : return GREEN;\n" +
-				"                default : return null;\n" +
-				"            }\n" +
-				"        }\n" +
-				"    }\n" +
-				"    {\n" +
-				"        A a= A.GREEN.getNext();\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					package p;
+					class Outer {
+					    enum A {
+					        GREEN, DARK_GREEN, BLACK;
+					        /** Javadoc of getNext() */
+					        A getNext() {
+					            switch (this) {
+					                case GREEN : return DARK_GREEN;
+					                case DARK_GREEN : return BLACK;
+					                case BLACK : return GREEN;
+					                default : return null;
+					            }
+					        }
+					    }
+					    {
+					        A a= A.GREEN.getNext();
+					    }
+					}
+					""");
 		IType a = getCompilationUnit("Bug300576", "src", "p", "Outer.java").getType("Outer").getType("A");
 		IRegion region = JavaCore.newRegion();
 		region.add(getPackageFragmentRoot("Bug300576", "src"));
 		ITypeHierarchy hierarchy = prj.newTypeHierarchy(a, region, new NullProgressMonitor());
 		assertHierarchyEquals(
-				"Focus: A [in Outer [in Outer.java [in p [in src [in Bug300576]]]]]\n" +
-				"Super types:\n" +
-				"Sub types:\n",
+				"""
+					Focus: A [in Outer [in Outer.java [in p [in src [in Bug300576]]]]]
+					Super types:
+					Sub types:
+					""",
 				hierarchy);
 	} finally {
 		if (prj != null)
@@ -2676,73 +2791,77 @@ public void testBug393192() throws CoreException {
 		prj = createJavaProject("Bug393192", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
 		createFolder("/Bug393192/src/pullup");
 		createFile("/Bug393192/src/pullup/A.java",
-				"package pullup;\n" +
-				"\n" +
-				"class A {\n" +
-				"    @Deprecated\n" +
-				"    void m0() {\n" +
-				"    }\n" +
-				"\n" +
-				"    @Deprecated\n" +
-				"    void m1() {\n" +
-				"    }\n" +
-				"\n" +
-				"    @Deprecated\n" +
-				"    void m2() {\n" +
-				"    }\n" +
-				"\n" +
-				"    @Deprecated\n" +
-				"    void m3() {\n" +
-				"    }\n" +
-				"\n" +
-				"    @Deprecated\n" +
-				"    void m4() {\n" +
-				"    }\n" +
-				"\n" +
-				"    @Deprecated\n" +
-				"    void m5() {\n" +
-				"    }\n" +
-				"\n" +
-				"    @Deprecated\n" +
-				"    void m6() {\n" +
-				"    }\n" +
-				"\n" +
-				"    @Deprecated\n" +
-				"    void m7() {\n" +
-				"    }\n" +
-				"\n" +
-				"    @Deprecated\n" +
-				"    void m8() {\n" +
-				"    }\n" +
-				"\n" +
-				"    @Deprecated\n" +
-				"    void m9() {\n" +
-				"    }\n" +
-				"\n" +
-				"    /**\n" +
-				"     * @param\n" +
-				"     */\n" +
-				"    @Deprecated\n" +
-				"    void m10() {\n" +
-				"    }\n" +
-				"}\n" +
-				"\n");
+				"""
+					package pullup;
+					
+					class A {
+					    @Deprecated
+					    void m0() {
+					    }
+					
+					    @Deprecated
+					    void m1() {
+					    }
+					
+					    @Deprecated
+					    void m2() {
+					    }
+					
+					    @Deprecated
+					    void m3() {
+					    }
+					
+					    @Deprecated
+					    void m4() {
+					    }
+					
+					    @Deprecated
+					    void m5() {
+					    }
+					
+					    @Deprecated
+					    void m6() {
+					    }
+					
+					    @Deprecated
+					    void m7() {
+					    }
+					
+					    @Deprecated
+					    void m8() {
+					    }
+					
+					    @Deprecated
+					    void m9() {
+					    }
+					
+					    /**
+					     * @param
+					     */
+					    @Deprecated
+					    void m10() {
+					    }
+					}
+					
+					""");
 		createFile("/Bug393192/src/pullup/package-info.java",
 				"package pullup;\n" +
 				"\n");
 		createFile("/Bug393192/src/pullup/PullUpBug.java",
-				"package pullup;\n" +
-				"\n" +
-				"class PullUpBug extends A {\n" +
-				"\n" +
-				"    void mb() {\n" +
-				"        pullUp();\n" +
-				"    }\n" +
-				"\n" +
-				"    // INVOKE Pull Up REFACTORING ON \"pullUp\", or type Hierarchy on A\n" +
-				"    private void pullUp() {\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					package pullup;
+					
+					class PullUpBug extends A {
+					
+					    void mb() {
+					        pullUp();
+					    }
+					
+					    // INVOKE Pull Up REFACTORING ON "pullUp", or type Hierarchy on A
+					    private void pullUp() {
+					    }
+					}
+					""");
 		IType a = getCompilationUnit("Bug393192", "src", "pullup", "A.java").getType("A");
 		ITypeHierarchy hierarchy = a.newTypeHierarchy(new NullProgressMonitor());
 		assertHierarchyEquals(
@@ -2774,11 +2893,13 @@ public void testBug436155() throws CoreException, IOException {
 		}, "1.4");
 
 		createFolder("/P/src/q");
-		String source = "package q;\n" +
-				"import p.Text;\n" +
-				"class A {\n" +
-				"	Text text = null;\n" +
-				"}\n";
+		String source = """
+			package q;
+			import p.Text;
+			class A {
+				Text text = null;
+			}
+			""";
 		createFile("/P/src/q/A.java", source);
 
 		int start = source.lastIndexOf("Text");
@@ -2805,38 +2926,41 @@ public void testBug436139() throws CoreException, IOException {
 	try {
 		prj = createJavaProject("Bug436139", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
 		createFolder("/Bug436139/src/p1");
-		String iSource = "package p1;\n" +
-				"public interface I {\n" +
-				"    void foo(A<B> x);\n" +
-				"}";
+		String iSource = """
+			package p1;
+			public interface I {
+			    void foo(A<B> x);
+			}""";
 		createFile("/Bug436139/src/p1/I.java", iSource);
 		createFile("/Bug436139/src/p1/A.java", "package p1;\n" +"public class A<T> {}");
 		createFile("/Bug436139/src/p1/B.java", "package p1;\n" +"public class B {}");
 
 
 		createFolder("/Bug436139/src/p2");
-		String source = "package p2;\n" +
-				"import p1.*;\n" +
-				"\n" +
-				"@SuppressWarnings(\"unused\")\n" +
-				"public class X {\n" +
-				"\n" +
-				"	private Object patternChanged(A<B> x1) {\n" +
-				"\n" +
-				"		I f1 = new I() {\n" +
-				"			public void foo(A<B> x) {}\n" +
-				"		};\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"\n" +
-				"	private void someOtherMethod() {\n" +
-				"		I f2 = (x) -> {	patternChanged(x);};\n" +
-				"\n" +
-				"		I f3 = new I() {\n" +
-				"			public void foo(A<B> x) {}\n" +
-				"		};\n" +
-				"	}\n" +
-				"}\n";
+		String source = """
+			package p2;
+			import p1.*;
+			
+			@SuppressWarnings("unused")
+			public class X {
+			
+				private Object patternChanged(A<B> x1) {
+			
+					I f1 = new I() {
+						public void foo(A<B> x) {}
+					};
+					return null;
+				}
+			
+				private void someOtherMethod() {
+					I f2 = (x) -> {	patternChanged(x);};
+			
+					I f3 = new I() {
+						public void foo(A<B> x) {}
+					};
+				}
+			}
+			""";
 		createFile("/Bug436139/src/p2/X.java", source);
 
 		int start = iSource.lastIndexOf("I");
@@ -2847,12 +2971,14 @@ public void testBug436139() throws CoreException, IOException {
 		IType focus = (IType) elements[0];
 		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
 		assertHierarchyEquals(
-				"Focus: I [in [Working copy] I.java [in p1 [in src [in Bug436139]]]]\n" +
-				"Super types:\n" +
-				"Sub types:\n" +
-				"  <anonymous #1> [in patternChanged(A<B>) [in X [in X.java [in p2 [in src [in Bug436139]]]]]]\n" +
-				"  <anonymous #1> [in someOtherMethod() [in X [in X.java [in p2 [in src [in Bug436139]]]]]]\n" +
-				"  <lambda #1> [in someOtherMethod() [in X [in X.java [in p2 [in src [in Bug436139]]]]]]\n",
+				"""
+					Focus: I [in [Working copy] I.java [in p1 [in src [in Bug436139]]]]
+					Super types:
+					Sub types:
+					  <anonymous #1> [in patternChanged(A<B>) [in X [in X.java [in p2 [in src [in Bug436139]]]]]]
+					  <anonymous #1> [in someOtherMethod() [in X [in X.java [in p2 [in src [in Bug436139]]]]]]
+					  <lambda #1> [in someOtherMethod() [in X [in X.java [in p2 [in src [in Bug436139]]]]]]
+					""",
 				hierarchy);
 	} finally {
 		if (prj != null)
@@ -2914,40 +3040,41 @@ public void testBug462158() throws CoreException, IOException {
 	try {
 		prj = createJavaProject("Bug462158", new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
 		createFolder("/Bug462158/src/p1");
-		String iSource = "package p1;\n" +
-				"import java.util.ArrayList;\n" +
-				"public class TestEclipseForEachBug {\n" +
-				"    static abstract class MyList extends ArrayList<Object> {\n" +
-				"        private static final long serialVersionUID = 784633858339367208L;\n" +
-				"    }\n" +
-				"    @Deprecated\n" +
-				"    public void foo1(){}\n" +
-				"    @Deprecated\n" +
-				"    public void foo2(){}\n" +
-				"    @Deprecated\n" +
-				"    public void foo3(){}\n" +
-				"    @Deprecated\n" +
-				"    public void foo4(){}\n" +
-				"    @Deprecated\n" +
-				"    public void foo5(){}\n" +
-				"    @Deprecated\n" +
-				"    public void foo6(){}\n" +
-				"    @Deprecated\n" +
-				"    public void foo7(){}\n" +
-				"    @Deprecated\n" +
-				"    public void foo8(){}\n" +
-				"    @Deprecated\n" +
-				"    public void foo9(){}\n" +
-				"    @Deprecated\n" +
-				"    public void foo10(){}\n" +
-				"    @Deprecated\n" +
-				"    public void foo11(){}\n" +
-				"    @Deprecated\n" +
-				"    public void foo12(){}\n" +
-				"    void foo(MyList list) {\n" +
-				"        forea\n" +
-				"    }\n" +
-				"}";
+		String iSource = """
+			package p1;
+			import java.util.ArrayList;
+			public class TestEclipseForEachBug {
+			    static abstract class MyList extends ArrayList<Object> {
+			        private static final long serialVersionUID = 784633858339367208L;
+			    }
+			    @Deprecated
+			    public void foo1(){}
+			    @Deprecated
+			    public void foo2(){}
+			    @Deprecated
+			    public void foo3(){}
+			    @Deprecated
+			    public void foo4(){}
+			    @Deprecated
+			    public void foo5(){}
+			    @Deprecated
+			    public void foo6(){}
+			    @Deprecated
+			    public void foo7(){}
+			    @Deprecated
+			    public void foo8(){}
+			    @Deprecated
+			    public void foo9(){}
+			    @Deprecated
+			    public void foo10(){}
+			    @Deprecated
+			    public void foo11(){}
+			    @Deprecated
+			    public void foo12(){}
+			    void foo(MyList list) {
+			        forea
+			    }
+			}""";
 		createFile("/Bug462158/src/p1/TestEclipseForEachBug.java", iSource);
 
 		int start = iSource.indexOf("MyList list");
@@ -2960,10 +3087,12 @@ public void testBug462158() throws CoreException, IOException {
 		ITypeHierarchy hierarchy = focus.newTypeHierarchy(this.workingCopies, null);
 		IType[] allSupertypes = hierarchy.getAllSuperclasses(focus);
 		assertTypesEqual("Incorrect hierarchy",
-				"java.util.ArrayList\n" +
-				"java.util.AbstractList\n" +
-				"java.util.AbstractCollection\n" +
-				"java.lang.Object\n",
+				"""
+					java.util.ArrayList
+					java.util.AbstractList
+					java.util.AbstractCollection
+					java.lang.Object
+					""",
 				allSupertypes,
 				false);
 	} finally {
@@ -2978,68 +3107,73 @@ public void testBug507954_0001() throws JavaModelException, CoreException {
 		javaProject = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 		String packA = "/" + projectName + "/src/a/";
 		createFolder(packA);
-		String fileA = 				"package a;\n" +
-				"public abstract class A {\n"+
-				"  protected abstract void foo2();\n" +
-				"  public void baz2() {\n" +
-				"    foo2();\n" +
-			"}";
+		String fileA = 				"""
+			package a;
+			public abstract class A {
+			  protected abstract void foo2();
+			  public void baz2() {
+			    foo2();
+			}""";
 		createFile(packA + "A.java", fileA);
 		createFile(
 				packA + "B.java",
-				"package a;\n" +
-				"public class B {\n" +
-				"  public void a() {\n" +
-				"    new A() {\n" +
-				"      @Override\n" +
-				"      protected void foo2() {}\n" +
-				"    }.baz2();\n" +
-				"  }\n" +
-				"}"
+				"""
+					package a;
+					public class B {
+					  public void a() {
+					    new A() {
+					      @Override
+					      protected void foo2() {}
+					    }.baz2();
+					  }
+					}"""
 				);
 		createFile(
 				packA + "C.java",
-				"package a;\n" +
-				"public abstract class C {\n" +
-				"  protected abstract void foo1();\n" +
-				"  public void baz1() {\n" +
-				"    foo1();\n" +
-				"  }\n" +
-				"}"
+				"""
+					package a;
+					public abstract class C {
+					  protected abstract void foo1();
+					  public void baz1() {
+					    foo1();
+					  }
+					}"""
 				);
 		String packD = "/" + projectName + "/src/b/";
 		createFolder(packD);
 
-		String fileD = "package d;\n" +
-				"import a.A;\n" +
-				"import a.C;\n" +
-				"public final class D {\n" +
-				"\n" +
-				"	protected void c() {\n" +
-				"		new C() {\n" +
-				"			@Override\n" +
-				"			protected void foo1() {\n" +
-				"				a();\n" +
-				"				b();\n" +
-				"			}\n" +
-				"			private void a() {\n" +
-				"				new A() {\n" +
-				"					@Override\n" +
-				"					protected void foo2() {\n" +
-				"					}\n" +
-				"				}.baz2();\n" +
-				"			}\n" +
-				"			private void b() {\n" +
-				"				new A() {\n" +
-				"					@Override\n" +
-				"					protected void foo2() {\n" +
-				"					}\n" +
-				"				}.baz2();\n" +
-				"			}\n" +
-				"		}.baz1();\n" +
-				"	}\n" +
-				"\n" +
-				"}\n";
+		String fileD = """
+			package d;
+			import a.A;
+			import a.C;
+			public final class D {
+			
+				protected void c() {
+					new C() {
+						@Override
+						protected void foo1() {
+							a();
+							b();
+						}
+						private void a() {
+							new A() {
+								@Override
+								protected void foo2() {
+								}
+							}.baz2();
+						}
+						private void b() {
+							new A() {
+								@Override
+								protected void foo2() {
+								}
+							}.baz2();
+						}
+					}.baz1();
+				}
+			
+			}
+			""";
 
 		createFile(packA + "D.java", fileD);
 
@@ -3054,9 +3188,11 @@ public void testBug507954_0001() throws JavaModelException, CoreException {
 		ITypeHierarchy hierarchy = focus.newTypeHierarchy(this.workingCopies, null);
 		IType[] allSubTypes = hierarchy.getAllSubtypes(focus);
 		assertTypesEqual("Incorrect hierarchy",
-				"a.B$1\n" +
-				"a.D$1$1\n" +
-				"a.D$1$2\n",
+				"""
+					a.B$1
+					a.D$1$1
+					a.D$1$2
+					""",
 				allSubTypes,
 				true);
 	}
@@ -3074,26 +3210,34 @@ public void testBug533949() throws CoreException {
 		String packA = "/mod1/src/a/";
 		createFolder(packA);
 		createFile(packA + "A.java",
-				"package a;\n" +
-				"public abstract class A {\n"+
-				"}\n");
+				"""
+					package a;
+					public abstract class A {
+					}
+					""");
 		createFile("/mod1/src/module-info.java",
-				"module mod1 {\n" +
-				"	exports a;\n"+
-				"}\n");
+				"""
+					module mod1 {
+						exports a;
+					}
+					""");
 
 		javaProject2 = createJava9Project("mod2");
 		addClasspathEntry(javaProject2, JavaCore.newProjectEntry(javaProject1.getPath()));
 		String packB = "/mod2/src/b/";
 		createFolder(packB);
 		createFile(packB + "B.java",
-				"package b;\n" +
-				"public class B extends a.A {\n"+
-				"}\n");
+				"""
+					package b;
+					public class B extends a.A {
+					}
+					""");
 		createFile("/mod2/src/module-info.java",
-				"module mod2 {\n" +
-				"	requires mod1;\n"+
-				"}\n");
+				"""
+					module mod2 {
+						requires mod1;
+					}
+					""");
 
 		waitUntilIndexesReady();
 
@@ -3133,14 +3277,18 @@ public void testBug541217() throws CoreException {
         String packA = "/mod1/src/a/";
         createFolder(packA);
         createFile(packA + "A.java",
-                        "package a;\n" +
-                        "public interface A extends java.sql.Driver{\n"+
-                        "}\n");
+                        """
+							package a;
+							public interface A extends java.sql.Driver{
+							}
+							""");
         createFile("/mod1/src/module-info.java",
-                        "module mod1 {\n" +
-                        "       requires java.sql;\n"+
-                        "       exports a;\n"+
-                        "}\n");
+                        """
+							module mod1 {
+							       requires java.sql;
+							       exports a;
+							}
+							""");
 
         waitUntilIndexesReady();
 
@@ -3166,144 +3314,150 @@ public void testBug425111() throws Exception {
 						"package javax.tools;\n" +
 						"public interface JavaFileManager extends AutoCloseable {}\n",
 						"javax/tools/ForwardingJavaFileManager.java",
-						"package javax.tools;\n" +
-						"public class ForwardingJavaFileManager<M extends JavaFileManager> implements JavaFileManager {\n" +
-						"	public void close() {}\n" +
-						"}\n"
+						"""
+							package javax.tools;
+							public class ForwardingJavaFileManager<M extends JavaFileManager> implements JavaFileManager {
+								public void close() {}
+							}
+							"""
 				},
 				null,
 				"1.8");
 		createFolder("/P1/src/p1");
 		createFile("/P1/src/p1/T.java",
-				"package p1;\n" +
-				"import javax.tools.*;\n" +
-				"public class T {\n" +
-				"	Object test() {\n" +
-				"		return new ForwardingJavaFileManager<JavaFileManager>(null) {\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					package p1;
+					import javax.tools.*;
+					public class T {
+						Object test() {
+							return new ForwardingJavaFileManager<JavaFileManager>(null) {
+							}
+						}
+					}
+					""");
 		waitUntilIndexesReady();
         IType focus = javaProject1.findType("java.lang.AutoCloseable");
         ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
         IType[] allSubTypes = hierarchy.getAllSubtypes(focus);
         assertTypesEqual("Incorrect sub hierarchy",
-        		"java.io.BufferedInputStream\n" +
-        				"java.io.BufferedOutputStream\n" +
-        				"java.io.BufferedReader\n" +
-        				"java.io.BufferedWriter\n" +
-        				"java.io.ByteArrayInputStream\n" +
-        				"java.io.ByteArrayOutputStream\n" +
-        				"java.io.CharArrayReader\n" +
-        				"java.io.CharArrayWriter\n" +
-        				"java.io.Closeable\n" +
-        				"java.io.DataInputStream\n" +
-        				"java.io.DataOutputStream\n" +
-        				"java.io.FileInputStream\n" +
-        				"java.io.FileOutputStream\n" +
-        				"java.io.FileReader\n" +
-        				"java.io.FileWriter\n" +
-        				"java.io.FilterInputStream\n" +
-        				"java.io.FilterOutputStream\n" +
-        				"java.io.FilterReader\n" +
-        				"java.io.FilterWriter\n" +
-        				"java.io.InputStream\n" +
-        				"java.io.InputStreamReader\n" +
-        				"java.io.LineNumberInputStream\n" +
-        				"java.io.LineNumberReader\n" +
-        				"java.io.ObjectInput\n" +
-        				"java.io.ObjectInputStream\n" +
-        				"java.io.ObjectOutput\n" +
-        				"java.io.ObjectOutputStream\n" +
-        				"java.io.OutputStream\n" +
-        				"java.io.OutputStreamWriter\n" +
-        				"java.io.PipedInputStream\n" +
-        				"java.io.PipedOutputStream\n" +
-        				"java.io.PipedReader\n" +
-        				"java.io.PipedWriter\n" +
-        				"java.io.PrintStream\n" +
-        				"java.io.PrintWriter\n" +
-        				"java.io.PushbackInputStream\n" +
-        				"java.io.PushbackReader\n" +
-        				"java.io.RandomAccessFile\n" +
-        				"java.io.Reader\n" +
-        				"java.io.SequenceInputStream\n" +
-        				"java.io.StringBufferInputStream\n" +
-        				"java.io.StringReader\n" +
-        				"java.io.StringWriter\n" +
-        				"java.io.Writer\n" +
-        				"java.net.DatagramSocket\n" +
-        				"java.net.FactoryURLClassLoader\n" +
-        				"java.net.MulticastSocket\n" +
-        				"java.net.ServerSocket\n" +
-        				"java.net.Socket\n" +
-        				"java.net.SocketInputStream\n" +
-        				"java.net.SocketOutputStream\n" +
-        				"java.net.URLClassLoader\n" +
-        				"java.nio.channels.AsynchronousByteChannel\n" +
-        				"java.nio.channels.AsynchronousChannel\n" +
-        				"java.nio.channels.AsynchronousFileChannel\n" +
-        				"java.nio.channels.AsynchronousServerSocketChannel\n" +
-        				"java.nio.channels.AsynchronousSocketChannel\n" +
-        				"java.nio.channels.ByteChannel\n" +
-        				"java.nio.channels.Channel\n" +
-        				"java.nio.channels.DatagramChannel\n" +
-        				"java.nio.channels.FileChannel\n" +
-        				"java.nio.channels.FileLock\n" +
-        				"java.nio.channels.GatheringByteChannel\n" +
-        				"java.nio.channels.InterruptibleChannel\n" +
-        				"java.nio.channels.MulticastChannel\n" +
-        				"java.nio.channels.NetworkChannel\n" +
-        				"java.nio.channels.Pipe$SinkChannel\n" +
-        				"java.nio.channels.Pipe$SourceChannel\n" +
-        				"java.nio.channels.ReadableByteChannel\n" +
-        				"java.nio.channels.ScatteringByteChannel\n" +
-        				"java.nio.channels.SeekableByteChannel\n" +
-        				"java.nio.channels.SelectableChannel\n" +
-        				"java.nio.channels.Selector\n" +
-        				"java.nio.channels.ServerSocketChannel\n" +
-        				"java.nio.channels.SocketChannel\n" +
-        				"java.nio.channels.WritableByteChannel\n" +
-        				"java.nio.channels.spi.AbstractInterruptibleChannel\n" +
-        				"java.nio.channels.spi.AbstractSelectableChannel\n" +
-        				"java.nio.channels.spi.AbstractSelector\n" +
-        				"java.nio.file.WatchService\n" +
-        				"java.security.DigestInputStream\n" +
-        				"java.security.DigestOutputStream\n" +
-        				"java.sql.CallableStatement\n" +
-        				"java.sql.Connection\n" +
-        				"java.sql.PreparedStatement\n" +
-        				"java.sql.ResultSet\n" +
-        				"java.sql.Statement\n" +
-        				"java.util.Formatter\n" +
-        				"java.util.Scanner\n" +
-        				"java.util.jar.JarFile\n" +
-        				"java.util.jar.JarInputStream\n" +
-        				"java.util.jar.JarOutputStream\n" +
-        				"java.util.stream.AbstractPipeline\n" +
-        				"java.util.stream.BaseStream\n" +
-        				"java.util.stream.DoublePipeline\n" +
-        				"java.util.stream.DoubleStream\n" +
-        				"java.util.stream.IntPipeline\n" +
-        				"java.util.stream.IntStream\n" +
-        				"java.util.stream.LongPipeline\n" +
-        				"java.util.stream.LongStream\n" +
-        				"java.util.stream.ReferencePipeline\n" +
-        				"java.util.stream.Stream\n" +
-        				"java.util.zip.CheckedInputStream\n" +
-        				"java.util.zip.CheckedOutputStream\n" +
-        				"java.util.zip.DeflaterInputStream\n" +
-        				"java.util.zip.DeflaterOutputStream\n" +
-        				"java.util.zip.GZIPInputStream\n" +
-        				"java.util.zip.GZIPOutputStream\n" +
-        				"java.util.zip.InflaterInputStream\n" +
-        				"java.util.zip.InflaterOutputStream\n" +
-        				"java.util.zip.ZipFile\n" +
-        				"java.util.zip.ZipInputStream\n" +
-        				"java.util.zip.ZipOutputStream\n" +
-        				"javax.tools.ForwardingJavaFileManager\n" +
-        				"javax.tools.JavaFileManager\n" +
-        				"p1.T$1\n",
+        		"""
+					java.io.BufferedInputStream
+					java.io.BufferedOutputStream
+					java.io.BufferedReader
+					java.io.BufferedWriter
+					java.io.ByteArrayInputStream
+					java.io.ByteArrayOutputStream
+					java.io.CharArrayReader
+					java.io.CharArrayWriter
+					java.io.Closeable
+					java.io.DataInputStream
+					java.io.DataOutputStream
+					java.io.FileInputStream
+					java.io.FileOutputStream
+					java.io.FileReader
+					java.io.FileWriter
+					java.io.FilterInputStream
+					java.io.FilterOutputStream
+					java.io.FilterReader
+					java.io.FilterWriter
+					java.io.InputStream
+					java.io.InputStreamReader
+					java.io.LineNumberInputStream
+					java.io.LineNumberReader
+					java.io.ObjectInput
+					java.io.ObjectInputStream
+					java.io.ObjectOutput
+					java.io.ObjectOutputStream
+					java.io.OutputStream
+					java.io.OutputStreamWriter
+					java.io.PipedInputStream
+					java.io.PipedOutputStream
+					java.io.PipedReader
+					java.io.PipedWriter
+					java.io.PrintStream
+					java.io.PrintWriter
+					java.io.PushbackInputStream
+					java.io.PushbackReader
+					java.io.RandomAccessFile
+					java.io.Reader
+					java.io.SequenceInputStream
+					java.io.StringBufferInputStream
+					java.io.StringReader
+					java.io.StringWriter
+					java.io.Writer
+					java.net.DatagramSocket
+					java.net.FactoryURLClassLoader
+					java.net.MulticastSocket
+					java.net.ServerSocket
+					java.net.Socket
+					java.net.SocketInputStream
+					java.net.SocketOutputStream
+					java.net.URLClassLoader
+					java.nio.channels.AsynchronousByteChannel
+					java.nio.channels.AsynchronousChannel
+					java.nio.channels.AsynchronousFileChannel
+					java.nio.channels.AsynchronousServerSocketChannel
+					java.nio.channels.AsynchronousSocketChannel
+					java.nio.channels.ByteChannel
+					java.nio.channels.Channel
+					java.nio.channels.DatagramChannel
+					java.nio.channels.FileChannel
+					java.nio.channels.FileLock
+					java.nio.channels.GatheringByteChannel
+					java.nio.channels.InterruptibleChannel
+					java.nio.channels.MulticastChannel
+					java.nio.channels.NetworkChannel
+					java.nio.channels.Pipe$SinkChannel
+					java.nio.channels.Pipe$SourceChannel
+					java.nio.channels.ReadableByteChannel
+					java.nio.channels.ScatteringByteChannel
+					java.nio.channels.SeekableByteChannel
+					java.nio.channels.SelectableChannel
+					java.nio.channels.Selector
+					java.nio.channels.ServerSocketChannel
+					java.nio.channels.SocketChannel
+					java.nio.channels.WritableByteChannel
+					java.nio.channels.spi.AbstractInterruptibleChannel
+					java.nio.channels.spi.AbstractSelectableChannel
+					java.nio.channels.spi.AbstractSelector
+					java.nio.file.WatchService
+					java.security.DigestInputStream
+					java.security.DigestOutputStream
+					java.sql.CallableStatement
+					java.sql.Connection
+					java.sql.PreparedStatement
+					java.sql.ResultSet
+					java.sql.Statement
+					java.util.Formatter
+					java.util.Scanner
+					java.util.jar.JarFile
+					java.util.jar.JarInputStream
+					java.util.jar.JarOutputStream
+					java.util.stream.AbstractPipeline
+					java.util.stream.BaseStream
+					java.util.stream.DoublePipeline
+					java.util.stream.DoubleStream
+					java.util.stream.IntPipeline
+					java.util.stream.IntStream
+					java.util.stream.LongPipeline
+					java.util.stream.LongStream
+					java.util.stream.ReferencePipeline
+					java.util.stream.Stream
+					java.util.zip.CheckedInputStream
+					java.util.zip.CheckedOutputStream
+					java.util.zip.DeflaterInputStream
+					java.util.zip.DeflaterOutputStream
+					java.util.zip.GZIPInputStream
+					java.util.zip.GZIPOutputStream
+					java.util.zip.InflaterInputStream
+					java.util.zip.InflaterOutputStream
+					java.util.zip.ZipFile
+					java.util.zip.ZipInputStream
+					java.util.zip.ZipOutputStream
+					javax.tools.ForwardingJavaFileManager
+					javax.tools.JavaFileManager
+					p1.T$1
+					""",
                         allSubTypes,
                         true);
 	} finally {
@@ -3326,34 +3480,36 @@ public void testBug559210() throws CoreException {
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/ReferenceInputStream.java",
-			"pakage p;\n" +
-			"public class ReferenceInputStream extends java.io.InputStream {\n" +
-			"	private final File reference;\n" +
-			"\n" +
-			"	public ReferenceInputStream(File reference) {\n" +
-			"		this.reference = reference;\n" +
-			"	}\n" +
-			"\n" +
-			"	/* This method should not be called.\n" +
-			"	 */\n" +
-			"	@Override\n" +
-			"	public int read() throws IOException {\n" +
-			"		throw new IOException();\n" +
-			"	}\n" +
-			"\n" +
-			"	public File getReference() {\n" +
-			"		return reference;\n" +
-			"	}\n" +
-			"}"
+			"""
+				pakage p;
+				public class ReferenceInputStream extends java.io.InputStream {
+					private final File reference;
+				
+					public ReferenceInputStream(File reference) {
+						this.reference = reference;
+					}
+				
+					/* This method should not be called.
+					 */
+					@Override
+					public int read() throws IOException {
+						throw new IOException();
+					}
+				
+					public File getReference() {
+						return reference;
+					}
+				}"""
 		);
 		createFile(
 			"/P/src/p/Storage.java",
-			"pakage p;\n" +
-			"import p.ReferenceInputStream;\n" +
-			"public class Storage {\n" +
-			"\n" +
-			"	public ReferenceInputStream stream;\n" +
-			"}"
+			"""
+				pakage p;
+				import p.ReferenceInputStream;
+				public class Storage {
+				
+					public ReferenceInputStream stream;
+				}"""
 		);
 		getProject("P").build(IncrementalProjectBuilder.FULL_BUILD, null);
 		waitForAutoBuild();
@@ -3380,9 +3536,10 @@ public void testBug457813() throws CoreException {
 		createFolder("/P/src/hierarchy");
 		createFile(
 				"/P/src/hierarchy/X.java",
-				"pakage hierarchy;\n" +
-				"public class X extends aspose.b.a.a {\n" +
-				"}"
+				"""
+					pakage hierarchy;
+					public class X extends aspose.b.a.a {
+					}"""
 			);
 		IType type = getCompilationUnit("P", "src", "hierarchy", "X.java").getType("X");
 		assertTrue("Type should exist!", type.exists());
@@ -3406,20 +3563,23 @@ public void testBug573450_001() throws CoreException {
 		createFolder("/P/src/hierarchy");
 		createFile(
 				"/P/src/hierarchy/X.java",
-				"@SuppressWarnings(\"preview\")\n" +
-				"public sealed class X permits X.Y {\n" +
-				"	final class Y extends X {}\n" +
-				"}"
+				"""
+					@SuppressWarnings("preview")
+					public sealed class X permits X.Y {
+						final class Y extends X {}
+					}"""
 			);
 		IType type = getCompilationUnit("P", "src", "hierarchy", "X.java").getType("X");
 		assertTrue("Type should exist!", type.exists());
 		ITypeHierarchy hierarchy = type.newTypeHierarchy(null); // when bug occurred a stack overflow happened here...
 		assertHierarchyEquals(
-				"Focus: X [in X.java [in hierarchy [in src [in P]]]]\n" +
-				"Super types:\n" +
-				"  Object [in Object.class [in java.lang [in <module:java.base>]]]\n" +
-				"Sub types:\n" +
-				"  Y [in X [in X.java [in hierarchy [in src [in P]]]]]\n",
+				"""
+					Focus: X [in X.java [in hierarchy [in src [in P]]]]
+					Super types:
+					  Object [in Object.class [in java.lang [in <module:java.base>]]]
+					Sub types:
+					  Y [in X [in X.java [in hierarchy [in src [in P]]]]]
+					""",
 				hierarchy);
 	} finally {
 		deleteProject("P");
@@ -3434,20 +3594,23 @@ public void testBug573450_002() throws CoreException {
 		createFolder("/P/src/hierarchy");
 		createFile(
 				"/P/src/hierarchy/Foo.java",
-				"@SuppressWarnings(\"preview\")\n" +
-				"sealed interface Foo permits Foo.Bar {\n" +
-				"	interface Interface {}\n" +
-				"	record Bar() implements Foo, Interface {}\n" +
-				"}"
+				"""
+					@SuppressWarnings("preview")
+					sealed interface Foo permits Foo.Bar {
+						interface Interface {}
+						record Bar() implements Foo, Interface {}
+					}"""
 			);
 		IType type1 = getCompilationUnit("P", "src", "hierarchy", "Foo.java").getType("Foo");
 		assertTrue("Type should exist!", type1.exists());
 		ITypeHierarchy hierarchy1 = type1.newTypeHierarchy(null);
 		assertHierarchyEquals(
-				"Focus: Foo [in Foo.java [in hierarchy [in src [in P]]]]\n" +
-				"Super types:\n" +
-				"Sub types:\n" +
-				"  Bar [in Foo [in Foo.java [in hierarchy [in src [in P]]]]]\n",
+				"""
+					Focus: Foo [in Foo.java [in hierarchy [in src [in P]]]]
+					Super types:
+					Sub types:
+					  Bar [in Foo [in Foo.java [in hierarchy [in src [in P]]]]]
+					""",
 				hierarchy1);
 	} finally {
 		deleteProject("P");
@@ -3473,48 +3636,53 @@ private void setupQualifierProject() throws Exception {
 	);
 	createFile(
 			"/TypeHierarchyQ/src/Q3.java",
-			"public class Q3 {\n" +
-			"	public util.List<String> listOf() {\n" +
-			"		return new util.List(){};\n" +
-			"	}\n"+
-			"	private class Q3List implements util.List {\n" +
-			"	}\n"+
-			"}"
+			"""
+				public class Q3 {
+					public util.List<String> listOf() {
+						return new util.List(){};
+					}
+					private class Q3List implements util.List {
+					}
+				}"""
 	);
 	createFile(
 			"/TypeHierarchyQ/src/Q4.java",
-			"public class Q4 {\n" +
-			"	public Runnable job() {\n" +
-			"		return new Runnable(){\n" +
-			"			public void run(){}" +
-			"		};\n" +
-			"	}\n"+
-			"	private class Q4Job implements Runnable {\n" +
-			"			public void run(){}" +
-			"	}\n"+
-			"	public java.util.function.Function<String, String> func() {\n" +
-			"		return i -> {\n" +
-			"			return \"i\";"+
-			"		};\n" +
-			"	}\n"+
-			"}"
+			"""
+				public class Q4 {
+					public Runnable job() {
+						return new Runnable(){
+							public void run(){}\
+						};
+					}
+					private class Q4Job implements Runnable {
+							public void run(){}\
+					}
+					public java.util.function.Function<String, String> func() {
+						return i -> {
+							return "i";\
+						};
+					}
+				}"""
 	);
 
 	createFolder("/TypeHierarchyQ/src/p1");
 	createFile(
 			"/TypeHierarchyQ/src/p1/COuter.java",
-			"package p1;\n" +
-			"public class COuter {\n" +
-			"	protected class Inner {}\n" +
-			"}"
+			"""
+				package p1;
+				public class COuter {
+					protected class Inner {}
+				}"""
 	);
 
 	createFolder("/TypeHierarchyQ/src/p2");
 	createFile(
 			"/TypeHierarchyQ/src/p2/Middle.java",
-			"package p2;\n" +
-			"import p1.COuter;\n" +
-			"public class Middle extends COuter {}\n"
+			"""
+				package p2;
+				import p1.COuter;
+				public class Middle extends COuter {}
+				"""
 	);
 
 	IJavaProject projectR = createJavaProject("TypeHierarchyR", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
@@ -3523,13 +3691,15 @@ private void setupQualifierProject() throws Exception {
 	createFolder("/TypeHierarchyR/src/p3");
 	createFile(
 			"/TypeHierarchyR/src/p3/Final.java",
-			"package p3;" +
-			"public class Final extends p2.Middle {\n"+
-			"	private class FinalInner extends Inner {}\n"+
-			"	private void exec() {\n"+
-			"		new Thread(()-> {});\n"+
-			"	}\n"+
-			"}\n"
+			"""
+				package p3;\
+				public class Final extends p2.Middle {
+					private class FinalInner extends Inner {}
+					private void exec() {
+						new Thread(()-> {});
+					}
+				}
+				"""
 	);
 
 }
@@ -3546,18 +3716,20 @@ public void testIndexQualificationFQNReferences() throws Exception {
 		IType type = getPackageFragmentRoot("/TypeHierarchy15/lib15.jar").getPackageFragment("util")
 				.getOrdinaryClassFile("List.class").getType();
 		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
-		assertHierarchyEquals("Focus: List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n"
-				+ "Super types:\n"
-				+ "Sub types:\n"
-				+ "  <anonymous #1> [in listOf() [in Q3 [in Q3.java [in <default> [in src [in TypeHierarchyQ]]]]]]\n"
-				+ "  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n"
-				+ "    Q1 [in Q1.java [in <default> [in src [in TypeHierarchyQ]]]]\n"
-				+ "    X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n"
-				+ "    Y [in Y.java [in <default> [in src [in TypeHierarchy15]]]]\n"
-				+ "  Q2 [in Q2.java [in <default> [in src [in TypeHierarchyQ]]]]\n"
-				+ "  Q3List [in Q3 [in Q3.java [in <default> [in src [in TypeHierarchyQ]]]]]\n"
-				+ "  X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n"
-				+ "  Y [in Y.java [in <default> [in src [in TypeHierarchy15]]]]\n"
+		assertHierarchyEquals("""
+			Focus: List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]
+			Super types:
+			Sub types:
+			  <anonymous #1> [in listOf() [in Q3 [in Q3.java [in <default> [in src [in TypeHierarchyQ]]]]]]
+			  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]
+			    Q1 [in Q1.java [in <default> [in src [in TypeHierarchyQ]]]]
+			    X [in X.java [in <default> [in src [in TypeHierarchy15]]]]
+			    Y [in Y.java [in <default> [in src [in TypeHierarchy15]]]]
+			  Q2 [in Q2.java [in <default> [in src [in TypeHierarchyQ]]]]
+			  Q3List [in Q3 [in Q3.java [in <default> [in src [in TypeHierarchyQ]]]]]
+			  X [in X.java [in <default> [in src [in TypeHierarchy15]]]]
+			  Y [in Y.java [in <default> [in src [in TypeHierarchy15]]]]
+			"""
 				, hierarchy);
 	} finally {
 		deleteQualifierProject();
@@ -3697,31 +3869,34 @@ public void testBugGh269() throws Exception {
 		createFolder("/TypeHierarchyBugGh269/src/p269/internal");
 		createFile(
 			"/TypeHierarchyBugGh269/src/p269/Gh269TestInterface.java",
-			"package p269;\n" +
-			"public interface Gh269TestInterface {\n" +
-			"    void foo();\n" +
-			"}"
+			"""
+				package p269;
+				public interface Gh269TestInterface {
+				    void foo();
+				}"""
 		);
 		String subtypeContents =
-				"package p269.internal;\n" +
-				"import static p269.internal.Gh269SomeClass.*;\n" +
-				"import p269.Gh269TestInterface;\n" +
-				"public class Gh269TestImplementation implements Gh269TestInterface {\n" +
-				"    @Override public void foo() { someStaticMethod(); }\n" +
-				"    public static void someOtherStaticMethod() { System.out.println(\"hello world\"); }\n" +
-				"}";
+				"""
+			package p269.internal;
+			import static p269.internal.Gh269SomeClass.*;
+			import p269.Gh269TestInterface;
+			public class Gh269TestImplementation implements Gh269TestInterface {
+			    @Override public void foo() { someStaticMethod(); }
+			    public static void someOtherStaticMethod() { System.out.println("hello world"); }
+			}""";
 		createFile(
 				"/TypeHierarchyBugGh269/src/p269/internal/Gh269TestImplementation.java",
 				subtypeContents
 				);
 		createFile(
 				"/TypeHierarchyBugGh269/src/p269/internal/Gh269SomeClass.java",
-				"package p269.internal;\n" +
-				"import static p269.internal.Gh269TestImplementation.*;\n" +
-				"public class Gh269SomeClass implements Comparable<Gh269SomeClass> {\n" +
-				"    public static void someStaticMethod() { someOtherStaticMethod(); }\n" +
-				"    @Override public int compareTo(Gh269SomeClass o) { return 0; }\n" +
-				"}"
+				"""
+					package p269.internal;
+					import static p269.internal.Gh269TestImplementation.*;
+					public class Gh269SomeClass implements Comparable<Gh269SomeClass> {
+					    public static void someStaticMethod() { someOtherStaticMethod(); }
+					    @Override public int compareTo(Gh269SomeClass o) { return 0; }
+					}"""
 				);
 		waitUntilIndexesReady();
 
@@ -3737,10 +3912,12 @@ public void testBugGh269() throws Exception {
 		assertTrue("Type should exist!", type.exists());
 		ITypeHierarchy hierarchy = type.newTypeHierarchy(new NullProgressMonitor());
 		assertHierarchyEquals(
-			"Focus: Gh269TestInterface [in Gh269TestInterface.java [in p269 [in src [in TypeHierarchyBugGh269]]]]\n" +
-			"Super types:\n" +
-			"Sub types:\n" +
-			"  Gh269TestImplementation [in Gh269TestImplementation.java [in p269.internal [in src [in TypeHierarchyBugGh269]]]]\n",
+			"""
+				Focus: Gh269TestInterface [in Gh269TestInterface.java [in p269 [in src [in TypeHierarchyBugGh269]]]]
+				Super types:
+				Sub types:
+				  Gh269TestImplementation [in Gh269TestImplementation.java [in p269.internal [in src [in TypeHierarchyBugGh269]]]]
+				""",
 			hierarchy);
 	} finally {
 		deleteProject(testProjectName);

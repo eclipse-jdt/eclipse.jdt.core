@@ -266,24 +266,30 @@ public void checkParse(
 public void test0001() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A {							\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A {						\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -302,14 +308,18 @@ public void test0001() {
 public void test0002() {
 
 	String s =
-		"package a;											\n"
-			+ "public interface X <A {						\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public interface X <A {					\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public interface X<A> {\n" +
-		"}\n";
+		"""
+		package a;
+		public interface X<A> {
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;
@@ -331,24 +341,30 @@ public void test0002() {
 public void test0003() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A>							\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A>						\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -367,24 +383,30 @@ public void test0003() {
 public void test0004() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A, B							\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A, B						\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A, B> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B> {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A, B> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B> {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -403,27 +425,33 @@ public void test0004() {
 public void test0005() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A, B							\n"
-			+ "   A a;										\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A, B						\t
+		   A a;									\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A, B> {\n" +
-		"  A a;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B> {
+		  A a;
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A, B> {\n" +
-		"  A a;\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B> {
+		  A a;
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -442,27 +470,33 @@ public void test0005() {
 public void test0006() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A extends String, B			\n"
-			+ "   A a;										\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A extends String, B		\t
+		   A a;									\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A extends String, B> {\n" +
-		"  A a;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A extends String, B> {
+		  A a;
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A extends String, B> {\n" +
-		"  A a;\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A extends String, B> {
+		  A a;
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -481,25 +515,31 @@ public void test0006() {
 public void test0007() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A extends					\n"
-			+ "   A a;										\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A extends				\t
+		   A a;									\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A extends A> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A extends A> {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A extends A> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A extends A> {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -519,29 +559,35 @@ public void test0007() {
 public void test0008() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A exteds	B>					\n"
-			+ "   A a;										\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A exteds	B>				\t
+		   A a;									\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  exteds B;\n" +
-		"  A a;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  exteds B;
+		  A a;
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  exteds B;\n" +
-		"  A a;\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  exteds B;
+		  A a;
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -560,27 +606,33 @@ public void test0008() {
 public void test0009() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A extends>					\n"
-			+ "   A a;										\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A extends>				\t
+		   A a;									\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  A a;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  A a;
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  A a;\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  A a;
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -600,29 +652,35 @@ public void test0009() {
 public void test0010() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A extends					\n"
-			+ "   void foo(){}								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A extends				\t
+		   void foo(){}							\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -642,24 +700,30 @@ public void test0010() {
 public void test0011() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A, B extends					\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A, B extends				\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A, B> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B> {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A, B> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B> {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -678,24 +742,30 @@ public void test0011() {
 public void test0012() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A, B extends	Z				\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A, B extends	Z			\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A, B extends Z> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B extends Z> {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A, B extends Z> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B extends Z> {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -714,24 +784,30 @@ public void test0012() {
 public void test0013() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A, B extends	Z<				\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A, B extends	Z<			\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A, B> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B> {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A, B> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B> {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -750,24 +826,30 @@ public void test0013() {
 public void test0014() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A, B extends	Z<Y				\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A, B extends	Z<Y			\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A, B> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B> {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A, B> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B> {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -786,24 +868,30 @@ public void test0014() {
 public void test0015() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A, B extends	Z<Y>			\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A, B extends	Z<Y>		\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A, B extends Z<Y>> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B extends Z<Y>> {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A, B extends Z<Y>> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A, B extends Z<Y>> {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -822,24 +910,30 @@ public void test0015() {
 public void test0016() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A super int> {				\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A super int> {			\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -858,24 +952,30 @@ public void test0016() {
 public void test0017() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A<B super int>> {			\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A<B super int>> {		\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -894,24 +994,30 @@ public void test0017() {
 public void test0018() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X <A<B<C super int>>> {			\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X <A<B<C super int>>> {		\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X<A> {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X<A> {
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -930,43 +1036,51 @@ public void test0018() {
 public void test0019() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X {			\n"
-			+ "		void foo()[\n"
-			+ "		  Object o = (Y<Z>.W<U>)e\n"
-			+ "		\n"
-			+ "		}\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X {		\t
+				void foo()[
+				  Object o = (Y<Z>.W<U>)e
+			\t
+				}
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    Object o = (Y<Z>.W<U>) e;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		    Object o = (Y<Z>.W<U>) e;
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -984,55 +1098,60 @@ public void test0019() {
 }
 public void test0020() {
 	String s =
-		"public class X<T> {\n" +
-		"  public class B<U> {}\n" +
-		"  public static void main (String[] args) {\n" +
-		"    X<?>.B[] b = new X<?>.B[1];\n" +
-		"    X<?>.B<?>[] b = new X<?>.B<?>[1];\n" +
-		"    p.p1.X<?>.q.B<?>[] b = new p.p1.X<?>.q.B<?>[1];\n" +
-		"    p.p1.X<?>.q.B[] b = new p.p1.X<?>.q.B[1];\n" +
-		"    p.p1.X<?>[] b = new p.p1.X<?>[1];\n" +
-		"    p.p1.X<String, Integer>.q.B<?>[] b = new p.p1.X<String, Integer>.q.B<?>[1];\n" +
-		"    X<?>.B<?> b = null;\n" +
-		"    p.p1.X<?>.q.B<?> b = null;\n" +
-		"    p.p1.X<String, Integer>.q.B<?> b = null;\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X<T> {
+		  public class B<U> {}
+		  public static void main (String[] args) {
+		    X<?>.B[] b = new X<?>.B[1];
+		    X<?>.B<?>[] b = new X<?>.B<?>[1];
+		    p.p1.X<?>.q.B<?>[] b = new p.p1.X<?>.q.B<?>[1];
+		    p.p1.X<?>.q.B[] b = new p.p1.X<?>.q.B[1];
+		    p.p1.X<?>[] b = new p.p1.X<?>[1];
+		    p.p1.X<String, Integer>.q.B<?>[] b = new p.p1.X<String, Integer>.q.B<?>[1];
+		    X<?>.B<?> b = null;
+		    p.p1.X<?>.q.B<?> b = null;
+		    p.p1.X<String, Integer>.q.B<?> b = null;
+		  }
+		}""";
 
 	String expectedDietUnitToString =
-		"public class X<T> {\n" +
-		"  public class B<U> {\n" +
-		"    public B() {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  public static void main(String[] args) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X<T> {
+		  public class B<U> {
+		    public B() {
+		    }
+		  }
+		  public X() {
+		  }
+		  public static void main(String[] args) {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"public class X<T> {\n" +
-		"  public class B<U> {\n" +
-		"    public B() {\n" +
-		"      super();\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public static void main(String[] args) {\n" +
-		"    X<?>.B[] b = new X<?>.B[1];\n" +
-		"    X<?>.B<?>[] b = new X<?>.B<?>[1];\n" +
-		"    p.p1.X<?>.q.B<?>[] b = new p.p1.X<?>.q.B<?>[1];\n" +
-		"    p.p1.X<?>.q.B[] b = new p.p1.X<?>.q.B[1];\n" +
-		"    p.p1.X<?>[] b = new p.p1.X<?>[1];\n" +
-		"    p.p1.X<String, Integer>.q.B<?>[] b = new p.p1.X<String, Integer>.q.B<?>[1];\n" +
-		"    X<?>.B<?> b = null;\n" +
-		"    p.p1.X<?>.q.B<?> b = null;\n" +
-		"    p.p1.X<String, Integer>.q.B<?> b = null;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X<T> {
+		  public class B<U> {
+		    public B() {
+		      super();
+		    }
+		  }
+		  public X() {
+		    super();
+		  }
+		  public static void main(String[] args) {
+		    X<?>.B[] b = new X<?>.B[1];
+		    X<?>.B<?>[] b = new X<?>.B<?>[1];
+		    p.p1.X<?>.q.B<?>[] b = new p.p1.X<?>.q.B<?>[1];
+		    p.p1.X<?>.q.B[] b = new p.p1.X<?>.q.B[1];
+		    p.p1.X<?>[] b = new p.p1.X<?>[1];
+		    p.p1.X<String, Integer>.q.B<?>[] b = new p.p1.X<String, Integer>.q.B<?>[1];
+		    X<?>.B<?> b = null;
+		    p.p1.X<?>.q.B<?> b = null;
+		    p.p1.X<String, Integer>.q.B<?> b = null;
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietPlusBodyUnitToString;
 
@@ -1051,18 +1170,21 @@ public void test0020() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
 public void test0021() {
 	String s =
-		"import java.util.*;\n"+
-		"public interface X<T> {\n"+
-		"	<K> List<Map<K,T> foo(Map<T,K> m);\n"+
-		"	<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);\n"+
-		"}";
+		"""
+		import java.util.*;
+		public interface X<T> {
+			<K> List<Map<K,T> foo(Map<T,K> m);
+			<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);
+		}""";
 
 	String expectedDietUnitToString =
-		"import java.util.*;\n" +
-		"public interface X<T> {\n" +
-		"  <K>Map<K, T> foo(Map<T, K> m);\n" +
-		"  <K, E>Map<K, E> bar(Map<T, K> m, Map<T, E> e);\n" +
-		"}\n";
+		"""
+		import java.util.*;
+		public interface X<T> {
+		  <K>Map<K, T> foo(Map<T, K> m);
+		  <K, E>Map<K, E> bar(Map<T, K> m, Map<T, E> e);
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;
@@ -1084,16 +1206,19 @@ public void test0021() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
 public void test0022() {
 	String s =
-		"import java.util.*;\n"+
-		"public interface X<T> {\n"+
-		"	<K> List<Map<K,T> foo();\n"+
-		"}";
+		"""
+		import java.util.*;
+		public interface X<T> {
+			<K> List<Map<K,T> foo();
+		}""";
 
 	String expectedDietUnitToString =
-		"import java.util.*;\n" +
-		"public interface X<T> {\n" +
-		"  <K>Map<K, T> foo();\n" +
-		"}\n";
+		"""
+		import java.util.*;
+		public interface X<T> {
+		  <K>Map<K, T> foo();
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;
@@ -1115,17 +1240,20 @@ public void test0022() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
 public void test0023() {
 	String s =
-		"import java.util.*;\n"+
-		"public interface X<T> {\n"+
-		"	<K>\n"+
-		"	List<Map<K,T> foo();\n"+
-		"}";
+		"""
+		import java.util.*;
+		public interface X<T> {
+			<K>
+			List<Map<K,T> foo();
+		}""";
 
 	String expectedDietUnitToString =
-		"import java.util.*;\n" +
-		"public interface X<T> {\n" +
-		"  Map<K, T> foo();\n" +
-		"}\n";
+		"""
+		import java.util.*;
+		public interface X<T> {
+		  Map<K, T> foo();
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;
@@ -1147,16 +1275,19 @@ public void test0023() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
 public void test0024() {
 	String s =
-		"import java.util.*;\n"+
-		"public interface X<T> {\n"+
-		"	<K> public void foo();\n"+
-		"}";
+		"""
+		import java.util.*;
+		public interface X<T> {
+			<K> public void foo();
+		}""";
 
 	String expectedDietUnitToString =
-		"import java.util.*;\n" +
-		"public interface X<T> {\n" +
-		"  public void foo();\n" +
-		"}\n";
+		"""
+		import java.util.*;
+		public interface X<T> {
+		  public void foo();
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;
@@ -1178,16 +1309,19 @@ public void test0024() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
 public void test0025() {
 	String s =
-		"import java.util.*;\n"+
-		"public interface X<T> {\n"+
-		"	<K> public List<Map<K,T> foo();\n"+
-		"}";
+		"""
+		import java.util.*;
+		public interface X<T> {
+			<K> public List<Map<K,T> foo();
+		}""";
 
 	String expectedDietUnitToString =
-		"import java.util.*;\n" +
-		"public interface X<T> {\n" +
-		"  public <K>Map<K, T> foo();\n" +
-		"}\n";
+		"""
+		import java.util.*;
+		public interface X<T> {
+		  public <K>Map<K, T> foo();
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;
@@ -1209,16 +1343,19 @@ public void test0025() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
 public void test0026() {
 	String s =
-		"import java.util.*;\n"+
-		"public interface X<T> {\n"+
-		"	<K> Map<List<T>,List<K> foo();\n"+
-		"}";
+		"""
+		import java.util.*;
+		public interface X<T> {
+			<K> Map<List<T>,List<K> foo();
+		}""";
 
 	String expectedDietUnitToString =
-		"import java.util.*;\n" +
-		"public interface X<T> {\n" +
-		"  <T>List<K> foo();\n" +
-		"}\n";
+		"""
+		import java.util.*;
+		public interface X<T> {
+		  <T>List<K> foo();
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
 		expectedDietUnitToString;

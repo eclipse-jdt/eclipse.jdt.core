@@ -100,24 +100,26 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test001() {
 		try {
 			String sourceA001 =
-				"public class A001 {\n" +
-				"  public int foo() {\n" +
-				"    return 2;\n" +
-				"  }\n" +
-				"  public String toString() {\n" +
-				"    return \"hello\";\n" +
-				"  }\n" +
-				"}";
+				"""
+				public class A001 {
+				  public int foo() {
+				    return 2;
+				  }
+				  public String toString() {
+				    return "hello";
+				  }
+				}""";
 			compileAndDeploy(sourceA001, "A001");
 			String sourceA001_2 =
-				"public class A001_2 {\n" +
-				"  public int foo() {\n" +
-				"    return 2;\n" +
-				"  }\n" +
-				"  public String toString() {\n" +
-				"    return \"hello\";\n" +
-				"  }\n" +
-				"}";
+				"""
+				public class A001_2 {
+				  public int foo() {
+				    return 2;
+				  }
+				  public String toString() {
+				    return "hello";
+				  }
+				}""";
 			compileAndDeploy(sourceA001_2, "A001_2");
 			assertTrue(!areStructurallyDifferent("A001", "A001_2", false, false));
 		} finally {
@@ -128,21 +130,23 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test002() {
 		try {
 			String sourceA002 =
-				"public class A002 {\n" +
-				"  public int foo() {\n" +
-				"    return 2;\n" +
-				"  }\n" +
-				"}";
+				"""
+				public class A002 {
+				  public int foo() {
+				    return 2;
+				  }
+				}""";
 			compileAndDeploy(sourceA002, "A002");
 			String sourceA002_2 =
-				"public class A002_2 {\n" +
-				"  public int foo() {\n" +
-				"    return 2;\n" +
-				"  }\n" +
-				"  public String toString() {\n" +
-				"    return \"hello\";\n" +
-				"  }\n" +
-				"}";
+				"""
+				public class A002_2 {
+				  public int foo() {
+				    return 2;
+				  }
+				  public String toString() {
+				    return "hello";
+				  }
+				}""";
 			compileAndDeploy(sourceA002_2, "A002_2");
 			assertTrue(areStructurallyDifferent("A002", "A002_2", false, false));
 		} finally {
@@ -153,14 +157,16 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test003() {
 		try {
 			String sourceA003 =
-				"public class A003 {\n" +
-				"public static final int II = 5;\n" +
-				"}";
+				"""
+				public class A003 {
+				public static final int II = 5;
+				}""";
 			compileAndDeploy(sourceA003, "A003");
 			String sourceA003_2 =
-				"public class A003_2 {\n" +
-				"public static final int II = 6;\n" +
-				"}";
+				"""
+				public class A003_2 {
+				public static final int II = 6;
+				}""";
 			compileAndDeploy(sourceA003_2, "A003_2");
 			assertTrue(areStructurallyDifferent("A003", "A003_2", false, false));
 		} finally {
@@ -170,24 +176,26 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test004() {
 		try {
 			String sourceA004 =
-				"public class A004 {\n" +
-				"  public int foo() {\n" +
-				"    return 2;\n" +
-				"  }\n" +
-				"  public String toString() {\n" +
-				"    return \"hello\";\n" +
-				"  }\n" +
-				"}";
+				"""
+				public class A004 {
+				  public int foo() {
+				    return 2;
+				  }
+				  public String toString() {
+				    return "hello";
+				  }
+				}""";
 			compileAndDeploy(sourceA004, "A004");
 			String sourceA004_2 =
-				"public class A004_2 {\n" +
-				"  public int foo() {\n" +
-				"    return 2;\n" +
-				"  }\n" +
-				"  public String toString() {\n" +
-				"    return \"hello\";\n" +
-				"  }\n" +
-				"}";
+				"""
+				public class A004_2 {
+				  public int foo() {
+				    return 2;
+				  }
+				  public String toString() {
+				    return "hello";
+				  }
+				}""";
 			compileAndDeploy(sourceA004_2, "A004_2");
 			assertTrue(!areStructurallyDifferent("A004", "A004_2", true, true));
 		} finally {
@@ -197,21 +205,23 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test005() {
 		try {
 			String sourceA005 =
-				"public class A005 {\n" +
-				"  public int foo() {\n" +
-				"    return 2;\n" +
-				"  }\n" +
-				"}";
+				"""
+				public class A005 {
+				  public int foo() {
+				    return 2;
+				  }
+				}""";
 			compileAndDeploy(sourceA005, "A005");
 			String sourceA005_2 =
-				"public class A005_2 {\n" +
-				"  public int foo() {\n" +
-				"    return 2;\n" +
-				"  }\n" +
-				"  public String toString() {\n" +
-				"    return \"hello\";\n" +
-				"  }\n" +
-				"}";
+				"""
+				public class A005_2 {
+				  public int foo() {
+				    return 2;
+				  }
+				  public String toString() {
+				    return "hello";
+				  }
+				}""";
 			compileAndDeploy(sourceA005_2, "A005_2");
 			assertTrue(areStructurallyDifferent("A005", "A005_2", true, true));
 		} finally {
@@ -221,14 +231,16 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test006() {
 		try {
 			String sourceA006 =
-				"public class A006 {\n" +
-				"public static final int II = 5;\n" +
-				"}";
+				"""
+				public class A006 {
+				public static final int II = 5;
+				}""";
 			compileAndDeploy(sourceA006, "A006");
 			String sourceA006_2 =
-				"public class A006_2 {\n" +
-				"public static final int II = 6;\n" +
-				"}";
+				"""
+				public class A006_2 {
+				public static final int II = 6;
+				}""";
 			compileAndDeploy(sourceA006_2, "A006_2");
 			assertTrue(areStructurallyDifferent("A006", "A006_2", true, true));
 		} finally {
@@ -239,20 +251,22 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test007() {
 		try {
 			String sourceA007 =
-				"public class A007 {\n" +
-				"public static final int II = 6;\n" +
-				"public Runnable foo() {\n" +
-				"\treturn null;\n"+
-				"}\n" +
-				"}";
+				"""
+				public class A007 {
+				public static final int II = 6;
+				public Runnable foo() {
+					return null;
+				}
+				}""";
 			compileAndDeploy(sourceA007, "A007");
 			String sourceA007_2 =
-				"public class A007_2 {\n" +
-				"public static final int II = 6;\n" +
-				"public Runnable foo() {\n" +
-				"\treturn new Runnable() {public void run() {}};\n"+
-				"}\n" +
-				"}";
+				"""
+				public class A007_2 {
+				public static final int II = 6;
+				public Runnable foo() {
+					return new Runnable() {public void run() {}};
+				}
+				}""";
 			compileAndDeploy(sourceA007_2, "A007_2");
 			assertTrue(!areStructurallyDifferent("A007", "A007_2", true, true));
 		} finally {
@@ -262,20 +276,22 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test008() {
 		try {
 			String sourceA008 =
-				"public class A008 {\n" +
-				"private int i = 6;\n" +
-				"public int foo() {\n" +
-				"\treturn i;\n"+
-				"}\n" +
-				"}";
+				"""
+				public class A008 {
+				private int i = 6;
+				public int foo() {
+					return i;
+				}
+				}""";
 			compileAndDeploy(sourceA008, "A008");
 			String sourceA008_2 =
-				"public class A008_2 {\n" +
-				"private int i = 6;\n" +
-				"public int foo() {\n" +
-				"\treturn 2;\n"+
-				"}\n" +
-				"}";
+				"""
+				public class A008_2 {
+				private int i = 6;
+				public int foo() {
+					return 2;
+				}
+				}""";
 			compileAndDeploy(sourceA008_2, "A008_2");
 			assertTrue(!areStructurallyDifferent("A008", "A008_2", true, false));
 		} finally {
@@ -286,25 +302,27 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test009() {
 		try {
 			String sourceA009 =
-				"public class A009 {\n" +
-				"private int i = 6;\n" +
-				"public int foo() {\n" +
-				"\tclass A {\n" +
-				"\t\tint get() {\n" +
-				"\t\t\treturn i;\n" +
-				"\t\t}\n" +
-				"\t}\n" +
-				"\treturn new A().get();\n" +
-				"}\n" +
-				"}";
+				"""
+				public class A009 {
+				private int i = 6;
+				public int foo() {
+					class A {
+						int get() {
+							return i;
+						}
+					}
+					return new A().get();
+				}
+				}""";
 			compileAndDeploy(sourceA009, "A009");
 			String sourceA009_2 =
-				"public class A009_2 {\n" +
-				"private int i = 6;\n" +
-				"public int foo() {\n" +
-				"\treturn 2;\n"+
-				"}\n" +
-				"}";
+				"""
+				public class A009_2 {
+				private int i = 6;
+				public int foo() {
+					return 2;
+				}
+				}""";
 			compileAndDeploy(sourceA009_2, "A009_2");
 			assertTrue(areStructurallyDifferent("A009", "A009_2", true, false));
 		} finally {
@@ -314,25 +332,27 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test010() {
 		try {
 			String sourceA010 =
-				"public class A010 {\n" +
-				"private int i = 6;\n" +
-				"public int foo() {\n" +
-				"\tclass A {\n" +
-				"\t\tint get() {\n" +
-				"\t\t\treturn i;\n" +
-				"\t\t}\n" +
-				"\t}\n" +
-				"\treturn new A().get();\n" +
-				"}\n" +
-				"}";
+				"""
+				public class A010 {
+				private int i = 6;
+				public int foo() {
+					class A {
+						int get() {
+							return i;
+						}
+					}
+					return new A().get();
+				}
+				}""";
 			compileAndDeploy(sourceA010, "A010");
 			String sourceA010_2 =
-				"public class A010_2 {\n" +
-				"private int i = 6;\n" +
-				"public int foo() {\n" +
-				"\treturn 2;\n"+
-				"}\n" +
-				"}";
+				"""
+				public class A010_2 {
+				private int i = 6;
+				public int foo() {
+					return 2;
+				}
+				}""";
 			compileAndDeploy(sourceA010_2, "A010_2");
 			assertTrue(!areStructurallyDifferent("A010", "A010_2", true, true));
 		} finally {
@@ -343,25 +363,27 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test011() {
 		try {
 			String sourceA011 =
-				"public class A011 {\n" +
-				"private int i = 6;\n" +
-				"public int foo() {\n" +
-				"\tclass A {\n" +
-				"\t\tint get() {\n" +
-				"\t\t\treturn i;\n" +
-				"\t\t}\n" +
-				"\t}\n" +
-				"\treturn new A().get();\n" +
-				"}\n" +
-				"}";
+				"""
+				public class A011 {
+				private int i = 6;
+				public int foo() {
+					class A {
+						int get() {
+							return i;
+						}
+					}
+					return new A().get();
+				}
+				}""";
 			compileAndDeploy(sourceA011, "A011");
 			String sourceA011_2 =
-				"public class A011_2 {\n" +
-				"private int i = 6;\n" +
-				"public int foo() {\n" +
-				"\treturn 2;\n"+
-				"}\n" +
-				"}";
+				"""
+				public class A011_2 {
+				private int i = 6;
+				public int foo() {
+					return 2;
+				}
+				}""";
 			compileAndDeploy(sourceA011_2, "A011_2");
 			assertTrue(!areStructurallyDifferent("A011", "A011_2", false, true));
 		} finally {
@@ -371,18 +393,20 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test012() {
 		try {
 			String sourceA012 =
-				"public class A012 {\n" +
-				"public Class foo() {\n" +
-				"\treturn null;\n" +
-				"}\n" +
-				"}";
+				"""
+				public class A012 {
+				public Class foo() {
+					return null;
+				}
+				}""";
 			compileAndDeploy(sourceA012, "A012");
 			String sourceA012_2 =
-				"public class A012_2 {\n" +
-				"public Class foo() {\n" +
-				"\treturn A012_2.class;\n" +
-				"}\n" +
-				"}";
+				"""
+				public class A012_2 {
+				public Class foo() {
+					return A012_2.class;
+				}
+				}""";
 			compileAndDeploy(sourceA012_2, "A012_2");
 			assertTrue(areStructurallyDifferent("A012", "A012_2", false, false));
 		} finally {
@@ -392,18 +416,20 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test013() {
 		try {
 			String sourceA013 =
-				"public class A013 {\n" +
-				"public Class foo() {\n" +
-				"\treturn null;\n" +
-				"}\n" +
-				"}";
+				"""
+				public class A013 {
+				public Class foo() {
+					return null;
+				}
+				}""";
 			compileAndDeploy(sourceA013, "A013");
 			String sourceA013_2 =
-				"public class A013_2 {\n" +
-				"public Class foo() {\n" +
-				"\treturn A013_2.class;\n" +
-				"}\n" +
-				"}";
+				"""
+				public class A013_2 {
+				public Class foo() {
+					return A013_2.class;
+				}
+				}""";
 			compileAndDeploy(sourceA013_2, "A013_2");
 			assertTrue(!areStructurallyDifferent("A013", "A013_2", false, true));
 		} finally {
@@ -413,18 +439,20 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test014() {
 		try {
 			String sourceA014 =
-				"public class A014 {\n" +
-				"public Class foo() {\n" +
-				"\treturn null;\n" +
-				"}\n" +
-				"}";
+				"""
+				public class A014 {
+				public Class foo() {
+					return null;
+				}
+				}""";
 			compileAndDeploy(sourceA014, "A014");
 			String sourceA014_2 =
-				"public class A014_2 {\n" +
-				"public Class foo() {\n" +
-				"\treturn A014_2.class;\n" +
-				"}\n" +
-				"}";
+				"""
+				public class A014_2 {
+				public Class foo() {
+					return A014_2.class;
+				}
+				}""";
 			compileAndDeploy(sourceA014_2, "A014_2");
 			assertTrue(!areStructurallyDifferent("A014", "A014_2", true, true));
 		} finally {
@@ -435,16 +463,17 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test015() {
 		try {
 			String sourceA015 =
-				"public class A015 {\n" +
-				"	public class B {\n" +
-				"	}\n" +
-				"  public int foo() {\n" +
-				"    return 2;\n" +
-				"  }\n" +
-				"  public String toString() {\n" +
-				"    return \"hello\";\n" +
-				"  }\n" +
-				"}";
+				"""
+				public class A015 {
+					public class B {
+					}
+				  public int foo() {
+				    return 2;
+				  }
+				  public String toString() {
+				    return "hello";
+				  }
+				}""";
 			compileAndDeploy(sourceA015, "A015");
 			assertTrue(!areStructurallyDifferent("A015$B", "A015$B", false, false));
 		} finally {
@@ -455,16 +484,18 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	public void test016() {
 		try {
 			String sourceA016 =
-				"public class A016 {\n" +
-				"public void boo() {\n" +
-				"}\n" +
-				"}";
+				"""
+				public class A016 {
+				public void boo() {
+				}
+				}""";
 			compileAndDeploy(sourceA016, "A016");
 			String sourceA016_2 =
-				"public class A016_2 {\n" +
-				"public void foo() {\n" +
-				"}\n" +
-				"}";
+				"""
+				public class A016_2 {
+				public void foo() {
+				}
+				}""";
 			compileAndDeploy(sourceA016_2, "A016_2");
 			assertTrue(areStructurallyDifferent("A016", "A016_2", false, false));
 		} finally {

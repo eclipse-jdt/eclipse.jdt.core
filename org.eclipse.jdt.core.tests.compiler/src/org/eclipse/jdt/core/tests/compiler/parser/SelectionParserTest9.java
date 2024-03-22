@@ -31,9 +31,11 @@ public SelectionParserTest9(String testName) {
 }
 
 public void test510339_001_since_9() throws JavaModelException {
-	String string =  "module my.mod {\n"
-			+ "  exports pack1;\n"
-			+ "}\n";
+	String string =  """
+		module my.mod {
+		  exports pack1;
+		}
+		""";
 
 
 	String selection = "pack1";
@@ -62,9 +64,11 @@ public void test510339_001_since_9() throws JavaModelException {
 		testName);
 }
 public void test510339_002_since_9() throws JavaModelException {
-	String string =  "module my.mod {\n"
-			+ "  exports pack1 to second;\n"
-			+ "}\n";
+	String string =  """
+		module my.mod {
+		  exports pack1 to second;
+		}
+		""";
 
 
 	String selection = "second";
@@ -93,9 +97,11 @@ public void test510339_002_since_9() throws JavaModelException {
 		testName);
 }
 public void test510339_003_since_9() throws JavaModelException {
-	String string =  "module my.mod {\n"
-			+ "  opens pack1;\n"
-			+ "}\n";
+	String string =  """
+		module my.mod {
+		  opens pack1;
+		}
+		""";
 
 
 	String selection = "pack1";
@@ -124,9 +130,11 @@ public void test510339_003_since_9() throws JavaModelException {
 		testName);
 }
 public void test510339_004_since_9() throws JavaModelException {
-	String string =  "module my.mod {\n"
-			+ "  opens pack1 to second;\n"
-			+ "}\n";
+	String string =  """
+		module my.mod {
+		  opens pack1 to second;
+		}
+		""";
 
 
 	String selection = "second";
@@ -155,9 +163,11 @@ public void test510339_004_since_9() throws JavaModelException {
 		testName);
 }
 public void test510339_005_since_9() throws JavaModelException {
-	String string =  "module my.mod {\n"
-			+ "  requires second;\n"
-			+ "}\n";
+	String string =  """
+		module my.mod {
+		  requires second;
+		}
+		""";
 
 
 	String selection = "second";
@@ -186,9 +196,11 @@ public void test510339_005_since_9() throws JavaModelException {
 		testName);
 }
 public void test510339_006_since_9() throws JavaModelException {
-	String string =  "module my.mod {\n"
-			+ "  uses Z;\n"
-			+ "}\n";
+	String string =  """
+		module my.mod {
+		  uses Z;
+		}
+		""";
 
 
 	String selection = "Z";
@@ -217,9 +229,11 @@ public void test510339_006_since_9() throws JavaModelException {
 		testName);
 }
 public void test510339_007_since_9() throws JavaModelException {
-	String string =  "module my.mod {\n"
-			+ "  uses pack1.Z;\n"
-			+ "}\n";
+	String string =  """
+		module my.mod {
+		  uses pack1.Z;
+		}
+		""";
 
 
 	String selection = "Z";
@@ -227,9 +241,12 @@ public void test510339_007_since_9() throws JavaModelException {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-			"module my.mod {\n"
-			+ "  uses <SelectOnType:pack1.Z>" + ";\n"
-			+ "}\n";
+			"""
+		module my.mod {
+		  uses <SelectOnType:pack1.Z>\
+		;
+		}
+		""";
 	String expectedReplacedSource = "pack1.Z";
 	String testName = "module-info.java";
 
@@ -247,9 +264,11 @@ public void test510339_007_since_9() throws JavaModelException {
 		testName);
 }
 public void test510339_008_since_9() throws JavaModelException {
-	String string =  "module my.mod {\n"
-			+ "  provides Y with Z;\n"
-			+ "}\n";
+	String string =  """
+		module my.mod {
+		  provides Y with Z;
+		}
+		""";
 
 
 	String selection = "Y";
@@ -278,9 +297,11 @@ public void test510339_008_since_9() throws JavaModelException {
 		testName);
 }
 public void test510339_009_since_9() throws JavaModelException {
-	String string =  "module my.mod {\n"
-			+ "  provides pack1.Y with Z;\n"
-			+ "}\n";
+	String string =  """
+		module my.mod {
+		  provides pack1.Y with Z;
+		}
+		""";
 
 
 	String selection = "Y";
@@ -289,9 +310,11 @@ public void test510339_009_since_9() throws JavaModelException {
 
 	String completionIdentifier = "Y";
 	String expectedUnitDisplayString =
-			"module my.mod {\n"
-			+ "  provides <SelectOnType:pack1.Y> with Z;\n"
-			+ "}\n";
+			"""
+		module my.mod {
+		  provides <SelectOnType:pack1.Y> with Z;
+		}
+		""";
 	String expectedReplacedSource = "pack1.Y";
 	String testName = "module-info.java";
 
@@ -309,9 +332,11 @@ public void test510339_009_since_9() throws JavaModelException {
 		testName);
 }
 public void test510339_010_since_9() throws JavaModelException {
-	String string =  "module my.mod {\n"
-			+ "  provides Y with Z;\n"
-			+ "}\n";
+	String string =  """
+		module my.mod {
+		  provides Y with Z;
+		}
+		""";
 
 
 	String selection = "Z";
@@ -340,9 +365,11 @@ public void test510339_010_since_9() throws JavaModelException {
 		testName);
 }
 public void test510339_011_since_9() throws JavaModelException {
-	String string =  "module my.mod {\n"
-			+ "  provides Y with pack1.Z;\n"
-			+ "}\n";
+	String string =  """
+		module my.mod {
+		  provides Y with pack1.Z;
+		}
+		""";
 
 
 	String selection = "Z";

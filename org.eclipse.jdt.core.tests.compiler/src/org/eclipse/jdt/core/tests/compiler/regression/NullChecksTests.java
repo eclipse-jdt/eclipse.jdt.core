@@ -46,27 +46,29 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 		runConformTestWithLibs(
 			new String[] {
 				"X.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"import static org.eclipse.jdt.annotation.Checks.*;\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"null\")\n" +
-				"	static @NonNull String hide(String some) {\n" +
-				"		return some;\n" +
-				"	}\n" +
-				"	public static void main(String... args) {\n" +
-				"		@NonNull String myHiddenNull = hide(null);\n" +
-				"		try {\n" +
-				"			assertNonNull(\"foo\", myHiddenNull);\n" +
-				"		} catch (NullPointerException npe) {\n" +
-				"			System.out.println(npe.getMessage());\n" +
-				"		}\n" +
-				"		try {\n" +
-				"			assertNonNullWithMessage(\"Shouldn't!\", \"foo\", myHiddenNull);\n" +
-				"		} catch (NullPointerException npe) {\n" +
-				"			System.out.println(npe.getMessage());\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import org.eclipse.jdt.annotation.*;
+					import static org.eclipse.jdt.annotation.Checks.*;
+					public class X {
+						@SuppressWarnings("null")
+						static @NonNull String hide(String some) {
+							return some;
+						}
+						public static void main(String... args) {
+							@NonNull String myHiddenNull = hide(null);
+							try {
+								assertNonNull("foo", myHiddenNull);
+							} catch (NullPointerException npe) {
+								System.out.println(npe.getMessage());
+							}
+							try {
+								assertNonNullWithMessage("Shouldn't!", "foo", myHiddenNull);
+							} catch (NullPointerException npe) {
+								System.out.println(npe.getMessage());
+							}
+						}
+					}
+					"""
 			},
 			getCompilerOptions(),
 			"",
@@ -78,33 +80,35 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 		runConformTestWithLibs(
 			new String[] {
 				"X.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"import static org.eclipse.jdt.annotation.Checks.*;\n" +
-				"import java.util.*;\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"null\")\n" +
-				"	static @NonNull String hide(String some) {\n" +
-				"		return some;\n" +
-				"	}\n" +
-				"	public static void main(String... args) {\n" +
-				"		@NonNull List<String> myList = new ArrayList<>();\n" +
-				"		myList.add(\"foo\");\n" +
-				"		myList.add(null);\n" +
-				"		try {\n" +
-				"			assertNonNullElements(myList);\n" +
-				"		} catch (NullPointerException npe) {\n" +
-				"			System.out.println(npe.getMessage());\n" +
-				"		}\n" +
-				"		@NonNull List<@NonNull String> myList2 = new ArrayList<>();\n" +
-				"		myList2.add(\"foo\");\n" +
-				"		myList2.add(hide(null));\n" +
-				"		try {\n" +
-				"			assertNonNullElements(myList2, \"Shouldn't!\");\n" +
-				"		} catch (NullPointerException npe) {\n" +
-				"			System.out.println(npe.getMessage());\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import org.eclipse.jdt.annotation.*;
+					import static org.eclipse.jdt.annotation.Checks.*;
+					import java.util.*;
+					public class X {
+						@SuppressWarnings("null")
+						static @NonNull String hide(String some) {
+							return some;
+						}
+						public static void main(String... args) {
+							@NonNull List<String> myList = new ArrayList<>();
+							myList.add("foo");
+							myList.add(null);
+							try {
+								assertNonNullElements(myList);
+							} catch (NullPointerException npe) {
+								System.out.println(npe.getMessage());
+							}
+							@NonNull List<@NonNull String> myList2 = new ArrayList<>();
+							myList2.add("foo");
+							myList2.add(hide(null));
+							try {
+								assertNonNullElements(myList2, "Shouldn't!");
+							} catch (NullPointerException npe) {
+								System.out.println(npe.getMessage());
+							}
+						}
+					}
+					"""
 			},
 			getCompilerOptions(),
 			"",
@@ -116,27 +120,29 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 		runConformTestWithLibs(
 			new String[] {
 				"X.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"import static org.eclipse.jdt.annotation.Checks.*;\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"null\")\n" +
-				"	static @NonNull String hide(String some) {\n" +
-				"		return some;\n" +
-				"	}\n" +
-				"	static void test(@Nullable String str, @Nullable X x) {\n" +
-				"		@NonNull String nnStr;\n" +
-				"		@NonNull X nnX;\n" +
-				"		try {\n" +
-				"			nnStr = requireNonNull(str);\n" +
-				"			nnX = requireNonNull(null, \"Shouldn\'t!\");\n" +
-				"		} catch (NullPointerException npe) {\n" +
-				"			System.out.println(npe.getMessage());\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public static void main(String... args) {\n" +
-				"		test(\"foo\", null);\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import org.eclipse.jdt.annotation.*;
+					import static org.eclipse.jdt.annotation.Checks.*;
+					public class X {
+						@SuppressWarnings("null")
+						static @NonNull String hide(String some) {
+							return some;
+						}
+						static void test(@Nullable String str, @Nullable X x) {
+							@NonNull String nnStr;
+							@NonNull X nnX;
+							try {
+								nnStr = requireNonNull(str);
+								nnX = requireNonNull(null, "Shouldn\'t!");
+							} catch (NullPointerException npe) {
+								System.out.println(npe.getMessage());
+							}
+						}
+						public static void main(String... args) {
+							test("foo", null);
+						}
+					}
+					"""
 			},
 			getCompilerOptions(),
 			"",
@@ -147,32 +153,34 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 		runConformTestWithLibs(
 			new String[] {
 				"X.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"import static org.eclipse.jdt.annotation.Checks.*;\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"null\")\n" +
-				"	static @NonNull String hide(String some) {\n" +
-				"		return some;\n" +
-				"	}\n" +
-				"	static void test(@Nullable String str1, @Nullable String str2) {\n" +
-				"		@NonNull String nnStr;\n" +
-				"		try {\n" +
-				"			nnStr = requireNonEmpty(str1);\n" +
-				"		} catch (NullPointerException npe) {\n" +
-				"			System.out.println(\"npe:\"+npe.getMessage());\n" +
-				"		}\n" +
-				"		try {\n" +
-				"			nnStr = requireNonEmpty(str2, \"Shouldn't!\");\n" +
-				"		} catch (NullPointerException npe) {\n" +
-				"			System.out.println(\"npe\"+npe.getMessage());\n" +
-				"		} catch (IllegalArgumentException iae) {\n" +
-				"			System.out.println(iae.getMessage());\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public static void main(String... args) {\n" +
-				"		test(null, \"\");\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import org.eclipse.jdt.annotation.*;
+					import static org.eclipse.jdt.annotation.Checks.*;
+					public class X {
+						@SuppressWarnings("null")
+						static @NonNull String hide(String some) {
+							return some;
+						}
+						static void test(@Nullable String str1, @Nullable String str2) {
+							@NonNull String nnStr;
+							try {
+								nnStr = requireNonEmpty(str1);
+							} catch (NullPointerException npe) {
+								System.out.println("npe:"+npe.getMessage());
+							}
+							try {
+								nnStr = requireNonEmpty(str2, "Shouldn't!");
+							} catch (NullPointerException npe) {
+								System.out.println("npe"+npe.getMessage());
+							} catch (IllegalArgumentException iae) {
+								System.out.println(iae.getMessage());
+							}
+						}
+						public static void main(String... args) {
+							test(null, "");
+						}
+					}
+					"""
 			},
 			getCompilerOptions(),
 			"",
@@ -184,34 +192,36 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 		runConformTestWithLibs(
 			new String[] {
 				"X.java",
-				"import java.util.*;\n" +
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"import static org.eclipse.jdt.annotation.Checks.*;\n" +
-				"public class X {\n" +
-				"	static void test(@Nullable Collection<String> strs, @Nullable Collection<String> strs1, Collection<String> strs2) {\n" +
-				"		@NonNull Collection<String> nnStrs;\n" +
-				"		try {\n" +
-				"			nnStrs = requireNonEmpty(strs);\n" +
-				"		} catch (NullPointerException npe) {\n" +
-				"			System.out.println(\"NPE:\"+npe.getMessage());\n" +
-				"		}\n" +
-				"		try {\n" +
-				"			nnStrs = requireNonEmpty(strs1);\n" +
-				"		} catch (NullPointerException npe) {\n" +
-				"			System.out.println(\"npe:\"+npe.getMessage());\n" +
-				"		}\n" +
-				"		try {\n" +
-				"			nnStrs = requireNonEmpty(strs2, \"Shouldn't!\");\n" +
-				"		} catch (NullPointerException npe) {\n" +
-				"			System.out.println(\"npe\"+npe.getMessage());\n" +
-				"		} catch (IllegalArgumentException iae) {\n" +
-				"			System.out.println(iae.getMessage());\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public static void main(String... args) {\n" +
-				"		test(Collections.singletonList(\"good\"), null, Collections.emptyList());\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.*;
+					import org.eclipse.jdt.annotation.*;
+					import static org.eclipse.jdt.annotation.Checks.*;
+					public class X {
+						static void test(@Nullable Collection<String> strs, @Nullable Collection<String> strs1, Collection<String> strs2) {
+							@NonNull Collection<String> nnStrs;
+							try {
+								nnStrs = requireNonEmpty(strs);
+							} catch (NullPointerException npe) {
+								System.out.println("NPE:"+npe.getMessage());
+							}
+							try {
+								nnStrs = requireNonEmpty(strs1);
+							} catch (NullPointerException npe) {
+								System.out.println("npe:"+npe.getMessage());
+							}
+							try {
+								nnStrs = requireNonEmpty(strs2, "Shouldn't!");
+							} catch (NullPointerException npe) {
+								System.out.println("npe"+npe.getMessage());
+							} catch (IllegalArgumentException iae) {
+								System.out.println(iae.getMessage());
+							}
+						}
+						public static void main(String... args) {
+							test(Collections.singletonList("good"), null, Collections.emptyList());
+						}
+					}
+					"""
 			},
 			getCompilerOptions(),
 			"",
@@ -225,25 +235,27 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 		runConformTestWithLibs(
 			new String[] {
 				"X.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"import static org.eclipse.jdt.annotation.Checks.*;\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"null\")\n" +
-				"	static <T> @NonNull T hide(T some) {\n" +
-				"		return some;\n" +
-				"	}\n" +
-				"	static void test(@NonNull X x1, @NonNull X x2, @NonNull X x3) {\n" +
-				"		if (isNull(x1))\n" +
-				"			System.out.println(\"IS NULL\");\n" +
-				"		if (isAnyNull(x2, x1))\n" +
-				"			System.out.println(\"IS ANY NULL 1\");\n" +
-				"		if (isAnyNull(x2, x3))\n" +
-				"			System.out.println(\"IS ANY NULL 2\");\n" +
-				"	}\n" +
-				"	public static void main(String... args) {\n" +
-				"		test(hide(null), new X(), new X());\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import org.eclipse.jdt.annotation.*;
+					import static org.eclipse.jdt.annotation.Checks.*;
+					public class X {
+						@SuppressWarnings("null")
+						static <T> @NonNull T hide(T some) {
+							return some;
+						}
+						static void test(@NonNull X x1, @NonNull X x2, @NonNull X x3) {
+							if (isNull(x1))
+								System.out.println("IS NULL");
+							if (isAnyNull(x2, x1))
+								System.out.println("IS ANY NULL 1");
+							if (isAnyNull(x2, x3))
+								System.out.println("IS ANY NULL 2");
+						}
+						public static void main(String... args) {
+							test(hide(null), new X(), new X());
+						}
+					}
+					"""
 			},
 			compilerOptions,
 			"",
@@ -255,20 +267,22 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 		runConformTestWithLibs(
 			new String[] {
 				"X.java",
-				"import java.util.*;\n" +
-				"import static org.eclipse.jdt.annotation.Checks.*;\n" +
-				"public class X {\n" +
-				"	static void test(Optional<X> xopt) {\n" +
-				"		if (xopt != null) {\n" +
-				"			X x = asNullable(xopt);\n" +
-				"			if (x == null)\n" +
-				"				System.out.println(\"NULL\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public static void main(String... args) {\n" +
-				"		test(Optional.ofNullable(null));\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.*;
+					import static org.eclipse.jdt.annotation.Checks.*;
+					public class X {
+						static void test(Optional<X> xopt) {
+							if (xopt != null) {
+								X x = asNullable(xopt);
+								if (x == null)
+									System.out.println("NULL");
+							}
+						}
+						public static void main(String... args) {
+							test(Optional.ofNullable(null));
+						}
+					}
+					"""
 			},
 			getCompilerOptions(),
 			"",
@@ -279,46 +293,51 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 		runConformTestWithLibs(
 			new String[] {
 				"X.java",
-				"import java.util.function.*;\n" +
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"import static org.eclipse.jdt.annotation.Checks.*;\n" +
-				"public class X {\n" +
-				"	static void test(String str, String noStr, @NonNull Supplier<@NonNull String> prov) {\n" +
-				"		System.out.println(nonNullElse(str, \"ELSE1\"));\n" +
-				"		System.out.println(nonNullElse(noStr, \"ELSE2\"));\n" +
-				"		System.out.println(nonNullElseGet(str, () -> \"ELSE3\"));\n" +
-				"		System.out.println(nonNullElseGet(noStr, prov));\n" +
-				"	}\n" +
-				"	public static void main(String... args) {\n" +
-				"		test(\"good\", null, () -> \"ELSE4\");\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.function.*;
+					import org.eclipse.jdt.annotation.*;
+					import static org.eclipse.jdt.annotation.Checks.*;
+					public class X {
+						static void test(String str, String noStr, @NonNull Supplier<@NonNull String> prov) {
+							System.out.println(nonNullElse(str, "ELSE1"));
+							System.out.println(nonNullElse(noStr, "ELSE2"));
+							System.out.println(nonNullElseGet(str, () -> "ELSE3"));
+							System.out.println(nonNullElseGet(noStr, prov));
+						}
+						public static void main(String... args) {
+							test("good", null, () -> "ELSE4");
+						}
+					}
+					"""
 			},
 			getCompilerOptions(),
 			"",
-			"good\n" +
-			"ELSE2\n" +
-			"good\n" +
-			"ELSE4");
+			"""
+				good
+				ELSE2
+				good
+				ELSE4""");
 	}
 
 	public void _testIfNonNull() { // FIXME: see https://bugs.eclipse.org/489609 - [1.8][null] null annotation on wildcard is dropped during inference
 		runConformTestWithLibs(
 			new String[] {
 				"X.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"import static org.eclipse.jdt.annotation.Checks.*;\n" +
-				"public class X {\n" +
-				"	static void test(@Nullable String str) {\n" +
-				"		ifNonNull(str, s -> print(s));\n" +
-				"	}\n" +
-				"	static void print(@NonNull String s) {\n" +
-				"		System.out.print(s);\n" +
-				"	}\n" +
-				"	public static void main(String... args) {\n" +
-				"		test(\"good\");\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import org.eclipse.jdt.annotation.*;
+					import static org.eclipse.jdt.annotation.Checks.*;
+					public class X {
+						static void test(@Nullable String str) {
+							ifNonNull(str, s -> print(s));
+						}
+						static void print(@NonNull String s) {
+							System.out.print(s);
+						}
+						public static void main(String... args) {
+							test("good");
+						}
+					}
+					"""
 			},
 			getCompilerOptions(),
 			"",
@@ -329,98 +348,102 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 		runNegativeTestWithLibs(
 			new String[] {
 				"X.java",
-				"import java.util.Objects;\n" +
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"public class X {\n" +
-				"	public void demonstrateNotWorkingNullCheck() {\n" +
-				"        Object mayBeNull = null;\n" +
-				"        if (Math.random() > 0.5) {\n" +
-				"            mayBeNull = new Object();\n" +
-				"        }\n" +
-				"        if (Object.class.isInstance(mayBeNull)) {\n" +
-				"            mayBeNull.toString();\n" +
-				"        }\n" +
-				"    }\n" +
-				"	public void negatedNullCheck() {\n" +
-				"        Object mayBeNull = null;\n" +
-				"        if (Math.random() > 0.5) {\n" +
-				"            mayBeNull = new Object();\n" +
-				"        }\n" +
-				"        if (!Objects.nonNull(mayBeNull)) {\n" +
-				"            System.out.println(\"not\");\n" +
-				"        } else {\n" +
-				"            mayBeNull.toString();\n" +
-				"        }\n" +
-				"        if (!(Integer.class.isInstance(mayBeNull) || Long.class.isInstance(mayBeNull))) {\n" +
-				"            mayBeNull.toString(); // still only a potential problem\n" +
-				"        }\n" +
-				"    }\n" +
-				"	public void nullCheckAlgegra() {\n" +
-				"        Object mayBeNull = null;\n" +
-				"        if (Math.random() > 0.5) {\n" +
-				"            mayBeNull = new Object();\n" +
-				"        }\n" +
-				"        if (Math.random() > 0.5 && Object.class.isInstance(mayBeNull)) {\n" +
-				"            mayBeNull.toString();\n" + // both operands are true
-				"        }\n" +
-				"        if (!Object.class.isInstance(mayBeNull) || Math.random() > 0.5) {\n" +
-				"            System.out.println(\"not\");\n" +
-				"        } else {\n" +
-				"            mayBeNull.toString();\n" + // both operands are false
-				"        }\n" +
-				"        if (Object.class.isInstance(mayBeNull) && mayBeNull.equals(\"hi\"))\n" + // second evaluated only when first is true
-				"            System.out.println(\"equal\");\n" +
-				"        if (Objects.isNull(mayBeNull) || mayBeNull.equals(\"hi\"))\n" + // second evaluated only when first is false
-				"            System.out.println(\"equal or null\");\n" +
-				"    }\n" +
-				"	public void objectsUtils() {\n" +
-				"        Object mayBeNull = null;\n" +
-				"        if (Math.random() > 0.5) {\n" +
-				"            mayBeNull = new Object();\n" +
-				"        }\n" +
-				"        String s = Objects.nonNull(mayBeNull) ? mayBeNull.toString(): null;\n" +
-				"        if (Objects.isNull(mayBeNull) || Math.random() > 0.5) {\n" +
-				"            System.out.println(\"not\");\n" +
-				"        } else {\n" +
-				"            mayBeNull.toString();\n" +
-				"        }\n" +
-				"    }\n" +
-				"	public void loops() {\n" +
-				"        Object mayBeNull = null;\n" +
-				"        if (Math.random() > 0.5) {\n" +
-				"            mayBeNull = new Object();\n" +
-				"        }\n" +
-				"        for (; Objects.nonNull(mayBeNull); mayBeNull=next(mayBeNull)) {\n" +
-				"            mayBeNull.toString();\n" + // guarded by the condition
-				"        }\n" +
-				"        mayBeNull.toString(); // can only be null after the loop\n" +
-				"        Object initiallyNN = new Object();\n" +
-				"        while (Objects.nonNull(initiallyNN)) {\n" +
-				"            initiallyNN.toString();\n" + // guarded by the condition
-				"            initiallyNN = next(initiallyNN);\n" +
-				"        }\n" +
-				"        initiallyNN.toString(); // can only be null after the loop\n" +
-				"    }\n" +
-				"    @Nullable Object next(Object o) { return o; }\n" +
-				"}\n"
+				"""
+					import java.util.Objects;
+					import org.eclipse.jdt.annotation.*;
+					public class X {
+						public void demonstrateNotWorkingNullCheck() {
+					        Object mayBeNull = null;
+					        if (Math.random() > 0.5) {
+					            mayBeNull = new Object();
+					        }
+					        if (Object.class.isInstance(mayBeNull)) {
+					            mayBeNull.toString();
+					        }
+					    }
+						public void negatedNullCheck() {
+					        Object mayBeNull = null;
+					        if (Math.random() > 0.5) {
+					            mayBeNull = new Object();
+					        }
+					        if (!Objects.nonNull(mayBeNull)) {
+					            System.out.println("not");
+					        } else {
+					            mayBeNull.toString();
+					        }
+					        if (!(Integer.class.isInstance(mayBeNull) || Long.class.isInstance(mayBeNull))) {
+					            mayBeNull.toString(); // still only a potential problem
+					        }
+					    }
+						public void nullCheckAlgegra() {
+					        Object mayBeNull = null;
+					        if (Math.random() > 0.5) {
+					            mayBeNull = new Object();
+					        }
+					        if (Math.random() > 0.5 && Object.class.isInstance(mayBeNull)) {
+					            mayBeNull.toString();
+					        }
+					        if (!Object.class.isInstance(mayBeNull) || Math.random() > 0.5) {
+					            System.out.println("not");
+					        } else {
+					            mayBeNull.toString();
+					        }
+					        if (Object.class.isInstance(mayBeNull) && mayBeNull.equals("hi"))
+					            System.out.println("equal");
+					        if (Objects.isNull(mayBeNull) || mayBeNull.equals("hi"))
+					            System.out.println("equal or null");
+					    }
+						public void objectsUtils() {
+					        Object mayBeNull = null;
+					        if (Math.random() > 0.5) {
+					            mayBeNull = new Object();
+					        }
+					        String s = Objects.nonNull(mayBeNull) ? mayBeNull.toString(): null;
+					        if (Objects.isNull(mayBeNull) || Math.random() > 0.5) {
+					            System.out.println("not");
+					        } else {
+					            mayBeNull.toString();
+					        }
+					    }
+						public void loops() {
+					        Object mayBeNull = null;
+					        if (Math.random() > 0.5) {
+					            mayBeNull = new Object();
+					        }
+					        for (; Objects.nonNull(mayBeNull); mayBeNull=next(mayBeNull)) {
+					            mayBeNull.toString();
+					        }
+					        mayBeNull.toString(); // can only be null after the loop
+					        Object initiallyNN = new Object();
+					        while (Objects.nonNull(initiallyNN)) {
+					            initiallyNN.toString();
+					            initiallyNN = next(initiallyNN);
+					        }
+					        initiallyNN.toString(); // can only be null after the loop
+					    }
+					    @Nullable Object next(Object o) { return o; }
+					}
+					"""
 			},
 			getCompilerOptions(),
-			"----------\n" +
-			"1. ERROR in X.java (at line 24)\n" +
-			"	mayBeNull.toString(); // still only a potential problem\n" +
-			"	^^^^^^^^^\n" +
-			"Potential null pointer access: The variable mayBeNull may be null at this location\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 65)\n" +
-			"	mayBeNull.toString(); // can only be null after the loop\n" +
-			"	^^^^^^^^^\n" +
-			"Null pointer access: The variable mayBeNull can only be null at this location\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 71)\n" +
-			"	initiallyNN.toString(); // can only be null after the loop\n" +
-			"	^^^^^^^^^^^\n" +
-			"Null pointer access: The variable initiallyNN can only be null at this location\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 24)
+					mayBeNull.toString(); // still only a potential problem
+					^^^^^^^^^
+				Potential null pointer access: The variable mayBeNull may be null at this location
+				----------
+				2. ERROR in X.java (at line 65)
+					mayBeNull.toString(); // can only be null after the loop
+					^^^^^^^^^
+				Null pointer access: The variable mayBeNull can only be null at this location
+				----------
+				3. ERROR in X.java (at line 71)
+					initiallyNN.toString(); // can only be null after the loop
+					^^^^^^^^^^^
+				Null pointer access: The variable initiallyNN can only be null at this location
+				----------
+				""");
 	}
 	public void testBug465085_comment12() {
 		Map<String, String> options = getCompilerOptions();
@@ -428,19 +451,21 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 		runConformTest(
 			new String[] {
 				"Snippet.java",
-				"import java.util.Collection;\n" +
-				"\n" +
-				"public class Snippet {\n" +
-				"	int instanceCount(Collection<?> elements, Class<?> clazz) {\n" +
-				"		int count = 0;\n" +
-				"		for (Object o : elements) {  // warning here: \"The value of the local variable o is not used\"\n" +
-				"			if (clazz.isInstance(o)) {\n" +
-				"				count++;\n" +
-				"			}\n" +
-				"		}\n" +
-				"		return count;\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.util.Collection;
+					
+					public class Snippet {
+						int instanceCount(Collection<?> elements, Class<?> clazz) {
+							int count = 0;
+							for (Object o : elements) {  // warning here: "The value of the local variable o is not used"
+								if (clazz.isInstance(o)) {
+									count++;
+								}
+							}
+							return count;
+						}
+					}
+					"""
 			},
 			options);
 	}

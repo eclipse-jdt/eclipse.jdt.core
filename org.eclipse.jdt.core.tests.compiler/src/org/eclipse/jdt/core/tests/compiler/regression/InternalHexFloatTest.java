@@ -324,11 +324,12 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {	\n" +
-				"    public static void main(String[] args) {\n" +
-				"        System.out.println(-0Xf.aP1F);\n" +
-				"    }\n" +
-				"}"
+				"""
+					public class X {\t
+					    public static void main(String[] args) {
+					        System.out.println(-0Xf.aP1F);
+					    }
+					}"""
 			},
 			"-31.25");
 	}
@@ -340,11 +341,12 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {	\n" +
-				"    public static void main(String[] args) {\n" +
-				"        System.out.println(0X000.0000P5000);\n" +
-				"    }\n" +
-				"}"
+				"""
+					public class X {\t
+					    public static void main(String[] args) {
+					        System.out.println(0X000.0000P5000);
+					    }
+					}"""
 			},
 			"0.0");
 	}
@@ -356,11 +358,12 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {	\n" +
-				"    public static void main(String[] args) {\n" +
-				"        System.out.println(-0X000.0000P5000F);\n" +
-				"    }\n" +
-				"}"
+				"""
+					public class X {\t
+					    public static void main(String[] args) {
+					        System.out.println(-0X000.0000P5000F);
+					    }
+					}"""
 			},
 			"-0.0");
 	}
@@ -372,18 +375,21 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {	\n" +
-				"    public static void main(String[] args) {\n" +
-				"        System.out.println(0X000.eP-5000F);\n" +
-				"    }\n" +
-				"}"
+				"""
+					public class X {\t
+					    public static void main(String[] args) {
+					        System.out.println(0X000.eP-5000F);
+					    }
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\r\n" +
-			"	System.out.println(0X000.eP-5000F);\r\n" +
-			"	                   ^^^^^^^^^^^^^^\n" +
-			"The literal 0X000.eP-5000F of type float is out of range \n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)\r
+					System.out.println(0X000.eP-5000F);\r
+					                   ^^^^^^^^^^^^^^
+				The literal 0X000.eP-5000F of type float is out of range\s
+				----------
+				""");
 	}
 
 	/*
@@ -393,17 +399,20 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {	\n" +
-				"    public static void main(String[] args) {\n" +
-				"        System.out.println(0X000.eP5000F);\n" +
-				"    }\n" +
-				"}"
+				"""
+					public class X {\t
+					    public static void main(String[] args) {
+					        System.out.println(0X000.eP5000F);
+					    }
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\r\n" +
-			"	System.out.println(0X000.eP5000F);\r\n" +
-			"	                   ^^^^^^^^^^^^^\n" +
-			"The literal 0X000.eP5000F of type float is out of range \n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)\r
+					System.out.println(0X000.eP5000F);\r
+					                   ^^^^^^^^^^^^^
+				The literal 0X000.eP5000F of type float is out of range\s
+				----------
+				""");
 	}
 }

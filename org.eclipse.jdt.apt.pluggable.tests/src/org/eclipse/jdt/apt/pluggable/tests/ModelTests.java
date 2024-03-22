@@ -111,14 +111,15 @@ public class ModelTests extends TestBase
 		IPath className = env.addClass(projPath.append("src"),
 				ModelTesterProc.TEST_METHOD_TYPE_PKG,
 				"X",
-				"package p;\n" +
-				"public class X { \n" +
-				"	int i;\n" +
-				"	public int foo(int p) {\n" +
-				"		int k = 0;\n" +
-				"		return i;\n" +
-				"	}\n" +
-				"}");
+				"""
+					package p;
+					public class X {\s
+						int i;
+						public int foo(int p) {
+							int k = 0;
+							return i;
+						}
+					}""");
 
 		fullBuild();
 		expectingProblemsFor(className,

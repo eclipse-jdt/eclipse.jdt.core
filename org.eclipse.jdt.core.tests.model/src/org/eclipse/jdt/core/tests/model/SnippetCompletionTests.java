@@ -58,9 +58,10 @@ public void testCodeSnippetAssistForClassFile() throws JavaModelException {
 	IType type = cf.getType();
 
 	String snippet =
-		"int varX;\n" +
-		"int varY;\n" +
-		"var";
+		"""
+		int varX;
+		int varY;
+		var""";
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
@@ -84,9 +85,10 @@ public void testCodeSnippetAssistForCompilationUnit() throws JavaModelException 
 	ICompilationUnit cu = getCompilationUnit("SnippetCompletion", "src", "aa.bb.cc", "BClass.java");
 	IType type = cu.getTypes()[0];
 	String snippet =
-		"int varX;\n" +
-		"int varY;\n" +
-		"var";
+		"""
+		int varX;
+		int varY;
+		var""";
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
@@ -117,9 +119,10 @@ public void testCodeSnippetAssistForClassFileWithSource() throws JavaModelExcept
 	IType type = cf.getType();
 
 	String snippet =
-		"int varX;\n" +
-		"int varY;\n" +
-		"var";
+		"""
+		int varX;
+		int varY;
+		var""";
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
@@ -151,9 +154,10 @@ public void testCodeSnippetAssistForCompilationUnitWithoutSource() throws JavaMo
 	IType type = cu.getTypes()[0];
 
 	String snippet =
-		"int varX;\n" +
-		"int varY;\n" +
-		"var";
+		"""
+		int varX;
+		int varY;
+		var""";
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
@@ -180,9 +184,10 @@ public void testCodeSnippetAssistForClassFileInInnerClass() throws JavaModelExce
 	IType type = cf.getType();
 
 	String snippet =
-		"int varX;\n" +
-		"int varY;\n" +
-		"var";
+		"""
+		int varX;
+		int varY;
+		var""";
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
@@ -214,9 +219,10 @@ public void testCodeSnippetAssistForClassFileInInterface() throws JavaModelExcep
 	IType type = cf.getType();
 
 	String snippet =
-		"int varX;\n" +
-		"int varY;\n" +
-		"var";
+		"""
+		int varX;
+		int varY;
+		var""";
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
@@ -242,9 +248,10 @@ public void testCodeSnippetAssistForClassFileInInterface2() throws JavaModelExce
 	IType type = cf.getType();
 
 	String snippet =
-		"int varX;\n" +
-		"int varY;\n" +
-		"var";
+		"""
+		int varX;
+		int varY;
+		var""";
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
@@ -268,9 +275,10 @@ public void testCodeSnippetAssistForClassFileWithDollar() throws JavaModelExcept
 	IType type = cf.getType();
 
 	String snippet =
-		"int varX;\n" +
-		"int varY;\n" +
-		"var";
+		"""
+		int varX;
+		int varY;
+		var""";
 
 	char[][] typeNames = {};
 	char[][] names = {};

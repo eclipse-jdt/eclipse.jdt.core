@@ -89,23 +89,29 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 	public void testBug525712() throws Exception {
 		myCreateJavaProject("TestLibs");
 		String lib1Content =
-				"package libs;\n" +
-				"\n" +
-				"public abstract class Lib1 {\n" +
-				"	public abstract void take(X x);\n" +
-				"}\n";
+				"""
+			package libs;
+			
+			public abstract class Lib1 {
+				public abstract void take(X x);
+			}
+			""";
 		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
 				"/UnannotatedLib/module-info.java",
-				"module testlib {\n" +
-				"	exports libs;\n" +
-				"}\n",
+				"""
+					module testlib {
+						exports libs;
+					}
+					""",
 				"/UnannotatedLib/libs/Lib1.java",
 				lib1Content,
 
 				"/UnannotatedLib/libs/X.java",
-				"package libs;\n" +
-				"public abstract class X {\n" +
-				"}\n",
+				"""
+					package libs;
+					public abstract class X {
+					}
+					""",
 
 
 			}, null);
@@ -113,15 +119,17 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 		// type check sources:
 		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 		ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
-				"package tests;\n" +
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"import libs.Lib1;\n" +
-				"import libs.X;\n" +
-				"\n" +
-				"@NonNullByDefault\n" +
-				"public abstract class Test1 extends Lib1 {\n" +
-				"	public abstract void take(X x);\n" +
-				"}\n",
+				"""
+					package tests;
+					import org.eclipse.jdt.annotation.*;
+					import libs.Lib1;
+					import libs.X;
+					
+					@NonNullByDefault
+					public abstract class Test1 extends Lib1 {
+						public abstract void take(X x);
+					}
+					""",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 		CompilationUnit reconciled = cu.reconcile(getJSL9(), true, null, new NullProgressMonitor());
 		assertProblems(reconciled.getProblems(), new String[] {

@@ -63,9 +63,10 @@ public class Bug549646Test extends BuilderTests {
 			// bogus class lookup (ignoring modules) due to insufficient data in ct.sym (non-deterministically triggers the below problems)
 			// see also https://bugs.eclipse.org/549647
 			expectingProblemsFor(projectPath,
-					"Problem : Entry cannot be resolved to a type [ resource : </Bug549646Test/test/A.java> range : <120,125> category : <40> severity : <2>]\n" +
-					"Problem : The type java.util.Map.Entry is not visible [ resource : </Bug549646Test/test/A.java> range : <43,62> category : <40> severity : <2>]\n" +
-					"Problem : Type mismatch: cannot convert from element type Map.Entry<String,String> to Entry [ resource : </Bug549646Test/test/A.java> range : <160,172> category : <40> severity : <2>]");
+					"""
+						Problem : Entry cannot be resolved to a type [ resource : </Bug549646Test/test/A.java> range : <120,125> category : <40> severity : <2>]
+						Problem : The type java.util.Map.Entry is not visible [ resource : </Bug549646Test/test/A.java> range : <43,62> category : <40> severity : <2>]
+						Problem : Type mismatch: cannot convert from element type Map.Entry<String,String> to Entry [ resource : </Bug549646Test/test/A.java> range : <160,172> category : <40> severity : <2>]""");
 		} else {
 			expectingNoProblems();
 		}
