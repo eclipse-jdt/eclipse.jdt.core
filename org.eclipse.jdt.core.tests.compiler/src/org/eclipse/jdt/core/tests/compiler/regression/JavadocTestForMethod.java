@@ -63,27 +63,33 @@ public class JavadocTestForMethod extends JavadocTest {
 			true,
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	\n"
-					+ "	{\n"
-					+ "		new Z().foo();\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class X {
+					\t
+						{
+							new Z().foo();
+						}
+					}
+					""",
 				"Z.java",
-				"public class Z {\n"
-					+ "  /** \n"
-					+ "   * \n"
-					+ "   * **   ** ** ** @deprecated */\n"
-					+ "	public void foo() { \n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class Z {
+					  /**\s
+					   *\s
+					   * **   ** ** ** @deprecated */
+						public void foo() {\s
+						}
+					}
+					""",
 				},
-			"----------\n"
-				+ "1. WARNING in X.java (at line 4)\n"
-				+ "	new Z().foo();\n"
-				+ "	        ^^^^^\n"
-				+ "The method foo() from the type Z is deprecated\n"
-				+ "----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 4)
+					new Z().foo();
+					        ^^^^^
+				The method foo() from the type Z is deprecated
+				----------
+				""",
 				null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 
@@ -91,59 +97,67 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	/** @deprecated */\n" +
-				"	int x;\n" +
-				"	/**\n" +
-				"	 * @see #x\n" +
-				"	 */\n" +
-				"	void foo() {\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						/** @deprecated */
+						int x;
+						/**
+						 * @see #x
+						 */
+						void foo() {
+						}
+					}
+					""",
 				"Y.java",
-				"/** @deprecated */\n" +
-				"public class Y {\n" +
-				"	int y;\n" +
-				"	/**\n" +
-				"	 * @see X#x\n" +
-				"	 * @see Y\n" +
-				"	 * @see Y#y\n" +
-				"	 */\n" +
-				"	void foo() {\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					/** @deprecated */
+					public class Y {
+						int y;
+						/**
+						 * @see X#x
+						 * @see Y
+						 * @see Y#y
+						 */
+						void foo() {
+						}
+					}
+					""",
 				"Z.java",
-				"public class Z {\n" +
-				"	int z;\n" +
-				"	/**\n" +
-				"	 * @see X#x\n" +
-				"	 * @see Y\n" +
-				"	 * @see Y#y\n" +
-				"	 */\n" +
-				"	void foo() {\n" +
-				"	}\n" +
-				"}\n" },
-		"----------\n" +
-		"1. ERROR in Z.java (at line 4)\n" +
-		"	* @see X#x\n" +
-		"	         ^\n" +
-		"Javadoc: The field X.x is deprecated\n" +
-		"----------\n" +
-		"2. ERROR in Z.java (at line 5)\n" +
-		"	* @see Y\n" +
-		"	       ^\n" +
-		"Javadoc: The type Y is deprecated\n" +
-		"----------\n" +
-		"3. ERROR in Z.java (at line 6)\n" +
-		"	* @see Y#y\n" +
-		"	       ^\n" +
-		"Javadoc: The type Y is deprecated\n" +
-		"----------\n" +
-		"4. ERROR in Z.java (at line 6)\n" +
-		"	* @see Y#y\n" +
-		"	         ^\n" +
-		"Javadoc: The field Y.y is deprecated\n" +
-		"----------\n",
+				"""
+					public class Z {
+						int z;
+						/**
+						 * @see X#x
+						 * @see Y
+						 * @see Y#y
+						 */
+						void foo() {
+						}
+					}
+					""" },
+		"""
+			----------
+			1. ERROR in Z.java (at line 4)
+				* @see X#x
+				         ^
+			Javadoc: The field X.x is deprecated
+			----------
+			2. ERROR in Z.java (at line 5)
+				* @see Y
+				       ^
+			Javadoc: The type Y is deprecated
+			----------
+			3. ERROR in Z.java (at line 6)
+				* @see Y#y
+				       ^
+			Javadoc: The type Y is deprecated
+			----------
+			4. ERROR in Z.java (at line 6)
+				* @see Y#y
+				         ^
+			Javadoc: The field Y.y is deprecated
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 			);
 	}
@@ -152,35 +166,41 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	\n"
-					+ "	{\n"
-					+ "		new Z().foo(2);\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class X {
+					\t
+						{
+							new Z().foo(2);
+						}
+					}
+					""",
 				"Z.java",
-				"public class Z {\n"
-					+ "  /** \n"
-					+ "   * Valid tags with deprecation at end\n"
-					+ "   *\n"
-					+ "   * @param x Valid param tag\n"
-					+ "   * @return Valid return tag\n"
-					+ "   * @throws NullPointerException Valid throws tag\n"
-					+ "   * @exception IllegalArgumentException Valid throws tag\n"
-					+ "   * @see X Valid see tag\n"
-					+ "   * @deprecated\n"
-					+ "   */\n"
-					+ "	public String foo(int x) { \n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class Z {
+					  /**\s
+					   * Valid tags with deprecation at end
+					   *
+					   * @param x Valid param tag
+					   * @return Valid return tag
+					   * @throws NullPointerException Valid throws tag
+					   * @exception IllegalArgumentException Valid throws tag
+					   * @see X Valid see tag
+					   * @deprecated
+					   */
+						public String foo(int x) {\s
+							return "";
+						}
+					}
+					""",
 				},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	new Z().foo(2);\n" +
-		"	        ^^^^^^\n" +
-		"The method foo(int) from the type Z is deprecated\n" +
-		"----------\n"
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				new Z().foo(2);
+				        ^^^^^^
+			The method foo(int) from the type Z is deprecated
+			----------
+			"""
 				);
 	}
 
@@ -188,67 +208,73 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	\n"
-					+ "	{\n"
-					+ "		new Z().foo(2);\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class X {
+					\t
+						{
+							new Z().foo(2);
+						}
+					}
+					""",
 				"Z.java",
-				"public class Z {\n"
-					+ "  /** \n"
-					+ "   * Invalid javadoc tags with valid deprecation at end\n"
-					+ "   *\n"
-					+ "   * @param\n"
-					+ "   * @return String\n"
-					+ "   * @throws Unknown\n"
-					+ "   * @see \"Invalid\n"
-					+ "   * @see Unknown\n"
-					+ "   * @param x\n"
-					+ "   * @deprecated\n"
-					+ "   */\n"
-					+ "	public String foo(int x) { \n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class Z {
+					  /**\s
+					   * Invalid javadoc tags with valid deprecation at end
+					   *
+					   * @param
+					   * @return String
+					   * @throws Unknown
+					   * @see "Invalid
+					   * @see Unknown
+					   * @param x
+					   * @deprecated
+					   */
+						public String foo(int x) {\s
+							return "";
+						}
+					}
+					""",
 				},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	new Z().foo(2);\n" +
-		"	        ^^^^^^\n" +
-		"The method foo(int) from the type Z is deprecated\n" +
-		"----------\n" +
-		"----------\n" +
-		"1. ERROR in Z.java (at line 5)\n" +
-		"	* @param\n" +
-		"	   ^^^^^\n" +
-		"Javadoc: Missing parameter name\n" +
-		"----------\n" +
-		"2. ERROR in Z.java (at line 7)\n" +
-		"	* @throws Unknown\n" +
-		"	          ^^^^^^^\n" +
-		"Javadoc: Unknown cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in Z.java (at line 8)\n" +
-		"	* @see \"Invalid\n" +
-		"	       ^^^^^^^^\n" +
-		"Javadoc: Invalid reference\n" +
-		"----------\n" +
-		"4. ERROR in Z.java (at line 9)\n" +
-		"	* @see Unknown\n" +
-		"	       ^^^^^^^\n" +
-		"Javadoc: Unknown cannot be resolved to a type\n" +
-		"----------\n" +
-		"5. ERROR in Z.java (at line 10)\n" +
-		"	* @param x\n" +
-		"	   ^^^^^\n" +
-		"Javadoc: Unexpected tag\n" +
-		"----------\n" +
-		"6. ERROR in Z.java (at line 13)\n" +
-		"	public String foo(int x) { \n" +
-		"	                      ^\n" +
-		"Javadoc: Missing tag for parameter x\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				new Z().foo(2);
+				        ^^^^^^
+			The method foo(int) from the type Z is deprecated
+			----------
+			----------
+			1. ERROR in Z.java (at line 5)
+				* @param
+				   ^^^^^
+			Javadoc: Missing parameter name
+			----------
+			2. ERROR in Z.java (at line 7)
+				* @throws Unknown
+				          ^^^^^^^
+			Javadoc: Unknown cannot be resolved to a type
+			----------
+			3. ERROR in Z.java (at line 8)
+				* @see "Invalid
+				       ^^^^^^^^
+			Javadoc: Invalid reference
+			----------
+			4. ERROR in Z.java (at line 9)
+				* @see Unknown
+				       ^^^^^^^
+			Javadoc: Unknown cannot be resolved to a type
+			----------
+			5. ERROR in Z.java (at line 10)
+				* @param x
+				   ^^^^^
+			Javadoc: Unexpected tag
+			----------
+			6. ERROR in Z.java (at line 13)
+				public String foo(int x) {\s
+				                      ^
+			Javadoc: Missing tag for parameter x
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 				);
 	}
@@ -257,35 +283,41 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	\n"
-					+ "	{\n"
-					+ "		new Z().foo(2);\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class X {
+					\t
+						{
+							new Z().foo(2);
+						}
+					}
+					""",
 				"Z.java",
-				"public class Z {\n"
-					+ "  /** \n"
-					+ "   * Valid tags with deprecation at beginning\n"
-					+ "   *\n"
-					+ "   * @deprecated\n"
-					+ "   * @param x Valid param tag\n"
-					+ "   * @return Valid return tag\n"
-					+ "   * @exception IllegalArgumentException Valid throws tag\n"
-					+ "   * @throws NullPointerException Valid throws tag\n"
-					+ "   * @see X Valid see tag\n"
-					+ "   */\n"
-					+ "	public String foo(int x) { \n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class Z {
+					  /**\s
+					   * Valid tags with deprecation at beginning
+					   *
+					   * @deprecated
+					   * @param x Valid param tag
+					   * @return Valid return tag
+					   * @exception IllegalArgumentException Valid throws tag
+					   * @throws NullPointerException Valid throws tag
+					   * @see X Valid see tag
+					   */
+						public String foo(int x) {\s
+							return "";
+						}
+					}
+					""",
 				},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	new Z().foo(2);\n" +
-		"	        ^^^^^^\n" +
-		"The method foo(int) from the type Z is deprecated\n" +
-		"----------\n"
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				new Z().foo(2);
+				        ^^^^^^
+			The method foo(int) from the type Z is deprecated
+			----------
+			"""
 				);
 	}
 
@@ -293,68 +325,74 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	\n"
-					+ "	{\n"
-					+ "		new Z().foo(2);\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class X {
+					\t
+						{
+							new Z().foo(2);
+						}
+					}
+					""",
 				"Z.java",
-				"public class Z {\n"
-					+ "  /** \n"
-					+ "   * Invalid javadoc tags with valid deprecation at beginning\n"
-					+ "   *\n"
-					+ "   * @deprecated\n"
-					+ "   * @param\n"
-					+ "   * @return String\n"
-					+ "   * @throws Unknown\n"
-					+ "   * @exception IllegalArgumentException Valid throws tag\n"
-					+ "   * @see \"Invalid\n"
-					+ "   * @see Unknown\n"
-					+ "   * @param x\n"
-					+ "   */\n"
-					+ "	public String foo(int x) { \n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class Z {
+					  /**\s
+					   * Invalid javadoc tags with valid deprecation at beginning
+					   *
+					   * @deprecated
+					   * @param
+					   * @return String
+					   * @throws Unknown
+					   * @exception IllegalArgumentException Valid throws tag
+					   * @see "Invalid
+					   * @see Unknown
+					   * @param x
+					   */
+						public String foo(int x) {\s
+							return "";
+						}
+					}
+					""",
 				},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	new Z().foo(2);\n" +
-		"	        ^^^^^^\n" +
-		"The method foo(int) from the type Z is deprecated\n" +
-		"----------\n" +
-		"----------\n" +
-		"1. ERROR in Z.java (at line 6)\n" +
-		"	* @param\n" +
-		"	   ^^^^^\n" +
-		"Javadoc: Missing parameter name\n" +
-		"----------\n" +
-		"2. ERROR in Z.java (at line 8)\n" +
-		"	* @throws Unknown\n" +
-		"	          ^^^^^^^\n" +
-		"Javadoc: Unknown cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in Z.java (at line 10)\n" +
-		"	* @see \"Invalid\n" +
-		"	       ^^^^^^^^\n" +
-		"Javadoc: Invalid reference\n" +
-		"----------\n" +
-		"4. ERROR in Z.java (at line 11)\n" +
-		"	* @see Unknown\n" +
-		"	       ^^^^^^^\n" +
-		"Javadoc: Unknown cannot be resolved to a type\n" +
-		"----------\n" +
-		"5. ERROR in Z.java (at line 12)\n" +
-		"	* @param x\n" +
-		"	   ^^^^^\n" +
-		"Javadoc: Unexpected tag\n" +
-		"----------\n" +
-		"6. ERROR in Z.java (at line 14)\n" +
-		"	public String foo(int x) { \n" +
-		"	                      ^\n" +
-		"Javadoc: Missing tag for parameter x\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				new Z().foo(2);
+				        ^^^^^^
+			The method foo(int) from the type Z is deprecated
+			----------
+			----------
+			1. ERROR in Z.java (at line 6)
+				* @param
+				   ^^^^^
+			Javadoc: Missing parameter name
+			----------
+			2. ERROR in Z.java (at line 8)
+				* @throws Unknown
+				          ^^^^^^^
+			Javadoc: Unknown cannot be resolved to a type
+			----------
+			3. ERROR in Z.java (at line 10)
+				* @see "Invalid
+				       ^^^^^^^^
+			Javadoc: Invalid reference
+			----------
+			4. ERROR in Z.java (at line 11)
+				* @see Unknown
+				       ^^^^^^^
+			Javadoc: Unknown cannot be resolved to a type
+			----------
+			5. ERROR in Z.java (at line 12)
+				* @param x
+				   ^^^^^
+			Javadoc: Unexpected tag
+			----------
+			6. ERROR in Z.java (at line 14)
+				public String foo(int x) {\s
+				                      ^
+			Javadoc: Missing tag for parameter x
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 				);
 	}
@@ -363,35 +401,41 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	\n"
-					+ "	{\n"
-					+ "		new Z().foo(2);\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class X {
+					\t
+						{
+							new Z().foo(2);
+						}
+					}
+					""",
 				"Z.java",
-				"public class Z {\n"
-					+ "  /** \n"
-					+ "   * Valid tags with deprecation in the middle\n"
-					+ "   *\n"
-					+ "   * @param x Valid param tag\n"
-					+ "   * @return Valid return tag\n"
-					+ "   * @deprecated\n"
-					+ "   * @exception IllegalArgumentException Valid throws tag\n"
-					+ "   * @throws NullPointerException Valid throws tag\n"
-					+ "   * @see X Valid see tag\n"
-					+ "   */\n"
-					+ "	public String foo(int x) { \n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class Z {
+					  /**\s
+					   * Valid tags with deprecation in the middle
+					   *
+					   * @param x Valid param tag
+					   * @return Valid return tag
+					   * @deprecated
+					   * @exception IllegalArgumentException Valid throws tag
+					   * @throws NullPointerException Valid throws tag
+					   * @see X Valid see tag
+					   */
+						public String foo(int x) {\s
+							return "";
+						}
+					}
+					""",
 				},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	new Z().foo(2);\n" +
-		"	        ^^^^^^\n" +
-		"The method foo(int) from the type Z is deprecated\n" +
-		"----------\n"
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				new Z().foo(2);
+				        ^^^^^^
+			The method foo(int) from the type Z is deprecated
+			----------
+			"""
 				);
 	}
 
@@ -399,62 +443,68 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	\n"
-					+ "	{\n"
-					+ "		new Z().foo(2);\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class X {
+					\t
+						{
+							new Z().foo(2);
+						}
+					}
+					""",
 				"Z.java",
-				"public class Z {\n"
-					+ "  /** \n"
-					+ "   * Invalid javadoc tags with valid deprecation in the middle\n"
-					+ "   *\n"
-					+ "   * @param\n"
-					+ "   * @return String\n"
-					+ "   * @throws Unknown\n"
-					+ "   * @exception IllegalArgumentException Valid throws tag\n"
-					+ "   * @see \"Invalid\n"
-					+ "   * @deprecated\n"
-					+ "   * @see Unknown\n"
-					+ "   */\n"
-					+ "	public String foo(int x) { \n"
-					+ "		return \"\";\n"
-					+ "	}\n"
-					+ "}\n",
+				"""
+					public class Z {
+					  /**\s
+					   * Invalid javadoc tags with valid deprecation in the middle
+					   *
+					   * @param
+					   * @return String
+					   * @throws Unknown
+					   * @exception IllegalArgumentException Valid throws tag
+					   * @see "Invalid
+					   * @deprecated
+					   * @see Unknown
+					   */
+						public String foo(int x) {\s
+							return "";
+						}
+					}
+					""",
 				},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	new Z().foo(2);\n" +
-		"	        ^^^^^^\n" +
-		"The method foo(int) from the type Z is deprecated\n" +
-		"----------\n" +
-		"----------\n" +
-		"1. ERROR in Z.java (at line 5)\n" +
-		"	* @param\n" +
-		"	   ^^^^^\n" +
-		"Javadoc: Missing parameter name\n" +
-		"----------\n" +
-		"2. ERROR in Z.java (at line 7)\n" +
-		"	* @throws Unknown\n" +
-		"	          ^^^^^^^\n" +
-		"Javadoc: Unknown cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. ERROR in Z.java (at line 9)\n" +
-		"	* @see \"Invalid\n" +
-		"	       ^^^^^^^^\n" +
-		"Javadoc: Invalid reference\n" +
-		"----------\n" +
-		"4. ERROR in Z.java (at line 11)\n" +
-		"	* @see Unknown\n" +
-		"	       ^^^^^^^\n" +
-		"Javadoc: Unknown cannot be resolved to a type\n" +
-		"----------\n" +
-		"5. ERROR in Z.java (at line 13)\n" +
-		"	public String foo(int x) { \n" +
-		"	                      ^\n" +
-		"Javadoc: Missing tag for parameter x\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				new Z().foo(2);
+				        ^^^^^^
+			The method foo(int) from the type Z is deprecated
+			----------
+			----------
+			1. ERROR in Z.java (at line 5)
+				* @param
+				   ^^^^^
+			Javadoc: Missing parameter name
+			----------
+			2. ERROR in Z.java (at line 7)
+				* @throws Unknown
+				          ^^^^^^^
+			Javadoc: Unknown cannot be resolved to a type
+			----------
+			3. ERROR in Z.java (at line 9)
+				* @see "Invalid
+				       ^^^^^^^^
+			Javadoc: Invalid reference
+			----------
+			4. ERROR in Z.java (at line 11)
+				* @see Unknown
+				       ^^^^^^^
+			Javadoc: Unknown cannot be resolved to a type
+			----------
+			5. ERROR in Z.java (at line 13)
+				public String foo(int x) {\s
+				                      ^
+			Javadoc: Missing tag for parameter x
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 				);
 	}
@@ -466,51 +516,59 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid @param: no tags, no args\n"
-					+ "	 * Valid @throws/@exception: no tags, no thrown exception\n"
-					+ "	 */\n"
-					+ "	public void p_foo() {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					public class X {
+						/**
+						 * Valid @param: no tags, no args
+						 * Valid @throws/@exception: no tags, no thrown exception
+						 */
+						public void p_foo() {
+						}
+					}
+					""" });
 	}
 
 	public void test012() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	public void p_foo() {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					public class X {
+						public void p_foo() {
+						}
+					}
+					""" });
 	}
 
 	public void test013() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param declaration: no arguments, 2 declared tags\n"
-					+ "	 * @param x\n"
-					+ "	 * 			Invalid param: not an argument on 2 lines\n"
-					+ "	 * @param x Invalid param: not an argument\n"
-					+ "	 */\n"
-					+ "	public void p_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 4)\n"
-				+ "	* @param x\n"
-				+ "	         ^\n"
-				+ "Javadoc: Parameter x is not declared\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @param x Invalid param: not an argument\n"
-				+ "	         ^\n"
-				+ "Javadoc: Parameter x is not declared\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param declaration: no arguments, 2 declared tags
+						 * @param x
+						 * 			Invalid param: not an argument on 2 lines
+						 * @param x Invalid param: not an argument
+						 */
+						public void p_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param x
+					         ^
+				Javadoc: Parameter x is not declared
+				----------
+				2. ERROR in X.java (at line 6)
+					* @param x Invalid param: not an argument
+					         ^
+				Javadoc: Parameter x is not declared
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -518,46 +576,52 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	\n"
-					+ "	/**\n"
-					+ "	 * Valid @param declaration: 3 arguments, 3 tags in right order\n"
-					+ "	 * @param a Valid param\n"
-					+ "	 * @param b Valid param \n"
-					+ "	 * @param c Valid param\n"
-					+ "	 */\n"
-					+ "	public void p_foo(int a, int b, int c) {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					public class X {
+					\t
+						/**
+						 * Valid @param declaration: 3 arguments, 3 tags in right order
+						 * @param a Valid param
+						 * @param b Valid param\s
+						 * @param c Valid param
+						 */
+						public void p_foo(int a, int b, int c) {
+						}
+					}
+					""" });
 	}
 
 	public void test015() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param declaration: 3 arguments, 3 correct tags in right order + 2 additional\n"
-					+ "	 * @param a Valid param\n"
-					+ "	 * @param x Invalid param: not an argument\n"
-					+ "	 * @param b Valid param \n"
-					+ "	 * @param x Invalid param: not an argument\n"
-					+ "	 * @param c Valid param\n"
-					+ "	 */\n"
-					+ "	public void p_foo(char a, char b, char c) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @param x Invalid param: not an argument\n"
-				+ "	         ^\n"
-				+ "Javadoc: Parameter x is not declared\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 7)\n"
-				+ "	* @param x Invalid param: not an argument\n"
-				+ "	         ^\n"
-				+ "Javadoc: Parameter x is not declared\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param declaration: 3 arguments, 3 correct tags in right order + 2 additional
+						 * @param a Valid param
+						 * @param x Invalid param: not an argument
+						 * @param b Valid param\s
+						 * @param x Invalid param: not an argument
+						 * @param c Valid param
+						 */
+						public void p_foo(char a, char b, char c) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @param x Invalid param: not an argument
+					         ^
+				Javadoc: Parameter x is not declared
+				----------
+				2. ERROR in X.java (at line 7)
+					* @param x Invalid param: not an argument
+					         ^
+				Javadoc: Parameter x is not declared
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -565,45 +629,51 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid @param declaration: 3 arguments, 3 tags in wrong order\n"
-					+ "	 * @param c Valid param, not well placed\n"
-					+ "	 * @param b Valid param, not well placed \n"
-					+ "	 * @param a Valid param, not well placed\n"
-					+ "	 */\n"
-					+ "	public void p_foo(long a, long b, long c) {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					public class X {
+						/**
+						 * Valid @param declaration: 3 arguments, 3 tags in wrong order
+						 * @param c Valid param, not well placed
+						 * @param b Valid param, not well placed\s
+						 * @param a Valid param, not well placed
+						 */
+						public void p_foo(long a, long b, long c) {
+						}
+					}
+					""" });
 	}
 
 	public void test017() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param declaration: 3 arguments, 3 correct tags in wrong order + 1 duplicate tag + 1 additional\n"
-					+ "	 * @param c Valid param, not well placed\n"
-					+ "	 * @param a Valid param, not well placed\n"
-					+ "	 * @param b Valid param, not well placed \n"
-					+ "	 * @param a Invalid param: duplicated\n"
-					+ "	 * @param x Invalid param: not an argument\n"
-					+ "	 */\n"
-					+ "	public void p_foo(float a, float b, float c) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 7)\n"
-				+ "	* @param a Invalid param: duplicated\n"
-				+ "	         ^\n"
-				+ "Javadoc: Duplicate tag for parameter\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 8)\n"
-				+ "	* @param x Invalid param: not an argument\n"
-				+ "	         ^\n"
-				+ "Javadoc: Parameter x is not declared\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param declaration: 3 arguments, 3 correct tags in wrong order + 1 duplicate tag + 1 additional
+						 * @param c Valid param, not well placed
+						 * @param a Valid param, not well placed
+						 * @param b Valid param, not well placed\s
+						 * @param a Invalid param: duplicated
+						 * @param x Invalid param: not an argument
+						 */
+						public void p_foo(float a, float b, float c) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					* @param a Invalid param: duplicated
+					         ^
+				Javadoc: Duplicate tag for parameter
+				----------
+				2. ERROR in X.java (at line 8)
+					* @param x Invalid param: not an argument
+					         ^
+				Javadoc: Parameter x is not declared
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -611,29 +681,33 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: all arguments are not documented\n"
-					+ "	 */\n"
-					+ "	public void p_foo(double a, double b, double c) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	public void p_foo(double a, double b, double c) {\n"
-				+ "	                         ^\n"
-				+ "Javadoc: Missing tag for parameter a\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 5)\n"
-				+ "	public void p_foo(double a, double b, double c) {\n"
-				+ "	                                   ^\n"
-				+ "Javadoc: Missing tag for parameter b\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 5)\n"
-				+ "	public void p_foo(double a, double b, double c) {\n"
-				+ "	                                             ^\n"
-				+ "Javadoc: Missing tag for parameter c\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param: all arguments are not documented
+						 */
+						public void p_foo(double a, double b, double c) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					public void p_foo(double a, double b, double c) {
+					                         ^
+				Javadoc: Missing tag for parameter a
+				----------
+				2. ERROR in X.java (at line 5)
+					public void p_foo(double a, double b, double c) {
+					                                   ^
+				Javadoc: Missing tag for parameter b
+				----------
+				3. ERROR in X.java (at line 5)
+					public void p_foo(double a, double b, double c) {
+					                                             ^
+				Javadoc: Missing tag for parameter c
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -641,25 +715,29 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: b and c arguments are not documented\n"
-					+ "	 * @param a Valid param\n"
-					+ "	 */\n"
-					+ "	public void p_foo(int a, char b, long c) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 6)\n"
-				+ "	public void p_foo(int a, char b, long c) {\n"
-				+ "	                              ^\n"
-				+ "Javadoc: Missing tag for parameter b\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	public void p_foo(int a, char b, long c) {\n"
-				+ "	                                      ^\n"
-				+ "Javadoc: Missing tag for parameter c\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param: b and c arguments are not documented
+						 * @param a Valid param
+						 */
+						public void p_foo(int a, char b, long c) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					public void p_foo(int a, char b, long c) {
+					                              ^
+				Javadoc: Missing tag for parameter b
+				----------
+				2. ERROR in X.java (at line 6)
+					public void p_foo(int a, char b, long c) {
+					                                      ^
+				Javadoc: Missing tag for parameter c
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -667,25 +745,29 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: a and c arguments are not documented\n"
-					+ "	 * @param b Valid param\n"
-					+ "	 */\n"
-					+ "	public void p_foo(int a, char b, long c) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 6)\n"
-				+ "	public void p_foo(int a, char b, long c) {\n"
-				+ "	                      ^\n"
-				+ "Javadoc: Missing tag for parameter a\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	public void p_foo(int a, char b, long c) {\n"
-				+ "	                                      ^\n"
-				+ "Javadoc: Missing tag for parameter c\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param: a and c arguments are not documented
+						 * @param b Valid param
+						 */
+						public void p_foo(int a, char b, long c) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					public void p_foo(int a, char b, long c) {
+					                      ^
+				Javadoc: Missing tag for parameter a
+				----------
+				2. ERROR in X.java (at line 6)
+					public void p_foo(int a, char b, long c) {
+					                                      ^
+				Javadoc: Missing tag for parameter c
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -693,25 +775,29 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: a and b arguments are not documented\n"
-					+ "	 * @param c Valid param\n"
-					+ "	 */\n"
-					+ "	public void p_foo(int a, char b, long c) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 6)\n"
-				+ "	public void p_foo(int a, char b, long c) {\n"
-				+ "	                      ^\n"
-				+ "Javadoc: Missing tag for parameter a\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	public void p_foo(int a, char b, long c) {\n"
-				+ "	                              ^\n"
-				+ "Javadoc: Missing tag for parameter b\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param: a and b arguments are not documented
+						 * @param c Valid param
+						 */
+						public void p_foo(int a, char b, long c) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					public void p_foo(int a, char b, long c) {
+					                      ^
+				Javadoc: Missing tag for parameter a
+				----------
+				2. ERROR in X.java (at line 6)
+					public void p_foo(int a, char b, long c) {
+					                              ^
+				Javadoc: Missing tag for parameter b
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -719,21 +805,25 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: c argument is not documented\n"
-					+ "	 * @param a Valid param\n"
-					+ "	 * @param b Valid param\n"
-					+ "	 */\n"
-					+ "	public void p_foo(int a, char b, long c) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 7)\n"
-				+ "	public void p_foo(int a, char b, long c) {\n"
-				+ "	                                      ^\n"
-				+ "Javadoc: Missing tag for parameter c\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param: c argument is not documented
+						 * @param a Valid param
+						 * @param b Valid param
+						 */
+						public void p_foo(int a, char b, long c) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					public void p_foo(int a, char b, long c) {
+					                                      ^
+				Javadoc: Missing tag for parameter c
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -741,21 +831,25 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: a argument is not documented + b and c are not well placed\n"
-					+ "	 * @param c Valid param\n"
-					+ "	 * @param b Valid param\n"
-					+ "	 */\n"
-					+ "	public void p_foo(int a, char b, long c) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 7)\n"
-				+ "	public void p_foo(int a, char b, long c) {\n"
-				+ "	                      ^\n"
-				+ "Javadoc: Missing tag for parameter a\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param: a argument is not documented + b and c are not well placed
+						 * @param c Valid param
+						 * @param b Valid param
+						 */
+						public void p_foo(int a, char b, long c) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					public void p_foo(int a, char b, long c) {
+					                      ^
+				Javadoc: Missing tag for parameter a
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -763,21 +857,25 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: b argument is not documented + a and c are not well placed\n"
-					+ "	 * @param c Valid param\n"
-					+ "	 * @param a Valid param\n"
-					+ "	 */\n"
-					+ "	public void p_foo(int a, char b, long c) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 7)\n"
-				+ "	public void p_foo(int a, char b, long c) {\n"
-				+ "	                              ^\n"
-				+ "Javadoc: Missing tag for parameter b\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param: b argument is not documented + a and c are not well placed
+						 * @param c Valid param
+						 * @param a Valid param
+						 */
+						public void p_foo(int a, char b, long c) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					public void p_foo(int a, char b, long c) {
+					                              ^
+				Javadoc: Missing tag for parameter b
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -785,33 +883,37 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: mix of all possible errors (missing a, not argument tag and duplicated)\n"
-					+ "	 * @param c Valid param\n"
-					+ "	 * @param x Invalid param: not an argument\n"
-					+ "	 * @param b Valid param\n"
-					+ "	 * @param c Invalid param: duplicated\n"
-					+ "	 */\n"
-					+ "	public void p_foo(double a, long b, int c) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @param x Invalid param: not an argument\n"
-				+ "	         ^\n"
-				+ "Javadoc: Parameter x is not declared\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 7)\n"
-				+ "	* @param c Invalid param: duplicated\n"
-				+ "	         ^\n"
-				+ "Javadoc: Duplicate tag for parameter\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 9)\n"
-				+ "	public void p_foo(double a, long b, int c) {\n"
-				+ "	                         ^\n"
-				+ "Javadoc: Missing tag for parameter a\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param: mix of all possible errors (missing a, not argument tag and duplicated)
+						 * @param c Valid param
+						 * @param x Invalid param: not an argument
+						 * @param b Valid param
+						 * @param c Invalid param: duplicated
+						 */
+						public void p_foo(double a, long b, int c) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @param x Invalid param: not an argument
+					         ^
+				Javadoc: Parameter x is not declared
+				----------
+				2. ERROR in X.java (at line 7)
+					* @param c Invalid param: duplicated
+					         ^
+				Javadoc: Duplicate tag for parameter
+				----------
+				3. ERROR in X.java (at line 9)
+					public void p_foo(double a, long b, int c) {
+					                         ^
+				Javadoc: Missing tag for parameter a
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -819,25 +921,29 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: missing parameter name\n"
-					+ "	 * @param\n"
-					+ "	 */\n"
-					+ "	public void p_foo(String a) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 4)\n"
-				+ "	* @param\n"
-				+ "	   ^^^^^\n"
-				+ "Javadoc: Missing parameter name\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	public void p_foo(String a) {\n"
-				+ "	                         ^\n"
-				+ "Javadoc: Missing tag for parameter a\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param: missing parameter name
+						 * @param
+						 */
+						public void p_foo(String a) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param
+					   ^^^^^
+				Javadoc: Missing parameter name
+				----------
+				2. ERROR in X.java (at line 6)
+					public void p_foo(String a) {
+					                         ^
+				Javadoc: Missing tag for parameter a
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -845,21 +951,25 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: missing parameter name + valid param \n"
-					+ "	 * @param\n"
-					+ "	 * @param x\n"
-					+ "	 */\n"
-					+ "	public void p_foo(int x) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 4)\n"
-				+ "	* @param\n"
-				+ "	   ^^^^^\n"
-				+ "Javadoc: Missing parameter name\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param: missing parameter name + valid param\s
+						 * @param
+						 * @param x
+						 */
+						public void p_foo(int x) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param
+					   ^^^^^
+				Javadoc: Missing parameter name
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -867,38 +977,42 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: missing parameter names + valid params \n"
-					+ "	 * @param h\n"
-					+ "	 * @param\n"
-					+ "	 * @param h\n"
-					+ "	 * @param\n"
-					+ "	 */\n"
-					+ "	public void p_foo(java.util.Hashtable h, float f) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @param\n"
-				+ "	   ^^^^^\n"
-				+ "Javadoc: Missing parameter name\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @param h\n"
-				+ "	         ^\n"
-				+ "Javadoc: Duplicate tag for parameter\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	* @param\n"
-				+ "	   ^^^^^\n"
-				+ "Javadoc: Missing parameter name\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 9)\n"
-				+ "	public void p_foo(java.util.Hashtable h, float f) {\n"
-				+ "	                                               ^\n"
-				+ "Javadoc: Missing tag for parameter f\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @param: missing parameter names + valid params\s
+						 * @param h
+						 * @param
+						 * @param h
+						 * @param
+						 */
+						public void p_foo(java.util.Hashtable h, float f) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @param
+					   ^^^^^
+				Javadoc: Missing parameter name
+				----------
+				2. ERROR in X.java (at line 6)
+					* @param h
+					         ^
+				Javadoc: Duplicate tag for parameter
+				----------
+				3. ERROR in X.java (at line 7)
+					* @param
+					   ^^^^^
+				Javadoc: Missing parameter name
+				----------
+				4. ERROR in X.java (at line 9)
+					public void p_foo(java.util.Hashtable h, float f) {
+					                                               ^
+				Javadoc: Missing tag for parameter f
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -906,32 +1020,36 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: missing parameter name + valid param \n"
-					+ "	 * @param *\n"
-					+ "	 * @param ?\n"
-					+ "	 */\n"
-					+ "	public void p_foo(int x) {\n"
-					+ "	}\n"
-					+ "}\n"
+				"""
+					public class X {
+						/**
+						 * Invalid @param: missing parameter name + valid param\s
+						 * @param *
+						 * @param ?
+						 */
+						public void p_foo(int x) {
+						}
+					}
+					"""
 				},
-			"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	* @param *\n" +
-				"	         ^\n" +
-				"Javadoc: Invalid param tag name\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	* @param ?\n" +
-				"	         ^\n" +
-				"Javadoc: Invalid param tag name\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 7)\n" +
-				"	public void p_foo(int x) {\n" +
-				"	                      ^\n" +
-				"Javadoc: Missing tag for parameter x\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param *
+					         ^
+				Javadoc: Invalid param tag name
+				----------
+				2. ERROR in X.java (at line 5)
+					* @param ?
+					         ^
+				Javadoc: Invalid param tag name
+				----------
+				3. ERROR in X.java (at line 7)
+					public void p_foo(int x) {
+					                      ^
+				Javadoc: Missing tag for parameter x
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -940,90 +1058,102 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid @param but compiler errors\n"
-					+ "	 * @param a Valid param\n"
-					+ "	 * @param b Valid param\n"
-					+ "	 * @param c Valid param\n"
-					+ "	 */\n"
-					+ "	public void p_foo(inr a, int b, int c) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 8)\n"
-				+ "	public void p_foo(inr a, int b, int c) {\n"
-				+ "	                  ^^^\n"
-				+ "inr cannot be resolved to a type\n"
-				+ "----------\n");
+				"""
+					public class X {
+						/**
+						 * Valid @param but compiler errors
+						 * @param a Valid param
+						 * @param b Valid param
+						 * @param c Valid param
+						 */
+						public void p_foo(inr a, int b, int c) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 8)
+					public void p_foo(inr a, int b, int c) {
+					                  ^^^
+				inr cannot be resolved to a type
+				----------
+				""");
 	}
 
 	public void test036() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param + compiler errors\n"
-					+ "	 * @param b Valid param\n"
-					+ "	 * @param b Valid param\n"
-					+ "	 * @param c Valid param\n"
-					+ "	 */\n"
-					+ "	public void p_foo(inr a, inx b, inq c) {\n"
-					+ "	}\n"
-					+ "}\n" },
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	* @param b Valid param\n" +
-				"	         ^\n" +
-				"Javadoc: Duplicate tag for parameter\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 8)\n" +
-				"	public void p_foo(inr a, inx b, inq c) {\n" +
-				"	                  ^^^\n" +
-				"inr cannot be resolved to a type\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 8)\n" +
-				"	public void p_foo(inr a, inx b, inq c) {\n" +
-				"	                      ^\n" +
-				"Javadoc: Missing tag for parameter a\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 8)\n" +
-				"	public void p_foo(inr a, inx b, inq c) {\n" +
-				"	                         ^^^\n" +
-				"inx cannot be resolved to a type\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 8)\n" +
-				"	public void p_foo(inr a, inx b, inq c) {\n" +
-				"	                                ^^^\n" +
-				"inq cannot be resolved to a type\n" +
-				"----------\n");
+				"""
+					public class X {
+						/**
+						 * Invalid @param + compiler errors
+						 * @param b Valid param
+						 * @param b Valid param
+						 * @param c Valid param
+						 */
+						public void p_foo(inr a, inx b, inq c) {
+						}
+					}
+					""" },
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						* @param b Valid param
+						         ^
+					Javadoc: Duplicate tag for parameter
+					----------
+					2. ERROR in X.java (at line 8)
+						public void p_foo(inr a, inx b, inq c) {
+						                  ^^^
+					inr cannot be resolved to a type
+					----------
+					3. ERROR in X.java (at line 8)
+						public void p_foo(inr a, inx b, inq c) {
+						                      ^
+					Javadoc: Missing tag for parameter a
+					----------
+					4. ERROR in X.java (at line 8)
+						public void p_foo(inr a, inx b, inq c) {
+						                         ^^^
+					inx cannot be resolved to a type
+					----------
+					5. ERROR in X.java (at line 8)
+						public void p_foo(inr a, inx b, inq c) {
+						                                ^^^
+					inq cannot be resolved to a type
+					----------
+					""");
 	}
 
 	public void test037() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: class reference instead of param name\n"
-					+ "	 * @param java.lang.Hashtable\n"
-					+ "	 */\n"
-					+ "	public void p_foo(int x) {\n"
-					+ "	}\n"
-					+ "}\n"
+				"""
+					public class X {
+						/**
+						 * Invalid @param: class reference instead of param name
+						 * @param java.lang.Hashtable
+						 */
+						public void p_foo(int x) {
+						}
+					}
+					"""
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	* @param java.lang.Hashtable\n" +
-				"	         ^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Invalid param tag name\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	public void p_foo(int x) {\n" +
-				"	                      ^\n" +
-				"Javadoc: Missing tag for parameter x\n" +
-				"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @param java.lang.Hashtable
+					         ^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid param tag name
+				----------
+				2. ERROR in X.java (at line 6)
+					public void p_foo(int x) {
+					                      ^
+				Javadoc: Missing tag for parameter x
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
@@ -1032,31 +1162,35 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Hashtable;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @param: class reference instead of param name + unused import\n"
-					+ "	 * @param Hashtable\n"
-					+ "	 */\n"
-					+ "	public void p_foo(int x) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n" +
-			"1. WARNING in X.java (at line 1)\n"+
-			"	import java.util.Hashtable;\n"+
-			"	       ^^^^^^^^^^^^^^^^^^^\n"+
-			"The import java.util.Hashtable is never used\n"+
-			"----------\n"+
-			"2. ERROR in X.java (at line 5)\n" +
-			"	* @param Hashtable\n" +
-			"	         ^^^^^^^^^\n" +
-			"Javadoc: Parameter Hashtable is not declared\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	public void p_foo(int x) {\n" +
-			"	                      ^\n" +
-			"Javadoc: Missing tag for parameter x\n" +
-			"----------\n",
+				"""
+					import java.util.Hashtable;
+					public class X {
+						/**
+						 * Invalid @param: class reference instead of param name + unused import
+						 * @param Hashtable
+						 */
+						public void p_foo(int x) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. WARNING in X.java (at line 1)
+					import java.util.Hashtable;
+					       ^^^^^^^^^^^^^^^^^^^
+				The import java.util.Hashtable is never used
+				----------
+				2. ERROR in X.java (at line 5)
+					* @param Hashtable
+					         ^^^^^^^^^
+				Javadoc: Parameter Hashtable is not declared
+				----------
+				3. ERROR in X.java (at line 7)
+					public void p_foo(int x) {
+					                      ^
+				Javadoc: Missing tag for parameter x
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1067,42 +1201,48 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid @throws tags: documented exception are unchecked\n"
-					+ "	 * @throws IllegalArgumentException Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 * @exception NullPointerException Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 * @throws java.awt.AWTError Valid unchecked exception (java.lang.Error subclass)\n"
-					+ "	 * @exception OutOfMemoryError Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 */\n"
-					+ "	public void t_foo() {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					public class X {
+						/**
+						 * Valid @throws tags: documented exception are unchecked
+						 * @throws IllegalArgumentException Valid unchecked exception (java.lang.Runtime subclass)
+						 * @exception NullPointerException Valid unchecked exception (java.lang.Runtime subclass)
+						 * @throws java.awt.AWTError Valid unchecked exception (java.lang.Error subclass)
+						 * @exception OutOfMemoryError Valid unchecked exception (java.lang.Runtime subclass)
+						 */
+						public void t_foo() {
+						}
+					}
+					""" });
 	}
 
 	public void test051() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * @throws IllegalArgumenException.. Invalid exception: invalid class name\n"
-					+ "	 * @exception IllegalArgumen..Exception.. Invalid exception: invalid class name\n"
-					+ "	 */\n"
-					+ "	public void t_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 3)\n"
-				+ "	* @throws IllegalArgumenException.. Invalid exception: invalid class name\n"
-				+ "	         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid class name\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 4)\n"
-				+ "	* @exception IllegalArgumen..Exception.. Invalid exception: invalid class name\n"
-				+ "	            ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid class name\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * @throws IllegalArgumenException.. Invalid exception: invalid class name
+						 * @exception IllegalArgumen..Exception.. Invalid exception: invalid class name
+						 */
+						public void t_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					* @throws IllegalArgumenException.. Invalid exception: invalid class name
+					         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid class name
+				----------
+				2. ERROR in X.java (at line 4)
+					* @exception IllegalArgumen..Exception.. Invalid exception: invalid class name
+					            ^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid class name
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1110,25 +1250,29 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * @throws java.awt.AWTexception Invalid exception: unknown type\n"
-					+ "	 * @throws IOException Invalid exception: unknown type\n"
-					+ "	 */\n"
-					+ "	public void t_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 3)\n"
-				+ "	* @throws java.awt.AWTexception Invalid exception: unknown type\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: java.awt.AWTexception cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 4)\n"
-				+ "	* @throws IOException Invalid exception: unknown type\n"
-				+ "	          ^^^^^^^^^^^\n"
-				+ "Javadoc: IOException cannot be resolved to a type\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * @throws java.awt.AWTexception Invalid exception: unknown type
+						 * @throws IOException Invalid exception: unknown type
+						 */
+						public void t_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					* @throws java.awt.AWTexception Invalid exception: unknown type
+					          ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: java.awt.AWTexception cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 4)
+					* @throws IOException Invalid exception: unknown type
+					          ^^^^^^^^^^^
+				Javadoc: IOException cannot be resolved to a type
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1136,26 +1280,30 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.io.FileNotFoundException;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked\n"
-					+ "	 * @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked\n"
-					+ "	 */\n"
-					+ "	public void t_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 4)\n"
-				+ "	* @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Exception EOFException is not declared\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 5)\n"
-				+ "	* @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Exception FileNotFoundException is not declared\n"
-				+ "----------\n",
+				"""
+					import java.io.FileNotFoundException;
+					public class X {
+						/**
+						 * @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked
+						 * @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked
+						 */
+						public void t_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked
+					          ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Exception EOFException is not declared
+				----------
+				2. ERROR in X.java (at line 5)
+					* @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked
+					          ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Exception FileNotFoundException is not declared
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1163,137 +1311,157 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid @throws tags: documented exception are unchecked but method throws an unknown exception\n"
-					+ "	 * @throws IllegalArgumentException Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 * @exception NullPointerException Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 * @throws java.awt.AWTError Valid unchecked exception (java.lang.Error subclass)\n"
-					+ "	 * @exception OutOfMemoryError Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws InvalidException {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 9)\n"
-				+ "	public void t_foo() throws InvalidException {\n"
-				+ "	                           ^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved to a type\n"
-				+ "----------\n");
+				"""
+					public class X {
+						/**
+						 * Valid @throws tags: documented exception are unchecked but method throws an unknown exception
+						 * @throws IllegalArgumentException Valid unchecked exception (java.lang.Runtime subclass)
+						 * @exception NullPointerException Valid unchecked exception (java.lang.Runtime subclass)
+						 * @throws java.awt.AWTError Valid unchecked exception (java.lang.Error subclass)
+						 * @exception OutOfMemoryError Valid unchecked exception (java.lang.Runtime subclass)
+						 */
+						public void t_foo() throws InvalidException {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 9)
+					public void t_foo() throws InvalidException {
+					                           ^^^^^^^^^^^^^^^^
+				InvalidException cannot be resolved to a type
+				----------
+				""");
 	}
 
 	public void test056() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * @throws IllegalArgumenException._ Invalid exception: invalid class name\n"
-					+ "	 * @exception IllegalArgumen.*.Exception.. Invalid exception: invalid class name\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws InvalidException {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 3)\n"
-				+ "	* @throws IllegalArgumenException._ Invalid exception: invalid class name\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: IllegalArgumenException cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 4)\n"
-				+ "	* @exception IllegalArgumen.*.Exception.. Invalid exception: invalid class name\n"
-				+ "	            ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid class name\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 6)\n"
-				+ "	public void t_foo() throws InvalidException {\n"
-				+ "	                           ^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved to a type\n"
-				+ "----------\n");
+				"""
+					public class X {
+						/**
+						 * @throws IllegalArgumenException._ Invalid exception: invalid class name
+						 * @exception IllegalArgumen.*.Exception.. Invalid exception: invalid class name
+						 */
+						public void t_foo() throws InvalidException {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					* @throws IllegalArgumenException._ Invalid exception: invalid class name
+					          ^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: IllegalArgumenException cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 4)
+					* @exception IllegalArgumen.*.Exception.. Invalid exception: invalid class name
+					            ^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid class name
+				----------
+				3. ERROR in X.java (at line 6)
+					public void t_foo() throws InvalidException {
+					                           ^^^^^^^^^^^^^^^^
+				InvalidException cannot be resolved to a type
+				----------
+				""");
 	}
 
 	public void test057() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * @throws java.awt.AWTexception Invalid exception: unknown type\n"
-					+ "	 * @throws IOException Invalid exception: unknown type\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws InvalidException {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 3)\n"
-				+ "	* @throws java.awt.AWTexception Invalid exception: unknown type\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: java.awt.AWTexception cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 4)\n"
-				+ "	* @throws IOException Invalid exception: unknown type\n"
-				+ "	          ^^^^^^^^^^^\n"
-				+ "Javadoc: IOException cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 6)\n"
-				+ "	public void t_foo() throws InvalidException {\n"
-				+ "	                           ^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved to a type\n"
-				+ "----------\n");
+				"""
+					public class X {
+						/**
+						 * @throws java.awt.AWTexception Invalid exception: unknown type
+						 * @throws IOException Invalid exception: unknown type
+						 */
+						public void t_foo() throws InvalidException {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					* @throws java.awt.AWTexception Invalid exception: unknown type
+					          ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: java.awt.AWTexception cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 4)
+					* @throws IOException Invalid exception: unknown type
+					          ^^^^^^^^^^^
+				Javadoc: IOException cannot be resolved to a type
+				----------
+				3. ERROR in X.java (at line 6)
+					public void t_foo() throws InvalidException {
+					                           ^^^^^^^^^^^^^^^^
+				InvalidException cannot be resolved to a type
+				----------
+				""");
 	}
 
 	public void test058() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.io.FileNotFoundException;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked\n"
-					+ "	 * @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws InvalidException {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 4)\n"
-				+ "	* @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Exception EOFException is not declared\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 5)\n"
-				+ "	* @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Exception FileNotFoundException is not declared\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	public void t_foo() throws InvalidException {\n"
-				+ "	                           ^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved to a type\n"
-				+ "----------\n");
+				"""
+					import java.io.FileNotFoundException;
+					public class X {
+						/**
+						 * @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked
+						 * @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked
+						 */
+						public void t_foo() throws InvalidException {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked
+					          ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Exception EOFException is not declared
+				----------
+				2. ERROR in X.java (at line 5)
+					* @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked
+					          ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Exception FileNotFoundException is not declared
+				----------
+				3. ERROR in X.java (at line 7)
+					public void t_foo() throws InvalidException {
+					                           ^^^^^^^^^^^^^^^^
+				InvalidException cannot be resolved to a type
+				----------
+				""");
 	}
 
 	public void test060() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @throws tags: documented exception are unchecked but thrown exception is not documented\n"
-					+ "	 * @throws IllegalArgumentException Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 * @exception NullPointerException Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 * @throws java.awt.AWTError Valid unchecked exception (java.lang.Error subclass)\n"
-					+ "	 * @exception OutOfMemoryError Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws IllegalAccessException {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 9)\n"
-				+ "	public void t_foo() throws IllegalAccessException {\n"
-				+ "	                           ^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IllegalAccessException\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid @throws tags: documented exception are unchecked but thrown exception is not documented
+						 * @throws IllegalArgumentException Valid unchecked exception (java.lang.Runtime subclass)
+						 * @exception NullPointerException Valid unchecked exception (java.lang.Runtime subclass)
+						 * @throws java.awt.AWTError Valid unchecked exception (java.lang.Error subclass)
+						 * @exception OutOfMemoryError Valid unchecked exception (java.lang.Runtime subclass)
+						 */
+						public void t_foo() throws IllegalAccessException {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 9)
+					public void t_foo() throws IllegalAccessException {
+					                           ^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Missing tag for declared exception IllegalAccessException
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1301,30 +1469,34 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * @throws /IllegalArgumenException.. Invalid exception: invalid class name\n"
-					+ "	 * @exception .IllegalArgumen..Exception.. Invalid exception: invalid class name\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws IllegalAccessException {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 3)\n"
-				+ "	* @throws /IllegalArgumenException.. Invalid exception: invalid class name\n"
-				+ "	   ^^^^^^\n"
-				+ "Javadoc: Missing class name\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 4)\n"
-				+ "	* @exception .IllegalArgumen..Exception.. Invalid exception: invalid class name\n"
-				+ "	            ^^\n"
-				+ "Javadoc: Invalid class name\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 6)\n"
-				+ "	public void t_foo() throws IllegalAccessException {\n"
-				+ "	                           ^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IllegalAccessException\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * @throws /IllegalArgumenException.. Invalid exception: invalid class name
+						 * @exception .IllegalArgumen..Exception.. Invalid exception: invalid class name
+						 */
+						public void t_foo() throws IllegalAccessException {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					* @throws /IllegalArgumenException.. Invalid exception: invalid class name
+					   ^^^^^^
+				Javadoc: Missing class name
+				----------
+				2. ERROR in X.java (at line 4)
+					* @exception .IllegalArgumen..Exception.. Invalid exception: invalid class name
+					            ^^
+				Javadoc: Invalid class name
+				----------
+				3. ERROR in X.java (at line 6)
+					public void t_foo() throws IllegalAccessException {
+					                           ^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Missing tag for declared exception IllegalAccessException
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1332,30 +1504,34 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * @throws java.awt.AWTexception Invalid exception: unknown type\n"
-					+ "	 * @throws IOException Invalid exception: unknown type\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws IllegalAccessException {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 3)\n"
-				+ "	* @throws java.awt.AWTexception Invalid exception: unknown type\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: java.awt.AWTexception cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 4)\n"
-				+ "	* @throws IOException Invalid exception: unknown type\n"
-				+ "	          ^^^^^^^^^^^\n"
-				+ "Javadoc: IOException cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 6)\n"
-				+ "	public void t_foo() throws IllegalAccessException {\n"
-				+ "	                           ^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IllegalAccessException\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * @throws java.awt.AWTexception Invalid exception: unknown type
+						 * @throws IOException Invalid exception: unknown type
+						 */
+						public void t_foo() throws IllegalAccessException {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					* @throws java.awt.AWTexception Invalid exception: unknown type
+					          ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: java.awt.AWTexception cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 4)
+					* @throws IOException Invalid exception: unknown type
+					          ^^^^^^^^^^^
+				Javadoc: IOException cannot be resolved to a type
+				----------
+				3. ERROR in X.java (at line 6)
+					public void t_foo() throws IllegalAccessException {
+					                           ^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Missing tag for declared exception IllegalAccessException
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1363,37 +1539,41 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.io.FileNotFoundException;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked\n"
-					+ "	 * @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked\n"
-					+ "	 * @throws IOException Invalid exception: unknown type\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws IllegalAccessException {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 4)\n"
-				+ "	* @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Exception EOFException is not declared\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 5)\n"
-				+ "	* @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked\n"
-				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Exception FileNotFoundException is not declared\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 6)\n"
-				+ "	* @throws IOException Invalid exception: unknown type\n"
-				+ "	          ^^^^^^^^^^^\n"
-				+ "Javadoc: IOException cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 8)\n"
-				+ "	public void t_foo() throws IllegalAccessException {\n"
-				+ "	                           ^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Missing tag for declared exception IllegalAccessException\n"
-				+ "----------\n",
+				"""
+					import java.io.FileNotFoundException;
+					public class X {
+						/**
+						 * @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked
+						 * @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked
+						 * @throws IOException Invalid exception: unknown type
+						 */
+						public void t_foo() throws IllegalAccessException {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					* @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked
+					          ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Exception EOFException is not declared
+				----------
+				2. ERROR in X.java (at line 5)
+					* @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked
+					          ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Exception FileNotFoundException is not declared
+				----------
+				3. ERROR in X.java (at line 6)
+					* @throws IOException Invalid exception: unknown type
+					          ^^^^^^^^^^^
+				Javadoc: IOException cannot be resolved to a type
+				----------
+				4. ERROR in X.java (at line 8)
+					public void t_foo() throws IllegalAccessException {
+					                           ^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Missing tag for declared exception IllegalAccessException
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1401,243 +1581,263 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid @throws tags: documented exception are unchecked but some thrown exception are invalid\n"
-					+ "	 * @throws IllegalAccessException Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 * @throws IllegalArgumentException Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 * @exception NullPointerException Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 * @throws java.awt.AWTError Valid unchecked exception (java.lang.Error subclass)\n"
-					+ "	 * @exception OutOfMemoryError Valid unchecked exception (java.lang.Runtime subclass)\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws\n"
-					+ "		IllegalAccessException, \n"
-					+ "		InvalidException, \n"
-					+ "		String, \n"
-					+ "		IllegalArgumentException\n"
-					+ "	{}\n"
-					+ "}\n" },
-					"----------\n" +
-					"1. ERROR in X.java (at line 12)\n" +
-					"	InvalidException, \n" +
-					"	^^^^^^^^^^^^^^^^\n" +
-					"InvalidException cannot be resolved to a type\n" +
-					"----------\n" +
-					"2. ERROR in X.java (at line 13)\n" +
-					"	String, \n" +
-					"	^^^^^^\n" +
-					"No exception of type String can be thrown; an exception type must be a subclass of Throwable\n" +
-					"----------\n");
+				"""
+					public class X {
+						/**
+						 * Invalid @throws tags: documented exception are unchecked but some thrown exception are invalid
+						 * @throws IllegalAccessException Valid unchecked exception (java.lang.Runtime subclass)
+						 * @throws IllegalArgumentException Valid unchecked exception (java.lang.Runtime subclass)
+						 * @exception NullPointerException Valid unchecked exception (java.lang.Runtime subclass)
+						 * @throws java.awt.AWTError Valid unchecked exception (java.lang.Error subclass)
+						 * @exception OutOfMemoryError Valid unchecked exception (java.lang.Runtime subclass)
+						 */
+						public void t_foo() throws
+							IllegalAccessException,\s
+							InvalidException,\s
+							String,\s
+							IllegalArgumentException
+						{}
+					}
+					""" },
+					"""
+						----------
+						1. ERROR in X.java (at line 12)
+							InvalidException,\s
+							^^^^^^^^^^^^^^^^
+						InvalidException cannot be resolved to a type
+						----------
+						2. ERROR in X.java (at line 13)
+							String,\s
+							^^^^^^
+						No exception of type String can be thrown; an exception type must be a subclass of Throwable
+						----------
+						""");
 	}
 
 	public void test066() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * @throws %IllegalArgumenException Invalid exception: invalid class name\n"
-					+ "	 * @exception (IllegalArgumen Invalid exception: invalid class name\n"
-					+ "	 * @exception \"IllegalArgumen Invalid exception: invalid class name\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws\n"
-					+ "		IllegalAccessException, \n"
-					+ "		InvalidException, \n"
-					+ "		String, \n"
-					+ "		IllegalArgumentException\n"
-					+ "	{}\n"
-					+ "}\n" },
-					"----------\n" +
-					"1. ERROR in X.java (at line 3)\n" +
-					"	* @throws %IllegalArgumenException Invalid exception: invalid class name\n" +
-					"	   ^^^^^^\n" +
-					"Javadoc: Missing class name\n" +
-					"----------\n" +
-					"2. ERROR in X.java (at line 4)\n" +
-					"	* @exception (IllegalArgumen Invalid exception: invalid class name\n" +
-					"	   ^^^^^^^^^\n" +
-					"Javadoc: Missing class name\n" +
-					"----------\n" +
-					"3. ERROR in X.java (at line 5)\n" +
-					"	* @exception \"IllegalArgumen Invalid exception: invalid class name\n" +
-					"	   ^^^^^^^^^\n" +
-					"Javadoc: Missing class name\n" +
-					"----------\n" +
-					"4. ERROR in X.java (at line 8)\n" +
-					"	IllegalAccessException, \n" +
-					"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: Missing tag for declared exception IllegalAccessException\n" +
-					"----------\n" +
-					"5. ERROR in X.java (at line 9)\n" +
-					"	InvalidException, \n" +
-					"	^^^^^^^^^^^^^^^^\n" +
-					"InvalidException cannot be resolved to a type\n" +
-					"----------\n" +
-					"6. ERROR in X.java (at line 10)\n" +
-					"	String, \n" +
-					"	^^^^^^\n" +
-					"No exception of type String can be thrown; an exception type must be a subclass of Throwable\n" +
-					"----------\n" +
-					"7. ERROR in X.java (at line 11)\n" +
-					"	IllegalArgumentException\n" +
-					"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: Missing tag for declared exception IllegalArgumentException\n" +
-					"----------\n");
+				"""
+					public class X {
+						/**
+						 * @throws %IllegalArgumenException Invalid exception: invalid class name
+						 * @exception (IllegalArgumen Invalid exception: invalid class name
+						 * @exception "IllegalArgumen Invalid exception: invalid class name
+						 */
+						public void t_foo() throws
+							IllegalAccessException,\s
+							InvalidException,\s
+							String,\s
+							IllegalArgumentException
+						{}
+					}
+					""" },
+					"""
+						----------
+						1. ERROR in X.java (at line 3)
+							* @throws %IllegalArgumenException Invalid exception: invalid class name
+							   ^^^^^^
+						Javadoc: Missing class name
+						----------
+						2. ERROR in X.java (at line 4)
+							* @exception (IllegalArgumen Invalid exception: invalid class name
+							   ^^^^^^^^^
+						Javadoc: Missing class name
+						----------
+						3. ERROR in X.java (at line 5)
+							* @exception "IllegalArgumen Invalid exception: invalid class name
+							   ^^^^^^^^^
+						Javadoc: Missing class name
+						----------
+						4. ERROR in X.java (at line 8)
+							IllegalAccessException,\s
+							^^^^^^^^^^^^^^^^^^^^^^
+						Javadoc: Missing tag for declared exception IllegalAccessException
+						----------
+						5. ERROR in X.java (at line 9)
+							InvalidException,\s
+							^^^^^^^^^^^^^^^^
+						InvalidException cannot be resolved to a type
+						----------
+						6. ERROR in X.java (at line 10)
+							String,\s
+							^^^^^^
+						No exception of type String can be thrown; an exception type must be a subclass of Throwable
+						----------
+						7. ERROR in X.java (at line 11)
+							IllegalArgumentException
+							^^^^^^^^^^^^^^^^^^^^^^^^
+						Javadoc: Missing tag for declared exception IllegalArgumentException
+						----------
+						""");
 	}
 
 	public void test067() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * @throws java.awt.AWTexception Invalid exception: unknown type\n"
-					+ "	 * @throws IOException Invalid exception: unknown type\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws\n"
-					+ "		IllegalAccessException, \n"
-					+ "		InvalidException, \n"
-					+ "		String, \n"
-					+ "		IllegalArgumentException\n"
-					+ "	{}\n"
-					+ "}\n" },
-					"----------\n" +
-					"1. ERROR in X.java (at line 3)\n" +
-					"	* @throws java.awt.AWTexception Invalid exception: unknown type\n" +
-					"	          ^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: java.awt.AWTexception cannot be resolved to a type\n" +
-					"----------\n" +
-					"2. ERROR in X.java (at line 4)\n" +
-					"	* @throws IOException Invalid exception: unknown type\n" +
-					"	          ^^^^^^^^^^^\n" +
-					"Javadoc: IOException cannot be resolved to a type\n" +
-					"----------\n" +
-					"3. ERROR in X.java (at line 7)\n" +
-					"	IllegalAccessException, \n" +
-					"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: Missing tag for declared exception IllegalAccessException\n" +
-					"----------\n" +
-					"4. ERROR in X.java (at line 8)\n" +
-					"	InvalidException, \n" +
-					"	^^^^^^^^^^^^^^^^\n" +
-					"InvalidException cannot be resolved to a type\n" +
-					"----------\n" +
-					"5. ERROR in X.java (at line 9)\n" +
-					"	String, \n" +
-					"	^^^^^^\n" +
-					"No exception of type String can be thrown; an exception type must be a subclass of Throwable\n" +
-					"----------\n" +
-					"6. ERROR in X.java (at line 10)\n" +
-					"	IllegalArgumentException\n" +
-					"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: Missing tag for declared exception IllegalArgumentException\n" +
-					"----------\n");
+				"""
+					public class X {
+						/**
+						 * @throws java.awt.AWTexception Invalid exception: unknown type
+						 * @throws IOException Invalid exception: unknown type
+						 */
+						public void t_foo() throws
+							IllegalAccessException,\s
+							InvalidException,\s
+							String,\s
+							IllegalArgumentException
+						{}
+					}
+					""" },
+					"""
+						----------
+						1. ERROR in X.java (at line 3)
+							* @throws java.awt.AWTexception Invalid exception: unknown type
+							          ^^^^^^^^^^^^^^^^^^^^^
+						Javadoc: java.awt.AWTexception cannot be resolved to a type
+						----------
+						2. ERROR in X.java (at line 4)
+							* @throws IOException Invalid exception: unknown type
+							          ^^^^^^^^^^^
+						Javadoc: IOException cannot be resolved to a type
+						----------
+						3. ERROR in X.java (at line 7)
+							IllegalAccessException,\s
+							^^^^^^^^^^^^^^^^^^^^^^
+						Javadoc: Missing tag for declared exception IllegalAccessException
+						----------
+						4. ERROR in X.java (at line 8)
+							InvalidException,\s
+							^^^^^^^^^^^^^^^^
+						InvalidException cannot be resolved to a type
+						----------
+						5. ERROR in X.java (at line 9)
+							String,\s
+							^^^^^^
+						No exception of type String can be thrown; an exception type must be a subclass of Throwable
+						----------
+						6. ERROR in X.java (at line 10)
+							IllegalArgumentException
+							^^^^^^^^^^^^^^^^^^^^^^^^
+						Javadoc: Missing tag for declared exception IllegalArgumentException
+						----------
+						""");
 	}
 
 	public void test068() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.io.FileNotFoundException;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked\n"
-					+ "	 * @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws\n"
-					+ "		IllegalAccessException, \n"
-					+ "		InvalidException, \n"
-					+ "		String, \n"
-					+ "		IllegalArgumentException\n"
-					+ "	{}\n"
-					+ "}\n" },
-					"----------\n" +
-					"1. ERROR in X.java (at line 4)\n" +
-					"	* @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked\n" +
-					"	          ^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: Exception EOFException is not declared\n" +
-					"----------\n" +
-					"2. ERROR in X.java (at line 5)\n" +
-					"	* @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked\n" +
-					"	          ^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: Exception FileNotFoundException is not declared\n" +
-					"----------\n" +
-					"3. ERROR in X.java (at line 8)\n" +
-					"	IllegalAccessException, \n" +
-					"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: Missing tag for declared exception IllegalAccessException\n" +
-					"----------\n" +
-					"4. ERROR in X.java (at line 9)\n" +
-					"	InvalidException, \n" +
-					"	^^^^^^^^^^^^^^^^\n" +
-					"InvalidException cannot be resolved to a type\n" +
-					"----------\n" +
-					"5. ERROR in X.java (at line 10)\n" +
-					"	String, \n" +
-					"	^^^^^^\n" +
-					"No exception of type String can be thrown; an exception type must be a subclass of Throwable\n" +
-					"----------\n" +
-					"6. ERROR in X.java (at line 11)\n" +
-					"	IllegalArgumentException\n" +
-					"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: Missing tag for declared exception IllegalArgumentException\n" +
-					"----------\n");
+				"""
+					import java.io.FileNotFoundException;
+					public class X {
+						/**
+						 * @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked
+						 * @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked
+						 */
+						public void t_foo() throws
+							IllegalAccessException,\s
+							InvalidException,\s
+							String,\s
+							IllegalArgumentException
+						{}
+					}
+					""" },
+					"""
+						----------
+						1. ERROR in X.java (at line 4)
+							* @throws java.io.EOFException Invalid exception: known exception but neither thrown nor unchecked
+							          ^^^^^^^^^^^^^^^^^^^^
+						Javadoc: Exception EOFException is not declared
+						----------
+						2. ERROR in X.java (at line 5)
+							* @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked
+							          ^^^^^^^^^^^^^^^^^^^^^
+						Javadoc: Exception FileNotFoundException is not declared
+						----------
+						3. ERROR in X.java (at line 8)
+							IllegalAccessException,\s
+							^^^^^^^^^^^^^^^^^^^^^^
+						Javadoc: Missing tag for declared exception IllegalAccessException
+						----------
+						4. ERROR in X.java (at line 9)
+							InvalidException,\s
+							^^^^^^^^^^^^^^^^
+						InvalidException cannot be resolved to a type
+						----------
+						5. ERROR in X.java (at line 10)
+							String,\s
+							^^^^^^
+						No exception of type String can be thrown; an exception type must be a subclass of Throwable
+						----------
+						6. ERROR in X.java (at line 11)
+							IllegalArgumentException
+							^^^^^^^^^^^^^^^^^^^^^^^^
+						Javadoc: Missing tag for declared exception IllegalArgumentException
+						----------
+						""");
 	}
 
 	public void test069() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.io.FileNotFoundException;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 */\n"
-					+ "	public void t_foo() throws\n"
-					+ "		IllegalAccessException, \n"
-					+ "		InvalidException, \n"
-					+ "		String, \n"
-					+ "		java.io.EOFException, \n"
-					+ "		FileNotFoundException, \n"
-					+ "		IOException, \n"
-					+ "		IllegalArgumentException\n"
-					+ "	{}\n"
-					+ "}\n" },
-					"----------\n" +
-					"1. ERROR in X.java (at line 6)\n" +
-					"	IllegalAccessException, \n" +
-					"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: Missing tag for declared exception IllegalAccessException\n" +
-					"----------\n" +
-					"2. ERROR in X.java (at line 7)\n" +
-					"	InvalidException, \n" +
-					"	^^^^^^^^^^^^^^^^\n" +
-					"InvalidException cannot be resolved to a type\n" +
-					"----------\n" +
-					"3. ERROR in X.java (at line 8)\n" +
-					"	String, \n" +
-					"	^^^^^^\n" +
-					"No exception of type String can be thrown; an exception type must be a subclass of Throwable\n" +
-					"----------\n" +
-					"4. ERROR in X.java (at line 9)\n" +
-					"	java.io.EOFException, \n" +
-					"	^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: Missing tag for declared exception EOFException\n" +
-					"----------\n" +
-					"5. ERROR in X.java (at line 10)\n" +
-					"	FileNotFoundException, \n" +
-					"	^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: Missing tag for declared exception FileNotFoundException\n" +
-					"----------\n" +
-					"6. ERROR in X.java (at line 11)\n" +
-					"	IOException, \n" +
-					"	^^^^^^^^^^^\n" +
-					"IOException cannot be resolved to a type\n" +
-					"----------\n" +
-					"7. ERROR in X.java (at line 12)\n" +
-					"	IllegalArgumentException\n" +
-					"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Javadoc: Missing tag for declared exception IllegalArgumentException\n" +
-					"----------\n");
+				"""
+					import java.io.FileNotFoundException;
+					public class X {
+						/**
+						 */
+						public void t_foo() throws
+							IllegalAccessException,\s
+							InvalidException,\s
+							String,\s
+							java.io.EOFException,\s
+							FileNotFoundException,\s
+							IOException,\s
+							IllegalArgumentException
+						{}
+					}
+					""" },
+					"""
+						----------
+						1. ERROR in X.java (at line 6)
+							IllegalAccessException,\s
+							^^^^^^^^^^^^^^^^^^^^^^
+						Javadoc: Missing tag for declared exception IllegalAccessException
+						----------
+						2. ERROR in X.java (at line 7)
+							InvalidException,\s
+							^^^^^^^^^^^^^^^^
+						InvalidException cannot be resolved to a type
+						----------
+						3. ERROR in X.java (at line 8)
+							String,\s
+							^^^^^^
+						No exception of type String can be thrown; an exception type must be a subclass of Throwable
+						----------
+						4. ERROR in X.java (at line 9)
+							java.io.EOFException,\s
+							^^^^^^^^^^^^^^^^^^^^
+						Javadoc: Missing tag for declared exception EOFException
+						----------
+						5. ERROR in X.java (at line 10)
+							FileNotFoundException,\s
+							^^^^^^^^^^^^^^^^^^^^^
+						Javadoc: Missing tag for declared exception FileNotFoundException
+						----------
+						6. ERROR in X.java (at line 11)
+							IOException,\s
+							^^^^^^^^^^^
+						IOException cannot be resolved to a type
+						----------
+						7. ERROR in X.java (at line 12)
+							IllegalArgumentException
+							^^^^^^^^^^^^^^^^^^^^^^^^
+						Javadoc: Missing tag for declared exception IllegalArgumentException
+						----------
+						""");
 	}
 
 	/* (non-Javadoc)
@@ -1647,68 +1847,78 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid return declaration\n"
-					+ "	 *\n"
-					+ "	 * @return Return an int\n"
-					+ "	 */\n"
-					+ "	public int s_foo() {\n"
-					+ "	  return 0;\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					public class X {
+						/**
+						 * Valid return declaration
+						 *
+						 * @return Return an int
+						 */
+						public int s_foo() {
+						  return 0;
+						}
+					}
+					""" });
 	}
 
 	public void test071() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid empty return declaration\n"
-					+ "	 *\n"
-					+ "	 * @return string\n"
-					+ "	 */\n"
-					+ "	public String s_foo() {\n"
-					+ "	  return \"\";\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					public class X {
+						/**
+						 * Valid empty return declaration
+						 *
+						 * @return string
+						 */
+						public String s_foo() {
+						  return "";
+						}
+					}
+					""" });
 	}
 
 	public void test072() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid return declaration\n"
-					+ "	 *\n"
-					+ "	 * @return Vector A list of things\n"
-					+ "	 */\n"
-					+ "	public java.util.Vector s_foo() {\n"
-					+ "	  return new java.util.Vector();\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					public class X {
+						/**
+						 * Valid return declaration
+						 *
+						 * @return Vector A list of things
+						 */
+						public java.util.Vector s_foo() {
+						  return new java.util.Vector();
+						}
+					}
+					""" });
 	}
 
 	public void test073() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Missing return declaration\n"
-					+ "	 */\n"
-					+ "	public Object[] s_foo() {\n"
-					+ "	  return new Object[0];\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	public Object[] s_foo() {\n"
-				+ "	       ^^^^^^^^\n"
-				+ "Javadoc: Missing tag for return type\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Missing return declaration
+						 */
+						public Object[] s_foo() {
+						  return new Object[0];
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					public Object[] s_foo() {
+					       ^^^^^^^^
+				Javadoc: Missing tag for return type
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1716,23 +1926,27 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid return declaration\n"
-					+ "	 *\n"
-					+ "	 * @return double\n"
-					+ "	 * @return Dimension\n"
-					+ "	 */\n"
-					+ "	public double s_foo() {\n"
-					+ "	  return 3.14;\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 6)\n"
-				+ "	* @return Dimension\n"
-				+ "	   ^^^^^^\n"
-				+ "Javadoc: Duplicate tag for return type\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid return declaration
+						 *
+						 * @return double
+						 * @return Dimension
+						 */
+						public double s_foo() {
+						  return 3.14;
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					* @return Dimension
+					   ^^^^^^
+				Javadoc: Duplicate tag for return type
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1740,21 +1954,25 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid return declaration\n"
-					+ "	 *\n"
-					+ "	 * @return Invalid return on void method\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @return Invalid return on void method\n"
-				+ "	   ^^^^^^\n"
-				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid return declaration
+						 *
+						 * @return Invalid return on void method
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @return Invalid return on void method
+					   ^^^^^^
+				Javadoc: Unexpected tag
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1762,33 +1980,37 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid return declaration\n"
-					+ "	 *\n"
-					+ "	 * @return Invalid return on void method\n"
-					+ "	 * @return\n"
-					+ "	 * @return Invalid return on void method\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @return Invalid return on void method\n"
-				+ "	   ^^^^^^\n"
-				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @return\n"
-				+ "	   ^^^^^^\n"
-				+ "Javadoc: Duplicate tag for return type\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	* @return Invalid return on void method\n"
-				+ "	   ^^^^^^\n"
-				+ "Javadoc: Duplicate tag for return type\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid return declaration
+						 *
+						 * @return Invalid return on void method
+						 * @return
+						 * @return Invalid return on void method
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @return Invalid return on void method
+					   ^^^^^^
+				Javadoc: Unexpected tag
+				----------
+				2. ERROR in X.java (at line 6)
+					* @return
+					   ^^^^^^
+				Javadoc: Duplicate tag for return type
+				----------
+				3. ERROR in X.java (at line 7)
+					* @return Invalid return on void method
+					   ^^^^^^
+				Javadoc: Duplicate tag for return type
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1800,39 +2022,43 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid string references \n"
-					+ "	 *\n"
-					+ "	 * @see \"\n"
-					+ "	 * @see \"unterminated string\n"
-					+ "	 * @see \"invalid string\"\"\n"
-					+ "	 * @see \"invalid\" no text allowed after the string\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @see \"\n"
-				+ "	       ^\n"
-				+ "Javadoc: Invalid reference\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @see \"unterminated string\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid reference\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	* @see \"invalid string\"\"\n"
-				+ "	                       ^\n"
-				+ "Javadoc: Unexpected text\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 8)\n"
-				+ "	* @see \"invalid\" no text allowed after the string\n"
-				+ "	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Unexpected text\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid string references\s
+						 *
+						 * @see "
+						 * @see "unterminated string
+						 * @see "invalid string""
+						 * @see "invalid" no text allowed after the string
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @see "
+					       ^
+				Javadoc: Invalid reference
+				----------
+				2. ERROR in X.java (at line 6)
+					* @see "unterminated string
+					       ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid reference
+				----------
+				3. ERROR in X.java (at line 7)
+					* @see "invalid string""
+					                       ^
+				Javadoc: Unexpected text
+				----------
+				4. ERROR in X.java (at line 8)
+					* @see "invalid" no text allowed after the string
+					                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Unexpected text
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1840,16 +2066,18 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid string references \n"
-					+ "	 *\n"
-					+ "	 * @see \"Valid normal string\"\n"
-					+ "	 * @see \"Valid \\\"string containing\\\" \\\"double-quote\\\"\"\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					public class X {
+						/**
+						 * Valid string references\s
+						 *
+						 * @see "Valid normal string"
+						 * @see "Valid \\"string containing\\" \\"double-quote\\""
+						 */
+						public void s_foo() {
+						}
+					}
+					""" });
 	}
 
 	// URL Link references
@@ -1857,99 +2085,103 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid URL link references \n"
-					+ "	 *\n"
-					+ "	 * @see <\n"
-					+ "	 * @see <a\n"
-					+ "	 * @see <a hre\n"
-					+ "	 * @see <a href\n"
-					+ "	 * @see <a href=\n"
-					+ "	 * @see <a href=\"\n"
-					+ "	 * @see <a href=\"invalid\n"
-					+ "	 * @see <a href=\"invalid\"\n"
-					+ "	 * @see <a href=\"invalid\">\n"
-					+ "	 * @see <a href=\"invalid\">invalid\n"
-					+ "	 * @see <a href=\"invalid\">invalid<\n"
-					+ "	 * @see <a href=\"invalid\">invalid</\n"
-					+ "	 * @see <a href=\"invalid\">invalid</a\n"
-					+ "	 * @see <a href=\"invalid\">invalid</a> no text allowed after the href\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @see <\n"
-				+ "	       ^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @see <a\n"
-				+ "	       ^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	* @see <a hre\n"
-				+ "	       ^^^^^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 8)\n"
-				+ "	* @see <a href\n"
-				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 9)\n"
-				+ "	* @see <a href=\n"
-				+ "	       ^^^^^^^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "6. ERROR in X.java (at line 10)\n"
-				+ "	* @see <a href=\"\n"
-				+ "	       ^^^^^^^^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "7. ERROR in X.java (at line 11)\n"
-				+ "	* @see <a href=\"invalid\n"
-				+ "	       ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "8. ERROR in X.java (at line 12)\n"
-				+ "	* @see <a href=\"invalid\"\n"
-				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "9. ERROR in X.java (at line 13)\n"
-				+ "	* @see <a href=\"invalid\">\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "10. ERROR in X.java (at line 14)\n"
-				+ "	* @see <a href=\"invalid\">invalid\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "11. ERROR in X.java (at line 15)\n"
-				+ "	* @see <a href=\"invalid\">invalid<\n"
-				+ "	                                ^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "12. ERROR in X.java (at line 16)\n"
-				+ "	* @see <a href=\"invalid\">invalid</\n"
-				+ "	                                ^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "13. ERROR in X.java (at line 17)\n"
-				+ "	* @see <a href=\"invalid\">invalid</a\n"
-				+ "	                                ^^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "14. ERROR in X.java (at line 18)\n"
-				+ "	* @see <a href=\"invalid\">invalid</a> no text allowed after the href\n"
-				+ "	                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Unexpected text\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid URL link references\s
+						 *
+						 * @see <
+						 * @see <a
+						 * @see <a hre
+						 * @see <a href
+						 * @see <a href=
+						 * @see <a href="
+						 * @see <a href="invalid
+						 * @see <a href="invalid"
+						 * @see <a href="invalid">
+						 * @see <a href="invalid">invalid
+						 * @see <a href="invalid">invalid<
+						 * @see <a href="invalid">invalid</
+						 * @see <a href="invalid">invalid</a
+						 * @see <a href="invalid">invalid</a> no text allowed after the href
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @see <
+					       ^
+				Javadoc: Malformed link reference
+				----------
+				2. ERROR in X.java (at line 6)
+					* @see <a
+					       ^^
+				Javadoc: Malformed link reference
+				----------
+				3. ERROR in X.java (at line 7)
+					* @see <a hre
+					       ^^^^^^
+				Javadoc: Malformed link reference
+				----------
+				4. ERROR in X.java (at line 8)
+					* @see <a href
+					       ^^^^^^^
+				Javadoc: Malformed link reference
+				----------
+				5. ERROR in X.java (at line 9)
+					* @see <a href=
+					       ^^^^^^^^
+				Javadoc: Malformed link reference
+				----------
+				6. ERROR in X.java (at line 10)
+					* @see <a href="
+					       ^^^^^^^^^
+				Javadoc: Malformed link reference
+				----------
+				7. ERROR in X.java (at line 11)
+					* @see <a href="invalid
+					       ^^^^^^^^^^^^^^^^
+				Javadoc: Malformed link reference
+				----------
+				8. ERROR in X.java (at line 12)
+					* @see <a href="invalid"
+					       ^^^^^^^^^^^^^^^^^
+				Javadoc: Malformed link reference
+				----------
+				9. ERROR in X.java (at line 13)
+					* @see <a href="invalid">
+					       ^^^^^^^^^^^^^^^^^^
+				Javadoc: Malformed link reference
+				----------
+				10. ERROR in X.java (at line 14)
+					* @see <a href="invalid">invalid
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Malformed link reference
+				----------
+				11. ERROR in X.java (at line 15)
+					* @see <a href="invalid">invalid<
+					                                ^
+				Javadoc: Malformed link reference
+				----------
+				12. ERROR in X.java (at line 16)
+					* @see <a href="invalid">invalid</
+					                                ^^
+				Javadoc: Malformed link reference
+				----------
+				13. ERROR in X.java (at line 17)
+					* @see <a href="invalid">invalid</a
+					                                ^^^
+				Javadoc: Malformed link reference
+				----------
+				14. ERROR in X.java (at line 18)
+					* @see <a href="invalid">invalid</a> no text allowed after the href
+					                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Unexpected text
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -1957,50 +2189,56 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid URL references \n"
-					+ "	 *\n"
-					+ "	 * @see <a href=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Valid URL link reference</a>\n"
-					+ "	 * @see <A HREF = \"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Valid URL link reference</A>\n"
-					+ "	 * @see <a hReF = \"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Valid URL link reference</A>\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					public class X {
+						/**
+						 * Valid URL references\s
+						 *
+						 * @see <a href="http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html">Valid URL link reference</a>
+						 * @see <A HREF = "http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html">Valid URL link reference</A>
+						 * @see <a hReF = "http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html">Valid URL link reference</A>
+						 */
+						public void s_foo() {
+						}
+					}
+					""" });
 	}
 
 	public void test087() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "	/**\n"
-				+ "	 * Invalid URL references \n"
-				+ "	 *\n"
-				+ "	 * @see <a xref=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Invalid URL link reference</a>\n"
-				+ "	 * @see <b href=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Invalid URL link reference</a>\n"
-				+ "	 * @see <a href=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Invalid URL link reference</b>\n"
-				+ "	 */\n"
-				+ "	public void s_foo() {\n"
-				+ "	}\n"
-				+ "}\n" },
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	* @see <a xref=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Invalid URL link reference</a>\n" +
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Malformed link reference\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	* @see <b href=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Invalid URL link reference</a>\n" +
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Malformed link reference\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 7)\n" +
-				"	* @see <a href=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Invalid URL link reference</b>\n" +
-				"	                                                                                                                         ^^^^\n" +
-				"Javadoc: Malformed link reference\n" +
-				"----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid URL references\s
+						 *
+						 * @see <a xref="http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html">Invalid URL link reference</a>
+						 * @see <b href="http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html">Invalid URL link reference</a>
+						 * @see <a href="http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html">Invalid URL link reference</b>
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						* @see <a xref="http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html">Invalid URL link reference</a>
+						       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Javadoc: Malformed link reference
+					----------
+					2. ERROR in X.java (at line 6)
+						* @see <b href="http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html">Invalid URL link reference</a>
+						       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Javadoc: Malformed link reference
+					----------
+					3. ERROR in X.java (at line 7)
+						* @see <a href="http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html">Invalid URL link reference</b>
+						                                                                                                                         ^^^^
+					Javadoc: Malformed link reference
+					----------
+					""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -2009,85 +2247,93 @@ public class JavadocTestForMethod extends JavadocTest {
 		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid local classes references \n"
-					+ "	 *\n"
-					+ "	 * @see Visibility Valid ref: local class \n"
-					+ "	 * @see Visibility.VcPublic Valid ref: visible inner class of local class \n"
-					+ "	 * @see AbstractVisibility.AvcPublic Valid ref: visible inner class of local class \n"
-					+ "	 * @see test.Visibility Valid ref: local class \n"
-					+ "	 * @see test.Visibility.VcPublic Valid ref: visible inner class of local class \n"
-					+ "	 * @see test.AbstractVisibility.AvcPublic Valid ref: visible inner class of local class \n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					package test;
+					public class X {
+						/**
+						 * Valid local classes references\s
+						 *
+						 * @see Visibility Valid ref: local class\s
+						 * @see Visibility.VcPublic Valid ref: visible inner class of local class\s
+						 * @see AbstractVisibility.AvcPublic Valid ref: visible inner class of local class\s
+						 * @see test.Visibility Valid ref: local class\s
+						 * @see test.Visibility.VcPublic Valid ref: visible inner class of local class\s
+						 * @see test.AbstractVisibility.AvcPublic Valid ref: visible inner class of local class\s
+						 */
+						public void s_foo() {
+						}
+					}
+					""" });
 	}
 
 	public void test091() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local classes references \n"
-					+ "	 *\n"
-					+ "	 * @see Visibility.VcPrivate Invalid ref: non visible inner class of local class \n"
-					+ "	 * @see Visibility.AvcPrivate Invalid ref: non visible inherited inner class of local class \n"
-					+ "	 * @see test.Visibility.VcPrivate Invalid ref: non visible inner class of local class \n"
-					+ "	 * @see test.Visibility.AvcPrivate Invalid ref: non visible inherited inner class of local class \n"
-					+ "	 * @see Unknown Invalid ref: unknown class \n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see Visibility.VcPrivate Invalid ref: non visible inner class of local class \n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.VcPrivate is not visible\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see Visibility.AvcPrivate Invalid ref: non visible inherited inner class of local class \n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.AvcPrivate is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see test.Visibility.VcPrivate Invalid ref: non visible inner class of local class \n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.Visibility.VcPrivate is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see test.Visibility.AvcPrivate Invalid ref: non visible inherited inner class of local class \n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.Visibility.AvcPrivate is not visible\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see Unknown Invalid ref: unknown class \n"
-				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved to a type\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid local classes references\s
+						 *
+						 * @see Visibility.VcPrivate Invalid ref: non visible inner class of local class\s
+						 * @see Visibility.AvcPrivate Invalid ref: non visible inherited inner class of local class\s
+						 * @see test.Visibility.VcPrivate Invalid ref: non visible inner class of local class\s
+						 * @see test.Visibility.AvcPrivate Invalid ref: non visible inherited inner class of local class\s
+						 * @see Unknown Invalid ref: unknown class\s
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see Visibility.VcPrivate Invalid ref: non visible inner class of local class\s
+					       ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.VcPrivate is not visible
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see Visibility.AvcPrivate Invalid ref: non visible inherited inner class of local class\s
+					       ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.AvcPrivate is not visible
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see test.Visibility.VcPrivate Invalid ref: non visible inner class of local class\s
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.Visibility.VcPrivate is not visible
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see test.Visibility.AvcPrivate Invalid ref: non visible inherited inner class of local class\s
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.Visibility.AvcPrivate is not visible
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see Unknown Invalid ref: unknown class\s
+					       ^^^^^^^
+				Javadoc: Unknown cannot be resolved to a type
+				----------
+				""");
 	}
 
 	public void test092() {
 		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n" +
-				"import test.copy.*;\n" +
-				"public class X {\n" +
-				"	/**\n" +
-				"	 * Valid external classes references \n" +
-				"	 *\n" +
-				"	 * @see VisibilityPublic Valid ref: visible class through import => no warning on import\n" +
-				"	 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
-				"	 */\n" +
-				"	public void s_foo() {\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package test;
+					import test.copy.*;
+					public class X {
+						/**
+						 * Valid external classes references\s
+						 *
+						 * @see VisibilityPublic Valid ref: visible class through import => no warning on import
+						 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class\s
+						 */
+						public void s_foo() {
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -2096,58 +2342,64 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.*;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid external classes references \n"
-					+ "	 *\n"
-					+ "	 * @see VisibilityPackage Invalid ref: non visible class \n"
-					+ "	 * @see VisibilityPackage.VpPrivate Invalid ref: non visible inner class in non visible class \n"
-					+ "	 * @see VisibilityPackage.VpPublic Invalid ref: visible inner class in non visible class \n"
-					+ "	 * @see VisibilityPublic.VpPrivate Invalid ref: non visible inner class in visible class \n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see VisibilityPackage Invalid ref: non visible class \n"
-				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see VisibilityPackage.VpPrivate Invalid ref: non visible inner class in non visible class \n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see VisibilityPackage.VpPublic Invalid ref: visible inner class in non visible class \n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see VisibilityPublic.VpPrivate Invalid ref: non visible inner class in visible class \n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n");
+				"""
+					package test;
+					import test.copy.*;
+					public class X {
+						/**
+						 * Invalid external classes references\s
+						 *
+						 * @see VisibilityPackage Invalid ref: non visible class\s
+						 * @see VisibilityPackage.VpPrivate Invalid ref: non visible inner class in non visible class\s
+						 * @see VisibilityPackage.VpPublic Invalid ref: visible inner class in non visible class\s
+						 * @see VisibilityPublic.VpPrivate Invalid ref: non visible inner class in visible class\s
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 7)
+					* @see VisibilityPackage Invalid ref: non visible class\s
+					       ^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				2. ERROR in test\\X.java (at line 8)
+					* @see VisibilityPackage.VpPrivate Invalid ref: non visible inner class in non visible class\s
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				3. ERROR in test\\X.java (at line 9)
+					* @see VisibilityPackage.VpPublic Invalid ref: visible inner class in non visible class\s
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				4. ERROR in test\\X.java (at line 10)
+					* @see VisibilityPublic.VpPrivate Invalid ref: non visible inner class in visible class\s
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPublic.VpPrivate is not visible
+				----------
+				""");
 	}
 
 	public void test094() {
 		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n" +
-				"public class X {\n" +
-				"	/**\n" +
-				"	 * Valid external classes references \n" +
-				"	 *\n" +
-				"	 * @see test.copy.VisibilityPublic Valid ref: visible class through import => no warning on import\n" +
-				"	 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
-				"	 */\n" +
-				"	public void s_foo() {\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package test;
+					public class X {
+						/**
+						 * Valid external classes references\s
+						 *
+						 * @see test.copy.VisibilityPublic Valid ref: visible class through import => no warning on import
+						 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class\s
+						 */
+						public void s_foo() {
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -2156,40 +2408,44 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid external classes references \n"
-					+ "	 *\n"
-					+ "	 * @see test.copy.VisibilityPackage Invalid ref: non visible class \n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPrivate Invalid ref: non visible inner class in non visible class \n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPublic Invalid ref: visible inner class in non visible class \n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPrivate Invalid ref: non visible inner class in visible class \n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see test.copy.VisibilityPackage Invalid ref: non visible class \n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPrivate Invalid ref: non visible inner class in non visible class \n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPublic Invalid ref: visible inner class in non visible class \n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPrivate Invalid ref: non visible inner class in visible class \n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid external classes references\s
+						 *
+						 * @see test.copy.VisibilityPackage Invalid ref: non visible class\s
+						 * @see test.copy.VisibilityPackage.VpPrivate Invalid ref: non visible inner class in non visible class\s
+						 * @see test.copy.VisibilityPackage.VpPublic Invalid ref: visible inner class in non visible class\s
+						 * @see test.copy.VisibilityPublic.VpPrivate Invalid ref: non visible inner class in visible class\s
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see test.copy.VisibilityPackage Invalid ref: non visible class\s
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see test.copy.VisibilityPackage.VpPrivate Invalid ref: non visible inner class in non visible class\s
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see test.copy.VisibilityPackage.VpPublic Invalid ref: visible inner class in non visible class\s
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see test.copy.VisibilityPublic.VpPrivate Invalid ref: non visible inner class in visible class\s
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible
+				----------
+				""");
 	}
 
 	// @see Field references
@@ -2197,368 +2453,394 @@ public class JavadocTestForMethod extends JavadocTest {
 		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	int x;\n"
-					+ "	/**\n"
-					+ "	 * Valid local class field references\n"
-					+ "	 *\n"
-					+ "	 * @see #x Valid ref: visible field\n"
-					+ "	 * @see Visibility#vf_public Valid ref: visible field\n"
-					+ "	 * @see Visibility.VcPublic#vf_public Valid ref: visible field in visible inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					package test;
+					public class X {
+						int x;
+						/**
+						 * Valid local class field references
+						 *
+						 * @see #x Valid ref: visible field
+						 * @see Visibility#vf_public Valid ref: visible field
+						 * @see Visibility.VcPublic#vf_public Valid ref: visible field in visible inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					""" });
 	}
 
 	public void test101() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local class field references\n"
-					+ "	 *\n"
-					+ "	 * @see Visibility#unknown Invalid ref: non existent field\n"
-					+ "	 * @see Visibility#vf_private Invalid ref: non visible field\n"
-					+ "	 * @see Visibility.VcPrivate#unknown Invalid ref: non visible inner class (non existent field)\n"
-					+ "	 * @see Visibility.VcPrivate#vf_private Invalid ref: non visible inner class (non visible field)\n"
-					+ "	 * @see Visibility.VcPrivate#vf_public Invalid ref: non visible inner class (public field)\n"
-					+ "	 * @see Visibility.VcPublic#unknown Invalid ref: non existent field in visible inner class\n"
-					+ "	 * @see Visibility.VcPublic#vf_private Invalid ref: non visible field in visible inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see Visibility#unknown Invalid ref: non existent field\n"
-				+ "	                  ^^^^^^^\n"
-				+ "Javadoc: unknown cannot be resolved or is not a field\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see Visibility#vf_private Invalid ref: non visible field\n"
-				+ "	                  ^^^^^^^^^^\n"
-				+ "Javadoc: The field vf_private is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see Visibility.VcPrivate#unknown Invalid ref: non visible inner class (non existent field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.VcPrivate is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see Visibility.VcPrivate#vf_private Invalid ref: non visible inner class (non visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.VcPrivate is not visible\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see Visibility.VcPrivate#vf_public Invalid ref: non visible inner class (public field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.VcPrivate is not visible\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see Visibility.VcPublic#unknown Invalid ref: non existent field in visible inner class\n"
-				+ "	                           ^^^^^^^\n"
-				+ "Javadoc: unknown cannot be resolved or is not a field\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see Visibility.VcPublic#vf_private Invalid ref: non visible field in visible inner class\n"
-				+ "	                           ^^^^^^^^^^\n"
-				+ "Javadoc: The field vf_private is not visible\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid local class field references
+						 *
+						 * @see Visibility#unknown Invalid ref: non existent field
+						 * @see Visibility#vf_private Invalid ref: non visible field
+						 * @see Visibility.VcPrivate#unknown Invalid ref: non visible inner class (non existent field)
+						 * @see Visibility.VcPrivate#vf_private Invalid ref: non visible inner class (non visible field)
+						 * @see Visibility.VcPrivate#vf_public Invalid ref: non visible inner class (public field)
+						 * @see Visibility.VcPublic#unknown Invalid ref: non existent field in visible inner class
+						 * @see Visibility.VcPublic#vf_private Invalid ref: non visible field in visible inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see Visibility#unknown Invalid ref: non existent field
+					                  ^^^^^^^
+				Javadoc: unknown cannot be resolved or is not a field
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see Visibility#vf_private Invalid ref: non visible field
+					                  ^^^^^^^^^^
+				Javadoc: The field vf_private is not visible
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see Visibility.VcPrivate#unknown Invalid ref: non visible inner class (non existent field)
+					       ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.VcPrivate is not visible
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see Visibility.VcPrivate#vf_private Invalid ref: non visible inner class (non visible field)
+					       ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.VcPrivate is not visible
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see Visibility.VcPrivate#vf_public Invalid ref: non visible inner class (public field)
+					       ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.VcPrivate is not visible
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see Visibility.VcPublic#unknown Invalid ref: non existent field in visible inner class
+					                           ^^^^^^^
+				Javadoc: unknown cannot be resolved or is not a field
+				----------
+				7. ERROR in test\\X.java (at line 12)
+					* @see Visibility.VcPublic#vf_private Invalid ref: non visible field in visible inner class
+					                           ^^^^^^^^^^
+				Javadoc: The field vf_private is not visible
+				----------
+				""");
 	}
 
 	public void test102() {
 		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid super class field references in the same package\n"
-					+ "	 *\n"
-					+ "	 * @see Visibility#avf_public Valid ref: visible inherited field\n"
-					+ "	 * @see AbstractVisibility.AvcPublic#avf_public Valid ref: visible field of visible inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					package test;
+					public class X {
+						/**
+						 * Valid super class field references in the same package
+						 *
+						 * @see Visibility#avf_public Valid ref: visible inherited field
+						 * @see AbstractVisibility.AvcPublic#avf_public Valid ref: visible field of visible inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					""" });
 	}
 
 	public void test103() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid super class field references in the same package\n"
-					+ "	 *\n"
-					+ "	 * @see Visibility#avf_private Invalid ref: non visible inherited field\n"
-					+ "	 * @see Visibility.AvcPrivate#avf_private Invalid ref: inherited non visible inner class (non visible field)\n"
-					+ "	 * @see Visibility.AvcPrivate#avf_public Invalid ref: inherited non visible inner class (visible field)\n"
-					+ "	 * @see Visibility.AvcPublic#avf_private Invalid ref: non visible field of inherited visible inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see Visibility#avf_private Invalid ref: non visible inherited field\n"
-				+ "	                  ^^^^^^^^^^^\n"
-				+ "Javadoc: The field avf_private is not visible\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see Visibility.AvcPrivate#avf_private Invalid ref: inherited non visible inner class (non visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.AvcPrivate is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see Visibility.AvcPrivate#avf_public Invalid ref: inherited non visible inner class (visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.AvcPrivate is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see Visibility.AvcPublic#avf_private Invalid ref: non visible field of inherited visible inner class\n"
-				+ "	                            ^^^^^^^^^^^\n"
-				+ "Javadoc: The field avf_private is not visible\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid super class field references in the same package
+						 *
+						 * @see Visibility#avf_private Invalid ref: non visible inherited field
+						 * @see Visibility.AvcPrivate#avf_private Invalid ref: inherited non visible inner class (non visible field)
+						 * @see Visibility.AvcPrivate#avf_public Invalid ref: inherited non visible inner class (visible field)
+						 * @see Visibility.AvcPublic#avf_private Invalid ref: non visible field of inherited visible inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see Visibility#avf_private Invalid ref: non visible inherited field
+					                  ^^^^^^^^^^^
+				Javadoc: The field avf_private is not visible
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see Visibility.AvcPrivate#avf_private Invalid ref: inherited non visible inner class (non visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.AvcPrivate is not visible
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see Visibility.AvcPrivate#avf_public Invalid ref: inherited non visible inner class (visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.AvcPrivate is not visible
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see Visibility.AvcPublic#avf_private Invalid ref: non visible field of inherited visible inner class
+					                            ^^^^^^^^^^^
+				Javadoc: The field avf_private is not visible
+				----------
+				""");
 	}
 
 	public void test104() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.*;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package non visible class fields references\n"
-					+ "	 *\n"
-					+ "	 * @see VisibilityPackage#unknown Invalid ref: non visible class (non existent field)\n"
-					+ "	 * @see VisibilityPackage#vf_private Invalid ref: non visible class (non existent field)\n"
-					+ "	 * @see VisibilityPackage#vf_public Invalid ref: non visible class (visible field)\n"
-					+ "	 * @see VisibilityPackage.VpPrivate#unknown Invalid ref: non visible class and non visible inner class (non existent field)\n"
-					+ "	 * @see VisibilityPackage.VpPrivate#vf_private Invalid ref: non visible class and non visible inner class (non visible field)\n"
-					+ "	 * @see VisibilityPackage.VpPrivate#vf_public Invalid ref: non visible class and non visible inner class (visible field)\n"
-					+ "	 * @see VisibilityPackage.VpPublic#unknown Invalid ref: non visible class and visible inner class (non existent field)\n"
-					+ "	 * @see VisibilityPackage.VpPublic#vf_private Invalid ref: non visible class and visible inner class (non visible field)\n"
-					+ "	 * @see VisibilityPackage.VpPublic#vf_public Invalid ref: non visible class and visible inner class (visible field)\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n" +
-			"1. WARNING in test\\X.java (at line 2)\n"+
-			"	import test.copy.*;\n"+
-			"	       ^^^^^^^^^\n"+
-			"The import test.copy is never used\n"+
-			"----------\n"+
-			"2. ERROR in test\\X.java (at line 7)\n" +
-			"	* @see VisibilityPackage#unknown Invalid ref: non visible class (non existent field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"3. ERROR in test\\X.java (at line 8)\n" +
-			"	* @see VisibilityPackage#vf_private Invalid ref: non visible class (non existent field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"4. ERROR in test\\X.java (at line 9)\n" +
-			"	* @see VisibilityPackage#vf_public Invalid ref: non visible class (visible field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"5. ERROR in test\\X.java (at line 10)\n" +
-			"	* @see VisibilityPackage.VpPrivate#unknown Invalid ref: non visible class and non visible inner class (non existent field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"6. ERROR in test\\X.java (at line 11)\n" +
-			"	* @see VisibilityPackage.VpPrivate#vf_private Invalid ref: non visible class and non visible inner class (non visible field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"7. ERROR in test\\X.java (at line 12)\n" +
-			"	* @see VisibilityPackage.VpPrivate#vf_public Invalid ref: non visible class and non visible inner class (visible field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"8. ERROR in test\\X.java (at line 13)\n" +
-			"	* @see VisibilityPackage.VpPublic#unknown Invalid ref: non visible class and visible inner class (non existent field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"9. ERROR in test\\X.java (at line 14)\n" +
-			"	* @see VisibilityPackage.VpPublic#vf_private Invalid ref: non visible class and visible inner class (non visible field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"10. ERROR in test\\X.java (at line 15)\n" +
-			"	* @see VisibilityPackage.VpPublic#vf_public Invalid ref: non visible class and visible inner class (visible field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n");
+				"""
+					package test;
+					import test.copy.*;
+					public class X {
+						/**
+						 * Invalid other package non visible class fields references
+						 *
+						 * @see VisibilityPackage#unknown Invalid ref: non visible class (non existent field)
+						 * @see VisibilityPackage#vf_private Invalid ref: non visible class (non existent field)
+						 * @see VisibilityPackage#vf_public Invalid ref: non visible class (visible field)
+						 * @see VisibilityPackage.VpPrivate#unknown Invalid ref: non visible class and non visible inner class (non existent field)
+						 * @see VisibilityPackage.VpPrivate#vf_private Invalid ref: non visible class and non visible inner class (non visible field)
+						 * @see VisibilityPackage.VpPrivate#vf_public Invalid ref: non visible class and non visible inner class (visible field)
+						 * @see VisibilityPackage.VpPublic#unknown Invalid ref: non visible class and visible inner class (non existent field)
+						 * @see VisibilityPackage.VpPublic#vf_private Invalid ref: non visible class and visible inner class (non visible field)
+						 * @see VisibilityPackage.VpPublic#vf_public Invalid ref: non visible class and visible inner class (visible field)
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. WARNING in test\\X.java (at line 2)
+					import test.copy.*;
+					       ^^^^^^^^^
+				The import test.copy is never used
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see VisibilityPackage#unknown Invalid ref: non visible class (non existent field)
+					       ^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see VisibilityPackage#vf_private Invalid ref: non visible class (non existent field)
+					       ^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see VisibilityPackage#vf_public Invalid ref: non visible class (visible field)
+					       ^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see VisibilityPackage.VpPrivate#unknown Invalid ref: non visible class and non visible inner class (non existent field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see VisibilityPackage.VpPrivate#vf_private Invalid ref: non visible class and non visible inner class (non visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				7. ERROR in test\\X.java (at line 12)
+					* @see VisibilityPackage.VpPrivate#vf_public Invalid ref: non visible class and non visible inner class (visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				8. ERROR in test\\X.java (at line 13)
+					* @see VisibilityPackage.VpPublic#unknown Invalid ref: non visible class and visible inner class (non existent field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				9. ERROR in test\\X.java (at line 14)
+					* @see VisibilityPackage.VpPublic#vf_private Invalid ref: non visible class and visible inner class (non visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				10. ERROR in test\\X.java (at line 15)
+					* @see VisibilityPackage.VpPublic#vf_public Invalid ref: non visible class and visible inner class (visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				""");
 	}
 
 	public void test105() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package non visible class fields references\n"
-					+ "	 *\n"
-					+ "	 * @see test.copy.VisibilityPackage#unknown Invalid ref: non visible class (non existent field)\n"
-					+ "	 * @see test.copy.VisibilityPackage#vf_private Invalid ref: non visible class (non existent field)\n"
-					+ "	 * @see test.copy.VisibilityPackage#vf_public Invalid ref: non visible class (visible field)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPrivate#unknown Invalid ref: non visible class and non visible inner class (non existent field)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPrivate#vf_private Invalid ref: non visible class and non visible inner class (non visible field)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPrivate#vf_public Invalid ref: non visible class and non visible inner class (visible field)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPublic#unknown Invalid ref: non visible class and visible inner class (non existent field)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPublic#vf_private Invalid ref: non visible class and visible inner class (non visible field)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPublic#vf_public Invalid ref: non visible class and visible inner class (visible field)\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see test.copy.VisibilityPackage#unknown Invalid ref: non visible class (non existent field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see test.copy.VisibilityPackage#vf_private Invalid ref: non visible class (non existent field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see test.copy.VisibilityPackage#vf_public Invalid ref: non visible class (visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPrivate#unknown Invalid ref: non visible class and non visible inner class (non existent field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPrivate#vf_private Invalid ref: non visible class and non visible inner class (non visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPrivate#vf_public Invalid ref: non visible class and non visible inner class (visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPublic#unknown Invalid ref: non visible class and visible inner class (non existent field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "8. ERROR in test\\X.java (at line 13)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPublic#vf_private Invalid ref: non visible class and visible inner class (non visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "9. ERROR in test\\X.java (at line 14)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPublic#vf_public Invalid ref: non visible class and visible inner class (visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid other package non visible class fields references
+						 *
+						 * @see test.copy.VisibilityPackage#unknown Invalid ref: non visible class (non existent field)
+						 * @see test.copy.VisibilityPackage#vf_private Invalid ref: non visible class (non existent field)
+						 * @see test.copy.VisibilityPackage#vf_public Invalid ref: non visible class (visible field)
+						 * @see test.copy.VisibilityPackage.VpPrivate#unknown Invalid ref: non visible class and non visible inner class (non existent field)
+						 * @see test.copy.VisibilityPackage.VpPrivate#vf_private Invalid ref: non visible class and non visible inner class (non visible field)
+						 * @see test.copy.VisibilityPackage.VpPrivate#vf_public Invalid ref: non visible class and non visible inner class (visible field)
+						 * @see test.copy.VisibilityPackage.VpPublic#unknown Invalid ref: non visible class and visible inner class (non existent field)
+						 * @see test.copy.VisibilityPackage.VpPublic#vf_private Invalid ref: non visible class and visible inner class (non visible field)
+						 * @see test.copy.VisibilityPackage.VpPublic#vf_public Invalid ref: non visible class and visible inner class (visible field)
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see test.copy.VisibilityPackage#unknown Invalid ref: non visible class (non existent field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see test.copy.VisibilityPackage#vf_private Invalid ref: non visible class (non existent field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see test.copy.VisibilityPackage#vf_public Invalid ref: non visible class (visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see test.copy.VisibilityPackage.VpPrivate#unknown Invalid ref: non visible class and non visible inner class (non existent field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see test.copy.VisibilityPackage.VpPrivate#vf_private Invalid ref: non visible class and non visible inner class (non visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see test.copy.VisibilityPackage.VpPrivate#vf_public Invalid ref: non visible class and non visible inner class (visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				7. ERROR in test\\X.java (at line 12)
+					* @see test.copy.VisibilityPackage.VpPublic#unknown Invalid ref: non visible class and visible inner class (non existent field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				8. ERROR in test\\X.java (at line 13)
+					* @see test.copy.VisibilityPackage.VpPublic#vf_private Invalid ref: non visible class and visible inner class (non visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				9. ERROR in test\\X.java (at line 14)
+					* @see test.copy.VisibilityPackage.VpPublic#vf_public Invalid ref: non visible class and visible inner class (visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				""");
 	}
 
 	public void test106() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package non visible class fields references\n"
-					+ "	 *\n"
-					+ "	 * @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n"
-					+ "	 * @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n"
-					+ "	 * @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n"
-					+ "	 * @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n"
-				+ "	       ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n"
-				+ "	       ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n"
-				+ "	       ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "8. ERROR in test\\X.java (at line 13)\n"
-				+ "	* @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "9. ERROR in test\\X.java (at line 14)\n"
-				+ "	* @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid other package non visible class fields references
+						 *
+						 * @see VisibilityPublic#unknown Invalid ref to non existent field of other package class
+						 * @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class
+						 * @see VisibilityPublic#vf_public Valid ref to not visible field of other package class
+						 * @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)
+						 * @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)
+						 * @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)
+						 * @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class
+						 * @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class
+						 * @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see VisibilityPublic#unknown Invalid ref to non existent field of other package class
+					       ^^^^^^^^^^^^^^^^
+				Javadoc: VisibilityPublic cannot be resolved to a type
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class
+					       ^^^^^^^^^^^^^^^^
+				Javadoc: VisibilityPublic cannot be resolved to a type
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see VisibilityPublic#vf_public Valid ref to not visible field of other package class
+					       ^^^^^^^^^^^^^^^^
+				Javadoc: VisibilityPublic cannot be resolved to a type
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: VisibilityPublic cannot be resolved to a type
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: VisibilityPublic cannot be resolved to a type
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: VisibilityPublic cannot be resolved to a type
+				----------
+				7. ERROR in test\\X.java (at line 12)
+					* @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: VisibilityPublic cannot be resolved to a type
+				----------
+				8. ERROR in test\\X.java (at line 13)
+					* @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: VisibilityPublic cannot be resolved to a type
+				----------
+				9. ERROR in test\\X.java (at line 14)
+					* @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: VisibilityPublic cannot be resolved to a type
+				----------
+				""");
 	}
 
 	public void test107() {
 		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n" +
-				"import test.copy.*;\n" +
-				"public class X {\n" +
-				"	/**\n" +
-				"	 * Invalid other package non visible class fields references\n" +
-				"	 *\n" +
-				"	 * @see VisibilityPublic#vf_public Valid ref to visible field of other package class\n" +
-				"	 * @see test.copy.VisibilityPublic.VpPublic#vf_public Fully Qualified valid ref to visible field of other package public inner class\n" +
-				"	 */\n" +
-				"	public void s_foo() {\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package test;
+					import test.copy.*;
+					public class X {
+						/**
+						 * Invalid other package non visible class fields references
+						 *
+						 * @see VisibilityPublic#vf_public Valid ref to visible field of other package class
+						 * @see test.copy.VisibilityPublic.VpPublic#vf_public Fully Qualified valid ref to visible field of other package public inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -2567,60 +2849,64 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n" +
-				"import test.copy.*;\n" +
-				"public class X {\n" +
-				"	/**\n" +
-				"	 * Invalid other package non visible class fields references\n" +
-				"	 *\n" +
-				"	 * @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n" +
-				"	 * @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n" +
-				"	 * @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n" +
-				"	 * @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n" +
-				"	 * @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n" +
-				"	 * @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n" +
-				"	 * @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n" +
-				"	 */\n" +
-				"	public void s_foo() {\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package test;
+					import test.copy.*;
+					public class X {
+						/**
+						 * Invalid other package non visible class fields references
+						 *
+						 * @see VisibilityPublic#unknown Invalid ref to non existent field of other package class
+						 * @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class
+						 * @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)
+						 * @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)
+						 * @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)
+						 * @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class
+						 * @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in test\\X.java (at line 7)\n" +
-			"	* @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n" +
-			"	                        ^^^^^^^\n" +
-			"Javadoc: unknown cannot be resolved or is not a field\n" +
-			"----------\n" +
-			"2. ERROR in test\\X.java (at line 8)\n" +
-			"	* @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n" +
-			"	                        ^^^^^^^^^^\n" +
-			"Javadoc: The field vf_private is not visible\n" +
-			"----------\n" +
-			"3. ERROR in test\\X.java (at line 9)\n" +
-			"	* @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPublic.VpPrivate is not visible\n" +
-			"----------\n" +
-			"4. ERROR in test\\X.java (at line 10)\n" +
-			"	* @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPublic.VpPrivate is not visible\n" +
-			"----------\n" +
-			"5. ERROR in test\\X.java (at line 11)\n" +
-			"	* @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPublic.VpPrivate is not visible\n" +
-			"----------\n" +
-			"6. ERROR in test\\X.java (at line 12)\n" +
-			"	* @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n" +
-			"	                                 ^^^^^^^\n" +
-			"Javadoc: unknown cannot be resolved or is not a field\n" +
-			"----------\n" +
-			"7. ERROR in test\\X.java (at line 13)\n" +
-			"	* @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n" +
-			"	                                 ^^^^^^^^^^\n" +
-			"Javadoc: The field vf_private is not visible\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 7)
+					* @see VisibilityPublic#unknown Invalid ref to non existent field of other package class
+					                        ^^^^^^^
+				Javadoc: unknown cannot be resolved or is not a field
+				----------
+				2. ERROR in test\\X.java (at line 8)
+					* @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class
+					                        ^^^^^^^^^^
+				Javadoc: The field vf_private is not visible
+				----------
+				3. ERROR in test\\X.java (at line 9)
+					* @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPublic.VpPrivate is not visible
+				----------
+				4. ERROR in test\\X.java (at line 10)
+					* @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPublic.VpPrivate is not visible
+				----------
+				5. ERROR in test\\X.java (at line 11)
+					* @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPublic.VpPrivate is not visible
+				----------
+				6. ERROR in test\\X.java (at line 12)
+					* @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class
+					                                 ^^^^^^^
+				Javadoc: unknown cannot be resolved or is not a field
+				----------
+				7. ERROR in test\\X.java (at line 13)
+					* @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class
+					                                 ^^^^^^^^^^
+				Javadoc: The field vf_private is not visible
+				----------
+				"""
 		);
 	}
 
@@ -2628,17 +2914,19 @@ public class JavadocTestForMethod extends JavadocTest {
 		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n" +
-				"public class X {\n" +
-				"	/**\n" +
-				"	 * Invalid other package non visible class fields references\n" +
-				"	 *\n" +
-				"	 * @see test.copy.VisibilityPublic#vf_public Valid ref to not visible field of other package class\n" +
-				"	 * @see test.copy.VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n" +
-				"	 */\n" +
-				"	public void s_foo() {\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid other package non visible class fields references
+						 *
+						 * @see test.copy.VisibilityPublic#vf_public Valid ref to not visible field of other package class
+						 * @see test.copy.VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -2647,58 +2935,62 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n" +
-				"public class X {\n" +
-				"	/**\n" +
-				"	 * Invalid other package non visible class fields references\n" +
-				"	 *\n" +
-				"	 * @see test.copy.VisibilityPublic#unknown Invalid ref to non existent field of other package class\n" +
-				"	 * @see test.copy.VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n" +
-				"	 * @see test.copy.VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n" +
-				"	 * @see test.copy.VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n" +
-				"	 * @see test.copy.VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n" +
-				"	 * @see test.copy.VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n" +
-				"	 * @see test.copy.VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n" +
-				"	 */\n" +
-				"	public void s_foo() {\n" +
-				"	}\n" +
-				"}\n"},
-			"----------\n" +
-			"1. ERROR in test\\X.java (at line 6)\n" +
-			"	* @see test.copy.VisibilityPublic#unknown Invalid ref to non existent field of other package class\n" +
-			"	                                  ^^^^^^^\n" +
-			"Javadoc: unknown cannot be resolved or is not a field\n" +
-			"----------\n" +
-			"2. ERROR in test\\X.java (at line 7)\n" +
-			"	* @see test.copy.VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n" +
-			"	                                  ^^^^^^^^^^\n" +
-			"Javadoc: The field vf_private is not visible\n" +
-			"----------\n" +
-			"3. ERROR in test\\X.java (at line 8)\n" +
-			"	* @see test.copy.VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n" +
-			"----------\n" +
-			"4. ERROR in test\\X.java (at line 9)\n" +
-			"	* @see test.copy.VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n" +
-			"----------\n" +
-			"5. ERROR in test\\X.java (at line 10)\n" +
-			"	* @see test.copy.VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n" +
-			"----------\n" +
-			"6. ERROR in test\\X.java (at line 11)\n" +
-			"	* @see test.copy.VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n" +
-			"	                                           ^^^^^^^\n" +
-			"Javadoc: unknown cannot be resolved or is not a field\n" +
-			"----------\n" +
-			"7. ERROR in test\\X.java (at line 12)\n" +
-			"	* @see test.copy.VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n" +
-			"	                                           ^^^^^^^^^^\n" +
-			"Javadoc: The field vf_private is not visible\n" +
-			"----------\n"
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid other package non visible class fields references
+						 *
+						 * @see test.copy.VisibilityPublic#unknown Invalid ref to non existent field of other package class
+						 * @see test.copy.VisibilityPublic#vf_private Invalid ref to not visible field of other package class
+						 * @see test.copy.VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)
+						 * @see test.copy.VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)
+						 * @see test.copy.VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)
+						 * @see test.copy.VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class
+						 * @see test.copy.VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					"""},
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see test.copy.VisibilityPublic#unknown Invalid ref to non existent field of other package class
+					                                  ^^^^^^^
+				Javadoc: unknown cannot be resolved or is not a field
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see test.copy.VisibilityPublic#vf_private Invalid ref to not visible field of other package class
+					                                  ^^^^^^^^^^
+				Javadoc: The field vf_private is not visible
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see test.copy.VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see test.copy.VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see test.copy.VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see test.copy.VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class
+					                                           ^^^^^^^
+				Javadoc: unknown cannot be resolved or is not a field
+				----------
+				7. ERROR in test\\X.java (at line 12)
+					* @see test.copy.VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class
+					                                           ^^^^^^^^^^
+				Javadoc: The field vf_private is not visible
+				----------
+				"""
 		);
 	}
 
@@ -2707,162 +2999,168 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.Vector;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid local methods references with array\n"
-					+ "	 * \n"
-					+ "	 * @see #smr_foo(char[] array, int[][] matrix, String[][][] dim, Vector[][][][] extra) Valid local method reference\n"
-					+ "	 * @see #smr_foo(char[], int[][], String[][][], Vector[][][][]) Valid local method reference\n"
-					+ "	 * @see #smr_foo(char[],int[][],java.lang.String[][][],java.util.Vector[][][][]) Valid local method reference\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo(char[] array, int[][] matrix, String[][][] dim, Vector[][][][] extra) {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					import java.util.Vector;
+					public class X {
+						/**
+						 * Valid local methods references with array
+						 *\s
+						 * @see #smr_foo(char[] array, int[][] matrix, String[][][] dim, Vector[][][][] extra) Valid local method reference
+						 * @see #smr_foo(char[], int[][], String[][][], Vector[][][][]) Valid local method reference
+						 * @see #smr_foo(char[],int[][],java.lang.String[][][],java.util.Vector[][][][]) Valid local method reference
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo(char[] array, int[][] matrix, String[][][] dim, Vector[][][][] extra) {
+						}
+					}
+					""" });
 	}
 
 	public void test116() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Vector;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references with array (wrong brackets peer)\n"
-					+ "	 * \n"
-					+ "	 * @see #smr_foo(char[ , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char] , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][, String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[]], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[[], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][, Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][]], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][[], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[]][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[[][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[][][][) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[][][]]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[][][[]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[][]][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[][[][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[]][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[[][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo(char[] array, int[][] matrix, String[][][] dim, Vector[][][][] extra) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 6)\n"
-				+ "	* @see #smr_foo(char[ , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 7)\n"
-				+ "	* @see #smr_foo(char] , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 8)\n"
-				+ "	* @see #smr_foo(char[] , int[][, String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 9)\n"
-				+ "	* @see #smr_foo(char[] , int[]], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 10)\n"
-				+ "	* @see #smr_foo(char[] , int[[], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "6. ERROR in X.java (at line 11)\n"
-				+ "	* @see #smr_foo(char[] , int][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "7. ERROR in X.java (at line 12)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][, Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "8. ERROR in X.java (at line 13)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][]], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "9. ERROR in X.java (at line 14)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][[], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "10. ERROR in X.java (at line 15)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[]][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "11. ERROR in X.java (at line 16)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[[][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "12. ERROR in X.java (at line 17)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "13. ERROR in X.java (at line 18)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[][][][) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "14. ERROR in X.java (at line 19)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[][][]]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "15. ERROR in X.java (at line 20)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[][][[]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "16. ERROR in X.java (at line 21)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[][]][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "17. ERROR in X.java (at line 22)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[][[][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "18. ERROR in X.java (at line 23)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[]][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "19. ERROR in X.java (at line 24)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[[][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "20. ERROR in X.java (at line 25)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n",
+				"""
+					import java.util.Vector;
+					public class X {
+						/**
+						 * Invalid local methods references with array (wrong brackets peer)
+						 *\s
+						 * @see #smr_foo(char[ , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char] , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][, String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[]], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[[], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][, Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][]], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][[], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[]][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[[][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[][][][) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[][][]]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[][][[]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[][]][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[][[][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[]][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[[][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector][][][]) Invalid ref: invalid arguments declaration
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo(char[] array, int[][] matrix, String[][][] dim, Vector[][][][] extra) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					* @see #smr_foo(char[ , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				2. ERROR in X.java (at line 7)
+					* @see #smr_foo(char] , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				3. ERROR in X.java (at line 8)
+					* @see #smr_foo(char[] , int[][, String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				4. ERROR in X.java (at line 9)
+					* @see #smr_foo(char[] , int[]], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				5. ERROR in X.java (at line 10)
+					* @see #smr_foo(char[] , int[[], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				6. ERROR in X.java (at line 11)
+					* @see #smr_foo(char[] , int][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				7. ERROR in X.java (at line 12)
+					* @see #smr_foo(char[] , int[][], String[][][, Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				8. ERROR in X.java (at line 13)
+					* @see #smr_foo(char[] , int[][], String[][]], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				9. ERROR in X.java (at line 14)
+					* @see #smr_foo(char[] , int[][], String[][[], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				10. ERROR in X.java (at line 15)
+					* @see #smr_foo(char[] , int[][], String[]][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				11. ERROR in X.java (at line 16)
+					* @see #smr_foo(char[] , int[][], String[[][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				12. ERROR in X.java (at line 17)
+					* @see #smr_foo(char[] , int[][], String][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				13. ERROR in X.java (at line 18)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[][][][) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				14. ERROR in X.java (at line 19)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[][][]]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				15. ERROR in X.java (at line 20)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[][][[]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				16. ERROR in X.java (at line 21)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[][]][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				17. ERROR in X.java (at line 22)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[][[][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				18. ERROR in X.java (at line 23)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[]][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				19. ERROR in X.java (at line 24)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[[][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				20. ERROR in X.java (at line 25)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -2870,80 +3168,84 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Vector;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references with array (non applicable arrays)\n"
-					+ "	 * \n"
-					+ "	 * @see #smr_foo(char , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int, String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String, Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector) Invalid ref: invalid arguments declaration\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo(char[] array, int[][] matrix, String[][][] dim, Vector[][][][] extra) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 6)\n"
-				+ "	* @see #smr_foo(char , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char, int[][], String[][][], Vector[][][][])\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 7)\n"
-				+ "	* @see #smr_foo(char[] , int[], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[], String[][][], Vector[][][][])\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 8)\n"
-				+ "	* @see #smr_foo(char[] , int, String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int, String[][][], Vector[][][][])\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 9)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[][], Vector[][][][])\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 10)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[], Vector[][][][])\n"
-				+ "----------\n"
-				+ "6. ERROR in X.java (at line 11)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String, Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String, Vector[][][][])\n"
-				+ "----------\n"
-				+ "7. ERROR in X.java (at line 12)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[][][], Vector[][][])\n"
-				+ "----------\n"
-				+ "8. ERROR in X.java (at line 13)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[][]) Invalid ref: invalid arguments declaration\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[][][], Vector[][])\n"
-				+ "----------\n"
-				+ "9. ERROR in X.java (at line 14)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[]) Invalid ref: invalid arguments declaration\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[][][], Vector[])\n"
-				+ "----------\n"
-				+ "10. ERROR in X.java (at line 15)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector) Invalid ref: invalid arguments declaration\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[][][], Vector)\n"
-				+ "----------\n",
+				"""
+					import java.util.Vector;
+					public class X {
+						/**
+						 * Invalid local methods references with array (non applicable arrays)
+						 *\s
+						 * @see #smr_foo(char , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int, String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String, Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector) Invalid ref: invalid arguments declaration
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo(char[] array, int[][] matrix, String[][][] dim, Vector[][][][] extra) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					* @see #smr_foo(char , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					        ^^^^^^^
+				Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char, int[][], String[][][], Vector[][][][])
+				----------
+				2. ERROR in X.java (at line 7)
+					* @see #smr_foo(char[] , int[], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					        ^^^^^^^
+				Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[], String[][][], Vector[][][][])
+				----------
+				3. ERROR in X.java (at line 8)
+					* @see #smr_foo(char[] , int, String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					        ^^^^^^^
+				Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int, String[][][], Vector[][][][])
+				----------
+				4. ERROR in X.java (at line 9)
+					* @see #smr_foo(char[] , int[][], String[][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					        ^^^^^^^
+				Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[][], Vector[][][][])
+				----------
+				5. ERROR in X.java (at line 10)
+					* @see #smr_foo(char[] , int[][], String[], Vector[][][][]) Invalid ref: invalid arguments declaration
+					        ^^^^^^^
+				Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[], Vector[][][][])
+				----------
+				6. ERROR in X.java (at line 11)
+					* @see #smr_foo(char[] , int[][], String, Vector[][][][]) Invalid ref: invalid arguments declaration
+					        ^^^^^^^
+				Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String, Vector[][][][])
+				----------
+				7. ERROR in X.java (at line 12)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[][][]) Invalid ref: invalid arguments declaration
+					        ^^^^^^^
+				Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[][][], Vector[][][])
+				----------
+				8. ERROR in X.java (at line 13)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[][]) Invalid ref: invalid arguments declaration
+					        ^^^^^^^
+				Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[][][], Vector[][])
+				----------
+				9. ERROR in X.java (at line 14)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[]) Invalid ref: invalid arguments declaration
+					        ^^^^^^^
+				Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[][][], Vector[])
+				----------
+				10. ERROR in X.java (at line 15)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector) Invalid ref: invalid arguments declaration
+					        ^^^^^^^
+				Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[][][], Vector)
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -2951,159 +3253,169 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Vector;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references with array (non applicable arrays)\n"
-					+ "	 * \n"
-					+ "	 * @see #smr_foo(char[1] , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[2][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][3], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[4][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][5][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][6], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[7][][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[][8][][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[][][9][]) Invalid ref: invalid arguments declaration\n"
-					+ "	 * @see #smr_foo(char[] , int[][], String[][][], Vector[][][][10]) Invalid ref: invalid arguments declaration\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo(char[] array, int[][] matrix, String[][][] dim, Vector[][][][] extra) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 6)\n"
-				+ "	* @see #smr_foo(char[1] , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 7)\n"
-				+ "	* @see #smr_foo(char[] , int[2][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 8)\n"
-				+ "	* @see #smr_foo(char[] , int[][3], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 9)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[4][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 10)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][5][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "6. ERROR in X.java (at line 11)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][6], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "7. ERROR in X.java (at line 12)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[7][][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "8. ERROR in X.java (at line 13)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[][8][][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "9. ERROR in X.java (at line 14)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[][][9][]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "10. ERROR in X.java (at line 15)\n"
-				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[][][][10]) Invalid ref: invalid arguments declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n",
+				"""
+					import java.util.Vector;
+					public class X {
+						/**
+						 * Invalid local methods references with array (non applicable arrays)
+						 *\s
+						 * @see #smr_foo(char[1] , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[2][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][3], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[4][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][5][], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][6], Vector[][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[7][][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[][8][][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[][][9][]) Invalid ref: invalid arguments declaration
+						 * @see #smr_foo(char[] , int[][], String[][][], Vector[][][][10]) Invalid ref: invalid arguments declaration
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo(char[] array, int[][] matrix, String[][][] dim, Vector[][][][] extra) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					* @see #smr_foo(char[1] , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				2. ERROR in X.java (at line 7)
+					* @see #smr_foo(char[] , int[2][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				3. ERROR in X.java (at line 8)
+					* @see #smr_foo(char[] , int[][3], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				4. ERROR in X.java (at line 9)
+					* @see #smr_foo(char[] , int[][], String[4][][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				5. ERROR in X.java (at line 10)
+					* @see #smr_foo(char[] , int[][], String[][5][], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				6. ERROR in X.java (at line 11)
+					* @see #smr_foo(char[] , int[][], String[][][6], Vector[][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				7. ERROR in X.java (at line 12)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[7][][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				8. ERROR in X.java (at line 13)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[][8][][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				9. ERROR in X.java (at line 14)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[][][9][]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				10. ERROR in X.java (at line 15)
+					* @see #smr_foo(char[] , int[][], String[][][], Vector[][][][10]) Invalid ref: invalid arguments declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	public void test120() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.Vector;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see #smr_foo() Valid local method reference\n"
-					+ "	 * @see #smr_foo(boolean, int, byte, short, char, long, float, double) Valid local method reference\n"
-					+ "	 * @see #smr_foo(boolean,int,byte,short,char,long,float,double) Valid local method reference\n"
-					+ "	 * @see #smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) Valid local method reference\n"
-					+ "	 * @see #smr_foo(boolean a1,int a2,byte a3,short a4,char a5,long a6,float a7,double a8) Valid local method reference\n"
-					+ "	 * @see #smr_foo(String, String, int) Valid local method reference\n"
-					+ "	 * @see #smr_foo(java.lang.String, String, int) Valid local method reference   \n"
-					+ "	 * @see #smr_foo(String, java.lang.String, int) Valid local method reference   \n"
-					+ "	 * @see #smr_foo(java.lang.String, java.lang.String, int) Valid local method reference   \n"
-					+ "	 * @see #smr_foo(String x,String y,int z) Valid local method reference   \n"
-					+ "	 * @see #smr_foo(java.lang.String x,String y, int z) Valid local method reference   \n"
-					+ "	 * @see #smr_foo(String x,java.lang.String y,int z) Valid local method reference   \n"
-					+ "	 * @see #smr_foo(java.lang.String x,java.lang.String y,int z) Valid local method reference   \n"
-					+ "	 * @see #smr_foo(java.util.Hashtable,java.util.Vector,boolean) Valid local method reference\n"
-					+ "	 * @see #smr_foo(java.util.Hashtable,Vector,boolean) Valid local method reference\n"
-					+ "	 * @see #smr_foo(java.util.Hashtable a, java.util.Vector b, boolean c) Valid local method reference\n"
-					+ "	 * @see #smr_foo(java.util.Hashtable a, Vector b, boolean c) Valid local method reference\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo() {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(String str1, java.lang.String str2, int i) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					import java.util.Vector;
+					public class X {
+						/**
+						 * Valid local methods references
+						 *\s
+						 * @see #smr_foo() Valid local method reference
+						 * @see #smr_foo(boolean, int, byte, short, char, long, float, double) Valid local method reference
+						 * @see #smr_foo(boolean,int,byte,short,char,long,float,double) Valid local method reference
+						 * @see #smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) Valid local method reference
+						 * @see #smr_foo(boolean a1,int a2,byte a3,short a4,char a5,long a6,float a7,double a8) Valid local method reference
+						 * @see #smr_foo(String, String, int) Valid local method reference
+						 * @see #smr_foo(java.lang.String, String, int) Valid local method reference  \s
+						 * @see #smr_foo(String, java.lang.String, int) Valid local method reference  \s
+						 * @see #smr_foo(java.lang.String, java.lang.String, int) Valid local method reference  \s
+						 * @see #smr_foo(String x,String y,int z) Valid local method reference  \s
+						 * @see #smr_foo(java.lang.String x,String y, int z) Valid local method reference  \s
+						 * @see #smr_foo(String x,java.lang.String y,int z) Valid local method reference  \s
+						 * @see #smr_foo(java.lang.String x,java.lang.String y,int z) Valid local method reference  \s
+						 * @see #smr_foo(java.util.Hashtable,java.util.Vector,boolean) Valid local method reference
+						 * @see #smr_foo(java.util.Hashtable,Vector,boolean) Valid local method reference
+						 * @see #smr_foo(java.util.Hashtable a, java.util.Vector b, boolean c) Valid local method reference
+						 * @see #smr_foo(java.util.Hashtable a, Vector b, boolean c) Valid local method reference
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo() {
+						}
+						public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {
+						}
+						public void smr_foo(String str1, java.lang.String str2, int i) {
+						}
+						public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {
+						}
+					}
+					""" });
 	}
 
 	public void test121() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see #unknown() Invalid ref: undefined local method reference\n"
-					+ "	 * @see #smrfoo() Invalid ref: undefined local method reference\n"
-					+ "	 * @see #smr_FOO() Invalid ref: undefined local method reference\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @see #unknown() Invalid ref: undefined local method reference\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method unknown() is undefined for the type X\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @see #smrfoo() Invalid ref: undefined local method reference\n"
-				+ "	        ^^^^^^\n"
-				+ "Javadoc: The method smrfoo() is undefined for the type X\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	* @see #smr_FOO() Invalid ref: undefined local method reference\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_FOO() is undefined for the type X\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see #unknown() Invalid ref: undefined local method reference
+						 * @see #smrfoo() Invalid ref: undefined local method reference
+						 * @see #smr_FOO() Invalid ref: undefined local method reference
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @see #unknown() Invalid ref: undefined local method reference
+					        ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type X
+				----------
+				2. ERROR in X.java (at line 6)
+					* @see #smrfoo() Invalid ref: undefined local method reference
+					        ^^^^^^
+				Javadoc: The method smrfoo() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 7)
+					* @see #smr_FOO() Invalid ref: undefined local method reference
+					        ^^^^^^^
+				Javadoc: The method smr_FOO() is undefined for the type X
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3111,61 +3423,65 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see #smr_foo(boolean, int, byte, short, char, long, float) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(boolean, int, byte, short, char, long) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(boolean, int, byte, short, char) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(boolean, int, byte, short) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(boolean, int, byte) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(boolean, int) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(boolean) Invalid ref: local method not applicable\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @see #smr_foo(boolean, int, byte, short, char, long, float) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean, int, byte, short, char, long, float)\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @see #smr_foo(boolean, int, byte, short, char, long) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean, int, byte, short, char, long)\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	* @see #smr_foo(boolean, int, byte, short, char) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean, int, byte, short, char)\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 8)\n"
-				+ "	* @see #smr_foo(boolean, int, byte, short) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean, int, byte, short)\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 9)\n"
-				+ "	* @see #smr_foo(boolean, int, byte) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean, int, byte)\n"
-				+ "----------\n"
-				+ "6. ERROR in X.java (at line 10)\n"
-				+ "	* @see #smr_foo(boolean, int) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean, int)\n"
-				+ "----------\n"
-				+ "7. ERROR in X.java (at line 11)\n"
-				+ "	* @see #smr_foo(boolean) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean)\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see #smr_foo(boolean, int, byte, short, char, long, float) Invalid ref: local method not applicable
+						 * @see #smr_foo(boolean, int, byte, short, char, long) Invalid ref: local method not applicable
+						 * @see #smr_foo(boolean, int, byte, short, char) Invalid ref: local method not applicable
+						 * @see #smr_foo(boolean, int, byte, short) Invalid ref: local method not applicable
+						 * @see #smr_foo(boolean, int, byte) Invalid ref: local method not applicable
+						 * @see #smr_foo(boolean, int) Invalid ref: local method not applicable
+						 * @see #smr_foo(boolean) Invalid ref: local method not applicable
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @see #smr_foo(boolean, int, byte, short, char, long, float) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean, int, byte, short, char, long, float)
+				----------
+				2. ERROR in X.java (at line 6)
+					* @see #smr_foo(boolean, int, byte, short, char, long) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean, int, byte, short, char, long)
+				----------
+				3. ERROR in X.java (at line 7)
+					* @see #smr_foo(boolean, int, byte, short, char) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean, int, byte, short, char)
+				----------
+				4. ERROR in X.java (at line 8)
+					* @see #smr_foo(boolean, int, byte, short) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean, int, byte, short)
+				----------
+				5. ERROR in X.java (at line 9)
+					* @see #smr_foo(boolean, int, byte) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean, int, byte)
+				----------
+				6. ERROR in X.java (at line 10)
+					* @see #smr_foo(boolean, int) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean, int)
+				----------
+				7. ERROR in X.java (at line 11)
+					* @see #smr_foo(boolean) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean)
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3173,43 +3489,47 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see #smr_foo(int, String, String) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(String, int, String) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(String, String) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(String) Invalid ref: local method not applicable\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo(String str1, java.lang.String str2, int i) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @see #smr_foo(int, String, String) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (int, String, String)\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @see #smr_foo(String, int, String) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String, int, String)\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	* @see #smr_foo(String, String) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String, String)\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 8)\n"
-				+ "	* @see #smr_foo(String) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String)\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see #smr_foo(int, String, String) Invalid ref: local method not applicable
+						 * @see #smr_foo(String, int, String) Invalid ref: local method not applicable
+						 * @see #smr_foo(String, String) Invalid ref: local method not applicable
+						 * @see #smr_foo(String) Invalid ref: local method not applicable
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo(String str1, java.lang.String str2, int i) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @see #smr_foo(int, String, String) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (int, String, String)
+				----------
+				2. ERROR in X.java (at line 6)
+					* @see #smr_foo(String, int, String) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String, int, String)
+				----------
+				3. ERROR in X.java (at line 7)
+					* @see #smr_foo(String, String) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String, String)
+				----------
+				4. ERROR in X.java (at line 8)
+					* @see #smr_foo(String) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String)
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3217,49 +3537,53 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see #smr_foo(java.util.Hashtable,java.util.Vector) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(java.util.Hashtable,boolean,java.util.Vector) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(boolean,java.util.Hashtable,java.util.Vector) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(java.util.Hashtable) Invalid ref: local method not applicable\n"
-					+ "	 * @see #smr_foo(java.util.Vector) Invalid ref: local method not applicable\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @see #smr_foo(java.util.Hashtable,java.util.Vector) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Hashtable, Vector)\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @see #smr_foo(java.util.Hashtable,boolean,java.util.Vector) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Hashtable, boolean, Vector)\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	* @see #smr_foo(boolean,java.util.Hashtable,java.util.Vector) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (boolean, Hashtable, Vector)\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 8)\n"
-				+ "	* @see #smr_foo(java.util.Hashtable) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Hashtable)\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 9)\n"
-				+ "	* @see #smr_foo(java.util.Vector) Invalid ref: local method not applicable\n"
-				+ "	        ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Vector)\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see #smr_foo(java.util.Hashtable,java.util.Vector) Invalid ref: local method not applicable
+						 * @see #smr_foo(java.util.Hashtable,boolean,java.util.Vector) Invalid ref: local method not applicable
+						 * @see #smr_foo(boolean,java.util.Hashtable,java.util.Vector) Invalid ref: local method not applicable
+						 * @see #smr_foo(java.util.Hashtable) Invalid ref: local method not applicable
+						 * @see #smr_foo(java.util.Vector) Invalid ref: local method not applicable
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @see #smr_foo(java.util.Hashtable,java.util.Vector) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Hashtable, Vector)
+				----------
+				2. ERROR in X.java (at line 6)
+					* @see #smr_foo(java.util.Hashtable,boolean,java.util.Vector) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Hashtable, boolean, Vector)
+				----------
+				3. ERROR in X.java (at line 7)
+					* @see #smr_foo(boolean,java.util.Hashtable,java.util.Vector) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (boolean, Hashtable, Vector)
+				----------
+				4. ERROR in X.java (at line 8)
+					* @see #smr_foo(java.util.Hashtable) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Hashtable)
+				----------
+				5. ERROR in X.java (at line 9)
+					* @see #smr_foo(java.util.Vector) Invalid ref: local method not applicable
+					        ^^^^^^^
+				Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Vector)
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3267,67 +3591,71 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see #smr_foo(boolean,int i,byte y,short s,char c,long l,float f,double d) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(boolean b,int, byte y, short s, char c, long l, float f, double d) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(boolean b,int i,byte,short s,char c,long l,float f,double d) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(boolean b,int i,byte y,short,char c,long l,float f,double d) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(boolean b,int i,byte y,short s,char,long l,float f,double d) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(boolean b,int i,byte y,short s,char c,long,float f,double d) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(boolean b,int i,byte y,short s,char c,long l,float,double d) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(boolean b,int i,byte y,short s,char c,long l,float f,double) Invalid reference: mixed argument declaration\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @see #smr_foo(boolean,int i,byte y,short s,char c,long l,float f,double d) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @see #smr_foo(boolean b,int, byte y, short s, char c, long l, float f, double d) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	* @see #smr_foo(boolean b,int i,byte,short s,char c,long l,float f,double d) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 8)\n"
-				+ "	* @see #smr_foo(boolean b,int i,byte y,short,char c,long l,float f,double d) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 9)\n"
-				+ "	* @see #smr_foo(boolean b,int i,byte y,short s,char,long l,float f,double d) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "6. ERROR in X.java (at line 10)\n"
-				+ "	* @see #smr_foo(boolean b,int i,byte y,short s,char c,long,float f,double d) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "7. ERROR in X.java (at line 11)\n"
-				+ "	* @see #smr_foo(boolean b,int i,byte y,short s,char c,long l,float,double d) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "8. ERROR in X.java (at line 12)\n"
-				+ "	* @see #smr_foo(boolean b,int i,byte y,short s,char c,long l,float f,double) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see #smr_foo(boolean,int i,byte y,short s,char c,long l,float f,double d) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(boolean b,int, byte y, short s, char c, long l, float f, double d) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(boolean b,int i,byte,short s,char c,long l,float f,double d) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(boolean b,int i,byte y,short,char c,long l,float f,double d) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(boolean b,int i,byte y,short s,char,long l,float f,double d) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(boolean b,int i,byte y,short s,char c,long,float f,double d) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(boolean b,int i,byte y,short s,char c,long l,float,double d) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(boolean b,int i,byte y,short s,char c,long l,float f,double) Invalid reference: mixed argument declaration
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @see #smr_foo(boolean,int i,byte y,short s,char c,long l,float f,double d) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				2. ERROR in X.java (at line 6)
+					* @see #smr_foo(boolean b,int, byte y, short s, char c, long l, float f, double d) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				3. ERROR in X.java (at line 7)
+					* @see #smr_foo(boolean b,int i,byte,short s,char c,long l,float f,double d) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				4. ERROR in X.java (at line 8)
+					* @see #smr_foo(boolean b,int i,byte y,short,char c,long l,float f,double d) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				5. ERROR in X.java (at line 9)
+					* @see #smr_foo(boolean b,int i,byte y,short s,char,long l,float f,double d) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				6. ERROR in X.java (at line 10)
+					* @see #smr_foo(boolean b,int i,byte y,short s,char c,long,float f,double d) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				7. ERROR in X.java (at line 11)
+					* @see #smr_foo(boolean b,int i,byte y,short s,char c,long l,float,double d) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				8. ERROR in X.java (at line 12)
+					* @see #smr_foo(boolean b,int i,byte y,short s,char c,long l,float f,double) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3335,43 +3663,47 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see #smr_foo(String,String y,int z) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(java.lang.String x,String, int z) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(String x,java.lang.String y,int) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(java.lang.String,java.lang.String,int z) Invalid reference: mixed argument declaration\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo(String str1, java.lang.String str2, int i) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @see #smr_foo(String,String y,int z) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @see #smr_foo(java.lang.String x,String, int z) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	* @see #smr_foo(String x,java.lang.String y,int) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 8)\n"
-				+ "	* @see #smr_foo(java.lang.String,java.lang.String,int z) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see #smr_foo(String,String y,int z) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(java.lang.String x,String, int z) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(String x,java.lang.String y,int) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(java.lang.String,java.lang.String,int z) Invalid reference: mixed argument declaration
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo(String str1, java.lang.String str2, int i) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @see #smr_foo(String,String y,int z) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				2. ERROR in X.java (at line 6)
+					* @see #smr_foo(java.lang.String x,String, int z) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				3. ERROR in X.java (at line 7)
+					* @see #smr_foo(String x,java.lang.String y,int) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				4. ERROR in X.java (at line 8)
+					* @see #smr_foo(java.lang.String,java.lang.String,int z) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3379,68 +3711,72 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Vector;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see #smr_foo(Hashtable,java.util.Vector,boolean) Invalid reference: unresolved argument type\n"
-					+ "	 * @see #smr_foo(Hashtable,Vector,boolean) Invalid reference: unresolved argument type\n"
-					+ "	 * @see #smr_foo(Hashtable a, java.util.Vector b, boolean c) Invalid reference: unresolved argument type\n"
-					+ "	 * @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
-					+ "	 * @see #smr_foo(java.util.Hashtable a, java.util.Vector b, boolean) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(java.util.Hashtable, Vector, boolean c) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(Hashtable a, java.util.Vector, boolean c) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see #smr_foo(Hashtable, Vector b, boolean c) Invalid reference: mixed argument declaration\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 6)\n"
-				+ "	* @see #smr_foo(Hashtable,java.util.Vector,boolean) Invalid reference: unresolved argument type\n"
-				+ "	                ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 7)\n"
-				+ "	* @see #smr_foo(Hashtable,Vector,boolean) Invalid reference: unresolved argument type\n"
-				+ "	                ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 8)\n"
-				+ "	* @see #smr_foo(Hashtable a, java.util.Vector b, boolean c) Invalid reference: unresolved argument type\n"
-				+ "	                ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 9)\n"
-				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
-				+ "	                ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 10)\n"
-				+ "	* @see #smr_foo(java.util.Hashtable a, java.util.Vector b, boolean) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "6. ERROR in X.java (at line 11)\n"
-				+ "	* @see #smr_foo(java.util.Hashtable, Vector, boolean c) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "7. ERROR in X.java (at line 12)\n"
-				+ "	* @see #smr_foo(Hashtable a, java.util.Vector, boolean c) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "8. ERROR in X.java (at line 13)\n"
-				+ "	* @see #smr_foo(Hashtable, Vector b, boolean c) Invalid reference: mixed argument declaration\n"
-				+ "	               ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n",
+				"""
+					import java.util.Vector;
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see #smr_foo(Hashtable,java.util.Vector,boolean) Invalid reference: unresolved argument type
+						 * @see #smr_foo(Hashtable,Vector,boolean) Invalid reference: unresolved argument type
+						 * @see #smr_foo(Hashtable a, java.util.Vector b, boolean c) Invalid reference: unresolved argument type
+						 * @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type
+						 * @see #smr_foo(java.util.Hashtable a, java.util.Vector b, boolean) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(java.util.Hashtable, Vector, boolean c) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(Hashtable a, java.util.Vector, boolean c) Invalid reference: mixed argument declaration
+						 * @see #smr_foo(Hashtable, Vector b, boolean c) Invalid reference: mixed argument declaration
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					* @see #smr_foo(Hashtable,java.util.Vector,boolean) Invalid reference: unresolved argument type
+					                ^^^^^^^^^
+				Javadoc: Hashtable cannot be resolved to a type
+				----------
+				2. ERROR in X.java (at line 7)
+					* @see #smr_foo(Hashtable,Vector,boolean) Invalid reference: unresolved argument type
+					                ^^^^^^^^^
+				Javadoc: Hashtable cannot be resolved to a type
+				----------
+				3. ERROR in X.java (at line 8)
+					* @see #smr_foo(Hashtable a, java.util.Vector b, boolean c) Invalid reference: unresolved argument type
+					                ^^^^^^^^^
+				Javadoc: Hashtable cannot be resolved to a type
+				----------
+				4. ERROR in X.java (at line 9)
+					* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type
+					                ^^^^^^^^^
+				Javadoc: Hashtable cannot be resolved to a type
+				----------
+				5. ERROR in X.java (at line 10)
+					* @see #smr_foo(java.util.Hashtable a, java.util.Vector b, boolean) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				6. ERROR in X.java (at line 11)
+					* @see #smr_foo(java.util.Hashtable, Vector, boolean c) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				7. ERROR in X.java (at line 12)
+					* @see #smr_foo(Hashtable a, java.util.Vector, boolean c) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				8. ERROR in X.java (at line 13)
+					* @see #smr_foo(Hashtable, Vector b, boolean c) Invalid reference: mixed argument declaration
+					               ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3448,79 +3784,85 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.Vector;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see X#smr_foo() Valid local method reference\n"
-					+ "	 * @see X#smr_foo(boolean, int, byte, short, char, long, float, double) Valid local method reference\n"
-					+ "	 * @see X#smr_foo(boolean,int,byte,short,char,long,float,double) Valid local method reference\n"
-					+ "	 * @see X#smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) Valid local method reference\n"
-					+ "	 * @see X#smr_foo(boolean a1,int a2,byte a3,short a4,char a5,long a6,float a7,double a8) Valid local method reference\n"
-					+ "	 * @see X#smr_foo(String, String, int) Valid local method reference\n"
-					+ "	 * @see X#smr_foo(java.lang.String, String, int) Valid local method reference   \n"
-					+ "	 * @see X#smr_foo(String, java.lang.String, int) Valid local method reference   \n"
-					+ "	 * @see X#smr_foo(java.lang.String, java.lang.String, int) Valid local method reference   \n"
-					+ "	 * @see X#smr_foo(String x,String y,int z) Valid local method reference   \n"
-					+ "	 * @see X#smr_foo(java.lang.String x,String y, int z) Valid local method reference   \n"
-					+ "	 * @see X#smr_foo(String x,java.lang.String y,int z) Valid local method reference   \n"
-					+ "	 * @see X#smr_foo(java.lang.String x,java.lang.String y,int z) Valid local method reference   \n"
-					+ "	 * @see X#smr_foo(java.util.Hashtable,java.util.Vector,boolean) Valid local method reference\n"
-					+ "	 * @see X#smr_foo(java.util.Hashtable,Vector,boolean) Valid local method reference\n"
-					+ "	 * @see X#smr_foo(java.util.Hashtable a, java.util.Vector b, boolean c) Valid local method reference\n"
-					+ "	 * @see X#smr_foo(java.util.Hashtable a, Vector b, boolean c) Valid local method reference\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo() {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(String str1, java.lang.String str2, int i) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					import java.util.Vector;
+					public class X {
+						/**
+						 * Valid local methods references
+						 *\s
+						 * @see X#smr_foo() Valid local method reference
+						 * @see X#smr_foo(boolean, int, byte, short, char, long, float, double) Valid local method reference
+						 * @see X#smr_foo(boolean,int,byte,short,char,long,float,double) Valid local method reference
+						 * @see X#smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) Valid local method reference
+						 * @see X#smr_foo(boolean a1,int a2,byte a3,short a4,char a5,long a6,float a7,double a8) Valid local method reference
+						 * @see X#smr_foo(String, String, int) Valid local method reference
+						 * @see X#smr_foo(java.lang.String, String, int) Valid local method reference  \s
+						 * @see X#smr_foo(String, java.lang.String, int) Valid local method reference  \s
+						 * @see X#smr_foo(java.lang.String, java.lang.String, int) Valid local method reference  \s
+						 * @see X#smr_foo(String x,String y,int z) Valid local method reference  \s
+						 * @see X#smr_foo(java.lang.String x,String y, int z) Valid local method reference  \s
+						 * @see X#smr_foo(String x,java.lang.String y,int z) Valid local method reference  \s
+						 * @see X#smr_foo(java.lang.String x,java.lang.String y,int z) Valid local method reference  \s
+						 * @see X#smr_foo(java.util.Hashtable,java.util.Vector,boolean) Valid local method reference
+						 * @see X#smr_foo(java.util.Hashtable,Vector,boolean) Valid local method reference
+						 * @see X#smr_foo(java.util.Hashtable a, java.util.Vector b, boolean c) Valid local method reference
+						 * @see X#smr_foo(java.util.Hashtable a, Vector b, boolean c) Valid local method reference
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo() {
+						}
+						public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {
+						}
+						public void smr_foo(String str1, java.lang.String str2, int i) {
+						}
+						public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {
+						}
+					}
+					""" });
 	}
 
 	public void test131() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see X#unknown() Invalid ref: undefined local method reference\n"
-					+ "	 * @see X#smrfoo() Invalid ref: undefined local method reference\n"
-					+ "	 * @see X#smr_FOO() Invalid ref: undefined local method reference\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @see X#unknown() Invalid ref: undefined local method reference\n"
-				+ "	         ^^^^^^^\n"
-				+ "Javadoc: The method unknown() is undefined for the type X\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @see X#smrfoo() Invalid ref: undefined local method reference\n"
-				+ "	         ^^^^^^\n"
-				+ "Javadoc: The method smrfoo() is undefined for the type X\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	* @see X#smr_FOO() Invalid ref: undefined local method reference\n"
-				+ "	         ^^^^^^^\n"
-				+ "Javadoc: The method smr_FOO() is undefined for the type X\n"
-				+ "----------\n",
+				"""
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see X#unknown() Invalid ref: undefined local method reference
+						 * @see X#smrfoo() Invalid ref: undefined local method reference
+						 * @see X#smr_FOO() Invalid ref: undefined local method reference
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					* @see X#unknown() Invalid ref: undefined local method reference
+					         ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type X
+				----------
+				2. ERROR in X.java (at line 6)
+					* @see X#smrfoo() Invalid ref: undefined local method reference
+					         ^^^^^^
+				Javadoc: The method smrfoo() is undefined for the type X
+				----------
+				3. ERROR in X.java (at line 7)
+					* @see X#smr_FOO() Invalid ref: undefined local method reference
+					         ^^^^^^^
+				Javadoc: The method smr_FOO() is undefined for the type X
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3528,56 +3870,60 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Vector;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see X#smr_foo(Object) Invalid ref: local method not applicable\n"
-					+ "	 * @see X#smr_foo(int, byte, short, char, long, float, double) Invalid ref: local method not applicable\n"
-					+ "	 * @see X#smr_foo(String, int) Invalid ref: local method not applicable\n"
-					+ "	 * @see X#smr_foo(String) Invalid ref: local method not applicable\n"
-					+ "	 * @see X#smr_foo(java.util.Hashtable,Vector) Invalid ref: local method not applicable\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo() {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(String str1, java.lang.String str2, int i) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 6)\n"
-				+ "	* @see X#smr_foo(Object) Invalid ref: local method not applicable\n"
-				+ "	         ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo() in the type X is not applicable for the arguments (Object)\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 7)\n"
-				+ "	* @see X#smr_foo(int, byte, short, char, long, float, double) Invalid ref: local method not applicable\n"
-				+ "	         ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (int, byte, short, char, long, float, double)\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 8)\n"
-				+ "	* @see X#smr_foo(String, int) Invalid ref: local method not applicable\n"
-				+ "	         ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String, int)\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 9)\n"
-				+ "	* @see X#smr_foo(String) Invalid ref: local method not applicable\n"
-				+ "	         ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String)\n"
-				+ "----------\n"
-				+ "5. ERROR in X.java (at line 10)\n"
-				+ "	* @see X#smr_foo(java.util.Hashtable,Vector) Invalid ref: local method not applicable\n"
-				+ "	         ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Hashtable, Vector)\n"
-				+ "----------\n",
+				"""
+					import java.util.Vector;
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see X#smr_foo(Object) Invalid ref: local method not applicable
+						 * @see X#smr_foo(int, byte, short, char, long, float, double) Invalid ref: local method not applicable
+						 * @see X#smr_foo(String, int) Invalid ref: local method not applicable
+						 * @see X#smr_foo(String) Invalid ref: local method not applicable
+						 * @see X#smr_foo(java.util.Hashtable,Vector) Invalid ref: local method not applicable
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo() {
+						}
+						public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {
+						}
+						public void smr_foo(String str1, java.lang.String str2, int i) {
+						}
+						public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					* @see X#smr_foo(Object) Invalid ref: local method not applicable
+					         ^^^^^^^
+				Javadoc: The method smr_foo() in the type X is not applicable for the arguments (Object)
+				----------
+				2. ERROR in X.java (at line 7)
+					* @see X#smr_foo(int, byte, short, char, long, float, double) Invalid ref: local method not applicable
+					         ^^^^^^^
+				Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (int, byte, short, char, long, float, double)
+				----------
+				3. ERROR in X.java (at line 8)
+					* @see X#smr_foo(String, int) Invalid ref: local method not applicable
+					         ^^^^^^^
+				Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String, int)
+				----------
+				4. ERROR in X.java (at line 9)
+					* @see X#smr_foo(String) Invalid ref: local method not applicable
+					         ^^^^^^^
+				Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String)
+				----------
+				5. ERROR in X.java (at line 10)
+					* @see X#smr_foo(java.util.Hashtable,Vector) Invalid ref: local method not applicable
+					         ^^^^^^^
+				Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Hashtable, Vector)
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3585,48 +3931,52 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Vector;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see X#smr_foo(boolean,int i,byte,short s,char,long l,float,double d) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see X#smr_foo(String,String y,int) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see X#smr_foo(Hashtable,Vector,boolean) Invalid reference: unresolved argument type\n"
-					+ "	 * @see X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(String str1, java.lang.String str2, int i) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 6)\n"
-				+ "	* @see X#smr_foo(boolean,int i,byte,short s,char,long l,float,double d) Invalid reference: mixed argument declaration\n"
-				+ "	                ^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 7)\n"
-				+ "	* @see X#smr_foo(String,String y,int) Invalid reference: mixed argument declaration\n"
-				+ "	                ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 8)\n"
-				+ "	* @see X#smr_foo(Hashtable,Vector,boolean) Invalid reference: unresolved argument type\n"
-				+ "	                 ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "4. ERROR in X.java (at line 9)\n"
-				+ "	* @see X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n"
-				+ "	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n",
+				"""
+					import java.util.Vector;
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see X#smr_foo(boolean,int i,byte,short s,char,long l,float,double d) Invalid reference: mixed argument declaration
+						 * @see X#smr_foo(String,String y,int) Invalid reference: mixed argument declaration
+						 * @see X#smr_foo(Hashtable,Vector,boolean) Invalid reference: unresolved argument type
+						 * @see X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {
+						}
+						public void smr_foo(String str1, java.lang.String str2, int i) {
+						}
+						public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					* @see X#smr_foo(boolean,int i,byte,short s,char,long l,float,double d) Invalid reference: mixed argument declaration
+					                ^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				2. ERROR in X.java (at line 7)
+					* @see X#smr_foo(String,String y,int) Invalid reference: mixed argument declaration
+					                ^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				3. ERROR in X.java (at line 8)
+					* @see X#smr_foo(Hashtable,Vector,boolean) Invalid reference: unresolved argument type
+					                 ^^^^^^^^^
+				Javadoc: Hashtable cannot be resolved to a type
+				----------
+				4. ERROR in X.java (at line 9)
+					* @see X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration
+					                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3634,81 +3984,87 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runConformTest(
 			new String[] {
 				"test/deep/qualified/name/p/X.java",
-				"package test.deep.qualified.name.p;\n"
-					+ "import java.util.Vector;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo() Valid local method reference\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(boolean, int, byte, short, char, long, float, double) Valid local method reference\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(boolean,int,byte,short,char,long,float,double) Valid local method reference\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) Valid local method reference\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(boolean a1,int a2,byte a3,short a4,char a5,long a6,float a7,double a8) Valid local method reference\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(String, String, int) Valid local method reference\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(java.lang.String, String, int) Valid local method reference   \n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(String, java.lang.String, int) Valid local method reference   \n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(java.lang.String, java.lang.String, int) Valid local method reference   \n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(String x,String y,int z) Valid local method reference   \n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(java.lang.String x,String y, int z) Valid local method reference   \n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(String x,java.lang.String y,int z) Valid local method reference   \n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(java.lang.String x,java.lang.String y,int z) Valid local method reference   \n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable,java.util.Vector,boolean) Valid local method reference\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable,Vector,boolean) Valid local method reference\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable a, java.util.Vector b, boolean c) Valid local method reference\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable a, Vector b, boolean c) Valid local method reference\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo() {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(String str1, java.lang.String str2, int i) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					package test.deep.qualified.name.p;
+					import java.util.Vector;
+					public class X {
+						/**
+						 * Valid local methods references
+						 *\s
+						 * @see test.deep.qualified.name.p.X#smr_foo() Valid local method reference
+						 * @see test.deep.qualified.name.p.X#smr_foo(boolean, int, byte, short, char, long, float, double) Valid local method reference
+						 * @see test.deep.qualified.name.p.X#smr_foo(boolean,int,byte,short,char,long,float,double) Valid local method reference
+						 * @see test.deep.qualified.name.p.X#smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) Valid local method reference
+						 * @see test.deep.qualified.name.p.X#smr_foo(boolean a1,int a2,byte a3,short a4,char a5,long a6,float a7,double a8) Valid local method reference
+						 * @see test.deep.qualified.name.p.X#smr_foo(String, String, int) Valid local method reference
+						 * @see test.deep.qualified.name.p.X#smr_foo(java.lang.String, String, int) Valid local method reference  \s
+						 * @see test.deep.qualified.name.p.X#smr_foo(String, java.lang.String, int) Valid local method reference  \s
+						 * @see test.deep.qualified.name.p.X#smr_foo(java.lang.String, java.lang.String, int) Valid local method reference  \s
+						 * @see test.deep.qualified.name.p.X#smr_foo(String x,String y,int z) Valid local method reference  \s
+						 * @see test.deep.qualified.name.p.X#smr_foo(java.lang.String x,String y, int z) Valid local method reference  \s
+						 * @see test.deep.qualified.name.p.X#smr_foo(String x,java.lang.String y,int z) Valid local method reference  \s
+						 * @see test.deep.qualified.name.p.X#smr_foo(java.lang.String x,java.lang.String y,int z) Valid local method reference  \s
+						 * @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable,java.util.Vector,boolean) Valid local method reference
+						 * @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable,Vector,boolean) Valid local method reference
+						 * @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable a, java.util.Vector b, boolean c) Valid local method reference
+						 * @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable a, Vector b, boolean c) Valid local method reference
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo() {
+						}
+						public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {
+						}
+						public void smr_foo(String str1, java.lang.String str2, int i) {
+						}
+						public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {
+						}
+					}
+					""" });
 	}
 
 	public void test136() {
 		this.runNegativeTest(
 			new String[] {
 				"test/deep/qualified/name/p/X.java",
-				"package test.deep.qualified.name.p;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see test.deep.qualified.name.p.X#unknown() Invalid ref: undefined local method reference\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smrfoo() Invalid ref: undefined local method reference\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_FOO() Invalid ref: undefined local method reference\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 6)\n"
-				+ "	* @see test.deep.qualified.name.p.X#unknown() Invalid ref: undefined local method reference\n"
-				+ "	                                    ^^^^^^^\n"
-				+ "Javadoc: The method unknown() is undefined for the type X\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 7)\n"
-				+ "	* @see test.deep.qualified.name.p.X#smrfoo() Invalid ref: undefined local method reference\n"
-				+ "	                                    ^^^^^^\n"
-				+ "Javadoc: The method smrfoo() is undefined for the type X\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 8)\n"
-				+ "	* @see test.deep.qualified.name.p.X#smr_FOO() Invalid ref: undefined local method reference\n"
-				+ "	                                    ^^^^^^^\n"
-				+ "Javadoc: The method smr_FOO() is undefined for the type X\n"
-				+ "----------\n",
+				"""
+					package test.deep.qualified.name.p;
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see test.deep.qualified.name.p.X#unknown() Invalid ref: undefined local method reference
+						 * @see test.deep.qualified.name.p.X#smrfoo() Invalid ref: undefined local method reference
+						 * @see test.deep.qualified.name.p.X#smr_FOO() Invalid ref: undefined local method reference
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 6)
+					* @see test.deep.qualified.name.p.X#unknown() Invalid ref: undefined local method reference
+					                                    ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type X
+				----------
+				2. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 7)
+					* @see test.deep.qualified.name.p.X#smrfoo() Invalid ref: undefined local method reference
+					                                    ^^^^^^
+				Javadoc: The method smrfoo() is undefined for the type X
+				----------
+				3. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 8)
+					* @see test.deep.qualified.name.p.X#smr_FOO() Invalid ref: undefined local method reference
+					                                    ^^^^^^^
+				Javadoc: The method smr_FOO() is undefined for the type X
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3716,57 +4072,61 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"test/deep/qualified/name/p/X.java",
-				"package test.deep.qualified.name.p;\n"
-					+ "import java.util.Vector;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(Object) Invalid ref: local method not applicable\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(int, byte, short, char, long, float, double) Invalid ref: local method not applicable\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(String, int) Invalid ref: local method not applicable\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(String) Invalid ref: local method not applicable\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable,Vector) Invalid ref: local method not applicable\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo() {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(String str1, java.lang.String str2, int i) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 7)\n"
-				+ "	* @see test.deep.qualified.name.p.X#smr_foo(Object) Invalid ref: local method not applicable\n"
-				+ "	                                    ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo() in the type X is not applicable for the arguments (Object)\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 8)\n"
-				+ "	* @see test.deep.qualified.name.p.X#smr_foo(int, byte, short, char, long, float, double) Invalid ref: local method not applicable\n"
-				+ "	                                    ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (int, byte, short, char, long, float, double)\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 9)\n"
-				+ "	* @see test.deep.qualified.name.p.X#smr_foo(String, int) Invalid ref: local method not applicable\n"
-				+ "	                                    ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String, int)\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 10)\n"
-				+ "	* @see test.deep.qualified.name.p.X#smr_foo(String) Invalid ref: local method not applicable\n"
-				+ "	                                    ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String)\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 11)\n"
-				+ "	* @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable,Vector) Invalid ref: local method not applicable\n"
-				+ "	                                    ^^^^^^^\n"
-				+ "Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Hashtable, Vector)\n"
-				+ "----------\n",
+				"""
+					package test.deep.qualified.name.p;
+					import java.util.Vector;
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see test.deep.qualified.name.p.X#smr_foo(Object) Invalid ref: local method not applicable
+						 * @see test.deep.qualified.name.p.X#smr_foo(int, byte, short, char, long, float, double) Invalid ref: local method not applicable
+						 * @see test.deep.qualified.name.p.X#smr_foo(String, int) Invalid ref: local method not applicable
+						 * @see test.deep.qualified.name.p.X#smr_foo(String) Invalid ref: local method not applicable
+						 * @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable,Vector) Invalid ref: local method not applicable
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo() {
+						}
+						public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {
+						}
+						public void smr_foo(String str1, java.lang.String str2, int i) {
+						}
+						public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 7)
+					* @see test.deep.qualified.name.p.X#smr_foo(Object) Invalid ref: local method not applicable
+					                                    ^^^^^^^
+				Javadoc: The method smr_foo() in the type X is not applicable for the arguments (Object)
+				----------
+				2. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 8)
+					* @see test.deep.qualified.name.p.X#smr_foo(int, byte, short, char, long, float, double) Invalid ref: local method not applicable
+					                                    ^^^^^^^
+				Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (int, byte, short, char, long, float, double)
+				----------
+				3. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 9)
+					* @see test.deep.qualified.name.p.X#smr_foo(String, int) Invalid ref: local method not applicable
+					                                    ^^^^^^^
+				Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String, int)
+				----------
+				4. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 10)
+					* @see test.deep.qualified.name.p.X#smr_foo(String) Invalid ref: local method not applicable
+					                                    ^^^^^^^
+				Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String)
+				----------
+				5. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 11)
+					* @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable,Vector) Invalid ref: local method not applicable
+					                                    ^^^^^^^
+				Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Hashtable, Vector)
+				----------
+				""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3774,54 +4134,58 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeTest(
 			new String[] {
 				"test/deep/qualified/name/p/X.java",
-				"package test.deep.qualified.name.p;\n"
-					+ "import java.util.Vector;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid local methods references\n"
-					+ "	 * \n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(boolean,int i,byte,short s,char,long l,float,double d) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(String,String y,int) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n"
-					+ "	 * @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "\n"
-					+ "	// Empty methods definition for reference\n"
-					+ "	public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(String str1, java.lang.String str2, int i) {\n"
-					+ "	}\n"
-					+ "	public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n" +
-			"1. WARNING in test\\deep\\qualified\\name\\p\\X.java (at line 2)\n"+
-			"	import java.util.Vector;\n"+
-			"	       ^^^^^^^^^^^^^^^^\n"+
-			"The import java.util.Vector is never used\n"+
-			"----------\n"+
-			"2. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 7)\n" +
-			"	* @see test.deep.qualified.name.p.X#smr_foo(boolean,int i,byte,short s,char,long l,float,double d) Invalid reference: mixed argument declaration\n" +
-			"	                                           ^^^^^^^^^^^^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"3. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 8)\n" +
-			"	* @see test.deep.qualified.name.p.X#smr_foo(String,String y,int) Invalid reference: mixed argument declaration\n" +
-			"	                                           ^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"4. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 9)\n" +
-			"	* @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n" +
-			"	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"5. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 10)\n" +
-			"	* @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n" +
-			"	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n",
+				"""
+					package test.deep.qualified.name.p;
+					import java.util.Vector;
+					public class X {
+						/**
+						 * Invalid local methods references
+						 *\s
+						 * @see test.deep.qualified.name.p.X#smr_foo(boolean,int i,byte,short s,char,long l,float,double d) Invalid reference: mixed argument declaration
+						 * @see test.deep.qualified.name.p.X#smr_foo(String,String y,int) Invalid reference: mixed argument declaration
+						 * @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration
+						 * @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration
+						 */ \s
+						public void s_foo() {
+						}
+					
+						// Empty methods definition for reference
+						public void smr_foo(boolean b, int i, byte y, short s, char c, long l, float f, double d) {
+						}
+						public void smr_foo(String str1, java.lang.String str2, int i) {
+						}
+						public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. WARNING in test\\deep\\qualified\\name\\p\\X.java (at line 2)
+					import java.util.Vector;
+					       ^^^^^^^^^^^^^^^^
+				The import java.util.Vector is never used
+				----------
+				2. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 7)
+					* @see test.deep.qualified.name.p.X#smr_foo(boolean,int i,byte,short s,char,long l,float,double d) Invalid reference: mixed argument declaration
+					                                           ^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				3. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 8)
+					* @see test.deep.qualified.name.p.X#smr_foo(String,String y,int) Invalid reference: mixed argument declaration
+					                                           ^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				4. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 9)
+					* @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration
+					                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				5. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 10)
+					* @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration
+					                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -3829,548 +4193,588 @@ public class JavadocTestForMethod extends JavadocTest {
 		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid package class methods references\n"
-					+ "	 * \n"
-					+ "	 * @see Visibility#vm_public() Valid ref: visible method\n"
-					+ "	 * @see Visibility.VcPublic#vm_public() Valid ref: visible method in visible inner class\n"
-					+ "	 * @see test.Visibility#vm_public() Valid ref: visible method\n"
-					+ "	 * @see test.Visibility.VcPublic#vm_public() Valid ref: visible method in visible inner class\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					package test;
+					public class X {
+						/**
+						 * Valid package class methods references
+						 *\s
+						 * @see Visibility#vm_public() Valid ref: visible method
+						 * @see Visibility.VcPublic#vm_public() Valid ref: visible method in visible inner class
+						 * @see test.Visibility#vm_public() Valid ref: visible method
+						 * @see test.Visibility.VcPublic#vm_public() Valid ref: visible method in visible inner class
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" });
 	}
 
 	public void test141() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid package class methods references (non-existence)\n"
-					+ "	 * \n"
-					+ "	 * @see Visibility#unknown() Invalid ref: non-existent method\n"
-					+ "	 * @see Visibility.VcPublic#unknown() Invalid ref: non existent method in visible inner class\n"
-					+ "	 * @see Unknown#vm_public() Invalid ref: non-existent class\n"
-					+ "	 * @see Visibility.Unknown#vm_public() Invalid ref: non existent inner class\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see Visibility#unknown() Invalid ref: non-existent method\n"
-				+ "	                  ^^^^^^^\n"
-				+ "Javadoc: The method unknown() is undefined for the type Visibility\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see Visibility.VcPublic#unknown() Invalid ref: non existent method in visible inner class\n"
-				+ "	                           ^^^^^^^\n"
-				+ "Javadoc: The method unknown() is undefined for the type Visibility.VcPublic\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see Unknown#vm_public() Invalid ref: non-existent class\n"
-				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see Visibility.Unknown#vm_public() Invalid ref: non existent inner class\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Visibility.Unknown cannot be resolved to a type\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid package class methods references (non-existence)
+						 *\s
+						 * @see Visibility#unknown() Invalid ref: non-existent method
+						 * @see Visibility.VcPublic#unknown() Invalid ref: non existent method in visible inner class
+						 * @see Unknown#vm_public() Invalid ref: non-existent class
+						 * @see Visibility.Unknown#vm_public() Invalid ref: non existent inner class
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see Visibility#unknown() Invalid ref: non-existent method
+					                  ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type Visibility
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see Visibility.VcPublic#unknown() Invalid ref: non existent method in visible inner class
+					                           ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type Visibility.VcPublic
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see Unknown#vm_public() Invalid ref: non-existent class
+					       ^^^^^^^
+				Javadoc: Unknown cannot be resolved to a type
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see Visibility.Unknown#vm_public() Invalid ref: non existent inner class
+					       ^^^^^^^^^^^^^^^^^^
+				Javadoc: Visibility.Unknown cannot be resolved to a type
+				----------
+				""");
 	}
 
 	public void test142() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid package class methods references (non-visible)\n"
-					+ "	 * \n"
-					+ "	 * @see Visibility#vm_private() Invalid ref: non-visible method\n"
-					+ "	 * @see Visibility.VcPrivate#unknown() Invalid ref: non visible inner class (non existent method)\n"
-					+ "	 * @see Visibility.VcPrivate#vm_private() Invalid ref: non visible inner class (non visible method)\n"
-					+ "	 * @see Visibility.VcPrivate#vm_private(boolean, String) Invalid ref: non visible inner class (non applicable method)\n"
-					+ "	 * @see Visibility.VcPrivate#vm_public() Invalid ref: non visible inner class (visible method)\n"
-					+ "	 * @see Visibility.VcPrivate#vm_public(Object, float) Invalid ref: non visible inner class (non applicable visible method)\n"
-					+ "	 * @see Visibility.VcPublic#vm_private() Invalid ref: non visible method in visible inner class\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see Visibility#vm_private() Invalid ref: non-visible method\n"
-				+ "	                  ^^^^^^^^^^\n"
-				+ "Javadoc: The method vm_private() from the type Visibility is not visible\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see Visibility.VcPrivate#unknown() Invalid ref: non visible inner class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.VcPrivate is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see Visibility.VcPrivate#vm_private() Invalid ref: non visible inner class (non visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.VcPrivate is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see Visibility.VcPrivate#vm_private(boolean, String) Invalid ref: non visible inner class (non applicable method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.VcPrivate is not visible\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see Visibility.VcPrivate#vm_public() Invalid ref: non visible inner class (visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.VcPrivate is not visible\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see Visibility.VcPrivate#vm_public(Object, float) Invalid ref: non visible inner class (non applicable visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.VcPrivate is not visible\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see Visibility.VcPublic#vm_private() Invalid ref: non visible method in visible inner class\n"
-				+ "	                           ^^^^^^^^^^\n"
-				+ "Javadoc: The method vm_private() from the type Visibility.VcPublic is not visible\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid package class methods references (non-visible)
+						 *\s
+						 * @see Visibility#vm_private() Invalid ref: non-visible method
+						 * @see Visibility.VcPrivate#unknown() Invalid ref: non visible inner class (non existent method)
+						 * @see Visibility.VcPrivate#vm_private() Invalid ref: non visible inner class (non visible method)
+						 * @see Visibility.VcPrivate#vm_private(boolean, String) Invalid ref: non visible inner class (non applicable method)
+						 * @see Visibility.VcPrivate#vm_public() Invalid ref: non visible inner class (visible method)
+						 * @see Visibility.VcPrivate#vm_public(Object, float) Invalid ref: non visible inner class (non applicable visible method)
+						 * @see Visibility.VcPublic#vm_private() Invalid ref: non visible method in visible inner class
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see Visibility#vm_private() Invalid ref: non-visible method
+					                  ^^^^^^^^^^
+				Javadoc: The method vm_private() from the type Visibility is not visible
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see Visibility.VcPrivate#unknown() Invalid ref: non visible inner class (non existent method)
+					       ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.VcPrivate is not visible
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see Visibility.VcPrivate#vm_private() Invalid ref: non visible inner class (non visible method)
+					       ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.VcPrivate is not visible
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see Visibility.VcPrivate#vm_private(boolean, String) Invalid ref: non visible inner class (non applicable method)
+					       ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.VcPrivate is not visible
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see Visibility.VcPrivate#vm_public() Invalid ref: non visible inner class (visible method)
+					       ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.VcPrivate is not visible
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see Visibility.VcPrivate#vm_public(Object, float) Invalid ref: non visible inner class (non applicable visible method)
+					       ^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.VcPrivate is not visible
+				----------
+				7. ERROR in test\\X.java (at line 12)
+					* @see Visibility.VcPublic#vm_private() Invalid ref: non visible method in visible inner class
+					                           ^^^^^^^^^^
+				Javadoc: The method vm_private() from the type Visibility.VcPublic is not visible
+				----------
+				""");
 	}
 
 	public void test143() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid package class methods references (non-applicable)\n"
-					+ "	 * \n"
-					+ "	 * @see Visibility#vm_private(int) Invalid ref: non-applicable method\n"
-					+ "	 * @see Visibility#vm_public(String) Invalid ref: non-applicable method\n"
-					+ "	 * @see Visibility.VcPublic#vm_private(Integer, byte) Invalid ref: non applicable method in visible inner class\n"
-					+ "	 * @see Visibility.VcPublic#vm_public(Double z, Boolean x) Invalid ref: non applicable method in visible inner class\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see Visibility#vm_private(int) Invalid ref: non-applicable method\n"
-				+ "	                  ^^^^^^^^^^\n"
-				+ "Javadoc: The method vm_private() in the type Visibility is not applicable for the arguments (int)\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see Visibility#vm_public(String) Invalid ref: non-applicable method\n"
-				+ "	                  ^^^^^^^^^\n"
-				+ "Javadoc: The method vm_public() in the type Visibility is not applicable for the arguments (String)\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see Visibility.VcPublic#vm_private(Integer, byte) Invalid ref: non applicable method in visible inner class\n"
-				+ "	                           ^^^^^^^^^^\n"
-				+ "Javadoc: The method vm_private() in the type Visibility.VcPublic is not applicable for the arguments (Integer, byte)\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see Visibility.VcPublic#vm_public(Double z, Boolean x) Invalid ref: non applicable method in visible inner class\n"
-				+ "	                           ^^^^^^^^^\n"
-				+ "Javadoc: The method vm_public() in the type Visibility.VcPublic is not applicable for the arguments (Double, Boolean)\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid package class methods references (non-applicable)
+						 *\s
+						 * @see Visibility#vm_private(int) Invalid ref: non-applicable method
+						 * @see Visibility#vm_public(String) Invalid ref: non-applicable method
+						 * @see Visibility.VcPublic#vm_private(Integer, byte) Invalid ref: non applicable method in visible inner class
+						 * @see Visibility.VcPublic#vm_public(Double z, Boolean x) Invalid ref: non applicable method in visible inner class
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see Visibility#vm_private(int) Invalid ref: non-applicable method
+					                  ^^^^^^^^^^
+				Javadoc: The method vm_private() in the type Visibility is not applicable for the arguments (int)
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see Visibility#vm_public(String) Invalid ref: non-applicable method
+					                  ^^^^^^^^^
+				Javadoc: The method vm_public() in the type Visibility is not applicable for the arguments (String)
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see Visibility.VcPublic#vm_private(Integer, byte) Invalid ref: non applicable method in visible inner class
+					                           ^^^^^^^^^^
+				Javadoc: The method vm_private() in the type Visibility.VcPublic is not applicable for the arguments (Integer, byte)
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see Visibility.VcPublic#vm_public(Double z, Boolean x) Invalid ref: non applicable method in visible inner class
+					                           ^^^^^^^^^
+				Javadoc: The method vm_public() in the type Visibility.VcPublic is not applicable for the arguments (Double, Boolean)
+				----------
+				""");
 	}
 
 	public void test144() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid package class methods references (invalid arguments)\n"
-					+ "	 * \n"
-					+ "	 * @see Visibility#vm_private(,) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see Visibility#vm_public(,String) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see Visibility.VcPrivate#vm_private(char, double d) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see Visibility.VcPrivate#vm_public(#) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see Visibility.VcPublic#vm_private(a a a) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see Visibility.VcPublic#vm_public(####) Invalid ref: Invalid ref: invalid argument declaration\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see Visibility#vm_private(,) Invalid ref: invalid argument declaration\n"
-				+ "	                            ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see Visibility#vm_public(,String) Invalid ref: invalid argument declaration\n"
-				+ "	                           ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see Visibility.VcPrivate#vm_private(char, double d) Invalid ref: invalid argument declaration\n"
-				+ "	                                      ^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see Visibility.VcPrivate#vm_public(#) Invalid ref: invalid argument declaration\n"
-				+ "	                                     ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see Visibility.VcPublic#vm_private(a a a) Invalid ref: invalid argument declaration\n"
-				+ "	                                     ^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see Visibility.VcPublic#vm_public(####) Invalid ref: Invalid ref: invalid argument declaration\n"
-				+ "	                                    ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid package class methods references (invalid arguments)
+						 *\s
+						 * @see Visibility#vm_private(,) Invalid ref: invalid argument declaration
+						 * @see Visibility#vm_public(,String) Invalid ref: invalid argument declaration
+						 * @see Visibility.VcPrivate#vm_private(char, double d) Invalid ref: invalid argument declaration
+						 * @see Visibility.VcPrivate#vm_public(#) Invalid ref: invalid argument declaration
+						 * @see Visibility.VcPublic#vm_private(a a a) Invalid ref: invalid argument declaration
+						 * @see Visibility.VcPublic#vm_public(####) Invalid ref: Invalid ref: invalid argument declaration
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see Visibility#vm_private(,) Invalid ref: invalid argument declaration
+					                            ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see Visibility#vm_public(,String) Invalid ref: invalid argument declaration
+					                           ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see Visibility.VcPrivate#vm_private(char, double d) Invalid ref: invalid argument declaration
+					                                      ^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see Visibility.VcPrivate#vm_public(#) Invalid ref: invalid argument declaration
+					                                     ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see Visibility.VcPublic#vm_private(a a a) Invalid ref: invalid argument declaration
+					                                     ^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see Visibility.VcPublic#vm_public(####) Invalid ref: Invalid ref: invalid argument declaration
+					                                    ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""");
 	}
 
 	public void test145() {
 		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid package super class methods references\n"
-					+ "	 * \n"
-					+ "	 * @see Visibility#avm_public() Valid ref: visible inherited method\n"
-					+ "	 * @see AbstractVisibility.AvcPublic#avm_public() Valid ref: visible method in visible inner class\n"
-					+ "	 * @see test.Visibility#avm_public() Valid ref: visible inherited method\n"
-					+ "	 * @see test.AbstractVisibility.AvcPublic#avm_public() Valid ref: visible method in visible inner class\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					package test;
+					public class X {
+						/**
+						 * Valid package super class methods references
+						 *\s
+						 * @see Visibility#avm_public() Valid ref: visible inherited method
+						 * @see AbstractVisibility.AvcPublic#avm_public() Valid ref: visible method in visible inner class
+						 * @see test.Visibility#avm_public() Valid ref: visible inherited method
+						 * @see test.AbstractVisibility.AvcPublic#avm_public() Valid ref: visible method in visible inner class
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" });
 	}
 
 	public void test146() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid package super class methods references (non-visible)\n"
-					+ "	 * \n"
-					+ "	 * @see Visibility#avm_private() Invalid ref: non-visible inherited method\n"
-					+ "	 * @see Visibility.AvcPrivate#unknown() Invalid ref: non visible inherited inner class (non existent method)\n"
-					+ "	 * @see Visibility.AvcPrivate#avm_private() Invalid ref: non visible inherited inner class (non visible method)\n"
-					+ "	 * @see Visibility.AvcPrivate#avm_private(boolean, String) Invalid ref: non visible inherited inner class (non applicable method)\n"
-					+ "	 * @see Visibility.AvcPrivate#avm_public() Invalid ref: non visible inherited inner class (visible method)\n"
-					+ "	 * @see Visibility.AvcPrivate#avm_public(Object, float) Invalid ref: non visible inherited inner class (non applicable visible method)\n"
-					+ "	 * @see Visibility.AvcPublic#avm_private() Invalid ref: non visible inherited method in visible inherited inner class\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see Visibility#avm_private() Invalid ref: non-visible inherited method\n"
-				+ "	                  ^^^^^^^^^^^\n"
-				+ "Javadoc: The method avm_private() from the type AbstractVisibility is not visible\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see Visibility.AvcPrivate#unknown() Invalid ref: non visible inherited inner class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.AvcPrivate is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see Visibility.AvcPrivate#avm_private() Invalid ref: non visible inherited inner class (non visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.AvcPrivate is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see Visibility.AvcPrivate#avm_private(boolean, String) Invalid ref: non visible inherited inner class (non applicable method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.AvcPrivate is not visible\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see Visibility.AvcPrivate#avm_public() Invalid ref: non visible inherited inner class (visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.AvcPrivate is not visible\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see Visibility.AvcPrivate#avm_public(Object, float) Invalid ref: non visible inherited inner class (non applicable visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type Visibility.AvcPrivate is not visible\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see Visibility.AvcPublic#avm_private() Invalid ref: non visible inherited method in visible inherited inner class\n"
-				+ "	                            ^^^^^^^^^^^\n"
-				+ "Javadoc: The method avm_private() from the type AbstractVisibility.AvcPublic is not visible\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid package super class methods references (non-visible)
+						 *\s
+						 * @see Visibility#avm_private() Invalid ref: non-visible inherited method
+						 * @see Visibility.AvcPrivate#unknown() Invalid ref: non visible inherited inner class (non existent method)
+						 * @see Visibility.AvcPrivate#avm_private() Invalid ref: non visible inherited inner class (non visible method)
+						 * @see Visibility.AvcPrivate#avm_private(boolean, String) Invalid ref: non visible inherited inner class (non applicable method)
+						 * @see Visibility.AvcPrivate#avm_public() Invalid ref: non visible inherited inner class (visible method)
+						 * @see Visibility.AvcPrivate#avm_public(Object, float) Invalid ref: non visible inherited inner class (non applicable visible method)
+						 * @see Visibility.AvcPublic#avm_private() Invalid ref: non visible inherited method in visible inherited inner class
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see Visibility#avm_private() Invalid ref: non-visible inherited method
+					                  ^^^^^^^^^^^
+				Javadoc: The method avm_private() from the type AbstractVisibility is not visible
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see Visibility.AvcPrivate#unknown() Invalid ref: non visible inherited inner class (non existent method)
+					       ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.AvcPrivate is not visible
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see Visibility.AvcPrivate#avm_private() Invalid ref: non visible inherited inner class (non visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.AvcPrivate is not visible
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see Visibility.AvcPrivate#avm_private(boolean, String) Invalid ref: non visible inherited inner class (non applicable method)
+					       ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.AvcPrivate is not visible
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see Visibility.AvcPrivate#avm_public() Invalid ref: non visible inherited inner class (visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.AvcPrivate is not visible
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see Visibility.AvcPrivate#avm_public(Object, float) Invalid ref: non visible inherited inner class (non applicable visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type Visibility.AvcPrivate is not visible
+				----------
+				7. ERROR in test\\X.java (at line 12)
+					* @see Visibility.AvcPublic#avm_private() Invalid ref: non visible inherited method in visible inherited inner class
+					                            ^^^^^^^^^^^
+				Javadoc: The method avm_private() from the type AbstractVisibility.AvcPublic is not visible
+				----------
+				""");
 	}
 
 	public void test147() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid package super class methods references (non-applicable)\n"
-					+ "	 * \n"
-					+ "	 * @see Visibility#avm_private(int) Invalid ref: non-applicable inherited method\n"
-					+ "	 * @see Visibility#avm_public(String) Invalid ref: non-applicable inherited method\n"
-					+ "	 * @see Visibility.AvcPublic#avm_private(Integer, byte) Invalid ref: non applicable inherited method in visible inner class\n"
-					+ "	 * @see Visibility.AvcPublic#avm_public(Double z, Boolean x) Invalid ref: non applicable inherited method in visible inner class\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see Visibility#avm_private(int) Invalid ref: non-applicable inherited method\n"
-				+ "	                  ^^^^^^^^^^^\n"
-				+ "Javadoc: The method avm_private() in the type AbstractVisibility is not applicable for the arguments (int)\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see Visibility#avm_public(String) Invalid ref: non-applicable inherited method\n"
-				+ "	                  ^^^^^^^^^^\n"
-				+ "Javadoc: The method avm_public() in the type AbstractVisibility is not applicable for the arguments (String)\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see Visibility.AvcPublic#avm_private(Integer, byte) Invalid ref: non applicable inherited method in visible inner class\n"
-				+ "	                            ^^^^^^^^^^^\n"
-				+ "Javadoc: The method avm_private() in the type AbstractVisibility.AvcPublic is not applicable for the arguments (Integer, byte)\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see Visibility.AvcPublic#avm_public(Double z, Boolean x) Invalid ref: non applicable inherited method in visible inner class\n"
-				+ "	                            ^^^^^^^^^^\n"
-				+ "Javadoc: The method avm_public() in the type AbstractVisibility.AvcPublic is not applicable for the arguments (Double, Boolean)\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid package super class methods references (non-applicable)
+						 *\s
+						 * @see Visibility#avm_private(int) Invalid ref: non-applicable inherited method
+						 * @see Visibility#avm_public(String) Invalid ref: non-applicable inherited method
+						 * @see Visibility.AvcPublic#avm_private(Integer, byte) Invalid ref: non applicable inherited method in visible inner class
+						 * @see Visibility.AvcPublic#avm_public(Double z, Boolean x) Invalid ref: non applicable inherited method in visible inner class
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see Visibility#avm_private(int) Invalid ref: non-applicable inherited method
+					                  ^^^^^^^^^^^
+				Javadoc: The method avm_private() in the type AbstractVisibility is not applicable for the arguments (int)
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see Visibility#avm_public(String) Invalid ref: non-applicable inherited method
+					                  ^^^^^^^^^^
+				Javadoc: The method avm_public() in the type AbstractVisibility is not applicable for the arguments (String)
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see Visibility.AvcPublic#avm_private(Integer, byte) Invalid ref: non applicable inherited method in visible inner class
+					                            ^^^^^^^^^^^
+				Javadoc: The method avm_private() in the type AbstractVisibility.AvcPublic is not applicable for the arguments (Integer, byte)
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see Visibility.AvcPublic#avm_public(Double z, Boolean x) Invalid ref: non applicable inherited method in visible inner class
+					                            ^^^^^^^^^^
+				Javadoc: The method avm_public() in the type AbstractVisibility.AvcPublic is not applicable for the arguments (Double, Boolean)
+				----------
+				""");
 	}
 
 	public void test148() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid package super class methods references (invalid arguments)\n"
-					+ "	 * \n"
-					+ "	 * @see Visibility#avm_private(,,,,) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see Visibility#avm_public(String,,,) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see Visibility.AvcPrivate#avm_private(char c, double) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see Visibility.AvcPrivate#avm_public(*) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see Visibility.AvcPublic#avm_private(a a a) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see Visibility.AvcPublic#avm_public(*****) Invalid ref: invalid argument declaration\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see Visibility#avm_private(,,,,) Invalid ref: invalid argument declaration\n"
-				+ "	                             ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see Visibility#avm_public(String,,,) Invalid ref: invalid argument declaration\n"
-				+ "	                            ^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see Visibility.AvcPrivate#avm_private(char c, double) Invalid ref: invalid argument declaration\n"
-				+ "	                                        ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see Visibility.AvcPrivate#avm_public(*) Invalid ref: invalid argument declaration\n"
-				+ "	                                       ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see Visibility.AvcPublic#avm_private(a a a) Invalid ref: invalid argument declaration\n"
-				+ "	                                       ^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see Visibility.AvcPublic#avm_public(*****) Invalid ref: invalid argument declaration\n"
-				+ "	                                      ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid package super class methods references (invalid arguments)
+						 *\s
+						 * @see Visibility#avm_private(,,,,) Invalid ref: invalid argument declaration
+						 * @see Visibility#avm_public(String,,,) Invalid ref: invalid argument declaration
+						 * @see Visibility.AvcPrivate#avm_private(char c, double) Invalid ref: invalid argument declaration
+						 * @see Visibility.AvcPrivate#avm_public(*) Invalid ref: invalid argument declaration
+						 * @see Visibility.AvcPublic#avm_private(a a a) Invalid ref: invalid argument declaration
+						 * @see Visibility.AvcPublic#avm_public(*****) Invalid ref: invalid argument declaration
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see Visibility#avm_private(,,,,) Invalid ref: invalid argument declaration
+					                             ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see Visibility#avm_public(String,,,) Invalid ref: invalid argument declaration
+					                            ^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see Visibility.AvcPrivate#avm_private(char c, double) Invalid ref: invalid argument declaration
+					                                        ^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see Visibility.AvcPrivate#avm_public(*) Invalid ref: invalid argument declaration
+					                                       ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see Visibility.AvcPublic#avm_private(a a a) Invalid ref: invalid argument declaration
+					                                       ^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see Visibility.AvcPublic#avm_public(*****) Invalid ref: invalid argument declaration
+					                                      ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""");
 	}
 
 	public void test150() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.*;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package non visible class methods references (non existent/visible arguments)\n"
-					+ "	 * \n"
-					+ "	 * @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n"
-					+ "	 * @see VisibilityPackage#vm_private() Invalid ref: non visible class (non visible method)\n"
-					+ "	 * @see VisibilityPackage#vm_private(boolean) Invalid ref: non visible class (non existent method)\n"
-					+ "	 * @see VisibilityPackage#vm_public() Invalid ref: non visible class (visible method)\n"
-					+ "	 * @see VisibilityPackage#vm_public(long,long,long,int) Invalid ref: non visible class (visible method)\n"
-					+ "	 * @see VisibilityPackage.VpPrivate#unknown() Invalid ref: non visible class and non visible inner class (non existent method)\n"
-					+ "	 * @see VisibilityPackage.VpPrivate#vm_private() Invalid ref: non visible class and non visible inner class (non visible method)\n"
-					+ "	 * @see VisibilityPackage.VpPrivate#vm_private(boolean, String) Invalid ref: non visible class and non visible inner class (non applicable method)\n"
-					+ "	 * @see VisibilityPackage.VpPrivate#vm_public() Invalid ref: non visible class and non visible inner class (visible method)\n"
-					+ "	 * @see VisibilityPackage.VpPrivate#vm_public(Object, float) Invalid ref: non visible class and non visible inner class (non applicable visible method)\n"
-					+ "	 * @see VisibilityPackage.VpPublic#unknown() Invalid ref: non visible class and visible inner class (non existent method)\n"
-					+ "	 * @see VisibilityPackage.VpPublic#vm_private() Invalid ref: non visible class and visible inner class (non visible method)\n"
-					+ "	 * @see VisibilityPackage.VpPublic#vm_private(boolean, String) Invalid ref: non visible class and visible inner class (non applicable method)\n"
-					+ "	 * @see VisibilityPackage.VpPublic#vm_public() Invalid ref: non visible class and visible inner class (visible method)\n"
-					+ "	 * @see VisibilityPackage.VpPublic#vm_public(Object, float) Invalid ref: non visible class and visible inner class (non applicable visible method)\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n" +
-			"1. WARNING in test\\X.java (at line 2)\n"+
-			"	import test.copy.*;\n"+
-			"	       ^^^^^^^^^\n"+
-			"The import test.copy is never used\n"+
-			"----------\n"+
-			"2. ERROR in test\\X.java (at line 7)\n" +
-			"	* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"3. ERROR in test\\X.java (at line 8)\n" +
-			"	* @see VisibilityPackage#vm_private() Invalid ref: non visible class (non visible method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"4. ERROR in test\\X.java (at line 9)\n" +
-			"	* @see VisibilityPackage#vm_private(boolean) Invalid ref: non visible class (non existent method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"5. ERROR in test\\X.java (at line 10)\n" +
-			"	* @see VisibilityPackage#vm_public() Invalid ref: non visible class (visible method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"6. ERROR in test\\X.java (at line 11)\n" +
-			"	* @see VisibilityPackage#vm_public(long,long,long,int) Invalid ref: non visible class (visible method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"7. ERROR in test\\X.java (at line 12)\n" +
-			"	* @see VisibilityPackage.VpPrivate#unknown() Invalid ref: non visible class and non visible inner class (non existent method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"8. ERROR in test\\X.java (at line 13)\n" +
-			"	* @see VisibilityPackage.VpPrivate#vm_private() Invalid ref: non visible class and non visible inner class (non visible method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"9. ERROR in test\\X.java (at line 14)\n" +
-			"	* @see VisibilityPackage.VpPrivate#vm_private(boolean, String) Invalid ref: non visible class and non visible inner class (non applicable method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"10. ERROR in test\\X.java (at line 15)\n" +
-			"	* @see VisibilityPackage.VpPrivate#vm_public() Invalid ref: non visible class and non visible inner class (visible method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"11. ERROR in test\\X.java (at line 16)\n" +
-			"	* @see VisibilityPackage.VpPrivate#vm_public(Object, float) Invalid ref: non visible class and non visible inner class (non applicable visible method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"12. ERROR in test\\X.java (at line 17)\n" +
-			"	* @see VisibilityPackage.VpPublic#unknown() Invalid ref: non visible class and visible inner class (non existent method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"13. ERROR in test\\X.java (at line 18)\n" +
-			"	* @see VisibilityPackage.VpPublic#vm_private() Invalid ref: non visible class and visible inner class (non visible method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"14. ERROR in test\\X.java (at line 19)\n" +
-			"	* @see VisibilityPackage.VpPublic#vm_private(boolean, String) Invalid ref: non visible class and visible inner class (non applicable method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"15. ERROR in test\\X.java (at line 20)\n" +
-			"	* @see VisibilityPackage.VpPublic#vm_public() Invalid ref: non visible class and visible inner class (visible method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n" +
-			"16. ERROR in test\\X.java (at line 21)\n" +
-			"	* @see VisibilityPackage.VpPublic#vm_public(Object, float) Invalid ref: non visible class and visible inner class (non applicable visible method)\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: The type VisibilityPackage is not visible\n" +
-			"----------\n");
+				"""
+					package test;
+					import test.copy.*;
+					public class X {
+						/**
+						 * Invalid other package non visible class methods references (non existent/visible arguments)
+						 *\s
+						 * @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)
+						 * @see VisibilityPackage#vm_private() Invalid ref: non visible class (non visible method)
+						 * @see VisibilityPackage#vm_private(boolean) Invalid ref: non visible class (non existent method)
+						 * @see VisibilityPackage#vm_public() Invalid ref: non visible class (visible method)
+						 * @see VisibilityPackage#vm_public(long,long,long,int) Invalid ref: non visible class (visible method)
+						 * @see VisibilityPackage.VpPrivate#unknown() Invalid ref: non visible class and non visible inner class (non existent method)
+						 * @see VisibilityPackage.VpPrivate#vm_private() Invalid ref: non visible class and non visible inner class (non visible method)
+						 * @see VisibilityPackage.VpPrivate#vm_private(boolean, String) Invalid ref: non visible class and non visible inner class (non applicable method)
+						 * @see VisibilityPackage.VpPrivate#vm_public() Invalid ref: non visible class and non visible inner class (visible method)
+						 * @see VisibilityPackage.VpPrivate#vm_public(Object, float) Invalid ref: non visible class and non visible inner class (non applicable visible method)
+						 * @see VisibilityPackage.VpPublic#unknown() Invalid ref: non visible class and visible inner class (non existent method)
+						 * @see VisibilityPackage.VpPublic#vm_private() Invalid ref: non visible class and visible inner class (non visible method)
+						 * @see VisibilityPackage.VpPublic#vm_private(boolean, String) Invalid ref: non visible class and visible inner class (non applicable method)
+						 * @see VisibilityPackage.VpPublic#vm_public() Invalid ref: non visible class and visible inner class (visible method)
+						 * @see VisibilityPackage.VpPublic#vm_public(Object, float) Invalid ref: non visible class and visible inner class (non applicable visible method)
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. WARNING in test\\X.java (at line 2)
+					import test.copy.*;
+					       ^^^^^^^^^
+				The import test.copy is never used
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)
+					       ^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see VisibilityPackage#vm_private() Invalid ref: non visible class (non visible method)
+					       ^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see VisibilityPackage#vm_private(boolean) Invalid ref: non visible class (non existent method)
+					       ^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see VisibilityPackage#vm_public() Invalid ref: non visible class (visible method)
+					       ^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see VisibilityPackage#vm_public(long,long,long,int) Invalid ref: non visible class (visible method)
+					       ^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				7. ERROR in test\\X.java (at line 12)
+					* @see VisibilityPackage.VpPrivate#unknown() Invalid ref: non visible class and non visible inner class (non existent method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				8. ERROR in test\\X.java (at line 13)
+					* @see VisibilityPackage.VpPrivate#vm_private() Invalid ref: non visible class and non visible inner class (non visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				9. ERROR in test\\X.java (at line 14)
+					* @see VisibilityPackage.VpPrivate#vm_private(boolean, String) Invalid ref: non visible class and non visible inner class (non applicable method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				10. ERROR in test\\X.java (at line 15)
+					* @see VisibilityPackage.VpPrivate#vm_public() Invalid ref: non visible class and non visible inner class (visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				11. ERROR in test\\X.java (at line 16)
+					* @see VisibilityPackage.VpPrivate#vm_public(Object, float) Invalid ref: non visible class and non visible inner class (non applicable visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				12. ERROR in test\\X.java (at line 17)
+					* @see VisibilityPackage.VpPublic#unknown() Invalid ref: non visible class and visible inner class (non existent method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				13. ERROR in test\\X.java (at line 18)
+					* @see VisibilityPackage.VpPublic#vm_private() Invalid ref: non visible class and visible inner class (non visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				14. ERROR in test\\X.java (at line 19)
+					* @see VisibilityPackage.VpPublic#vm_private(boolean, String) Invalid ref: non visible class and visible inner class (non applicable method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				15. ERROR in test\\X.java (at line 20)
+					* @see VisibilityPackage.VpPublic#vm_public() Invalid ref: non visible class and visible inner class (visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				16. ERROR in test\\X.java (at line 21)
+					* @see VisibilityPackage.VpPublic#vm_public(Object, float) Invalid ref: non visible class and visible inner class (non applicable visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPackage is not visible
+				----------
+				""");
 	}
 
 	public void test151() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.VisibilityPackage;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package non visible class methods references (invalid arguments)\n"
-					+ "	 * \n"
-					+ "	 * @see VisibilityPackage#vm_private(boolean-) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see VisibilityPackage#vm_public(long, int() Invalid ref: invalid argument declaration\n"
-					+ "	 * @see VisibilityPackage.VpPrivate#vm_private(char, a double d()) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see VisibilityPackage.VpPrivate#vm_public(()) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see VisibilityPackage.VpPublic#vm_private(char double) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see VisibilityPackage.VpPublic#vm_public((((() Invalid ref: invalid argument declaration\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 2)\n"
-				+ "	import test.copy.VisibilityPackage;\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see VisibilityPackage#vm_private(boolean-) Invalid ref: invalid argument declaration\n"
-				+ "	                                   ^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see VisibilityPackage#vm_public(long, int() Invalid ref: invalid argument declaration\n"
-				+ "	                                  ^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see VisibilityPackage.VpPrivate#vm_private(char, a double d()) Invalid ref: invalid argument declaration\n"
-				+ "	                                             ^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see VisibilityPackage.VpPrivate#vm_public(()) Invalid ref: invalid argument declaration\n"
-				+ "	                                            ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see VisibilityPackage.VpPublic#vm_private(char double) Invalid ref: invalid argument declaration\n"
-				+ "	                                            ^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see VisibilityPackage.VpPublic#vm_public((((() Invalid ref: invalid argument declaration\n"
-				+ "	                                           ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n",
+				"""
+					package test;
+					import test.copy.VisibilityPackage;
+					public class X {
+						/**
+						 * Invalid other package non visible class methods references (invalid arguments)
+						 *\s
+						 * @see VisibilityPackage#vm_private(boolean-) Invalid ref: invalid argument declaration
+						 * @see VisibilityPackage#vm_public(long, int() Invalid ref: invalid argument declaration
+						 * @see VisibilityPackage.VpPrivate#vm_private(char, a double d()) Invalid ref: invalid argument declaration
+						 * @see VisibilityPackage.VpPrivate#vm_public(()) Invalid ref: invalid argument declaration
+						 * @see VisibilityPackage.VpPublic#vm_private(char double) Invalid ref: invalid argument declaration
+						 * @see VisibilityPackage.VpPublic#vm_public((((() Invalid ref: invalid argument declaration
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 2)
+					import test.copy.VisibilityPackage;
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				The type test.copy.VisibilityPackage is not visible
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see VisibilityPackage#vm_private(boolean-) Invalid ref: invalid argument declaration
+					                                   ^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see VisibilityPackage#vm_public(long, int() Invalid ref: invalid argument declaration
+					                                  ^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see VisibilityPackage.VpPrivate#vm_private(char, a double d()) Invalid ref: invalid argument declaration
+					                                             ^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see VisibilityPackage.VpPrivate#vm_public(()) Invalid ref: invalid argument declaration
+					                                            ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see VisibilityPackage.VpPublic#vm_private(char double) Invalid ref: invalid argument declaration
+					                                            ^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				7. ERROR in test\\X.java (at line 12)
+					* @see VisibilityPackage.VpPublic#vm_public((((() Invalid ref: invalid argument declaration
+					                                           ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""",
 				JavacTestOptions.DEFAULT);
 	}
 
@@ -4378,176 +4782,186 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other fully qualified name package non visible class methods references (non existent/visible arguments)\n"
-					+ "	 * \n"
-					+ "	 * @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n"
-					+ "	 * @see test.copy.VisibilityPackage#vm_private() Invalid ref: non visible class (non visible method)\n"
-					+ "	 * @see test.copy.VisibilityPackage#vm_private(boolean) Invalid ref: non visible class (non existent method)\n"
-					+ "	 * @see test.copy.VisibilityPackage#vm_public() Invalid ref: non visible class (visible method)\n"
-					+ "	 * @see test.copy.VisibilityPackage#vm_public(long,long,long,int) Invalid ref: non visible class (visible method)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPrivate#unknown() Invalid ref: non visible class and non visible inner class (non existent method)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPrivate#vm_private() Invalid ref: non visible class and non visible inner class (non visible method)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPrivate#vm_private(boolean, String) Invalid ref: non visible class and non visible inner class (non applicable method)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPrivate#vm_public() Invalid ref: non visible class and non visible inner class (visible method)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPrivate#vm_public(Object, float) Invalid ref: non visible class and non visible inner class (non applicable visible method)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPublic#unknown() Invalid ref: non visible class and visible inner class (non existent method)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPublic#vm_private() Invalid ref: non visible class and visible inner class (non visible method)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPublic#vm_private(boolean, String) Invalid ref: non visible class and visible inner class (non applicable method)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPublic#vm_public() Invalid ref: non visible class and visible inner class (visible method)\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPublic#vm_public(Object, float) Invalid ref: non visible class and visible inner class (non applicable visible method)\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see test.copy.VisibilityPackage#vm_private() Invalid ref: non visible class (non visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see test.copy.VisibilityPackage#vm_private(boolean) Invalid ref: non visible class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see test.copy.VisibilityPackage#vm_public() Invalid ref: non visible class (visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see test.copy.VisibilityPackage#vm_public(long,long,long,int) Invalid ref: non visible class (visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPrivate#unknown() Invalid ref: non visible class and non visible inner class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPrivate#vm_private() Invalid ref: non visible class and non visible inner class (non visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "8. ERROR in test\\X.java (at line 13)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPrivate#vm_private(boolean, String) Invalid ref: non visible class and non visible inner class (non applicable method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "9. ERROR in test\\X.java (at line 14)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPrivate#vm_public() Invalid ref: non visible class and non visible inner class (visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "10. ERROR in test\\X.java (at line 15)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPrivate#vm_public(Object, float) Invalid ref: non visible class and non visible inner class (non applicable visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "11. ERROR in test\\X.java (at line 16)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPublic#unknown() Invalid ref: non visible class and visible inner class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "12. ERROR in test\\X.java (at line 17)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPublic#vm_private() Invalid ref: non visible class and visible inner class (non visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "13. ERROR in test\\X.java (at line 18)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPublic#vm_private(boolean, String) Invalid ref: non visible class and visible inner class (non applicable method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "14. ERROR in test\\X.java (at line 19)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPublic#vm_public() Invalid ref: non visible class and visible inner class (visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "15. ERROR in test\\X.java (at line 20)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPublic#vm_public(Object, float) Invalid ref: non visible class and visible inner class (non applicable visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid other fully qualified name package non visible class methods references (non existent/visible arguments)
+						 *\s
+						 * @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)
+						 * @see test.copy.VisibilityPackage#vm_private() Invalid ref: non visible class (non visible method)
+						 * @see test.copy.VisibilityPackage#vm_private(boolean) Invalid ref: non visible class (non existent method)
+						 * @see test.copy.VisibilityPackage#vm_public() Invalid ref: non visible class (visible method)
+						 * @see test.copy.VisibilityPackage#vm_public(long,long,long,int) Invalid ref: non visible class (visible method)
+						 * @see test.copy.VisibilityPackage.VpPrivate#unknown() Invalid ref: non visible class and non visible inner class (non existent method)
+						 * @see test.copy.VisibilityPackage.VpPrivate#vm_private() Invalid ref: non visible class and non visible inner class (non visible method)
+						 * @see test.copy.VisibilityPackage.VpPrivate#vm_private(boolean, String) Invalid ref: non visible class and non visible inner class (non applicable method)
+						 * @see test.copy.VisibilityPackage.VpPrivate#vm_public() Invalid ref: non visible class and non visible inner class (visible method)
+						 * @see test.copy.VisibilityPackage.VpPrivate#vm_public(Object, float) Invalid ref: non visible class and non visible inner class (non applicable visible method)
+						 * @see test.copy.VisibilityPackage.VpPublic#unknown() Invalid ref: non visible class and visible inner class (non existent method)
+						 * @see test.copy.VisibilityPackage.VpPublic#vm_private() Invalid ref: non visible class and visible inner class (non visible method)
+						 * @see test.copy.VisibilityPackage.VpPublic#vm_private(boolean, String) Invalid ref: non visible class and visible inner class (non applicable method)
+						 * @see test.copy.VisibilityPackage.VpPublic#vm_public() Invalid ref: non visible class and visible inner class (visible method)
+						 * @see test.copy.VisibilityPackage.VpPublic#vm_public(Object, float) Invalid ref: non visible class and visible inner class (non applicable visible method)
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see test.copy.VisibilityPackage#vm_private() Invalid ref: non visible class (non visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see test.copy.VisibilityPackage#vm_private(boolean) Invalid ref: non visible class (non existent method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see test.copy.VisibilityPackage#vm_public() Invalid ref: non visible class (visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see test.copy.VisibilityPackage#vm_public(long,long,long,int) Invalid ref: non visible class (visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see test.copy.VisibilityPackage.VpPrivate#unknown() Invalid ref: non visible class and non visible inner class (non existent method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				7. ERROR in test\\X.java (at line 12)
+					* @see test.copy.VisibilityPackage.VpPrivate#vm_private() Invalid ref: non visible class and non visible inner class (non visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				8. ERROR in test\\X.java (at line 13)
+					* @see test.copy.VisibilityPackage.VpPrivate#vm_private(boolean, String) Invalid ref: non visible class and non visible inner class (non applicable method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				9. ERROR in test\\X.java (at line 14)
+					* @see test.copy.VisibilityPackage.VpPrivate#vm_public() Invalid ref: non visible class and non visible inner class (visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				10. ERROR in test\\X.java (at line 15)
+					* @see test.copy.VisibilityPackage.VpPrivate#vm_public(Object, float) Invalid ref: non visible class and non visible inner class (non applicable visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				11. ERROR in test\\X.java (at line 16)
+					* @see test.copy.VisibilityPackage.VpPublic#unknown() Invalid ref: non visible class and visible inner class (non existent method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				12. ERROR in test\\X.java (at line 17)
+					* @see test.copy.VisibilityPackage.VpPublic#vm_private() Invalid ref: non visible class and visible inner class (non visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				13. ERROR in test\\X.java (at line 18)
+					* @see test.copy.VisibilityPackage.VpPublic#vm_private(boolean, String) Invalid ref: non visible class and visible inner class (non applicable method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				14. ERROR in test\\X.java (at line 19)
+					* @see test.copy.VisibilityPackage.VpPublic#vm_public() Invalid ref: non visible class and visible inner class (visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				15. ERROR in test\\X.java (at line 20)
+					* @see test.copy.VisibilityPackage.VpPublic#vm_public(Object, float) Invalid ref: non visible class and visible inner class (non applicable visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPackage is not visible
+				----------
+				""");
 	}
 
 	public void test153() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other fully qualified name package non visible class methods references (invalid arguments)\n"
-					+ "	 * \n"
-					+ "	 * @see test.copy.VisibilityPackage#vm_private(boolean-) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see test.copy.VisibilityPackage#vm_public(long, int() Invalid ref: invalid argument declaration\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPrivate#vm_private(char, a double d()) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPrivate#vm_public(()) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPublic#vm_private(char double) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see test.copy.VisibilityPackage.VpPublic#vm_public((((() Invalid ref: invalid argument declaration\n"
-					+ "	 */  \n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see test.copy.VisibilityPackage#vm_private(boolean-) Invalid ref: invalid argument declaration\n"
-				+ "	                                             ^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see test.copy.VisibilityPackage#vm_public(long, int() Invalid ref: invalid argument declaration\n"
-				+ "	                                            ^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPrivate#vm_private(char, a double d()) Invalid ref: invalid argument declaration\n"
-				+ "	                                                       ^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPrivate#vm_public(()) Invalid ref: invalid argument declaration\n"
-				+ "	                                                      ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPublic#vm_private(char double) Invalid ref: invalid argument declaration\n"
-				+ "	                                                      ^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see test.copy.VisibilityPackage.VpPublic#vm_public((((() Invalid ref: invalid argument declaration\n"
-				+ "	                                                     ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid other fully qualified name package non visible class methods references (invalid arguments)
+						 *\s
+						 * @see test.copy.VisibilityPackage#vm_private(boolean-) Invalid ref: invalid argument declaration
+						 * @see test.copy.VisibilityPackage#vm_public(long, int() Invalid ref: invalid argument declaration
+						 * @see test.copy.VisibilityPackage.VpPrivate#vm_private(char, a double d()) Invalid ref: invalid argument declaration
+						 * @see test.copy.VisibilityPackage.VpPrivate#vm_public(()) Invalid ref: invalid argument declaration
+						 * @see test.copy.VisibilityPackage.VpPublic#vm_private(char double) Invalid ref: invalid argument declaration
+						 * @see test.copy.VisibilityPackage.VpPublic#vm_public((((() Invalid ref: invalid argument declaration
+						 */ \s
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see test.copy.VisibilityPackage#vm_private(boolean-) Invalid ref: invalid argument declaration
+					                                             ^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see test.copy.VisibilityPackage#vm_public(long, int() Invalid ref: invalid argument declaration
+					                                            ^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see test.copy.VisibilityPackage.VpPrivate#vm_private(char, a double d()) Invalid ref: invalid argument declaration
+					                                                       ^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see test.copy.VisibilityPackage.VpPrivate#vm_public(()) Invalid ref: invalid argument declaration
+					                                                      ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see test.copy.VisibilityPackage.VpPublic#vm_private(char double) Invalid ref: invalid argument declaration
+					                                                      ^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see test.copy.VisibilityPackage.VpPublic#vm_public((((() Invalid ref: invalid argument declaration
+					                                                     ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""");
 	}
 
 	public void test154() {
 		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n" +
-				"import test.copy.VisibilityPublic;\n" +
-				"public class X {\n" +
-				"	/**\n" +
-				"	 * Valid other package visible class methods references \n" +
-				"	 * \n" +
-				"	 * @see VisibilityPublic#vm_public() Valid ref to not visible method of other package class\n" +
-				"	 * @see test.copy.VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n" +
-				"	 */\n" +
-				"	public void s_foo() {\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package test;
+					import test.copy.VisibilityPublic;
+					public class X {
+						/**
+						 * Valid other package visible class methods references\s
+						 *\s
+						 * @see VisibilityPublic#vm_public() Valid ref to not visible method of other package class
+						 * @see test.copy.VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					"""
 			}
 		);
 	}
@@ -4556,427 +4970,465 @@ public class JavadocTestForMethod extends JavadocTest {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.VisibilityPublic;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package visible class methods references (non-existent)\n"
-					+ "	 * \n"
-					+ "	 * @see VisibilityPublic#unknown() Invalid ref: non existent method\n"
-					+ "	 * @see VisibilityPublic.VpPublic#unknown() Invalid ref: non existent method of visible inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see VisibilityPublic#unknown() Invalid ref: non existent method\n"
-				+ "	                        ^^^^^^^\n"
-				+ "Javadoc: The method unknown() is undefined for the type VisibilityPublic\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see VisibilityPublic.VpPublic#unknown() Invalid ref: non existent method of visible inner class\n"
-				+ "	                                 ^^^^^^^\n"
-				+ "Javadoc: The method unknown() is undefined for the type VisibilityPublic.VpPublic\n"
-				+ "----------\n");
+				"""
+					package test;
+					import test.copy.VisibilityPublic;
+					public class X {
+						/**
+						 * Invalid other package visible class methods references (non-existent)
+						 *\s
+						 * @see VisibilityPublic#unknown() Invalid ref: non existent method
+						 * @see VisibilityPublic.VpPublic#unknown() Invalid ref: non existent method of visible inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 7)
+					* @see VisibilityPublic#unknown() Invalid ref: non existent method
+					                        ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type VisibilityPublic
+				----------
+				2. ERROR in test\\X.java (at line 8)
+					* @see VisibilityPublic.VpPublic#unknown() Invalid ref: non existent method of visible inner class
+					                                 ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type VisibilityPublic.VpPublic
+				----------
+				""");
 	}
 
 	public void test156() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.VisibilityPublic;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package visible class methods references (non-visible)\n"
-					+ "	 * \n"
-					+ "	 * @see VisibilityPublic#vm_private() Invalid ref: non visible method in visible class\n"
-					+ "	 * @see VisibilityPublic#vm_public() Valid ref: visible method in visible class\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#unknown() Invalid ref: non visible inner class (non existent method)\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#vm_private() Invalid ref: non visible inner class in visible class and (non visible method)\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#vm_private(boolean, String) Invalid ref: non visible inner class in visible class (non applicable method)\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#vm_public() Invalid ref: non visible inner class in visible class (visible method)\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#vm_public(Object, float) Invalid ref: non visible inner class in visible class (non applicable visible method)\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vm_private() Invalid ref: non visible method in visible inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see VisibilityPublic#vm_private() Invalid ref: non visible method in visible class\n"
-				+ "	                        ^^^^^^^^^^\n"
-				+ "Javadoc: The method vm_private() from the type VisibilityPublic is not visible\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#unknown() Invalid ref: non visible inner class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#vm_private() Invalid ref: non visible inner class in visible class and (non visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#vm_private(boolean, String) Invalid ref: non visible inner class in visible class (non applicable method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#vm_public() Invalid ref: non visible inner class in visible class (visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 13)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#vm_public(Object, float) Invalid ref: non visible inner class in visible class (non applicable visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 14)\n"
-				+ "	* @see VisibilityPublic.VpPublic#vm_private() Invalid ref: non visible method in visible inner class\n"
-				+ "	                                 ^^^^^^^^^^\n"
-				+ "Javadoc: The method vm_private() from the type VisibilityPublic.VpPublic is not visible\n"
-				+ "----------\n");
+				"""
+					package test;
+					import test.copy.VisibilityPublic;
+					public class X {
+						/**
+						 * Invalid other package visible class methods references (non-visible)
+						 *\s
+						 * @see VisibilityPublic#vm_private() Invalid ref: non visible method in visible class
+						 * @see VisibilityPublic#vm_public() Valid ref: visible method in visible class
+						 * @see VisibilityPublic.VpPrivate#unknown() Invalid ref: non visible inner class (non existent method)
+						 * @see VisibilityPublic.VpPrivate#vm_private() Invalid ref: non visible inner class in visible class and (non visible method)
+						 * @see VisibilityPublic.VpPrivate#vm_private(boolean, String) Invalid ref: non visible inner class in visible class (non applicable method)
+						 * @see VisibilityPublic.VpPrivate#vm_public() Invalid ref: non visible inner class in visible class (visible method)
+						 * @see VisibilityPublic.VpPrivate#vm_public(Object, float) Invalid ref: non visible inner class in visible class (non applicable visible method)
+						 * @see VisibilityPublic.VpPublic#vm_private() Invalid ref: non visible method in visible inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 7)
+					* @see VisibilityPublic#vm_private() Invalid ref: non visible method in visible class
+					                        ^^^^^^^^^^
+				Javadoc: The method vm_private() from the type VisibilityPublic is not visible
+				----------
+				2. ERROR in test\\X.java (at line 9)
+					* @see VisibilityPublic.VpPrivate#unknown() Invalid ref: non visible inner class (non existent method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPublic.VpPrivate is not visible
+				----------
+				3. ERROR in test\\X.java (at line 10)
+					* @see VisibilityPublic.VpPrivate#vm_private() Invalid ref: non visible inner class in visible class and (non visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPublic.VpPrivate is not visible
+				----------
+				4. ERROR in test\\X.java (at line 11)
+					* @see VisibilityPublic.VpPrivate#vm_private(boolean, String) Invalid ref: non visible inner class in visible class (non applicable method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPublic.VpPrivate is not visible
+				----------
+				5. ERROR in test\\X.java (at line 12)
+					* @see VisibilityPublic.VpPrivate#vm_public() Invalid ref: non visible inner class in visible class (visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPublic.VpPrivate is not visible
+				----------
+				6. ERROR in test\\X.java (at line 13)
+					* @see VisibilityPublic.VpPrivate#vm_public(Object, float) Invalid ref: non visible inner class in visible class (non applicable visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type VisibilityPublic.VpPrivate is not visible
+				----------
+				7. ERROR in test\\X.java (at line 14)
+					* @see VisibilityPublic.VpPublic#vm_private() Invalid ref: non visible method in visible inner class
+					                                 ^^^^^^^^^^
+				Javadoc: The method vm_private() from the type VisibilityPublic.VpPublic is not visible
+				----------
+				""");
 	}
 
 	public void test157() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.VisibilityPublic;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package visible class methods references (non-applicable)\n"
-					+ "	 * \n"
-					+ "	 * @see VisibilityPublic#vm_private(boolean) Invalid ref: non applicable method in visible class\n"
-					+ "	 * @see VisibilityPublic#vm_public(long,long,long,int) Invalid ref: non applicable method in visible class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vm_private(boolean, String) Invalid ref: non applicable method in visible inner class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vm_public(Object, float) Invalid ref: visible inner class (non applicable visible method)\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see VisibilityPublic#vm_private(boolean) Invalid ref: non applicable method in visible class\n"
-				+ "	                        ^^^^^^^^^^\n"
-				+ "Javadoc: The method vm_private() in the type VisibilityPublic is not applicable for the arguments (boolean)\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see VisibilityPublic#vm_public(long,long,long,int) Invalid ref: non applicable method in visible class\n"
-				+ "	                        ^^^^^^^^^\n"
-				+ "Javadoc: The method vm_public() in the type VisibilityPublic is not applicable for the arguments (long, long, long, int)\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see VisibilityPublic.VpPublic#vm_private(boolean, String) Invalid ref: non applicable method in visible inner class\n"
-				+ "	                                 ^^^^^^^^^^\n"
-				+ "Javadoc: The method vm_private() in the type VisibilityPublic.VpPublic is not applicable for the arguments (boolean, String)\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see VisibilityPublic.VpPublic#vm_public(Object, float) Invalid ref: visible inner class (non applicable visible method)\n"
-				+ "	                                 ^^^^^^^^^\n"
-				+ "Javadoc: The method vm_public() in the type VisibilityPublic.VpPublic is not applicable for the arguments (Object, float)\n"
-				+ "----------\n");
+				"""
+					package test;
+					import test.copy.VisibilityPublic;
+					public class X {
+						/**
+						 * Invalid other package visible class methods references (non-applicable)
+						 *\s
+						 * @see VisibilityPublic#vm_private(boolean) Invalid ref: non applicable method in visible class
+						 * @see VisibilityPublic#vm_public(long,long,long,int) Invalid ref: non applicable method in visible class
+						 * @see VisibilityPublic.VpPublic#vm_private(boolean, String) Invalid ref: non applicable method in visible inner class
+						 * @see VisibilityPublic.VpPublic#vm_public(Object, float) Invalid ref: visible inner class (non applicable visible method)
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 7)
+					* @see VisibilityPublic#vm_private(boolean) Invalid ref: non applicable method in visible class
+					                        ^^^^^^^^^^
+				Javadoc: The method vm_private() in the type VisibilityPublic is not applicable for the arguments (boolean)
+				----------
+				2. ERROR in test\\X.java (at line 8)
+					* @see VisibilityPublic#vm_public(long,long,long,int) Invalid ref: non applicable method in visible class
+					                        ^^^^^^^^^
+				Javadoc: The method vm_public() in the type VisibilityPublic is not applicable for the arguments (long, long, long, int)
+				----------
+				3. ERROR in test\\X.java (at line 9)
+					* @see VisibilityPublic.VpPublic#vm_private(boolean, String) Invalid ref: non applicable method in visible inner class
+					                                 ^^^^^^^^^^
+				Javadoc: The method vm_private() in the type VisibilityPublic.VpPublic is not applicable for the arguments (boolean, String)
+				----------
+				4. ERROR in test\\X.java (at line 10)
+					* @see VisibilityPublic.VpPublic#vm_public(Object, float) Invalid ref: visible inner class (non applicable visible method)
+					                                 ^^^^^^^^^
+				Javadoc: The method vm_public() in the type VisibilityPublic.VpPublic is not applicable for the arguments (Object, float)
+				----------
+				""");
 	}
 
 	public void test158() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.VisibilityPublic;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package visible class methods references (non-existent)\n"
-					+ "	 * \n"
-					+ "	 * @see VisibilityPublic#vm_private(\"boolean\") Invalid ref: invalid argument declaration\n"
-					+ "	 * @see VisibilityPublic#vm_public(long, \"int) Invalid ref: invalid argument definition\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#vm_private(double d()) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#vm_public(\") Invalid ref: invalid argument declaration\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vm_private(d()) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vm_public(205) Invalid ref: invalid argument declaration\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n" +
-			"1. WARNING in test\\X.java (at line 2)\n"+
-			"	import test.copy.VisibilityPublic;\n"+
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"+
-			"The import test.copy.VisibilityPublic is never used\n"+
-			"----------\n"+
-			"2. ERROR in test\\X.java (at line 7)\n" +
-			"	* @see VisibilityPublic#vm_private(\"boolean\") Invalid ref: invalid argument declaration\n" +
-			"	                                  ^^^^^^^^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"3. ERROR in test\\X.java (at line 8)\n" +
-			"	* @see VisibilityPublic#vm_public(long, \"int) Invalid ref: invalid argument definition\n" +
-			"	                                 ^^^^^^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"4. ERROR in test\\X.java (at line 9)\n" +
-			"	* @see VisibilityPublic.VpPrivate#vm_private(double d()) Invalid ref: invalid argument declaration\n" +
-			"	                                            ^^^^^^^^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"5. ERROR in test\\X.java (at line 10)\n" +
-			"	* @see VisibilityPublic.VpPrivate#vm_public(\") Invalid ref: invalid argument declaration\n" +
-			"	                                           ^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"6. ERROR in test\\X.java (at line 11)\n" +
-			"	* @see VisibilityPublic.VpPublic#vm_private(d()) Invalid ref: invalid argument declaration\n" +
-			"	                                           ^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"7. ERROR in test\\X.java (at line 12)\n" +
-			"	* @see VisibilityPublic.VpPublic#vm_public(205) Invalid ref: invalid argument declaration\n" +
-			"	                                          ^^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n");
+				"""
+					package test;
+					import test.copy.VisibilityPublic;
+					public class X {
+						/**
+						 * Invalid other package visible class methods references (non-existent)
+						 *\s
+						 * @see VisibilityPublic#vm_private("boolean") Invalid ref: invalid argument declaration
+						 * @see VisibilityPublic#vm_public(long, "int) Invalid ref: invalid argument definition
+						 * @see VisibilityPublic.VpPrivate#vm_private(double d()) Invalid ref: invalid argument declaration
+						 * @see VisibilityPublic.VpPrivate#vm_public(") Invalid ref: invalid argument declaration
+						 * @see VisibilityPublic.VpPublic#vm_private(d()) Invalid ref: invalid argument declaration
+						 * @see VisibilityPublic.VpPublic#vm_public(205) Invalid ref: invalid argument declaration
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. WARNING in test\\X.java (at line 2)
+					import test.copy.VisibilityPublic;
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				The import test.copy.VisibilityPublic is never used
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see VisibilityPublic#vm_private("boolean") Invalid ref: invalid argument declaration
+					                                  ^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see VisibilityPublic#vm_public(long, "int) Invalid ref: invalid argument definition
+					                                 ^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see VisibilityPublic.VpPrivate#vm_private(double d()) Invalid ref: invalid argument declaration
+					                                            ^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see VisibilityPublic.VpPrivate#vm_public(") Invalid ref: invalid argument declaration
+					                                           ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see VisibilityPublic.VpPublic#vm_private(d()) Invalid ref: invalid argument declaration
+					                                           ^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				7. ERROR in test\\X.java (at line 12)
+					* @see VisibilityPublic.VpPublic#vm_public(205) Invalid ref: invalid argument declaration
+					                                          ^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""");
 	}
 
 	public void test159() {
 		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid other package visible class methods references \n"
-					+ "	 * \n"
-					+ "	 * @see test.copy.VisibilityPublic#vm_public() Valid ref to not visible method of other package class\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"""
+					package test;
+					public class X {
+						/**
+						 * Valid other package visible class methods references\s
+						 *\s
+						 * @see test.copy.VisibilityPublic#vm_public() Valid ref to not visible method of other package class
+						 * @see test.copy.VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					""" });
 	}
 
 	public void test160() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package visible class methods references (non-existent)\n"
-					+ "	 * \n"
-					+ "	 * @see test.copy.VisibilityPublic#unknown() Invalid ref: non existent method\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic#unknown() Invalid ref: non existent method of visible inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see test.copy.VisibilityPublic#unknown() Invalid ref: non existent method\n"
-				+ "	                                  ^^^^^^^\n"
-				+ "Javadoc: The method unknown() is undefined for the type VisibilityPublic\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPublic#unknown() Invalid ref: non existent method of visible inner class\n"
-				+ "	                                           ^^^^^^^\n"
-				+ "Javadoc: The method unknown() is undefined for the type VisibilityPublic.VpPublic\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid other package visible class methods references (non-existent)
+						 *\s
+						 * @see test.copy.VisibilityPublic#unknown() Invalid ref: non existent method
+						 * @see test.copy.VisibilityPublic.VpPublic#unknown() Invalid ref: non existent method of visible inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see test.copy.VisibilityPublic#unknown() Invalid ref: non existent method
+					                                  ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type VisibilityPublic
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see test.copy.VisibilityPublic.VpPublic#unknown() Invalid ref: non existent method of visible inner class
+					                                           ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type VisibilityPublic.VpPublic
+				----------
+				""");
 	}
 
 	public void test161() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package visible class methods references (non-visible)\n"
-					+ "	 * \n"
-					+ "	 * @see test.copy.VisibilityPublic#vm_private() Invalid ref: non visible method in visible class\n"
-					+ "	 * @see test.copy.VisibilityPublic#vm_public() Valid ref: visible method in visible class\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPrivate#unknown() Invalid ref: non visible inner class (non existent method)\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPrivate#vm_private() Invalid ref: non visible inner class in visible class and (non visible method)\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPrivate#vm_private(boolean, String) Invalid ref: non visible inner class in visible class (non applicable method)\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPrivate#vm_public() Invalid ref: non visible inner class in visible class (visible method)\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPrivate#vm_public(Object, float) Invalid ref: non visible inner class in visible class (non applicable visible method)\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic#vm_private() Invalid ref: non visible method in visible inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see test.copy.VisibilityPublic#vm_private() Invalid ref: non visible method in visible class\n"
-				+ "	                                  ^^^^^^^^^^\n"
-				+ "Javadoc: The method vm_private() from the type VisibilityPublic is not visible\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPrivate#unknown() Invalid ref: non visible inner class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPrivate#vm_private() Invalid ref: non visible inner class in visible class and (non visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPrivate#vm_private(boolean, String) Invalid ref: non visible inner class in visible class (non applicable method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPrivate#vm_public() Invalid ref: non visible inner class in visible class (visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPrivate#vm_public(Object, float) Invalid ref: non visible inner class in visible class (non applicable visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 13)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPublic#vm_private() Invalid ref: non visible method in visible inner class\n"
-				+ "	                                           ^^^^^^^^^^\n"
-				+ "Javadoc: The method vm_private() from the type VisibilityPublic.VpPublic is not visible\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid other package visible class methods references (non-visible)
+						 *\s
+						 * @see test.copy.VisibilityPublic#vm_private() Invalid ref: non visible method in visible class
+						 * @see test.copy.VisibilityPublic#vm_public() Valid ref: visible method in visible class
+						 * @see test.copy.VisibilityPublic.VpPrivate#unknown() Invalid ref: non visible inner class (non existent method)
+						 * @see test.copy.VisibilityPublic.VpPrivate#vm_private() Invalid ref: non visible inner class in visible class and (non visible method)
+						 * @see test.copy.VisibilityPublic.VpPrivate#vm_private(boolean, String) Invalid ref: non visible inner class in visible class (non applicable method)
+						 * @see test.copy.VisibilityPublic.VpPrivate#vm_public() Invalid ref: non visible inner class in visible class (visible method)
+						 * @see test.copy.VisibilityPublic.VpPrivate#vm_public(Object, float) Invalid ref: non visible inner class in visible class (non applicable visible method)
+						 * @see test.copy.VisibilityPublic.VpPublic#vm_private() Invalid ref: non visible method in visible inner class
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see test.copy.VisibilityPublic#vm_private() Invalid ref: non visible method in visible class
+					                                  ^^^^^^^^^^
+				Javadoc: The method vm_private() from the type VisibilityPublic is not visible
+				----------
+				2. ERROR in test\\X.java (at line 8)
+					* @see test.copy.VisibilityPublic.VpPrivate#unknown() Invalid ref: non visible inner class (non existent method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible
+				----------
+				3. ERROR in test\\X.java (at line 9)
+					* @see test.copy.VisibilityPublic.VpPrivate#vm_private() Invalid ref: non visible inner class in visible class and (non visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible
+				----------
+				4. ERROR in test\\X.java (at line 10)
+					* @see test.copy.VisibilityPublic.VpPrivate#vm_private(boolean, String) Invalid ref: non visible inner class in visible class (non applicable method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible
+				----------
+				5. ERROR in test\\X.java (at line 11)
+					* @see test.copy.VisibilityPublic.VpPrivate#vm_public() Invalid ref: non visible inner class in visible class (visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible
+				----------
+				6. ERROR in test\\X.java (at line 12)
+					* @see test.copy.VisibilityPublic.VpPrivate#vm_public(Object, float) Invalid ref: non visible inner class in visible class (non applicable visible method)
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible
+				----------
+				7. ERROR in test\\X.java (at line 13)
+					* @see test.copy.VisibilityPublic.VpPublic#vm_private() Invalid ref: non visible method in visible inner class
+					                                           ^^^^^^^^^^
+				Javadoc: The method vm_private() from the type VisibilityPublic.VpPublic is not visible
+				----------
+				""");
 	}
 
 	public void test162() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package visible class methods references (non-applicable)\n"
-					+ "	 * \n"
-					+ "	 * @see test.copy.VisibilityPublic#vm_private(boolean) Invalid ref: non applicable method in visible class\n"
-					+ "	 * @see test.copy.VisibilityPublic#vm_public(long,long,long,int) Invalid ref: non applicable method in visible class\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic#vm_private(boolean, String) Invalid ref: non applicable method in visible inner class\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic#vm_public(Object, float) Invalid ref: visible inner class (non applicable visible method)\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see test.copy.VisibilityPublic#vm_private(boolean) Invalid ref: non applicable method in visible class\n"
-				+ "	                                  ^^^^^^^^^^\n"
-				+ "Javadoc: The method vm_private() in the type VisibilityPublic is not applicable for the arguments (boolean)\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see test.copy.VisibilityPublic#vm_public(long,long,long,int) Invalid ref: non applicable method in visible class\n"
-				+ "	                                  ^^^^^^^^^\n"
-				+ "Javadoc: The method vm_public() in the type VisibilityPublic is not applicable for the arguments (long, long, long, int)\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPublic#vm_private(boolean, String) Invalid ref: non applicable method in visible inner class\n"
-				+ "	                                           ^^^^^^^^^^\n"
-				+ "Javadoc: The method vm_private() in the type VisibilityPublic.VpPublic is not applicable for the arguments (boolean, String)\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPublic#vm_public(Object, float) Invalid ref: visible inner class (non applicable visible method)\n"
-				+ "	                                           ^^^^^^^^^\n"
-				+ "Javadoc: The method vm_public() in the type VisibilityPublic.VpPublic is not applicable for the arguments (Object, float)\n"
-				+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid other package visible class methods references (non-applicable)
+						 *\s
+						 * @see test.copy.VisibilityPublic#vm_private(boolean) Invalid ref: non applicable method in visible class
+						 * @see test.copy.VisibilityPublic#vm_public(long,long,long,int) Invalid ref: non applicable method in visible class
+						 * @see test.copy.VisibilityPublic.VpPublic#vm_private(boolean, String) Invalid ref: non applicable method in visible inner class
+						 * @see test.copy.VisibilityPublic.VpPublic#vm_public(Object, float) Invalid ref: visible inner class (non applicable visible method)
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. ERROR in test\\X.java (at line 6)
+					* @see test.copy.VisibilityPublic#vm_private(boolean) Invalid ref: non applicable method in visible class
+					                                  ^^^^^^^^^^
+				Javadoc: The method vm_private() in the type VisibilityPublic is not applicable for the arguments (boolean)
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see test.copy.VisibilityPublic#vm_public(long,long,long,int) Invalid ref: non applicable method in visible class
+					                                  ^^^^^^^^^
+				Javadoc: The method vm_public() in the type VisibilityPublic is not applicable for the arguments (long, long, long, int)
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see test.copy.VisibilityPublic.VpPublic#vm_private(boolean, String) Invalid ref: non applicable method in visible inner class
+					                                           ^^^^^^^^^^
+				Javadoc: The method vm_private() in the type VisibilityPublic.VpPublic is not applicable for the arguments (boolean, String)
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see test.copy.VisibilityPublic.VpPublic#vm_public(Object, float) Invalid ref: visible inner class (non applicable visible method)
+					                                           ^^^^^^^^^
+				Javadoc: The method vm_public() in the type VisibilityPublic.VpPublic is not applicable for the arguments (Object, float)
+				----------
+				""");
 	}
 
 	public void test163() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.VisibilityPublic;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package visible class methods references (non-existent)\n"
-					+ "	 * \n"
-					+ "	 * @see test.copy.VisibilityPublic#vm_private(\"\") Invalid ref: invalid argument declaration\n"
-					+ "	 * @see test.copy.VisibilityPublic#vm_public(\"\"\") Invalid ref: invalid argument definition\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPrivate#vm_private(String d()) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPrivate#vm_public([) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic#vm_private([]) Invalid ref: invalid argument declaration\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic#vm_public(char[], int[],]) Invalid ref: invalid argument declaration\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n" +
-			"1. WARNING in test\\X.java (at line 2)\n"+
-			"	import test.copy.VisibilityPublic;\n"+
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"+
-			"The import test.copy.VisibilityPublic is never used\n"+
-			"----------\n"+
-			"2. ERROR in test\\X.java (at line 7)\n" +
-			"	* @see test.copy.VisibilityPublic#vm_private(\"\") Invalid ref: invalid argument declaration\n" +
-			"	                                            ^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"3. ERROR in test\\X.java (at line 8)\n" +
-			"	* @see test.copy.VisibilityPublic#vm_public(\"\"\") Invalid ref: invalid argument definition\n" +
-			"	                                           ^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"4. ERROR in test\\X.java (at line 9)\n" +
-			"	* @see test.copy.VisibilityPublic.VpPrivate#vm_private(String d()) Invalid ref: invalid argument declaration\n" +
-			"	                                                      ^^^^^^^^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"5. ERROR in test\\X.java (at line 10)\n" +
-			"	* @see test.copy.VisibilityPublic.VpPrivate#vm_public([) Invalid ref: invalid argument declaration\n" +
-			"	                                                     ^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"6. ERROR in test\\X.java (at line 11)\n" +
-			"	* @see test.copy.VisibilityPublic.VpPublic#vm_private([]) Invalid ref: invalid argument declaration\n" +
-			"	                                                     ^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n" +
-			"7. ERROR in test\\X.java (at line 12)\n" +
-			"	* @see test.copy.VisibilityPublic.VpPublic#vm_public(char[], int[],]) Invalid ref: invalid argument declaration\n" +
-			"	                                                    ^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Invalid parameters declaration\n" +
-			"----------\n");
+				"""
+					package test;
+					import test.copy.VisibilityPublic;
+					public class X {
+						/**
+						 * Invalid other package visible class methods references (non-existent)
+						 *\s
+						 * @see test.copy.VisibilityPublic#vm_private("") Invalid ref: invalid argument declaration
+						 * @see test.copy.VisibilityPublic#vm_public(\""") Invalid ref: invalid argument definition
+						 * @see test.copy.VisibilityPublic.VpPrivate#vm_private(String d()) Invalid ref: invalid argument declaration
+						 * @see test.copy.VisibilityPublic.VpPrivate#vm_public([) Invalid ref: invalid argument declaration
+						 * @see test.copy.VisibilityPublic.VpPublic#vm_private([]) Invalid ref: invalid argument declaration
+						 * @see test.copy.VisibilityPublic.VpPublic#vm_public(char[], int[],]) Invalid ref: invalid argument declaration
+						 */
+						public void s_foo() {
+						}
+					}
+					""" },
+			"""
+				----------
+				1. WARNING in test\\X.java (at line 2)
+					import test.copy.VisibilityPublic;
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+				The import test.copy.VisibilityPublic is never used
+				----------
+				2. ERROR in test\\X.java (at line 7)
+					* @see test.copy.VisibilityPublic#vm_private("") Invalid ref: invalid argument declaration
+					                                            ^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				3. ERROR in test\\X.java (at line 8)
+					* @see test.copy.VisibilityPublic#vm_public(\""") Invalid ref: invalid argument definition
+					                                           ^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				4. ERROR in test\\X.java (at line 9)
+					* @see test.copy.VisibilityPublic.VpPrivate#vm_private(String d()) Invalid ref: invalid argument declaration
+					                                                      ^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				5. ERROR in test\\X.java (at line 10)
+					* @see test.copy.VisibilityPublic.VpPrivate#vm_public([) Invalid ref: invalid argument declaration
+					                                                     ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				6. ERROR in test\\X.java (at line 11)
+					* @see test.copy.VisibilityPublic.VpPublic#vm_private([]) Invalid ref: invalid argument declaration
+					                                                     ^^
+				Javadoc: Invalid parameters declaration
+				----------
+				7. ERROR in test\\X.java (at line 12)
+					* @see test.copy.VisibilityPublic.VpPublic#vm_public(char[], int[],]) Invalid ref: invalid argument declaration
+					                                                    ^^^^^^^^^^^^^^^^
+				Javadoc: Invalid parameters declaration
+				----------
+				""");
 	}
 
 	public void test164() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid param and throws tags\n"
-					+ "	 * \n"
-					+ "	 * @param\n"
-					+ "	 * @throws\n"
-					+ "	 */\n"
-					+ "	public void s_foo(int a) throws Exception {\n"
-					+ "	}\n"
-					+ "}\n" },
-					"----------\n"
-					+ "1. ERROR in X.java (at line 6)\n"
-					+ "	* @param\n"
-					+ "	   ^^^^^\n"
-					+ "Javadoc: Missing parameter name\n"
-					+ "----------\n"
-					+ "2. ERROR in X.java (at line 7)\n"
-					+ "	* @throws\n"
-					+ "	   ^^^^^^\n"
-					+ "Javadoc: Missing class name\n"
-					+ "----------\n"
-					+ "3. ERROR in X.java (at line 9)\n"
-					+ "	public void s_foo(int a) throws Exception {\n"
-					+ "	                      ^\n"
-					+ "Javadoc: Missing tag for parameter a\n"
-					+ "----------\n"
-					+ "4. ERROR in X.java (at line 9)\n"
-					+ "	public void s_foo(int a) throws Exception {\n"
-					+ "	                                ^^^^^^^^^\n"
-					+ "Javadoc: Missing tag for declared exception Exception\n"
-					+ "----------\n");
+				"""
+					package test;
+					public class X {
+						/**
+						 * Invalid param and throws tags
+						 *\s
+						 * @param
+						 * @throws
+						 */
+						public void s_foo(int a) throws Exception {
+						}
+					}
+					""" },
+					"""
+						----------
+						1. ERROR in X.java (at line 6)
+							* @param
+							   ^^^^^
+						Javadoc: Missing parameter name
+						----------
+						2. ERROR in X.java (at line 7)
+							* @throws
+							   ^^^^^^
+						Javadoc: Missing class name
+						----------
+						3. ERROR in X.java (at line 9)
+							public void s_foo(int a) throws Exception {
+							                      ^
+						Javadoc: Missing tag for parameter a
+						----------
+						4. ERROR in X.java (at line 9)
+							public void s_foo(int a) throws Exception {
+							                                ^^^^^^^^^
+						Javadoc: Missing tag for declared exception Exception
+						----------
+						""");
 	}
 }

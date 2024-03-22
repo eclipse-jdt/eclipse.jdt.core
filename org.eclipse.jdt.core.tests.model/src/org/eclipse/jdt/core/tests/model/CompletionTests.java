@@ -90,11 +90,13 @@ public void testAbortCompletion1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/AbortCompletion.java",
-		"public class AbortCompletion {\n"+
-		"	void foo() {\n"+
-		"		Objec\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class AbortCompletion {
+				void foo() {
+					Objec
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 
@@ -118,11 +120,13 @@ public void testAbortCompletion2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/AbortCompletion.java",
-		"public class AbortCompletion {\n"+
-		"	void foo() {\n"+
-		"		Objec\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class AbortCompletion {
+				void foo() {
+					Objec
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 
@@ -147,14 +151,16 @@ public void testArrayInitializer1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/ArrayInitializer.java",
-		"public class ArrayInitializer {\n"+
-		"	int bar() {return 0;}\n"+
-		"	void foo(int[] i) {\n"+
-		"		i = new int[] {\n"+
-		"			bar()\n"+
-		"		};\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class ArrayInitializer {
+				int bar() {return 0;}
+				void foo(int[] i) {
+					i = new int[] {
+						bar()
+					};
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 
@@ -172,29 +178,31 @@ public void testBug132679() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;\n" +
-			"class Context {\n" +
-			"\n" +
-			"  private int value = 10;\n" +
-			"\n" +
-			"  public abstract class Callback {\n" +
-			"      public abstract void doit(int value);\n" +
-			"  }\n" +
-			"}\n" +
-			"\n" +
-			"public class ContextTest {\n" +
-			"\n" +
-			"  private Context context = new Context();\n" +
-			"\n" +
-			"  public void test() {\n" +
-			"      context.new Callback() {\n" +
-			"      public void doit(int value) {\n" +
-			"        Object foo = new Object();\n" +
-			"        foo.equ\n" +
-			"      }\n" +
-			"    };\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package test;
+				class Context {
+				
+				  private int value = 10;
+				
+				  public abstract class Callback {
+				      public abstract void doit(int value);
+				  }
+				}
+				
+				public class ContextTest {
+				
+				  private Context context = new Context();
+				
+				  public void test() {
+				      context.new Callback() {
+				      public void doit(int value) {
+				        Object foo = new Object();
+				        foo.equ
+				      }
+				    };
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -211,14 +219,16 @@ public void testBug164311() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"    public int zzzzzz;\n" +
-		"    public void method1() {\n" +
-		"        label : if (0> (10));\n" +
-		"        zzz\n" +
-		"    }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			    public int zzzzzz;
+			    public void method1() {
+			        label : if (0> (10));
+			        zzz
+			    }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -236,24 +246,26 @@ public void testBug164311_2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;\n"+
-		"public class X {\n"+
-		"    public void zork() { \n"+
-		"    } \n"+
-		"    public void foo() { \n"+
-		"        this.foo(new Object(){\n"+
-		"            public void bar() {\n"+
-		"                if (zzz>(Integer)vvv.foo(i)) {\n"+
-		"                    return;\n"+
-		"                }\n"+
-		"                if (true) {\n"+
-		"                    return;\n"+
-		"                }\n"+
-		"                zor\n"+
-		"            }        \n"+
-		"        });\n"+
-		"    }\n"+
-		"}\n");
+		"""
+			package test;
+			public class X {
+			    public void zork() {\s
+			    }\s
+			    public void foo() {\s
+			        this.foo(new Object(){
+			            public void bar() {
+			                if (zzz>(Integer)vvv.foo(i)) {
+			                    return;
+			                }
+			                if (true) {
+			                    return;
+			                }
+			                zor
+			            }       \s
+			        });
+			    }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -269,18 +281,19 @@ public void testBug164311_2() throws JavaModelException {
 public void testBug96213() throws JavaModelException {
     this.wc = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n" +
-            "public class Test{\n"+
-            "  Test toto(Object o) {\n"+
-            "    return null;\n"+
-            "  }\n"+
-            "  void titi(int removed) {\n"+
-            "  }\n"+
-            "  void foo() {\n"+
-            "    int removed = 0;\n"+
-            "    toto(Test.this).titi(removed);\n"+
-            "  }\n"+
-            "}");
+            """
+				package test;
+				public class Test{
+				  Test toto(Object o) {
+				    return null;
+				  }
+				  void titi(int removed) {
+				  }
+				  void foo() {
+				    int removed = 0;
+				    toto(Test.this).titi(removed);
+				  }
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -303,9 +316,10 @@ public void testBug99811() throws JavaModelException {
 
 	    aType = getWorkingCopy(
 	            "/Completion/src/test/I.java",
-	            "public interface I {\n"+
-	            "  public class M extends A {}\n"+
-	            "}");
+	            """
+					public interface I {
+					  public class M extends A {}
+					}""");
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	    String str = this.wc.getSource();
@@ -325,104 +339,105 @@ public void testBug169682a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n"+
-		"\n"+
-		"public class Test \n"+
-		"{\n"+
-		"        public Test() \n"+
-		"        {\n"+
-		"                this.t// do ctrl+space here\n"+
-		"        }\n"+
-		"\n"+
-		"        Object field = new Object() \n"+
-		"        {\n"+
-		"                public void foo() {\n"+
-		"\n"+
-		"                        if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {}\n"+
-		"                        else if(true)\n"+
-		"                        {\n"+
-		"                                if(true)\n"+
-		"                                {\n"+
-		"                                        if(true)\n"+
-		"                                        {\n"+
-		"                                                boolean result[][];\n"+
-		"                                        }\n"+
-		"                                }\n"+
-		"                        }       \n"+
-		"                }\n"+
-		"        };   \n"+
-		"}";
+		"""
+		package test;
+		
+		public class Test\s
+		{
+		        public Test()\s
+		        {
+		                this.t// do ctrl+space here
+		        }
+		
+		        Object field = new Object()\s
+		        {
+		                public void foo() {
+		
+		                        if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {}
+		                        else if(true)
+		                        {
+		                                if(true)
+		                                {
+		                                        if(true)
+		                                        {
+		                                                boolean result[][];
+		                                        }
+		                                }
+		                        }      \s
+		                }
+		        };  \s
+		}""";
 
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
@@ -442,13 +457,14 @@ public void testBug169682b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n"+
-		"public class Test\n"+
-		"{\n"+
-		"        #\n"+
-		"        int[] i;\n"+
-		"        Obj x; // do ctrl+space at |\n"+
-		"}";
+		"""
+		package test;
+		public class Test
+		{
+		        #
+		        int[] i;
+		        Obj x; // do ctrl+space at |
+		}""";
 
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
@@ -469,14 +485,15 @@ public void testBug275518a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n"+
-		"public class Test {\n"+
-		"\n"+
-		"        void v() {\n"+
-		"\n"+
-		"        }\n"+
-		"\n"+
-		"}";
+		"""
+		package test;
+		public class Test {
+		
+		        void v() {
+		
+		        }
+		
+		}""";
 
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
@@ -508,14 +525,15 @@ public void testBug275518b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n"+
-		"public class Test {\n"+
-		"\n"+
-		"        void v() { \n"+
-		"\n"+
-		"        }\n"+
-		"\n"+
-		"}";
+		"""
+		package test;
+		public class Test {
+		
+		        void v() {\s
+		
+		        }
+		
+		}""";
 
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
@@ -547,14 +565,15 @@ public void testBug275518c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n"+
-		"public class Test {\n"+
-		"\n"+
-		"        void v() { \n"+
-		"\n"+
-		"        }\n"+
-		"\n"+
-		"}";
+		"""
+		package test;
+		public class Test {
+		
+		        void v() {\s
+		
+		        }
+		
+		}""";
 
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
@@ -589,14 +608,15 @@ public void testCamelCaseField1() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
-			"package camelcase;"+
-			"public class Test {\n"+
-			"  int oneTwoThree;\n"+
-			"  int oTTField;\n"+
-			"  void foo() {\n"+
-			"    oTT\n"+
-			"  }\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class Test {
+				  int oneTwoThree;
+				  int oTTField;
+				  void foo() {
+				    oTT
+				  }
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -619,14 +639,15 @@ public void testCamelCaseLocalVariable1() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
-			"package camelcase;"+
-			"public class Test {\n"+
-			"  void foo() {\n"+
-			"    int oneTwoThree;\n"+
-			"    int oTTLocal;\n"+
-			"    oTT\n"+
-			"  }\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class Test {
+				  void foo() {
+				    int oneTwoThree;
+				    int oTTLocal;
+				    oTT
+				  }
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -649,14 +670,15 @@ public void testCamelCaseMethod1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
-			"package camelcase;"+
-			"public class Test {\n"+
-			"  void oneTwoThree(){}\n"+
-			"  void oTTMethod(){}\n"+
-			"  void foo() {\n"+
-			"    oTT\n"+
-			"  }\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class Test {
+				  void oneTwoThree(){}
+				  void oTTMethod(){}
+				  void foo() {
+				    oTT
+				  }
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -679,18 +701,20 @@ public void testCamelCaseMethodDeclaration1() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
-			"package camelcase;"+
-			"public class Test extends SuperClass {\n"+
-			"  oTT\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class Test extends SuperClass {
+				  oTT
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/camelcase/SuperClass.java",
-			"package camelcase;"+
-			"public class SuperClass {\n"+
-			"  public void oneTwoThree(){}\n"+
-			"  public void oTTMethod(){}\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class SuperClass {
+				  public void oneTwoThree(){}
+				  public void oTTMethod(){}
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -714,22 +738,25 @@ public void testCamelCaseType1() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
-			"package camelcase;"+
-			"public class Test {\n"+
-			"  FF\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class Test {
+				  FF
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/camelcase/FoFoFo.java",
-			"package camelcase;"+
-			"public class FoFoFo {\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class FoFoFo {
+				}""");
 
 		this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/camelcase/FFFTest.java",
-			"package camelcase;"+
-			"public class FFFTest {\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class FFFTest {
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -753,22 +780,25 @@ public void testCamelCaseType2() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
-			"package camelcase;"+
-			"public class Test {\n"+
-			"  camelcase.FF\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class Test {
+				  camelcase.FF
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/camelcase/FoFoFo.java",
-			"package camelcase;"+
-			"public class FoFoFo {\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class FoFoFo {
+				}""");
 
 		this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/camelcase/FFFTest.java",
-			"package camelcase;"+
-			"public class FFFTest {\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class FFFTest {
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -791,14 +821,15 @@ public void testCamelCaseType3() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
-			"package camelcase;"+
-			"public class Test {\n"+
-			"  /**/FF\n"+
-			"}\n"+
-			"class FoFoFo {\n"+
-			"}\n"+
-			"class FFFTest {\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class Test {
+				  /**/FF
+				}
+				class FoFoFo {
+				}
+				class FFFTest {
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -823,26 +854,29 @@ public void testCamelCaseType4() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
-			"package camelcase;"+
-			"public class Test {\n"+
-			"  FF\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class Test {
+				  FF
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/camelcase/Member1.java",
-			"package camelcase;"+
-			"public class Member1 {\n"+
-			"  public class FoFoFo {\n"+
-			"  }\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class Member1 {
+				  public class FoFoFo {
+				  }
+				}""");
 
 		this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/camelcase/Member2.java",
-			"package camelcase;"+
-			"public class Member2 {\n"+
-			"  public class FFFTest {\n"+
-			"  }\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class Member2 {
+				  public class FFFTest {
+				  }
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -866,14 +900,15 @@ public void testCamelCaseType5() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
-			"package camelcase;"+
-			"public class Test {\n"+
-			"  public class FoFoFo {\n"+
-			"    public class FFFTest {\n"+
-			"      FF\n"+
-			"    }\n"+
-			"  }\n"+
-			"}");
+			"""
+				package camelcase;\
+				public class Test {
+				  public class FoFoFo {
+				    public class FFFTest {
+				      FF
+				    }
+				  }
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -895,38 +930,46 @@ public void testCatchClauseExceptionRef01() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[4];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() throws IZZAException, IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         throwing();\n" +
-		"      }\n" +
-		"      catch (IZZAException e) {\n" +
-		"         bar();\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() throws IZZAException, IZZException {}
+				public void foo() {
+			      try {
+			         throwing();
+			      }
+			      catch (IZZAException e) {
+			         bar();
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZAException.java",
-			"package test;"+
-			"public class IZZAException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZAException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZBException.java",
-			"package test;"+
-			"public class IZZBException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZBException extends Exception {
+				}
+				""");
 
 	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends Exception {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -944,38 +987,46 @@ public void testCatchClauseExceptionRef02() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[4];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() throws IZZAException, IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         throwing()\n" +
-		"      }\n" +
-		"      catch (IZZAException e) {\n" +
-		"         bar();\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() throws IZZAException, IZZException {}
+				public void foo() {
+			      try {
+			         throwing()
+			      }
+			      catch (IZZAException e) {
+			         bar();
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZAException.java",
-			"package test;"+
-			"public class IZZAException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZAException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZBException.java",
-			"package test;"+
-			"public class IZZBException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZBException extends Exception {
+				}
+				""");
 
 	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends Exception {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -994,39 +1045,47 @@ public void testCatchClauseExceptionRef03() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[4];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() throws IZZAException, IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      #\n" +
-		"      try {\n" +
-		"         throwing();\n" +
-		"      }\n" +
-		"      catch (IZZAException e) {\n" +
-		"         bar();\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() throws IZZAException, IZZException {}
+				public void foo() {
+			      #
+			      try {
+			         throwing();
+			      }
+			      catch (IZZAException e) {
+			         bar();
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZAException.java",
-			"package test;"+
-			"public class IZZAException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZAException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZBException.java",
-			"package test;"+
-			"public class IZZBException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZBException extends Exception {
+				}
+				""");
 
 	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends Exception {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1045,38 +1104,46 @@ public void testCatchClauseExceptionRef04() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[4];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() throws test.p.IZZAException, test.p.IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         throwing();\n" +
-		"      }\n" +
-		"      catch (test.p.IZZAException e) {\n" +
-		"         bar();\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() throws test.p.IZZAException, test.p.IZZException {}
+				public void foo() {
+			      try {
+			         throwing();
+			      }
+			      catch (test.p.IZZAException e) {
+			         bar();
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/p/IZZAException.java",
-			"package test.p;"+
-			"public class IZZAException extends Exception {\n" +
-			"}\n");
+			"""
+				package test.p;\
+				public class IZZAException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/p/IZZBException.java",
-			"package test.p;"+
-			"public class IZZBException extends Exception {\n" +
-			"}\n");
+			"""
+				package test.p;\
+				public class IZZBException extends Exception {
+				}
+				""");
 
 	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src/test/p/IZZException.java",
-			"package test.p;"+
-			"public class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test.p;\
+				public class IZZException extends Exception {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1094,23 +1161,25 @@ public void testCatchClauseExceptionRef05() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public class IZZAException extends Exception {}\n" +
-		"	public class IZZBException extends Exception {}\n" +
-		"	public class IZZException extends Exception {}\n" +
-		"	public void throwing() throws IZZAException, IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         throwing();\n" +
-		"      }\n" +
-		"      catch (IZZAException e) {\n" +
-		"         bar();\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public class IZZAException extends Exception {}
+				public class IZZBException extends Exception {}
+				public class IZZException extends Exception {}
+				public void throwing() throws IZZAException, IZZException {}
+				public void foo() {
+			      try {
+			         throwing();
+			      }
+			      catch (IZZAException e) {
+			         bar();
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1128,25 +1197,27 @@ public void testCatchClauseExceptionRef06() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"   public class Inner {\n" +
-		"      public class IZZAException extends Exception {}\n" +
-		"      public class IZZBException extends Exception {}\n" +
-		"      public class IZZException extends Exception {}\n" +
-		"      public void throwing() throws IZZAException, IZZException {}\n" +
-		"      public void foo() {\n" +
-		"         try {\n" +
-		"            throwing();\n" +
-		"         }\n" +
-		"         catch (IZZAException e) {\n" +
-		"            bar();\n" +
-		"         }\n" +
-		"         catch (IZZ) {\n" +
-		"         }\n" +
-		"      }" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			   public class Inner {
+			      public class IZZAException extends Exception {}
+			      public class IZZBException extends Exception {}
+			      public class IZZException extends Exception {}
+			      public void throwing() throws IZZAException, IZZException {}
+			      public void foo() {
+			         try {
+			            throwing();
+			         }
+			         catch (IZZAException e) {
+			            bar();
+			         }
+			         catch (IZZ) {
+			         }
+			      }\
+			   }\
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1164,27 +1235,29 @@ public void testCatchClauseExceptionRef07() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"   void zork() {\n" +
-		"      class IZZAException extends Exception {}\n" +
-		"      class IZZBException extends Exception {}\n" +
-		"      class IZZException extends Exception {}\n" +
-		"      class Local {\n" +
-		"         public void throwing() throws IZZAException, IZZException {}\n" +
-		"         public void foo() {\n" +
-		"            try {\n" +
-		"               throwing();\n" +
-		"            }\n" +
-		"            catch (IZZAException e) {\n" +
-		"               bar();\n" +
-		"            }\n" +
-		"            catch (IZZ) {\n" +
-		"            }\n" +
-		"         }" +
-		"      }" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			   void zork() {
+			      class IZZAException extends Exception {}
+			      class IZZBException extends Exception {}
+			      class IZZException extends Exception {}
+			      class Local {
+			         public void throwing() throws IZZAException, IZZException {}
+			         public void foo() {
+			            try {
+			               throwing();
+			            }
+			            catch (IZZAException e) {
+			               bar();
+			            }
+			            catch (IZZ) {
+			            }
+			         }\
+			      }\
+			   }\
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1202,38 +1275,46 @@ public void testCatchClauseExceptionRef08() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[4];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() throws IZZAException, IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         throwing();\n" +
-		"      }\n" +
-		"      catch (IZZAException e) {\n" +
-		"         bar();\n" +
-		"      }\n" +
-		"      catch (/**/) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() throws IZZAException, IZZException {}
+				public void foo() {
+			      try {
+			         throwing();
+			      }
+			      catch (IZZAException e) {
+			         bar();
+			      }
+			      catch (/**/) {
+			      }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZAException.java",
-			"package test;"+
-			"public class IZZAException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZAException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZBException.java",
-			"package test;"+
-			"public class IZZBException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZBException extends Exception {
+				}
+				""");
 
 	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends Exception {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1251,49 +1332,59 @@ public void testCatchClauseExceptionRef09() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[5];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() throws IZZAException, IZZCException, IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         try {\n" +
-		"            throwing();\n" +
-		"         }\n" +
-		"         catch (IZZCException e) {\n" +
-		"            bar();\n" +
-		"         }\n" +
-		"      }\n" +
-		"      catch (IZZAException e) {\n" +
-		"         bar();\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() throws IZZAException, IZZCException, IZZException {}
+				public void foo() {
+			      try {
+			         try {
+			            throwing();
+			         }
+			         catch (IZZCException e) {
+			            bar();
+			         }
+			      }
+			      catch (IZZAException e) {
+			         bar();
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZAException.java",
-			"package test;"+
-			"public class IZZAException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZAException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZBException.java",
-			"package test;"+
-			"public class IZZBException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZBException extends Exception {
+				}
+				""");
 
 	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src/test/IZZCException.java",
-			"package test;"+
-			"public class IZZCException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZCException extends Exception {
+				}
+				""");
 
 	this.workingCopies[4] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends Exception {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1312,38 +1403,46 @@ public void testCatchClauseExceptionRef10() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[4];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() throws IZZAException, IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         throwing();\n" +
-		"      }\n" +
-		"      catch (IZZAException e) {\n" +
-		"         bar();\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() throws IZZAException, IZZException {}
+				public void foo() {
+			      try {
+			         throwing();
+			      }
+			      catch (IZZAException e) {
+			         bar();
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZAException.java",
-			"package test;"+
-			"public class IZZAException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZAException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZBException.java",
-			"package test;"+
-			"public class IZZBException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZBException extends Exception {
+				}
+				""");
 
 	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends IZZBException {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends IZZBException {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1363,38 +1462,46 @@ public void testCatchClauseExceptionRef11() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[4];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() throws IZZAException, IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         throwing();\n" +
-		"      }\n" +
-		"      catch (IZZAException e) {\n" +
-		"         bar();\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() throws IZZAException, IZZException {}
+				public void foo() {
+			      try {
+			         throwing();
+			      }
+			      catch (IZZAException e) {
+			         bar();
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZAException.java",
-			"package test;"+
-			"public class IZZAException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZAException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZBException.java",
-			"package test;"+
-			"public class IZZBException extends IZZAException {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZBException extends IZZAException {
+				}
+				""");
 
 	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends Exception {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1412,35 +1519,43 @@ public void testCatchClauseExceptionRef12() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[4];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() throws IZZAException, IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         throwing();\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() throws IZZAException, IZZException {}
+				public void foo() {
+			      try {
+			         throwing();
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZAException.java",
-			"package test;"+
-			"public class IZZAException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZAException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZBException.java",
-			"package test;"+
-			"public class IZZBException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZBException extends Exception {
+				}
+				""");
 
 	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends Exception {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1459,37 +1574,45 @@ public void testCatchClauseExceptionRef13() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[4];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() throws IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         throwing();\n" +
-		"      }\n" +
-		"      catch (IZZAException e) {\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() throws IZZException {}
+				public void foo() {
+			      try {
+			         throwing();
+			      }
+			      catch (IZZAException e) {
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZAException.java",
-			"package test;"+
-			"public class IZZAException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZAException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZBException.java",
-			"package test;"+
-			"public class IZZBException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZBException extends Exception {
+				}
+				""");
 
 	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends IZZAException {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends IZZAException {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1506,25 +1629,27 @@ public void testCatchClauseExceptionRef13b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"class IZZAException extends Exception {\n" +
-		"}\n" +
-		"class IZZBException extends Exception {\n" +
-		"}\n" +
-		"class IZZException extends IZZAException {\n" +
-		"}\n" +
-		"public class Test {\n" +
-		"	public void throwing() throws IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         throwing();\n" +
-		"      }\n" +
-		"      catch (IZZAException e) {\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			class IZZAException extends Exception {
+			}
+			class IZZBException extends Exception {
+			}
+			class IZZException extends IZZAException {
+			}
+			public class Test {
+				public void throwing() throws IZZException {}
+				public void foo() {
+			      try {
+			         throwing();
+			      }
+			      catch (IZZAException e) {
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1542,23 +1667,25 @@ public void testCatchClauseExceptionRef14() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() throws IZZException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         throwing();\n" +
-		"      }\n" +
-		"      catch (IZZAException e) {\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}" +
-		"class IZZAException extends Exception {\n" +
-		"}" +
-		"class IZZException extends Exception {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() throws IZZException {}
+				public void foo() {
+			      try {
+			         throwing();
+			      }
+			      catch (IZZAException e) {
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}\
+			class IZZAException extends Exception {
+			}\
+			class IZZException extends Exception {
+			}
+			""");
 
 	IJavaProject project = this.workingCopies[0].getJavaProject();
 	String old = project.getOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, true);
@@ -1583,33 +1710,39 @@ public void testCatchClauseExceptionRef15() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() throws IZZException, IZZAException {}\n" +
-		"	public void foo() {\n" +
-		"      try {\n" +
-		"         try {\n" +
-		"            throwing();\n" +
-		"         } finally {}\n" +
-		"      }\n" +
-		"      catch (IZZAException e) {\n" +
-		"      }\n" +
-		"      catch (IZZ) {\n" +
-		"      }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() throws IZZException, IZZAException {}
+				public void foo() {
+			      try {
+			         try {
+			            throwing();
+			         } finally {}
+			      }
+			      catch (IZZAException e) {
+			      }
+			      catch (IZZ) {
+			      }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZAException.java",
-			"package test;"+
-			"public class IZZAException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZAException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends Exception {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1640,17 +1773,18 @@ public void testCompletion2InterfacesWithSameMethod() throws JavaModelException 
 public void testCompletionAbstractMethod1() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionAbstractMethod1.java",
-            "public class CompletionAbstractMethod1 {\n" +
-            "	abstract class A {\n" +
-            "		abstract void foo();\n" +
-            "	}\n" +
-            "	class B extends A {\n" +
-            "		void foo{} {}\n" +
-            "		void bar() {\n" +
-            "			super.fo\n" +
-            "		}\n" +
-            "	}\n" +
-            "}");
+            """
+				public class CompletionAbstractMethod1 {
+					abstract class A {
+						abstract void foo();
+					}
+					class B extends A {
+						void foo{} {}
+						void bar() {
+							super.fo
+						}
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -1666,17 +1800,18 @@ public void testCompletionAbstractMethod1() throws JavaModelException {
 public void testCompletionAbstractMethod2() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionAbstractMethod2.java",
-            "public class CompletionAbstractMethod2 {\n" +
-            "	abstract class A {\n" +
-            "		abstract void foo();\n" +
-            "	}\n" +
-            "	class B extends A {\n" +
-            "		void foo{} {}\n" +
-            "		void bar() {\n" +
-            "			this.fo\n" +
-            "		}\n" +
-            "	}\n" +
-            "}");
+            """
+				public class CompletionAbstractMethod2 {
+					abstract class A {
+						abstract void foo();
+					}
+					class B extends A {
+						void foo{} {}
+						void bar() {
+							this.fo
+						}
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -1692,16 +1827,17 @@ public void testCompletionAbstractMethod2() throws JavaModelException {
 public void testCompletionAbstractMethod3() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionAbstractMethod3.java",
-            "public class CompletionAbstractMethod3 {\n" +
-            "	abstract class A {\n" +
-            "		abstract void foo();\n" +
-            "	}\n" +
-            "	class B extends A {\n" +
-            "		void bar() {\n" +
-            "			this.fo\n" +
-            "		}\n" +
-            "	}\n" +
-            "}");
+            """
+				public class CompletionAbstractMethod3 {
+					abstract class A {
+						abstract void foo();
+					}
+					class B extends A {
+						void bar() {
+							this.fo
+						}
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -1717,20 +1853,21 @@ public void testCompletionAbstractMethod3() throws JavaModelException {
 public void testCompletionAbstractMethod4() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionAbstractMethod4.java",
-            "public class CompletionAbstractMethod1 {\n" +
-            "	class A {\n" +
-            "		void foo(){}\n" +
-            "	}\n" +
-            "	abstract class B extends A {\n" +
-            "		abstract void foo();\n" +
-            "	}\n" +
-            "	class C extends B {\n" +
-            "		void foo{} {}\n" +
-            "		void bar() {\n" +
-            "			super.fo\n" +
-            "		}\n" +
-            "	}\n" +
-            "}");
+            """
+				public class CompletionAbstractMethod1 {
+					class A {
+						void foo(){}
+					}
+					abstract class B extends A {
+						abstract void foo();
+					}
+					class C extends B {
+						void foo{} {}
+						void bar() {
+							super.fo
+						}
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -1752,17 +1889,19 @@ public void testCompletionAbstractMethodRelevance1() throws JavaModelException {
 	try {
 		superClass = getWorkingCopy(
 	            "/Completion/src/CompletionAbstractSuperClass.java",
-	            "public abstract class CompletionAbstractSuperClass {\n"+
-	            "	public void foo1(){}\n"+
-	            "	public abstract void foo2();\n"+
-	            "	public void foo3(){}\n"+
-	            "}");
+	            """
+					public abstract class CompletionAbstractSuperClass {
+						public void foo1(){}
+						public abstract void foo2();
+						public void foo3(){}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionAbstractMethodRelevance1.java",
-	            "public class CompletionAbstractMethodRelevance1 extends CompletionAbstractSuperClass {\n"+
-	            "	foo\n"+
-	            "}");
+	            """
+					public class CompletionAbstractMethodRelevance1 extends CompletionAbstractSuperClass {
+						foo
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -1791,15 +1930,17 @@ public void testCompletionAbstractMethodRelevance2() throws JavaModelException {
 	try {
 		superClass = getWorkingCopy(
 	            "/Completion/src/CompletionSuperInterface.java",
-	            "public interface CompletionSuperInterface{\n"+
-	            "	public int eqFoo(int a,Object b);\n"+
-	            "}");
+	            """
+					public interface CompletionSuperInterface{
+						public int eqFoo(int a,Object b);
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionAbstractMethodRelevance2.java",
-	            "public class CompletionAbstractMethodRelevance2 implements CompletionSuperInterface {\n"+
-	            "	eq\n"+
-	            "}");
+	            """
+					public class CompletionAbstractMethodRelevance2 implements CompletionSuperInterface {
+						eq
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -1824,14 +1965,16 @@ public void testCompletionAfterIf1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;\n" +
-		"public class Test {\n" +
-		"	void foo(){\n" +
-		"		if ((unknown).equals(null)) ;\n" +
-		"		int superType = 0;\n" +
-		"		superTyp\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class Test {
+				void foo(){
+					if ((unknown).equals(null)) ;
+					int superType = 0;
+					superTyp
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1848,18 +1991,20 @@ public void testCompletionAfterIf2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;\n" +
-		"public class Test {\n" +
-		"	void foo(Object parent){\n" +
-		"		/**/eq\n" +
-		"		new Object() {\n" +
-		"			void bar() {\n" +
-		"				if (((Object) parent).equals(parent)) {\n" +
-		"				}\n" +
-		"			}\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class Test {
+				void foo(Object parent){
+					/**/eq
+					new Object() {
+						void bar() {
+							if (((Object) parent).equals(parent)) {
+							}
+						}
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1875,14 +2020,16 @@ public void testCompletionAfterCase1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionAfterCase1.java",
-		"public class CompletionAfterCase1 {\n" +
-		"	static final int zzz = 5;\n" +
-		"	void foo(){\n" +
-		"		switch(1) {\n" +
-		"			case zz\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class CompletionAfterCase1 {
+				static final int zzz = 5;
+				void foo(){
+					switch(1) {
+						case zz
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1898,15 +2045,17 @@ public void testCompletionAfterCase2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionAfterCase2.java",
-		"public class CompletionAfterCase2 {\n" +
-		"	static final int zzz = 5;\n" +
-		"	void foo(){\n" +
-		"		switch(1) {\n" +
-		"			case 25:\n" +
-		"			case zz\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class CompletionAfterCase2 {
+				static final int zzz = 5;
+				void foo(){
+					switch(1) {
+						case 25:
+						case zz
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1923,21 +2072,23 @@ public void testCompletionAfterCase3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterCase2.java",
-		"package test;\n" +
-		"public class CompletionAfterCase2 {\n" +
-		"	static final int ZZZ1 = 5;\n" +
-		"	static final long ZZZ2 = 5;\n" +
-		"	static final double ZZZ3 = 0;\n" +
-		"	static final Object ZZZ4 = null;\n" +
-		"	static final int[] ZZZ5 = null;\n" +
-		"	static final Object[] ZZZ6 = null;\n" +
-		"	static final short ZZZ7 = 0;\n" +
-		"	void foo(int i){\n" +
-		"		switch(i) {\n" +
-		"			case ZZ\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterCase2 {
+				static final int ZZZ1 = 5;
+				static final long ZZZ2 = 5;
+				static final double ZZZ3 = 0;
+				static final Object ZZZ4 = null;
+				static final int[] ZZZ5 = null;
+				static final Object[] ZZZ6 = null;
+				static final short ZZZ7 = 0;
+				void foo(int i){
+					switch(i) {
+						case ZZ
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1957,27 +2108,31 @@ public void testCompletionAfterCase4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterCase2.java",
-		"package test;\n" +
-		"public class CompletionAfterCase2 {\n" +
-		"	void foo(int i){\n" +
-		"		switch(i) {\n" +
-		"			case TestConstants.ZZ\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterCase2 {
+				void foo(int i){
+					switch(i) {
+						case TestConstants.ZZ
+					}
+				}
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestConstants.java",
-		"package test;\n" +
-		"public class TestConstants {\n" +
-		"	public static final int ZZZ1 = 5;\n" +
-		"	public static final long ZZZ2 = 5;\n" +
-		"	public static final double ZZZ3 = 0;\n" +
-		"	public static final Object ZZZ4 = null;\n" +
-		"	public static final int[] ZZZ5 = null;\n" +
-		"	public static final Object[] ZZZ6 = null;\n" +
-		"	public static final short ZZZ7 = 0;\n" +
-		"}\n");
+		"""
+			package test;
+			public class TestConstants {
+				public static final int ZZZ1 = 5;
+				public static final long ZZZ2 = 5;
+				public static final double ZZZ3 = 0;
+				public static final Object ZZZ4 = null;
+				public static final int[] ZZZ5 = null;
+				public static final Object[] ZZZ6 = null;
+				public static final short ZZZ7 = 0;
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -1997,14 +2152,16 @@ public void testCompletionAfterEqualEqual1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterEqualEqual1.java",
-		"package test;\n" +
-		"public class CompletionAfterEqualEqual1 {\n" +
-		"	void foo(Object a){\n" +
-		"		Object zzvar1 = null;\n" +
-		"		int zzvar2 = 0;\n" +
-		"		if (a == zz) {}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterEqualEqual1 {
+				void foo(Object a){
+					Object zzvar1 = null;
+					int zzvar2 = 0;
+					if (a == zz) {}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -2022,15 +2179,17 @@ public void testCompletionAfterEqualEqual2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterEqualEqual1.java",
-		"package test;\n" +
-		"public class CompletionAfterEqualEqual1 {\n" +
-		"	void foo(Object a){\n" +
-		"		int zzvar1 = 0;\n" +
-		"		Object zzvar2 = null;\n" +
-		"		int zzvar3 = 0;\n" +
-		"		if (a == zz) {}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterEqualEqual1 {
+				void foo(Object a){
+					int zzvar1 = 0;
+					Object zzvar2 = null;
+					int zzvar3 = 0;
+					if (a == zz) {}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -2050,14 +2209,16 @@ public void testCompletionAfterInstanceof01() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2082,13 +2243,15 @@ public void testCompletionAfterInstanceof01_02() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf && a.equal) {\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf && a.equal) {
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2115,15 +2278,17 @@ public void testCompletionAfterInstanceof01_03() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (true) \n" +
-		"			;\n" +
-		"		else if (a instanceof CompletionAfterInstanceOf && a.equal) {\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (true)\s
+						;
+					else if (a instanceof CompletionAfterInstanceOf && a.equal) {
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2150,16 +2315,18 @@ public void testCompletionAfterInstanceof01_04() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (true) \n" +
-		"			;\n" +
-		"		else if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (true)\s
+						;
+					else if (a instanceof CompletionAfterInstanceOf) {
+						a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2186,15 +2353,17 @@ public void testCompletionAfterInstanceof02_01() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public Object a;\n" +
-		"	void bar(){\n" +
-		"		if (this.a instanceof CompletionAfterInstanceOf) {\n" +
-		"			this.a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public Object a;
+				void bar(){
+					if (this.a instanceof CompletionAfterInstanceOf) {
+						this.a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2221,15 +2390,17 @@ public void testCompletionAfterInstanceof02_02() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public Object a;\n" +
-		"	void bar(){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			this.a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public Object a;
+				void bar(){
+					if (a instanceof CompletionAfterInstanceOf) {
+						this.a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2256,15 +2427,17 @@ public void testCompletionAfterInstanceof02_03() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public Object a;\n" +
-		"	void bar(){\n" +
-		"		if (this.a instanceof CompletionAfterInstanceOf) {\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public Object a;
+				void bar(){
+					if (this.a instanceof CompletionAfterInstanceOf) {
+						a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2291,15 +2464,17 @@ public void testCompletionAfterInstanceof02_04() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public Object a;\n" +
-		"	void bar(){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public Object a;
+				void bar(){
+					if (a instanceof CompletionAfterInstanceOf) {
+						a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2326,14 +2501,16 @@ public void testCompletionAfterInstanceof03_01() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf)\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf)
+						a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2360,14 +2537,16 @@ public void testCompletionAfterInstanceof03_02() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf)\n" +
-		"			bar(a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf)
+						bar(a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2394,15 +2573,17 @@ public void testCompletionAfterInstanceof03_03() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a){\n" +
-		"		while (true) {\n" +
-		"			if (a instanceof CompletionAfterInstanceOf)\n" +
-		"				bar(a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a){
+					while (true) {
+						if (a instanceof CompletionAfterInstanceOf)
+							bar(a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2429,15 +2610,17 @@ public void testCompletionAfterInstanceof03_04() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a){\n" +
-		"		if (true) {\n" +
-		"			if (a instanceof CompletionAfterInstanceOf)\n" +
-		"				bar(a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a){
+					if (true) {
+						if (a instanceof CompletionAfterInstanceOf)
+							bar(a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2464,15 +2647,17 @@ public void testCompletionAfterInstanceof03_05() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) \n" +
-		"			while (true)\n" +
-		"				a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf)\s
+						while (true)
+							a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2499,14 +2684,16 @@ public void testCompletionAfterInstanceof03_06() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) \n" +
-		"			while (a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf)\s
+						while (a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2534,15 +2721,17 @@ public void testCompletionAfterInstanceof04() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			bar(null);\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						bar(null);
+						a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2569,15 +2758,17 @@ public void testCompletionAfterInstanceof05() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			class Z {}\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						class Z {}
+						a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2604,15 +2795,17 @@ public void testCompletionAfterInstanceof06_01() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			while (true) {\n" +
-		"				a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						while (true) {
+							a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2639,15 +2832,17 @@ public void testCompletionAfterInstanceof06_02() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			while (true) \n" +
-		"				a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						while (true)\s
+							a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2674,17 +2869,18 @@ public void testCompletionAfterInstanceof07() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			if (b instanceof CompletionAfterInstanceOf2) {\n" +
-		"				a.equal\n" +
-		"	}\n" +
-		"}\n" +
-		"class CompletionAfterInstanceOf2 {\n" +
-		"}");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						if (b instanceof CompletionAfterInstanceOf2) {
+							a.equal
+				}
+			}
+			class CompletionAfterInstanceOf2 {
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2711,17 +2907,18 @@ public void testCompletionAfterInstanceof08() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (b instanceof CompletionAfterInstanceOf2) {\n" +
-		"			if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"				a.equal\n" +
-		"	}\n" +
-		"}\n" +
-		"class CompletionAfterInstanceOf2 {\n" +
-		"}");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (b instanceof CompletionAfterInstanceOf2) {
+						if (a instanceof CompletionAfterInstanceOf) {
+							a.equal
+				}
+			}
+			class CompletionAfterInstanceOf2 {
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2748,14 +2945,15 @@ public void testCompletionAfterInstanceof09() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (!(a instanceof CompletionAfterInstanceOf)) {\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (!(a instanceof CompletionAfterInstanceOf)) {
+						a.equal
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2777,14 +2975,15 @@ public void testCompletionAfterInstanceof10() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a, boolean b){\n" +
-		"		if (b && (a instanceof CompletionAfterInstanceOf)) {\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a, boolean b){
+					if (b && (a instanceof CompletionAfterInstanceOf)) {
+						a.equal
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2806,14 +3005,15 @@ public void testCompletionAfterInstanceof11() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a, boolean b){\n" +
-		"		if (b || (a instanceof CompletionAfterInstanceOf)) {\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a, boolean b){
+					if (b || (a instanceof CompletionAfterInstanceOf)) {
+						a.equal
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2835,15 +3035,16 @@ public void testCompletionAfterInstanceof12() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			#\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						#
+						a.equal
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2870,15 +3071,16 @@ public void testCompletionAfterInstanceof13() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		#\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					#
+					if (a instanceof CompletionAfterInstanceOf) {
+						a.equal
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2905,14 +3107,15 @@ public void testCompletionAfterInstanceof14() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			(a).equal\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						(a).equal
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2934,14 +3137,16 @@ public void testCompletionAfterInstanceof15() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a, Object b){\n" +
-		"		if (b instanceof CompletionAfterInstanceOf) {\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a, Object b){
+					if (b instanceof CompletionAfterInstanceOf) {
+						a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2963,16 +3168,17 @@ public void testCompletionAfterInstanceof16() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public Object a;\n" +
-		"	public CompletionAfterInstanceOf b;\n" +
-		"	void bar(Object a){\n" +
-		"		if (b.a instanceof CompletionAfterInstanceOf) {\n" +
-		"			b.a.equal\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public Object a;
+				public CompletionAfterInstanceOf b;
+				void bar(Object a){
+					if (b.a instanceof CompletionAfterInstanceOf) {
+						b.a.equal
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -2994,16 +3200,17 @@ public void testCompletionAfterInstanceof17() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public Object a;\n" +
-		"	public CompletionAfterInstanceOf b;\n" +
-		"	void bar(Object a){\n" +
-		"		if (b.a instanceof CompletionAfterInstanceOf) {\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public Object a;
+				public CompletionAfterInstanceOf b;
+				void bar(Object a){
+					if (b.a instanceof CompletionAfterInstanceOf) {
+						a.equal
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3025,14 +3232,16 @@ public void testCompletionAfterInstanceof18_01() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			bar(a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						bar(a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3059,14 +3268,16 @@ public void testCompletionAfterInstanceof18_02() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			new CompletionAfterInstanceOf(){}.bar(a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						new CompletionAfterInstanceOf(){}.bar(a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3093,14 +3304,16 @@ public void testCompletionAfterInstanceof18_03() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a, Object b){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			bar(new CompletionAfterInstanceOf(){}, a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a, Object b){
+					if (a instanceof CompletionAfterInstanceOf) {
+						bar(new CompletionAfterInstanceOf(){}, a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3127,16 +3340,18 @@ public void testCompletionAfterInstanceof19() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			a /* comment 1 */\n" +
-		"				/* comment 2 */ . /* comment 3 */\n" +
-		"					/* comment 4 */ equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						a /* comment 1 */
+							/* comment 2 */ . /* comment 3 */
+								/* comment 4 */ equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3163,16 +3378,18 @@ public void testCompletionAfterInstanceof20() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a){\n" +
-		"		#\n" +
-		"		bar(null);\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a){
+					#
+					bar(null);
+					if (a instanceof CompletionAfterInstanceOf) {
+						a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3199,15 +3416,17 @@ public void testCompletionAfterInstanceof21() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf)\n" +
-		"			bar(null);\n" +
-		"		a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf)
+						bar(null);
+					a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3229,17 +3448,19 @@ public void testCompletionAfterInstanceof22_01() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			bar(null);\n" +
-		"		} else {\n" +
-		"			a.equal\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						bar(null);
+					} else {
+						a.equal
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3261,17 +3482,19 @@ public void testCompletionAfterInstanceof22_02() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf)\n" +
-		"			bar(null);\n" +
-		"		else {\n" +
-		"			a.equal\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf)
+						bar(null);
+					else {
+						a.equal
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3293,17 +3516,19 @@ public void testCompletionAfterInstanceof22_03() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			bar(null);\n" +
-		"		} else\n" +
-		"			a.equal\n" +
-		"		\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						bar(null);
+					} else
+						a.equal
+				\t
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3325,17 +3550,19 @@ public void testCompletionAfterInstanceof22_04() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public void equalsFoo(){}\n" +
-		"	public void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf)\n" +
-		"			bar(null);\n" +
-		"		else\n" +
-		"			a.equal\n" +
-		"		\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public void equalsFoo(){}
+				public void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf)
+						bar(null);
+					else
+						a.equal
+				\t
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3357,14 +3584,16 @@ public void testCompletionAfterInstanceof23() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public int equalsFoo;\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
-		"			a.equal\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public int equalsFoo;
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {
+						a.equal
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3391,14 +3620,16 @@ public void testCompletionAfterInstanceof24_1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public int equalsFoo;\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf[]) {\n" +
-		"			a.le\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public int equalsFoo;
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf[]) {
+						a.le
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3426,14 +3657,16 @@ public void testCompletionAfterInstanceof24_2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public int equalsFoo;\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf[]) {\n" +
-		"			a.cl\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public int equalsFoo;
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf[]) {
+						a.cl
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -3461,20 +3694,21 @@ public void testCompletionAfterSupercall1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionAfterSupercall1.java",
-		"public class CompletionAfterSupercall1 extends CompletionAfterSupercall1_1 {\n" +
-		"	public void foo(){\n" +
-		"		super.foo\n" +
-		"	}\n" +
-		"}\n" +
-		"abstract class CompletionAfterSupercall1_1 extends CompletionAfterSupercall1_2 implements CompletionAfterSupercall1_3 {\n" +
-		"	\n" +
-		"}\n" +
-		"class CompletionAfterSupercall1_2 implements CompletionAfterSupercall1_3 {\n" +
-		"	public void foo(){}\n" +
-		"}\n" +
-		"interface CompletionAfterSupercall1_3 {\n" +
-		"	public void foo();\n" +
-		"}");
+		"""
+			public class CompletionAfterSupercall1 extends CompletionAfterSupercall1_1 {
+				public void foo(){
+					super.foo
+				}
+			}
+			abstract class CompletionAfterSupercall1_1 extends CompletionAfterSupercall1_2 implements CompletionAfterSupercall1_3 {
+			\t
+			}
+			class CompletionAfterSupercall1_2 implements CompletionAfterSupercall1_3 {
+				public void foo(){}
+			}
+			interface CompletionAfterSupercall1_3 {
+				public void foo();
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -3502,18 +3736,20 @@ public void testCompletionAfterSwitch() throws JavaModelException {
 public void testCompletionAllMemberTypes() throws JavaModelException {
     this.wc = getWorkingCopy(
             "/Completion/src/test/CompletionAllMemberTypes.java",
-            "package test;\n" +
-            "public class CompletionAllMemberTypes {\n" +
-            "  class Member1 {\n" +
-            "    class Member2 {\n" +
-            "      class Member3 {\n" +
-            "      }\n" +
-            "    }\n" +
-            "    void foo(){\n" +
-            "      Member\n" +
-            "    }\n" +
-            "  \n}" +
-            "}");
+            """
+				package test;
+				public class CompletionAllMemberTypes {
+				  class Member1 {
+				    class Member2 {
+				      class Member3 {
+				      }
+				    }
+				    void foo(){
+				      Member
+				    }
+				 \s
+				}\
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3531,24 +3767,26 @@ public void testCompletionAllMemberTypes() throws JavaModelException {
 public void testCompletionAllMemberTypes2() throws JavaModelException {
     this.wc = getWorkingCopy(
             "/Completion/src/test/CompletionAllMemberTypes2.java",
-            "package test;\n" +
-            "public class CompletionAllMemberTypes2 {\n" +
-            "  class Member1 {\n" +
-            "    class Member5 {\n" +
-            "      class Member6 {\n" +
-            "      }\n" +
-            "    }\n" +
-            "    class Member2 {\n" +
-            "      class Member3 {\n" +
-            "        class Member4 {\n" +
-            "        }\n" +
-            "      }\n" +
-            "      void foo(){\n" +
-            "        Member\n" +
-            "      }\n" +
-            "    }\n" +
-            "  \n}" +
-            "}");
+            """
+				package test;
+				public class CompletionAllMemberTypes2 {
+				  class Member1 {
+				    class Member5 {
+				      class Member6 {
+				      }
+				    }
+				    class Member2 {
+				      class Member3 {
+				        class Member4 {
+				        }
+				      }
+				      void foo(){
+				        Member
+				      }
+				    }
+				 \s
+				}\
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3569,22 +3807,24 @@ public void testCompletionAllMemberTypes2() throws JavaModelException {
 public void testCompletionAllMemberTypes3() throws JavaModelException {
     this.wc = getWorkingCopy(
             "/Completion/src/test/CompletionAllMemberTypes2.java",
-            "package test;\n" +
-            "public interface CompletionAllMemberTypes2 {\n" +
-            "  interface Member1 {\n" +
-            "    interface Member5 {\n" +
-            "      interface Member6 {\n" +
-            "      }\n" +
-            "    }\n" +
-            "    interface Member2 {\n" +
-            "      interface Member3 {\n" +
-            "        interface Member4 {\n" +
-            "        }\n" +
-            "      }\n" +
-            "        Member\n" +
-            "    }\n" +
-            "  \n}" +
-            "}");
+            """
+				package test;
+				public interface CompletionAllMemberTypes2 {
+				  interface Member1 {
+				    interface Member5 {
+				      interface Member6 {
+				      }
+				    }
+				    interface Member2 {
+				      interface Member3 {
+				        interface Member4 {
+				        }
+				      }
+				        Member
+				    }
+				 \s
+				}\
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3608,43 +3848,47 @@ public void testCompletionAllMemberTypes4() throws JavaModelException {
 	try {
 		anInterface = getWorkingCopy(
 	            "/Completion/src/test/AnInterface.java",
-	            "package test;\n" +
-	            "public interface AnInterface {\n" +
-	            "  public interface Member1 {\n" +
-	            "    public interface Member5 {\n" +
-	            "      public interface Member6 {\n" +
-	            "      }\n" +
-	            "    }\n" +
-	            "    public interface Member2 {\n" +
-	            "      public interface Member3 {\n" +
-	            "        interface Member4 {\n" +
-	            "        }\n" +
-	            "      }\n" +
-	            "        Member\n" +
-	            "    }\n" +
-	            "  \n}" +
-	            "}");
+	            """
+					package test;
+					public interface AnInterface {
+					  public interface Member1 {
+					    public interface Member5 {
+					      public interface Member6 {
+					      }
+					    }
+					    public interface Member2 {
+					      public interface Member3 {
+					        interface Member4 {
+					        }
+					      }
+					        Member
+					    }
+					 \s
+					}\
+					}""");
 
 	    this.wc = getWorkingCopy(
 	            "/Completion/src/test/CompletionAllMemberTypes2.java",
-	            "package test;\n" +
-	            "public class CompletionAllMemberTypes2 {\n" +
-	            "  class Member1 {\n" +
-	            "    class Member5 {\n" +
-	            "      class Member6 {\n" +
-	            "      }\n" +
-	            "    }\n" +
-	            "    class Member2 implements AnInterface {\n" +
-	            "      class Member3 {\n" +
-	            "        class Member4 {\n" +
-	            "        }\n" +
-	            "      }\n" +
-	            "      void foo(){\n" +
-	            "        Member\n" +
-	            "      }\n" +
-	            "    }\n" +
-	            "  \n}" +
-	            "}");
+	            """
+					package test;
+					public class CompletionAllMemberTypes2 {
+					  class Member1 {
+					    class Member5 {
+					      class Member6 {
+					      }
+					    }
+					    class Member2 implements AnInterface {
+					      class Member3 {
+					        class Member4 {
+					        }
+					      }
+					      void foo(){
+					        Member
+					      }
+					    }
+					 \s
+					}\
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3680,26 +3924,29 @@ public void testCompletionAllMemberTypes5() throws JavaModelException {
 	try {
 		aType = getWorkingCopy(
 	            "/Completion/src/test/AType.java",
-	            "package test;\n" +
-	            "public class AType {\n" +
-	            "  public class Member1 {\n" +
-	            "    private class Member2 {\n" +
-	            "      public class Member3 {\n" +
-	            "        public class Member4 {\n" +
-	            "        }\n" +
-	            "      }\n" +
-	            "    }\n" +
-	            "  \n}" +
-	            "}");
+	            """
+					package test;
+					public class AType {
+					  public class Member1 {
+					    private class Member2 {
+					      public class Member3 {
+					        public class Member4 {
+					        }
+					      }
+					    }
+					 \s
+					}\
+					}""");
 
 	    this.wc = getWorkingCopy(
 	            "/Completion/src/test/CompletionAllMemberTypes5.java",
-	            "package test;\n" +
-	            "public class CompletionAllMemberTypes5 {\n" +
-	            "  void foo(){\n" +
-	            "    Member\n" +
-	            "  }\n" +
-	            "}");
+	            """
+					package test;
+					public class CompletionAllMemberTypes5 {
+					  void foo(){
+					    Member
+					  }
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3729,20 +3976,21 @@ public void testCompletionAllMemberTypes6() throws JavaModelException {
 
 	    this.wc = getWorkingCopy(
 	            "/Completion/src/test/CompletionAllMemberTypes6.java",
-	            "package test;\n" +
-	            "class AType {\n" +
-	            "  public class Member1 {\n" +
-	            "    private class Member2 {\n" +
-	            "      public class Member3 {\n" +
-	            "      }\n" +
-	            "    }\n" +
-	            "  }\n" +
-	            "}\n" +
-	            "public class CompletionAllMemberTypes6 {\n" +
-	            "  void foo(){\n" +
-	            "    Member\n" +
-	            "  }\n" +
-	            "}");
+	            """
+					package test;
+					class AType {
+					  public class Member1 {
+					    private class Member2 {
+					      public class Member3 {
+					      }
+					    }
+					  }
+					}
+					public class CompletionAllMemberTypes6 {
+					  void foo(){
+					    Member
+					  }
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3764,18 +4012,19 @@ public void testCompletionAllMemberTypes7() throws JavaModelException {
 	try {
 	    this.wc = getWorkingCopy(
 	            "/Completion/src/test/AType.java",
-	            "package test;\n" +
-	            "class AType {\n" +
-	            "  public class Member1 {\n" +
-	            "    private class Member2 {\n" +
-	            "      public class Member3 {\n" +
-	            "      }\n" +
-	            "    }\n" +
-	            "  }\n" +
-	            "  void foo(){\n" +
-	            "    Member\n" +
-	            "  }\n" +
-	            "}");
+	            """
+					package test;
+					class AType {
+					  public class Member1 {
+					    private class Member2 {
+					      public class Member3 {
+					      }
+					    }
+					  }
+					  void foo(){
+					    Member
+					  }
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3814,23 +4063,24 @@ public void testCompletionAllocationExpressionIsParent1() throws JavaModelExcept
 public void testCompletionAllocationExpressionIsParent2() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionAllocationExpressionIsParent2.java",
-            "public class CompletionAllocationExpressionIsParent2 {\n" +
-            "	public class Inner {\n" +
-            "		public Inner(long i, long j){super();}\n" +
-            "		public Inner(Object i, Object j){super();}\n" +
-            "		\n" +
-            "	}\n" +
-            "	\n" +
-            "	long zzlong;\n" +
-            "	int zzint;\n" +
-            "	double zzdouble;\n" +
-            "	boolean zzboolean;\n" +
-            "	Object zzObject;\n" +
-            "	\n" +
-            "	void foo() {\n" +
-            "		this.new Inner(1, zz\n" +
-            "	}\n" +
-            "}");
+            """
+				public class CompletionAllocationExpressionIsParent2 {
+					public class Inner {
+						public Inner(long i, long j){super();}
+						public Inner(Object i, Object j){super();}
+					\t
+					}
+				\t
+					long zzlong;
+					int zzint;
+					double zzdouble;
+					boolean zzboolean;
+					Object zzObject;
+				\t
+					void foo() {
+						this.new Inner(1, zz
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3851,23 +4101,24 @@ public void testCompletionAllocationExpressionIsParent2() throws JavaModelExcept
 public void testCompletionAllocationExpressionIsParent3() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionAllocationExpressionIsParent3.java",
-            "public class CompletionAllocationExpressionIsParent3 {\n" +
-            "	public class Inner {\n" +
-            "		public Inner(long i, long j){super();}\n" +
-            "		public Inner(Object i, Object j){super();}\n" +
-            "		\n" +
-            "	}\n" +
-            "	\n" +
-            "	long zzlong;\n" +
-            "	int zzint;\n" +
-            "	double zzdouble;\n" +
-            "	boolean zzboolean;\n" +
-            "	Object zzObject;\n" +
-            "	\n" +
-            "	void foo() {\n" +
-            "		new CompletionAllocationExpressionIsParent3().new Inner(1, zz\n" +
-            "	}\n" +
-            "}");
+            """
+				public class CompletionAllocationExpressionIsParent3 {
+					public class Inner {
+						public Inner(long i, long j){super();}
+						public Inner(Object i, Object j){super();}
+					\t
+					}
+				\t
+					long zzlong;
+					int zzint;
+					double zzdouble;
+					boolean zzboolean;
+					Object zzObject;
+				\t
+					void foo() {
+						new CompletionAllocationExpressionIsParent3().new Inner(1, zz
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3925,25 +4176,26 @@ public void testCompletionAllocationExpressionIsParent5() throws JavaModelExcept
 public void testCompletionAllocationExpressionIsParent6() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionAllocationExpressionIsParent6.java",
-            "public class CompletionAllocationExpressionIsParent6 {\n" +
-            "	\n" +
-            "	long zzlong;\n" +
-            "	int zzint;\n" +
-            "	double zzdouble;\n" +
-            "	boolean zzboolean;\n" +
-            "	Object zzObject;\n" +
-            "	\n" +
-            "	void foo() {\n" +
-            "		new CompletionAllocation_ERROR_ExpressionIsParent6Plus().new Inner(1, zz\n" +
-            "	}\n" +
-            "}\n" +
-            "class CompletionAllocationExpressionIsParent6Plus {\n" +
-            "	public class Inner {\n" +
-            "		public Inner(long i, long j){\n" +
-            "			\n" +
-            "		}	\n" +
-            "	}	\n" +
-            "}");
+            """
+				public class CompletionAllocationExpressionIsParent6 {
+				\t
+					long zzlong;
+					int zzint;
+					double zzdouble;
+					boolean zzboolean;
+					Object zzObject;
+				\t
+					void foo() {
+						new CompletionAllocation_ERROR_ExpressionIsParent6Plus().new Inner(1, zz
+					}
+				}
+				class CompletionAllocationExpressionIsParent6Plus {
+					public class Inner {
+						public Inner(long i, long j){
+						\t
+						}\t
+					}\t
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3981,14 +4233,15 @@ public void testCompletionAmbiguousFieldName() throws JavaModelException {
 public void testCompletionAmbiguousFieldName2() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionAmbiguousFieldName2.java",
-            "public class CompletionAmbiguousFieldName2 {\n"+
-            "	int xBar;\n"+
-            "	class classFoo {\n"+
-            "		public void foo(int xBar){\n"+
-            "			xBa\n"+
-            "		}\n"+
-            "	}\n"+
-            "}");
+            """
+				public class CompletionAmbiguousFieldName2 {
+					int xBar;
+					class classFoo {
+						public void foo(int xBar){
+							xBa
+						}
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -4102,13 +4355,14 @@ public void testCompletionArrayAccess1() throws JavaModelException {
 public void testCompletionArrayClone() throws JavaModelException {
     this.wc = getWorkingCopy(
             "/Completion/src/test/CompletionArrayClone.java",
-            "package test;\n" +
-            "public class CompletionArrayClone {\n" +
-            "  public void foo() {\n" +
-            "    long[] var;\n" +
-            "    var.clon\n" +
-            "  }\n" +
-            "}");
+            """
+				package test;
+				public class CompletionArrayClone {
+				  public void foo() {
+				    long[] var;
+				    var.clon
+				  }
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -4126,13 +4380,14 @@ public void testCompletionArrayClone() throws JavaModelException {
 public void testCompletionArrayLength() throws JavaModelException {
     this.wc = getWorkingCopy(
             "/Completion/src/test/CompletionArrayLength.java",
-            "package test;\n" +
-            "public class CompletionArrayLength {\n" +
-            "  public void foo() {\n" +
-            "    long[] var;\n" +
-            "    var.leng\n" +
-            "  }" +
-            "}");
+            """
+				package test;
+				public class CompletionArrayLength {
+				  public void foo() {
+				    long[] var;
+				    var.leng
+				  }\
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -4229,11 +4484,12 @@ public void testCompletionAssignmentInMethod4() throws JavaModelException {
 public void testCompletionBasicAnonymousDeclaration1() throws JavaModelException {
 	CompletionResult result = complete(
 			"/Completion/src3/test0000/CompletionBasicCompletionContext.java",
-			"public class CompletionBasicAnonymousDeclaration1 {\n"+
-			"	void foo() {\n"+
-			"		new Object(\n"+
-			"	}\n"+
-			"}",
+			"""
+				public class CompletionBasicAnonymousDeclaration1 {
+					void foo() {
+						new Object(
+					}
+				}""",
 			"new Object(");
 
 	assertResults(
@@ -4250,13 +4506,14 @@ public void testCompletionBasicAnonymousDeclaration1() throws JavaModelException
 public void testCompletionBasicCompletionContext() throws JavaModelException {
 	CompletionResult result = complete(
 			"/Completion/src3/test0000/CompletionBasicCompletionContext.java",
-			"package test0000;\n" +
-			"public class CompletionBasicCompletionContext {\n" +
-			"  void bar(String o) {\n" +
-			"    String zzz = null; \n" +
-			"    o = zzz\n" +
-			"  }\n" +
-			"}",
+			"""
+				package test0000;
+				public class CompletionBasicCompletionContext {
+				  void bar(String o) {
+				    String zzz = null;\s
+				    o = zzz
+				  }
+				}""",
 			"zzz");
 
 	assertResults(
@@ -4273,12 +4530,14 @@ public void testCompletionBasicField1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionBasicField1.java",
-		"public class CompletionBasicField1 {\n"+
-		"	public int zzvarzz;\n"+
-		"	void foo() {\n"+
-		"		zzvar\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class CompletionBasicField1 {
+				public int zzvarzz;
+				void foo() {
+					zzvar
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
 	String str = this.workingCopies[0].getSource();
@@ -4301,11 +4560,13 @@ public void testCompletionBasicKeyword1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionBasicKeyword1.java",
-		"public class CompletionBasicKeyword1 {\n"+
-		"	void foo() {\n"+
-		"		whil\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class CompletionBasicKeyword1 {
+				void foo() {
+					whil
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
 	String str = this.workingCopies[0].getSource();
@@ -4328,12 +4589,14 @@ public void testCompletionBasicLocalVariable1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionBasicLocalVariable1.java",
-		"public class CompletionBasicLocalVariable1 {\n"+
-		"	void foo() {\n"+
-		"		int zzvarzz;\n"+
-		"		zzvar\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class CompletionBasicLocalVariable1 {
+				void foo() {
+					int zzvarzz;
+					zzvar
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
 	String str = this.workingCopies[0].getSource();
@@ -4356,11 +4619,13 @@ public void testCompletionBasicMethod1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionBasicMethod1.java",
-		"public class CompletionBasicMethod1 {\n"+
-		"	void zzfoo() {\n"+
-		"		zzfo\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class CompletionBasicMethod1 {
+				void zzfoo() {
+					zzfo
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
 	String str = this.workingCopies[0].getSource();
@@ -4383,9 +4648,11 @@ public void testCompletionBasicMethodDeclaration1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionBasicMethodDeclaration1.java",
-		"public class CompletionBasicMethodDeclaration1 {\n"+
-		"	equals\n"+
-		"}\n");
+		"""
+			public class CompletionBasicMethodDeclaration1 {
+				equals
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
 	String str = this.workingCopies[0].getSource();
@@ -4409,9 +4676,11 @@ public void testCompletionBasicPackage1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionBasicPackage1.java",
-		"public class CompletionBasicPackage1 {\n"+
-		"	java.lan\n"+
-		"}\n");
+		"""
+			public class CompletionBasicPackage1 {
+				java.lan
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
 	String str = this.workingCopies[0].getSource();
@@ -4435,9 +4704,11 @@ public void testCompletionBasicPotentialMethodDeclaration1() throws JavaModelExc
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionBasicPotentialMethodDeclaration1.java",
-		"public class CompletionBasicPotentialMethodDeclaration1 {\n"+
-		"	zzpot\n"+
-		"}\n");
+		"""
+			public class CompletionBasicPotentialMethodDeclaration1 {
+				zzpot
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
 	String str = this.workingCopies[0].getSource();
@@ -4461,11 +4732,13 @@ public void testCompletionBasicType1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionBasicType1.java",
-		"public class CompletionBasicType1 {\n"+
-		"	void foo() {\n"+
-		"		Objec\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class CompletionBasicType1 {
+				void foo() {
+					Objec
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
 	String str = this.workingCopies[0].getSource();
@@ -4489,11 +4762,13 @@ public void testCompletionBasicType2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionBasicType2.java",
-		"public class CompletionBasicType2 {\n"+
-		"	void foo() {\n"+
-		"		java.lang.Objec\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class CompletionBasicType2 {
+				void foo() {
+					java.lang.Objec
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
 	String str = this.workingCopies[0].getSource();
@@ -4518,11 +4793,13 @@ public void testCompletionBasicType3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionBasicType3.java",
-		"public class CompletionBasicType3 {\n"+
-		"	void foo() {\n"+
-		"		Objec\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class CompletionBasicType3 {
+				void foo() {
+					Objec
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, false, true, true, false, true, false);
 	String str = this.workingCopies[0].getSource();
@@ -4539,9 +4816,11 @@ public void testCompletionBasicVariableDeclaration1() throws JavaModelException 
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionBasicVariableDeclaration1.java",
-		"public class CompletionBasicVariableDeclaration1 {\n"+
-		"	public Object obj;\n"+
-		"}\n");
+		"""
+			public class CompletionBasicVariableDeclaration1 {
+				public Object obj;
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
 	String str = this.workingCopies[0].getSource();
@@ -4656,33 +4935,35 @@ public void testCompletionCastIsParent1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionCastIsParent1.java.java",
-		"public class CompletionCastIsParent1 {\n"+
-		"	Object zzOb;\n"+
-		"	XX00 zz00;\n"+
-		"	XX01 zz01;\n"+
-		"	XX02 zz02;\n"+
-		"	XX10 zz10;\n"+
-		"	XX11 zz11;\n"+
-		"	XX12 zz12;\n"+
-		"	XX20 zz20;\n"+
-		"	XX21 zz21;\n"+
-		"	XX22 zz22;\n"+
-		"	\n"+
-		"	Object zzObM(){}\n"+
-		"	XX00 zz00M(){}\n"+
-		"	XX01 zz01M(){}\n"+
-		"	XX02 zz02M(){}\n"+
-		"	XX10 zz10M(){}\n"+
-		"	XX11 zz11M(){}\n"+
-		"	XX12 zz12M(){}\n"+
-		"	XX20 zz20M(){}\n"+
-		"	XX21 zz21M(){}\n"+
-		"	XX22 zz22M(){}\n"+
-		"	\n"+
-		"	XX11 foo() {\n"+
-		"		return (XX11)zz\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class CompletionCastIsParent1 {
+				Object zzOb;
+				XX00 zz00;
+				XX01 zz01;
+				XX02 zz02;
+				XX10 zz10;
+				XX11 zz11;
+				XX12 zz12;
+				XX20 zz20;
+				XX21 zz21;
+				XX22 zz22;
+			\t
+				Object zzObM(){}
+				XX00 zz00M(){}
+				XX01 zz01M(){}
+				XX02 zz02M(){}
+				XX10 zz10M(){}
+				XX11 zz11M(){}
+				XX12 zz12M(){}
+				XX20 zz20M(){}
+				XX21 zz21M(){}
+				XX22 zz22M(){}
+			\t
+				XX11 foo() {
+					return (XX11)zz
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -4719,11 +5000,13 @@ public void testCompletionCastIsParent2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionCastIsParent2.java.java",
-		"public class CompletionCastIsParent2 {\n"+
-		"	XX11 foo() {\n"+
-		"		return (XX11)xx\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class CompletionCastIsParent2 {
+				XX11 foo() {
+					return (XX11)xx
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -4748,13 +5031,15 @@ public void testCompletionCatchArgumentName() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionCatchArgumentName.java",
-		"public class CompletionCatchArgumentName {\n"+
-		"	public void foo(){\n"+
-		"		try{\n"+
-		"			\n"+
-		"		} catch (Exception ex)\n"+
-		"	}\n"+
-		"}\n");
+		"""
+			public class CompletionCatchArgumentName {
+				public void foo(){
+					try{
+					\t
+					} catch (Exception ex)
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -4952,11 +5237,12 @@ public void testCompletionEmptyToken2() throws JavaModelException {
 public void testCompletionEmptyTypeName1() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionEmptyTypeName1.java",
-            "public class CompletionEmptyTypeName1 {\n"+
-           "	void foo() {\n"+
-           "		A a = new \n"+
-           "	}\n"+
-           "}");
+            """
+				public class CompletionEmptyTypeName1 {
+					void foo() {
+						A a = new\s
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5077,24 +5363,28 @@ public void testCompletionEmptyTypeName4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    new A().call(new /*content assist here*/)\n" +
-		"  }\n" +
-		"}\n" +
-		"interface I {\n" +
-		"  void call(TestRunnable r);\n" +
-		"}\n" +
-		"class A implements I{\n" +
-		"  public void call(TestRunnable r) {}\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    new A().call(new /*content assist here*/)
+			  }
+			}
+			interface I {
+			  void call(TestRunnable r);
+			}
+			class A implements I{
+			  public void call(TestRunnable r) {}
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestRunnable.java",
-		"package test;"+
-		"public class TestRunnable {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class TestRunnable {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -5162,18 +5452,20 @@ public void testCompletionExpectedTypeOnEmptyToken1() throws JavaModelException 
 
 		aType = getWorkingCopy(
 	            "/Completion/src/test/AType.java",
-	            "package test;\n" +
-	            "public class AType{\n"+
-	            "}");
+	            """
+					package test;
+					public class AType{
+					}""");
 
 	    this.wc = getWorkingCopy(
 	            "/Completion/src/test/Test.java",
-	            "package test;\n" +
-	            "public class Test{\n"+
-	            "  void foo() {\n"+
-	            "    AType a = new \n"+
-	            "  }\n"+
-	            "}");
+	            """
+					package test;
+					public class Test{
+					  void foo() {
+					    AType a = new\s
+					  }
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5210,18 +5502,20 @@ public void testCompletionExpectedTypeOnEmptyToken3() throws JavaModelException 
 	try {
 		aType = getWorkingCopy(
 	            "/Completion/src/test/AType.java",
-	            "package test;\n" +
-	            "public class AType{\n"+
-	            "}");
+	            """
+					package test;
+					public class AType{
+					}""");
 
 	    this.wc = getWorkingCopy(
 	            "/Completion/src/test/Test.java",
-	            "package test;\n" +
-	            "public class Test{\n"+
-	            "  void foo() {\n"+
-	            "    AType a = \n"+
-	            "  }\n"+
-	            "}");
+	            """
+					package test;
+					public class Test{
+					  void foo() {
+					    AType a =\s
+					  }
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5262,18 +5556,20 @@ public void testCompletionExpectedTypeOnEmptyToken4() throws JavaModelException 
 	try {
 		aType = getWorkingCopy(
 	            "/Completion/src/test/AInterface.java",
-	            "package test;\n" +
-	            "public interface AInterface{\n"+
-	            "}");
+	            """
+					package test;
+					public interface AInterface{
+					}""");
 
 	    this.wc = getWorkingCopy(
 	            "/Completion/src/test/Test.java",
-	            "package test;\n" +
-	            "public class Test{\n"+
-	            "  void foo() {\n"+
-	            "    AInterface a = new \n"+
-	            "  }\n"+
-	            "}");
+	            """
+					package test;
+					public class Test{
+					  void foo() {
+					    AInterface a = new\s
+					  }
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5396,10 +5692,12 @@ public void testCompletionFieldName2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/TypeNameRequestor.java",
-		"package test;"+
-		"public class TypeNameRequestor {\n" +
-		"  TypeNameRequestor name\n" +
-		"}\n");
+		"""
+			package test;\
+			public class TypeNameRequestor {
+			  TypeNameRequestor name
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -5418,10 +5716,12 @@ public void testCompletionFieldName3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/TypeNameRequestor.java",
-		"package test;"+
-		"public class TypeNameRequestor {\n" +
-		"  public static final TypeNameRequestor \n" +
-		"}\n");
+		"""
+			package test;\
+			public class TypeNameRequestor {
+			  public static final TypeNameRequestor\s
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -5441,10 +5741,12 @@ public void testCompletionFieldName4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/TypeNameRequestor.java",
-		"package test;"+
-		"public class TypeNameRequestor {\n" +
-		"  public static final TypeNameRequestor nam\n" +
-		"}\n");
+		"""
+			package test;\
+			public class TypeNameRequestor {
+			  public static final TypeNameRequestor nam
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -5464,10 +5766,12 @@ public void testCompletionFieldName5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/TypeNameRequestor.java",
-		"package test;"+
-		"public class TypeNameRequestor {\n" +
-		"  public static final TypeNameRequestor ZZ\n" +
-		"}\n");
+		"""
+			package test;\
+			public class TypeNameRequestor {
+			  public static final TypeNameRequestor ZZ
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -5487,10 +5791,12 @@ public void testCompletionFieldName6() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/TypeNameRequestor.java",
-		"package test;"+
-		"public class TypeNameRequestor {\n" +
-		"  public static final TypeNameRequestor ZZN\n" +
-		"}\n");
+		"""
+			package test;\
+			public class TypeNameRequestor {
+			  public static final TypeNameRequestor ZZN
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -5510,10 +5816,12 @@ public void testCompletionFieldName7() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/TypeNameRequestor.java",
-		"package test;"+
-		"public class TypeNameRequestor {\n" +
-		"  public static final TypeNameRequestor ZZ_N\n" +
-		"}\n");
+		"""
+			package test;\
+			public class TypeNameRequestor {
+			  public static final TypeNameRequestor ZZ_N
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -5534,12 +5842,13 @@ public void testCompletionFieldName7() throws JavaModelException {
 public void testCompletionFindClass() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionFindClass.java",
-            "public class CompletionFindClass {\n" +
-            "	private    A[] a;\n" +
-            "	public CompletionFindClass () {\n" +
-            "		this.a = new A\n" +
-            "	}\n" +
-            "}");
+            """
+				public class CompletionFindClass {
+					private    A[] a;
+					public CompletionFindClass () {
+						this.a = new A
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5601,14 +5910,15 @@ public void testCompletionFindClassDefaultPackage() throws JavaModelException {
 public void testCompletionFindConstructor() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionFindConstructor.java",
-            "public class CompletionFindConstructor {\n"+
-            "	public CompletionFindConstructor (int i) {\n"+
-            "	}\n"+
-            "	publuc void foo(){\n"+
-            "		int x = 45;\n"+
-            "		new CompletionFindConstructor(i);\n"+
-            "	}\n"+
-            "}");
+            """
+				public class CompletionFindConstructor {
+					public CompletionFindConstructor (int i) {
+					}
+					publuc void foo(){
+						int x = 45;
+						new CompletionFindConstructor(i);
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5638,10 +5948,11 @@ public void testCompletionFindConstructor() throws JavaModelException {
 public void testCompletionFindConstructor2() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionFindConstructor2.java",
-            "import zconstructors.*;\n"+
-            "public class CompletionFindConstructor2 {\n"+
-            "	Constructor2 c = new Constructor2();\n"+
-            "}");
+            """
+				import zconstructors.*;
+				public class CompletionFindConstructor2 {
+					Constructor2 c = new Constructor2();
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5668,10 +5979,11 @@ public void testCompletionFindConstructor2() throws JavaModelException {
 public void testCompletionFindConstructor3() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionFindConstructor3.java",
-            "import zconstructors.*;\n"+
-            "public class CompletionFindConstructor3 {\n"+
-            "	Constructor3 c = new Constructor3();\n"+
-            "}");
+            """
+				import zconstructors.*;
+				public class CompletionFindConstructor3 {
+					Constructor3 c = new Constructor3();
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5698,10 +6010,11 @@ public void testCompletionFindConstructor3() throws JavaModelException {
 public void testCompletionFindConstructor4() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionFindConstructor4.java",
-            "import zconstructors.*;\n"+
-            "public class CompletionFindConstructor4 {\n"+
-            "	Constructor4 c = new Constructor4();\n"+
-            "}");
+            """
+				import zconstructors.*;
+				public class CompletionFindConstructor4 {
+					Constructor4 c = new Constructor4();
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5729,10 +6042,11 @@ public void testCompletionFindConstructor4() throws JavaModelException {
 public void testCompletionFindConstructor5() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionFindConstructor5.java",
-            "import zconstructors.*;\n"+
-            "public class CompletionFindConstructor5 {\n"+
-            "	Constructor5 c = new Constructor5();\n"+
-            "}");
+            """
+				import zconstructors.*;
+				public class CompletionFindConstructor5 {
+					Constructor5 c = new Constructor5();
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5847,11 +6161,12 @@ public void testCompletionFindField3() throws JavaModelException {
 public void testCompletionFindImport1() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionFindImport1.java",
-            "import pac\n"+
-            "\n"+
-            "public class CompletionFindImport1 {\n"+
-            "\n"+
-            "}");
+            """
+				import pac
+				
+				public class CompletionFindImport1 {
+				
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5871,11 +6186,12 @@ public void testCompletionFindImport1() throws JavaModelException {
 public void testCompletionFindImport2() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionFindImport2.java",
-            "import pack1.P\n"+
-            "\n"+
-            "public class CompletionFindImport2 {\n"+
-            "\n"+
-            "}");
+            """
+				import pack1.P
+				
+				public class CompletionFindImport2 {
+				
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5910,19 +6226,20 @@ public void testCompletionFindLocalVariable() throws JavaModelException {
 public void testCompletionFindMemberType1() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionFindMemberType1.java",
-            "interface A1 {\n"+
-            "	class Inner1 {\n"+
-            "	}\n"+
-            "}\n"+
-            "interface B1 extends A1 {\n"+
-            "	class Inner1 {\n"+
-            "	}\n"+
-            "}\n"+
-            "public class CompletionFindMemberType1 {\n"+
-            "	public void foo() {\n"+
-            "		B1.Inner\n"+
-            "	}\n"+
-            "}");
+            """
+				interface A1 {
+					class Inner1 {
+					}
+				}
+				interface B1 extends A1 {
+					class Inner1 {
+					}
+				}
+				public class CompletionFindMemberType1 {
+					public void foo() {
+						B1.Inner
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -5939,19 +6256,20 @@ public void testCompletionFindMemberType1() throws JavaModelException {
 public void testCompletionFindMemberType2() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionPrefixMethodName2.java",
-            "interface A2 {\n"+
-            "	class ZInner2{\n"+
-            "	}\n"+
-            "}\n"+
-            "interface B2 extends A2 {\n"+
-            "	class ZInner2 {\n"+
-            "	}\n"+
-            "}\n"+
-            "public class CompletionFindMemberType2 implements B2{\n"+
-            "	public void foo() {\n"+
-            "		ZInner\n"+
-            "	}\n"+
-            "}");
+            """
+				interface A2 {
+					class ZInner2{
+					}
+				}
+				interface B2 extends A2 {
+					class ZInner2 {
+					}
+				}
+				public class CompletionFindMemberType2 implements B2{
+					public void foo() {
+						ZInner
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.wc.getSource();
@@ -6090,17 +6408,19 @@ public void testCompletionImportedType1() throws JavaModelException {
     this.workingCopies = new ICompilationUnit[2];
     this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/imported/ZZZZ.java",
-		"package test.imported;"+
-		"public class ZZZZ {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test.imported;\
+			public class ZZZZ {
+			 \s
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/CompletionImportedType1.java",
-			"package test;"+
-			"public class CompletionImportedType1 {"+
-			"  ZZZ\n"+
-			"}");
+			"""
+				package test;\
+				public class CompletionImportedType1 {\
+				  ZZZ
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[1].getSource();
@@ -6118,32 +6438,36 @@ public void testCompletionImportedType2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[4];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/imported1/ZZZZ.java",
-		"package test.imported1;"+
-		"public class ZZZZ {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test.imported1;\
+			public class ZZZZ {
+			 \s
+			}""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/imported2/ZZZZ.java",
-		"package test.imported2;"+
-		"public class ZZZZ {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test.imported2;\
+			public class ZZZZ {
+			 \s
+			}""");
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/imported3/ZZZZ.java",
-		"package test.imported3;"+
-		"public class ZZZZ {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test.imported3;\
+			public class ZZZZ {
+			 \s
+			}""");
 
 	this.workingCopies[3] = getWorkingCopy(
 		"/Completion/src/test/CompletionImportedType2.java",
-		"package test;"+
-		"import test.imported1.*;"+
-		"import test.imported2.*;"+
-		"import test.imported3.*;"+
-		"public class CompletionImportedType2 {"+
-		"  ZZZ\n"+
-		"}");
+		"""
+			package test;\
+			import test.imported1.*;\
+			import test.imported2.*;\
+			import test.imported3.*;\
+			public class CompletionImportedType2 {\
+			  ZZZ
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[3].getSource();
@@ -6163,30 +6487,34 @@ public void testCompletionImportedType3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[4];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/imported1/ZZZZ.java",
-		"package test.imported1;"+
-		"public class ZZZZ {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test.imported1;\
+			public class ZZZZ {
+			 \s
+			}""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/imported2/ZZZZ.java",
-		"package test.imported2;"+
-		"public class ZZZZ {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test.imported2;\
+			public class ZZZZ {
+			 \s
+			}""");
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/imported3/ZZZZ.java",
-		"package test.imported3;"+
-		"public class ZZZZ {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test.imported3;\
+			public class ZZZZ {
+			 \s
+			}""");
 
 	this.workingCopies[3] = getWorkingCopy(
 		"/Completion/src/test/CompletionImportedType3.java",
-		"package test;"+
-		"import test.imported2.*;"+
-		"public class CompletionImportedType3 {"+
-		"  ZZZ\n"+
-			"}");
+		"""
+			package test;\
+			import test.imported2.*;\
+			public class CompletionImportedType3 {\
+			  ZZZ
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[3].getSource();
@@ -6206,24 +6534,27 @@ public void testCompletionImportedType4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/imported1/ZZZZ.java",
-		"package test.imported1;"+
-		"public class ZZZZ {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test.imported1;\
+			public class ZZZZ {
+			 \s
+			}""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/imported2/ZZZZ.java",
-		"package test.imported2;"+
-		"public class ZZZZ {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test.imported2;\
+			public class ZZZZ {
+			 \s
+			}""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/CompletionImportedType4.java",
-		"package test;"+
-		"import test.imported1.*;"+
-		"public class CompletionImportedType4 {"+
-		"  ZZZ\n"+
-		"}");
+		"""
+			package test;\
+			import test.imported1.*;\
+			public class CompletionImportedType4 {\
+			  ZZZ
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[2].getSource();
@@ -6242,24 +6573,27 @@ public void testCompletionImportedType5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/imported1/ZZZZ.java",
-		"package test.imported1;"+
-		"public class ZZZZ {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test.imported1;\
+			public class ZZZZ {
+			 \s
+			}""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/imported2/ZZZZ.java",
-		"package test.imported2;"+
-		"public class ZZZZ {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test.imported2;\
+			public class ZZZZ {
+			 \s
+			}""");
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/CompletionImportedType5.java",
-		"package test;"+
-		"import test.imported2.*;"+
-		"public class CompletionImportedType5 {"+
-		"  ZZZ\n"+
-		"}");
+		"""
+			package test;\
+			import test.imported2.*;\
+			public class CompletionImportedType5 {\
+			  ZZZ
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[2].getSource();
@@ -6278,11 +6612,12 @@ public void testCompletionImportedType6() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"import AClas;"+
-		"public class Test {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test;\
+			import AClas;\
+			public class Test {
+			 \s
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/AClass1.java",
@@ -6291,9 +6626,10 @@ public void testCompletionImportedType6() throws JavaModelException {
 
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/test/p/AClass2.java",
-		"package test.p;"+
-		"public class AClass2 {"+
-		"}");
+		"""
+			package test.p;\
+			public class AClass2 {\
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -6311,17 +6647,19 @@ public void testCompletionImportedType7() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"import AClas.Foo;"+
-		"public class Test {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test;\
+			import AClas.Foo;\
+			public class Test {
+			 \s
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test2/AClass1.java",
-		"package test2;"+
-		"public class AClass {"+
-		"}");
+		"""
+			package test2;\
+			public class AClass {\
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true);
 	String str = this.workingCopies[0].getSource();
@@ -6341,17 +6679,19 @@ public void testCompletionImportedType8() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"import test2.AClas.Foo;"+
-		"public class Test {\n"+
-		"  \n"+
-		"}");
+		"""
+			package test;\
+			import test2.AClas.Foo;\
+			public class Test {
+			 \s
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test2/AClass1.java",
-		"package test2;"+
-		"public class AClass {"+
-		"}");
+		"""
+			package test2;\
+			public class AClass {\
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true);
 	String str = this.workingCopies[0].getSource();
@@ -6370,12 +6710,13 @@ public void testCompletionImportedType8() throws JavaModelException {
 public void testCompletionInsideExtends1() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideExtends1.java",
-			"package test;\n" +
-			"public class CompletionInsideExtends1 extends  {\n" +
-			"  public class CompletionInsideExtends1Inner {}\n" +
-			"}\n" +
-			"class CompletionInsideExtends1TopLevel {\n" +
-			"}");
+			"""
+				package test;
+				public class CompletionInsideExtends1 extends  {
+				  public class CompletionInsideExtends1Inner {}
+				}
+				class CompletionInsideExtends1TopLevel {
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6400,15 +6741,16 @@ public void testCompletionInsideExtends1() throws JavaModelException {
 public void testCompletionInsideExtends10() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideExtends10.java",
-			"package test;\n" +
-			"public interface CompletionInsideExtends10 {\n" +
-			"  public interface CompletionInsideExtends10Inner extends CompletionInsideExtends{\n" +
-			"    public interface CompletionInsideExtends10InnerInner {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"interface CompletionInsideExtends10TopLevel {\n" +
-			"}");
+			"""
+				package test;
+				public interface CompletionInsideExtends10 {
+				  public interface CompletionInsideExtends10Inner extends CompletionInsideExtends{
+				    public interface CompletionInsideExtends10InnerInner {
+				    }
+				  }
+				}
+				interface CompletionInsideExtends10TopLevel {
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6427,13 +6769,14 @@ public void testCompletionInsideExtends10() throws JavaModelException {
 public void testCompletionInsideExtends11() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideExtends11.java",
-			"package test;\n" +
-			"public class CompletionInsideExtends11 implements {\n" +
-			"  public class CompletionInsideExtends11Inner {\n" +
-			"  }\n" +
-			"}\n" +
-			"class CompletionInsideExtends11TopLevel {\n" +
-			"}");
+			"""
+				package test;
+				public class CompletionInsideExtends11 implements {
+				  public class CompletionInsideExtends11Inner {
+				  }
+				}
+				class CompletionInsideExtends11TopLevel {
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6457,13 +6800,14 @@ public void testCompletionInsideExtends11() throws JavaModelException {
 public void testCompletionInsideExtends12() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideExtends12.java",
-			"package test;\n" +
-			"public class CompletionInsideExtends12 implements CompletionInsideExtends {\n" +
-			"  public class CompletionInsideExtends12Inner {\n" +
-			"  }\n" +
-			"}\n" +
-			"class CompletionInsideExtends12TopLevel {\n" +
-			"}");
+			"""
+				package test;
+				public class CompletionInsideExtends12 implements CompletionInsideExtends {
+				  public class CompletionInsideExtends12Inner {
+				  }
+				}
+				class CompletionInsideExtends12TopLevel {
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6482,11 +6826,13 @@ public void testCompletionInsideExtends13() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;\n"+
-		"public class Test {\n"+
-		"        static class GrrrBug {}\n"+
-		"        class Foo extends Grrr\n"+
-		"}\n");
+		"""
+			package test;
+			public class Test {
+			        static class GrrrBug {}
+			        class Foo extends Grrr
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -6504,18 +6850,20 @@ public void testCompletionInsideExtends14() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/GrrrBug1.java",
-		"package test;\n"+
-		"public class GrrrBug1 {\n"+
-		"	public static class GrrrBug2 {\n"+
-		"		public static class GrrrBug3 {}\n"+
- 		"       }\n"+
-		"	public static class GrrrBug4 extends Grrr {\n"+
-		"		public static class GrrrBug5 {}\n"+
-		"    }\n"+
-		"}\n"+
-		"class GrrrBug6 {\n"+
-		"	public static class GrrrBug7 {}\n"+
-		"}\n");
+		"""
+			package test;
+			public class GrrrBug1 {
+				public static class GrrrBug2 {
+					public static class GrrrBug3 {}
+			       }
+				public static class GrrrBug4 extends Grrr {
+					public static class GrrrBug5 {}
+			    }
+			}
+			class GrrrBug6 {
+				public static class GrrrBug7 {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -6536,12 +6884,13 @@ public void testCompletionInsideExtends14() throws JavaModelException {
 public void testCompletionInsideExtends2() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideExtends2.java",
-			"package test;\n" +
-			"public class CompletionInsideExtends2 extends CompletionInsideExtends {\n" +
-			"  public class CompletionInsideExtends2Inner {}\n" +
-			"}\n" +
-			"class CompletionInsideExtends2TopLevel {\n" +
-			"}");
+			"""
+				package test;
+				public class CompletionInsideExtends2 extends CompletionInsideExtends {
+				  public class CompletionInsideExtends2Inner {}
+				}
+				class CompletionInsideExtends2TopLevel {
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6559,15 +6908,16 @@ public void testCompletionInsideExtends2() throws JavaModelException {
 public void testCompletionInsideExtends3() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideExtends3.java",
-			"package test;\n" +
-			"public class CompletionInsideExtends3 {\n" +
-			"  public class CompletionInsideExtends3Inner extends {\n" +
-			"    public class CompletionInsideExtends3InnerInner {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"class CompletionInsideExtends3TopLevel {\n" +
-			"}");
+			"""
+				package test;
+				public class CompletionInsideExtends3 {
+				  public class CompletionInsideExtends3Inner extends {
+				    public class CompletionInsideExtends3InnerInner {
+				    }
+				  }
+				}
+				class CompletionInsideExtends3TopLevel {
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6592,15 +6942,17 @@ public void testCompletionInsideExtends3() throws JavaModelException {
 public void testCompletionInsideExtends4() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideExtends4.java",
-			"package test;\n" +
-			"public class CompletionInsideExtends4 {\n" +
-			"  public class CompletionInsideExtends4Inner extends CompletionInsideExtends{\n" +
-			"    public class CompletionInsideExtends4InnerInner {\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n}" +
-			"class CompletionInsideExtends4TopLevel {\n" +
-			"}");
+			"""
+				package test;
+				public class CompletionInsideExtends4 {
+				  public class CompletionInsideExtends4Inner extends CompletionInsideExtends{
+				    public class CompletionInsideExtends4InnerInner {
+				    }
+				  }
+				
+				}\
+				class CompletionInsideExtends4TopLevel {
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6619,17 +6971,18 @@ public void testCompletionInsideExtends4() throws JavaModelException {
 public void testCompletionInsideExtends5() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideExtends5.java",
-			"package test;\n" +
-			"public class CompletionInsideExtends5 {\n" +
-			"  void foo() {\n" +
-			"    public class CompletionInsideExtends5Inner extends {\n" +
-			"      public class CompletionInsideExtends5InnerInner {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"class CompletionInsideExtends5TopLevel {\n" +
-			"}");
+			"""
+				package test;
+				public class CompletionInsideExtends5 {
+				  void foo() {
+				    public class CompletionInsideExtends5Inner extends {
+				      public class CompletionInsideExtends5InnerInner {
+				      }
+				    }
+				  }
+				}
+				class CompletionInsideExtends5TopLevel {
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6654,17 +7007,18 @@ public void testCompletionInsideExtends5() throws JavaModelException {
 public void testCompletionInsideExtends6() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideExtends6.java",
-			"package test;\n" +
-			"public class CompletionInsideExtends6 {\n" +
-			"  void foo() {\n" +
-			"    public class CompletionInsideExtends6Inner extends CompletionInsideExtends {\n" +
-			"      public class CompletionInsideExtends6InnerInner {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"class CompletionInsideExtends6TopLevel {\n" +
-			"}");
+			"""
+				package test;
+				public class CompletionInsideExtends6 {
+				  void foo() {
+				    public class CompletionInsideExtends6Inner extends CompletionInsideExtends {
+				      public class CompletionInsideExtends6InnerInner {
+				      }
+				    }
+				  }
+				}
+				class CompletionInsideExtends6TopLevel {
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6683,12 +7037,13 @@ public void testCompletionInsideExtends6() throws JavaModelException {
 public void testCompletionInsideExtends7() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideExtends7.java",
-			"package test;\n" +
-			"public interface CompletionInsideExtends7 extends  {\n" +
-			"  public interface CompletionInsideExtends7Inner {}\n" +
-			"}\n" +
-			"interface CompletionInsideExtends7TopLevel {\n" +
-			"}");
+			"""
+				package test;
+				public interface CompletionInsideExtends7 extends  {
+				  public interface CompletionInsideExtends7Inner {}
+				}
+				interface CompletionInsideExtends7TopLevel {
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6711,12 +7066,13 @@ public void testCompletionInsideExtends7() throws JavaModelException {
 public void testCompletionInsideExtends8() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideExtends8.java",
-			"package test;\n" +
-			"public interface CompletionInsideExtends8 extends CompletionInsideExtends {\n" +
-			"  public interface CompletionInsideExtends8Inner {}\n" +
-			"}\n" +
-			"interface CompletionInsideExtends8TopLevel {\n" +
-			"}");
+			"""
+				package test;
+				public interface CompletionInsideExtends8 extends CompletionInsideExtends {
+				  public interface CompletionInsideExtends8Inner {}
+				}
+				interface CompletionInsideExtends8TopLevel {
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6734,15 +7090,16 @@ public void testCompletionInsideExtends8() throws JavaModelException {
 public void testCompletionInsideExtends9() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideExtends9.java",
-			"package test;\n" +
-			"public interface CompletionInsideExtends9 {\n" +
-			"  public interface CompletionInsideExtends9Inner extends {\n" +
-			"    public interface CompletionInsideExtends9InnerInner {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"interface CompletionInsideExtends9TopLevel {\n" +
-			"}");
+			"""
+				package test;
+				public interface CompletionInsideExtends9 {
+				  public interface CompletionInsideExtends9Inner extends {
+				    public interface CompletionInsideExtends9InnerInner {
+				    }
+				  }
+				}
+				interface CompletionInsideExtends9TopLevel {
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -6767,10 +7124,11 @@ public void testCompletionInsideExtends9() throws JavaModelException {
 public void testCompletionInsideGenericClass() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionInsideGenericClass.java",
-			"package test;\n" +
-			"public class CompletionInsideGenericClass <CompletionInsideGenericClassParameter> {\n" +
-			"  CompletionInsideGenericClas\n" +
-			"}");
+			"""
+				package test;
+				public class CompletionInsideGenericClass <CompletionInsideGenericClassParameter> {
+				  CompletionInsideGenericClas
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -7790,13 +8148,15 @@ public void testCompletionKeywordContinue1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src2/CompletionKeywordContinue1.java",
-		"public class CompletionKeywordContinue1 {\n" +
-		"	void foo() {\n" +
-		"		for(;;) {\n" +
-		"			{\n" +
-		"				cont\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class CompletionKeywordContinue1 {
+				void foo() {
+					for(;;) {
+						{
+							cont
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -7812,12 +8172,14 @@ public void testCompletionKeywordContinue2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src2/CompletionKeywordContinue2.java",
-		"public class CompletionKeywordContinue2 {\n" +
-		"	void foo() {\n" +
-		"		if(true) {\n" +
-		"			cont\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class CompletionKeywordContinue2 {
+				void foo() {
+					if(true) {
+						cont
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -7833,14 +8195,16 @@ public void testCompletionKeywordContinue3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src2/CompletionKeywordContinue3.java",
-		"public class CompletionKeywordContinue3 {\n" +
-		"	void foo() {\n" +
-		"		#\n" +
-		"		for(;;) {\n" +
-		"			{\n" +
-		"				cont\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class CompletionKeywordContinue3 {
+				void foo() {
+					#
+					for(;;) {
+						{
+							cont
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -7856,13 +8220,15 @@ public void testCompletionKeywordContinue4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src2/CompletionKeywordContinue4.java",
-		"public class CompletionKeywordContinue4 {\n" +
-		"	void foo() {\n" +
-		"		#\n" +
-		"		if(true) {\n" +
-		"			cont\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class CompletionKeywordContinue4 {
+				void foo() {
+					#
+					if(true) {
+						cont
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -7879,18 +8245,20 @@ public void testCompletionKeywordContinue5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    for (int i = 0; i < 1; i++) {\n" +
- 		"      switch (i) {\n" +
- 		"        case 0:\n" +
- 		"          conti\n" +
- 		"        break;\n" +
- 		"      }\n" +
- 		"    }\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    for (int i = 0; i < 1; i++) {
+			      switch (i) {
+			        case 0:
+			          conti
+			        break;
+			      }
+			    }
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -8407,10 +8775,12 @@ public void testCompletionKeywordFalse5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  boolean test = ;\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  boolean test = ;
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -10504,11 +10874,13 @@ public void testCompletionKeywordReturn1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src2/CompletionKeywordReturn1.java",
-		"public class CompletionKeywordReturn1 {\n" +
-		"	void foo() {\n" +
-		"		re\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class CompletionKeywordReturn1 {
+				void foo() {
+					re
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -10524,11 +10896,13 @@ public void testCompletionKeywordReturn2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src2/CompletionKeywordReturn2.java",
-		"public class CompletionKeywordReturn2 {\n" +
-		"	void foo() {\n" +
-		"		if(re\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class CompletionKeywordReturn2 {
+				void foo() {
+					if(re
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -10544,9 +10918,11 @@ public void testCompletionKeywordReturn3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src2/CompletionKeywordReturn3.java",
-		"public class CompletionKeywordReturn3 {\n" +
-		"	re\n" +
-		"}\n");
+		"""
+			public class CompletionKeywordReturn3 {
+				re
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -10562,12 +10938,14 @@ public void testCompletionKeywordReturn4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src2/CompletionKeywordReturn4.java",
-		"public class CompletionKeywordReturn4 {\n" +
-		"	void foo() {\n" +
-		"		#\n" +
-		"		re\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class CompletionKeywordReturn4 {
+				void foo() {
+					#
+					re
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -10583,12 +10961,14 @@ public void testCompletionKeywordReturn5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src2/CompletionKeywordReturn5.java",
-		"public class CompletionKeywordReturn5 {\n" +
-		"	void foo() {\n" +
-		"		#\n" +
-		"		if(re\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class CompletionKeywordReturn5 {
+				void foo() {
+					#
+					if(re
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -10604,10 +10984,12 @@ public void testCompletionKeywordReturn6() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src2/CompletionKeywordReturn6.java",
-		"#\n" +
-		"public class CompletionKeywordReturn6 {\n" +
-		"	re\n" +
-		"}\n");
+		"""
+			#
+			public class CompletionKeywordReturn6 {
+				re
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -10624,15 +11006,17 @@ public void testCompletionKeywordReturn7() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    switch (i) {\n" +
- 		"      case 0:\n" +
- 		"        re\n" +
- 		"    }\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    switch (i) {
+			      case 0:
+			        re
+			    }
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -10925,12 +11309,13 @@ public void testCompletionKeywordSuper11() throws JavaModelException {
 public void testCompletionKeywordSuper12() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src2/CompletionKeywordSuper12.java",
-            "public class CompletionKeywordSuper12 {\n"+
-            "	public CompletionKeywordSuper12() {\n"+
-            "		#\n"+
-            "		sup\n"+
-            "	}\n"+
-            "}");
+            """
+				public class CompletionKeywordSuper12 {
+					public CompletionKeywordSuper12() {
+						#
+						sup
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -11013,11 +11398,12 @@ public void testCompletionKeywordSuper5() throws JavaModelException {
 public void testCompletionKeywordSuper6() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src2/CompletionKeywordSuper6.java",
-            "public class CompletionKeywordSuper6 {\n"+
-            "	public CompletionKeywordSuper6() {\n"+
-            "		sup\n"+
-            "	}\n"+
-            "}");
+            """
+				public class CompletionKeywordSuper6 {
+					public CompletionKeywordSuper6() {
+						sup
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -11401,13 +11787,14 @@ public void testCompletionKeywordThis14() throws JavaModelException {
 public void testCompletionKeywordThis15() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src2/CompletionKeywordThis15.java",
-            "public class CompletionKeywordThis15 {\n" +
-            "	public class InnerClass {\n" +
-            "		public InnerClass() {\n" +
-            "			CompletionKeywordThis15 a = CompletionKeywordThis15.this;\n" +
-            "		}\n" +
-            "	}\n" +
-            "}");
+            """
+				public class CompletionKeywordThis15 {
+					public class InnerClass {
+						public InnerClass() {
+							CompletionKeywordThis15 a = CompletionKeywordThis15.this;
+						}
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -11871,13 +12258,14 @@ public void testCompletionKeywordTrue4() throws JavaModelException {
 public void testCompletionKeywordTrue5() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionKeywordTrue5.java",
-			"package test;\n" +
-			"public class CompletionKeywordTrue5 {\n" +
-			"  public void foo() {\n" +
-			"    boolean var;\n" +
-			"    var = tr\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test;
+				public class CompletionKeywordTrue5 {
+				  public void foo() {
+				    boolean var;
+				    var = tr
+				  }
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -11894,13 +12282,14 @@ public void testCompletionKeywordTrue5() throws JavaModelException {
 public void testCompletionKeywordTrue6() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionKeywordTrue6.java",
-			"package test;\n" +
-			"public class CompletionKeywordTrue6 {\n" +
-			"  public void foo() {\n" +
-			"    boolean var;\n" +
-			"    var = \n" +
-			"  }\n" +
-			"}");
+			"""
+				package test;
+				public class CompletionKeywordTrue6 {
+				  public void foo() {
+				    boolean var;
+				    var =\s
+				  }
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -12281,13 +12670,14 @@ public void testCompletionLocalType1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionLocalType1.java",
-		"public class CompletionLocalType1 {\n" +
-		"	void foo() {\n" +
-		"		class ZZZZ {\n" +
-		"			ZZZ\n" +
-		"		}\n" +
-		"	}\n" +
-		"}");
+		"""
+			public class CompletionLocalType1 {
+				void foo() {
+					class ZZZZ {
+						ZZZ
+					}
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -12306,13 +12696,14 @@ public void testCompletionLocalType1() throws JavaModelException {
 public void testCompletionMemberType() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionMemberType.java",
-            "public class CompletionMemberType {\n"+
-            "	public class MemberType {\n"+
-            "		public void foo(){\n"+
-            "			MemberType var = new MemberType\n"+
-            "		}\n"+
-            "	}\n"+
-            "}");
+            """
+				public class CompletionMemberType {
+					public class MemberType {
+						public void foo(){
+							MemberType var = new MemberType
+						}
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -12328,13 +12719,14 @@ public void testCompletionMemberType() throws JavaModelException {
 public void testCompletionMemberType2() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/test/CompletionMemberType2.java",
-            "public class CompletionMemberType2 {\n"+
-            "	public class MemberException extends Exception {\n"+
-            "	}\n"+
-            "	void foo() {\n"+
-            "		throw new \n"+
-            "	}\n"+
-            "}");
+            """
+				public class CompletionMemberType2 {
+					public class MemberException extends Exception {
+					}
+					void foo() {
+						throw new\s
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -12356,13 +12748,14 @@ public void testCompletionMemberType2() throws JavaModelException {
 public void testCompletionMemberType3() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/test/CompletionArrayClone.java",
-            "public class CompletionMemberType3 {\n"+
-            "	public class MemberException extends Exception {\n"+
-            "	}\n"+
-            "	void foo() {\n"+
-            "		throw new MemberE\n"+
-            "	}\n"+
-            "}");
+            """
+				public class CompletionMemberType3 {
+					public class MemberException extends Exception {
+					}
+					void foo() {
+						throw new MemberE
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -12513,14 +12906,15 @@ public void testCompletionMethodDeclaration10() throws JavaModelException {
 public void testCompletionMethodDeclaration11() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Completion/src/test/CompletionMethodDeclaration11.java",
-			"package test;\n" +
-			"public class CompletionMethodDeclaration11 {\n" +
-			"  private void foo() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class CompletionMethodDeclaration11_2 extends CompletionMethodDeclaration11 {\n" +
-			"  fo\n" +
-			"}");
+			"""
+				package test;
+				public class CompletionMethodDeclaration11 {
+				  private void foo() {
+				  }
+				}
+				class CompletionMethodDeclaration11_2 extends CompletionMethodDeclaration11 {
+				  fo
+				}""");
 
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -12536,18 +12930,19 @@ public void testCompletionMethodDeclaration11() throws JavaModelException {
 public void testCompletionMethodDeclaration12() throws JavaModelException {
     this.wc = getWorkingCopy(
             "/Completion/src/test/CompletionMethodDeclaration12.java",
-            "package test;\n" +
-            "public class CompletionMethodDeclaration12 {\n" +
-            "  public void foo() {\n" +
-            "  }\n" +
-            "}\n" +
-            "class CompletionMethodDeclaration12_2 extends CompletionMethodDeclaration12{\n" +
-            "  public final void foo() {\n" +
-            "  }\n" +
-            "}\n" +
-            "class CompletionMethodDeclaration12_3 extends CompletionMethodDeclaration12_2 {\n" +
-            "  fo\n" +
-            "}");
+            """
+				package test;
+				public class CompletionMethodDeclaration12 {
+				  public void foo() {
+				  }
+				}
+				class CompletionMethodDeclaration12_2 extends CompletionMethodDeclaration12{
+				  public final void foo() {
+				  }
+				}
+				class CompletionMethodDeclaration12_3 extends CompletionMethodDeclaration12_2 {
+				  fo
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -12565,18 +12960,22 @@ public void testCompletionMethodDeclaration13() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test extends other.SuperClass {\n" +
- 		"  doSom\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test extends other.SuperClass {
+			  doSom
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/other/SuperClass.java",
-		"package other;"+
-		"public class SuperClass {\n" +
-		"  protected class Sub {}\n" +
- 		"  protected Sub doSomething() {}\n" +
-		"}\n");
+		"""
+			package other;\
+			public class SuperClass {
+			  protected class Sub {}
+			  protected Sub doSomething() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.setIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION, true);
@@ -12594,23 +12993,29 @@ public void testCompletionMethodDeclaration14() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test extends other.SuperClass {\n" +
- 		"  doSom\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test extends other.SuperClass {
+			  doSom
+			}
+			""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/other/SuperClass.java",
-		"package other;"+
-		"public class SuperClass extends SuperClass2 {\n" +
-		"  private class Sub {}\n" +
-		"}\n");
+		"""
+			package other;\
+			public class SuperClass extends SuperClass2 {
+			  private class Sub {}
+			}
+			""");
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/other/SuperClass2.java",
-		"package other;"+
-		"public class SuperClass2 {\n" +
-		"  protected class Sub {}\n" +
- 		"  protected Sub doSomething() {}\n" +
-		"}\n");
+		"""
+			package other;\
+			public class SuperClass2 {
+			  protected class Sub {}
+			  protected Sub doSomething() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.setIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION, true);
@@ -12628,23 +13033,29 @@ public void testCompletionMethodDeclaration15() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test extends other.SuperClass {\n" +
- 		"  doSom\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test extends other.SuperClass {
+			  doSom
+			}
+			""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/other/SuperClass.java",
-		"package other;"+
-		"public class SuperClass extends SuperClass2 {\n" +
-		"  public class Sub {}\n" +
-		"}\n");
+		"""
+			package other;\
+			public class SuperClass extends SuperClass2 {
+			  public class Sub {}
+			}
+			""");
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/other/SuperClass2.java",
-		"package other;"+
-		"public class SuperClass2 {\n" +
-		"  public class Sub {}\n" +
- 		"  protected Sub doSomething() {}\n" +
-		"}\n");
+		"""
+			package other;\
+			public class SuperClass2 {
+			  public class Sub {}
+			  protected Sub doSomething() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.setIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION, true);
@@ -12662,23 +13073,29 @@ public void testCompletionMethodDeclaration16() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test extends other.SuperClass {\n" +
- 		"  doSom\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test extends other.SuperClass {
+			  doSom
+			}
+			""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/other/SuperClass.java",
-		"package other;"+
-		"public class SuperClass extends SuperClass2 {\n" +
-		"  public class Sub {}\n" +
-		"}\n");
+		"""
+			package other;\
+			public class SuperClass extends SuperClass2 {
+			  public class Sub {}
+			}
+			""");
 	this.workingCopies[2] = getWorkingCopy(
 		"/Completion/src/other/SuperClass2.java",
-		"package other;"+
-		"public class SuperClass2 {\n" +
-		"  protected class Sub {}\n" +
- 		"  protected Sub doSomething() {}\n" +
-		"}\n");
+		"""
+			package other;\
+			public class SuperClass2 {
+			  protected class Sub {}
+			  protected Sub doSomething() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.setIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION, true);
@@ -12704,12 +13121,13 @@ public void testCompletionMethodDeclaration17() throws JavaModelException {
 
 		this.wc = getWorkingCopy(
 				"/Completion/src/CompletionMethodDeclaration17.java",
-				"class CompletionMethodDeclaration17 {\n" +
-				"	void test() {\n" +
-				"		new pkg.Foo1.Bar1(\n" +
-				"	}\n" +
-				"}" +
-		"}");
+				"""
+					class CompletionMethodDeclaration17 {
+						void test() {
+							new pkg.Foo1.Bar1(
+						}
+					}\
+					}""");
 
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -12732,18 +13150,20 @@ public void testCompletionMethodDeclaration2() throws JavaModelException {
 	try {
 		superClass = getWorkingCopy(
 	            "/Completion/src/CompletionSuperClass.java",
-	            "public class CompletionSuperClass{\n" +
-	            "	public class Inner {}\n" +
-	            "	public int eqFoo(int a,Object b){\n" +
-	            "		return 1;\n" +
-	            "	}\n" +
-	            "}");
+	            """
+					public class CompletionSuperClass{
+						public class Inner {}
+						public int eqFoo(int a,Object b){
+							return 1;
+						}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionMethodDeclaration2.java",
-	            "public class CompletionMethodDeclaration2 extends CompletionSuperClass {\n" +
-	            "	eq\n" +
-	            "}");
+	            """
+					public class CompletionMethodDeclaration2 extends CompletionSuperClass {
+						eq
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -12771,22 +13191,24 @@ public void testCompletionMethodDeclaration3() throws JavaModelException {
 	try {
 		superClass = getWorkingCopy(
 	            "/Completion/src/CompletionSuperClass.java",
-	            "public class CompletionSuperClass{\n" +
-	            "	public class Inner {}\n" +
-	            "	public int eqFoo(int a,Object b){\n" +
-	            "		return 1;\n" +
-	            "	}\n" +
-	            "}");
+	            """
+					public class CompletionSuperClass{
+						public class Inner {}
+						public int eqFoo(int a,Object b){
+							return 1;
+						}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionMethodDeclaration3.java",
-	            "public class CompletionMethodDeclaration3 extends CompletionSuperClass {\n" +
-	            "	eq\n" +
-	            "	\n" +
-	            "	public int eqFoo(int a,Object b){\n" +
-	            "		return 1;\n" +
-	            "	}\n" +
-	            "}");
+	            """
+					public class CompletionMethodDeclaration3 extends CompletionSuperClass {
+						eq
+					\t
+						public int eqFoo(int a,Object b){
+							return 1;
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -12810,15 +13232,17 @@ public void testCompletionMethodDeclaration4() throws JavaModelException {
 	try {
 		superClass = getWorkingCopy(
 	            "/Completion/src/CompletionSuperInterface.java",
-	            "public interface CompletionSuperInterface{\n"+
-	            "	public int eqFoo(int a,Object b);\n"+
-	            "}");
+	            """
+					public interface CompletionSuperInterface{
+						public int eqFoo(int a,Object b);
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionMethodDeclaration4.java",
-	            "public abstract class CompletionMethodDeclaration4 implements CompletionSuperInterface {\n"+
-	            "	eq\n"+
-	            "}");
+	            """
+					public abstract class CompletionMethodDeclaration4 implements CompletionSuperInterface {
+						eq
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -12843,21 +13267,23 @@ public void testCompletionMethodDeclaration5() throws JavaModelException {
 	try {
 		superClass = getWorkingCopy(
 	            "/Completion/src/CompletionSuperClass.java",
-	            "public class CompletionSuperClass{\n" +
-	            "	public class Inner {}\n" +
-	            "	public int eqFoo(int a,Object b){\n" +
-	            "		return 1;\n" +
-	            "	}\n" +
-	            "}");
+	            """
+					public class CompletionSuperClass{
+						public class Inner {}
+						public int eqFoo(int a,Object b){
+							return 1;
+						}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionMethodDeclaration5.java",
-	            "public class CompletionMethodDeclaration5 {\n" +
-	            "	public static void main(String[] args) {\n" +
-	            "		new CompletionSuperClass() {\n" +
-	            "	}\n" +
-	            "\n" +
-	            "}");
+	            """
+					public class CompletionMethodDeclaration5 {
+						public static void main(String[] args) {
+							new CompletionSuperClass() {
+						}
+					
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13150,17 +13576,18 @@ public void testCompletionPackageAndClass2() throws JavaModelException {
 public void testCompletionPrefixFieldName1() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionPrefixFieldName1.java",
-            "public class CompletionPrefixFieldName1 {\n"+
-            "	int xBar;\n"+
-            "	\n"+
-            "	class classFoo {\n"+
-            "		int xBar;\n"+
-            "		\n"+
-            "		public void foo(){\n"+
-            "			xBa\n"+
-            "		}\n"+
-            "	}\n"+
-            "}");
+            """
+				public class CompletionPrefixFieldName1 {
+					int xBar;
+				\t
+					class classFoo {
+						int xBar;
+					\t
+						public void foo(){
+							xBa
+						}
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13177,17 +13604,18 @@ public void testCompletionPrefixFieldName1() throws JavaModelException {
 public void testCompletionPrefixFieldName2() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionPrefixFieldName2.java",
-            "public class CompletionPrefixFieldName2 {\n"+
-            "	int xBar;\n"+
-            "	\n"+
-            "	class classFoo {\n"+
-            "		int xBar;\n"+
-            "		\n"+
-            "		public void foo(){\n"+
-            "			new CompletionPrefixFieldName2().xBa\n"+
-            "		}\n"+
-            "	}\n"+
-            "}");
+            """
+				public class CompletionPrefixFieldName2 {
+					int xBar;
+				\t
+					class classFoo {
+						int xBar;
+					\t
+						public void foo(){
+							new CompletionPrefixFieldName2().xBa
+						}
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13203,17 +13631,18 @@ public void testCompletionPrefixFieldName2() throws JavaModelException {
 public void testCompletionPrefixMethodName1() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionPrefixMethodName1.java",
-            "public class CompletionPrefixMethodName1 {\n"+
-           "	int xBar(){}\n"+
-           "	\n"+
-           "	class classFoo {\n"+
-           "		int xBar(){}\n"+
-           "		\n"+
-           "		public void foo(){\n"+
-           "			xBa\n"+
-           "		}\n"+
-           "	}\n"+
-           "}");
+            """
+				public class CompletionPrefixMethodName1 {
+					int xBar(){}
+				\t
+					class classFoo {
+						int xBar(){}
+					\t
+						public void foo(){
+							xBa
+						}
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13230,17 +13659,18 @@ public void testCompletionPrefixMethodName1() throws JavaModelException {
 public void testCompletionPrefixMethodName2() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionPrefixMethodName2.java",
-            "public class CompletionPrefixMethodName2 {\n"+
-            "	int xBar(){}\n"+
-            "	\n"+
-            "	class classFoo {\n"+
-            "		int xBar(){}\n"+
-            "		\n"+
-            "		public void foo(){\n"+
-            "			new CompletionPrefixMethodName2().xBa\n"+
-            "		}\n"+
-            "	}\n"+
-            "}");
+            """
+				public class CompletionPrefixMethodName2 {
+					int xBar(){}
+				\t
+					class classFoo {
+						int xBar(){}
+					\t
+						public void foo(){
+							new CompletionPrefixMethodName2().xBa
+						}
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13256,17 +13686,18 @@ public void testCompletionPrefixMethodName2() throws JavaModelException {
 public void testCompletionPrefixMethodName3() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionPrefixMethodName2.java",
-            "public class CompletionPrefixMethodName3 {\n"+
-            "	int xBar(int a, int b){}\n"+
-            "	\n"+
-            "	class classFoo {\n"+
-            "		int xBar(int a, int b){}\n"+
-            "		\n"+
-            "		public void foo(){\n"+
-            "			xBar(1,\n"+
-            "		}\n"+
-            "	}\n"+
-            "}");
+            """
+				public class CompletionPrefixMethodName3 {
+					int xBar(int a, int b){}
+				\t
+					class classFoo {
+						int xBar(int a, int b){}
+					\t
+						public void foo(){
+							xBar(1,
+						}
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
@@ -13292,13 +13723,14 @@ public void testCompletionPrefixMethodName3() throws JavaModelException {
 public void testCompletionQualifiedAllocationType1() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionQualifiedAllocationType1.java",
-            "public class CompletionQualifiedAllocationType1 {\n"+
-            "	public class YYY {\n"+
-            "	}\n"+
-            "	void foo(){\n"+
-            "		this.new YYY\n"+
-            "	}\n"+
-            "}");
+            """
+				public class CompletionQualifiedAllocationType1 {
+					public class YYY {
+					}
+					void foo(){
+						this.new YYY
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13317,13 +13749,14 @@ public void testCompletionQualifiedAllocationType1() throws JavaModelException {
 public void testCompletionQualifiedExpectedType() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/test/CompletionQualifiedExpectedType.java",
-            "import pack1.PX;\n"+
-            "\n"+
-            "public class CompletionQualifiedExpectedType {\n"+
-            "	void foo() {\n"+
-            "		pack2.PX var = new \n"+
-            "	}\n"+
-            "}");
+            """
+				import pack1.PX;
+				
+				public class CompletionQualifiedExpectedType {
+					void foo() {
+						pack2.PX var = new\s
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13448,13 +13881,14 @@ public void testCompletionSameClass() throws JavaModelException {
 public void testCompletionSameSuperClass() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionSameSuperClass.java",
-            "public class CompletionSameSuperClass extends A {\n" +
-            "	class Inner extends A {\n" +
-            "		void foo(int bar){\n" +
-            "			bar\n" +
-            "		}\n" +
-            "	}	\n" +
-            "}");
+            """
+				public class CompletionSameSuperClass extends A {
+					class Inner extends A {
+						void foo(int bar){
+							bar
+						}
+					}\t
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13476,25 +13910,27 @@ public void testCompletionStaticMethod1() throws JavaModelException {
 	try {
 		aType = getWorkingCopy(
 	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
-	            "public class TypeWithAMethodAndAStaticMethod {\n"+
-	            "	public static void foo(){}\n"+
-	            "	public void foo0(){}\n"+
-	            "}");
+	            """
+					public class TypeWithAMethodAndAStaticMethod {
+						public static void foo(){}
+						public void foo0(){}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionStaticMethod1.java",
-	            "public class CompletionStaticMethod1 extends TypeWithAMethodAndAStaticMethod {\n"+
-	            "	void bar(){\n"+
-	            "		new TypeWithAMethodAndAStaticMethod(){\n"+
-	            "			class Inner1 extends TypeWithAMethodAndAStaticMethod {\n"+
-	            "				void bar(){\n"+
-	            "					foo\n"+
-	            "				}\n"+
-	            "			}\n"+
-	            "		};\n"+
-	            "	}\n"+
-	            "	\n"+
-	            "}");
+	            """
+					public class CompletionStaticMethod1 extends TypeWithAMethodAndAStaticMethod {
+						void bar(){
+							new TypeWithAMethodAndAStaticMethod(){
+								class Inner1 extends TypeWithAMethodAndAStaticMethod {
+									void bar(){
+										foo
+									}
+								}
+							};
+						}
+					\t
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13520,16 +13956,18 @@ public void testCompletionStaticMethodDeclaration1() throws JavaModelException {
 	try {
 		aType = getWorkingCopy(
 	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
-	            "public class TypeWithAMethodAndAStaticMethod {\n"+
-	            "	public static void foo(){}\n"+
-	            "	public void foo0(){}\n"+
-	            "}");
+	            """
+					public class TypeWithAMethodAndAStaticMethod {
+						public static void foo(){}
+						public void foo0(){}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionStaticMethodDeclaration1.java",
-	            "public class CompletionStaticMethodDeclaration1 extends TypeWithAMethodAndAStaticMethod {\n"+
-	            "	foo\n"+
-	            "}");
+	            """
+					public class CompletionStaticMethodDeclaration1 extends TypeWithAMethodAndAStaticMethod {
+						foo
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13553,18 +13991,20 @@ public void testCompletionStaticMethodDeclaration2() throws JavaModelException {
 	try {
 		aType = getWorkingCopy(
 	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
-	            "public class TypeWithAMethodAndAStaticMethod {\n"+
-	            "	public static void foo(){}\n"+
-	            "	public void foo0(){}\n"+
-	            "}");
+	            """
+					public class TypeWithAMethodAndAStaticMethod {
+						public static void foo(){}
+						public void foo0(){}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionStaticMethodDeclaration2.java",
-	            "public class CompletionStaticMethodDeclaration2 {\n" +
-	            "	class Inner1 extends TypeWithAMethodAndAStaticMethod {\n" +
-	            "		foo\n" +
-	            "	}\n" +
-	            "}");
+	            """
+					public class CompletionStaticMethodDeclaration2 {
+						class Inner1 extends TypeWithAMethodAndAStaticMethod {
+							foo
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13588,18 +14028,20 @@ public void testCompletionStaticMethodDeclaration3() throws JavaModelException {
 	try {
 		aType = getWorkingCopy(
 	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
-	            "public class TypeWithAMethodAndAStaticMethod {\n"+
-	            "	public static void foo(){}\n"+
-	            "	public void foo0(){}\n"+
-	            "}");
+	            """
+					public class TypeWithAMethodAndAStaticMethod {
+						public static void foo(){}
+						public void foo0(){}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionStaticMethodDeclaration3.java",
-	            "public class CompletionStaticMethodDeclaration3 {\n" +
-	            "	static class Inner1 extends TypeWithAMethodAndAStaticMethod {\n" +
-	            "		foo\n" +
-	            "	}\n" +
-	            "}");
+	            """
+					public class CompletionStaticMethodDeclaration3 {
+						static class Inner1 extends TypeWithAMethodAndAStaticMethod {
+							foo
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13623,20 +14065,22 @@ public void testCompletionStaticMethodDeclaration4() throws JavaModelException {
 	try {
 		aType = getWorkingCopy(
 	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
-	            "public class TypeWithAMethodAndAStaticMethod {\n"+
-	            "	public static void foo(){}\n"+
-	            "	public void foo0(){}\n"+
-	            "}");
+	            """
+					public class TypeWithAMethodAndAStaticMethod {
+						public static void foo(){}
+						public void foo0(){}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionStaticMethodDeclaration4.java",
-	            "public class CompletionStaticMethodDeclaration4 {\n" +
-	            "	void bar() {\n" +
-	            "		class Local1 extends TypeWithAMethodAndAStaticMethod {\n" +
-	            "			foo\n" +
-	            "		}\n" +
-	            "	}\n" +
-	            "}");
+	            """
+					public class CompletionStaticMethodDeclaration4 {
+						void bar() {
+							class Local1 extends TypeWithAMethodAndAStaticMethod {
+								foo
+							}
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13660,20 +14104,22 @@ public void testCompletionStaticMethodDeclaration5() throws JavaModelException {
 	try {
 		aType = getWorkingCopy(
 	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
-	            "public class TypeWithAMethodAndAStaticMethod {\n"+
-	            "	public static void foo(){}\n"+
-	            "	public void foo0(){}\n"+
-	            "}");
+	            """
+					public class TypeWithAMethodAndAStaticMethod {
+						public static void foo(){}
+						public void foo0(){}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionStaticMethodDeclaration5.java",
-	            "public class CompletionStaticMethodDeclaration5 {\n"+
-	            "	void bar() {\n"+
-	            "		static class Local1 extends TypeWithAMethodAndAStaticMethod {\n"+
-	            "			foo\n"+
-	            "		}\n"+
-	            "	}\n"+
-	            "}");
+	            """
+					public class CompletionStaticMethodDeclaration5 {
+						void bar() {
+							static class Local1 extends TypeWithAMethodAndAStaticMethod {
+								foo
+							}
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13697,20 +14143,22 @@ public void testCompletionStaticMethodDeclaration6() throws JavaModelException {
 	try {
 		aType = getWorkingCopy(
 	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
-	            "public class TypeWithAMethodAndAStaticMethod {\n"+
-	            "	public static void foo(){}\n"+
-	            "	public void foo0(){}\n"+
-	            "}");
+	            """
+					public class TypeWithAMethodAndAStaticMethod {
+						public static void foo(){}
+						public void foo0(){}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionStaticMethodDeclaration6.java",
-	            "public class CompletionStaticMethodDeclaration6 {\n"+
-	            "	void bar() {\n"+
-	            "		new TypeWithAMethodAndAStaticMethod() {\n"+
-	            "			foo\n"+
-	            "		};\n"+
-	            "	}\n"+
-	            "}");
+	            """
+					public class CompletionStaticMethodDeclaration6 {
+						void bar() {
+							new TypeWithAMethodAndAStaticMethod() {
+								foo
+							};
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -13734,12 +14182,13 @@ public void testCompletionSuperType() throws JavaModelException {
 	try {
 		superClass = getWorkingCopy(
 	            "/Completion/src/CompletionSuperClass.java",
-	            "public class CompletionSuperClass{\n" +
-	            "	public class Inner {}\n" +
-	            "	public int eqFoo(int a,Object b){\n" +
-	            "		return 1;\n" +
-	            "	}\n" +
-	            "}");
+	            """
+					public class CompletionSuperClass{
+						public class Inner {}
+						public int eqFoo(int a,Object b){
+							return 1;
+						}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionSuperType.java",
@@ -13769,32 +14218,36 @@ public void testCompletionSuperType2() throws JavaModelException {
 	try {
 		superClass = getWorkingCopy(
 	            "/Completion/src/CompletionSuperClass.java",
-	            "public class CompletionSuperClass{\n" +
-	            "	public class Inner {}\n" +
-	            "	public int eqFoo(int a,Object b){\n" +
-	            "		return 1;\n" +
-	            "	}\n" +
-	            "}");
+	            """
+					public class CompletionSuperClass{
+						public class Inner {}
+						public int eqFoo(int a,Object b){
+							return 1;
+						}
+					}""");
 
 		superClass2 = getWorkingCopy(
 	            "/Completion/src/CompletionSuperClass2.java",
-	            "public class CompletionSuperClass2 {\n" +
-	            "	public class InnerClass {}\n" +
-	            "	public interface InnerInterface {}\n" +
-	            "}");
+	            """
+					public class CompletionSuperClass2 {
+						public class InnerClass {}
+						public interface InnerInterface {}
+					}""");
 
 		superInterface = getWorkingCopy(
 	            "/Completion/src/CompletionSuperInterface.java",
-	            "public interface CompletionSuperInterface{\n" +
-	            "	public int eqFoo(int a,Object b);\n" +
-	            "}");
+	            """
+					public interface CompletionSuperInterface{
+						public int eqFoo(int a,Object b);
+					}""");
 
 		superInterface2 = getWorkingCopy(
 	            "/Completion/src/CompletionSuperInterface2.java",
-	            "public interface CompletionSuperInterface2 {\n" +
-	            "	public class InnerClass {}\n" +
-	            "	public interface InnerInterface {}\n" +
-	            "}");
+	            """
+					public interface CompletionSuperInterface2 {
+						public class InnerClass {}
+						public interface InnerInterface {}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionSuperType2.java",
@@ -13834,32 +14287,36 @@ public void testCompletionSuperType3() throws JavaModelException {
 	try {
 		superClass = getWorkingCopy(
 	            "/Completion/src/CompletionSuperClass.java",
-	            "public class CompletionSuperClass{\n" +
-	            "	public class Inner {}\n" +
-	            "	public int eqFoo(int a,Object b){\n" +
-	            "		return 1;\n" +
-	            "	}\n" +
-	            "}");
+	            """
+					public class CompletionSuperClass{
+						public class Inner {}
+						public int eqFoo(int a,Object b){
+							return 1;
+						}
+					}""");
 
 		superClass2 = getWorkingCopy(
 	            "/Completion/src/CompletionSuperClass2.java",
-	            "public class CompletionSuperClass2 {\n" +
-	            "	public class InnerClass {}\n" +
-	            "	public interface InnerInterface {}\n" +
-	            "}");
+	            """
+					public class CompletionSuperClass2 {
+						public class InnerClass {}
+						public interface InnerInterface {}
+					}""");
 
 		superInterface = getWorkingCopy(
 	            "/Completion/src/CompletionSuperInterface.java",
-	            "public interface CompletionSuperInterface{\n" +
-	            "	public int eqFoo(int a,Object b);\n" +
-	            "}");
+	            """
+					public interface CompletionSuperInterface{
+						public int eqFoo(int a,Object b);
+					}""");
 
 		superInterface2 = getWorkingCopy(
 	            "/Completion/src/CompletionSuperInterface2.java",
-	            "public interface CompletionSuperInterface2 {\n" +
-	            "	public class InnerClass {}\n" +
-	            "	public interface InnerInterface {}\n" +
-	            "}");
+	            """
+					public interface CompletionSuperInterface2 {
+						public class InnerClass {}
+						public interface InnerInterface {}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionSuperType3.java",
@@ -13896,10 +14353,11 @@ public void testCompletionSuperType4() throws JavaModelException {
 	try {
 		superClass2 = getWorkingCopy(
 	            "/Completion/src/CompletionSuperClass2.java",
-	            "public class CompletionSuperClass2 {\n" +
-	            "	public class InnerClass {}\n" +
-	            "	public interface InnerInterface {}\n" +
-	            "}");
+	            """
+					public class CompletionSuperClass2 {
+						public class InnerClass {}
+						public interface InnerInterface {}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionSuperType4.java",
@@ -13927,10 +14385,11 @@ public void testCompletionSuperType5() throws JavaModelException {
 	try {
 		superInterface2 = getWorkingCopy(
 	            "/Completion/src/CompletionSuperInterface2.java",
-	            "public interface CompletionSuperInterface2 {\n" +
-	            "	public class InnerClass {}\n" +
-	            "	public interface InnerInterface {}\n" +
-	            "}");
+	            """
+					public interface CompletionSuperInterface2 {
+						public class InnerClass {}
+						public interface InnerInterface {}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionSuperType5.java",
@@ -13961,32 +14420,36 @@ public void testCompletionSuperType6() throws JavaModelException {
 	try {
 		superClass = getWorkingCopy(
 	            "/Completion/src/CompletionSuperClass.java",
-	            "public class CompletionSuperClass{\n" +
-	            "	public class Inner {}\n" +
-	            "	public int eqFoo(int a,Object b){\n" +
-	            "		return 1;\n" +
-	            "	}\n" +
-	            "}");
+	            """
+					public class CompletionSuperClass{
+						public class Inner {}
+						public int eqFoo(int a,Object b){
+							return 1;
+						}
+					}""");
 
 		superClass2 = getWorkingCopy(
 	            "/Completion/src/CompletionSuperClass2.java",
-	            "public class CompletionSuperClass2 {\n" +
-	            "	public class InnerClass {}\n" +
-	            "	public interface InnerInterface {}\n" +
-	            "}");
+	            """
+					public class CompletionSuperClass2 {
+						public class InnerClass {}
+						public interface InnerInterface {}
+					}""");
 
 		superInterface = getWorkingCopy(
 	            "/Completion/src/CompletionSuperInterface.java",
-	            "public interface CompletionSuperInterface{\n" +
-	            "	public int eqFoo(int a,Object b);\n" +
-	            "}");
+	            """
+					public interface CompletionSuperInterface{
+						public int eqFoo(int a,Object b);
+					}""");
 
 		superInterface2 = getWorkingCopy(
 	            "/Completion/src/CompletionSuperInterface2.java",
-	            "public interface CompletionSuperInterface2 {\n" +
-	            "	public class InnerClass {}\n" +
-	            "	public interface InnerInterface {}\n" +
-	            "}");
+	            """
+					public interface CompletionSuperInterface2 {
+						public class InnerClass {}
+						public interface InnerInterface {}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionSuperType6.java",
@@ -14023,10 +14486,11 @@ public void testCompletionSuperType7() throws JavaModelException {
 	try {
 		superClass2 = getWorkingCopy(
 	            "/Completion/src/CompletionSuperClass2.java",
-	            "public class CompletionSuperClass2 {\n" +
-	            "	public class InnerClass {}\n" +
-	            "	public interface InnerInterface {}\n" +
-	            "}");
+	            """
+					public class CompletionSuperClass2 {
+						public class InnerClass {}
+						public interface InnerInterface {}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionSuperType7.java",
@@ -14054,10 +14518,11 @@ public void testCompletionSuperType8() throws JavaModelException {
 	try {
 		superInterface2 = getWorkingCopy(
 	            "/Completion/src/CompletionSuperInterface2.java",
-	            "public interface CompletionSuperInterface2 {\n" +
-	            "	public class InnerClass {}\n" +
-	            "	public interface InnerInterface {}\n" +
-	            "}");
+	            """
+					public interface CompletionSuperInterface2 {
+						public class InnerClass {}
+						public interface InnerInterface {}
+					}""");
 
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionSuperType8.java",
@@ -14217,12 +14682,14 @@ public void testCompletionUnresolvedSuperclass() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  public void foo(pack.Bin4 b) {\n" +
-		"    b.bar\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  public void foo(pack.Bin4 b) {
+			    b.bar
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -14238,12 +14705,14 @@ public void testCompletionUnresolvedSuperinteface() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  public void foo(pack.Bin5 b) {\n" +
-		"    b.bar\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  public void foo(pack.Bin5 b) {
+			    b.bar
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -14412,13 +14881,14 @@ public void testCompletionVariableName10() throws JavaModelException {
 	try {
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionVariableName10.java",
-	            "class FooBar {\n"+
-	            "}\n"+
-	            "public class CompletionVariableName10 {\n"+
-	            "	void foo(){\n"+
-	            "		FooBar fo\n"+
-	            "	}\n"+
-	            "}");
+	            """
+					class FooBar {
+					}
+					public class CompletionVariableName10 {
+						void foo(){
+							FooBar fo
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -14443,13 +14913,14 @@ public void testCompletionVariableName11() throws JavaModelException {
 	try {
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionVariableName11.java",
-	            "class FooBar {\n"+
-	            "}\n"+
-	            "public class CompletionVariableName11 {\n"+
-	            "	void foo(){\n"+
-	            "		FooBar pr\n"+
-	            "	}\n"+
-	            "}");
+	            """
+					class FooBar {
+					}
+					public class CompletionVariableName11 {
+						void foo(){
+							FooBar pr
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -14474,13 +14945,14 @@ public void testCompletionVariableName12() throws JavaModelException {
 	try {
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionVariableName12.java",
-	            "class FooBar {\n"+
-	            "}\n"+
-	            "public class CompletionVariableName12 {\n"+
-	            "	void foo(){\n"+
-	            "		FooBar prethe\n"+
-	            "	}\n"+
-	            "}");
+	            """
+					class FooBar {
+					}
+					public class CompletionVariableName12 {
+						void foo(){
+							FooBar prethe
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -14505,13 +14977,14 @@ public void testCompletionVariableName13() throws JavaModelException {
 	try {
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionVariableName13.java",
-	            "class FooBar {\n"+
-	            "}\n"+
-	            "public class CompletionVariableName13 {\n"+
-	            "	void foo(){\n"+
-	            "		FooBar prefo\n"+
-	            "	}\n"+
-	            "}");
+	            """
+					class FooBar {
+					}
+					public class CompletionVariableName13 {
+						void foo(){
+							FooBar prefo
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -14536,13 +15009,14 @@ public void testCompletionVariableName14() throws JavaModelException {
 	try {
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionVariableName14.java",
-	            "class FooBar {\n"+
-	            "}\n"+
-	            "public class CompletionVariableName14 {\n"+
-	            "	void foo(){\n"+
-	            "		FooBar pretheFo\n"+
-	            "	}\n"+
-	            "}");
+	            """
+					class FooBar {
+					}
+					public class CompletionVariableName14 {
+						void foo(){
+							FooBar pretheFo
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -14568,13 +15042,14 @@ public void testCompletionVariableName14_2() throws JavaModelException {
 	try {
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionVariableName14.java",
-	            "class FooBar {\n"+
-	            "}\n"+
-	            "public class CompletionVariableName14 {\n"+
-	            "	void foo(){\n"+
-	            "		FooBar prethefo\n"+
-	            "	}\n"+
-	            "}");
+	            """
+					class FooBar {
+					}
+					public class CompletionVariableName14 {
+						void foo(){
+							FooBar prethefo
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -14600,13 +15075,14 @@ public void testCompletionVariableName15() throws JavaModelException {
 	try {
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionVariableName15.java",
-	            "class FooBar {\n"+
-	            "}\n"+
-	            "public class CompletionVariableName15 {\n"+
-	            "	void foo(){\n"+
-	            "		FooBar pro\n"+
-	            "	}\n"+
-	            "}");
+	            """
+					class FooBar {
+					}
+					public class CompletionVariableName15 {
+						void foo(){
+							FooBar pro
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -14630,13 +15106,14 @@ public void testCompletionVariableName16() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		Object ;\n"+
-            "		foo = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						Object ;
+						foo = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -14654,17 +15131,18 @@ public void testCompletionVariableName17() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		Object foo1;\n"+
-            "		/*here*/Object ;\n"+
-            "		Object foo3;\n"+
-            "		foo1 = null;\n"+
-            "		foo2 = null;\n"+
-            "		foo3 = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						Object foo1;
+						/*here*/Object ;
+						Object foo3;
+						foo1 = null;
+						foo2 = null;
+						foo3 = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -14682,13 +15160,14 @@ public void testCompletionVariableName18() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		Object ;\n"+
-            "		foo = Test.class;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						Object ;
+						foo = Test.class;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -14706,13 +15185,14 @@ public void testCompletionVariableName19() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		Object ;\n"+
-            "		object = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						Object ;
+						object = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -14748,21 +15228,22 @@ public void testCompletionVariableName20() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		/*here*/Object ;\n"+
-            "		class X {\n"+
-            "		  Object foo1 = foo2;\n"+
-            "		  void bar() {\n"+
-            "		    foo1 = null;\n"+
-            "		    Object foo3 = foo4;\n"+
-            "		    foo3 = null;\n"+
-            "		  }\n"+
-            "		}\n"+
-            "		foo5 = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						/*here*/Object ;
+						class X {
+						  Object foo1 = foo2;
+						  void bar() {
+						    foo1 = null;
+						    Object foo3 = foo4;
+						    foo3 = null;
+						  }
+						}
+						foo5 = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -14782,16 +15263,17 @@ public void testCompletionVariableName21() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		{\n"+
-            "		  /*here*/Object ;\n"+
-            "		  foo1 = null;\n"+
-            "		}\n"+
-            "		foo2 = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						{
+						  /*here*/Object ;
+						  foo1 = null;
+						}
+						foo2 = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -14809,19 +15291,20 @@ public void testCompletionVariableName22() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		Object foo1;\n"+
-            "		/*here*/Object ;\n"+
-            "		{\n"+
-            "		  Object foo3;\n"+
-            "		  foo1 = null;\n"+
-            "		  foo2 = null;\n"+
-            "		  foo3 = null;\n"+
-            "		}\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						Object foo1;
+						/*here*/Object ;
+						{
+						  Object foo3;
+						  foo1 = null;
+						  foo2 = null;
+						  foo3 = null;
+						}
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -14839,14 +15322,15 @@ public void testCompletionVariableName23() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		/*here*/Object ;\n"+
-            "		foo1 = null;\n"+
-            "		#\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						/*here*/Object ;
+						foo1 = null;
+						#
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -14864,14 +15348,15 @@ public void testCompletionVariableName24() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		/*here*/Object ;\n"+
-            "		#\n"+
-            "		foo1 = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						/*here*/Object ;
+						#
+						foo1 = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -14889,16 +15374,17 @@ public void testCompletionVariableName25() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		/*here*/Object ;\n"+
-            "		#\n"+
-            "		foo1 = null;\n"+
-            "		#\n"+
-            "		foo2 = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						/*here*/Object ;
+						#
+						foo1 = null;
+						#
+						foo2 = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -14917,17 +15403,18 @@ public void testCompletionVariableName26() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		/*here*/Object ;\n"+
-            "		#\n"+
-            "		foo1 = null;\n"+
-            "		#\n"+
-            "		foo2 = null;\n"+
-            "		#\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						/*here*/Object ;
+						#
+						foo1 = null;
+						#
+						foo2 = null;
+						#
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -14946,24 +15433,25 @@ public void testCompletionVariableName27() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		/*here*/Object ;\n"+
-            "		Object foo0 = null;\n"+
-            "		foo0 = null;\n"+
-            "		#\n"+
-            "		class X {\n"+
-            "		  Object foo1 = foo2;\n"+
-            "		  void bar() {\n"+
-            "		    foo1 = null;\n"+
-            "		    Object foo3 = foo4;\n"+
-            "		    foo3 = null;\n"+
-            "		  }\n"+
-            "		}\n"+
-            "		foo5 = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						/*here*/Object ;
+						Object foo0 = null;
+						foo0 = null;
+						#
+						class X {
+						  Object foo1 = foo2;
+						  void bar() {
+						    foo1 = null;
+						    Object foo3 = foo4;
+						    foo3 = null;
+						  }
+						}
+						foo5 = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -14983,15 +15471,16 @@ public void testCompletionVariableName28() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		/*here*/Object ;\n"+
-            "		Object foo1 = null;\n"+
-            "		foo1.foo2 = null;\n"+
-            "		foo3.foo4 = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						/*here*/Object ;
+						Object foo1 = null;
+						foo1.foo2 = null;
+						foo3.foo4 = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -15009,29 +15498,30 @@ public void testCompletionVariableName29() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void foo(){\n"+
-            "		/*here*/Object ;\n"+
-            "		class X {\n"+
-            "			void bar1() {\n"+
-            "				var1 = null;\n"+
-            "			}\n"+
-            "			void bar2() {\n"+
-            "				Object var2 = null;\n"+
-            "				var2 = null;\n"+
-            "			}\n"+
-            "			void bar3() {\n"+
-            "				Object var3 = null;\n"+
-            "				{\n"+
-            "					var3 = null;\n"+
-            "					Object var4 = null;\n"+
-            "				}\n"+
-            "				var4 = null;\n"+
-            "			}\n"+
-            "		}\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void foo(){
+						/*here*/Object ;
+						class X {
+							void bar1() {
+								var1 = null;
+							}
+							void bar2() {
+								Object var2 = null;
+								var2 = null;
+							}
+							void bar3() {
+								Object var3 = null;
+								{
+									var3 = null;
+									Object var4 = null;
+								}
+								var4 = null;
+							}
+						}
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -15086,13 +15576,14 @@ public void testCompletionVariableName30() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	public Test(){\n"+
-            "		Object ;\n"+
-            "		foo = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					public Test(){
+						Object ;
+						foo = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -15110,13 +15601,14 @@ public void testCompletionVariableName31() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	{\n"+
-            "		Object ;\n"+
-            "		foo = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					{
+						Object ;
+						foo = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -15134,12 +15626,13 @@ public void testCompletionVariableName32() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void bar(Object ) {\n"+
-            "		foo = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void bar(Object ) {
+						foo = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -15157,15 +15650,16 @@ public void testCompletionVariableName33() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void bar() {\n"+
-            "		/**/int v\n"+
-            "		variable = null;\n"+
-            "		variable = null;\n"+
-            "		variable = null;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void bar() {
+						/**/int v
+						variable = null;
+						variable = null;
+						variable = null;
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -15182,15 +15676,16 @@ public void testCompletionVariableName34() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	int vDefined;\n"+
-            "	void bar() {\n"+
-            "		/**/int v\n"+
-            "		System.out.println(vUnknown);\n"+
-            "		System.out.println(vUnknown);\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					int vDefined;
+					void bar() {
+						/**/int v
+						System.out.println(vUnknown);
+						System.out.println(vUnknown);
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -15207,19 +15702,21 @@ public void testCompletionVariableName35() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void bar() {\n"+
-            "		Test2 zzz\n"+
-            "		int zzzzz = 0;\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void bar() {
+						Test2 zzz
+						int zzzzz = 0;
+					}
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
             "/Completion/src/test/Test2.java",
-            "package test;\n"+
-            "public class Test2 {\n"+
-            "}");
+            """
+				package test;
+				public class Test2 {
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -15236,18 +15733,19 @@ public void testCompletionVariableName36() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void bar() {\n"+
-            "		/**/int varzz\n"+
-            "		{\n"+
-            "			int varzz1 = 0;\n"+
-            "			varzz1 = 0;\n"+
-            "		}\n"+
-            "		int varzz2 = 0;\n"+
-            "		#\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void bar() {
+						/**/int varzz
+						{
+							int varzz1 = 0;
+							varzz1 = 0;
+						}
+						int varzz2 = 0;
+						#
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -15264,12 +15762,13 @@ public void testCompletionVariableName37() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void bar() {\n"+
-            "		int va\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void bar() {
+						int va
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -15286,12 +15785,13 @@ public void testCompletionVariableName38() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
             "/Completion/src/test/Test.java",
-            "package test;\n"+
-            "public class Test {\n"+
-            "	void bar() {\n"+
-            "		boolean va\n"+
-            "	}\n"+
-            "}");
+            """
+				package test;
+				public class Test {
+					void bar() {
+						boolean va
+					}
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -15308,21 +15808,22 @@ public void testCompletionVariableName39() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;\n"+
-			"public class AutoCompleteBug {\n"+
-			"    interface I {\n"+
-			"        void doIt();\n"+
-			"    }\n"+
-			"    class C1 implements I {\n"+
-			"        public void doIt() {\n"+
-			"        }\n"+
-			"    }\n"+
-			"    class C2 extends C1 {\n"+
-			"        /*here*/public void doIt() {\n"+
-			"			super.doIt();\n"+
-			"        }\n"+
-			"    }\n"+
-			"}");
+			"""
+				package test;
+				public class AutoCompleteBug {
+				    interface I {
+				        void doIt();
+				    }
+				    class C1 implements I {
+				        public void doIt() {
+				        }
+				    }
+				    class C2 extends C1 {
+				        /*here*/public void doIt() {
+							super.doIt();
+				        }
+				    }
+				}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -15337,13 +15838,14 @@ public void testCompletionVariableName39() throws JavaModelException {
 public void testCompletionVariableName4() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionVariableName4.java",
-            "class FooBar {\n"+
-            "}\n"+
-            "public class CompletionVariableName4 {\n"+
-            "	void foo(){\n"+
-            "		FooBar the\n"+
-            "	}\n"+
-            "}");
+            """
+				class FooBar {
+				}
+				public class CompletionVariableName4 {
+					void foo(){
+						FooBar the
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -15360,13 +15862,14 @@ public void testCompletionVariableName4() throws JavaModelException {
 public void testCompletionVariableName5() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionVariableName5.java",
-            "class FooBar {\n"+
-            "}\n"+
-            "public class CompletionVariableName5 {\n"+
-            "	void foo(){\n"+
-            "		FooBar theFo\n"+
-            "	}\n"+
-            "}");
+            """
+				class FooBar {
+				}
+				public class CompletionVariableName5 {
+					void foo(){
+						FooBar theFo
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -15384,13 +15887,14 @@ public void testCompletionVariableName5() throws JavaModelException {
 public void testCompletionVariableName5_2() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionVariableName5.java",
-            "class FooBar {\n"+
-            "}\n"+
-            "public class CompletionVariableName5 {\n"+
-            "	void foo(){\n"+
-            "		FooBar thefo\n"+
-            "	}\n"+
-            "}");
+            """
+				class FooBar {
+				}
+				public class CompletionVariableName5 {
+					void foo(){
+						FooBar thefo
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -15407,13 +15911,14 @@ public void testCompletionVariableName5_2() throws JavaModelException {
 public void testCompletionVariableName6() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionVariableName6.java",
-            "class FooBar {\n"+
-            "}\n"+
-            "public class CompletionVariableName6 {\n"+
-            "	void foo(){\n"+
-            "		FooBar theBa\n"+
-            "	}\n"+
-            "}");
+            """
+				class FooBar {
+				}
+				public class CompletionVariableName6 {
+					void foo(){
+						FooBar theBa
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -15431,13 +15936,14 @@ public void testCompletionVariableName6() throws JavaModelException {
 public void testCompletionVariableName6_2() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionVariableName6.java",
-            "class FooBar {\n"+
-            "}\n"+
-            "public class CompletionVariableName6 {\n"+
-            "	void foo(){\n"+
-            "		FooBar theba\n"+
-            "	}\n"+
-            "}");
+            """
+				class FooBar {
+				}
+				public class CompletionVariableName6 {
+					void foo(){
+						FooBar theba
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -15454,13 +15960,14 @@ public void testCompletionVariableName6_2() throws JavaModelException {
 public void testCompletionVariableName7() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionVariableName7.java",
-            "class FooBar {\n"+
-            "}\n"+
-            "public class CompletionVariableName7 {\n"+
-            "	void foo(){\n"+
-            "		FooBar fo\n"+
-            "	}\n"+
-            "}");
+            """
+				class FooBar {
+				}
+				public class CompletionVariableName7 {
+					void foo(){
+						FooBar fo
+					}
+				}""");
 
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -15480,13 +15987,14 @@ public void testCompletionVariableName8() throws JavaModelException {
 	try {
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionVariableName8.java",
-	            "class FooBar {\n"+
-	            "}\n"+
-	            "public class CompletionVariableName8 {\n"+
-	            "	void foo(){\n"+
-	            "		FooBar the\n"+
-	            "	}\n"+
-	            "}");
+	            """
+					class FooBar {
+					}
+					public class CompletionVariableName8 {
+						void foo(){
+							FooBar the
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -15511,13 +16019,14 @@ public void testCompletionVariableName9() throws JavaModelException {
 	try {
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionVariableName9.java",
-	            "class FooBar {\n"+
-	            "}\n"+
-	            "public class CompletionVariableName9 {\n"+
-	            "	void foo(){\n"+
-	            "		FooBar theFo\n"+
-	            "	}\n"+
-	            "}");
+	            """
+					class FooBar {
+					}
+					public class CompletionVariableName9 {
+						void foo(){
+							FooBar theFo
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -15543,13 +16052,14 @@ public void testCompletionVariableName9_2() throws JavaModelException {
 	try {
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionVariableName9.java",
-	            "class FooBar {\n"+
-	            "}\n"+
-	            "public class CompletionVariableName9 {\n"+
-	            "	void foo(){\n"+
-	            "		FooBar thefo\n"+
-	            "	}\n"+
-	            "}");
+	            """
+					class FooBar {
+					}
+					public class CompletionVariableName9 {
+						void foo(){
+							FooBar thefo
+						}
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -15572,9 +16082,11 @@ public void testCompletionVariableNameOfArray1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionVariableNameOfArray1.java",
-		"public class CompletionVariableNameOfArray1 {\n"+
-		"	Object[] ob\n"+
-		"}\n");
+		"""
+			public class CompletionVariableNameOfArray1 {
+				Object[] ob
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -15590,9 +16102,11 @@ public void testCompletionVariableNameOfArray2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionVariableNameOfArray2.java",
-		"public class CompletionVariableNameOfArray2 {\n"+
-		"	Class[] cl\n"+
-		"}\n");
+		"""
+			public class CompletionVariableNameOfArray2 {
+				Class[] cl
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -15608,9 +16122,11 @@ public void testCompletionVariableNameOfArray3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionVariableNameOfArray3.java",
-		"public class CompletionVariableNameOfArray3 {\n"+
-		"	Object[][] ob\n"+
-		"}\n");
+		"""
+			public class CompletionVariableNameOfArray3 {
+				Object[][] ob
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -15626,9 +16142,11 @@ public void testCompletionVariableNameOfArray4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionVariableNameOfArray4.java",
-		"public class CompletionVariableNameOfArray4 {\n"+
-		"	Objectz[] ob\n"+
-		"}\n");
+		"""
+			public class CompletionVariableNameOfArray4 {
+				Objectz[] ob
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -15732,21 +16250,23 @@ public void testCompletionWithProblem1() throws JavaModelException {
 	try {
 		aType = getWorkingCopy(
 	            "/Completion/src/test/AType.java",
-	            "package test;\n" +
-	            "public class AType{\n"+
-	            "  void foo(Unknown var) {\n"+
-	            "  }\n"+
-	            "}");
+	            """
+					package test;
+					public class AType{
+					  void foo(Unknown var) {
+					  }
+					}""");
 
 	    this.wc = getWorkingCopy(
 	            "/Completion/src/test/Test.java",
-	            "package test;\n" +
-	            "public class Test{\n"+
-	            "  void foo() {\n"+
-	            "    AType a = null;\n"+
-	            "    a.zz\n"+
-	            "  }\n"+
-	            "}");
+	            """
+					package test;
+					public class Test{
+					  void foo() {
+					    AType a = null;
+					    a.zz
+					  }
+					}""");
 
 
 	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -15775,19 +16295,21 @@ public void testConstructor1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public void foo() {\n" +
-		"                TestConstructor1[] var = new TestConstructor\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public void foo() {
+			                TestConstructor1[] var = new TestConstructor
+			        }
+			}""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestConstructor1.java",
-		"package test;"+
-		"public class TestConstructor1 {\n" +
-		"        public TestConstructor1(int i) {\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class TestConstructor1 {
+			        public TestConstructor1(int i) {
+			        }
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 	requestor.allowAllRequiredProposals();
 	NullProgressMonitor monitor = new NullProgressMonitor();
@@ -15808,19 +16330,21 @@ public void testConstructor2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public void foo(TestConstructor1[] var) {\n" +
-		"                foo(new TestConstructor\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public void foo(TestConstructor1[] var) {
+			                foo(new TestConstructor
+			        }
+			}""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestConstructor1.java",
-		"package test;"+
-		"public class TestConstructor1 {\n" +
-		"        public TestConstructor1(int i) {\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class TestConstructor1 {
+			        public TestConstructor1(int i) {
+			        }
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 	requestor.allowAllRequiredProposals();
 	NullProgressMonitor monitor = new NullProgressMonitor();
@@ -15841,19 +16365,21 @@ public void testConstructor3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public TestConstructor1[] foo() {\n" +
-		"                return new TestConstructor\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public TestConstructor1[] foo() {
+			                return new TestConstructor
+			        }
+			}""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestConstructor1.java",
-		"package test;"+
-		"public class TestConstructor1 {\n" +
-		"        public TestConstructor1(int i) {\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class TestConstructor1 {
+			        public TestConstructor1(int i) {
+			        }
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 	requestor.allowAllRequiredProposals();
 	NullProgressMonitor monitor = new NullProgressMonitor();
@@ -15874,20 +16400,22 @@ public void testConstructor4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public Test(TestConstructor1[] var) {}\n" +
-		"        public void foo() {\n" +
-		"                new Test(new TestConstructor\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public Test(TestConstructor1[] var) {}
+			        public void foo() {
+			                new Test(new TestConstructor
+			        }
+			}""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestConstructor1.java",
-		"package test;"+
-		"public class TestConstructor1 {\n" +
-		"        public TestConstructor1(int i) {\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class TestConstructor1 {
+			        public TestConstructor1(int i) {
+			        }
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 	requestor.allowAllRequiredProposals();
 	NullProgressMonitor monitor = new NullProgressMonitor();
@@ -15908,19 +16436,21 @@ public void testConstructor5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public void foo(TestConstructor1[] var) {\n" +
-		"                if (var == new TestConstructor) {}\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public void foo(TestConstructor1[] var) {
+			                if (var == new TestConstructor) {}
+			        }
+			}""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestConstructor1.java",
-		"package test;"+
-		"public class TestConstructor1 {\n" +
-		"        public TestConstructor1(int i) {\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class TestConstructor1 {
+			        public TestConstructor1(int i) {
+			        }
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 	requestor.allowAllRequiredProposals();
 	NullProgressMonitor monitor = new NullProgressMonitor();
@@ -15941,19 +16471,21 @@ public void testConstructor6() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public void foo(Object o) {\n" +
-		"                o = (TestConstructor1[])new TestConstructor\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public void foo(Object o) {
+			                o = (TestConstructor1[])new TestConstructor
+			        }
+			}""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestConstructor1.java",
-		"package test;"+
-		"public class TestConstructor1 {\n" +
-		"        public TestConstructor1(int i) {\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class TestConstructor1 {
+			        public TestConstructor1(int i) {
+			        }
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 	requestor.allowAllRequiredProposals();
 	NullProgressMonitor monitor = new NullProgressMonitor();
@@ -15973,19 +16505,21 @@ public void testConstructor7() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public void foo(Object o) {\n" +
-		"                new TestConstructor\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public void foo(Object o) {
+			                new TestConstructor
+			        }
+			}""");
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestConstructor1.java",
-		"package test;"+
-		"public class TestConstructor1 {\n" +
-		"        public TestConstructor1(int[] i) {\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class TestConstructor1 {
+			        public TestConstructor1(int[] i) {
+			        }
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 	requestor.allowAllRequiredProposals();
 	NullProgressMonitor monitor = new NullProgressMonitor();
@@ -16007,23 +16541,26 @@ public void testDeprecationCheck1() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  ZZZTy\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  ZZZTy
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class ZZZType1 {
+				}""");
 
 		this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/deprecation/ZZZType2.java",
-			"package deprecation;"+
-			"/** @deprecated */\n"+
-			"public class ZZZType2 {\n"+
-			"}");
+			"""
+				package deprecation;\
+				/** @deprecated */
+				public class ZZZType2 {
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16049,15 +16586,16 @@ public void testDeprecationCheck10() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  public void bar1(){}\n"+
-			"  /** @deprecated */\n"+
-			"  public void bar2(){}\n"+
-			"  void foo() {"+
-			"    bar\n"+
-			"  }"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  public void bar1(){}
+				  /** @deprecated */
+				  public void bar2(){}
+				  void foo() {\
+				    bar
+				  }\
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16082,15 +16620,16 @@ public void testDeprecationCheck11() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  public int bar1;\n"+
-			"  /** @deprecated */\n"+
-			"  public int bar2;\n"+
-			"  void foo() {"+
-			"    bar\n"+
-			"  }"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  public int bar1;
+				  /** @deprecated */
+				  public int bar2;
+				  void foo() {\
+				    bar
+				  }\
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16115,15 +16654,16 @@ public void testDeprecationCheck12() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  public int bar1;\n"+
-			"  /** @deprecated */\n"+
-			"  public int bar2;\n"+
-			"  void foo() {"+
-			"    bar\n"+
-			"  }"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  public int bar1;
+				  /** @deprecated */
+				  public int bar2;
+				  void foo() {\
+				    bar
+				  }\
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16148,15 +16688,16 @@ public void testDeprecationCheck13() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  class Inner1 {}\n"+
-			"  /** @deprecated */\n"+
-			"  class Inner2 {}\n"+
-			"  void foo() {"+
-			"    Inn\n"+
-			"  }"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  class Inner1 {}
+				  /** @deprecated */
+				  class Inner2 {}
+				  void foo() {\
+				    Inn
+				  }\
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16181,15 +16722,16 @@ public void testDeprecationCheck14() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  class Inner1 {}\n"+
-			"  /** @deprecated */\n"+
-			"  class Inner2 {}\n"+
-			"  void foo() {"+
-			"    Inn\n"+
-			"  }"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  class Inner1 {}
+				  /** @deprecated */
+				  class Inner2 {}
+				  void foo() {\
+				    Inn
+				  }\
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16219,21 +16761,23 @@ public void testDeprecationCheck15() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZType1.foo\n"+
-			"  }"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  void foo() {\
+				    ZZZType1.foo
+				  }\
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"/** @deprecated */\n"+
-			"public class ZZZType1 {\n"+
-			"  public static int foo1;\n"+
-			"  public static int foo2;\n"+
-			"}");
+			"""
+				package deprecation;\
+				/** @deprecated */
+				public class ZZZType1 {
+				  public static int foo1;
+				  public static int foo2;
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16257,15 +16801,16 @@ public void testDeprecationCheck16() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"/** @deprecated */\n"+
-			"public class ZZZType1 {\n"+
-			"}"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZTy\n"+
-			"  }"+
-			"}");
+			"""
+				package deprecation;\
+				/** @deprecated */
+				public class ZZZType1 {
+				}\
+				public class Test {
+				  void foo() {\
+				    ZZZTy
+				  }\
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16289,10 +16834,11 @@ public void testDeprecationCheck17() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  Bug127628Ty\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  Bug127628Ty
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16318,23 +16864,26 @@ public void testDeprecationCheck2() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  ZZZTy\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  ZZZTy
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class ZZZType1 {
+				}""");
 
 		this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/deprecation/ZZZType2.java",
-			"package deprecation;"+
-			"/** @deprecated */\n"+
-			"public class ZZZType2 {\n"+
-			"}");
+			"""
+				package deprecation;\
+				/** @deprecated */
+				public class ZZZType2 {
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16359,21 +16908,23 @@ public void testDeprecationCheck3() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZType1.fo\n"+
-			"  }"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  void foo() {\
+				    ZZZType1.fo
+				  }\
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public static void foo1(){}\n"+
-			"  /** @deprecated */\n"+
-			"  public static void foo2(){}\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class ZZZType1 {
+				  public static void foo1(){}
+				  /** @deprecated */
+				  public static void foo2(){}
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16397,21 +16948,23 @@ public void testDeprecationCheck4() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZType1.fo\n"+
-			"  }"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  void foo() {\
+				    ZZZType1.fo
+				  }\
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public static void foo1(){}\n"+
-			"  /** @deprecated */\n"+
-			"  public static void foo2(){}\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class ZZZType1 {
+				  public static void foo1(){}
+				  /** @deprecated */
+				  public static void foo2(){}
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16435,19 +16988,21 @@ public void testDeprecationCheck5() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  ZZZType1.Inn\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  ZZZType1.Inn
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public class Inner1 {}\n"+
-			"  /** @deprecated */\n"+
-			"  public class Inner2 {}\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class ZZZType1 {
+				  public class Inner1 {}
+				  /** @deprecated */
+				  public class Inner2 {}
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16471,19 +17026,21 @@ public void testDeprecationCheck6() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  ZZZType1.Inn\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  ZZZType1.Inn
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public class Inner1 {}\n"+
-			"  /** @deprecated */\n"+
-			"  public class Inner2 {}\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class ZZZType1 {
+				  public class Inner1 {}
+				  /** @deprecated */
+				  public class Inner2 {}
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16507,21 +17064,23 @@ public void testDeprecationCheck7() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZType1.fo\n"+
-			"  }"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  void foo() {\
+				    ZZZType1.fo
+				  }\
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public static int foo1;\n"+
-			"  /** @deprecated */\n"+
-			"  public static int foo2;\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class ZZZType1 {
+				  public static int foo1;
+				  /** @deprecated */
+				  public static int foo2;
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16546,21 +17105,23 @@ public void testDeprecationCheck8() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZType1.fo\n"+
-			"  }"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  void foo() {\
+				    ZZZType1.fo
+				  }\
+				}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public static int foo1;\n"+
-			"  /** @deprecated */\n"+
-			"  public static int foo2;\n"+
-			"}");
+			"""
+				package deprecation;\
+				public class ZZZType1 {
+				  public static int foo1;
+				  /** @deprecated */
+				  public static int foo2;
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16584,15 +17145,16 @@ public void testDeprecationCheck9() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  public void bar1(){}\n"+
-			"  /** @deprecated */\n"+
-			"  public void bar2(){}\n"+
-			"  void foo() {"+
-			"    bar\n"+
-			"  }"+
-			"}");
+			"""
+				package deprecation;\
+				public class Test {
+				  public void bar1(){}
+				  /** @deprecated */
+				  public void bar2(){}
+				  void foo() {\
+				    bar
+				  }\
+				}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -16613,22 +17175,24 @@ public void testDuplicateLocals1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	void foo() {\n" +
-		"		int x = 0;\n" +
-		"		TestString x = null;\n" +
-		"		x.bar;\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+				void foo() {
+					int x = 0;
+					TestString x = null;
+					x.bar;
+				}
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestString.java",
-		"package test;"+
-		"public class TestString {\n" +
-		"	public void bar() {\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class TestString {
+				public void bar() {
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -16645,26 +17209,28 @@ public void testDuplicateLocals2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public static void main(String[] args) {\n" +
-		"                int x = 2;\n" +
-		"                try {\n" +
-		"                \n" +
-		"                } catch(TestException x) {\n" +
-		"                        x.bar\n" +
-		"                } catch(Exception e) {\n" +
-		"                }\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public static void main(String[] args) {
+			                int x = 2;
+			                try {
+			               \s
+			                } catch(TestException x) {
+			                        x.bar
+			                } catch(Exception e) {
+			                }
+			        }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestException.java",
-		"package test;"+
-		"public class TestException extends Exception {\n" +
-		"	public void bar() {\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class TestException extends Exception {
+				public void bar() {
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -16681,23 +17247,25 @@ public void testDuplicateLocals3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public static void main(String[] args) {\n" +
-		"                int x = x = 0;\n" +
-		"                if (true) {\n" +
-		"                        TestString x = x.bar\n" +
-		"                }\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public static void main(String[] args) {
+			                int x = x = 0;
+			                if (true) {
+			                        TestString x = x.bar
+			                }
+			        }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestString.java",
-		"package test;"+
-		"public class TestString {\n" +
-		"	public void bar() {\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class TestString {
+				public void bar() {
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -16714,24 +17282,26 @@ public void testDuplicateLocals4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public static void main(String[] args) {\n" +
-		"                for (int i = 0; i < 10; i++) {\n" +
-		"                        for (TestString i = null; i.bar < 5;)  {\n" +
-		"                                // do something\n" +
-		"                        }\n" +
-		"                }\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public static void main(String[] args) {
+			                for (int i = 0; i < 10; i++) {
+			                        for (TestString i = null; i.bar < 5;)  {
+			                                // do something
+			                        }
+			                }
+			        }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestString.java",
-		"package test;"+
-		"public class TestString {\n" +
-		"	public void bar() {\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class TestString {
+				public void bar() {
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -16748,24 +17318,26 @@ public void testDuplicateLocals5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        public static void main(String[] args) {\n" +
-		"                for (int i = 0; i < 10; i++) {\n" +
-		"                        for (TestString i = null; ;)  {\n" +
-		"                                i.bar // do something\n" +
-		"                        }\n" +
-		"                }\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        public static void main(String[] args) {
+			                for (int i = 0; i < 10; i++) {
+			                        for (TestString i = null; ;)  {
+			                                i.bar // do something
+			                        }
+			                }
+			        }
+			}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/TestString.java",
-		"package test;"+
-		"public class TestString {\n" +
-		"	public void bar() {\n" +
-		"	}\n" +
-		"}");
+		"""
+			package test;\
+			public class TestString {
+				public void bar() {
+				}
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -16782,25 +17354,26 @@ public void testDuplicateLocalsType1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"     class Local {\n" +
-		"        void foo() {}\n" +
-		"     }\n" +
-		"     {\n" +
-		"        class Local {\n" +
-		"                Local(int i) {\n" +
-		"                        this.init(i);\n" +
-		"                }\n" +
-		"				 void init(int i) {}\n" +
-		"                public void bar() {}\n" +
-		"        }\n" +
-		"        Local l = new Local(0);\n" +
-		"        l.bar\n" +
-		"     }\n" +
-		"  }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			     class Local {
+			        void foo() {}
+			     }
+			     {
+			        class Local {
+			                Local(int i) {
+			                        this.init(i);
+			                }
+							 void init(int i) {}
+			                public void bar() {}
+			        }
+			        Local l = new Local(0);
+			        l.bar
+			     }
+			  }
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -16817,29 +17390,30 @@ public void testDuplicateLocalsType2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"        void foo() {\n" +
-		"                class Local {\n" +
-		"                        void foo() {\n" +
-		"                        }\n" +
-		"                }\n" +
-		"                {\n" +
-		"                        class Local {\n" +
-		"                               Local(int i) {\n" +
-		"                                       this.init(i);\n" +
-		"                                       this.bar();\n" +
-		"                               }\n" +
-		"				 				void init(int i) {}\n" +
-		"                        		void bar() {\n" +
-		"                        		}\n" +
-		"                        }\n" +
-		"                        Local l = new Local(0);\n" +
-		"                }\n" +
-		"                Local l = new Local();\n" +
-		"                l.foo\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Test {
+			        void foo() {
+			                class Local {
+			                        void foo() {
+			                        }
+			                }
+			                {
+			                        class Local {
+			                               Local(int i) {
+			                                       this.init(i);
+			                                       this.bar();
+			                               }
+							 				void init(int i) {}
+			                        		void bar() {
+			                        		}
+			                        }
+			                        Local l = new Local(0);
+			                }
+			                Local l = new Local();
+			                l.foo
+			        }
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -16909,9 +17483,10 @@ public void testEvaluationContextCompletion3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/TestEvaluationContextCompletion3.java",
-		"package test;"+
-		"public class TestEvaluationContextCompletion3 {\n"+
-		"}");
+		"""
+			package test;\
+			public class TestEvaluationContextCompletion3 {
+			}""");
 
 	String start = "TestEvaluationContextCompletion3";
 	IJavaProject javaProject = getJavaProject("Completion");
@@ -16942,9 +17517,10 @@ public void testEvaluationContextCompletion4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/TestEvaluationContextCompletion4.java",
-		"package test;"+
-		"public class TestEvaluationContextCompletion4 {\n"+
-		"}");
+		"""
+			package test;\
+			public class TestEvaluationContextCompletion4 {
+			}""");
 
 	String start = "TestEvaluationContextCompletion4";
 	IJavaProject javaProject = getJavaProject("Completion");
@@ -16976,9 +17552,10 @@ public void testEvaluationContextCompletion5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/TestEvaluationContextCompletion5.java",
-		"package test;"+
-		"public class TestEvaluationContextCompletion5 {\n"+
-		"}");
+		"""
+			package test;\
+			public class TestEvaluationContextCompletion5 {
+			}""");
 
 	String start = "someVariable.to";
 	IJavaProject javaProject = getJavaProject("Completion");
@@ -17011,9 +17588,10 @@ public void testEvaluationContextCompletion6() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/TestEvaluationContextCompletion6.java",
-		"package test;"+
-		"public class TestEvaluationContextCompletion6 {\n"+
-		"}");
+		"""
+			package test;\
+			public class TestEvaluationContextCompletion6 {
+			}""");
 
 	String start = "";
 	IJavaProject javaProject = getJavaProject("Completion");
@@ -17048,19 +17626,21 @@ public void testFavoriteImports001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo;\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo;
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17086,19 +17666,21 @@ public void testFavoriteImports002() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17124,19 +17706,21 @@ public void testFavoriteImports003() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo;\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo;
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17156,19 +17740,21 @@ public void testFavoriteImports004() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17188,19 +17774,21 @@ public void testFavoriteImports005() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo;\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo;
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17226,19 +17814,21 @@ public void testFavoriteImports006() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17264,20 +17854,22 @@ public void testFavoriteImports007() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"import test.p.ZZZ.*;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				import test.p.ZZZ.*;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17303,20 +17895,22 @@ public void testFavoriteImports009() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"import test.p.ZZZ.*;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				import test.p.ZZZ.*;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17342,20 +17936,22 @@ public void testFavoriteImports011() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"import test.p.ZZZ.foo;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				import test.p.ZZZ.foo;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17381,20 +17977,22 @@ public void testFavoriteImports013() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"import test.p.ZZZ.foo;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				import test.p.ZZZ.foo;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17420,21 +18018,23 @@ public void testFavoriteImports016() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public class foo {\n" +
-			"        public void method() {\n" +
-			"            foo\n" +
-			"        }\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public class foo {
+				        public void method() {
+				            foo
+				        }
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17461,19 +18061,21 @@ public void testFavoriteImports017() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void foo() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void foo() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17495,20 +18097,22 @@ public void testFavoriteImports018() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public int foo;\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public int foo;
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17535,20 +18139,22 @@ public void testFavoriteImports019() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        int foo = 0;\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        int foo = 0;
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17575,20 +18181,22 @@ public void testFavoriteImports020() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"    public static int foo(int i){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				    public static int foo(int i){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17616,19 +18224,21 @@ public void testFavoriteImports022() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo();\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo();
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){}\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){}
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17648,20 +18258,22 @@ public void testFavoriteImports023() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"/** */\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				/** */
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo;\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo;
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17687,19 +18299,21 @@ public void testFavoriteImports024() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public int foo;\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public int foo;
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17719,19 +18333,21 @@ public void testFavoriteImports025() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public int foo;\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public int foo;
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17751,19 +18367,21 @@ public void testFavoriteImports026() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public int foo(){return 0;};\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public int foo(){return 0;};
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17783,19 +18401,21 @@ public void testFavoriteImports027() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public int foo(){return 0;};\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public int foo(){return 0;};
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17815,20 +18435,22 @@ public void testFavoriteImports028() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"import test.p.ZZZ;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				import test.p.ZZZ;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZ.java",
-			"package test.p;\n" +
-			"public class ZZZ {\n" +
-			"    public static int foo(){return 0;};\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZ {
+				    public static int foo(){return 0;};
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17852,19 +18474,21 @@ public void testFavoriteImports030() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src3/test/Test.java",
-				"package test;\n" +
-				"public class Test {\n" +
-				"    public void method() {\n" +
-				"        foo\n" +
-				"    }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					    public void method() {
+					        foo
+					    }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src3/test/p/ZZZ.java",
-				"package test.p;\n" +
-				"public class ZZZ {\n" +
-				"    public static int foo(){}\n" +
-				"}");
+				"""
+					package test.p;
+					public class ZZZ {
+					    public static int foo(){}
+					}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
@@ -17895,19 +18519,21 @@ public void testFavoriteImports031() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src3/test/Test.java",
-				"package test;\n" +
-				"public class Test {\n" +
-				"    public void method() {\n" +
-				"        foo\n" +
-				"    }\n" +
-				"}");
+				"""
+					package test;
+					public class Test {
+					    public void method() {
+					        foo
+					    }
+					}""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src3/test/p/ZZZ.java",
-				"package test.p;\n" +
-				"public class ZZZ {\n" +
-				"    public static int foo(){}\n" +
-				"}");
+				"""
+					package test.p;
+					public class ZZZ {
+					    public static int foo(){}
+					}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();
@@ -17936,26 +18562,29 @@ public void testFavoriteImports032() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZA.java",
-			"package test.p;\n" +
-			"public class ZZZA {\n" +
-			"    public static int foo(int i){return 0;};\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZA {
+				    public static int foo(int i){return 0;};
+				}""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZB.java",
-			"package test.p;\n" +
-			"public class ZZZB {\n" +
-			"    public static int foo(int i){return 0;};\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZB {
+				    public static int foo(int i){return 0;};
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -17983,27 +18612,30 @@ public void testFavoriteImports033() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"    public static int foo(int i){return 0;};\n" +
-			"    public void method() {\n" +
-			"        foo\n" +
-			"    }\n" +
-			"}");
+			"""
+				package test;
+				public class Test {
+				    public static int foo(int i){return 0;};
+				    public void method() {
+				        foo
+				    }
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZA.java",
-			"package test.p;\n" +
-			"public class ZZZA {\n" +
-			"    public static int foo(int i){return 0;};\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZA {
+				    public static int foo(int i){return 0;};
+				}""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src3/test/p/ZZZB.java",
-			"package test.p;\n" +
-			"public class ZZZB {\n" +
-			"    public static int foo(int i){return 0;};\n" +
-			"}");
+			"""
+				package test.p;
+				public class ZZZB {
+				    public static int foo(int i){return 0;};
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 	requestor.allowAllRequiredProposals();
@@ -18025,12 +18657,14 @@ public void testInconsistentHierarchy1() throws CoreException, IOException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/p/Test.java",
-		"package p;"+
-		"public class Test extends Unknown {\n" +
-		"  void foo() {\n" +
-		"    this.has\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package p;\
+			public class Test extends Unknown {
+			  void foo() {
+			    this.has
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -18047,18 +18681,19 @@ public void testLabel1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/label/Test.java",
-		"package label;"+
-		"public class Test {\n"+
-		"  void foo() {\n"+
-		"    label1 : for(;;) foo();\n"+
-		"    label2 : for(;;)\n"+
-		"      label3 : for(;;) {\n"+
-		"        label4 : for(;;) {\n"+
-		"          break lab\n"+
-		"        }\n"+
-		"      }\n"+
-		"  }\n"+
-		"}");
+		"""
+			package label;\
+			public class Test {
+			  void foo() {
+			    label1 : for(;;) foo();
+			    label2 : for(;;)
+			      label3 : for(;;) {
+			        label4 : for(;;) {
+			          break lab
+			        }
+			      }
+			  }
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -18077,19 +18712,20 @@ public void testLabel2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/label/Test.java",
-		"package label;"+
-		"public class Test {\n"+
-		"  void foo() {\n"+
-		"    #\n"+
-		"    label1 : for(;;) foo();\n"+
-		"    label2 : for(;;)\n"+
-		"      label3 : for(;;) {\n"+
-		"        label4 : for(;;) {\n"+
-		"          break lab\n"+
-		"        }\n"+
-		"      }\n"+
-		"  }\n"+
-		"}");
+		"""
+			package label;\
+			public class Test {
+			  void foo() {
+			    #
+			    label1 : for(;;) foo();
+			    label2 : for(;;)
+			      label3 : for(;;) {
+			        label4 : for(;;) {
+			          break lab
+			        }
+			      }
+			  }
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -18108,16 +18744,17 @@ public void testLabel3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/label/Test.java",
-		"package label;"+
-		"public class Test {\n"+
-		"  void foo() {\n"+
-		"    label1 : for(;;) foo();\n"+
-		"    label2 : for(;;)\n"+
-		"      label3 : for(;;) {\n"+
-		"        label4 : for(;;) {\n"+
-		"          break lab\n"+
-		"  }\n"+
-		"}");
+		"""
+			package label;\
+			public class Test {
+			  void foo() {
+			    label1 : for(;;) foo();
+			    label2 : for(;;)
+			      label3 : for(;;) {
+			        label4 : for(;;) {
+			          break lab
+			  }
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -18136,17 +18773,18 @@ public void testLabel4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/label/Test.java",
-		"package label;"+
-		"public class Test {\n"+
-		"  void foo() {\n"+
-		"    #\n"+
-		"    label1 : for(;;) foo();\n"+
-		"    label2 : for(;;)\n"+
-		"      label3 : for(;;) {\n"+
-		"        label4 : for(;;) {\n"+
-		"          break lab\n"+
-		"  }\n"+
-		"}");
+		"""
+			package label;\
+			public class Test {
+			  void foo() {
+			    #
+			    label1 : for(;;) foo();
+			    label2 : for(;;)
+			      label3 : for(;;) {
+			        label4 : for(;;) {
+			          break lab
+			  }
+			}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -18165,20 +18803,22 @@ public void testLabel5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/label/Test.java",
-		"package label;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
- 		"    label1 : for(;;) {\n" +
- 		"      class X {\n" +
- 		"        void foo() {\n" +
- 		"          label2 : for(;;) foo();\n" +
- 		"        }\n" +
- 		"      }\n" +
- 		"      continue lab\n" +
- 		"    }\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package label;\
+			public class Test {
+			  void foo() {
+			    #
+			    label1 : for(;;) {
+			      class X {
+			        void foo() {
+			          label2 : for(;;) foo();
+			        }
+			      }
+			      continue lab
+			    }
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -18195,21 +18835,23 @@ public void testLabel6() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/label/Test.java",
-		"package label;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    #\n" +
- 		"    label1 : for(;;) {\n" +
- 		"      class X {\n" +
- 		"        void foo() {\n" +
- 		"          label2 : for(;;) {\n" +
- 		"            continue lab\n" +
- 		"          }\n" +
- 		"        }\n" +
- 		"      }\n" +
- 		"    }\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package label;\
+			public class Test {
+			  void foo() {
+			    #
+			    label1 : for(;;) {
+			      class X {
+			        void foo() {
+			          label2 : for(;;) {
+			            continue lab
+			          }
+			        }
+			      }
+			    }
+			  }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -18225,20 +18867,24 @@ public void testMethod1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo(Test2 y) {\n" +
-		"    y.bar\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo(Test2 y) {
+			    y.bar
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/Test2.java",
-		"package test;"+
-		"public class Test2 {\n" +
-		"  public Object bar1() {}\n" +
-		"  public Zork bar2() {}\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test2 {
+			  public Object bar1() {}
+			  public Zork bar2() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -18255,19 +18901,23 @@ public void testMethod2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo(Test2 y) {\n" +
-		"    y.bar().foo\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo(Test2 y) {
+			    y.bar().foo
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/Test2.java",
-		"package test;"+
-		"public class Test2 {\n" +
-		"  public Zork bar() {}\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test2 {
+			  public Zork bar() {}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -18283,19 +18933,23 @@ public void testMethod3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo(Test2 y) {\n" +
-		"    y.fbar.foo\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo(Test2 y) {
+			    y.fbar.foo
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/Test2.java",
-		"package test;"+
-		"public class Test2 {\n" +
-		"  public Zork fBar;\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test2 {
+			  public Zork fBar;
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -18312,33 +18966,35 @@ public void testNameWithUnresolvedReferences001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"   void foo() {\n" +
- 			"      {\n" +
- 			"         int varzz1 = 0;\n" +
-			"         varzz1 = varzz2;\n" +
-			"         {\n" +
-			"            int varzz3 = 0;\n" +
-			"            varzz3 = varzz4;\n" +
-			"            int varzz5 = 0;\n" +
-			"         }\n" +
-			"         {\n" +
-			"            varzz1 = varzz5;\n" +
-			"         }\n" +
-			"         int zzvarzz = 0;\n" +
-			"         /**/varzz\n" +
-			"         int varzz6 = 0;\n" +
-			"         varzz6 = varzz7;\n" +
-			"         {\n" +
-			"            int varzz8 = 0;\n" +
-			"            varzz8 = varzz9;\n" +
- 			"         }\n" +
- 			"      }\n" +
- 			"      int varzz10 = 0;\n" +
-			"      varzz10= varzz11;\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				package test;
+				public class Test {
+				   void foo() {
+				      {
+				         int varzz1 = 0;
+				         varzz1 = varzz2;
+				         {
+				            int varzz3 = 0;
+				            varzz3 = varzz4;
+				            int varzz5 = 0;
+				         }
+				         {
+				            varzz1 = varzz5;
+				         }
+				         int zzvarzz = 0;
+				         /**/varzz
+				         int varzz6 = 0;
+				         varzz6 = varzz7;
+				         {
+				            int varzz8 = 0;
+				            varzz8 = varzz9;
+				         }
+				      }
+				      int varzz10 = 0;
+				      varzz10= varzz11;
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 
@@ -18362,32 +19018,34 @@ public void testNameWithUnresolvedReferences002() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"   {\n" +
-			"      {\n" +
- 			"         int varzz1 = 0;\n" +
-			"         varzz1 = varzz2;\n" +
-			"         {\n" +
-			"            int varzz3 = 0;\n" +
-			"            varzz3 = varzz4;\n" +
-			"            int varzz5 = 0;\n" +
-			"         }\n" +
-			"         {\n" +
-			"            varzz1 = varzz5;\n" +
-			"         }\n" +
-			"         /**/varzz\n" +
-			"         int varzz6 = 0;\n" +
-			"         varzz6 = varzz7;\n" +
-			"         {\n" +
-			"            int varzz8 = 0;\n" +
-			"            varzz8 = varzz9;\n" +
- 			"         }\n" +
- 			"      }\n" +
- 			"      int varzz10 = 0;\n" +
-			"      varzz10= varzz11;\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				package test;
+				public class Test {
+				   {
+				      {
+				         int varzz1 = 0;
+				         varzz1 = varzz2;
+				         {
+				            int varzz3 = 0;
+				            varzz3 = varzz4;
+				            int varzz5 = 0;
+				         }
+				         {
+				            varzz1 = varzz5;
+				         }
+				         /**/varzz
+				         int varzz6 = 0;
+				         varzz6 = varzz7;
+				         {
+				            int varzz8 = 0;
+				            varzz8 = varzz9;
+				         }
+				      }
+				      int varzz10 = 0;
+				      varzz10= varzz11;
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 
@@ -18411,22 +19069,24 @@ public void testNameWithUnresolvedReferences003() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"   void foo() {\n" +
- 			"      int varzz1 = 0;\n" +
-			"      varzz1 = varzz2;\n" +
-			"      new Object() {\n" +
-			"         int varzz3 = varzz4;\n" +
-			"         {\n" +
-			"            varzz3 = varzz5;\n" +
-			"            int varzz6 = 0;\n" +
-			"            varzz6 = varzz7;\n" +
-			"         }\n" +
-			"      };\n" +
-			"      /**/varzz\n" +
- 			"   }\n" +
-			"}\n");
+			"""
+				package test;
+				public class Test {
+				   void foo() {
+				      int varzz1 = 0;
+				      varzz1 = varzz2;
+				      new Object() {
+				         int varzz3 = varzz4;
+				         {
+				            varzz3 = varzz5;
+				            int varzz6 = 0;
+				            varzz6 = varzz7;
+				         }
+				      };
+				      /**/varzz
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 
@@ -18448,29 +19108,33 @@ public void testNameWithUnresolvedReferences004() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n" +
-		"public class Test {\n" +
-		"   void foo() {\n" +
-		"      int varzz1 = 0;\n" +
-		"      varzz1 = varzz2;\n" +
-		"      new Object() {\n" +
-		"         int varzz3 = varzz4;\n";
+		"""
+		package test;
+		public class Test {
+		   void foo() {
+		      int varzz1 = 0;
+		      varzz1 = varzz2;
+		      new Object() {
+		         int varzz3 = varzz4;
+		""";
 	for (int i = 0; i < 100; i++) {
 		source += "\n";
 	}
 	source +=
-		"         int varzz5 = varzz6;\n" +
-		"         int varzz7 = 0;\n" +
-		"         {\n" +
-		"            varzz3 = varzz1;\n" +
-		"            varzz5 = varzz8;\n" +
-		"            int varzz9 = 0;\n" +
-		"            varzz9 = varzz10;\n" +
-		"         }\n" +
-		"      };\n" +
-		"      /**/varzz\n" +
-		"   }\n" +
-		"}\n";
+		"""
+			         int varzz5 = varzz6;
+			         int varzz7 = 0;
+			         {
+			            varzz3 = varzz1;
+			            varzz5 = varzz8;
+			            int varzz9 = 0;
+			            varzz9 = varzz10;
+			         }
+			      };
+			      /**/varzz
+			   }
+			}
+			""";
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
@@ -18496,29 +19160,33 @@ public void testNameWithUnresolvedReferences005() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n" +
-		"public class Test {\n" +
-		"   void foo() {\n" +
-		"      int varzz1 = 0;\n" +
-		"      varzz1 = varzz2;\n" +
-		"      new Object() {\n" +
-		"         int varzz3 = varzz4;\n";
+		"""
+		package test;
+		public class Test {
+		   void foo() {
+		      int varzz1 = 0;
+		      varzz1 = varzz2;
+		      new Object() {
+		         int varzz3 = varzz4;
+		""";
 	for (int i = 0; i < 100; i++) {
 		source += "\n";
 	}
 	source +=
-		"         int varzz5 = varzz6;\n" +
-		"         int varzz7(){}\n" +
-		"         {\n" +
-		"            varzz3 = varzz1;\n" +
-		"            varzz5 = varzz8;\n" +
-		"            int varzz9 = 0;\n" +
-		"            varzz9 = varzz10;\n" +
-		"         }\n" +
-		"      };\n" +
-		"      /**/varzz\n" +
-		"   }\n" +
-		"}\n";
+		"""
+			         int varzz5 = varzz6;
+			         int varzz7(){}
+			         {
+			            varzz3 = varzz1;
+			            varzz5 = varzz8;
+			            int varzz9 = 0;
+			            varzz9 = varzz10;
+			         }
+			      };
+			      /**/varzz
+			   }
+			}
+			""";
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
@@ -18544,29 +19212,33 @@ public void testNameWithUnresolvedReferences006() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n" +
-		"public class Test {\n" +
-		"   void foo() {\n" +
-		"      int varzz1 = 0;\n" +
-		"      varzz1 = varzz2;\n" +
-		"      new Object() {\n" +
-		"         int varzz3 = varzz4;\n";
+		"""
+		package test;
+		public class Test {
+		   void foo() {
+		      int varzz1 = 0;
+		      varzz1 = varzz2;
+		      new Object() {
+		         int varzz3 = varzz4;
+		""";
 	for (int i = 0; i < 100; i++) {
 		source += "\n";
 	}
 	source +=
-		"         int varzz5 = varzz6;\n" +
-		"         int varzz7()\n" +
-		"         {\n" +
-		"            varzz3 = varzz1;\n" +
-		"            varzz5 = varzz8;\n" +
-		"            int varzz9 = 0;\n" +
-		"            varzz9 = varzz10;\n" +
-		"         }\n" +
-		"      };\n" +
-		"      /**/varzz\n" +
-		"   }\n" +
-		"}\n";
+		"""
+			         int varzz5 = varzz6;
+			         int varzz7()
+			         {
+			            varzz3 = varzz1;
+			            varzz5 = varzz8;
+			            int varzz9 = 0;
+			            varzz9 = varzz10;
+			         }
+			      };
+			      /**/varzz
+			   }
+			}
+			""";
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
@@ -18592,21 +19264,23 @@ public void testNameWithUnresolvedReferences007() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n" +
-		"public class Test {\n" +
-		"   void foo() {\n" +
-		"      int varzz1 = 0;\n" +
-		"      varzz1 = varzz2;\n" +
-		"      new Object() {\n" +
-		"         int varzz3 = varzz4;\n" +
-		"         void foo (){\n" +
-		"            int varzz5 = 0;\n" +
-		"            varzz5 = varzz6;\n" +
-		"            /**/varzz\n" +
-		"         }\n" +
-		"      };\n" +
-		"   }\n" +
-		"}\n";
+		"""
+		package test;
+		public class Test {
+		   void foo() {
+		      int varzz1 = 0;
+		      varzz1 = varzz2;
+		      new Object() {
+		         int varzz3 = varzz4;
+		         void foo (){
+		            int varzz5 = 0;
+		            varzz5 = varzz6;
+		            /**/varzz
+		         }
+		      };
+		   }
+		}
+		""";
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
@@ -18633,21 +19307,23 @@ public void testNameWithUnresolvedReferences008() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n" +
-		"public class Test {\n" +
-		"   {\n" +
-		"      int varzz1 = 0;\n" +
-		"      varzz1 = varzz2;\n" +
-		"      new Object() {\n" +
-		"         int varzz3 = varzz4;\n" +
-		"         {\n" +
-		"            int varzz5 = 0;\n" +
-		"            varzz5 = varzz6;\n" +
-		"            /**/varzz\n" +
-		"         }\n" +
-		"      };\n" +
-		"   }\n" +
-		"}\n";
+		"""
+		package test;
+		public class Test {
+		   {
+		      int varzz1 = 0;
+		      varzz1 = varzz2;
+		      new Object() {
+		         int varzz3 = varzz4;
+		         {
+		            int varzz5 = 0;
+		            varzz5 = varzz6;
+		            /**/varzz
+		         }
+		      };
+		   }
+		}
+		""";
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
@@ -18674,28 +19350,30 @@ public void testNameWithUnresolvedReferences009() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n" +
-		"public class Test {\n" +
-		"   void foo() {\n" +
-		"      {\n" +
-		"         int varzz1 = 0;\n" +
-		"         varzz1 = varzz2;\n" +
-		"         {\n" +
-		"            int varzz3 = 0;\n" +
-		"            varzz3 = varzz4;\n" +
-		"         }\n" +
-		"         /**/varzz\n" +
-		"         int varzz5 = 0;\n" +
-		"         varzz5 = varzz6;\n" +
-		"         {\n" +
-		"            int varzz7 = 0;\n" +
-		"            varzz7 = varzz8;\n" +
-		"         }\n" +
-		"      }\n" +
-		"      int varzz9 = 0;\n" +
-		"      varzz9 = varzz10;\n" +
-		"   }\n" +
-		"}\n";
+		"""
+		package test;
+		public class Test {
+		   void foo() {
+		      {
+		         int varzz1 = 0;
+		         varzz1 = varzz2;
+		         {
+		            int varzz3 = 0;
+		            varzz3 = varzz4;
+		         }
+		         /**/varzz
+		         int varzz5 = 0;
+		         varzz5 = varzz6;
+		         {
+		            int varzz7 = 0;
+		            varzz7 = varzz8;
+		         }
+		      }
+		      int varzz9 = 0;
+		      varzz9 = varzz10;
+		   }
+		}
+		""";
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
@@ -18722,32 +19400,36 @@ public void testNameWithUnresolvedReferences010() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n" +
-		"public class Test {\n" +
-		"   void foo() {\n" +
-		"      {\n" +
-		"         int varzz1 = 0;\n" +
-		"         varzz1 = varzz2;\n" +
-		"         {\n" +
-		"            int varzz3 = 0;\n" +
-		"            varzz3 = varzz4;\n" +
-		"         }\n" +
-		"         /**/varzz\n" +
-		"         int varzz5 = 0;\n" +
-		"         varzz5 = varzz6;\n" +
-		"         {\n" +
-		"            int varzz7 = 0;\n";
+		"""
+		package test;
+		public class Test {
+		   void foo() {
+		      {
+		         int varzz1 = 0;
+		         varzz1 = varzz2;
+		         {
+		            int varzz3 = 0;
+		            varzz3 = varzz4;
+		         }
+		         /**/varzz
+		         int varzz5 = 0;
+		         varzz5 = varzz6;
+		         {
+		            int varzz7 = 0;
+		""";
 	for (int i = 0; i < 100; i++) {
 		source += "\n";
 	}
 	source +=
-		"            varzz7 = varzz8;\n" +
-		"         }\n" +
-		"      }\n" +
-		"      int varzz9 = 0;\n" +
-		"      varzz9 = varzz10;\n" +
-		"   }\n" +
-		"}\n";
+		"""
+			            varzz7 = varzz8;
+			         }
+			      }
+			      int varzz9 = 0;
+			      varzz9 = varzz10;
+			   }
+			}
+			""";
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
@@ -18773,12 +19455,14 @@ public void testNameWithUnresolvedReferences011() throws JavaModelException {
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"   void foo() {\n" +
-			"      /**/zzz   zzz1.zzz2\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				package test;
+				public class Test {
+				   void foo() {
+				      /**/zzz   zzz1.zzz2
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 
@@ -18797,15 +19481,17 @@ public void testNameWithUnresolvedReferences012() throws JavaModelException {
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"   void foo() {\n" +
-			"      zzzlala = 0;\n" +
-			"      zzzlabel : {\n" +
-			"        /**/zzzla\n" +
-			"      }\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				package test;
+				public class Test {
+				   void foo() {
+				      zzzlala = 0;
+				      zzzlabel : {
+				        /**/zzzla
+				      }
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 
@@ -18824,18 +19510,20 @@ public void testNameWithUnresolvedReferences013() throws JavaModelException {
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"   void foo() {\n" +
-			"      zzzlala = 0;\n" +
-			"      zzzlabel1 : {\n" +
-			"        /**/zzzla\n" +
-			"        {\n" +
-			"          break zzzlabel2;\n" +
-			"        }\n" +
-			"      }\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				package test;
+				public class Test {
+				   void foo() {
+				      zzzlala = 0;
+				      zzzlabel1 : {
+				        /**/zzzla
+				        {
+				          break zzzlabel2;
+				        }
+				      }
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 
@@ -18854,18 +19542,20 @@ public void testNameWithUnresolvedReferences014() throws JavaModelException {
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"   void foo() {\n" +
-			"      {\n" +
-			"        break;\n" +
-			"      }\n" +
-			"      zzznotlabel = 25;\n" +
-			"      {\n" +
-			"        /**/zzznotla\n" +
-			"      }\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				package test;
+				public class Test {
+				   void foo() {
+				      {
+				        break;
+				      }
+				      zzznotlabel = 25;
+				      {
+				        /**/zzznotla
+				      }
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 
@@ -18884,14 +19574,16 @@ public void testNameWithUnresolvedReferences015() throws JavaModelException {
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"   int foo() {\n" +
-			"      zzz1 = 0;\n" +
-			"      if (false) return (ZZZ2) var;\n" +
-			"      zz\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				package test;
+				public class Test {
+				   int foo() {
+				      zzz1 = 0;
+				      if (false) return (ZZZ2) var;
+				      zz
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 
@@ -18910,13 +19602,15 @@ public void testNameWithUnresolvedReferences016() throws JavaModelException {
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"   int foo() {\n" +
-			"      zzz1 = 0;\n" +
-			"      return (zzz2) zz;\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				package test;
+				public class Test {
+				   int foo() {
+				      zzz1 = 0;
+				      return (zzz2) zz;
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 
@@ -18935,21 +19629,23 @@ public void testNameWithUnresolvedReferences017() throws JavaModelException {
 
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"   void foo() {\n" +
-			"      {\n" +
-			"         final int zzz1 = 0;\n" +
-			"         class Local {\n" +
-			"            void bar() {n" +
-			"               zzz1 = 24;\n" +
-			"               zzz2 = 24;\n" +
-			"            }\n" +
-			"         }\n" +
-			"      }\n" +
-			"      zz\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				package test;
+				public class Test {
+				   void foo() {
+				      {
+				         final int zzz1 = 0;
+				         class Local {
+				            void bar() {n\
+				               zzz1 = 24;
+				               zzz2 = 24;
+				            }
+				         }
+				      }
+				      zz
+				   }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 
@@ -18967,24 +19663,27 @@ public void testNameWithUnresolvedReferences018() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 
 	String source =
-		"package test;\n" +
-		"public class Test {\n" +
-		"   void foo() {\n" +
-		"      boolean zzzz1 = false;\n" +
-		"      {\n" +
-		"         \n" +
-		"      }\n";
+		"""
+		package test;
+		public class Test {
+		   void foo() {
+		      boolean zzzz1 = false;
+		      {
+		        \s
+		      }
+		""";
 
 	for (int i = 0; i < 47; i++) {
 		source += "\n";
 	}
 
 	source +=
-		"      boolean zzzz2 = false;\n" +
-		"      bar((Object)null, null);\n" +
-		"      if (zzzz) {}\n" +
-		"   }\n" +
-		"}";
+		"""
+			      boolean zzzz2 = false;
+			      bar((Object)null, null);
+			      if (zzzz) {}
+			   }
+			}""";
 
 	this.workingCopies[0] = getWorkingCopy("/Completion/src3/test/Test.java", source);
 
@@ -19007,12 +19706,14 @@ public void testParameterNames1() throws CoreException, IOException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/p/Test.java",
-			"package p;"+
-			"public class Test {\n" +
-			"  void foo(doctest.X x) {\n" +
-			"    x.fo\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				package p;\
+				public class Test {
+				  void foo(doctest.X x) {
+				    x.fo
+				  }
+				}
+				""");
 
 		addLibrary(
 				"Completion",
@@ -19044,32 +19745,38 @@ public void testStaticMembers1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
- 		"    StaticMembers.\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    StaticMembers.
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/StaticMembers.java",
-		"package test;"+
-		"public class StaticMembers extends SuperStaticMembers {\n" +
-		"  public static int staticField;\n" +
- 		"  public static int staticMethod() {}\n" +
-		"  public class Clazz {}\n" +
-		"  public static class StaticClazz {}\n" +
-		"}\n");
+		"""
+			package test;\
+			public class StaticMembers extends SuperStaticMembers {
+			  public static int staticField;
+			  public static int staticMethod() {}
+			  public class Clazz {}
+			  public static class StaticClazz {}
+			}
+			""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/SuperStaticMembers.java",
-			"package test;"+
-			"public class SuperStaticMembers {\n" +
-			"  public static int superStaticField;\n" +
-	 		"  public static int supeStaticMethod() {}\n" +
-			"  public class SuperClazz {}\n" +
-			"  public static class SuperStaticClazz {}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class SuperStaticMembers {
+				  public static int superStaticField;
+				  public static int supeStaticMethod() {}
+				  public class SuperClazz {}
+				  public static class SuperStaticClazz {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19092,15 +19799,19 @@ public void testType1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test extends boole {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test extends boole {
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/booleanClass.java",
-		"package test;"+
-		"public class booleanClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class booleanClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19117,16 +19828,20 @@ public void testType2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  boole\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  boole
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/booleanClass.java",
-		"package test;"+
-		"public class booleanClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class booleanClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19145,18 +19860,22 @@ public void testType3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  class InnerTest {\n" +
-		"    boole\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  class InnerTest {
+			    boole
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/booleanClass.java",
-		"package test;"+
-		"public class booleanClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class booleanClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19175,18 +19894,22 @@ public void testType4() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    boole\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    boole
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/booleanClass.java",
-		"package test;"+
-		"public class booleanClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class booleanClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19204,20 +19927,24 @@ public void testType5() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    class InnerTest {\n" +
-		"      boole\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    class InnerTest {
+			      boole
+			    }
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/booleanClass.java",
-		"package test;"+
-		"public class booleanClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class booleanClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19236,17 +19963,21 @@ public void testType6() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo(boole) {\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo(boole) {
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/booleanClass.java",
-		"package test;"+
-		"public class booleanClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class booleanClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19264,18 +19995,22 @@ public void testType7() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    new boole\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    new boole
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/booleanClass.java",
-		"package test;"+
-		"public class booleanClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class booleanClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19293,15 +20028,19 @@ public void testType8() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test extends voi {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test extends voi {
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/voidClass.java",
-		"package test;"+
-		"public class voidClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class voidClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19318,16 +20057,20 @@ public void testType9() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  voi\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  voi
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/voidClass.java",
-		"package test;"+
-		"public class voidClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class voidClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19346,18 +20089,22 @@ public void testType10() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  class InnerTest {\n" +
-		"    voi\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  class InnerTest {
+			    voi
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/voidClass.java",
-		"package test;"+
-		"public class voidClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class voidClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19376,18 +20123,22 @@ public void testType11() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    voi\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    voi
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/voidClass.java",
-		"package test;"+
-		"public class voidClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class voidClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19404,20 +20155,24 @@ public void testType12() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    class InnerTest {\n" +
-		"      voi\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    class InnerTest {
+			      voi
+			    }
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/voidClass.java",
-		"package test;"+
-		"public class voidClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class voidClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19436,17 +20191,21 @@ public void testType13() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo(voi) {\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo(voi) {
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/voidClass.java",
-		"package test;"+
-		"public class voidClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class voidClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19464,18 +20223,22 @@ public void testType14() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"  void foo() {\n" +
-		"    new voi\n" +
-		"  }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			  void foo() {
+			    new voi
+			  }
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/voidClass.java",
-		"package test;"+
-		"public class voidClass {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class voidClass {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -19492,14 +20255,15 @@ public void testInvalidField1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Event {\n" +
-		"        public int x;\n" +
-		"\n" +
-		"        public void handle(Event e) {\n" +
-		"                e.x.e.foo();\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Event {
+			        public int x;
+			
+			        public void handle(Event e) {
+			                e.x.e.foo();
+			        }
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "e.x.e.";
@@ -19515,14 +20279,15 @@ public void testInvalidField2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Event {\n" +
-		"        public int x;\n" +
-		"\n" +
-		"        public void handle(Event e) {\n" +
-		"                this.x.e.foo();\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Event {
+			        public int x;
+			
+			        public void handle(Event e) {
+			                this.x.e.foo();
+			        }
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "this.x.e.";
@@ -19538,14 +20303,15 @@ public void testInvalidMethod1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Event {\n" +
-		"        public int x;\n" +
-		"\n" +
-		"        public void handle(Event e) {\n" +
-		"                e.x.e().foo();\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Event {
+			        public int x;
+			
+			        public void handle(Event e) {
+			                e.x.e().foo();
+			        }
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "e.x.e().";
@@ -19561,14 +20327,15 @@ public void testInvalidMethod2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Event {\n" +
-		"        public int x;\n" +
-		"\n" +
-		"        public void handle(Event e) {\n" +
-		"                this.x.e().foo();\n" +
-		"        }\n" +
-		"}");
+		"""
+			package test;\
+			public class Event {
+			        public int x;
+			
+			        public void handle(Event e) {
+			                this.x.e().foo();
+			        }
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "this.x.e.";
@@ -19585,11 +20352,12 @@ public void testCompletionOnExtendFinalClass () throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"class ThisClassIsNotFinal {}" +
-		"final class ThisClassIsFinal {}" +
-		"public class Event extends test.ThisClassI {\n" +
-		"}");
+		"""
+			package test;\
+			class ThisClassIsNotFinal {}\
+			final class ThisClassIsFinal {}\
+			public class Event extends test.ThisClassI {
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "test.ThisClassI";
@@ -19606,11 +20374,12 @@ public void testCompletionOnExtendFinalClass2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"class ThisClassIsNotFinal {}" +
-		"final class ThisClassIsFinal {}" +
-		"public class Event extends ThisClassI {\n" +
-		"}");
+		"""
+			package test;\
+			class ThisClassIsNotFinal {}\
+			final class ThisClassIsFinal {}\
+			public class Event extends ThisClassI {
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "ThisClassI";
@@ -19628,12 +20397,13 @@ public void testCompletionOnExtendFinalClass3() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"class ThisClassIsNotFinal {}" +
-		"final class ThisClassIsFinal {}" +
-		"public class Event extends ThisClassIsFinal {\n" +
-		"	void Boo (ThisClassI x) {}\n" +
-		"}");
+		"""
+			package test;\
+			class ThisClassIsNotFinal {}\
+			final class ThisClassIsFinal {}\
+			public class Event extends ThisClassIsFinal {
+				void Boo (ThisClassI x) {}
+			}""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "ThisClassI";
@@ -19652,12 +20422,14 @@ public void test203060a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/KeywordAssert.java",
-		"package test;" +
-		"public class CompletionKeywordAssert1 {\n" +
-		"	void foo() {\n" +
-		"		as\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;\
+			public class CompletionKeywordAssert1 {
+				void foo() {
+					as
+				}
+			}
+			""");
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "as";
@@ -19686,12 +20458,14 @@ public void test203060b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/KeywordAssert.java",
-		"package test;" +
-		"public class CompletionKeywordAssert1 {\n" +
-		"	void foo() {\n" +
-		"		as\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;\
+			public class CompletionKeywordAssert1 {
+				void foo() {
+					as
+				}
+			}
+			""");
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "as";
@@ -19721,15 +20495,17 @@ public void test203060c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/KeywordAssert.java",
-		"package test;" +
-		"public class KeywordAssert {\n" +
-		"			void foo() {\n" +
-		"		switch(0) {\n" +
-		"			case 1 :\n" +
-		"				ass\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;\
+			public class KeywordAssert {
+						void foo() {
+					switch(0) {
+						case 1 :
+							ass
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -19759,15 +20535,17 @@ public void test203060d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/KeywordAssert.java",
-			"package test;" +
-			"public class KeywordAssert {\n" +
-			"			void foo() {\n" +
-			"		switch(0) {\n" +
-			"			case 1 :\n" +
-			"				ass\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class KeywordAssert {
+							void foo() {
+						switch(0) {
+							case 1 :
+								ass
+						}
+					}
+				}
+				""");
 
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	String str = this.workingCopies[0].getSource();
@@ -19799,14 +20577,16 @@ public void test269493() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test269493 {\n" +
-			"	void foo() {\n" +
-			"   for (int i = 0; i < 10; i++)\n" +
-			"       ass\n" +
-			"	}\n" +
-			"}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test269493 {
+					void foo() {
+				   for (int i = 0; i < 10; i++)
+				       ass
+					}
+				}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -19836,14 +20616,16 @@ public void test269493b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test269493 {\n" +
-			"	void foo() {\n" +
-			"   for (int i = 0; i < 10; i++)\n" +
-			"       ret\n" +
-			"	}\n" +
-			"}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test269493 {
+					void foo() {
+				   for (int i = 0; i < 10; i++)
+				       ret
+					}
+				}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -19861,14 +20643,16 @@ public void test269493c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test269493 {\n" +
-			"	void foo() {\n" +
-			"   for (int i = 0; i < 10; i++)\n" +
-			"       bre\n" +
-			"	}\n" +
-			"}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test269493 {
+					void foo() {
+				   for (int i = 0; i < 10; i++)
+				       bre
+					}
+				}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -19886,14 +20670,16 @@ public void test269493d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test269493 {\n" +
-			"	void foo() {\n" +
-			"   for (int i = 0; i < 10; i++)\n" +
-			"       cont\n" +
-			"	}\n" +
-			"}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test269493 {
+					void foo() {
+				   for (int i = 0; i < 10; i++)
+				       cont
+					}
+				}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -19911,16 +20697,18 @@ public void test269493e() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test269493 {\n" +
-			"	int foo(int p) {\n" +
-			"       if (p == 0)\n" +
-			"           return 0;\n" +
-			"       else\n" +
-			"           ret\n" +
-			"	}\n" +
-			"}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test269493 {
+					int foo(int p) {
+				       if (p == 0)
+				           return 0;
+				       else
+				           ret
+					}
+				}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -19938,15 +20726,17 @@ public void test269493f() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test269493 {\n" +
-			"	int foo(int p) {\n" +
-			"       if (p == 0)\n" +
-			"           return 0;\n" +
-			"       els\n" +
-			"	}\n" +
-			"}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test269493 {
+					int foo(int p) {
+				       if (p == 0)
+				           return 0;
+				       els
+					}
+				}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -19964,13 +20754,15 @@ public void test269493g() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test269493 {\n" +
-			"	int foo(int p) {\n" +
-			"       els\n" +
-			"	}\n" +
-			"}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test269493 {
+					int foo(int p) {
+				       els
+					}
+				}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -19988,16 +20780,18 @@ public void test269493h() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test269493 {\n" +
-			"	int foo(int p) {\n" +
-			"       if (p == 0)\n" +
-			"           return 0;\n" +
-			"       else\n" +
-			"           els\n" +
-			"	}\n" +
-			"}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test269493 {
+					int foo(int p) {
+				       if (p == 0)
+				           return 0;
+				       else
+				           els
+					}
+				}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20015,17 +20809,19 @@ public void test269493i() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test269493 {\n" +
-			"	int foo(int p) {\n" +
-			"       if (p == 0) {\n" +
-			"           return 0;\n" +
-			"       }\n" +
-			"       else\n" +
-			"           els\n" +
-			"	}\n" +
-			"}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test269493 {
+					int foo(int p) {
+				       if (p == 0) {
+				           return 0;
+				       }
+				       else
+				           els
+					}
+				}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20043,16 +20839,18 @@ public void test253008() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test253008 {\n" +
-			"	boolean methodReturningBoolean() { return true; }\n" +
-			"   void methodReturningBlah() { return; }\n" +
-			"	int foo(int p) {\n" +
-			"       if (methodR) {\n" +
-			"           return 0;\n" +
-			"       }\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test253008 {
+					boolean methodReturningBoolean() { return true; }
+				   void methodReturningBlah() { return; }
+					int foo(int p) {
+				       if (methodR) {
+				           return 0;
+				       }
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20070,16 +20868,18 @@ public void test253008b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test253008 {\n" +
-			"	boolean methodReturningBoolean() { return true; }\n" +
-			"   void methodReturningBlah() { return; }\n" +
-			"	int foo(int p) {\n" +
-			"       while (methodR) {\n" +
-			"           return 0;\n" +
-			"       }\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test253008 {
+					boolean methodReturningBoolean() { return true; }
+				   void methodReturningBlah() { return; }
+					int foo(int p) {
+				       while (methodR) {
+				           return 0;
+				       }
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20097,15 +20897,17 @@ public void test253008c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test253008 {\n" +
-			"	boolean methodReturningBoolean() { return true; }\n" +
-			"   void methodReturningBlah() { return; }\n" +
-			"	int foo(int p) {\n" +
-			"   do { \n" +
-			"   }  while (methodR);\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test253008 {
+					boolean methodReturningBoolean() { return true; }
+				   void methodReturningBlah() { return; }
+					int foo(int p) {
+				   do {\s
+				   }  while (methodR);
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20123,15 +20925,17 @@ public void test253008d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test253008 {\n" +
-			"	boolean methodReturningBoolean() { return true; }\n" +
-			"   void methodReturningBlah() { return; }\n" +
-			"	int foo(int p) {\n" +
-			"   for (int i = 0; methodR; i++) {\n" +
-			"   }\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test253008 {
+					boolean methodReturningBoolean() { return true; }
+				   void methodReturningBlah() { return; }
+					int foo(int p) {
+				   for (int i = 0; methodR; i++) {
+				   }
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20149,15 +20953,17 @@ public void test253008e() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test253008 {\n" +
-			"	boolean methodReturningBoolean() { return true; }\n" +
-			"   void methodReturningBlah() { return; }\n" +
-			"	int foo(int p) {\n" +
-			"   for (methodR; true;) {\n" +
-			"   }\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test253008 {
+					boolean methodReturningBoolean() { return true; }
+				   void methodReturningBlah() { return; }
+					int foo(int p) {
+				   for (methodR; true;) {
+				   }
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20175,15 +20981,17 @@ public void test253008f() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test269493.java",
-			"package test;" +
-			"public class Test253008 {\n" +
-			"	boolean methodReturningBoolean() { return true; }\n" +
-			"   void methodReturningBlah() { return; }\n" +
-			"	int foo(int p) {\n" +
-			"   for (int i = 0; true; methodR) {\n" +
-			"   }\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test253008 {
+					boolean methodReturningBoolean() { return true; }
+				   void methodReturningBlah() { return; }
+					int foo(int p) {
+				   for (int i = 0; true; methodR) {
+				   }
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20201,84 +21009,100 @@ public void test201762() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[8];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test201762.java",
-			"import test.ControlAdapter;\n" +
-			"import test.Label;\n" +
-			"import test.PaintEvent;\n" +
-			"import test.PaintListener;\n" +
-			"import test.SWT;\n" +
-			"import test.Shell;\n" +
-			"\n" +
-			"public class Test201762 {\n" +
-			"\n" +
-			"    void main(Shell shell) {\n" +
-			"\n" +
-			"        final Label label= new Label(shell, SWT.WRAP);\n" +
-			"        label.addPaintListener(new PaintListener() {\n" +
-			"            public void paintControl(PaintEvent e) {\n" +
-			"                e.gc.setLineCap(SWT.CAP_); // content assist after CAP_\n" +
-			"            }\n" +
-			"        });\n" +
-			"\n" +
-			"        shell.addControlListener(new ControlAdapter() { });\n" +
-			"\n" +
-			"        while (!shell.isDisposed()) { }\n" +
-			"    }\n" +
-			"}\n");
+			"""
+				import test.ControlAdapter;
+				import test.Label;
+				import test.PaintEvent;
+				import test.PaintListener;
+				import test.SWT;
+				import test.Shell;
+				
+				public class Test201762 {
+				
+				    void main(Shell shell) {
+				
+				        final Label label= new Label(shell, SWT.WRAP);
+				        label.addPaintListener(new PaintListener() {
+				            public void paintControl(PaintEvent e) {
+				                e.gc.setLineCap(SWT.CAP_); // content assist after CAP_
+				            }
+				        });
+				
+				        shell.addControlListener(new ControlAdapter() { });
+				
+				        while (!shell.isDisposed()) { }
+				    }
+				}
+				""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/AnObject.java",
-			"package test;\n" +
-			"public class AnObject {\n" +
-			"	public void setLineCap(int capZz) {}\n" +
-			"}\n");
+			"""
+				package test;
+				public class AnObject {
+					public void setLineCap(int capZz) {}
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/ControlAdapter.java",
-			"package test;\n" +
-			"public class ControlAdapter {\n" +
-			"}\n");
+			"""
+				package test;
+				public class ControlAdapter {
+				}
+				""");
 
 	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src/test/Label.java",
-			"package test;\n" +
-			"public class Label {\n" +
-			"	public Label(Shell shell, int wrap) {\n" +
-			"	}\n" +
-			"	public void addPaintListener(PaintListener paintListener) {\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;
+				public class Label {
+					public Label(Shell shell, int wrap) {
+					}
+					public void addPaintListener(PaintListener paintListener) {
+					}
+				}
+				""");
 
 	this.workingCopies[4] = getWorkingCopy(
 			"/Completion/src/test/Label.java",
-			"package test;\n" +
-			"public class PaintEvent {\n" +
-			"	public AnObject gc;\n" +
-			"}\n");
+			"""
+				package test;
+				public class PaintEvent {
+					public AnObject gc;
+				}
+				""");
 
 	this.workingCopies[5] = getWorkingCopy(
 			"/Completion/src/test/PaintListener.java",
-			"package test;\n" +
-			"public interface PaintListener {\n" +
-			"}\n");
+			"""
+				package test;
+				public interface PaintListener {
+				}
+				""");
 
 	this.workingCopies[6] = getWorkingCopy(
 			"/Completion/src/test/Shell.java",
-			"package test;\n" +
-			"public class Shell {\n" +
-			"	public boolean isDisposed() {\n" +
-			"		return false;\n" +
-			"	}\n" +
-			"	public void addControlListener(ControlAdapter controlAdapter) {\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;
+				public class Shell {
+					public boolean isDisposed() {
+						return false;
+					}
+					public void addControlListener(ControlAdapter controlAdapter) {
+					}
+				}
+				""");
 
 	this.workingCopies[7] = getWorkingCopy(
 			"/Completion/src/test/SWT.java",
-			"package test;\n" +
-			"public interface SWT {\n" +
-			"	int WRAP = 0;\n" +
-			"	int CAP_ZZ = 0;\n" +
-			"}\n");
+			"""
+				package test;
+				public interface SWT {
+					int WRAP = 0;
+					int CAP_ZZ = 0;
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20300,10 +21124,12 @@ public void test270437a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test270437a.java",
-			"package test;" +
-			"public class Test270437a extends Test270437a. {\n" +
-			"	public class Inner {}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test270437a extends Test270437a. {
+					public class Inner {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20327,10 +21153,12 @@ public void test270437b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test270437b.java",
-			"package test;" +
-			"public class Test270437b implements Test270437b. {\n" +
-			"	public interface Inner {}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test270437b implements Test270437b. {
+					public interface Inner {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20354,13 +21182,15 @@ public void test270437c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test270437c.java",
-			"package test;" +
-			"class X extends X.MyClass1. {\n" +
-		    "    public class MyClass1 {\n" +
-		    "            public class MyClass2 {\n" +
-		    "            }\n" +
-		    "    }\n" +
-			"}\n");
+			"""
+				package test;\
+				class X extends X.MyClass1. {
+				    public class MyClass1 {
+				            public class MyClass2 {
+				            }
+				    }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20444,10 +21274,12 @@ public void test270436a() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test270436a.java",
-			"package test;\n" +
-			"public final class TestClass {}\n" +
-			"interface TestInterface {}\n" +
-			"class Subclass extends test.Test {}\n");
+			"""
+				package test;
+				public final class TestClass {}
+				interface TestInterface {}
+				class Subclass extends test.Test {}
+				""");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "test.Test";
@@ -20467,10 +21299,12 @@ public void test270436b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test270436b.java",
-			"package test;\n" +
-			"public final class TestClass {}\n" +
-			"interface TestInterface {}\n" +
-			"class Subclass extends test.Sub {}\n");
+			"""
+				package test;
+				public final class TestClass {}
+				interface TestInterface {}
+				class Subclass extends test.Sub {}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20491,11 +21325,12 @@ public void test270436c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test270436c.java",
-			"package test;\n" +
-			"public final class TestClass {}\n" +
-			"interface TestInterface {}\n" +
-			"class Subclass {}\n" +
-			"interface Subinterface extends test.");
+			"""
+				package test;
+				public final class TestClass {}
+				interface TestInterface {}
+				class Subclass {}
+				interface Subinterface extends test.""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20518,10 +21353,12 @@ public void test276526a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test276526a.java",
-			"package test;\n" +
-			"interface IFoo {}\n" +
-			"interface IBar {}\n" +
-			"class Foo implements IFoo, test. {}\n");
+			"""
+				package test;
+				interface IFoo {}
+				interface IBar {}
+				class Foo implements IFoo, test. {}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
@@ -20577,11 +21414,13 @@ public void test276526c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/p/Enclosing.java",
-			"package p;\n" +
-			"public class Enclosing {\n" +
-			"	public interface Interface1 {}\n" +
-			"	public interface Interface2 {}\n" +
-			"}\n");
+			"""
+				package p;
+				public class Enclosing {
+					public interface Interface1 {}
+					public interface Interface2 {}
+				}
+				""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/TestClazz.java",
@@ -20607,11 +21446,13 @@ public void test276526d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/p/Eclosing.java",
-			"package p;\n" +
-			"public class Enclosing {\n" +
-			"	public interface Interface1 {}\n" +
-			"	public interface Interface2 {}\n" +
-			"}\n");
+			"""
+				package p;
+				public class Enclosing {
+					public interface Interface1 {}
+					public interface Interface2 {}
+				}
+				""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/p/Interface1.java",
@@ -20643,18 +21484,20 @@ public void testBug287939a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public int returnZero(){ return 0;}\n" +
-		"	public Object a;\n" +
-		"	void bar(){\n" +
-		"		if (this.a instanceof CompletionAfterInstanceOf) {\n" +
-		"			int i =  this.a.r\n" +
-		"       	int j = 0;\n" +
-		"       	int k = 2;\n" +
-		"       	int p = 12;\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public int returnZero(){ return 0;}
+				public Object a;
+				void bar(){
+					if (this.a instanceof CompletionAfterInstanceOf) {
+						int i =  this.a.r
+			       	int j = 0;
+			       	int k = 2;
+			       	int p = 12;
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -20687,16 +21530,18 @@ public void testBug287939b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public int returnZero(){ return 0;}\n" +
-		"	public Object a;\n" +
-		"	void bar(){\n" +
-		"       int i;\n" +
-		"		if (this.a instanceof CompletionAfterInstanceOf) {\n" +
-		"			i =  this.a.r\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public int returnZero(){ return 0;}
+				public Object a;
+				void bar(){
+			       int i;
+					if (this.a instanceof CompletionAfterInstanceOf) {
+						i =  this.a.r
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -20729,15 +21574,17 @@ public void testBug287939c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public int returnZero(){ return 0;}\n" +
-		"	void bar(Object a){\n" +
-		"       int i;\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {" +
-		"				i =  a.r\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public int returnZero(){ return 0;}
+				void bar(Object a){
+			       int i;
+					if (a instanceof CompletionAfterInstanceOf) {\
+							i =  a.r
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -20770,14 +21617,16 @@ public void testBug287939d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public int returnZero(){ return 0;}\n" +
-		"	void bar(Object a){\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {" +
-		"				int i =  a.r\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public int returnZero(){ return 0;}
+				void bar(Object a){
+					if (a instanceof CompletionAfterInstanceOf) {\
+							int i =  a.r
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -20808,15 +21657,17 @@ public void testBug202634a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;\n" +
-		"public class Test {\n" +
-		"	public static void bar(){" +
-		"		System.out.println(\"bar\");\n" +
-		"	}\n" +
-		"	void foo() {\n" +
-		"		sup\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class Test {
+				public static void bar(){\
+					System.out.println("bar");
+				}
+				void foo() {
+					sup
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -20838,15 +21689,17 @@ public void testBug202634b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;\n" +
-		"public class Test {\n" +
-		"	void foo() {\n" +
-		"		sup\n" +
-		"	}\n" +
-		"	public static void bar(){" +
-		"		System.out.println(\"bar\");\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class Test {
+				void foo() {
+					sup
+				}
+				public static void bar(){\
+					System.out.println("bar");
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -20868,15 +21721,17 @@ public void testBug202634c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;\n" +
-		"public class Test {\n" +
-		"	public static void bar(){" +
-		"		System.out.println(\"bar\");\n" +
-		"	}\n" +
-		"	{" +
-		"		sup" +
-		"	}" +
-		"}\n");
+		"""
+			package test;
+			public class Test {
+				public static void bar(){\
+					System.out.println("bar");
+				}
+				{\
+					sup\
+				}\
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -20898,15 +21753,17 @@ public void testBug202634d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;\n" +
-		"public class Test {\n" +
-		"	public static void bar(){" +
-		"		System.out.println(\"bar\");\n" +
-		"	}\n" +
-		"	Test() {" +
-		"		sup" +
-		"	}" +
-		"}\n");
+		"""
+			package test;
+			public class Test {
+				public static void bar(){\
+					System.out.println("bar");
+				}
+				Test() {\
+					sup\
+				}\
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -20929,15 +21786,17 @@ public void testBug202634e() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;\n" +
-		"public class Test {\n" +
-		"	public static void bar(){" +
-		"		System.out.println(\"bar\");\n" +
-		"	}\n" +
-		"	{" +
-		"		thi" +
-		"	}" +
-		"}\n");
+		"""
+			package test;
+			public class Test {
+				public static void bar(){\
+					System.out.println("bar");
+				}
+				{\
+					thi\
+				}\
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -20959,15 +21818,17 @@ public void testBug202634f() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;\n" +
-		"public class Test {\n" +
-		"	public static void bar(){" +
-		"		System.out.println(\"bar\");\n" +
-		"	}\n" +
-		"	Test() {" +
-		"		thi" +
-		"	}" +
-		"}\n");
+		"""
+			package test;
+			public class Test {
+				public static void bar(){\
+					System.out.println("bar");
+				}
+				Test() {\
+					thi\
+				}\
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -20988,12 +21849,14 @@ public void testBug307337() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/TestBug307337.java",
-		"package test;\n" +
-		"public class TestBug307337 {\n" +
-		"    Object obj = new Object() {\n" +
-		"    TestBug307337\n" +
-		"     };\n" +
-		"}\n");
+		"""
+			package test;
+			public class TestBug307337 {
+			    Object obj = new Object() {
+			    TestBug307337
+			     };
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -21005,9 +21868,10 @@ public void testBug307337() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
-			"enclosingElement=<anonymous #1> {key=Ltest/TestBug307337$64;} [in obj [in TestBug307337 [in [Working copy] TestBug307337.java [in test [in src [in Completion]]]]]]",
+			"""
+				expectedTypesSignatures=null
+				expectedTypesKeys=null
+				enclosingElement=<anonymous #1> {key=Ltest/TestBug307337$64;} [in obj [in TestBug307337 [in [Working copy] TestBug307337.java [in test [in src [in Completion]]]]]]""",
 			requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
@@ -21017,14 +21881,16 @@ public void testBug292087() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Try.java",
-		"package test;\n" +
-		"public class Try extends Thread{\n" +
-		"	public Runnable member[] = { new Runnable (){\n" +
-		"		public void run() {}\n" +
-		"		}\n" +
-		"	};\n" +
-		"	Tr\n" +
-		"}\n");
+		"""
+			package test;
+			public class Try extends Thread{
+				public Runnable member[] = { new Runnable (){
+					public void run() {}
+					}
+				};
+				Tr
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -21046,23 +21912,25 @@ public void testBug249704() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Try.java",
-		"package test;\n" +
-		"import java.util.Arrays;\n" +
-		"public class Try {\n" +
-		"	Object obj = new Object() {\n" +
-		"		public void method() {\n" +
-		"			Object obj = new Object() {\n" +
-		"				int a = 1;\n" +
-		"				public void anotherMethod() {\n" +
-		"					try {}\n" +
-		"					catch (Throwable e) {}\n" +
-		"					Arrays.sort(new String[]{\"\"});\n" +
-		"				}\n" +
-		"			};\n" +
-		"			e\n" +
-		"		}\n" +
-		"	};\n" +
-		"}\n");
+		"""
+			package test;
+			import java.util.Arrays;
+			public class Try {
+				Object obj = new Object() {
+					public void method() {
+						Object obj = new Object() {
+							int a = 1;
+							public void anotherMethod() {
+								try {}
+								catch (Throwable e) {}
+								Arrays.sort(new String[]{""});
+							}
+						};
+						e
+					}
+				};
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -21087,31 +21955,33 @@ public void testBug244820() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;" +
-		"class MyString {\n" +
-		"	public String toWelcome() {\n" +
-		"		return \"welcome\";\n" +
-		"	}\n" +
-		"}\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	void foo() {\n" +
-		"	    Object chars= null;\n" +
-		"	    Object ch = null;\n" +
-		"		String lower = null;\n" +
-		"       if (ch instanceof MyString) {\n" +
-		"			ch.t; \n" +
-		"		}\n" +
-		"       if (ch instanceof MyString) {\n" +
-		"			return ch.t; \n" +
-		"		}\n" +
-		"       if (chars instanceof MyString) {\n" +
-		"			lower = chars.to; \n" +
-		"		}\n" +
-		"       if (ch instanceof MyString) {\n" +
-		"			String low = ch.t; \n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;\
+			class MyString {
+				public String toWelcome() {
+					return "welcome";
+				}
+			}
+			public class CompletionAfterInstanceOf {
+				void foo() {
+				    Object chars= null;
+				    Object ch = null;
+					String lower = null;
+			       if (ch instanceof MyString) {
+						ch.t;\s
+					}
+			       if (ch instanceof MyString) {
+						return ch.t;\s
+					}
+			       if (chars instanceof MyString) {
+						lower = chars.to;\s
+					}
+			       if (ch instanceof MyString) {
+						String low = ch.t;\s
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -21140,32 +22010,34 @@ public void testBug308980a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Try.java",
-		"package test;\n" +
-		"import java.util.Arrays;\n" +
-		"public class Try {\n" +
-		"	public static final AClass a1 = new JustTry(\n" +
-		"								new byte[][] {\n" +
-		"								{0x00,0x3C},\n" +
-		"								{0x04,0x2C}}) {\n" +
-		"									int justReturn (int a){\n" +
-		"										return a;\n" +
-		"									}\n" +
-		"								};\n" +
-		"   public static final AC" +
-		"}\n" +
-		"class AClass{\n" +
-		"	public byte[][] field1;\n" +
-		"	public AClass(byte[][] byteArray) {\n" +
-		"		field1 = byteArray;\n" +
-		"	}\n" +
-		"}\n" +
-		"abstract class JustTry extends AClass {\n" +
-		"	public byte[][] field1;\n" +
-		"	public JustTry (byte[][] byteArray){\n" +
-		"		field1 = byteArray;\n" +
-		"	}\n" +
-		"	abstract int justReturn(int a);\n" +
-		"}\n");
+		"""
+			package test;
+			import java.util.Arrays;
+			public class Try {
+				public static final AClass a1 = new JustTry(
+											new byte[][] {
+											{0x00,0x3C},
+											{0x04,0x2C}}) {
+												int justReturn (int a){
+													return a;
+												}
+											};
+			   public static final AC\
+			}
+			class AClass{
+				public byte[][] field1;
+				public AClass(byte[][] byteArray) {
+					field1 = byteArray;
+				}
+			}
+			abstract class JustTry extends AClass {
+				public byte[][] field1;
+				public JustTry (byte[][] byteArray){
+					field1 = byteArray;
+				}
+				abstract int justReturn(int a);
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -21184,32 +22056,34 @@ public void testBug308980b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Try.java",
-		"package test;\n" +
-		"import java.util.Arrays;\n" +
-		"public class Try {\n" +
-		"	public static final test.AClass a1 = new JustTry(\n" +
-		"								new byte[][] {\n" +
-		"								{0x00,0x3C},\n" +
-		"								{0x04,0x2C}}) {\n" +
-		"									int justReturn (int a){\n" +
-		"										return a;\n" +
-		"									}\n" +
-		"								};\n" +
-		"   public static final AC" +
-		"}\n" +
-		"class AClass{\n" +
-		"	public byte[][] field1;\n" +
-		"	public AClass(byte[][] byteArray) {\n" +
-		"		field1 = byteArray;\n" +
-		"	}\n" +
-		"}\n" +
-		"abstract class JustTry extends AClass {\n" +
-		"	public byte[][] field1;\n" +
-		"	public JustTry (byte[][] byteArray){\n" +
-		"		field1 = byteArray;\n" +
-		"	}\n" +
-		"	abstract int justReturn(int a);\n" +
-		"}\n");
+		"""
+			package test;
+			import java.util.Arrays;
+			public class Try {
+				public static final test.AClass a1 = new JustTry(
+											new byte[][] {
+											{0x00,0x3C},
+											{0x04,0x2C}}) {
+												int justReturn (int a){
+													return a;
+												}
+											};
+			   public static final AC\
+			}
+			class AClass{
+				public byte[][] field1;
+				public AClass(byte[][] byteArray) {
+					field1 = byteArray;
+				}
+			}
+			abstract class JustTry extends AClass {
+				public byte[][] field1;
+				public JustTry (byte[][] byteArray){
+					field1 = byteArray;
+				}
+				abstract int justReturn(int a);
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -21229,16 +22103,18 @@ public void testBug267091a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Try.java",
-		"package test;\n" +
-		"interface In{}\n" +
-		"interface Inn{\n" +
-		"	interface Inn2{}\n" +
-		"}\n" +
-		"class ABC {\n" +
-		"	interface ABCInterface;\n" +
-		"}\n" +
-		"public class Try implements {\n" +
-		"}\n");
+		"""
+			package test;
+			interface In{}
+			interface Inn{
+				interface Inn2{}
+			}
+			class ABC {
+				interface ABCInterface;
+			}
+			public class Try implements {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -21262,17 +22138,19 @@ public void testBug267091b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Try.java",
-		"package test;\n" +
-		"class In{}\n" +
-		"class Inn{\n" +
-		"	class Inn2{\n" +
-		"		class Inn3{\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class ABC extends Inn{}\n" +
-		"public class Try extends {\n" +
-		"}\n");
+		"""
+			package test;
+			class In{}
+			class Inn{
+				class Inn2{
+					class Inn3{
+					}
+				}
+			}
+			class ABC extends Inn{}
+			public class Try extends {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -21298,16 +22176,18 @@ public void testBug310747() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/X.java",
-		"package test;" +
-		"class X {\n" +
-		"	public X memberGet() {\n" +
-		"		return new X();\n" +
-		"	}\n" +
-		"	public X memberField;\n" +
-		"	public X[] memberArray = {\n" +
-		"	/**///completion here shouldnt give dubious proposals\n" +
-		"	};\n" +
-		"}\n");
+		"""
+			package test;\
+			class X {
+				public X memberGet() {
+					return new X();
+				}
+				public X memberField;
+				public X[] memberArray = {
+				/**///completion here shouldnt give dubious proposals
+				};
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -21350,19 +22230,21 @@ public void testBug261534a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;" +
-		"class MyString {\n" +
-		"	public String toWelcome() {\n" +
-		"		return \"welcome\";\n" +
-		"	}\n" +
-		"}\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	void foo() {\n" +
-		"	Object chars= null;\n" +
-		"       if (chars instanceof MyString && chars.to) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;\
+			class MyString {
+				public String toWelcome() {
+					return "welcome";
+				}
+			}
+			public class CompletionAfterInstanceOf {
+				void foo() {
+				Object chars= null;
+			       if (chars instanceof MyString && chars.to) {
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -21392,19 +22274,21 @@ public void testBug261534b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;" +
-		"class MyString {\n" +
-		"	public String toWelcome() {\n" +
-		"		return \"welcome\";\n" +
-		"	}\n" +
-		"}\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	void foo() {\n" +
-		"	Object chars= null;\n" +
-		"       if (chars instanceof MyString || chars.to) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;\
+			class MyString {
+				public String toWelcome() {
+					return "welcome";
+				}
+			}
+			public class CompletionAfterInstanceOf {
+				void foo() {
+				Object chars= null;
+			       if (chars instanceof MyString || chars.to) {
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -21429,15 +22313,17 @@ public void testBug310427a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"       int myVar1 = 1;\n" +
-		"		int myVar2 = 1;\n" +
-		"		int myVar3 = myVar;\n" +
-		"       int myVar4 = 1;\n" +
-		"		int myVar5 = 1;\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			       int myVar1 = 1;
+					int myVar2 = 1;
+					int myVar3 = myVar;
+			       int myVar4 = 1;
+					int myVar5 = 1;
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -21458,13 +22344,15 @@ public void testBug310427b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public static void main() {\n" +
-		"		int myVar1 = 1;\n" +
-		"		int myVar2 = myVar;\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public static void main() {
+					int myVar1 = 1;
+					int myVar2 = myVar;
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -21484,23 +22372,25 @@ public void testBug195346a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterCase2.java",
-		"package test;\n" +
-		"public class CompletionAfterCase2 {\n" +
-		"	static char[] AN_ARRAY = new char[10];\n" +
-		"	static int AN_INT_VALUE = 0;\n" +
-		"	static final int AN_INT_VALUE2 = 0;\n" +
-		"	static final char[] AN_ARRAY2 = {'a','b'};\n" +
-		"	static final int[] AN_INT_ARRAY = null;\n" +
-		"	static final Object[] ANOTHER_ARRAY = null;\n" +
-		"	void foo(int i, final int [] AN_ARRAY_PARAM){\n" +
-		"		final int AN_INT_VAR = 1;\n" +
-		"		final int[] AN_ARRAY_VAR = {1};\n" +
-		"		int AN_INT_VAR2 = 1;\n" +
-		"		switch(i) {\n" +
-		"			case AN\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterCase2 {
+				static char[] AN_ARRAY = new char[10];
+				static int AN_INT_VALUE = 0;
+				static final int AN_INT_VALUE2 = 0;
+				static final char[] AN_ARRAY2 = {'a','b'};
+				static final int[] AN_INT_ARRAY = null;
+				static final Object[] ANOTHER_ARRAY = null;
+				void foo(int i, final int [] AN_ARRAY_PARAM){
+					final int AN_INT_VAR = 1;
+					final int[] AN_ARRAY_VAR = {1};
+					int AN_INT_VAR2 = 1;
+					switch(i) {
+						case AN
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -21521,26 +22411,28 @@ public void testBug195346b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterCase2.java",
-		"package test;\n" +
-		"public class CompletionAfterCase2 {\n" +
-		"	class AN_INNER_CLASS {\n" +
-		"		static final int abc = 1;\n" +
-		"	}\n" +
-		"	static char[] AN_ARRAY = new char[10];\n" +
-		"	static int AN_INT_VALUE = 0;\n" +
-		"	static final int AN_INT_VALUE2 = 0;\n" +
-		"	static final char[] AN_ARRAY2 = {'a','b'};\n" +
-		"	static final int[] AN_INT_ARRAY = null;\n" +
-		"	static final Object[] ANOTHER_ARRAY = null;\n" +
-		"	void foo(int i, final int [] AN_ARRAY_PARAM){\n" +
-		"		final int AN_INT_VAR = 1;\n" +
-		"		final int[] AN_ARRAY_VAR = {1};\n" +
-		"		int AN_INT_VAR2 = 1;\n" +
-		"		switch(i) {\n" +
-		"			case CompletionAfterCase2.AN\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterCase2 {
+				class AN_INNER_CLASS {
+					static final int abc = 1;
+				}
+				static char[] AN_ARRAY = new char[10];
+				static int AN_INT_VALUE = 0;
+				static final int AN_INT_VALUE2 = 0;
+				static final char[] AN_ARRAY2 = {'a','b'};
+				static final int[] AN_INT_ARRAY = null;
+				static final Object[] ANOTHER_ARRAY = null;
+				void foo(int i, final int [] AN_ARRAY_PARAM){
+					final int AN_INT_VAR = 1;
+					final int[] AN_ARRAY_VAR = {1};
+					int AN_INT_VAR2 = 1;
+					switch(i) {
+						case CompletionAfterCase2.AN
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -21561,17 +22453,19 @@ public void testBug304006a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public int foo() { return 1; }\n" +
-		"	public int returnZero(){ return 0;}\n" +
-		"	void bar(Object a){\n" +
-		"       int i = 1;\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {" +
-		"			if (i == 1)\n" +
-		"				i =  a.r\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public int foo() { return 1; }
+				public int returnZero(){ return 0;}
+				void bar(Object a){
+			       int i = 1;
+					if (a instanceof CompletionAfterInstanceOf) {\
+						if (i == 1)
+							i =  a.r
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -21604,17 +22498,19 @@ public void testBug304006b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public int foo() { return 1; }\n" +
-		"	public int returnZero(){ return 0;}\n" +
-		"	void bar(Object a){\n" +
-		"       int i = 1;\n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {" +
-		"			if (i == 1)\n" +
-		"				a.r\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public int foo() { return 1; }
+				public int returnZero(){ return 0;}
+				void bar(Object a){
+			       int i = 1;
+					if (a instanceof CompletionAfterInstanceOf) {\
+						if (i == 1)
+							a.r
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -21643,21 +22539,23 @@ public void testBug304006c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public int foo() { return 1; }\n" +
-		"	public int returnZero(){ return 0;}\n" +
-		"	void bar(Object abc, Object xyz){\n" +
-		"       int i = 1, j;\n" +
-		"		if(i == 1)\n" +
-		"			if (abc instanceof CompletionAfterInstanceOf)\n" +
-		"				if(xyz instanceof CompletionAfterInstanceOf){\n" +
-		"					j = 1;\n" +
-		"					if(j == 1)\n" +
-		"						i = abc.r \n" +
-		"				}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public int foo() { return 1; }
+				public int returnZero(){ return 0;}
+				void bar(Object abc, Object xyz){
+			       int i = 1, j;
+					if(i == 1)
+						if (abc instanceof CompletionAfterInstanceOf)
+							if(xyz instanceof CompletionAfterInstanceOf){
+								j = 1;
+								if(j == 1)
+									i = abc.r\s
+							}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -21690,22 +22588,24 @@ public void testBug304006d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public int foo() { return 1; }\n" +
-		"	public int returnZero(){ return 0;}\n" +
-		"	void bar(Object abc, Object xyz){\n" +
-		"       int i = 1, j;\n" +
-		"		j = \n" +
-		"		if(i == 1)\n" +
-		"			if (abc instanceof CompletionAfterInstanceOf)\n" +
-		"				if(xyz instanceof CompletionAfterInstanceOf){\n" +
-		"					j = 1;\n" +
-		"					if(j == 1)\n" +
-		"						xyz.r \n" +
-		"				}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public int foo() { return 1; }
+				public int returnZero(){ return 0;}
+				void bar(Object abc, Object xyz){
+			       int i = 1, j;
+					j =\s
+					if(i == 1)
+						if (abc instanceof CompletionAfterInstanceOf)
+							if(xyz instanceof CompletionAfterInstanceOf){
+								j = 1;
+								if(j == 1)
+									xyz.r\s
+							}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -21734,18 +22634,20 @@ public void testBug304006e() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
-		"package test;\n" +
-		"public class CompletionAfterInstanceOf {\n" +
-		"	public int foo() { return 1; }\n" +
-		"	public int returnZero(){ return 0;}\n" +
-		"	void bar(Object a){\n" +
-		"       int i = 1;\n" +
-		"       int i = \n" +
-		"		if (a instanceof CompletionAfterInstanceOf) {" +
-		"			if (i == 1)\n" +
-		"				i =  a.r\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterInstanceOf {
+				public int foo() { return 1; }
+				public int returnZero(){ return 0;}
+				void bar(Object a){
+			       int i = 1;
+			       int i =\s
+					if (a instanceof CompletionAfterInstanceOf) {\
+						if (i == 1)
+							i =  a.r
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
 	requestor.allowAllRequiredProposals();
@@ -21778,14 +22680,15 @@ public void test325481() throws JavaModelException {
     this.workingCopies = new ICompilationUnit[1];
     this.workingCopies[0] = getWorkingCopy(
         "/Completion/src3/test/X.java",
-        "package test;\n" +
-        "public class X {\n" +
-        "    void foo(String s) {}\n" +
-        "    String myString = \"\";\n" +
-        "    String myString2 = \"\";\n" +
-        "    String myString3 = (myString = String.format(String.format(my\n" +
-        "	 String myString4 = \"hello\";\n" +		// should not be proposed
-        "}");
+        """
+			package test;
+			public class X {
+			    void foo(String s) {}
+			    String myString = "";
+			    String myString2 = "";
+			    String myString3 = (myString = String.format(String.format(my
+				 String myString4 = "hello";
+			}""");
 
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.workingCopies[0].getSource();
@@ -21806,12 +22709,13 @@ public void test312603() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/X.java",
-			"package test;\n" +
-			"public class X {\n" +
-			"    void foo(String s) {}\n" +
-			"    String myString = \"\";\n" +
-			"    String myString2 = foo(my\n" +
-			"}");
+			"""
+				package test;
+				public class X {
+				    void foo(String s) {}
+				    String myString = "";
+				    String myString2 = foo(my
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -21833,17 +22737,18 @@ public void test328674a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/X.java",
-			"package test;\n" +
-			"public class X {\n" +
-			"    void foo() {\n" +
-			"    	String myString = \"\";\n" +
-			"    	String myString2 = \"\";\n" +
-			"    	String myString3 = bar(my\n" +
-			"    	String myString4 = \"\";\n" +
-			"	 }\n" +
-			"	 void bar(String s){\n" +
-			"	 }\n" +
-			"}");
+			"""
+				package test;
+				public class X {
+				    void foo() {
+				    	String myString = "";
+				    	String myString2 = "";
+				    	String myString3 = bar(my
+				    	String myString4 = "";
+					 }
+					 void bar(String s){
+					 }
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -21866,17 +22771,18 @@ public void test328674b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test/X.java",
-			"package test;\n" +
-			"public class X {\n" +
-			"    void foo() {\n" +
-			"    	String myString = \"\";\n" +
-			"    	String myString1 = \"\";\n" +
-			"    	String myString2 = bar(bar(my\n" +
-			"    	String myString3 = \"\";\n" +
-			"	 }\n" +
-			"	 String bar(String s){\n" +
-			"	 }\n" +
-			"}");
+			"""
+				package test;
+				public class X {
+				    void foo() {
+				    	String myString = "";
+				    	String myString1 = "";
+				    	String myString2 = bar(bar(my
+				    	String myString3 = "";
+					 }
+					 String bar(String s){
+					 }
+				}""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -21937,15 +22843,17 @@ public void testBug332268a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"       int myVar1 = 1;\n" +
-		"		int myVar2 = 1;\n" +
-		"		int myVar3 = myVar;\n" +
-		"       int myVar4 = 1;\n" +
-		"		static int myVar5 = 1;\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			       int myVar1 = 1;
+					int myVar2 = 1;
+					int myVar3 = myVar;
+			       int myVar4 = 1;
+					static int myVar5 = 1;
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -21966,15 +22874,17 @@ public void testBug332268b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"       static int myVar1 = 1;\n" +
-		"		int myVar2 = 1;\n" +
-		"		static int myVar3 = myVar;\n" +
-		"       int myVar4 = 1;\n" +
-		"		static int myVar5 = 1;\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+			       static int myVar1 = 1;
+					int myVar2 = 1;
+					static int myVar3 = myVar;
+			       int myVar4 = 1;
+					static int myVar5 = 1;
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -21999,36 +22909,44 @@ public void testBug338789() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[4];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"         throwing();\n" +
-			"      }\n" +
-			"      catch (IZZException | IZZ) {\n" +
-			"         bar();\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException {}
+					public void foo() {
+				      try {
+				         throwing();
+				      }
+				      catch (IZZException | IZZ) {
+				         bar();
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -22058,36 +22976,44 @@ public void testBug338789b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[4];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException, IllegalArgumentException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"         throwing();\n" +
-			"      }\n" +
-			"      catch (IllegalArgumentException | IZZException | IZZ) {\n" +
-			"         bar();\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException, IllegalArgumentException {}
+					public void foo() {
+				      try {
+				         throwing();
+				      }
+				      catch (IllegalArgumentException | IZZException | IZZ) {
+				         bar();
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -22117,45 +23043,55 @@ public void testBug338789c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[5];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"         throwing();\n" +
-			"      }\n" +
-			"      catch (IZZException | IZZBException e) {\n" +
-			"         e.myM;\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException {}
+					public void foo() {
+				      try {
+				         throwing();
+				      }
+				      catch (IZZException | IZZBException e) {
+				         e.myM;
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception implements CommonInt{\n" +
-				"	public void myMethod(){}\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception implements CommonInt{
+						public void myMethod(){}
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception implements CommonInt {\n" +
-				"	public void myMethod(){}\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception implements CommonInt {
+						public void myMethod(){}
+					}
+					""");
 
 		this.workingCopies[4] = getWorkingCopy(
 				"/Completion/src/test/CommonInt.java",
-				"package test;"+
-				"public interface CommonInt {\n" +
-				"	public void myMethod();\n" +
-				"}\n");
+				"""
+					package test;\
+					public interface CommonInt {
+						public void myMethod();
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -22185,36 +23121,44 @@ public void testBug338789d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[4];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws q.IZZBException, q.IZZException, IllegalArgumentException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"         throwing();\n" +
-			"      }\n" +
-			"      catch (IllegalArgumentException | q.IZZException | q.IZZ) {\n" +
-			"         bar();\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws q.IZZBException, q.IZZException, IllegalArgumentException {}
+					public void foo() {
+				      try {
+				         throwing();
+				      }
+				      catch (IllegalArgumentException | q.IZZException | q.IZZ) {
+				         bar();
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/q/IZZAException.java",
-				"package q;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package q;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/q/IZZBException.java",
-				"package q;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package q;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/q/IZZException.java",
-				"package q;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package q;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -22244,36 +23188,44 @@ public void testBug338789e() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[4];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"         throwing();\n" +
-			"      }\n" +
-			"      catch (IZZException | IZZBException ) {\n" +
-			"         bar();\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException {}
+					public void foo() {
+				      try {
+				         throwing();
+				      }
+				      catch (IZZException | IZZBException ) {
+				         bar();
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -22295,16 +23247,18 @@ public void testBug343342() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Try.java",
-			"package test;\n" +
-			"public class Try {\n" +
-			"	void f(int a){\n" +
-			"		String xyz = null;\n" +
-			"		final String xyzz = null;\n" +
-			"		switch (a){\n" +
-			"			case xy : break;\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;
+				public class Try {
+					void f(int a){
+						String xyz = null;
+						final String xyzz = null;
+						switch (a){
+							case xy : break;
+						}
+					}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -22321,27 +23275,29 @@ public void testBug343342a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterCase2.java",
-		"package test;\n" +
-		"public class CompletionAfterCase2 {\n" +
-		"	public static final int ZZZ1 = 5;\n" +
-		"	public static final long ZZZ2 = 5;\n" +
-		"	public static final double ZZZ3 = 0;\n" +
-		"	public static final Object ZZZ4 = null;\n" +
-		"	public static final int[] ZZZ5 = null;\n" +
-		"	public static final Object[] ZZZ6 = null;\n" +
-		"	public static final short ZZZ7 = 0;\n" +
-		"	public static int ZZZMethod(){ return 1;}\n" +
-		"	int ZZZ8(){return 1;}\n" +
-		"	void foo(int i){\n" +
-		"		final int ZZZ01 = 1;\n" +
-		"		int ZZZ02 = 1;\n" +
-		"		final char ZZZ03;\n" +
-		"		final String ZZZ04;\n" +
-		"		switch(i) {\n" +
-		"			case ZZ\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterCase2 {
+				public static final int ZZZ1 = 5;
+				public static final long ZZZ2 = 5;
+				public static final double ZZZ3 = 0;
+				public static final Object ZZZ4 = null;
+				public static final int[] ZZZ5 = null;
+				public static final Object[] ZZZ6 = null;
+				public static final short ZZZ7 = 0;
+				public static int ZZZMethod(){ return 1;}
+				int ZZZ8(){return 1;}
+				void foo(int i){
+					final int ZZZ01 = 1;
+					int ZZZ02 = 1;
+					final char ZZZ03;
+					final String ZZZ04;
+					switch(i) {
+						case ZZ
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -22363,26 +23319,28 @@ public void testBug343342b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterCase2.java",
-		"package test;\n" +
-		"public class CompletionAfterCase2 {\n" +
-		"	public static final int ZZZ1 = 5;\n" +
-		"	public static final long ZZZ2 = 5;\n" +
-		"	public static final double ZZZ3 = 0;\n" +
-		"	public static final Object ZZZ4 = null;\n" +
-		"	public static final int[] ZZZ5 = null;\n" +
-		"	public static final Object[] ZZZ6 = null;\n" +
-		"	public static final short ZZZ7 = 0;\n" +
-		"	int ZZZ8(){return 1;}\n" +
-		"	void foo(int i){\n" +
-		"		final int ZZZ01 = 1;\n" +
-		"		int ZZZ02 = 1;\n" +
-		"		final char ZZZ03;\n" +
-		"		final String ZZZ04;\n" +
-		"		switch(i) {\n" +
-		"			case CompletionAfterCase2.ZZ\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterCase2 {
+				public static final int ZZZ1 = 5;
+				public static final long ZZZ2 = 5;
+				public static final double ZZZ3 = 0;
+				public static final Object ZZZ4 = null;
+				public static final int[] ZZZ5 = null;
+				public static final Object[] ZZZ6 = null;
+				public static final short ZZZ7 = 0;
+				int ZZZ8(){return 1;}
+				void foo(int i){
+					final int ZZZ01 = 1;
+					int ZZZ02 = 1;
+					final char ZZZ03;
+					final String ZZZ04;
+					switch(i) {
+						case CompletionAfterCase2.ZZ
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -22402,30 +23360,32 @@ public void testBug343476() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterCase2.java",
-		"package test;\n" +
-		"public class CompletionAfterCase2 {\n" +
-		"	public static final int ZZZ1 = 5;\n" +
-		"	public static final long ZZZ2 = 5;\n" +
-		"	public static final double ZZZ3 = 0;\n" +
-		"	public static final Object ZZZ4 = null;\n" +
-		"	public static final int[] ZZZ5 = null;\n" +
-		"	public static final Object[] ZZZ6 = null;\n" +
-		"	public static final short ZZZ7 = 0;\n" +
-		"	public static final String ZZZString = null;\n" +
-		"	public static String ZZZString2 = null;\n" +
-		"	public static String ZZZStringM() { return null;}\n" +
-		"	int ZZZ8(){return 1;}\n" +
-		"	void foo(String i){\n" +
-		"		final int ZZZ01 = 1;\n" +
-		"		int ZZZ02 = 1;\n" +
-		"		final char ZZZ03;\n" +
-		"		final String ZZZ04 = \"\";\n" +
-		"		String ZZZ05 = \"\";\n" +
-		"		switch(i) {\n" +
-		"			case ZZ\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterCase2 {
+				public static final int ZZZ1 = 5;
+				public static final long ZZZ2 = 5;
+				public static final double ZZZ3 = 0;
+				public static final Object ZZZ4 = null;
+				public static final int[] ZZZ5 = null;
+				public static final Object[] ZZZ6 = null;
+				public static final short ZZZ7 = 0;
+				public static final String ZZZString = null;
+				public static String ZZZString2 = null;
+				public static String ZZZStringM() { return null;}
+				int ZZZ8(){return 1;}
+				void foo(String i){
+					final int ZZZ01 = 1;
+					int ZZZ02 = 1;
+					final char ZZZ03;
+					final String ZZZ04 = "";
+					String ZZZ05 = "";
+					switch(i) {
+						case ZZ
+					}
+				}
+			}
+			""");
 
 	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
 	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
@@ -22453,30 +23413,32 @@ public void testBug343476a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterCase2.java",
-		"package test;\n" +
-		"public class CompletionAfterCase2 {\n" +
-		"	public static final int ZZZ1 = 5;\n" +
-		"	public static final long ZZZ2 = 5;\n" +
-		"	public static final double ZZZ3 = 0;\n" +
-		"	public static final Object ZZZ4 = null;\n" +
-		"	public static final int[] ZZZ5 = null;\n" +
-		"	public static final Object[] ZZZ6 = null;\n" +
-		"	public static final short ZZZ7 = 0;\n" +
-		"	public static final String ZZZString = null;\n" +
-		"	public static String ZZZString2 = null;\n" +
-		"	public static String ZZZStringM() { return null;}\n" +
-		"	int ZZZ8(){return 1;}\n" +
-		"	void foo(String i){\n" +
-		"		final int ZZZ01 = 1;\n" +
-		"		int ZZZ02 = 1;\n" +
-		"		final char ZZZ03;\n" +
-		"		final String ZZZ04 = \"\";\n" +
-		"		String ZZZ05 = \"\";\n" +
-		"		switch(i) {\n" +
-		"			case CompletionAfterCase2.ZZ\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			package test;
+			public class CompletionAfterCase2 {
+				public static final int ZZZ1 = 5;
+				public static final long ZZZ2 = 5;
+				public static final double ZZZ3 = 0;
+				public static final Object ZZZ4 = null;
+				public static final int[] ZZZ5 = null;
+				public static final Object[] ZZZ6 = null;
+				public static final short ZZZ7 = 0;
+				public static final String ZZZString = null;
+				public static String ZZZString2 = null;
+				public static String ZZZStringM() { return null;}
+				int ZZZ8(){return 1;}
+				void foo(String i){
+					final int ZZZ01 = 1;
+					int ZZZ02 = 1;
+					final char ZZZ03;
+					final String ZZZ04 = "";
+					String ZZZ05 = "";
+					switch(i) {
+						case CompletionAfterCase2.ZZ
+					}
+				}
+			}
+			""");
 
 	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
 	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
@@ -22510,35 +23472,43 @@ public void testBug343637() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[4];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException, IZZAException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"         throwing();\n" +
-			"      }\n" +
-			"      catch (IZZException | IZZ) {\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException, IZZAException {}
+					public void foo() {
+				      try {
+				         throwing();
+				      }
+				      catch (IZZException | IZZ) {
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -22573,36 +23543,44 @@ public void testBug343637b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[4];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException, IZZAException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"         throwing();\n" +
-			"      }\n" +
-			"	   catch (IZZAException e){}\n" +
-			"      catch (IZZException | IZZ) {\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException, IZZAException {}
+					public void foo() {
+				      try {
+				         throwing();
+				      }
+					   catch (IZZAException e){}
+				      catch (IZZException | IZZ) {
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -22636,44 +23614,54 @@ public void testBug343637c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[5];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"		  try {\n" +
-			"         	throwing();\n" +
-			"		  } catch (IZZRuntimeException | IZZException e) {\n" +
-			"		  }\n" +
-			"      }\n" +
-			"      catch (IZZAException | IZZ) {\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}
+					public void foo() {
+				      try {
+						  try {
+				         	throwing();
+						  } catch (IZZRuntimeException | IZZException e) {
+						  }
+				      }
+				      catch (IZZAException | IZZ) {
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		this.workingCopies[4] = getWorkingCopy(
 				"/Completion/src/test/IZZRuntimeException.java",
-				"package test;"+
-				"public class IZZRuntimeException extends RuntimeException {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZRuntimeException extends RuntimeException {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -22703,50 +23691,62 @@ public void testBug343637d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[6];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"		  try {\n" +
-			"         	throwing();\n" +
-			"		  } catch (IZZRuntimeException | IZZCException | IZZException e) {\n" +
-			"		  }\n" +
-			"      }\n" +
-			"      catch (IZZAException | IZZ) {\n" +	// don't propose IZZCException
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}
+					public void foo() {
+				      try {
+						  try {
+				         	throwing();
+						  } catch (IZZRuntimeException | IZZCException | IZZException e) {
+						  }
+				      }
+				      catch (IZZAException | IZZ) {
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		this.workingCopies[4] = getWorkingCopy(
 				"/Completion/src/test/IZZRuntimeException.java",
-				"package test;"+
-				"public class IZZRuntimeException extends RuntimeException {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZRuntimeException extends RuntimeException {
+					}
+					""");
 
 		this.workingCopies[5] = getWorkingCopy(
 				"/Completion/src/test/IZZCException.java",
-				"package test;"+
-				"public class IZZCException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZCException extends Exception {
+					}
+					""");
 
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -22778,50 +23778,62 @@ public void testBug343637e() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[6];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZAException, IZZRuntimeException, IZZException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"		  try {\n" +
-			"         	throwing();\n" +
-			"		  } catch (IZZRuntimeException | IZZSuperException | IZZException e) {\n" +
-			"		  }\n" +
-			"      }\n" +
-			"      catch (IZZAException | IZZ) {\n" +	// don't propose IZZException
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZAException, IZZRuntimeException, IZZException {}
+					public void foo() {
+				      try {
+						  try {
+				         	throwing();
+						  } catch (IZZRuntimeException | IZZSuperException | IZZException e) {
+						  }
+				      }
+				      catch (IZZAException | IZZ) {
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		this.workingCopies[4] = getWorkingCopy(
 				"/Completion/src/test/IZZRuntimeException.java",
-				"package test;"+
-				"public class IZZRuntimeException extends RuntimeException {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZRuntimeException extends RuntimeException {
+					}
+					""");
 
 		this.workingCopies[5] = getWorkingCopy(
 				"/Completion/src/test/IZZSuperException.java",
-				"package test;"+
-				"public class IZZSuperException extends IZZException {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZSuperException extends IZZException {
+					}
+					""");
 
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -22853,44 +23865,54 @@ public void testBug343637f() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[5];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"		  try {\n" +
-			"         	throwing();\n" +
-			"		  } catch (IZZRuntimeException | IZZException | IZZAException | IZZ) {\n" +	   // don't propose IZZRuntimeException again
-			"		  }\n" +
-			"      }\n" +
-			"      catch () {\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}
+					public void foo() {
+				      try {
+						  try {
+				         	throwing();
+						  } catch (IZZRuntimeException | IZZException | IZZAException | IZZ) {
+						  }
+				      }
+				      catch () {
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		this.workingCopies[4] = getWorkingCopy(
 				"/Completion/src/test/IZZRuntimeException.java",
-				"package test;"+
-				"public class IZZRuntimeException extends RuntimeException {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZRuntimeException extends RuntimeException {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -22918,45 +23940,55 @@ public void testBug343637g() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[5];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"		  try {\n" +
-			"         	throwing();\n" +
-			"		  } catch (IZZRuntimeException | IZZException | IZZAException e) {\n" +	   // don't propose IZZRuntimeException again
-			"		  } catch (IZZBException e) {\n" +
-			"		  }\n" +
-			"      }\n" +
-			"      catch (IZZ) {\n" +	// IZZRuntimeException should be proposed.
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}
+					public void foo() {
+				      try {
+						  try {
+				         	throwing();
+						  } catch (IZZRuntimeException | IZZException | IZZAException e) {
+						  } catch (IZZBException e) {
+						  }
+				      }
+				      catch (IZZ) {
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		this.workingCopies[4] = getWorkingCopy(
 				"/Completion/src/test/IZZRuntimeException.java",
-				"package test;"+
-				"public class IZZRuntimeException extends RuntimeException {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZRuntimeException extends RuntimeException {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -22987,45 +24019,55 @@ public void testBug343637h() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[5];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"		  try {\n" +
-			"         	throwing();\n" +
-			"		  } catch (IZZRuntimeException | IZZException | IZZAException e) {\n" +	   // don't propose IZZRuntimeException again
-			"		  } catch (/*propose*/IZZ) {\n" +	// IZZRuntimeException should not be proposed.
-			"		  }\n" +
-			"      }\n" +
-			"      catch (IZZRuntimeException e) {\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}
+					public void foo() {
+				      try {
+						  try {
+				         	throwing();
+						  } catch (IZZRuntimeException | IZZException | IZZAException e) {
+						  } catch (/*propose*/IZZ) {
+						  }
+				      }
+				      catch (IZZRuntimeException e) {
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		this.workingCopies[4] = getWorkingCopy(
 				"/Completion/src/test/IZZRuntimeException.java",
-				"package test;"+
-				"public class IZZRuntimeException extends RuntimeException {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZRuntimeException extends RuntimeException {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23052,12 +24094,14 @@ public void testBug346454() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test<T> {\n" +
-			"	public void foo() {\n" +
-			"     Test<String> x = new Test<>\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test<T> {
+					public void foo() {
+				     Test<String> x = new Test<>
+				   }\
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23084,12 +24128,14 @@ public void testBug346454b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test<T> {\n" +
-			"	public void foo() {\n" +
-			"     Test<String> x = new Test<>.\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test<T> {
+					public void foo() {
+				     Test<String> x = new Test<>.
+				   }\
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23118,14 +24164,16 @@ public void testBug346454c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test<T> {\n" +
-			"	public Test(int i){}\n" +
-			"	public void foo() {\n" +
-			"	  int j = 1;\n" +
-			"     new Test<>()\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test<T> {
+					public Test(int i){}
+					public void foo() {
+					  int j = 1;
+				     new Test<>()
+				   }\
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23158,14 +24206,16 @@ public void testBug346454c_2() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test<T> {\n" +
-			"	public Test(T t){}\n" +
-			"	public Test(int i){}\n" +
-			"	public void foo() {\n" +
-			"       new Test<>()\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test<T> {
+					public Test(T t){}
+					public Test(int i){}
+					public void foo() {
+				       new Test<>()
+				   }\
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23203,20 +24253,24 @@ public void testBug346454d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/X.java",
-			"package test;"+
-			"public class X<T> {\n" +
-			"	public void foo() {\n" +
-			"     new pack.Test<>()\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class X<T> {
+					public void foo() {
+				     new pack.Test<>()
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/pack/Test.java",
-				"package pack;"+
-				"public class Test<T> {\n" +
-				"	public Test(T t){}\n" +
-				"	public Test(int i){}\n" +
-				"}\n");
+				"""
+					package pack;\
+					public class Test<T> {
+						public Test(T t){}
+						public Test(int i){}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23253,20 +24307,24 @@ public void testBug346454e() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/X.java",
-			"package test;"+
-			"public class X<T> {\n" +
-			"	public void foo() {\n" +
-			"     new pack.Test<>.\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class X<T> {
+					public void foo() {
+				     new pack.Test<>.
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/pack/Test.java",
-				"package pack;"+
-				"public class Test<T> {\n" +
-				"	public Test(T t){}\n" +
-				"	public Test(int i){}\n" +
-				"}\n");
+				"""
+					package pack;\
+					public class Test<T> {
+						public Test(T t){}
+						public Test(int i){}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23297,22 +24355,26 @@ public void testBug346454f() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;" +
-			"import pack.Test;\n"+
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"     Test<String>.T2<String> t = new Test<>().new T2<>()\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				import pack.Test;
+				public class X {
+					public void foo() {
+				     Test<String>.T2<String> t = new Test<>().new T2<>()
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/pack/Test.java",
-				"package pack;"+
-				"public class Test<T> {\n" +
-				"	public class T2<Z> {\n" +
-				"		public T2(Z z){}\n" +
-				"   }" +
-				"}\n");
+				"""
+					package pack;\
+					public class Test<T> {
+						public class T2<Z> {
+							public T2(Z z){}
+					   }\
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23347,22 +24409,26 @@ public void testBug346454g() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;" +
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"     new pack.Test<>().new T2<>()\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class X {
+					public void foo() {
+				     new pack.Test<>().new T2<>()
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/pack/Test.java",
-				"package pack;"+
-				"public class Test<T> {\n" +
-				"	public Test(T t){}\n" +
-				"	public class T2<Z> {\n" +
-				"		public T2(Z z){}\n" +
-				"   }" +
-				"}\n");
+				"""
+					package pack;\
+					public class Test<T> {
+						public Test(T t){}
+						public class T2<Z> {
+							public T2(Z z){}
+					   }\
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23397,21 +24463,25 @@ public void testBug346454h() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;" +
-			"import pack.Test;\n"+
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"     new <String> Test<>()\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				import pack.Test;
+				public class X {
+					public void foo() {
+				     new <String> Test<>()
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/pack/Test.java",
-				"package pack;"+
-				"public class Test<T> {\n" +
-				"	public <Z> Test(T t, Z z) {\n" +
-				"   }" +
-				"}\n");
+				"""
+					package pack;\
+					public class Test<T> {
+						public <Z> Test(T t, Z z) {
+					   }\
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23446,25 +24516,29 @@ public void testBug346454i() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;" +
-			"import pack.Test;\n"+
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"     new <String> Test<>().new T2<>()\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				import pack.Test;
+				public class X {
+					public void foo() {
+				     new <String> Test<>().new T2<>()
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/pack/Test.java",
-				"package pack;"+
-				"public class Test<T> {\n" +
-				"	public <Z> Test(T t) {\n" +
-				"   }\n" +
-				"	public class T2<U> {\n" +
-				"		public T2(U u) {\n" +
-				"   	}\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					package pack;\
+					public class Test<T> {
+						public <Z> Test(T t) {
+					   }
+						public class T2<U> {
+							public T2(U u) {
+					   	}
+						}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23498,22 +24572,26 @@ public void testBug346454j() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;" +
-			"import pack.Test;\n"+
-			"public class X {\n" +
-			"	public void foo(String str) {\n" +
-			"     Test<String>.T2<String> t = new Test<String>().new T2<>()\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				import pack.Test;
+				public class X {
+					public void foo(String str) {
+				     Test<String>.T2<String> t = new Test<String>().new T2<>()
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/pack/Test.java",
-				"package pack;"+
-				"public class Test<T> {\n" +
-				"	public class T2<Z> {\n" +
-				"		public T2(Z z){}\n" +
-				"   }" +
-				"}\n");
+				"""
+					package pack;\
+					public class Test<T> {
+						public class T2<Z> {
+							public T2(Z z){}
+					   }\
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23548,23 +24626,27 @@ public void testBug346454k() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;" +
-			"import pack.Test;\n"+
-			"public class X {\n" +
-			"	public void foo(String str) {\n" +
-			"     Test<String>.T2<String> t = new Test<>(\"\").new T2<>()\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				import pack.Test;
+				public class X {
+					public void foo(String str) {
+				     Test<String>.T2<String> t = new Test<>("").new T2<>()
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/pack/Test.java",
-				"package pack;"+
-				"public class Test<T> {\n" +
-				"	public Test(T t) {}\n" +
-				"	public class T2<Z> {\n" +
-				"		public T2(Z z){}\n" +
-				"   }" +
-				"}\n");
+				"""
+					package pack;\
+					public class Test<T> {
+						public Test(T t) {}
+						public class T2<Z> {
+							public T2(Z z){}
+					   }\
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23597,43 +24679,53 @@ public void testBug346415() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[5];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}\n" +
-			"	public void foo() {\n" +
-			"		  try {\n" +
-			"         	throwing();\n" +
-			"		  } catch (IZZRuntimeException e) {\n" +
-			"		  } catch (IZZException e) {\n" +
-			"         } catch (/*propose*/) {\n" +
-			"		  }\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}
+					public void foo() {
+						  try {
+				         	throwing();
+						  } catch (IZZRuntimeException e) {
+						  } catch (IZZException e) {
+				         } catch (/*propose*/) {
+						  }
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		this.workingCopies[4] = getWorkingCopy(
 				"/Completion/src/test/IZZRuntimeException.java",
-				"package test;"+
-				"public class IZZRuntimeException extends RuntimeException {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZRuntimeException extends RuntimeException {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23662,44 +24754,54 @@ public void testBug346415a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[5];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}\n" +
-			"	public void foo() {\n" +
-			"		  try {\n" +
-			"         	throwing();\n" +
-			"		  } catch (IZZRuntimeException e) {\n" +
-			"		  } catch (IZZException e) {\n" +
-			"		  } catch (IZZAException e) {\n" +
-			"         } catch (/*propose*/) {\n" +
-			"		  }\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException {}
+					public void foo() {
+						  try {
+				         	throwing();
+						  } catch (IZZRuntimeException e) {
+						  } catch (IZZException e) {
+						  } catch (IZZAException e) {
+				         } catch (/*propose*/) {
+						  }
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZBException.java",
-				"package test;"+
-				"public class IZZBException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZBException extends Exception {
+					}
+					""");
 
 		this.workingCopies[3] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		this.workingCopies[4] = getWorkingCopy(
 				"/Completion/src/test/IZZRuntimeException.java",
-				"package test;"+
-				"public class IZZRuntimeException extends RuntimeException {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZRuntimeException extends RuntimeException {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23727,29 +24829,35 @@ public void testBug350767() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void throwing() {\n" +
-			"		  try {\n" +
-			"			throw new IZZException();\n" +
-			"		  } catch (IZZAException[] | IZZ) {\n" +
-			"		  }\n" +
-			"   }" +
-			"}\n" +
-			"class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void throwing() {
+						  try {
+							throw new IZZException();
+						  } catch (IZZAException[] | IZZ) {
+						  }
+				   }\
+				}
+				class IZZException extends Exception {
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZAException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends Exception {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23772,22 +24880,26 @@ public void testBug350767b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() {\n" +
-		"		  try {\n" +
-		"			throw new IZZException();\n" +
-		"		  } catch (NullPointerException[] e) {\n" +
-		"		  } catch (IZZ){\n" +
-		"		  }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() {
+					  try {
+						throw new IZZException();
+					  } catch (NullPointerException[] e) {
+					  } catch (IZZ){
+					  }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends Exception {
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -23804,38 +24916,48 @@ public void testBug350652() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[5];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() {\n" +
-		"		  try {\n" +
-		"		  } catch (IZZ) {\n" +
-		"		  }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() {
+					  try {
+					  } catch (IZZ) {
+					  }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZAnnotation.java",
-			"package test;"+
-			"public @interface IZZAnnotation{\n" +
-			"}\n");
+			"""
+				package test;\
+				public @interface IZZAnnotation{
+				}
+				""");
 
 	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src/test/IZZInterface.java",
-			"package test;"+
-			"public interface IZZInterface{\n" +
-			"}\n");
+			"""
+				package test;\
+				public interface IZZInterface{
+				}
+				""");
 
 	this.workingCopies[4] = getWorkingCopy(
 			"/Completion/src/test/IZZEnum.java",
-			"package test;"+
-			"public enum IZZEnum{\n" +
-			"}\n");
+			"""
+				package test;\
+				public enum IZZEnum{
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -23852,22 +24974,24 @@ public void testBug350652b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() {\n" +
-		"		  try {\n" +
-		"		  } catch (IZZ) {\n" +
-		"		  }\n" +
-		"   }" +
-		"}\n" +
-		"class IZZException extends Exception {\n" +
-		"}\n" +
-		"@interface IZZAnnotation{\n" +
-		"}\n" +
-		"interface IZZInterface {\n" +
-		"}\n" +
-		"enum IZZEnum {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() {
+					  try {
+					  } catch (IZZ) {
+					  }
+			   }\
+			}
+			class IZZException extends Exception {
+			}
+			@interface IZZAnnotation{
+			}
+			interface IZZInterface {
+			}
+			enum IZZEnum {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -23890,27 +25014,33 @@ public void testBug350652c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"      }\n" +
-			"      catch (IZZAException | IZZ) {\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void foo() {
+				      try {
+				      }
+				      catch (IZZAException | IZZ) {
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends IZZException {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends IZZException {
+					}
+					""");
 
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -23942,10 +25072,12 @@ public void testBug401487a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"interface P { \n" +
-            "    def" +
-			"}\n");
+			"""
+				package test;\
+				interface P {\s
+				    def\
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -23974,10 +25106,12 @@ public void testBug401487b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"@interface P { \n" +
-            "    def" +
-			"}\n");
+			"""
+				package test;\
+				@interface P {\s
+				    def\
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -24006,10 +25140,12 @@ public void testBug401487c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"class P { \n" +
-            "    def" +
-			"}\n");
+			"""
+				package test;\
+				class P {\s
+				    def\
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -24038,10 +25174,12 @@ public void testBug401487d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"enum P { \n" +
-            "    def" +
-			"}\n");
+			"""
+				package test;\
+				enum P {\s
+				    def\
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -24070,12 +25208,14 @@ public void testBug401487e() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class ZZ { \n" +
-			"    public interface I {" +
-            "        def" +
-			"    }" +
-			"}\n");
+			"""
+				package test;\
+				public class ZZ {\s
+				    public interface I {\
+				        def\
+				    }\
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -24105,19 +25245,21 @@ public void testBug350652d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"      }\n" +
-			"      catch (IZZAException | IZZ) {\n" +
-			"      }\n" +
-			"   }" +
-			"}\n" +
-			"class IZZException extends Exception {\n" +
-			"}\n" +
-			"class IZZAException extends IZZException {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void foo() {
+				      try {
+				      }
+				      catch (IZZAException | IZZ) {
+				      }
+				   }\
+				}
+				class IZZException extends Exception {
+				}
+				class IZZAException extends IZZException {
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -24141,27 +25283,33 @@ public void testBug350652e() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() {\n" +
-		"		  try {\n" +
-		"		  } catch (IZZAException e) {\n" +
-		"		  } catch (IZZ) {\n" +
-		"		  }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() {
+					  try {
+					  } catch (IZZAException e) {
+					  } catch (IZZ) {
+					  }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZException.java",
-			"package test;"+
-			"public class IZZException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZAException.java",
-			"package test;"+
-			"public class IZZAException extends Exception{\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZAException extends Exception{
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -24184,27 +25332,33 @@ public void testBug350652f() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"      }\n" +
-			"      catch (IZZException | IZZ) {\n" +
-			"      }\n" +
-			"   }" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void foo() {
+				      try {
+				      }
+				      catch (IZZException | IZZ) {
+				      }
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/test/IZZException.java",
-				"package test;"+
-				"public class IZZException extends Exception {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZException extends Exception {
+					}
+					""");
 
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/test/IZZAException.java",
-				"package test;"+
-				"public class IZZAException extends IZZException {\n" +
-				"}\n");
+				"""
+					package test;\
+					public class IZZAException extends IZZException {
+					}
+					""");
 
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -24234,19 +25388,21 @@ public void testBug350652g() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"      }\n" +
-			"      catch (IZZException | IZZ) {\n" +
-			"      }\n" +
-			"   }" +
-			"}\n" +
-			"class IZZException extends Exception {\n" +
-			"}\n" +
-			"class IZZAException extends IZZException {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void foo() {
+				      try {
+				      }
+				      catch (IZZException | IZZ) {
+				      }
+				   }\
+				}
+				class IZZException extends Exception {
+				}
+				class IZZAException extends IZZException {
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -24270,27 +25426,33 @@ public void testBug350652h() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() {\n" +
-		"		  try {\n" +
-		"		  } catch (IZZSuperException e) {\n" +
-		"		  } catch (IZZB) {\n" +
-		"		  }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() {
+					  try {
+					  } catch (IZZSuperException e) {
+					  } catch (IZZB) {
+					  }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/IZZSuperException.java",
-			"package test;"+
-			"public class IZZSuperException extends Exception {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZSuperException extends Exception {
+				}
+				""");
 
 	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src/test/IZZBaseException.java",
-			"package test;"+
-			"public class IZZBaseException extends IZZSuperException{\n" +
-			"}\n");
+			"""
+				package test;\
+				public class IZZBaseException extends IZZSuperException{
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -24307,22 +25469,24 @@ public void testBug350652i() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() {\n" +
-		"		  try {\n" +
-		"		  } catch (IZZ) {\n" +
-		"		  }\n" +
-		"   }" +
-		"}\n" +
-		"class IZZException extends Exception {\n" +
-		"   @interface IZZAnnotation{\n" +
-		"   }\n" +
-		"   interface IZZInterface {\n" +
-		"   }\n" +
-		"   enum IZZEnum {\n" +
-		"   }\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() {
+					  try {
+					  } catch (IZZ) {
+					  }
+			   }\
+			}
+			class IZZException extends Exception {
+			   @interface IZZAnnotation{
+			   }
+			   interface IZZInterface {
+			   }
+			   enum IZZEnum {
+			   }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -24339,24 +25503,28 @@ public void testBug350652j() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;\n" +
-		"import static test2.IZZGeneral.*;\n"+
-		"public class Test {\n" +
-		"	public void throwing() {\n" +
-		"		  try {\n" +
-		"		  } catch (IZZ) {\n" +
-		"		  }\n" +
-		"   }" +
-		"}\n");
+		"""
+			package test;
+			import static test2.IZZGeneral.*;
+			public class Test {
+				public void throwing() {
+					  try {
+					  } catch (IZZ) {
+					  }
+			   }\
+			}
+			""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test2/IZZGeneral.java",
-			"package test2;"+
-			"public class IZZException extends Exception {\n" +
-			"	static @interface IZZAnnot{}\n" +
-			"	static interface IZZInterface{}\n" +
-			"	static enum IZZEnum{}\n" +
-			"}\n");
+			"""
+				package test2;\
+				public class IZZException extends Exception {
+					static @interface IZZAnnot{}
+					static interface IZZInterface{}
+					static enum IZZEnum{}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -24378,20 +25546,22 @@ public void testBug350652k() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;\n"+
-			"public class Test {\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"			throw new IZZException();\n" +
-			"      }\n" +
-			"      catch (IZZAException | ) {\n" +
-			"      }\n" +
-			"   }" +
-			"}\n" +
-			"class IZZException extends Exception {\n" +
-			"}\n" +
-			"class IZZAException extends IZZException {\n" +
-			"}\n");
+			"""
+				package test;
+				public class Test {
+					public void foo() {
+				      try {
+							throw new IZZException();
+				      }
+				      catch (IZZAException | ) {
+				      }
+				   }\
+				}
+				class IZZException extends Exception {
+				}
+				class IZZAException extends IZZException {
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -24420,20 +25590,22 @@ public void testBug350652l() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
-			"public class Test {\n" +
-			"	public void foo() {\n" +
-			"      try {\n" +
-			"			throw new IZZAException();\n" +
-			"      }\n" +
-			"      catch (IZZException | ) {\n" +
-			"      }\n" +
-			"   }" +
-			"}\n" +
-			"class IZZException extends Exception {\n" +
-			"}\n" +
-			"class IZZAException extends IZZException {\n" +
-			"}\n");
+			"""
+				package test;\
+				public class Test {
+					public void foo() {
+				      try {
+							throw new IZZAException();
+				      }
+				      catch (IZZException | ) {
+				      }
+				   }\
+				}
+				class IZZException extends Exception {
+				}
+				class IZZAException extends IZZException {
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -24459,20 +25631,22 @@ public void testBug350652m() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() {\n" +
-		"		  try {\n" +
-		"			throw new IZZException();\n" +
-		"		  } catch (IZZAException e) {\n" +
-		"		  } catch (/*propose*/) {\n" +
-		"		  }\n" +
-		"   }" +
-		"}\n" +
-		"class IZZException extends Exception {\n" +
-		"}\n" +
-		"class IZZAException extends IZZException {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() {
+					  try {
+						throw new IZZException();
+					  } catch (IZZAException e) {
+					  } catch (/*propose*/) {
+					  }
+			   }\
+			}
+			class IZZException extends Exception {
+			}
+			class IZZAException extends IZZException {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -24494,20 +25668,22 @@ public void testBug350652n() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	public void throwing() {\n" +
-		"		  try {\n" +
-		"			throw new IZZAException();\n" +
-		"		  } catch (IZZException e) {\n" +
-		"		  } catch (/*propose*/) {\n" +
-		"		  }\n" +
-		"   }" +
-		"}\n" +
-		"class IZZException extends Exception {\n" +
-		"}\n" +
-		"class IZZAException extends IZZException {\n" +
-		"}\n");
+		"""
+			package test;\
+			public class Test {
+				public void throwing() {
+					  try {
+						throw new IZZAException();
+					  } catch (IZZException e) {
+					  } catch (/*propose*/) {
+					  }
+			   }\
+			}
+			class IZZException extends Exception {
+			}
+			class IZZAException extends IZZException {
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -24528,14 +25704,16 @@ public void testBug351444() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/TXYU.java",
-			"package test;"+
-			"public class TXYU<T> {\n" +
-			"	TXYU(T t){}\n" +
-			"   TXYU(String s , String s2) {}\n" +
-			"	public void foo() {\n" +
-			"      TXYU<Number> t = new TXY" +
-			"   }\n" +
-			"}\n");
+			"""
+				package test;\
+				public class TXYU<T> {
+					TXYU(T t){}
+				   TXYU(String s , String s2) {}
+					public void foo() {
+				      TXYU<Number> t = new TXY\
+				   }
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
 		requestor.allowAllRequiredProposals();
@@ -24571,14 +25749,16 @@ public void testBug351444a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/TXYU.java",
-				"package test;"+
-				"public class TXYU<T> {\n" +
-				"	TXYU(T t){}\n" +
-				"   TXYU(String s , String s2) {}\n" +
-				"	public void foo() {\n" +
-				"      TXYU<Number> t = new TXY\n" +
-				"   }\n" +
-				"}\n");
+				"""
+					package test;\
+					public class TXYU<T> {
+						TXYU(T t){}
+					   TXYU(String s , String s2) {}
+						public void foo() {
+					      TXYU<Number> t = new TXY
+					   }
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
 		requestor.allowAllRequiredProposals();
@@ -24615,16 +25795,18 @@ public void testBug351444b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
-				"package test;"+
-				"public class Test<E>{\n" +
-				" class TXYU<T> {\n" +
-				"	TXYU(T t){}\n" +
-				"   TXYU(String s , String s2) {}\n" +
-				"	public void foo() {\n" +
-				"      Test<Integer>.TXYU<Number> t = new Test<>().new TXY\n" +
-				"   }\n" +
-				" }\n" +
-				"}\n");
+				"""
+					package test;\
+					public class Test<E>{
+					 class TXYU<T> {
+						TXYU(T t){}
+					   TXYU(String s , String s2) {}
+						public void foo() {
+					      Test<Integer>.TXYU<Number> t = new Test<>().new TXY
+					   }
+					 }
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
 		requestor.allowAllRequiredProposals();
@@ -24661,16 +25843,18 @@ public void testBug351444c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
-				"package test;"+
-				"public class Test<E>{\n" +
-				" class TXYU<T> {\n" +
-				"	TXYU(T t){}\n" +
-				"   TXYU(String s , String s2) {}\n" +
-				"	public void foo() {\n" +
-				"      Test<Integer>.TXYU<Number> t = new Test<>().new TXY\n" +
-				"   }\n" +
-				" }\n" +
-				"}\n");
+				"""
+					package test;\
+					public class Test<E>{
+					 class TXYU<T> {
+						TXYU(T t){}
+					   TXYU(String s , String s2) {}
+						public void foo() {
+					      Test<Integer>.TXYU<Number> t = new Test<>().new TXY
+					   }
+					 }
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
 		requestor.allowAllRequiredProposals();
@@ -24707,19 +25891,23 @@ public void testBug351444d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/TXYU.java",
-			"package test;"+
-			"public class TXYU<T> {\n" +
-			"	TXYU(T t){}\n" +
-			"   TXYU(String s , String s2) {}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class TXYU<T> {
+					TXYU(T t){}
+				   TXYU(String s , String s2) {}
+				}
+				""");
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"	public void foo() {\n" +
-				"      TXYU<Number> t = new TXY\n" +
-				"   }\n" +
-				"}\n");
+				"""
+					package test;\
+					public class Test {
+						public void foo() {
+					      TXYU<Number> t = new TXY
+					   }
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
 		requestor.allowAllRequiredProposals();
@@ -24756,19 +25944,23 @@ public void testBug351444e() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/TXYU.java",
-			"package test;"+
-			"public class TXYU<T> {\n" +
-			"	TXYU(T t){}\n" +
-			"   TXYU(String s , String s2) {}\n" +
-			"}\n");
+			"""
+				package test;\
+				public class TXYU<T> {
+					TXYU(T t){}
+				   TXYU(String s , String s2) {}
+				}
+				""");
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"	public void foo() {\n" +
-				"      TXYU<Number> t = new TXY\n" +
-				"   }\n" +
-				"}\n");
+				"""
+					package test;\
+					public class Test {
+						public void foo() {
+					      TXYU<Number> t = new TXY
+					   }
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
 		requestor.allowAllRequiredProposals();
@@ -24799,20 +25991,22 @@ public void testBug292087b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Try.java",
-			"package test;\n" +
-			"class MyClass{\n" +
-			"}\n" +
-			"public class Try extends Thread{\n" +
-			"	public static MyClass MyClassField;" +
-			"	public static MyClass MyClassMethod(){\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	public MyClass member[] = { new MyClass (){\n" +
-			"		public void abc() {}\n" +
-			"		},\n" +
-			"		/*Complete here*/M" +
-			"	};\n" +
-			"}\n");
+			"""
+				package test;
+				class MyClass{
+				}
+				public class Try extends Thread{
+					public static MyClass MyClassField;\
+					public static MyClass MyClassMethod(){
+						return null;
+					}
+					public MyClass member[] = { new MyClass (){
+						public void abc() {}
+						},
+						/*Complete here*/M\
+					};
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -24837,20 +26031,22 @@ public void testBug292087c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Try.java",
-			"package test;\n" +
-			"class MyClass{\n" +
-			"}\n" +
-			"public class Try extends Thread{\n" +
-			"	public static MyClass MyClassField;" +
-			"	public static MyClass MyClassMethod(){\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	public MyClass member[] = { new MyClass (){\n" +
-			"		public void abc() {}\n" +
-			"		},\n" +
-			"		/*Complete here*/" +
-			"	};\n" +
-			"}\n");
+			"""
+				package test;
+				class MyClass{
+				}
+				public class Try extends Thread{
+					public static MyClass MyClassField;\
+					public static MyClass MyClassMethod(){
+						return null;
+					}
+					public MyClass member[] = { new MyClass (){
+						public void abc() {}
+						},
+						/*Complete here*/\
+					};
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -24885,22 +26081,24 @@ public void testBug292087d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Try.java",
-			"package test;\n" +
-			"class MyClass{\n" +
-			"}\n" +
-			"public class Try extends Thread{\n" +
-			"	public static MyClass MyClassField;" +
-			"	public static MyClass MyClassMethod(){\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	public MyClass member[] = {\n" +
-			"		/*Complete here*/\n" +
-			"		new MyClass (){\n" +
-			"			public void abc() {}\n" +
-			"		},\n" +
-			"		" +
-			"	};\n" +
-			"}\n");
+			"""
+				package test;
+				class MyClass{
+				}
+				public class Try extends Thread{
+					public static MyClass MyClassField;\
+					public static MyClass MyClassMethod(){
+						return null;
+					}
+					public MyClass member[] = {
+						/*Complete here*/
+						new MyClass (){
+							public void abc() {}
+						},
+						\
+					};
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -24936,12 +26134,14 @@ public void testBug385858a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Completion.java",
-		"package test;\n" +
-		"public class Completion {\n" +
-		"	void foo() {" +
-		"	Completion c = new C\n" +
-		"   }\n" +
-		"}\n");
+		"""
+			package test;
+			public class Completion {
+				void foo() {\
+				Completion c = new C
+			   }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true, true);
 	requestor.allowAllRequiredProposals();
@@ -24951,13 +26151,14 @@ public void testBug385858a() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"completion offset=74\n" +
-			"completion range=[73, 73]\n" +
-			"completion token=\"C\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures={Ltest.Completion;}\n" +
-			"expectedTypesKeys={Ltest/Completion;}\n" +
-			"completion token location={CONSTRUCTOR_START}",
+			"""
+				completion offset=74
+				completion range=[73, 73]
+				completion token="C"
+				completion token kind=TOKEN_KIND_NAME
+				expectedTypesSignatures={Ltest.Completion;}
+				expectedTypesKeys={Ltest/Completion;}
+				completion token location={CONSTRUCTOR_START}""",
 			requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=385858
@@ -24965,10 +26166,12 @@ public void testBug385858b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Completion.java",
-		"package test;\n" +
-		"public class Completion {\n" +
-		"	Completion c = new C\n" +
-		"}\n");
+		"""
+			package test;
+			public class Completion {
+				Completion c = new C
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true, true);
 	requestor.allowAllRequiredProposals();
@@ -24978,13 +26181,14 @@ public void testBug385858b() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"completion offset=61\n" +
-			"completion range=[60, 60]\n" +
-			"completion token=\"C\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures={Ltest.Completion;}\n" +
-			"expectedTypesKeys={Ltest/Completion;}\n" +
-			"completion token location={CONSTRUCTOR_START}",
+			"""
+				completion offset=61
+				completion range=[60, 60]
+				completion token="C"
+				completion token kind=TOKEN_KIND_NAME
+				expectedTypesSignatures={Ltest.Completion;}
+				expectedTypesKeys={Ltest/Completion;}
+				completion token location={CONSTRUCTOR_START}""",
 			requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=385858
@@ -24992,13 +26196,15 @@ public void testBug385858c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Completion.java",
-		"package test;\n" +
-		"public class Completion {\n" +
-		"	static class Inner{}\n" +
-		"	void foo() {" +
-		"		Inner c = new Completion.\n" +
-		"   }\n" +
-		"}\n");
+		"""
+			package test;
+			public class Completion {
+				static class Inner{}
+				void foo() {\
+					Inner c = new Completion.
+			   }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true, true);
 	requestor.allowAllRequiredProposals();
@@ -25008,13 +26214,14 @@ public void testBug385858c() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"completion offset=102\n" +
-			"completion range=[102, 101]\n" +
-			"completion token=\"\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures={Ltest.Completion$Inner;}\n" +
-			"expectedTypesKeys={Ltest/Completion$Inner;}\n" +
-			"completion token location={CONSTRUCTOR_START}",
+			"""
+				completion offset=102
+				completion range=[102, 101]
+				completion token=""
+				completion token kind=TOKEN_KIND_NAME
+				expectedTypesSignatures={Ltest.Completion$Inner;}
+				expectedTypesKeys={Ltest/Completion$Inner;}
+				completion token location={CONSTRUCTOR_START}""",
 			requestor.getContext());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=385858
@@ -25022,13 +26229,15 @@ public void testBug385858d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Completion.java",
-		"package test;\n" +
-		"public class Completion {\n" +
-		"	static class Inner{}\n" +
-		"	void foo() {" +
-		"		Inner c = new   \n" +
-		"   }\n" +
-		"}\n");
+		"""
+			package test;
+			public class Completion {
+				static class Inner{}
+				void foo() {\
+					Inner c = new  \s
+			   }
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true, true);
 	requestor.allowAllRequiredProposals();
@@ -25038,13 +26247,14 @@ public void testBug385858d() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"completion offset=92\n" +
-			"completion range=[92, 91]\n" +
-			"completion token=\"\"\n" +
-			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures={Ltest.Completion$Inner;}\n" +
-			"expectedTypesKeys={Ltest/Completion$Inner;}\n" +
-			"completion token location={CONSTRUCTOR_START}",
+			"""
+				completion offset=92
+				completion range=[92, 91]
+				completion token=""
+				completion token kind=TOKEN_KIND_NAME
+				expectedTypesSignatures={Ltest.Completion$Inner;}
+				expectedTypesKeys={Ltest/Completion$Inner;}
+				completion token location={CONSTRUCTOR_START}""",
 			requestor.getContext());
 }
 // Bug 402574 - Autocomplete does not recognize all enum constants when constants override methods
@@ -25058,93 +26268,97 @@ public void testBug402574() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/ExampleEnumNoAutocomplete.java",
-		    "public enum ExampleEnumNoAutocomplete {\n" +
-			"    STUFF(\"a\", \"b\") {\n" +
-			"    @Override\n" +
-			"    public String getProperty1() {\n"+
-			"        return super.getProperty1().toUpperCase();\n" +
-			"    }\n" +
-			"    @Override\n" +
-			"			public String getSomething() {\n" +
-			"				throw new UnsupportedOperationException(\"What is this, I don't even?!\");\n" +
-			"			}\n" +
-			"		},\n" +
-			"		THINGS(\"c\", \"d\") {\n" +
-			"			@Override\n" +
-			"			public String getProperty1() {\n" +
-			"				return super.getProperty2();\n" +
-			"			}\n" +
-			"			@Override\n" +
-			"			public String getProperty2() {\n" +
-			"				return super.getProperty1();\n" +
-			"			}\n" +
-			"			@Override\n" +
-			"			public String getSomething() {\n" +
-			"				throw new UnsupportedOperationException(\"What is this, I don't even?!\");\n" +
-			"			}\n" +
-			"		},\n" +
-			"		MORE_STUFF(\"e\", \"f\") {\n" +
-			"			@Override\n" +
-			"			public String getProperty1() {\n" +
-			"				return getProperty2();\n" +
-			"			}\n" +
-			"			@Override\n" +
-			"			public String getSomething() {\n" +
-			"				throw new UnsupportedOperationException(\"What is this, I don't even?!\");\n" +
-			"			}\n" +
-			"		},\n" +
-			"		OTHER(\"g\", \"h\") {\n" +
-			"			@Override\n" +
-			"			public String getSomething() {\n" +
-			"				throw new UnsupportedOperationException(\"What is this, I don't even?!\");\n" +
-			"			}\n" +
-			"		},\n" +
-			"		STILL_OTHER(\"i\", \"j\") {\n" +
-			"			@Override\n" +
-			"			public String getSomething() {\n" +
-			"				throw new UnsupportedOperationException(\"What is this, I don't even?!\");\n" +
-			"			}\n" +
-			"		},\n" +
-			"		IT_MAY_BE_DUE_TO_MIXING_PERHAPS(\"k\", \"l\") {\n" +
-			"			@Override\n" +
-			"			public String getProperty1() {\n" +
-			"				throw new UnsupportedOperationException(\"What is this, I don't even?!\");\n" +
-			"			}\n" +
-			"			@Override\n" +
-			"			public String getProperty2() {\n" +
-			"				throw new UnsupportedOperationException(\"What is this, I don't even?!\");\n" +
-			"			}\n" +
-			"			@Override\n" +
-			"			public String getSomething() {\n" +
-			"				throw new UnsupportedOperationException(\"What is this, I don't even?!\");\n" +
-			"			}\n" +
-			"		};\n" +
-			"		private final String property1;\n" +
-			"		private final String property2;\n" +
-			"		ExampleEnumNoAutocomplete(final String property1, final String property2) {\n" +
-			"			this.property1 = property1;\n" +
-			"			this.property2 = property2;\n" +
-			"		}\n" +
-			"		public String getProperty1() {\n" +
-			"			return property1;\n" +
-			"		}\n" +
-			"		public String getProperty2() {\n" +
-			"			return property2;\n" +
-			"		}\n" +
-			"		public abstract String getSomething();\n" +
-			"	}\n");
+		    """
+				public enum ExampleEnumNoAutocomplete {
+				    STUFF("a", "b") {
+				    @Override
+				    public String getProperty1() {
+				        return super.getProperty1().toUpperCase();
+				    }
+				    @Override
+							public String getSomething() {
+								throw new UnsupportedOperationException("What is this, I don't even?!");
+							}
+						},
+						THINGS("c", "d") {
+							@Override
+							public String getProperty1() {
+								return super.getProperty2();
+							}
+							@Override
+							public String getProperty2() {
+								return super.getProperty1();
+							}
+							@Override
+							public String getSomething() {
+								throw new UnsupportedOperationException("What is this, I don't even?!");
+							}
+						},
+						MORE_STUFF("e", "f") {
+							@Override
+							public String getProperty1() {
+								return getProperty2();
+							}
+							@Override
+							public String getSomething() {
+								throw new UnsupportedOperationException("What is this, I don't even?!");
+							}
+						},
+						OTHER("g", "h") {
+							@Override
+							public String getSomething() {
+								throw new UnsupportedOperationException("What is this, I don't even?!");
+							}
+						},
+						STILL_OTHER("i", "j") {
+							@Override
+							public String getSomething() {
+								throw new UnsupportedOperationException("What is this, I don't even?!");
+							}
+						},
+						IT_MAY_BE_DUE_TO_MIXING_PERHAPS("k", "l") {
+							@Override
+							public String getProperty1() {
+								throw new UnsupportedOperationException("What is this, I don't even?!");
+							}
+							@Override
+							public String getProperty2() {
+								throw new UnsupportedOperationException("What is this, I don't even?!");
+							}
+							@Override
+							public String getSomething() {
+								throw new UnsupportedOperationException("What is this, I don't even?!");
+							}
+						};
+						private final String property1;
+						private final String property2;
+						ExampleEnumNoAutocomplete(final String property1, final String property2) {
+							this.property1 = property1;
+							this.property2 = property2;
+						}
+						public String getProperty1() {
+							return property1;
+						}
+						public String getProperty2() {
+							return property2;
+						}
+						public abstract String getSomething();
+					}
+				""");
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Tester.java",
-			"import java.util.EnumMap;\n" +
-			"import java.util.Map;\n" +
-			"public class Tester {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Map<ExampleEnumNoAutocomplete, Map<String, Object>> huh = new EnumMap<ExampleEnumNoAutocomplete, Map<String, Object>>(\n" +
-			"				ExampleEnumNoAutocomplete.class);\n" +
-			"		huh.put(ExampleEnumNoAutocomplete.STUFF, null);\n" +
-			"		ExampleEnumNoAutocomplete.   \n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.EnumMap;
+				import java.util.Map;
+				public class Tester {
+					public static void main(String[] args) {
+						Map<ExampleEnumNoAutocomplete, Map<String, Object>> huh = new EnumMap<ExampleEnumNoAutocomplete, Map<String, Object>>(
+								ExampleEnumNoAutocomplete.class);
+						huh.put(ExampleEnumNoAutocomplete.STUFF, null);
+						ExampleEnumNoAutocomplete.  \s
+					}
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
 		requestor.allowAllRequiredProposals();
 		requestor.setRequireExtendedContext(true);
@@ -25197,12 +26411,14 @@ public void testBug402812a() throws Exception {
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
-				"interface Test { \n" +
-				"static void staticMethod() {}" +
-				"    default void defaultMethod() {" +
-				"        stat" +
-				"    }" +
-				"}\n");
+				"""
+					interface Test {\s
+					static void staticMethod() {}\
+					    default void defaultMethod() {\
+					        stat\
+					    }\
+					}
+					""");
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		requestor.allowAllRequiredProposals();
@@ -25236,15 +26452,17 @@ public void testBug402812b() throws Exception {
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
-				"interface I { \n" +
-				"    static void staticMethod() {}" +
-				"    default void defaultMethod() {}" +
-				"}" +
-				"public class X implements I {" +
-				"	public void foo(I i) {" +
-				"		I.stat     " +
-				"	}" +
-				"}\n");
+				"""
+					interface I {\s
+					    static void staticMethod() {}\
+					    default void defaultMethod() {}\
+					}\
+					public class X implements I {\
+						public void foo(I i) {\
+							I.stat     \
+						}\
+					}
+					""");
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		requestor.allowAllRequiredProposals();
@@ -25281,16 +26499,18 @@ public void testBug402812c() throws Exception {
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
-				"interface I { \n" +
-				"static void staticMethod() {}" +
-				"    default void defaultMethod() {" +
-				"    }" +
-				"}" +
-				"public class X implements I {" +
-				"	public void foo(I i) {" +
-				"		this.defa     " +
-				"	}" +
-				"}\n");
+				"""
+					interface I {\s
+					static void staticMethod() {}\
+					    default void defaultMethod() {\
+					    }\
+					}\
+					public class X implements I {\
+						public void foo(I i) {\
+							this.defa     \
+						}\
+					}
+					""");
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		requestor.allowAllRequiredProposals();
@@ -25327,15 +26547,17 @@ public void testBug402812d() throws Exception {
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
-				"interface I { \n" +
-				"    static void staticMethod() {}" +
-				"    default void defaultMethod() {}" +
-				"}" +
-				"public class X implements I {" +
-				"	public void foo(I i) {" +
-				"		defaultM     " +
-				"	}" +
-				"}\n");
+				"""
+					interface I {\s
+					    static void staticMethod() {}\
+					    default void defaultMethod() {}\
+					}\
+					public class X implements I {\
+						public void foo(I i) {\
+							defaultM     \
+						}\
+					}
+					""");
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		requestor.allowAllRequiredProposals();
@@ -25367,17 +26589,19 @@ public void testBug370971() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/ExampleEnumNoAutocomplete.java",
-			"public class X {\n" +
-			"	private Object[] items = new Object[] {\n" +
-			"        new Object() {\n" +
-			"              @Override\n" +
-			"              public String toString() {\n" +
-			"                  return super.toS;\n" +
-			"              }\n" +
-			"        },\n" +
-			"        new Object() { }\n" +
-			"    } ;\n" +
-			"}\n");
+			"""
+				public class X {
+					private Object[] items = new Object[] {
+				        new Object() {
+				              @Override
+				              public String toString() {
+				                  return super.toS;
+				              }
+				        },
+				        new Object() { }
+				    } ;
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
 		requestor.allowAllRequiredProposals();
 		requestor.setRequireExtendedContext(true);
@@ -25412,17 +26636,19 @@ public void testBug406468a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"interface I {\n" +
-				"	X [][][] copy (int x);\n" +
-				"}\n" +
-				"public class X  {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = X[][][]::new;\n" +
-				"		X[][][] x = i.copy(136);\n" +
-				"		System.out.println(x.length);\n" +
-				"           \n" +
-				"	}\n" +
-				"}\n");
+				"""
+					interface I {
+						X [][][] copy (int x);
+					}
+					public class X  {
+						public static void main(String[] args) {
+							I i = X[][][]::new;
+							X[][][] x = i.copy(136);
+							System.out.println(x.length);
+					          \s
+						}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "System.out.println(x.length);";
@@ -25454,17 +26680,19 @@ public void testBug406468b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"interface I {\n" +
-				"	X<java.lang.String> copy ();\n" +
-				"}\n" +
-				"public class X<S>  {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		I i = X<java.lang.String>::new;\n" +
-				"		X x = i.copy();\n" +
-				"		System.out.println(x);\n" +
-				"           \n" +
-				"	}\n" +
-				"}\n");
+				"""
+					interface I {
+						X<java.lang.String> copy ();
+					}
+					public class X<S>  {
+						public static void main(String[] args) {
+							I i = X<java.lang.String>::new;
+							X x = i.copy();
+							System.out.println(x);
+					          \s
+						}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "System.out.println(x);";
@@ -25608,23 +26836,25 @@ public void testBug421469() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"public class X {\n" +
-				"    void foo() {\n" +
-				"        int pqrqwerty = 10;\n" +
-				"        IntFunction<String> toString = i -> {\n" +
-				"            pqr\n" +
-				"            new Runnable() {\n" +
-				"                @Override\n" +
-				"                public void run() {\n" +
-				"                }\n" +
-				"            }.run();\n" +
-				"            return Integer.toString(i);\n" +
-				"        };\n" +
-				"    }\n" +
-				"}\n" +
-				"interface IntFunction<R> {\n" +
-				"	R apply(int value);\n" +
-				"}\n");
+				"""
+					public class X {
+					    void foo() {
+					        int pqrqwerty = 10;
+					        IntFunction<String> toString = i -> {
+					            pqr
+					            new Runnable() {
+					                @Override
+					                public void run() {
+					                }
+					            }.run();
+					            return Integer.toString(i);
+					        };
+					    }
+					}
+					interface IntFunction<R> {
+						R apply(int value);
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "pqr";
@@ -25652,24 +26882,26 @@ public void testBug421469a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"package test;\n" +
-				"public class X {\n" +
-				"    void foo() {\n" +
-				"        int pqrqwerty = 10;\n" +
-				"        IntFunction<String> toString = i -> {\n" +
-				"            new Runnable() {\n" +
-				"                @Override\n" +
-				"                public void run() {\n" +
-				"                     pqr\n" +
-				"                }\n" +
-				"            }.run();\n" +
-				"            return Integer.toString(i);\n" +
-				"        };\n" +
-				"    }\n" +
-				"}\n" +
-				"interface IntFunction<R> {\n" +
-				"	R apply(int value);\n" +
-				"}\n");
+				"""
+					package test;
+					public class X {
+					    void foo() {
+					        int pqrqwerty = 10;
+					        IntFunction<String> toString = i -> {
+					            new Runnable() {
+					                @Override
+					                public void run() {
+					                     pqr
+					                }
+					            }.run();
+					            return Integer.toString(i);
+					        };
+					    }
+					}
+					interface IntFunction<R> {
+						R apply(int value);
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "pqr";
@@ -25715,14 +26947,16 @@ public void testBug528938() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/CompletionAfterCase1.java",
-		"public class CompletionAfterCase1 {\n" +
-		"	final int zzz = 5;\n" +
-		"	void foo(){\n" +
-		"		switch(1) {\n" +
-		"			case zz\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			public class CompletionAfterCase1 {
+				final int zzz = 5;
+				void foo(){
+					switch(1) {
+						case zz
+					}
+				}
+			}
+			""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -25738,14 +26972,16 @@ public void testBug533740a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-			"interface X extends Y {\n" +
-			"	public default void foo() {\n" +
-			"		X.t\n" +
-			"	}\n" +
-			"}\n" +
-			"interface Y {\n" +
-			"    public default void bar() {}\n" +
-			"}\n");
+			"""
+				interface X extends Y {
+					public default void foo() {
+						X.t
+					}
+				}
+				interface Y {
+				    public default void bar() {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -25761,14 +26997,16 @@ public void testBug533740b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-			"interface X extends Y {\n" +
-			"	public default void foo() {\n" +
-			"		X.s\n" +
-			"	}\n" +
-			"}\n" +
-			"interface Y {\n" +
-			"    public default void bar() {}\n" +
-			"}\n");
+			"""
+				interface X extends Y {
+					public default void foo() {
+						X.s
+					}
+				}
+				interface Y {
+				    public default void bar() {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -25784,14 +27022,16 @@ public void testBug533740c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-			"interface X extends Y {\n" +
-			"	public default void foo() {\n" +
-			"		Y.t\n" +
-			"	}\n" +
-			"}\n" +
-			"interface Y {\n" +
-			"    public default void bar() {}\n" +
-			"}\n");
+			"""
+				interface X extends Y {
+					public default void foo() {
+						Y.t
+					}
+				}
+				interface Y {
+				    public default void bar() {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -25807,14 +27047,16 @@ public void testBug533740d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/Foo.java",
-			"interface X extends Y {\n" +
-			"	public default void foo() {\n" +
-			"		Y.s\n" +
-			"	}\n" +
-			"}\n" +
-			"interface Y {\n" +
-			"    public default void bar() {}\n" +
-			"}\n");
+			"""
+				interface X extends Y {
+					public default void foo() {
+						Y.s
+					}
+				}
+				interface Y {
+				    public default void bar() {}
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -25831,22 +27073,24 @@ public void testBug496354() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Foo.java",
-			"package test;\n" +
-			"import java.io.IOException;\n" +
-			"import java.lang.annotation.ElementType;\n" +
-			"import java.lang.annotation.Target;\n" +
-			"import java.util.ArrayList;\n" +
-			"@Target(ElementType.METHOD)\n" +
-			"@interface T {\n" +
-			"   int val1() default 1;\n" +
-			"   int val2() default -1;\n" +
-			"}\n" +
-			"public class Foo {\n" +
-			"   @T()\n" +
-			"   public int add(int x, int y) {\n" +
-			"      return x + y;\n" +
-			"   };\n" +
-			"}\n");
+			"""
+				package test;
+				import java.io.IOException;
+				import java.lang.annotation.ElementType;
+				import java.lang.annotation.Target;
+				import java.util.ArrayList;
+				@Target(ElementType.METHOD)
+				@interface T {
+				   int val1() default 1;
+				   int val2() default -1;
+				}
+				public class Foo {
+				   @T()
+				   public int add(int x, int y) {
+				      return x + y;
+				   };
+				}
+				""");
 
 	COMPLETION_PROJECT.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR, "");
 	COMPLETION_PROJECT.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR, "");
@@ -25865,16 +27109,18 @@ public void testBug573632() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Foo.java",
-			"package test;\n" +
-			"public class Foo {\n" +
-			"	Foo f;\n" +
-			"	public void foo() {\n" +
-			"		if (f != null) {\n" +
-			"			f.\n" +
-			"			f = null;\n" +
-			"		}\n" +
-			"	};\n" +
-			"}\n");
+			"""
+				package test;
+				public class Foo {
+					Foo f;
+					public void foo() {
+						if (f != null) {
+							f.
+							f = null;
+						}
+					};
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -25883,19 +27129,20 @@ public void testBug573632() throws Exception {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			"""
+				clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+				equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}
+				f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}
+				finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}
+				foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}
+				getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}
+				notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}
+				notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}
+				toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}""",
 			requestor.getResults());
 }
 public void testBug573632a() throws Exception {
@@ -25903,18 +27150,20 @@ public void testBug573632a() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Foo.java",
-			"package test;\n" +
-			"public class Foo {\n" +
-			"	Foo f;\n" +
-			"	public void foo() {\n" +
-			"		if (f != null) {\n" +
-			"			if (f != null) {\n" +
-			"				f.\n" +
-			"				f = null;\n" +
-			"			}\n" +
-			"		}\n" +
-			"	};\n" +
-			"}\n");
+			"""
+				package test;
+				public class Foo {
+					Foo f;
+					public void foo() {
+						if (f != null) {
+							if (f != null) {
+								f.
+								f = null;
+							}
+						}
+					};
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -25923,19 +27172,20 @@ public void testBug573632a() throws Exception {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			"""
+				clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+				equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}
+				f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}
+				finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}
+				foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}
+				getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}
+				notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}
+				notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}
+				toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}""",
 			requestor.getResults());
 }
 public void testBug573632b() throws Exception {
@@ -25943,16 +27193,18 @@ public void testBug573632b() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Foo.java",
-			"package test;\n" +
-			"public class Foo {\n" +
-			"	Foo f;\n" +
-			"	public void foo() {\n" +
-			"		for (int i = 0; f != null; i++) {\n" +
-			"			f.\n" +
-			"			f = null;\n" +
-			"		}\n" +
-			"	};\n" +
-			"}\n");
+			"""
+				package test;
+				public class Foo {
+					Foo f;
+					public void foo() {
+						for (int i = 0; f != null; i++) {
+							f.
+							f = null;
+						}
+					};
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -25961,19 +27213,20 @@ public void testBug573632b() throws Exception {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			"""
+				clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+				equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}
+				f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}
+				finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}
+				foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}
+				getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}
+				notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}
+				notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}
+				toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}""",
 			requestor.getResults());
 }
 public void testBug573632c() throws Exception {
@@ -25981,16 +27234,18 @@ public void testBug573632c() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/Foo.java",
-			"package test;\n" +
-			"public class Foo {\n" +
-			"	Foo f;\n" +
-			"	public void foo() {\n" +
-			"		while (f != null) {\n" +
-			"			f.\n" +
-			"			f = null;\n" +
-			"		}\n" +
-			"	};\n" +
-			"}\n");
+			"""
+				package test;
+				public class Foo {
+					Foo f;
+					public void foo() {
+						while (f != null) {
+							f.
+							f = null;
+						}
+					};
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -25999,46 +27254,49 @@ public void testBug573632c() throws Exception {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			"""
+				clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+				equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}
+				f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}
+				finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}
+				foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}
+				getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}
+				notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}
+				notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}
+				toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}""",
 			requestor.getResults());
 }
 public void testBug573702() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/App.java",
-			"import java.util.Collection;\n" +
-			"import java.util.Map;\n" +
-			"\n" +
-			"interface ObjectProperty<T> {\n" +
-			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
-			"}\n" +
-			"class SingleFireInvalidationListener {\n" +
-			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
-			"}\n" +
-			"public class App {\n" +
-			"\n" +
-			"  public static void boo(Map<String, String> data) {\n" +
-			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
-			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(data.values()));\n" +
-			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
-			"  }\n" +
-			"\n" +
-			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				import java.util.Collection;
+				import java.util.Map;
+				
+				interface ObjectProperty<T> {
+					void addListener(SingleFireInvalidationListener singleFireInvalidationListener);
+				}
+				class SingleFireInvalidationListener {
+					public SingleFireInvalidationListener(Collection<String> list) { }
+				}
+				public class App {
+				
+				  public static void boo(Map<String, String> data) {
+				    System.out.println("PopOver direct buffer delayed patch installation started");
+				    App.getDataProperty().addListener(new SingleFireInvalidationListener(data.values()));
+				    System.out.println("PopOver direct buffer delayed patch installation done");
+				  }
+				
+				  public static ObjectProperty<Map<String, String>> getDataProperty() {
+				    return null;
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -26054,27 +27312,29 @@ public void testBug573702_fieldRef() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/App.java",
-			"import java.util.Collection;\n" +
-			"import java.util.Map;\n" +
-			"\n" +
-			"interface ObjectProperty<T> {\n" +
-			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
-			"}\n" +
-			"class SingleFireInvalidationListener {\n" +
-			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
-			"}\n" +
-			"public class App {\n" +
-			"  Map<String, String> data;\n" +
-			"  public void boo() {\n" +
-			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
-			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(this.data.values()));\n" +
-			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
-			"  }\n" +
-			"\n" +
-			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				import java.util.Collection;
+				import java.util.Map;
+				
+				interface ObjectProperty<T> {
+					void addListener(SingleFireInvalidationListener singleFireInvalidationListener);
+				}
+				class SingleFireInvalidationListener {
+					public SingleFireInvalidationListener(Collection<String> list) { }
+				}
+				public class App {
+				  Map<String, String> data;
+				  public void boo() {
+				    System.out.println("PopOver direct buffer delayed patch installation started");
+				    App.getDataProperty().addListener(new SingleFireInvalidationListener(this.data.values()));
+				    System.out.println("PopOver direct buffer delayed patch installation done");
+				  }
+				
+				  public static ObjectProperty<Map<String, String>> getDataProperty() {
+				    return null;
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -26090,27 +27350,29 @@ public void testBug573702_qualifiedName() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/App.java",
-			"import java.util.Collection;\n" +
-			"import java.util.Map;\n" +
-			"\n" +
-			"interface ObjectProperty<T> {\n" +
-			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
-			"}\n" +
-			"class SingleFireInvalidationListener {\n" +
-			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
-			"}\n" +
-			"public class App {\n" +
-			"  static Map<String, String> data;\n" +
-			"  public void boo() {\n" +
-			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
-			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(App.data.values()));\n" +
-			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
-			"  }\n" +
-			"\n" +
-			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				import java.util.Collection;
+				import java.util.Map;
+				
+				interface ObjectProperty<T> {
+					void addListener(SingleFireInvalidationListener singleFireInvalidationListener);
+				}
+				class SingleFireInvalidationListener {
+					public SingleFireInvalidationListener(Collection<String> list) { }
+				}
+				public class App {
+				  static Map<String, String> data;
+				  public void boo() {
+				    System.out.println("PopOver direct buffer delayed patch installation started");
+				    App.getDataProperty().addListener(new SingleFireInvalidationListener(App.data.values()));
+				    System.out.println("PopOver direct buffer delayed patch installation done");
+				  }
+				
+				  public static ObjectProperty<Map<String, String>> getDataProperty() {
+				    return null;
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -26126,27 +27388,29 @@ public void testBug573702_qualifiedName_firstSegment() throws JavaModelException
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/App.java",
-			"import java.util.Collection;\n" +
-			"import java.util.Map;\n" +
-			"\n" +
-			"interface ObjectProperty<T> {\n" +
-			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
-			"}\n" +
-			"class SingleFireInvalidationListener {\n" +
-			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
-			"}\n" +
-			"public class App {\n" +
-			"  static Map<String, String> data;\n" +
-			"  public void boo() {\n" +
-			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
-			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(App.data.values()));\n" +
-			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
-			"  }\n" +
-			"\n" +
-			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				import java.util.Collection;
+				import java.util.Map;
+				
+				interface ObjectProperty<T> {
+					void addListener(SingleFireInvalidationListener singleFireInvalidationListener);
+				}
+				class SingleFireInvalidationListener {
+					public SingleFireInvalidationListener(Collection<String> list) { }
+				}
+				public class App {
+				  static Map<String, String> data;
+				  public void boo() {
+				    System.out.println("PopOver direct buffer delayed patch installation started");
+				    App.getDataProperty().addListener(new SingleFireInvalidationListener(App.data.values()));
+				    System.out.println("PopOver direct buffer delayed patch installation done");
+				  }
+				
+				  public static ObjectProperty<Map<String, String>> getDataProperty() {
+				    return null;
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -26162,27 +27426,29 @@ public void testBug573702_qualifiedName_firstSegment_start() throws JavaModelExc
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/App.java",
-			"import java.util.Collection;\n" +
-			"import java.util.Map;\n" +
-			"\n" +
-			"interface ObjectProperty<T> {\n" +
-			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
-			"}\n" +
-			"class SingleFireInvalidationListener {\n" +
-			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
-			"}\n" +
-			"public class App {\n" +
-			"  static Map<String, String> data;\n" +
-			"  public void boo() {\n" +
-			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
-			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(App.data.values()));\n" +
-			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
-			"  }\n" +
-			"\n" +
-			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				import java.util.Collection;
+				import java.util.Map;
+				
+				interface ObjectProperty<T> {
+					void addListener(SingleFireInvalidationListener singleFireInvalidationListener);
+				}
+				class SingleFireInvalidationListener {
+					public SingleFireInvalidationListener(Collection<String> list) { }
+				}
+				public class App {
+				  static Map<String, String> data;
+				  public void boo() {
+				    System.out.println("PopOver direct buffer delayed patch installation started");
+				    App.getDataProperty().addListener(new SingleFireInvalidationListener(App.data.values()));
+				    System.out.println("PopOver direct buffer delayed patch installation done");
+				  }
+				
+				  public static ObjectProperty<Map<String, String>> getDataProperty() {
+				    return null;
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -26191,26 +27457,29 @@ public void testBug573702_qualifiedName_firstSegment_start() throws JavaModelExc
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, 49}\n" +
-			"ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, 49}\n" +
-			"A3[TYPE_REF]{A3, , LA3;, null, null, 52}\n" +
-			"App[TYPE_REF]{App, , LApp;, null, null, 52}\n" +
-			"A[TYPE_REF]{A, , LA;, null, null, 56}",
+			"""
+				ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, 49}
+				ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, 49}
+				A3[TYPE_REF]{A3, , LA3;, null, null, 52}
+				App[TYPE_REF]{App, , LApp;, null, null, 52}
+				A[TYPE_REF]{A, , LA;, null, null, 56}""",
 			requestor.getResults());
 }
 public void testBug574982() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/ArrayTest.java",
-			"public class ArrayTest {\n" +
-			"  public void test() {\n" +
-			"    new Runnable() {\n" +
-			"      public void run() {\n" +
-			"        boolean equals = Arrays.equals(new Object[0], new Object[0]);\n" +
-			"      }\n" +
-			"    };\n" +
-			"  }\n" +
-			"}\n");
+			"""
+				public class ArrayTest {
+				  public void test() {
+				    new Runnable() {
+				      public void run() {
+				        boolean equals = Arrays.equals(new Object[0], new Object[0]);
+				      }
+				    };
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
@@ -26219,11 +27488,12 @@ public void testBug574982() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, 69}\n" +
-			"ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, 69}\n" +
-			"A3[TYPE_REF]{A3, , LA3;, null, null, 72}\n" +
-			"ArrayTest[TYPE_REF]{ArrayTest, , LArrayTest;, null, null, 72}\n" +
-			"A[TYPE_REF]{A, , LA;, null, null, 76}",
+			"""
+				ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, 69}
+				ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, 69}
+				A3[TYPE_REF]{A3, , LA3;, null, null, 72}
+				ArrayTest[TYPE_REF]{ArrayTest, , LArrayTest;, null, null, 72}
+				A[TYPE_REF]{A, , LA;, null, null, 76}""",
 			requestor.getResults());
 }
 /**
@@ -26240,23 +27510,26 @@ public void testCompletionConstructorsForSubTypes() throws JavaModelException, I
 	cu.codeComplete(cursorLocation, requestor, new NullProgressMonitor());
 
 	assertEquals(
-			"CompletionConstructorsForSubTypes[CONSTRUCTOR_INVOCATION]{(), LCompletionConstructorsForSubTypes;, ()V, CompletionConstructorsForSubTypes, null, 55}\n" +
-			"   CompletionConstructorsForSubTypes[TYPE_REF]{CompletionConstructorsForSubTypes, , LCompletionConstructorsForSubTypes;, null, null, 55}\n" +
-			"CompletionConstructorsForSubTypes2[CONSTRUCTOR_INVOCATION]{(), LCompletionConstructorsForSubTypes2;, ()V, CompletionConstructorsForSubTypes2, null, 75}\n" +
-			"   CompletionConstructorsForSubTypes2[TYPE_REF]{CompletionConstructorsForSubTypes2, , LCompletionConstructorsForSubTypes2;, null, null, 75}\n" +
-			"CompletionConstructorsForSubTypes1[ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION]{(), LCompletionConstructorsForSubTypes1;, ()V, CompletionConstructorsForSubTypes1, null, 82}\n" +
-			"   CompletionConstructorsForSubTypes1[TYPE_REF]{CompletionConstructorsForSubTypes1, , LCompletionConstructorsForSubTypes1;, null, null, 82}",
+			"""
+				CompletionConstructorsForSubTypes[CONSTRUCTOR_INVOCATION]{(), LCompletionConstructorsForSubTypes;, ()V, CompletionConstructorsForSubTypes, null, 55}
+				   CompletionConstructorsForSubTypes[TYPE_REF]{CompletionConstructorsForSubTypes, , LCompletionConstructorsForSubTypes;, null, null, 55}
+				CompletionConstructorsForSubTypes2[CONSTRUCTOR_INVOCATION]{(), LCompletionConstructorsForSubTypes2;, ()V, CompletionConstructorsForSubTypes2, null, 75}
+				   CompletionConstructorsForSubTypes2[TYPE_REF]{CompletionConstructorsForSubTypes2, , LCompletionConstructorsForSubTypes2;, null, null, 75}
+				CompletionConstructorsForSubTypes1[ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION]{(), LCompletionConstructorsForSubTypes1;, ()V, CompletionConstructorsForSubTypes1, null, 82}
+				   CompletionConstructorsForSubTypes1[TYPE_REF]{CompletionConstructorsForSubTypes1, , LCompletionConstructorsForSubTypes1;, null, null, 82}""",
 			requestor.getResults());
 }
 public void testGH504PrimitiveArrayTypeRecieverExpectArrayCompletion() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"Completion/src/ArrayTest.java",
-			"public class ArrayTest {\n" +
-					"  public void test() {\n" +
-					" 		int[] numbers = new \n" +
-					"  }\n" +
-					"}\n");
+			"""
+				public class ArrayTest {
+				  public void test() {
+				 		int[] numbers = new\s
+				  }
+				}
+				""");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();

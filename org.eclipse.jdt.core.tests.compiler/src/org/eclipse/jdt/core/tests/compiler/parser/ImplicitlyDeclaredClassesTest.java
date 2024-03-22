@@ -145,27 +145,29 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 					class XYZ {
 						X x = new X();
 					}"""},
-					"----------\n" +
-					"1. ERROR in X.java (at line 2)\n" +
-					"	X x = new X();\n" +
-					"	^\n" +
-					"X cannot be resolved to a type\n" +
-					"----------\n" +
-					"2. ERROR in X.java (at line 2)\n" +
-					"	X x = new X();\n" +
-					"	          ^\n" +
-					"X cannot be resolved to a type\n" +
-					"----------\n" +
-					"3. ERROR in X.java (at line 5)\n" +
-					"	X x = new X();\n" +
-					"	^\n" +
-					"X cannot be resolved to a type\n" +
-					"----------\n" +
-					"4. ERROR in X.java (at line 5)\n" +
-					"	X x = new X();\n" +
-					"	          ^\n" +
-					"X cannot be resolved to a type\n" +
-					"----------\n");
+					"""
+						----------
+						1. ERROR in X.java (at line 2)
+							X x = new X();
+							^
+						X cannot be resolved to a type
+						----------
+						2. ERROR in X.java (at line 2)
+							X x = new X();
+							          ^
+						X cannot be resolved to a type
+						----------
+						3. ERROR in X.java (at line 5)
+							X x = new X();
+							^
+						X cannot be resolved to a type
+						----------
+						4. ERROR in X.java (at line 5)
+							X x = new X();
+							          ^
+						X cannot be resolved to a type
+						----------
+						""");
 
 	}
 	// Test implicit type without a valid candidate main method - 1
@@ -178,12 +180,14 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 						}
 						class XYZ {
 						}"""},
-					"----------\n" +
-					"1. ERROR in X.java (at line 1)\n" +
-					"	private static void main(String[] args) {\n" +
-					"	^\n" +
-					"Implicitly declared class must have a candidate main method\n" +
-					"----------\n");
+					"""
+						----------
+						1. ERROR in X.java (at line 1)
+							private static void main(String[] args) {
+							^
+						Implicitly declared class must have a candidate main method
+						----------
+						""");
 
 	}
 	// Test implicit type without a valid candidate main method - 2
@@ -196,12 +200,14 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 						}
 						class XYZ {
 						}"""},
-					"----------\n" +
-					"1. ERROR in X.java (at line 1)\n" +
-					"	public static void main(int[] args) {\n" +
-					"	^\n" +
-					"Implicitly declared class must have a candidate main method\n" +
-					"----------\n");
+					"""
+						----------
+						1. ERROR in X.java (at line 1)
+							public static void main(int[] args) {
+							^
+						Implicitly declared class must have a candidate main method
+						----------
+						""");
 
 	}
 	// Test implicit type without a valid candidate main method - 3
@@ -214,12 +220,14 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 						}
 						class XYZ {
 						}"""},
-					"----------\n" +
-					"1. ERROR in X.java (at line 1)\n" +
-					"	public static void main(String args) {\n" +
-					"	^\n" +
-					"Implicitly declared class must have a candidate main method\n" +
-					"----------\n");
+					"""
+						----------
+						1. ERROR in X.java (at line 1)
+							public static void main(String args) {
+							^
+						Implicitly declared class must have a candidate main method
+						----------
+						""");
 
 	}
 
@@ -233,12 +241,14 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 						}
 						class XYZ {
 						}"""},
-					"----------\n" +
-					"1. ERROR in X.java (at line 1)\n" +
-					"	public static void not_main(String ... args) {\n" +
-					"	^\n" +
-					"Implicitly declared class must have a candidate main method\n" +
-					"----------\n");
+					"""
+						----------
+						1. ERROR in X.java (at line 1)
+							public static void not_main(String ... args) {
+							^
+						Implicitly declared class must have a candidate main method
+						----------
+						""");
 
 	}
 	// Test implicit type with a valid candidate main method (public but no static, and String[] argument)

@@ -44,15 +44,16 @@ public void test001() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String> x = new X<>();\n" +
-			"		x.testFunction(\"SUCCESS\");\n" +
-			"	}\n" +
-			"	public void testFunction(T param){\n" +
-			"		System.out.println(param);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					public static void main(String[] args) {
+						X<String> x = new X<>();
+						x.testFunction("SUCCESS");
+					}
+					public void testFunction(T param){
+						System.out.println(param);
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -60,34 +61,38 @@ public void test001a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String> x = new X<>();\n" +
-			"		x.testFunction(1);\n" +
-			"	}\n" +
-			"	public void testFunction(T param){\n" +
-			"		System.out.println(param);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					public static void main(String[] args) {
+						X<String> x = new X<>();
+						x.testFunction(1);
+					}
+					public void testFunction(T param){
+						System.out.println(param);
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	x.testFunction(1);\n" +
-		"	  ^^^^^^^^^^^^\n" +
-		"The method testFunction(String) in the type X<String> is not applicable for the arguments (int)\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				x.testFunction(1);
+				  ^^^^^^^^^^^^
+			The method testFunction(String) in the type X<String> is not applicable for the arguments (int)
+			----------
+			""");
 }
 public void test001b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		java.util.ArrayList<String> x = new java.util.ArrayList<>();\n" +
-			"		x.add(\"\");\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					public static void main(String[] args) {
+						java.util.ArrayList<String> x = new java.util.ArrayList<>();
+						x.add("");
+						System.out.println("SUCCESS");
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -96,13 +101,14 @@ public void test001b_1() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	static java.util.ArrayList<String> x = new java.util.ArrayList<>();\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X.x.add(\"\");\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					static java.util.ArrayList<String> x = new java.util.ArrayList<>();
+					public static void main(String[] args) {
+						X.x.add("");
+						System.out.println("SUCCESS");
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -110,77 +116,87 @@ public void test001c() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		java.util.ArrayList<String> x = new java.util.ArrayList<>();\n" +
-			"		x.add(1);\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					public static void main(String[] args) {
+						java.util.ArrayList<String> x = new java.util.ArrayList<>();
+						x.add(1);
+						System.out.println("SUCCESS");
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	x.add(1);\n" +
-		"	  ^^^\n" +
-		"The method add(int, String) in the type ArrayList<String> is not applicable for the arguments (int)\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				x.add(1);
+				  ^^^
+			The method add(int, String) in the type ArrayList<String> is not applicable for the arguments (int)
+			----------
+			""");
 }
 // fields
 public void test001c_1() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	static java.util.ArrayList<String> x = new java.util.ArrayList<>();\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X.x.add(1);\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					static java.util.ArrayList<String> x = new java.util.ArrayList<>();
+					public static void main(String[] args) {
+						X.x.add(1);
+						System.out.println("SUCCESS");
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	X.x.add(1);\n" +
-		"	    ^^^\n" +
-		"The method add(int, String) in the type ArrayList<String> is not applicable for the arguments (int)\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				X.x.add(1);
+				    ^^^
+			The method add(int, String) in the type ArrayList<String> is not applicable for the arguments (int)
+			----------
+			""");
 }
 public void test001d() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"public class X<T> {" +
-				"	public void ab(ArrayList<String> al){\n" +
-				"		System.out.println(\"SUCCESS\");\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		X<String> x = new X<>();\n" +
-				"		x.ab(new ArrayList<>());\n" +
-				"	}\n" +
-				"}",
+				"""
+					import java.util.ArrayList;
+					public class X<T> {\
+						public void ab(ArrayList<String> al){
+							System.out.println("SUCCESS");
+						}
+						public static void main(String[] args) {
+							X<String> x = new X<>();
+							x.ab(new ArrayList<>());
+						}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	x.ab(new ArrayList<>());\n" +
-			"	  ^^\n" +
-			"The method ab(ArrayList<String>) in the type X<String> is not applicable for the arguments (ArrayList<Object>)\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					x.ab(new ArrayList<>());
+					  ^^
+				The method ab(ArrayList<String>) in the type X<String> is not applicable for the arguments (ArrayList<Object>)
+				----------
+				""");
 	} else {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"import java.util.ArrayList;\n" +
-					"public class X<T> {" +
-					"	public void ab(ArrayList<String> al){\n" +
-					"		System.out.println(\"SUCCESS\");\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		X<String> x = new X<>();\n" +
-					"		x.ab(new ArrayList<>());\n" +
-					"	}\n" +
-					"}",
+					"""
+						import java.util.ArrayList;
+						public class X<T> {\
+							public void ab(ArrayList<String> al){
+								System.out.println("SUCCESS");
+							}
+							public static void main(String[] args) {
+								X<String> x = new X<>();
+								x.ab(new ArrayList<>());
+							}
+						}""",
 				},
 				"SUCCESS");
 	}
@@ -190,37 +206,41 @@ public void test001e() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" +
-				"public class X<T> {" +
-				"	public void ab(ArrayList<T> al){\n" +
-				"		System.out.println(\"SUCCESS\");\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		X<String> x = new X<>();\n" +
-				"		x.ab(new ArrayList<>());\n" +
-				"	}\n" +
-				"}",
+				"""
+					import java.util.ArrayList;
+					public class X<T> {\
+						public void ab(ArrayList<T> al){
+							System.out.println("SUCCESS");
+						}
+						public static void main(String[] args) {
+							X<String> x = new X<>();
+							x.ab(new ArrayList<>());
+						}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	x.ab(new ArrayList<>());\n" +
-			"	  ^^\n" +
-			"The method ab(ArrayList<String>) in the type X<String> is not applicable for the arguments (ArrayList<Object>)\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					x.ab(new ArrayList<>());
+					  ^^
+				The method ab(ArrayList<String>) in the type X<String> is not applicable for the arguments (ArrayList<Object>)
+				----------
+				""");
 	} else {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"import java.util.ArrayList;\n" +
-					"public class X<T> {" +
-					"	public void ab(ArrayList<T> al){\n" +
-					"		System.out.println(\"SUCCESS\");\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		X<String> x = new X<>();\n" +
-					"		x.ab(new ArrayList<>());\n" +
-					"	}\n" +
-					"}",
+					"""
+						import java.util.ArrayList;
+						public class X<T> {\
+							public void ab(ArrayList<T> al){
+								System.out.println("SUCCESS");
+							}
+							public static void main(String[] args) {
+								X<String> x = new X<>();
+								x.ab(new ArrayList<>());
+							}
+						}""",
 				},
 				"SUCCESS");
 	}
@@ -229,17 +249,18 @@ public void test001f() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	class X2<T>{\n" +
-			"		void methodx(T param){\n" +
-			"			System.out.println(param);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String>.X2<String> x = new X<>().new X2<>();\n" +
-			"		x.methodx(\"SUCCESS\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					class X2<T>{
+						void methodx(T param){
+							System.out.println(param);
+						}
+					}
+					public static void main(String[] args) {
+						X<String>.X2<String> x = new X<>().new X2<>();
+						x.methodx("SUCCESS");
+					}
+				}""",
 		},
 		"----------\n" +
 		"1. WARNING in X.java (at line 2)\n" +
@@ -262,19 +283,20 @@ public void test001f_1() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	class X2<T>{\n" +
-			"		void methodx(T param){\n" +
-			"			System.out.println(param);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	X<String>.X2<String> x;\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X test = new X();\n" +
-			"		test.x = new X<>().new X2<>();\n" +
-			"		test.x.methodx(\"SUCCESS\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					class X2<T>{
+						void methodx(T param){
+							System.out.println(param);
+						}
+					}
+					X<String>.X2<String> x;
+					public static void main(String[] args) {
+						X test = new X();
+						test.x = new X<>().new X2<>();
+						test.x.methodx("SUCCESS");
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -282,18 +304,19 @@ public void test001g() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	class X2<K>{\n" +
-			"		void methodx(T param, K param2){\n" +
-			"			System.out.println(param);\n" +
-			"			System.out.println(param2);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String>.X2<Integer> x = new X<>().new X2<>();\n" +
-			"		x.methodx(\"SUCCESS\",1);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					class X2<K>{
+						void methodx(T param, K param2){
+							System.out.println(param);
+							System.out.println(param2);
+						}
+					}
+					public static void main(String[] args) {
+						X<String>.X2<Integer> x = new X<>().new X2<>();
+						x.methodx("SUCCESS",1);
+					}
+				}""",
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 9)\n" +
@@ -310,20 +333,21 @@ public void test001g_1() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	class X2<K>{\n" +
-			"		void methodx(T param, K param2){\n" +
-			"			System.out.println(param);\n" +
-			"			System.out.println(param2);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	X<String>.X2<Integer> x;\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X test = new X();" +
-			"		test.x = new X<>().new X2<>();\n" +
-			"		test.x.methodx(\"SUCCESS\",1);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					class X2<K>{
+						void methodx(T param, K param2){
+							System.out.println(param);
+							System.out.println(param2);
+						}
+					}
+					X<String>.X2<Integer> x;
+					public static void main(String[] args) {
+						X test = new X();\
+						test.x = new X<>().new X2<>();
+						test.x.methodx("SUCCESS",1);
+					}
+				}""",
 		},
 		"SUCCESS\n1");
 }
@@ -331,17 +355,18 @@ public void test001h() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	class X2<T>{\n" +
-			"		void methodx(T param){\n" +
-			"			System.out.println(param);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String>.X2<String> x = new X<>().new X2<>();\n" +
-			"		x.methodx(1);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					class X2<T>{
+						void methodx(T param){
+							System.out.println(param);
+						}
+					}
+					public static void main(String[] args) {
+						X<String>.X2<String> x = new X<>().new X2<>();
+						x.methodx(1);
+					}
+				}""",
 		},
 		"----------\n" +
 		"1. WARNING in X.java (at line 2)\n" +
@@ -368,64 +393,68 @@ public void test001h_1() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	class X2<T>{\n" +
-			"		void methodx(T param){\n" +
-			"			System.out.println(param);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	X<String>.X2<String> x;\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X test = new X();\n" +
-			"		test.x = new X<>().new X2<>();\n" +
-			"		test.x.methodx(1);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					class X2<T>{
+						void methodx(T param){
+							System.out.println(param);
+						}
+					}
+					X<String>.X2<String> x;
+					public static void main(String[] args) {
+						X test = new X();
+						test.x = new X<>().new X2<>();
+						test.x.methodx(1);
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	class X2<T>{\n" +
-		"	         ^\n" +
-		"The type parameter T is hiding the type T\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 9)\n" +
-		"	X test = new X();\n" +
-		"	^\n" +
-		"X is a raw type. References to generic type X<T> should be parameterized\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 9)\n" +
-		"	X test = new X();\n" +
-		"	             ^\n" +
-		"X is a raw type. References to generic type X<T> should be parameterized\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 10)\n" +
-		"	test.x = new X<>().new X2<>();\n" +
-		"	     ^\n" +
-		"Type safety: The field x from the raw type X is assigned a value of type X<Object>.X2<Object>. References to generic type X<T> should be parameterized\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 11)\n" +
-		"	test.x.methodx(1);\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: The method methodx(Object) belongs to the raw type X.X2. References to generic type X<T>.X2<T> should be parameterized\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 2)
+				class X2<T>{
+				         ^
+			The type parameter T is hiding the type T
+			----------
+			2. WARNING in X.java (at line 9)
+				X test = new X();
+				^
+			X is a raw type. References to generic type X<T> should be parameterized
+			----------
+			3. WARNING in X.java (at line 9)
+				X test = new X();
+				             ^
+			X is a raw type. References to generic type X<T> should be parameterized
+			----------
+			4. WARNING in X.java (at line 10)
+				test.x = new X<>().new X2<>();
+				     ^
+			Type safety: The field x from the raw type X is assigned a value of type X<Object>.X2<Object>. References to generic type X<T> should be parameterized
+			----------
+			5. WARNING in X.java (at line 11)
+				test.x.methodx(1);
+				^^^^^^^^^^^^^^^^^
+			Type safety: The method methodx(Object) belongs to the raw type X.X2. References to generic type X<T>.X2<T> should be parameterized
+			----------
+			""");
 }
 public void test001h_2() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	class X2<T>{\n" +
-			"		void methodx(T param){\n" +
-			"			System.out.println(param);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	X<String>.X2<String> x;\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X test = new X();\n" +
-			"		test.x = new X<>().new X2<>();\n" +
-			"		test.x.methodx(1);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					class X2<T>{
+						void methodx(T param){
+							System.out.println(param);
+						}
+					}
+					X<String>.X2<String> x;
+					public static void main(String[] args) {
+						X test = new X();
+						test.x = new X<>().new X2<>();
+						test.x.methodx(1);
+					}
+				}""",
 		},
 		"1");
 }
@@ -433,20 +462,21 @@ public void test001i() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	class X2<K>{\n" +
-			"		class X22<I>{\n" +
-			"			void methodx(T param, K param2, I param3){\n" +
-			"				System.out.println(param);\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String> test = new X<>();" +
-			"		X<String>.X2<Integer>.X22<X<String>> x = new X<>().new X2<>().new X22<>();\n" +
-			"		x.methodx(\"SUCCESS\", 1, test);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					class X2<K>{
+						class X22<I>{
+							void methodx(T param, K param2, I param3){
+								System.out.println(param);
+							}
+						}
+					}
+					public static void main(String[] args) {
+						X<String> test = new X<>();\
+						X<String>.X2<Integer>.X22<X<String>> x = new X<>().new X2<>().new X22<>();
+						x.methodx("SUCCESS", 1, test);
+					}
+				}""",
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 10)\n" +
@@ -463,40 +493,44 @@ public void test002() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = new X<>();\n" +
-			"		x.testFunction(\"SUCCESS\");\n" +
-			"	}\n" +
-			"	public void testFunction(T param){\n" +
-			"		System.out.println(param);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					public static void main(String[] args) {
+						X x = new X<>();
+						x.testFunction("SUCCESS");
+					}
+					public void testFunction(T param){
+						System.out.println(param);
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	X x = new X<>();\n" +
-		"	^\n" +
-		"X is a raw type. References to generic type X<T> should be parameterized\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	x.testFunction(\"SUCCESS\");\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: The method testFunction(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				X x = new X<>();
+				^
+			X is a raw type. References to generic type X<T> should be parameterized
+			----------
+			2. WARNING in X.java (at line 4)
+				x.testFunction("SUCCESS");
+				^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type safety: The method testFunction(Object) belongs to the raw type X. References to generic type X<T> should be parameterized
+			----------
+			""");
 }
 public void test003() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new X<>().testFunction(\"SUCCESS\");\n" +
-			"	}\n" +
-			"	public void testFunction(T param){\n" +
-			"		System.out.println(param);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					public static void main(String[] args) {
+						new X<>().testFunction("SUCCESS");
+					}
+					public void testFunction(T param){
+						System.out.println(param);
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -505,50 +539,56 @@ public void test004b() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	class X2<U> {\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new X<>().new X2<>(){\n" +
-			"			void newMethod(){\n" +
-			"			}\n" +
-			"		};\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					class X2<U> {
+					}
+					public static void main(String[] args) {
+						new X<>().new X2<>(){
+							void newMethod(){
+							}
+						};
+					}
+				}""",
 		},
 		this.complianceLevel < ClassFileConstants.JDK9 ?
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	new X<>().new X2<>(){\n" +
-		"	              ^^\n" +
-		"\'<>\' cannot be used with anonymous classes\n" +
-		"----------\n":
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	void newMethod(){\n" +
-			"	     ^^^^^^^^^^^\n" +
-			"The method newMethod() of type new X<Object>.X2<Object>(){} must override or implement a supertype method\n" +
-			"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				new X<>().new X2<>(){
+				              ^^
+			\'<>\' cannot be used with anonymous classes
+			----------
+			""":
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					void newMethod(){
+					     ^^^^^^^^^^^
+				The method newMethod() of type new X<Object>.X2<Object>(){} must override or implement a supertype method
+				----------
+				""");
 }
 public void test004c() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	class X2<U> {\n" +
-			"		U f1;" +
-			"		public void setF(U a){\n" +
-			"			this.f1 = a;" +
-			"			System.out.println(this.f1);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new X<>().new X2<Integer>(){\n" +
-			"			void newMethod(){\n" +
-			"			}\n" +
-			"		}.setF(1);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					class X2<U> {
+						U f1;\
+						public void setF(U a){
+							this.f1 = a;\
+							System.out.println(this.f1);
+						}
+					}
+					public static void main(String[] args) {
+						new X<>().new X2<Integer>(){
+							void newMethod(){
+							}
+						}.setF(1);
+					}
+				}""",
 		},
 		"1");
 }
@@ -557,21 +597,22 @@ public void test006() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X1<T> {\n" +
-			"	int abc = 1;\n" +
-			"	public void testFunction(T param){\n" +
-			"		System.out.println(param + \"X1\");\n" +
-			"	}\n" +
-			"}\n" +
-			"public class X<T> extends X1<T> {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X1<String> x = new X<>();\n" +
-			"		x.testFunction(\"SUCCESS\");\n" +
-			"	}\n" +
-			"	public void testFunction(T param){\n" +
-			"		System.out.println(param);\n" +
-			"	}\n" +
-			"}",
+			"""
+				class X1<T> {
+					int abc = 1;
+					public void testFunction(T param){
+						System.out.println(param + "X1");
+					}
+				}
+				public class X<T> extends X1<T> {
+					public static void main(String[] args) {
+						X1<String> x = new X<>();
+						x.testFunction("SUCCESS");
+					}
+					public void testFunction(T param){
+						System.out.println(param);
+					}
+				}""",
 		},
 		"SUCCESS");
 }
@@ -580,25 +621,26 @@ public void test007() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	T field1;" +
-			"	public X(T param){\n" +
-			"		field1 = param;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X.testFunction(new X<>(\"hello\").getField());\n" + // prints 1
-			"		X.testFunction(new X(\"hello\").getField());\n" + //prints 2
-			"	}\n" +
-			"	public static void testFunction(String param){\n" +
-			"		System.out.println(1);\n" +
-			"	}\n" +
-			"	public static void testFunction(Object param){\n" +
-			"		System.out.println(2);\n" +
-			"	}\n" +
-			"	public T getField(){\n" +
-			"		return field1;" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					T field1;\
+					public X(T param){
+						field1 = param;
+					}
+					public static void main(String[] args) {
+						X.testFunction(new X<>("hello").getField());
+						X.testFunction(new X("hello").getField());
+					}
+					public static void testFunction(String param){
+						System.out.println(1);
+					}
+					public static void testFunction(Object param){
+						System.out.println(2);
+					}
+					public T getField(){
+						return field1;\
+					}
+				}""",
 		},
 		"1\n" +
 		"2");
@@ -608,64 +650,69 @@ public void test007a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X<T> {\n" +
-				"	public X(){\n" +
-				"	}\n" +
-				"	public X(T param){\n" +
-				"		System.out.println(param);\n" +
-				"	}\n" +
-				"	public static void testFunction(X<String> param){\n" +
-				"		System.out.println(\"SUCCESS\");\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		X.testFunction(new X<>());\n" +
-				"		X.testFunction(new X(\"hello\"));\n" +
-				"	}\n" +
-				"}",
+				"""
+					public class X<T> {
+						public X(){
+						}
+						public X(T param){
+							System.out.println(param);
+						}
+						public static void testFunction(X<String> param){
+							System.out.println("SUCCESS");
+						}
+						public static void main(String[] args) {
+							X.testFunction(new X<>());
+							X.testFunction(new X("hello"));
+						}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	X.testFunction(new X<>());\n" +
-			"	  ^^^^^^^^^^^^\n" +
-			"The method testFunction(X<String>) in the type X is not applicable for the arguments (X<Object>)\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 12)\n" +
-			"	X.testFunction(new X(\"hello\"));\n" +
-			"	               ^^^^^^^^^^^^^^\n" +
-			"Type safety: The constructor X(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 12)\n" +
-			"	X.testFunction(new X(\"hello\"));\n" +
-			"	               ^^^^^^^^^^^^^^\n" +
-			"Type safety: The expression of type X needs unchecked conversion to conform to X<String>\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 12)\n" +
-			"	X.testFunction(new X(\"hello\"));\n" +
-			"	                   ^\n" +
-			"X is a raw type. References to generic type X<T> should be parameterized\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 11)
+					X.testFunction(new X<>());
+					  ^^^^^^^^^^^^
+				The method testFunction(X<String>) in the type X is not applicable for the arguments (X<Object>)
+				----------
+				2. WARNING in X.java (at line 12)
+					X.testFunction(new X("hello"));
+					               ^^^^^^^^^^^^^^
+				Type safety: The constructor X(Object) belongs to the raw type X. References to generic type X<T> should be parameterized
+				----------
+				3. WARNING in X.java (at line 12)
+					X.testFunction(new X("hello"));
+					               ^^^^^^^^^^^^^^
+				Type safety: The expression of type X needs unchecked conversion to conform to X<String>
+				----------
+				4. WARNING in X.java (at line 12)
+					X.testFunction(new X("hello"));
+					                   ^
+				X is a raw type. References to generic type X<T> should be parameterized
+				----------
+				""");
 	} else {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X<T> {\n" +
-					"	public X(){\n" +
-					"	}\n" +
-					"	public X(T param){\n" +
-					"		System.out.println(param);\n" +
-					"	}\n" +
-					"	public static void testFunction(X<String> param){\n" +
-					"		System.out.println(\"SUCCESS\");\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		X.testFunction(new X<>());\n" +
-					"		X.testFunction(new X(\"hello\"));\n" +
-					"	}\n" +
-					"}",
+					"""
+						public class X<T> {
+							public X(){
+							}
+							public X(T param){
+								System.out.println(param);
+							}
+							public static void testFunction(X<String> param){
+								System.out.println("SUCCESS");
+							}
+							public static void main(String[] args) {
+								X.testFunction(new X<>());
+								X.testFunction(new X("hello"));
+							}
+						}""",
 				},
-				"SUCCESS\n" +
-				"hello\n" +
-				"SUCCESS");
+				"""
+					SUCCESS
+					hello
+					SUCCESS""");
 	}
 }
 //shows the difference between using <> and the raw type - different semantics
@@ -673,57 +720,61 @@ public void test008() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	T field1;\n" +
-			"	public X(T param){\n" +
-			"		field1 = param;\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<?> x1 = new X(1).get(\"\");\n" + // ok - passing String where Object is expected
-			"		X<?> x2 = new X<>(1).get(\"\");\n" + // bad - passing String where Integer is expected
-			"	}\n" +
-			"	public X<T> get(T t){\n" +
-			"		return this;" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					T field1;
+					public X(T param){
+						field1 = param;
+					}
+					public static void main(String[] args) {
+						X<?> x1 = new X(1).get("");
+						X<?> x2 = new X<>(1).get("");
+					}
+					public X<T> get(T t){
+						return this;\
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 7)\n" +
-		"	X<?> x1 = new X(1).get(\"\");\n" +
-		"	          ^^^^^^^^\n" +
-		"Type safety: The constructor X(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 7)\n" +
-		"	X<?> x1 = new X(1).get(\"\");\n" +
-		"	          ^^^^^^^^^^^^^^^^\n" +
-		"Type safety: The method get(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 7)\n" +
-		"	X<?> x1 = new X(1).get(\"\");\n" +
-		"	              ^\n" +
-		"X is a raw type. References to generic type X<T> should be parameterized\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 8)\n" +
-		"	X<?> x2 = new X<>(1).get(\"\");\n" +
-		"	                     ^^^\n" +
-		"The method get(Integer) in the type X<Integer> is not applicable for the arguments (String)\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 7)
+				X<?> x1 = new X(1).get("");
+				          ^^^^^^^^
+			Type safety: The constructor X(Object) belongs to the raw type X. References to generic type X<T> should be parameterized
+			----------
+			2. WARNING in X.java (at line 7)
+				X<?> x1 = new X(1).get("");
+				          ^^^^^^^^^^^^^^^^
+			Type safety: The method get(Object) belongs to the raw type X. References to generic type X<T> should be parameterized
+			----------
+			3. WARNING in X.java (at line 7)
+				X<?> x1 = new X(1).get("");
+				              ^
+			X is a raw type. References to generic type X<T> should be parameterized
+			----------
+			4. ERROR in X.java (at line 8)
+				X<?> x2 = new X<>(1).get("");
+				                     ^^^
+			The method get(Integer) in the type X<Integer> is not applicable for the arguments (String)
+			----------
+			""");
 }
 
 public void test0014() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<J,K> {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String,Integer> x = new X<>();\n" +
-			"		x.testFunction(\"SUCCESS\", 123);\n" +
-			"	}\n" +
-			"	public void testFunction(J param, K param2){\n" +
-			"		System.out.println(param);\n" +
-			"		System.out.println(param2);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<J,K> {
+					public static void main(String[] args) {
+						X<String,Integer> x = new X<>();
+						x.testFunction("SUCCESS", 123);
+					}
+					public void testFunction(J param, K param2){
+						System.out.println(param);
+						System.out.println(param2);
+					}
+				}""",
 		},
 		"SUCCESS\n" +
 		"123");
@@ -732,40 +783,44 @@ public void test0014a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<J,K> {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String,Integer> x = new X<>();\n" +
-			"		x.testFunction(123, \"SUCCESS\");\n" +
-			"	}\n" +
-			"	public void testFunction(J param, K param2){\n" +
-			"		System.out.println(param);\n" +
-			"		System.out.println(param2);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<J,K> {
+					public static void main(String[] args) {
+						X<String,Integer> x = new X<>();
+						x.testFunction(123, "SUCCESS");
+					}
+					public void testFunction(J param, K param2){
+						System.out.println(param);
+						System.out.println(param2);
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	x.testFunction(123, \"SUCCESS\");\n" +
-		"	  ^^^^^^^^^^^^\n" +
-		"The method testFunction(String, Integer) in the type X<String,Integer> is not applicable for the arguments (int, String)\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				x.testFunction(123, "SUCCESS");
+				  ^^^^^^^^^^^^
+			The method testFunction(String, Integer) in the type X<String,Integer> is not applicable for the arguments (int, String)
+			----------
+			""");
 }
 public void test0015() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	X(){\n" +
-			"		System.out.println(\"const.1\");\n" +
-			"	}\n" +
-			"	X (T t) {\n" +
-			"		System.out.println(\"const.2\");\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String> x = new X<>();\n" +
-			"		X<String> x2 = new X<>(\"\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					X(){
+						System.out.println("const.1");
+					}
+					X (T t) {
+						System.out.println("const.2");
+					}
+					public static void main(String[] args) {
+						X<String> x = new X<>();
+						X<String> x2 = new X<>("");
+					}
+				}""",
 		},
 		"const.1\nconst.2");
 }
@@ -774,47 +829,51 @@ public void test0016() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	<E> X(){\n" +
-			"		System.out.println(\"const.1\");\n" +
-			"	}\n" +
-			"	<K,J> X (Integer i) {\n" +
-			"		System.out.println(\"const.2\");\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String> x = new <String>X<>();\n" +
-			"		X<String> x2 = new <String, Integer>X<>(1);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					<E> X(){
+						System.out.println("const.1");
+					}
+					<K,J> X (Integer i) {
+						System.out.println("const.2");
+					}
+					public static void main(String[] args) {
+						X<String> x = new <String>X<>();
+						X<String> x2 = new <String, Integer>X<>(1);
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	X<String> x = new <String>X<>();\n" +
-		"	                   ^^^^^^\n" +
-		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
-		"	X<String> x2 = new <String, Integer>X<>(1);\n" +
-		"	                    ^^^^^^^^^^^^^^^\n" +
-		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				X<String> x = new <String>X<>();
+				                   ^^^^^^
+			Explicit type arguments cannot be used with \'<>\' in an allocation expression
+			----------
+			2. ERROR in X.java (at line 10)
+				X<String> x2 = new <String, Integer>X<>(1);
+				                    ^^^^^^^^^^^^^^^
+			Explicit type arguments cannot be used with \'<>\' in an allocation expression
+			----------
+			""");
 }
 public void test0016a() {
 	this.runConformTest(  // javac fails to compile this, looks buggy
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	<E> X(){\n" +
-			"		System.out.println(\"const.1\");\n" +
-			"	}\n" +
-			"	<K,J> X (Integer i) {\n" +
-			"		System.out.println(\"const.2\");\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String> x = new X<>();\n" +
-			"		X<String> x2 = new X<>(1);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					<E> X(){
+						System.out.println("const.1");
+					}
+					<K,J> X (Integer i) {
+						System.out.println("const.2");
+					}
+					public static void main(String[] args) {
+						X<String> x = new X<>();
+						X<String> x2 = new X<>(1);
+					}
+				}""",
 		},
 		"const.1\nconst.2");
 }
@@ -823,38 +882,41 @@ public void test0016b() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	X<String> x;\n" +
-			"	X<String> x2;\n" +
-			"	<E> X(){\n" +
-			"		System.out.println(\"const.1\");\n" +
-			"	}\n" +
-			"	<K,J> X (Integer i) {\n" +
-			"		System.out.println(\"const.2\");\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<Integer> test = new <String>X<>();\n" +
-			"		test.x = new <String>X<>();\n" +
-			"		test.x2 = new <String, Integer>X<>(1);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					X<String> x;
+					X<String> x2;
+					<E> X(){
+						System.out.println("const.1");
+					}
+					<K,J> X (Integer i) {
+						System.out.println("const.2");
+					}
+					public static void main(String[] args) {
+						X<Integer> test = new <String>X<>();
+						test.x = new <String>X<>();
+						test.x2 = new <String, Integer>X<>(1);
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	X<Integer> test = new <String>X<>();\n" +
-		"	                       ^^^^^^\n" +
-		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 12)\n" +
-		"	test.x = new <String>X<>();\n" +
-		"	              ^^^^^^\n" +
-		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 13)\n" +
-		"	test.x2 = new <String, Integer>X<>(1);\n" +
-		"	               ^^^^^^^^^^^^^^^\n" +
-		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 11)
+				X<Integer> test = new <String>X<>();
+				                       ^^^^^^
+			Explicit type arguments cannot be used with \'<>\' in an allocation expression
+			----------
+			2. ERROR in X.java (at line 12)
+				test.x = new <String>X<>();
+				              ^^^^^^
+			Explicit type arguments cannot be used with \'<>\' in an allocation expression
+			----------
+			3. ERROR in X.java (at line 13)
+				test.x2 = new <String, Integer>X<>(1);
+				               ^^^^^^^^^^^^^^^
+			Explicit type arguments cannot be used with \'<>\' in an allocation expression
+			----------
+			""");
 }
 //To verify that a parameterized invocation of a generic constructor works even if <> is used
 //to elide class type parameters. This test handles fields
@@ -862,21 +924,22 @@ public void test0016c() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	X<String> x;\n" +
-			"	X<String> x2;\n" +
-			"	<E> X(){\n" +
-			"		System.out.println(\"const.1\");\n" +
-			"	}\n" +
-			"	<K,J> X (Integer i) {\n" +
-			"		System.out.println(\"const.2\");\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<Integer> test = new X<>();\n" +
-			"		test.x = new X<>();\n" +
-			"		test.x2 = new X<>(1);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					X<String> x;
+					X<String> x2;
+					<E> X(){
+						System.out.println("const.1");
+					}
+					<K,J> X (Integer i) {
+						System.out.println("const.2");
+					}
+					public static void main(String[] args) {
+						X<Integer> test = new X<>();
+						test.x = new X<>();
+						test.x2 = new X<>(1);
+					}
+				}""",
 		},
 		"const.1\nconst.1\nconst.2");
 }
@@ -885,32 +948,35 @@ public void test0017() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	X(int i){\n" +
-			"		System.out.println(\"const.1\");\n" +
-			"	}\n" +
-			"	<K,J> X (Integer i) {\n" +
-			"		System.out.println(\"const.2\");\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String> x = new X<>(1);\n" +
-			"		X<String> x2 = new <String, Integer>X<>(1);\n" +
-			"		Integer i = 1;\n" +
-			"		X<String> x3 = new <String, Integer>X<>(i);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					X(int i){
+						System.out.println("const.1");
+					}
+					<K,J> X (Integer i) {
+						System.out.println("const.2");
+					}
+					public static void main(String[] args) {
+						X<String> x = new X<>(1);
+						X<String> x2 = new <String, Integer>X<>(1);
+						Integer i = 1;
+						X<String> x3 = new <String, Integer>X<>(i);
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	X<String> x2 = new <String, Integer>X<>(1);\n" +
-		"	                    ^^^^^^^^^^^^^^^\n" +
-		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 12)\n" +
-		"	X<String> x3 = new <String, Integer>X<>(i);\n" +
-		"	                    ^^^^^^^^^^^^^^^\n" +
-		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				X<String> x2 = new <String, Integer>X<>(1);
+				                    ^^^^^^^^^^^^^^^
+			Explicit type arguments cannot be used with \'<>\' in an allocation expression
+			----------
+			2. ERROR in X.java (at line 12)
+				X<String> x3 = new <String, Integer>X<>(i);
+				                    ^^^^^^^^^^^^^^^
+			Explicit type arguments cannot be used with \'<>\' in an allocation expression
+			----------
+			"""
 );
 }
 // To verify that a parameterized invocation of a non-generic constructor works even if <> is used
@@ -919,20 +985,21 @@ public void test0017a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	X(int i){\n" +
-			"		System.out.println(\"const.1\");\n" +
-			"	}\n" +
-			"	<K,J> X (Integer i) {\n" +
-			"		System.out.println(\"const.2\");\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String> x = new X<>(1);\n" +
-			"		X<String> x2 = new X<>(1);\n" +
-			"		Integer i = 1;\n" +
-			"		X<String> x3 = new X<>(i);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					X(int i){
+						System.out.println("const.1");
+					}
+					<K,J> X (Integer i) {
+						System.out.println("const.2");
+					}
+					public static void main(String[] args) {
+						X<String> x = new X<>(1);
+						X<String> x2 = new X<>(1);
+						Integer i = 1;
+						X<String> x3 = new X<>(i);
+					}
+				}""",
 		},
 		"const.1\nconst.1\nconst.2");
 }
@@ -941,18 +1008,19 @@ public void test0018() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	X(T t){\n" +
-			"		System.out.println(\"const.1\");\n" +
-			"	}\n" +
-			"	X (T t, Integer i) {\n" +
-			"		System.out.println(\"const.2\");\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = new X<>(\"\");\n" +
-			"		X x2 = new X<>(\"\",1);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					X(T t){
+						System.out.println("const.1");
+					}
+					X (T t, Integer i) {
+						System.out.println("const.2");
+					}
+					public static void main(String[] args) {
+						X x = new X<>("");
+						X x2 = new X<>("",1);
+					}
+				}""",
 		},
 		"const.1\nconst.2");
 }
@@ -962,21 +1030,22 @@ public void test0018b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	X f1;\n" +
-			"	X f2;\n" +
-			"	X(T t){\n" +
-			"		System.out.println(\"const.1\");\n" +
-			"	}\n" +
-			"	X (T t, Integer i) {\n" +
-			"		System.out.println(\"const.2\");\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X x = new X<>(\"\");\n" +
-			"		x.f1 = new X<>(\"\");\n" +
-			"		x.f2 = new X<>(\"\",1);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X<T> {
+					X f1;
+					X f2;
+					X(T t){
+						System.out.println("const.1");
+					}
+					X (T t, Integer i) {
+						System.out.println("const.2");
+					}
+					public static void main(String[] args) {
+						X x = new X<>("");
+						x.f1 = new X<>("");
+						x.f2 = new X<>("",1);
+					}
+				}""",
 		},
 		"const.1\nconst.1\nconst.2");
 }
@@ -984,35 +1053,43 @@ public void test0019() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"   String s = new String<>(\"junk\");\n" +
-			"}\n",
+			"""
+				public class X {
+				   String s = new String<>("junk");
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	String s = new String<>(\"junk\");\n" +
-		"	               ^^^^^^\n" +
-		"The type String is not generic; it cannot be parameterized with arguments <>\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				String s = new String<>("junk");
+				               ^^^^^^
+			The type String is not generic; it cannot be parameterized with arguments <>
+			----------
+			""");
 }
 // check inference at method argument position.
 public void test0020() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"    Zork z;\n" +
-			"    public X(T t) {}\n" +
-			"	 int f(X<String> p) {return 0;}\n" +
-			"	 int x = f(new X<>(\"\"));\n" +
-			"}\n",
+			"""
+				public class X<T> {
+				    Zork z;
+				    public X(T t) {}
+					 int f(X<String> p) {return 0;}
+					 int x = f(new X<>(""));
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""");
 }
 //check inference at method argument position.
 public void test0021() {
@@ -1020,31 +1097,37 @@ public void test0021() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.List;\n" +
-				"import java.util.ArrayList;\n" +
-				"class X<T> {\n" +
-				"  public X(T t) {}\n" +
-				"  int f(List<String> p) {return 0;}\n" +
-				"  int x = f(new ArrayList<>());\n" +
-				"}\n",
+				"""
+					import java.util.List;
+					import java.util.ArrayList;
+					class X<T> {
+					  public X(T t) {}
+					  int f(List<String> p) {return 0;}
+					  int x = f(new ArrayList<>());
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	int x = f(new ArrayList<>());\n" +
-			"	        ^\n" +
-			"The method f(List<String>) in the type X<T> is not applicable for the arguments (ArrayList<Object>)\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					int x = f(new ArrayList<>());
+					        ^
+				The method f(List<String>) in the type X<T> is not applicable for the arguments (ArrayList<Object>)
+				----------
+				""");
 	} else {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.List;\n" +
-					"import java.util.ArrayList;\n" +
-					"class X<T> {\n" +
-					"  public X(T t) {}\n" +
-					"  int f(List<String> p) {return 0;}\n" +
-					"  int x = f(new ArrayList<>());\n" +
-					"}\n",
+					"""
+						import java.util.List;
+						import java.util.ArrayList;
+						class X<T> {
+						  public X(T t) {}
+						  int f(List<String> p) {return 0;}
+						  int x = f(new ArrayList<>());
+						}
+						""",
 				},
 				"");
 	}
@@ -1053,19 +1136,21 @@ public void test0022() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.HashMap;\n" +
-			"import java.util.Map;\n" +
-			"\n" +
-			"class StringKeyHashMap<V> extends HashMap<String, V>  {  \n" +
-			"}\n" +
-			"\n" +
-			"class IntegerValueHashMap<K> extends HashMap<K, Integer>  {  \n" +
-			"}\n" +
-			"\n" +
-			"public class X {\n" +
-			"    Map<String, Integer> m1 = new StringKeyHashMap<>();\n" +
-			"    Map<String, Integer> m2 = new IntegerValueHashMap<>();\n" +
-			"}\n"
+			"""
+				import java.util.HashMap;
+				import java.util.Map;
+				
+				class StringKeyHashMap<V> extends HashMap<String, V>  { \s
+				}
+				
+				class IntegerValueHashMap<K> extends HashMap<K, Integer>  { \s
+				}
+				
+				public class X {
+				    Map<String, Integer> m1 = new StringKeyHashMap<>();
+				    Map<String, Integer> m2 = new IntegerValueHashMap<>();
+				}
+				"""
 		},
 		"");
 }
@@ -1073,185 +1158,212 @@ public void test0023() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.HashMap;\n" +
-			"import java.util.Map;\n" +
-			"\n" +
-			"class StringKeyHashMap<V> extends HashMap<String, V>  {  \n" +
-			"}\n" +
-			"\n" +
-			"class IntegerValueHashMap<K> extends HashMap<K, Integer>  {  \n" +
-			"}\n" +
-			"\n" +
-			"public class X {\n" +
-			"    Map<String, Integer> m1 = new StringKeyHashMap<>(10);\n" +
-			"    Map<String, Integer> m2 = new IntegerValueHashMap<>();\n" +
-			"}\n"
+			"""
+				import java.util.HashMap;
+				import java.util.Map;
+				
+				class StringKeyHashMap<V> extends HashMap<String, V>  { \s
+				}
+				
+				class IntegerValueHashMap<K> extends HashMap<K, Integer>  { \s
+				}
+				
+				public class X {
+				    Map<String, Integer> m1 = new StringKeyHashMap<>(10);
+				    Map<String, Integer> m2 = new IntegerValueHashMap<>();
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	class StringKeyHashMap<V> extends HashMap<String, V>  {  \n" +
-		"	      ^^^^^^^^^^^^^^^^\n" +
-		"The serializable class StringKeyHashMap does not declare a static final serialVersionUID field of type long\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 7)\n" +
-		"	class IntegerValueHashMap<K> extends HashMap<K, Integer>  {  \n" +
-		"	      ^^^^^^^^^^^^^^^^^^^\n" +
-		"The serializable class IntegerValueHashMap does not declare a static final serialVersionUID field of type long\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 11)\n" +
-		"	Map<String, Integer> m1 = new StringKeyHashMap<>(10);\n" +
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot infer type arguments for StringKeyHashMap<>\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				class StringKeyHashMap<V> extends HashMap<String, V>  { \s
+				      ^^^^^^^^^^^^^^^^
+			The serializable class StringKeyHashMap does not declare a static final serialVersionUID field of type long
+			----------
+			2. WARNING in X.java (at line 7)
+				class IntegerValueHashMap<K> extends HashMap<K, Integer>  { \s
+				      ^^^^^^^^^^^^^^^^^^^
+			The serializable class IntegerValueHashMap does not declare a static final serialVersionUID field of type long
+			----------
+			3. ERROR in X.java (at line 11)
+				Map<String, Integer> m1 = new StringKeyHashMap<>(10);
+				                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Cannot infer type arguments for StringKeyHashMap<>
+			----------
+			""");
 }
 // check inference at return expression.
 public void test0024() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" +
-			"import java.util.ArrayList;\n" +
-			"class X<T> {\n" +
-			"  public X() {}\n" +
-			"  X<String> f(List<String> p) {return new X<>();}\n" +
-			"}\n",
+			"""
+				import java.util.List;
+				import java.util.ArrayList;
+				class X<T> {
+				  public X() {}
+				  X<String> f(List<String> p) {return new X<>();}
+				}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	import java.util.ArrayList;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"The import java.util.ArrayList is never used\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 2)
+				import java.util.ArrayList;
+				       ^^^^^^^^^^^^^^^^^^^
+			The import java.util.ArrayList is never used
+			----------
+			""");
 }
 // check inference at cast expression.
 public void test0025() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" +
-			"import java.util.ArrayList;\n" +
-			"class X<T> {\n" +
-			"  public X() {}\n" +
-			"  void f(List<String> p) { Object o = (X<String>) new X<>();}\n" +
-			"}\n",
+			"""
+				import java.util.List;
+				import java.util.ArrayList;
+				class X<T> {
+				  public X() {}
+				  void f(List<String> p) { Object o = (X<String>) new X<>();}
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	void f(List<String> p) { Object o = (X<String>) new X<>();}\n" +
-		"	                                    ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot cast from X<Object> to X<String>\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				void f(List<String> p) { Object o = (X<String>) new X<>();}
+				                                    ^^^^^^^^^^^^^^^^^^^^^
+			Cannot cast from X<Object> to X<String>
+			----------
+			""");
 }
 // Test various scenarios.
 public void test0026() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" +
-			"import java.util.ArrayList;\n" +
-			"public class X<T> {\n" +
-			"	X(T t) {}\n" +
-			"   X(String s) {}\n" +
-			"   X(List<?> l) {}\n" +
-			"   X<T> idem() { return this; }\n" +
-			"   X<Number> x = new X<>(1);\n" +
-			"   X<Integer> x2 = new X<>(1);\n" +
-			"   List<?> list = new ArrayList<>();\n" +
-			"   X<?> x3 = new X<>(1);\n" +
-			"   X<Object> x4 = new X<>(1).idem();\n" +
-			"   X<Object> x5 = new X<>(1);\n" +
-			"   int m(X<String> xs) { return 0; }\n" +
-			"   int i = m(new X<>(\"\"));\n" +
-			"   X<?> x6 = new X<>(list);\n" +
-			"}\n"
+			"""
+				import java.util.List;
+				import java.util.ArrayList;
+				public class X<T> {
+					X(T t) {}
+				   X(String s) {}
+				   X(List<?> l) {}
+				   X<T> idem() { return this; }
+				   X<Number> x = new X<>(1);
+				   X<Integer> x2 = new X<>(1);
+				   List<?> list = new ArrayList<>();
+				   X<?> x3 = new X<>(1);
+				   X<Object> x4 = new X<>(1).idem();
+				   X<Object> x5 = new X<>(1);
+				   int m(X<String> xs) { return 0; }
+				   int i = m(new X<>(""));
+				   X<?> x6 = new X<>(list);
+				}
+				"""
 		},
 		this.complianceLevel < ClassFileConstants.JDK1_8 ?
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	X<Number> x = new X<>(1);\n" +
-		"	              ^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from X<Integer> to X<Number>\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 12)\n" +
-		"	X<Object> x4 = new X<>(1).idem();\n" +
-		"	               ^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from X<Integer> to X<Object>\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 13)\n" +
-		"	X<Object> x5 = new X<>(1);\n" +
-		"	               ^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from X<Integer> to X<Object>\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 15)\n" +
-		"	int i = m(new X<>(\"\"));\n" +
-		"	        ^\n" +
-		"The method m(X<String>) in the type X<T> is not applicable for the arguments (X<Object>)\n" +
-		"----------\n" :
-			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
-			"	X<Object> x4 = new X<>(1).idem();\n" +
-			"	               ^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from X<Integer> to X<Object>\n" +
-			"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				X<Number> x = new X<>(1);
+				              ^^^^^^^^^^
+			Type mismatch: cannot convert from X<Integer> to X<Number>
+			----------
+			2. ERROR in X.java (at line 12)
+				X<Object> x4 = new X<>(1).idem();
+				               ^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from X<Integer> to X<Object>
+			----------
+			3. ERROR in X.java (at line 13)
+				X<Object> x5 = new X<>(1);
+				               ^^^^^^^^^^
+			Type mismatch: cannot convert from X<Integer> to X<Object>
+			----------
+			4. ERROR in X.java (at line 15)
+				int i = m(new X<>(""));
+				        ^
+			The method m(X<String>) in the type X<T> is not applicable for the arguments (X<Object>)
+			----------
+			""" :
+			"""
+				----------
+				1. ERROR in X.java (at line 12)
+					X<Object> x4 = new X<>(1).idem();
+					               ^^^^^^^^^^^^^^^^^
+				Type mismatch: cannot convert from X<Integer> to X<Object>
+				----------
+				""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=344655
 public void test0027() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"       class Y<U> {\n" +
-			"	    <K,J> Y (Integer i) {\n" +
-			"	    }\n" +
-			"	}\n" +
-			"\n" +
-			"	<K,J> X (Integer i) {\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<String> x = new <String, Integer> X<>(1);\n" +
-			"		X<String> x2 = x.new <String, Integer> Y<>(1);\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X<T> {
+				       class Y<U> {
+					    <K,J> Y (Integer i) {
+					    }
+					}
+				
+					<K,J> X (Integer i) {
+					}
+				
+					public static void main(String[] args) {
+						X<String> x = new <String, Integer> X<>(1);
+						X<String> x2 = x.new <String, Integer> Y<>(1);
+					}
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	X<String> x = new <String, Integer> X<>(1);\n" +
-		"	                   ^^^^^^^^^^^^^^^\n" +
-		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 12)\n" +
-		"	X<String> x2 = x.new <String, Integer> Y<>(1);\n" +
-		"	                      ^^^^^^^^^^^^^^^\n" +
-		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 11)
+				X<String> x = new <String, Integer> X<>(1);
+				                   ^^^^^^^^^^^^^^^
+			Explicit type arguments cannot be used with \'<>\' in an allocation expression
+			----------
+			2. ERROR in X.java (at line 12)
+				X<String> x2 = x.new <String, Integer> Y<>(1);
+				                      ^^^^^^^^^^^^^^^
+			Explicit type arguments cannot be used with \'<>\' in an allocation expression
+			----------
+			"""
 );
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345239
 public void test0028() {
 	String[] testFiles = new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"     X<String> x = new X<> () {}\n;" +
-			"     class Y<U> {\n" +
-			"	  }\n" +
-			"     X<String>.Y<String> y = x.new Y<>() {};\n" +
-			"}\n"
+			"""
+				public class X<T> {
+				     X<String> x = new X<> () {}
+				;\
+				     class Y<U> {
+					  }
+				     X<String>.Y<String> y = x.new Y<>() {};
+				}
+				"""
 		};
 	if (this.complianceLevel < ClassFileConstants.JDK9) {
 		this.runNegativeTest(
 			testFiles,
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	X<String> x = new X<> () {}\n" +
-			"	                  ^\n" +
-			"\'<>\' cannot be used with anonymous classes\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	X<String>.Y<String> y = x.new Y<>() {};\n" +
-			"	                              ^\n" +
-			"\'<>\' cannot be used with anonymous classes\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					X<String> x = new X<> () {}
+					                  ^
+				\'<>\' cannot be used with anonymous classes
+				----------
+				2. ERROR in X.java (at line 5)
+					X<String>.Y<String> y = x.new Y<>() {};
+					                              ^
+				\'<>\' cannot be used with anonymous classes
+				----------
+				""");
 	} else {
 		this.runConformTest(testFiles);
 	}
@@ -1261,67 +1373,81 @@ public void test0029() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T>  {\n" +
-			"    X(T t) {}\n" +
-			"    X<String> f2 = new X<>(new Y()); \n" +
-			"}\n"
+			"""
+				public class X<T>  {
+				    X(T t) {}
+				    X<String> f2 = new X<>(new Y());\s
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	X<String> f2 = new X<>(new Y()); \n" +
-		"	                           ^\n" +
-		"Y cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				X<String> f2 = new X<>(new Y());\s
+				                           ^
+			Y cannot be resolved to a type
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345359
 public void test0029a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    class I<T> {\n" +
-			"        I(T t) {}\n" +
-			"    }\n" +
-			"    X.I<String> f = new X().new I<>(new Y()); \n" +
-			"}\n"
+			"""
+				public class X {
+				    class I<T> {
+				        I(T t) {}
+				    }
+				    X.I<String> f = new X().new I<>(new Y());\s
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	X.I<String> f = new X().new I<>(new Y()); \n" +
-		"	                                    ^\n" +
-		"Y cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				X.I<String> f = new X().new I<>(new Y());\s
+				                                    ^
+			Y cannot be resolved to a type
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
 public void test0030() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class C {}\n" +
-			"interface I {}\n" +
-			"public class X<T extends C & I> {\n" +
-			"    X() {}\n" +
-			"    X f = new X<>();\n" +
-			"}\n"
+			"""
+				class C {}
+				interface I {}
+				public class X<T extends C & I> {
+				    X() {}
+				    X f = new X<>();
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
-		"	X f = new X<>();\n" +
-		"	^\n" +
-		"X is a raw type. References to generic type X<T> should be parameterized\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 5)
+				X f = new X<>();
+				^
+			X is a raw type. References to generic type X<T> should be parameterized
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
 public void test0031() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class C {}\n" +
-			"interface I {}\n" +
-			"public class X<T extends C & I> {\n" +
-			"    X() {}\n" +
-			"    X<?> f = new X<>();\n" +
-			"}\n"
+			"""
+				class C {}
+				interface I {}
+				public class X<T extends C & I> {
+				    X() {}
+				    X<?> f = new X<>();
+				}
+				"""
 		},
 		"");
 }
@@ -1330,14 +1456,16 @@ public void test0032() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class C {}\n" +
-			"interface I {}\n" +
-			"public class X<T extends C & I> {\n" +
-			"    static <U extends C & I> X<U> getX() {\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"    X<?> f2 = getX();\n" +
-			"}\n"
+			"""
+				class C {}
+				interface I {}
+				public class X<T extends C & I> {
+				    static <U extends C & I> X<U> getX() {
+				        return null;
+				    }
+				    X<?> f2 = getX();
+				}
+				"""
 		},
 		"");
 }
@@ -1346,49 +1474,55 @@ public void test0033() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class C {}\n" +
-			"interface I {}\n" +
-			"public class X<T extends C & I> {\n" +
-			"    static <U extends C & I> X<U> getX() {\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"    X f2 = getX();\n" +
-			"}\n"
+			"""
+				class C {}
+				interface I {}
+				public class X<T extends C & I> {
+				    static <U extends C & I> X<U> getX() {
+				        return null;
+				    }
+				    X f2 = getX();
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 7)\n" +
-		"	X f2 = getX();\n" +
-		"	^\n" +
-		"X is a raw type. References to generic type X<T> should be parameterized\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 7)
+				X f2 = getX();
+				^
+			X is a raw type. References to generic type X<T> should be parameterized
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
 public void test0034() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T>  {\n" +
-			"    X(T t) {}\n" +
-			"    X() {}\n" +
-			"    void foo(T a) {\n" +
-			"	 System.out.println(a);\n" +
-			"	 }\n" +
-			"	 class Y<K>{\n" +
-			"		Y(T t,K k) {}\n" +
-			"	 }\n" +
-			"    public static void main(String[] args) {\n" +
-			"		X<Integer> x1 = new X<>(1,1);\n" +
-			"		X<Integer> x2 = new X<>(1);\n" +
-			"		X<Integer> x3 = new X<>();\n" +
-			"		X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();\n" +
-			"		X<Integer>.Y<String> y2 = new X<>(1,1).new Y<>(1);\n" +
-			"		X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);\n" +
-			"		X<Integer>.Y<String> y4 = new X<>(1).new Y<>(\"\",\"\");\n" +
-			"		X<Integer>.Y<String> y5 = new X<>(1).new Y<>(1,\"\");\n" +
-			"		X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\");\n" +
-			"		X<Integer>.Y<String> y7 = new X<>().new Y<>(1,1);\n" +
-			"	 }\n" +
-			"}\n"
+			"""
+				public class X<T>  {
+				    X(T t) {}
+				    X() {}
+				    void foo(T a) {
+					 System.out.println(a);
+					 }
+					 class Y<K>{
+						Y(T t,K k) {}
+					 }
+				    public static void main(String[] args) {
+						X<Integer> x1 = new X<>(1,1);
+						X<Integer> x2 = new X<>(1);
+						X<Integer> x3 = new X<>();
+						X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();
+						X<Integer>.Y<String> y2 = new X<>(1,1).new Y<>(1);
+						X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);
+						X<Integer>.Y<String> y4 = new X<>(1).new Y<>("","");
+						X<Integer>.Y<String> y5 = new X<>(1).new Y<>(1,"");
+						X<Integer>.Y<String> y6 = new X<>().new Y<>(1,"");
+						X<Integer>.Y<String> y7 = new X<>().new Y<>(1,1);
+					 }
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 11)\n" +
@@ -1440,63 +1574,69 @@ public void test0034b() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T>  {\n" +
-			"    X(T t) {}\n" +
-			"    X() {}\n" +
-			"    void foo(T a) {\n" +
-			"	 System.out.println(a);\n" +
-			"	 }\n" +
-			"	 class Y<K>{\n" +
-			"		Y(T t,K k) {}\n" +
-			"		Y(K k) {}\n" +
-			"	 }\n" +
-			"    public static void main(String[] args) {\n" +
-			"		X<String>.Y<String> y42 = new X<>(\"\").new Y<>(\"\");\n" +
-			"		X<String>.Y<String> y41 = new X<>(\"\").new Y<>(\"\",\"\");\n" +
-			"		X<Integer>.Y<String> y4 = new X<>(1).new Y<>(\"\",\"\");\n" +
-			"	 }\n" +
-			"}\n"
+			"""
+				public class X<T>  {
+				    X(T t) {}
+				    X() {}
+				    void foo(T a) {
+					 System.out.println(a);
+					 }
+					 class Y<K>{
+						Y(T t,K k) {}
+						Y(K k) {}
+					 }
+				    public static void main(String[] args) {
+						X<String>.Y<String> y42 = new X<>("").new Y<>("");
+						X<String>.Y<String> y41 = new X<>("").new Y<>("","");
+						X<Integer>.Y<String> y4 = new X<>(1).new Y<>("","");
+					 }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 14)\n" +
-		"	X<Integer>.Y<String> y4 = new X<>(1).new Y<>(\"\",\"\");\n" +
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot infer type arguments for Y<>\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 14)
+				X<Integer>.Y<String> y4 = new X<>(1).new Y<>("","");
+				                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+			Cannot infer type arguments for Y<>
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
 public void test0035() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T>  {\n" +
-			"    X(T t) {}\n" +
-			"    X() {}\n" +
-			"	 @SafeVarargs\n" +
-			"    X(String abc, String abc2, T... t) {}\n" +
-			"    void foo(T a) {\n" +
-			"	 System.out.println(a);\n" +
-			"	 }\n" +
-			"	 class Y<K>{\n" +
-			"		@SafeVarargs\n" +
-			"		Y(T t,String abc, K... k) {}\n" +
-			"	 }\n" +
-			"    public static void main(String[] args) {\n" +
-			"		X<Integer> x1 = new X<>(1,1);\n" +
-			"		X<Integer> x2 = new X<>(1);\n" +
-			"		X<Integer> x3 = new X<>();\n" +
-			"		X<Integer> x4 = new X<>(\"\",\"\");\n" +
-			"		X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" +
-			"		X<Integer> x6 = new X<>(\"\",\"\",1);\n" +
-			"		X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();\n" +
-			"		X<Integer>.Y<String> y2 = new X<>(\"\",1).new Y<>(\"\");\n" +
-			"		X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);\n" +
-			"		X<Integer>.Y<String> y4 = new X<>(1).new Y<>(1,\"\");\n" +
-			"		X<Integer>.Y<String> y5 = new X<>(1).new Y<>(1,\"\",\"\");\n" +
-			"		X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\",1);\n" +
-			"		X<Integer>.Y<String> y7 = new X<>().new Y<>(\"\",\"\",1);\n" +
-			"	 }\n" +
-			"}\n"
+			"""
+				public class X<T>  {
+				    X(T t) {}
+				    X() {}
+					 @SafeVarargs
+				    X(String abc, String abc2, T... t) {}
+				    void foo(T a) {
+					 System.out.println(a);
+					 }
+					 class Y<K>{
+						@SafeVarargs
+						Y(T t,String abc, K... k) {}
+					 }
+				    public static void main(String[] args) {
+						X<Integer> x1 = new X<>(1,1);
+						X<Integer> x2 = new X<>(1);
+						X<Integer> x3 = new X<>();
+						X<Integer> x4 = new X<>("","");
+						X<Integer> x5 = new X<>("","","");
+						X<Integer> x6 = new X<>("","",1);
+						X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();
+						X<Integer>.Y<String> y2 = new X<>("",1).new Y<>("");
+						X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);
+						X<Integer>.Y<String> y4 = new X<>(1).new Y<>(1,"");
+						X<Integer>.Y<String> y5 = new X<>(1).new Y<>(1,"","");
+						X<Integer>.Y<String> y6 = new X<>().new Y<>(1,"",1);
+						X<Integer>.Y<String> y7 = new X<>().new Y<>("","",1);
+					 }
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 14)\n" +
@@ -1552,32 +1692,34 @@ public void test0036() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T>  {\n" +
-			"    X(T t) {}\n" +
-			"    X() {}\n" +
-			"	 @SafeVarargs\n" +
-			"    X(String abc, String abc2, T... t) {}\n" +
-			"    void foo(T a) {\n" +
-			"	 System.out.println(a);\n" +
-			"	 }\n" +
-			"	 class Y<K>{\n" +
-			"		@SafeVarargs\n" +
-			"		Y(T t,String abc, K... k) {}\n" +
-			"	 }\n" +
-			"	X<Integer> x1 = new X<>(1,1);\n" +
-			"	X<Integer> x2 = new X<>(1);\n" +
-			"	X<Integer> x3 = new X<>();\n" +
-			"	X<Integer> x4 = new X<>(\"\",\"\");\n" +
-			"	X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" +
-			"	X<Integer> x6 = new X<>(\"\",\"\",1);\n" +
-			"	X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();\n" +
-			"	X<Integer>.Y<String> y2 = new X<>(\"\",1).new Y<>(\"\");\n" +
-			"	X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);\n" +
-			"	X<Integer>.Y<String> y4 = new X<>(1).new Y<>(1,\"\");\n" +
-			"	X<Integer>.Y<String> y5 = new X<>(1).new Y<>(1,\"\",\"\");\n" +
-			"	X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\",1);\n" +
-			"	X<Integer>.Y<String> y7 = new X<>().new Y<>(\"\",\"\",1);\n" +
-			"}\n"
+			"""
+				public class X<T>  {
+				    X(T t) {}
+				    X() {}
+					 @SafeVarargs
+				    X(String abc, String abc2, T... t) {}
+				    void foo(T a) {
+					 System.out.println(a);
+					 }
+					 class Y<K>{
+						@SafeVarargs
+						Y(T t,String abc, K... k) {}
+					 }
+					X<Integer> x1 = new X<>(1,1);
+					X<Integer> x2 = new X<>(1);
+					X<Integer> x3 = new X<>();
+					X<Integer> x4 = new X<>("","");
+					X<Integer> x5 = new X<>("","","");
+					X<Integer> x6 = new X<>("","",1);
+					X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();
+					X<Integer>.Y<String> y2 = new X<>("",1).new Y<>("");
+					X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);
+					X<Integer>.Y<String> y4 = new X<>(1).new Y<>(1,"");
+					X<Integer>.Y<String> y5 = new X<>(1).new Y<>(1,"","");
+					X<Integer>.Y<String> y6 = new X<>().new Y<>(1,"",1);
+					X<Integer>.Y<String> y7 = new X<>().new Y<>("","",1);
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 13)\n" +
@@ -1633,48 +1775,54 @@ public void test0034a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T>  {\n" +
-			"    X(T t) {}\n" +
-			"    X() {}\n" +
-			"    void foo(T a) {\n" +
-			"	 System.out.println(a);\n" +
-			"	 }\n" +
-			"    public static void main(String[] args) {\n" +
-			"		X<Integer> x1 = new X<>(1,1);\n" +
-			"		X<Integer> x2 = new X<>(1);\n" +
-			"		X<Integer> x3 = new X<>();\n" +
-			"	 }\n" +
-			"}\n"
+			"""
+				public class X<T>  {
+				    X(T t) {}
+				    X() {}
+				    void foo(T a) {
+					 System.out.println(a);
+					 }
+				    public static void main(String[] args) {
+						X<Integer> x1 = new X<>(1,1);
+						X<Integer> x2 = new X<>(1);
+						X<Integer> x3 = new X<>();
+					 }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	X<Integer> x1 = new X<>(1,1);\n" +
-		"	                ^^^^^^^^^^^^\n" +
-		"Cannot infer type arguments for X<>\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				X<Integer> x1 = new X<>(1,1);
+				                ^^^^^^^^^^^^
+			Cannot infer type arguments for X<>
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
 public void test0035a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T>  {\n" +
-			"    X(T t) {}\n" +
-			"    X() {}\n" +
-			"	 @SafeVarargs\n" +
-			"    X(String abc, String abc2, T... t) {}\n" +
-			"    void foo(T a) {\n" +
-			"	 	System.out.println(a);\n" +
-			"	 }\n" +
-			"    public static void main(String[] args) {\n" +
-			"		X<Integer> x1 = new X<>(1,1);\n" +
-			"		X<Integer> x2 = new X<>(1);\n" +
-			"		X<Integer> x3 = new X<>();\n" +
-			"		X<Integer> x4 = new X<>(\"\",\"\");\n" +
-			"		X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" +
-			"		X<Integer> x6 = new X<>(\"\",\"\",1);\n" +
-			"	 }\n" +
-			"}\n"
+			"""
+				public class X<T>  {
+				    X(T t) {}
+				    X() {}
+					 @SafeVarargs
+				    X(String abc, String abc2, T... t) {}
+				    void foo(T a) {
+					 	System.out.println(a);
+					 }
+				    public static void main(String[] args) {
+						X<Integer> x1 = new X<>(1,1);
+						X<Integer> x2 = new X<>(1);
+						X<Integer> x3 = new X<>();
+						X<Integer> x4 = new X<>("","");
+						X<Integer> x5 = new X<>("","","");
+						X<Integer> x6 = new X<>("","",1);
+					 }
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 10)\n" +
@@ -1697,21 +1845,23 @@ public void test0036a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T>  {\n" +
-			"    X(T t) {}\n" +
-			"    X() {}\n" +
-			"	 @SafeVarargs\n" +
-			"    X(String abc, String abc2, T... t) {}\n" +
-			"    void foo(T a) {\n" +
-			"	 System.out.println(a);\n" +
-			"	 }\n" +
-			"	X<Integer> x1 = new X<>(1,1);\n" +
-			"	X<Integer> x2 = new X<>(1);\n" +
-			"	X<Integer> x3 = new X<>();\n" +
-			"	X<Integer> x4 = new X<>(\"\",\"\");\n" +
-			"	X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" +
-			"	X<Integer> x6 = new X<>(\"\",\"\",1);\n" +
-			"}\n"
+			"""
+				public class X<T>  {
+				    X(T t) {}
+				    X() {}
+					 @SafeVarargs
+				    X(String abc, String abc2, T... t) {}
+				    void foo(T a) {
+					 System.out.println(a);
+					 }
+					X<Integer> x1 = new X<>(1,1);
+					X<Integer> x2 = new X<>(1);
+					X<Integer> x3 = new X<>();
+					X<Integer> x4 = new X<>("","");
+					X<Integer> x5 = new X<>("","","");
+					X<Integer> x6 = new X<>("","",1);
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 9)\n" +
@@ -1734,66 +1884,72 @@ public void test0037() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T>  {\n" +
-			"    X(T t) {}\n" +
-			"    X() {}\n" +
-			"	 @SafeVarargs\n" +
-			"    X(String abc, String abc2, T... t) {}\n" +
-			"    void foo(T a) {\n" +
-			"	 System.out.println(a);\n" +
-			"	 }\n" +
-			"	 class Y<K>{\n" +
-			"		@SafeVarargs\n" +
-			"		Y(T t,String abc, K... k) {}\n" +
-			"	 }\n" +
-			"    public static void main(String[] args) {\n" +
-			"		X<Integer>.Y<String> y1 = new X<>().new Y<>(1);\n" +
-			"		X<Integer>.Y<String> y2 = new X<>(1).new Y<>(1);\n" +
-			"		X<Integer>.Y<String> y3 = new X<>(\"\",\"\",1).new Y<>(1);\n" +
-			"		X<Integer>.Y<String> y4 = new X<>(1,\"\").new Y<>(1,\"\");\n" +
-			"	 }\n" +
-			"}\n"
+			"""
+				public class X<T>  {
+				    X(T t) {}
+				    X() {}
+					 @SafeVarargs
+				    X(String abc, String abc2, T... t) {}
+				    void foo(T a) {
+					 System.out.println(a);
+					 }
+					 class Y<K>{
+						@SafeVarargs
+						Y(T t,String abc, K... k) {}
+					 }
+				    public static void main(String[] args) {
+						X<Integer>.Y<String> y1 = new X<>().new Y<>(1);
+						X<Integer>.Y<String> y2 = new X<>(1).new Y<>(1);
+						X<Integer>.Y<String> y3 = new X<>("","",1).new Y<>(1);
+						X<Integer>.Y<String> y4 = new X<>(1,"").new Y<>(1,"");
+					 }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 14)\n" +
-		"	X<Integer>.Y<String> y1 = new X<>().new Y<>(1);\n" +
-		"	                          ^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot infer type arguments for Y<>\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 15)\n" +
-		"	X<Integer>.Y<String> y2 = new X<>(1).new Y<>(1);\n" +
-		"	                          ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot infer type arguments for Y<>\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 16)\n" +
-		"	X<Integer>.Y<String> y3 = new X<>(\"\",\"\",1).new Y<>(1);\n" +
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot infer type arguments for Y<>\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 17)\n" +
-		"	X<Integer>.Y<String> y4 = new X<>(1,\"\").new Y<>(1,\"\");\n" +
-		"	                          ^^^^^^^^^^^^^\n" +
-		"Cannot infer type arguments for X<>\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 14)
+				X<Integer>.Y<String> y1 = new X<>().new Y<>(1);
+				                          ^^^^^^^^^^^^^^^^^^^^
+			Cannot infer type arguments for Y<>
+			----------
+			2. ERROR in X.java (at line 15)
+				X<Integer>.Y<String> y2 = new X<>(1).new Y<>(1);
+				                          ^^^^^^^^^^^^^^^^^^^^^
+			Cannot infer type arguments for Y<>
+			----------
+			3. ERROR in X.java (at line 16)
+				X<Integer>.Y<String> y3 = new X<>("","",1).new Y<>(1);
+				                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Cannot infer type arguments for Y<>
+			----------
+			4. ERROR in X.java (at line 17)
+				X<Integer>.Y<String> y4 = new X<>(1,"").new Y<>(1,"");
+				                          ^^^^^^^^^^^^^
+			Cannot infer type arguments for X<>
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=341795
 public void test0038() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface A {\n" +
-			"    <T extends B & C> T getaMethod();\n" +
-			"    <T extends B & C> void setaMethod(T param);\n" +
-			"}\n" +
-			"class B {\n" +
-			"}\n" +
-			"interface C {\n" +
-			"}\n" +
-			"public class X {\n" +
-			"    public void someMethod(A aInstance) {\n" +
-			"        aInstance.getaMethod();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface A {
+				    <T extends B & C> T getaMethod();
+				    <T extends B & C> void setaMethod(T param);
+				}
+				class B {
+				}
+				interface C {
+				}
+				public class X {
+				    public void someMethod(A aInstance) {
+				        aInstance.getaMethod();
+				    }
+				}
+				"""
 		},
 		"");
 }
@@ -1802,15 +1958,17 @@ public void test0039() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.Serializable;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"    createObject();\n" +
-			"  }\n" +
-			"  private static <T extends Comparable<?> & Serializable> T createObject() {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.Serializable;
+				public class X {
+				  public static void main(String[] args) {
+				    createObject();
+				  }
+				  private static <T extends Comparable<?> & Serializable> T createObject() {
+				    return null;
+				  }
+				}
+				"""
 		},
 		"");
 }
@@ -1818,11 +1976,13 @@ public void test0042() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"interface I<T> {}\n" +
-			"public class X {\n" +
-			"    <T extends I<T>> void m() { }\n" +
-			"    { m(); } \n" +
-			"}\n"
+			"""
+				interface I<T> {}
+				public class X {
+				    <T extends I<T>> void m() { }
+				    { m(); }\s
+				}
+				"""
 		},
 		"");
 }
@@ -1831,17 +1991,19 @@ public void test0043() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T>  {\n" +
-			"    class Y<Z>  {\n" +
-			"        Y(T a, Z b) {\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        X<String>.Y<String>  x1 = new X<String>().new Y<String>(\"\",\"\");\n" +
-			"        X<String>.Y<String>  x2 = new X<String>().new Y<>(\"\",\"\");\n" +
-			"        System.out.println(\"SUCCESS\");\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X<T>  {
+				    class Y<Z>  {
+				        Y(T a, Z b) {
+				        }
+				    }
+				    public static void main(String[] args) {
+				        X<String>.Y<String>  x1 = new X<String>().new Y<String>("","");
+				        X<String>.Y<String>  x2 = new X<String>().new Y<>("","");
+				        System.out.println("SUCCESS");
+				    }
+				}
+				"""
 		},
 		"SUCCESS");
 }
@@ -1850,15 +2012,17 @@ public void test0044() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"    class Y<Z> {\n" +
-			"         Y(T a, Z b) {\n" +
-			"         }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        X<String>.Y<String> x = new X<>().new Y<>(\"\",\"\");\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X<T> {
+				    class Y<Z> {
+				         Y(T a, Z b) {
+				         }
+				    }
+				    public static void main(String[] args) {
+				        X<String>.Y<String> x = new X<>().new Y<>("","");
+				    }
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
@@ -1876,16 +2040,18 @@ public void test0045() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    class Y<T, Z> {\n" +
-			"         Y(T a, Z b) {\n" +
-			"         }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        X.Y<String, String> x = new X().new Y<>(\"\",\"\");\n" +
-			"        System.out.println(\"SUCCESS\");\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    class Y<T, Z> {
+				         Y(T a, Z b) {
+				         }
+				    }
+				    public static void main(String[] args) {
+				        X.Y<String, String> x = new X().new Y<>("","");
+				        System.out.println("SUCCESS");
+				    }
+				}
+				"""
 		},
 		"SUCCESS");
 }
@@ -1894,16 +2060,18 @@ public void test0046() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"    class Y<Z> {\n" +
-			"         Y(T a, Z b) { \n" +
-			"         }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        X<String>.Y<String> x = new X<String>().new Y<>(\"\",\"\");\n" +
-			"        System.out.println(\"SUCCESS\");\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X<T> {
+				    class Y<Z> {
+				         Y(T a, Z b) {\s
+				         }
+				    }
+				    public static void main(String[] args) {
+				        X<String>.Y<String> x = new X<String>().new Y<>("","");
+				        System.out.println("SUCCESS");
+				    }
+				}
+				"""
 		},
 		"SUCCESS");
 }
@@ -1912,17 +2080,19 @@ public void test0047() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"    class Y<Z> {\n" +
-			"         Y(T a, Z b) {\n" +
-			"         }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        X<String>.Y<String> x1 = new X<String>().new Y<String>(\"\",\"\"); \n" +
-			"        X<String>.Y<String> x2 = new X<String>().new Y<>(\"\",\"\"); // javac wrong error \n" +
-			"        System.out.println(\"SUCCESS\");\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X<T> {
+				    class Y<Z> {
+				         Y(T a, Z b) {
+				         }
+				    }
+				    public static void main(String[] args) {
+				        X<String>.Y<String> x1 = new X<String>().new Y<String>("","");\s
+				        X<String>.Y<String> x2 = new X<String>().new Y<>("",""); // javac wrong error\s
+				        System.out.println("SUCCESS");
+				    }
+				}
+				"""
 		},
 		"SUCCESS");
 }
@@ -1931,42 +2101,48 @@ public void test0048() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"    <T> X(T t) {\n" +
-			"    }\n" +
-			"    X<String> x = new X<>(\"\"); \n" +
-			"    Zork z;\n" +
-			"}\n"
+			"""
+				public class X<T> {
+				    <T> X(T t) {
+				    }
+				    X<String> x = new X<>("");\s
+				    Zork z;
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	<T> X(T t) {\n" +
-		"	 ^\n" +
-		"The type parameter T is hiding the type T\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 2)
+				<T> X(T t) {
+				 ^
+			The type parameter T is hiding the type T
+			----------
+			2. ERROR in X.java (at line 5)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
 public void test0049() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"     class Y<Z> {\n" +
-			"          Y(T a, Z b) {\n" +
-			"          }\n" +
-			"     }\n" +
-			"   public static void main(String[] args) {\n" +
-			"       X<Object>.Y<String> x1 = new X<Object>().new Y<String>(new Object(),\"\");\n" +
-			"       X<Object>.Y<String> x2 = new X<>().new Y<String>(new Object(),\"\");\n" +
-			"       X<Object>.Y<String> x3 = new X<Object>().new Y<>(new Object(),\"\");\n" +
-			"       X<Object>.Y<String> x4 = new X<>().new Y<>(new Object(),\"\");\n" +
-			"     }\n" +
-			"}\n"
+			"""
+				public class X<T> {
+				     class Y<Z> {
+				          Y(T a, Z b) {
+				          }
+				     }
+				   public static void main(String[] args) {
+				       X<Object>.Y<String> x1 = new X<Object>().new Y<String>(new Object(),"");
+				       X<Object>.Y<String> x2 = new X<>().new Y<String>(new Object(),"");
+				       X<Object>.Y<String> x3 = new X<Object>().new Y<>(new Object(),"");
+				       X<Object>.Y<String> x4 = new X<>().new Y<>(new Object(),"");
+				     }
+				}
+				"""
 		},
 		"");
 }
@@ -1975,15 +2151,17 @@ public void test0050() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T extends Comparable<T>> {\n" +
-			"     class Y<Z> {\n" +
-			"          Y(T a, Z b) {\n" +
-			"          }\n" +
-			"     }\n" +
-			"   public static void main(String[] args) {\n" +
-			"       X<String>.Y<String> x1 = new X<String>().new Y<>(\"\",\"\");\n" +
-			"     }\n" +
-			"}\n"
+			"""
+				public class X<T extends Comparable<T>> {
+				     class Y<Z> {
+				          Y(T a, Z b) {
+				          }
+				     }
+				   public static void main(String[] args) {
+				       X<String>.Y<String> x1 = new X<String>().new Y<>("","");
+				     }
+				}
+				"""
 		},
 		"");
 }
@@ -1992,17 +2170,19 @@ public void test0051() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T extends Comparable<T>> {\n" +
-			"     class Y<Z> {\n" +
-			"          Y(Integer a, Z b) {\n" +
-			"          }\n" +
-			"          Y(T a, Z b) {\n" +
-			"          }\n" +
-			"     }\n" +
-			"   public static void main(String[] args) {\n" +
-			"       X<String>.Y<String> x1 = new X<String>().new Y<>(\"\",\"\");\n" +
-			"     }\n" +
-			"}\n"
+			"""
+				public class X<T extends Comparable<T>> {
+				     class Y<Z> {
+				          Y(Integer a, Z b) {
+				          }
+				          Y(T a, Z b) {
+				          }
+				     }
+				   public static void main(String[] args) {
+				       X<String>.Y<String> x1 = new X<String>().new Y<>("","");
+				     }
+				}
+				"""
 		},
 		"");
 }
@@ -2014,110 +2194,115 @@ public void test0052() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<E> {\n" +
-			"    X(E e) {}\n" +
-			"    X() {}\n" +
-			"    public static void main(String[] args) {\n" +
-			"        X<Number> x = new X<Number>(1);\n" +
-			"        X<String> x2 = new X<String>(\"SUCCESS\");\n" +
-			"        X<Integer> x3 = new X<Integer>(1);\n" +
-			"        X<AX> x4 = new X<AX>(new AX());\n" +
-			"		 X<? extends AX> x5 = new X<AX<String>>(new AX<String>());\n" +
-			"		 X<?> x6 = new X<AX<String>>(new AX<String>());\n" +
-			"		 X<Class<? extends Object>> x7 = new X<Class<? extends Object>>();\n" +
-			"	}\n" +
-			"}\n" +
-			"class AX<T>{}\n"
+			"""
+				public class X<E> {
+				    X(E e) {}
+				    X() {}
+				    public static void main(String[] args) {
+				        X<Number> x = new X<Number>(1);
+				        X<String> x2 = new X<String>("SUCCESS");
+				        X<Integer> x3 = new X<Integer>(1);
+				        X<AX> x4 = new X<AX>(new AX());
+						 X<? extends AX> x5 = new X<AX<String>>(new AX<String>());
+						 X<?> x6 = new X<AX<String>>(new AX<String>());
+						 X<Class<? extends Object>> x7 = new X<Class<? extends Object>>();
+					}
+				}
+				class AX<T>{}
+				"""
 		},
 		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	X<String> x2 = new X<String>(\"SUCCESS\");\n" +
-			"	                   ^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	X<Integer> x3 = new X<Integer>(1);\n" +
-			"	                    ^\n" +
-			"Redundant specification of type arguments <Integer>\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
-			"	X<AX> x4 = new X<AX>(new AX());\n" +
-			"	               ^\n" +
-			"Redundant specification of type arguments <AX>\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 9)\n" +
-			"	X<? extends AX> x5 = new X<AX<String>>(new AX<String>());\n" +
-			"	                         ^\n" +
-			"Redundant specification of type arguments <AX<String>>\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 9)\n" +
-			"	X<? extends AX> x5 = new X<AX<String>>(new AX<String>());\n" +
-			"	                                           ^^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 10)\n" +
-			"	X<?> x6 = new X<AX<String>>(new AX<String>());\n" +
-			"	              ^\n" +
-			"Redundant specification of type arguments <AX<String>>\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 10)\n" +
-			"	X<?> x6 = new X<AX<String>>(new AX<String>());\n" +
-			"	                                ^^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 11)\n" +
-			"	X<Class<? extends Object>> x7 = new X<Class<? extends Object>>();\n" +
-			"	                                    ^\n" +
-			"Redundant specification of type arguments <Class<? extends Object>>\n" +
-			"----------\n"
-		: // additional error at line 5 due to better inference:
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	X<Number> x = new X<Number>(1);\n" +
-			"	                  ^\n" +
-			"Redundant specification of type arguments <Number>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	X<String> x2 = new X<String>(\"SUCCESS\");\n" +
-			"	                   ^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
-			"	X<Integer> x3 = new X<Integer>(1);\n" +
-			"	                    ^\n" +
-			"Redundant specification of type arguments <Integer>\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 8)\n" +
-			"	X<AX> x4 = new X<AX>(new AX());\n" +
-			"	               ^\n" +
-			"Redundant specification of type arguments <AX>\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 9)\n" +
-			"	X<? extends AX> x5 = new X<AX<String>>(new AX<String>());\n" +
-			"	                         ^\n" +
-			"Redundant specification of type arguments <AX<String>>\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 9)\n" +
-			"	X<? extends AX> x5 = new X<AX<String>>(new AX<String>());\n" +
-			"	                                           ^^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 10)\n" +
-			"	X<?> x6 = new X<AX<String>>(new AX<String>());\n" +
-			"	              ^\n" +
-			"Redundant specification of type arguments <AX<String>>\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 10)\n" +
-			"	X<?> x6 = new X<AX<String>>(new AX<String>());\n" +
-			"	                                ^^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n" +
-			"9. ERROR in X.java (at line 11)\n" +
-			"	X<Class<? extends Object>> x7 = new X<Class<? extends Object>>();\n" +
-			"	                                    ^\n" +
-			"Redundant specification of type arguments <Class<? extends Object>>\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					X<String> x2 = new X<String>("SUCCESS");
+					                   ^
+				Redundant specification of type arguments <String>
+				----------
+				2. ERROR in X.java (at line 7)
+					X<Integer> x3 = new X<Integer>(1);
+					                    ^
+				Redundant specification of type arguments <Integer>
+				----------
+				3. ERROR in X.java (at line 8)
+					X<AX> x4 = new X<AX>(new AX());
+					               ^
+				Redundant specification of type arguments <AX>
+				----------
+				4. ERROR in X.java (at line 9)
+					X<? extends AX> x5 = new X<AX<String>>(new AX<String>());
+					                         ^
+				Redundant specification of type arguments <AX<String>>
+				----------
+				5. ERROR in X.java (at line 9)
+					X<? extends AX> x5 = new X<AX<String>>(new AX<String>());
+					                                           ^^
+				Redundant specification of type arguments <String>
+				----------
+				6. ERROR in X.java (at line 10)
+					X<?> x6 = new X<AX<String>>(new AX<String>());
+					              ^
+				Redundant specification of type arguments <AX<String>>
+				----------
+				7. ERROR in X.java (at line 10)
+					X<?> x6 = new X<AX<String>>(new AX<String>());
+					                                ^^
+				Redundant specification of type arguments <String>
+				----------
+				8. ERROR in X.java (at line 11)
+					X<Class<? extends Object>> x7 = new X<Class<? extends Object>>();
+					                                    ^
+				Redundant specification of type arguments <Class<? extends Object>>
+				----------
+				"""
+		: """
+			----------
+			1. ERROR in X.java (at line 5)
+				X<Number> x = new X<Number>(1);
+				                  ^
+			Redundant specification of type arguments <Number>
+			----------
+			2. ERROR in X.java (at line 6)
+				X<String> x2 = new X<String>("SUCCESS");
+				                   ^
+			Redundant specification of type arguments <String>
+			----------
+			3. ERROR in X.java (at line 7)
+				X<Integer> x3 = new X<Integer>(1);
+				                    ^
+			Redundant specification of type arguments <Integer>
+			----------
+			4. ERROR in X.java (at line 8)
+				X<AX> x4 = new X<AX>(new AX());
+				               ^
+			Redundant specification of type arguments <AX>
+			----------
+			5. ERROR in X.java (at line 9)
+				X<? extends AX> x5 = new X<AX<String>>(new AX<String>());
+				                         ^
+			Redundant specification of type arguments <AX<String>>
+			----------
+			6. ERROR in X.java (at line 9)
+				X<? extends AX> x5 = new X<AX<String>>(new AX<String>());
+				                                           ^^
+			Redundant specification of type arguments <String>
+			----------
+			7. ERROR in X.java (at line 10)
+				X<?> x6 = new X<AX<String>>(new AX<String>());
+				              ^
+			Redundant specification of type arguments <AX<String>>
+			----------
+			8. ERROR in X.java (at line 10)
+				X<?> x6 = new X<AX<String>>(new AX<String>());
+				                                ^^
+			Redundant specification of type arguments <String>
+			----------
+			9. ERROR in X.java (at line 11)
+				X<Class<? extends Object>> x7 = new X<Class<? extends Object>>();
+				                                    ^
+			Redundant specification of type arguments <Class<? extends Object>>
+			----------
+			"""
 		),
 		null,
 		false,
@@ -2131,83 +2316,88 @@ public void test0052b() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<E> {\n" +
-			"	 E eField;\n" +
-			"	 E get() { return this.eField; }\n" +
-			"    X(E e) {}\n" +
-			"    X(int e, String e2) {}\n" +
-			"    public static void main(String[] args) {\n" +
-			"        X<Number> x = new X<Number>(1);\n" +
-			"        X<String> x2 = new X<String>(\"SUCCESS\");\n" +
-			"        X<String> x22 = new X<String>(1,\"SUCCESS\");\n" +
-			"        X<Integer> x3 = new X<Integer>(1);\n" +
-			"        String s = foo(new X<String>(\"aaa\"));\n" +
-			"        String s2 = foo(new X<String>(1,\"aaa\"));\n" +
-			"	}\n" +
-			"    static String foo(X<String> x) {\n" +
-			"		return x.get();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X<E> {
+					 E eField;
+					 E get() { return this.eField; }
+				    X(E e) {}
+				    X(int e, String e2) {}
+				    public static void main(String[] args) {
+				        X<Number> x = new X<Number>(1);
+				        X<String> x2 = new X<String>("SUCCESS");
+				        X<String> x22 = new X<String>(1,"SUCCESS");
+				        X<Integer> x3 = new X<Integer>(1);
+				        String s = foo(new X<String>("aaa"));
+				        String s2 = foo(new X<String>(1,"aaa"));
+					}
+				    static String foo(X<String> x) {
+						return x.get();
+				    }
+				}
+				"""
 		},
 		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	X<String> x2 = new X<String>(\"SUCCESS\");\n" +
-			"	                   ^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
-			"	X<String> x22 = new X<String>(1,\"SUCCESS\");\n" +
-			"	                    ^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
-			"	X<Integer> x3 = new X<Integer>(1);\n" +
-			"	                    ^\n" +
-			"Redundant specification of type arguments <Integer>\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 11)\n" +
-			"	String s = foo(new X<String>(\"aaa\"));\n" +
-			"	                   ^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 12)\n" +
-			"	String s2 = foo(new X<String>(1,\"aaa\"));\n" +
-			"	                    ^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n"
-		: // additional error at line 7 due to better inference
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	X<Number> x = new X<Number>(1);\n" +
-			"	                  ^\n" +
-			"Redundant specification of type arguments <Number>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
-			"	X<String> x2 = new X<String>(\"SUCCESS\");\n" +
-			"	                   ^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 9)\n" +
-			"	X<String> x22 = new X<String>(1,\"SUCCESS\");\n" +
-			"	                    ^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 10)\n" +
-			"	X<Integer> x3 = new X<Integer>(1);\n" +
-			"	                    ^\n" +
-			"Redundant specification of type arguments <Integer>\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 11)\n" +
-			"	String s = foo(new X<String>(\"aaa\"));\n" +
-			"	                   ^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 12)\n" +
-			"	String s2 = foo(new X<String>(1,\"aaa\"));\n" +
-			"	                    ^\n" +
-			"Redundant specification of type arguments <String>\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 8)
+					X<String> x2 = new X<String>("SUCCESS");
+					                   ^
+				Redundant specification of type arguments <String>
+				----------
+				2. ERROR in X.java (at line 9)
+					X<String> x22 = new X<String>(1,"SUCCESS");
+					                    ^
+				Redundant specification of type arguments <String>
+				----------
+				3. ERROR in X.java (at line 10)
+					X<Integer> x3 = new X<Integer>(1);
+					                    ^
+				Redundant specification of type arguments <Integer>
+				----------
+				4. ERROR in X.java (at line 11)
+					String s = foo(new X<String>("aaa"));
+					                   ^
+				Redundant specification of type arguments <String>
+				----------
+				5. ERROR in X.java (at line 12)
+					String s2 = foo(new X<String>(1,"aaa"));
+					                    ^
+				Redundant specification of type arguments <String>
+				----------
+				"""
+		: """
+			----------
+			1. ERROR in X.java (at line 7)
+				X<Number> x = new X<Number>(1);
+				                  ^
+			Redundant specification of type arguments <Number>
+			----------
+			2. ERROR in X.java (at line 8)
+				X<String> x2 = new X<String>("SUCCESS");
+				                   ^
+			Redundant specification of type arguments <String>
+			----------
+			3. ERROR in X.java (at line 9)
+				X<String> x22 = new X<String>(1,"SUCCESS");
+				                    ^
+			Redundant specification of type arguments <String>
+			----------
+			4. ERROR in X.java (at line 10)
+				X<Integer> x3 = new X<Integer>(1);
+				                    ^
+			Redundant specification of type arguments <Integer>
+			----------
+			5. ERROR in X.java (at line 11)
+				String s = foo(new X<String>("aaa"));
+				                   ^
+			Redundant specification of type arguments <String>
+			----------
+			6. ERROR in X.java (at line 12)
+				String s2 = foo(new X<String>(1,"aaa"));
+				                    ^
+			Redundant specification of type arguments <String>
+			----------
+			"""
 		),
 		null,
 		false,
@@ -2221,34 +2411,37 @@ public void test0052c() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<E> {\n" +
-			"	X(String abc, String def) {}\n" +
-			"	void foo() {\n" +
-			"		X<Integer> x = new X<Integer>(\"\",\"\");\n" +
-			"		foo3(new X<Integer>(\"\",\"\"));\n" +
-			"	}\n" +
-			"	X<Integer> foo2() {\n" +
-			"		return new X<Integer>(\"\",\"\");\n" +
-			"	}\n" +
-			"	void foo3(X<Integer> x) {}\n" +
-			"}"
+			"""
+				public class X<E> {
+					X(String abc, String def) {}
+					void foo() {
+						X<Integer> x = new X<Integer>("","");
+						foo3(new X<Integer>("",""));
+					}
+					X<Integer> foo2() {
+						return new X<Integer>("","");
+					}
+					void foo3(X<Integer> x) {}
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	X<Integer> x = new X<Integer>(\"\",\"\");\n" +
-		"	                   ^\n" +
-		"Redundant specification of type arguments <Integer>\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	foo3(new X<Integer>(\"\",\"\"));\n" +
-		"	         ^\n" +
-		"Redundant specification of type arguments <Integer>\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 8)\n" +
-		"	return new X<Integer>(\"\",\"\");\n" +
-		"	           ^\n" +
-		"Redundant specification of type arguments <Integer>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				X<Integer> x = new X<Integer>("","");
+				                   ^
+			Redundant specification of type arguments <Integer>
+			----------
+			2. ERROR in X.java (at line 5)
+				foo3(new X<Integer>("",""));
+				         ^
+			Redundant specification of type arguments <Integer>
+			----------
+			3. ERROR in X.java (at line 8)
+				return new X<Integer>("","");
+				           ^
+			Redundant specification of type arguments <Integer>
+			----------
+			""",
 		null,
 		false,
 		customOptions);
@@ -2261,23 +2454,27 @@ public void test0052d() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<E> {\n" +
-			"    X(E e) {}\n" +
-			"    X() {}\n" +
-			"    public static void main(String[] args) {\n" +
-			"        X<Number> x = new X<Number>(1);\n" +
-			"	}\n" +
-			"}\n" +
-			"class AX<T>{}\n"
+			"""
+				public class X<E> {
+				    X(E e) {}
+				    X() {}
+				    public static void main(String[] args) {
+				        X<Number> x = new X<Number>(1);
+					}
+				}
+				class AX<T>{}
+				"""
 		},
 		this.complianceLevel < ClassFileConstants.JDK1_8 ?
 		"" :
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	X<Number> x = new X<Number>(1);\n" +
-		"	                  ^\n" +
-		"Redundant specification of type arguments <Number>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				X<Number> x = new X<Number>(1);
+				                  ^
+			Redundant specification of type arguments <Number>
+			----------
+			""",
 		null,
 		false,
 		customOptions);
@@ -2290,22 +2487,25 @@ public void test0053() {
 	this.runNegativeTest(
 		new String[] {
 			"Z.java",
-			"public class Z <T extends ZB> { \n" +
-			"    public static void main(String[] args) {\n" +
-			"        foo(new Z<ZB>());\n" +
-			"    }\n" +
-			"    static void foo(Z<ZB> z) {\n" +
-			"    }\n" +
-			"}\n" +
-			"class ZB {\n" +
-			"}"
+			"""
+				public class Z <T extends ZB> {\s
+				    public static void main(String[] args) {
+				        foo(new Z<ZB>());
+				    }
+				    static void foo(Z<ZB> z) {
+				    }
+				}
+				class ZB {
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in Z.java (at line 3)\n" +
-		"	foo(new Z<ZB>());\n" +
-		"	        ^\n" +
-		"Redundant specification of type arguments <ZB>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in Z.java (at line 3)
+				foo(new Z<ZB>());
+				        ^
+			Redundant specification of type arguments <ZB>
+			----------
+			""",
 		null,
 		false,
 		customOptions);
@@ -2318,19 +2518,23 @@ public void test0054() {
 	this.runNegativeTest(
 		new String[] {
 			"Y.java",
-			"public class Y<V> {\n" +
-			"  public static <W extends ABC> Y<W> make(Class<W> clazz) {\n" +
-			"    return new Y<W>();\n" +
-			"  }\n" +
-			"}\n" +
-			"class ABC{}\n"
+			"""
+				public class Y<V> {
+				  public static <W extends ABC> Y<W> make(Class<W> clazz) {
+				    return new Y<W>();
+				  }
+				}
+				class ABC{}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in Y.java (at line 3)\n" +
-		"	return new Y<W>();\n" +
-		"	           ^\n" +
-		"Redundant specification of type arguments <W>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in Y.java (at line 3)
+				return new Y<W>();
+				           ^
+			Redundant specification of type arguments <W>
+			----------
+			""",
 		null,
 		false,
 		customOptions);
@@ -2343,52 +2547,56 @@ public void test0055() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<A> {\n" +
-			"  class Inner<B> { }\n" +
-			"  static class Inner2<C> { }\n" +
-			"\n" +
-			"  void method() {\n" +
-			"    X<String>.Inner<Integer> a= new X<String>().new Inner<Integer>();\n" +
-			"    X<String>.Inner<Integer> a1= new X<String>().new Inner<>();\n" +	// do not warn. Removing String from X<String> not possible
-			"    Inner<Integer> b= new X<A>().new Inner<Integer>();\n" +
-			"    Inner<Integer> c= new Inner<Integer>();\n" +
-			"    X<A>.Inner<Integer> e= new X<A>().new Inner<Integer>();\n" +
-			"    X<A>.Inner<Integer> f= new Inner<Integer>();\n" +
-			"    X.Inner2<Integer> d3 = new X.Inner2<Integer>();\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public class X<A> {
+				  class Inner<B> { }
+				  static class Inner2<C> { }
+				
+				  void method() {
+				    X<String>.Inner<Integer> a= new X<String>().new Inner<Integer>();
+				    X<String>.Inner<Integer> a1= new X<String>().new Inner<>();
+				    Inner<Integer> b= new X<A>().new Inner<Integer>();
+				    Inner<Integer> c= new Inner<Integer>();
+				    X<A>.Inner<Integer> e= new X<A>().new Inner<Integer>();
+				    X<A>.Inner<Integer> f= new Inner<Integer>();
+				    X.Inner2<Integer> d3 = new X.Inner2<Integer>();
+				  }
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	X<String>.Inner<Integer> a= new X<String>().new Inner<Integer>();\n" +
-		"	                                                ^^^^^\n" +
-		"Redundant specification of type arguments <Integer>\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	Inner<Integer> b= new X<A>().new Inner<Integer>();\n" +
-		"	                                 ^^^^^\n" +
-		"Redundant specification of type arguments <Integer>\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 9)\n" +
-		"	Inner<Integer> c= new Inner<Integer>();\n" +
-		"	                      ^^^^^\n" +
-		"Redundant specification of type arguments <Integer>\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 10)\n" +
-		"	X<A>.Inner<Integer> e= new X<A>().new Inner<Integer>();\n" +
-		"	                                      ^^^^^\n" +
-		"Redundant specification of type arguments <Integer>\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 11)\n" +
-		"	X<A>.Inner<Integer> f= new Inner<Integer>();\n" +
-		"	                           ^^^^^\n" +
-		"Redundant specification of type arguments <Integer>\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 12)\n" +
-		"	X.Inner2<Integer> d3 = new X.Inner2<Integer>();\n" +
-		"	                             ^^^^^^\n" +
-		"Redundant specification of type arguments <Integer>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				X<String>.Inner<Integer> a= new X<String>().new Inner<Integer>();
+				                                                ^^^^^
+			Redundant specification of type arguments <Integer>
+			----------
+			2. ERROR in X.java (at line 8)
+				Inner<Integer> b= new X<A>().new Inner<Integer>();
+				                                 ^^^^^
+			Redundant specification of type arguments <Integer>
+			----------
+			3. ERROR in X.java (at line 9)
+				Inner<Integer> c= new Inner<Integer>();
+				                      ^^^^^
+			Redundant specification of type arguments <Integer>
+			----------
+			4. ERROR in X.java (at line 10)
+				X<A>.Inner<Integer> e= new X<A>().new Inner<Integer>();
+				                                      ^^^^^
+			Redundant specification of type arguments <Integer>
+			----------
+			5. ERROR in X.java (at line 11)
+				X<A>.Inner<Integer> f= new Inner<Integer>();
+				                           ^^^^^
+			Redundant specification of type arguments <Integer>
+			----------
+			6. ERROR in X.java (at line 12)
+				X.Inner2<Integer> d3 = new X.Inner2<Integer>();
+				                             ^^^^^^
+			Redundant specification of type arguments <Integer>
+			----------
+			""",
 		null,
 		false,
 		customOptions);
@@ -2402,37 +2610,41 @@ public void test0056() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X <T> {\n" +
-			"	void foo1() {\n" +
-			"		X<String>.Item<Thread> i = new X<Exception>().new Item<Thread>();\n" +
-			"	}\n" +
-			"	void foo2() {\n" +
-			"		X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();\n" +
-			"	}\n" +
-			"	class Item <E> {}\n" +
-			"}\n"
+			"""
+				public class X <T> {
+					void foo1() {
+						X<String>.Item<Thread> i = new X<Exception>().new Item<Thread>();
+					}
+					void foo2() {
+						X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();
+					}
+					class Item <E> {}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	X<String>.Item<Thread> i = new X<Exception>().new Item<Thread>();\n" +
-		"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from X<Exception>.Item<Thread> to X<String>.Item<Thread>\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	X<String>.Item<Thread> i = new X<Exception>().new Item<Thread>();\n" +
-		"	                                                  ^^^^\n" +
-		"Redundant specification of type arguments <Thread>\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 6)\n" +
-		"	X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();\n" +
-		"	                                  ^^^^^^^^^^^^^^^^^\n" +
-		"Cannot allocate the member type X<Exception>.Item<Thread> using a parameterized compound name; use its simple name and an enclosing instance of type X<Exception>\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 6)\n" +
-		"	X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();\n" +
-		"	                                               ^^^^\n" +
-		"Redundant specification of type arguments <Thread>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				X<String>.Item<Thread> i = new X<Exception>().new Item<Thread>();
+				                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from X<Exception>.Item<Thread> to X<String>.Item<Thread>
+			----------
+			2. ERROR in X.java (at line 3)
+				X<String>.Item<Thread> i = new X<Exception>().new Item<Thread>();
+				                                                  ^^^^
+			Redundant specification of type arguments <Thread>
+			----------
+			3. ERROR in X.java (at line 6)
+				X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();
+				                                  ^^^^^^^^^^^^^^^^^
+			Cannot allocate the member type X<Exception>.Item<Thread> using a parameterized compound name; use its simple name and an enclosing instance of type X<Exception>
+			----------
+			4. ERROR in X.java (at line 6)
+				X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();
+				                                               ^^^^
+			Redundant specification of type arguments <Thread>
+			----------
+			""",
 		null,
 		false,
 		customOptions);
@@ -2446,33 +2658,38 @@ public void test0056b() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X <T> {\n" +
-			"	static class X1<Z> {\n" +
-			"		X1(Z z){}\n" +
-			"	}\n" +
-			"	X1<Integer> x1 = new X.X1<Integer>(1);\n" +
-			"	X1<Number> x2 = new X.X1<Number>(1);\n" +
-			"}\n"
+			"""
+				public class X <T> {
+					static class X1<Z> {
+						X1(Z z){}
+					}
+					X1<Integer> x1 = new X.X1<Integer>(1);
+					X1<Number> x2 = new X.X1<Number>(1);
+				}
+				"""
 		},
 		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	X1<Integer> x1 = new X.X1<Integer>(1);\n" +
-			"	                       ^^\n" +
-			"Redundant specification of type arguments <Integer>\n" +
-			"----------\n"
-		: // additional error at line 6 due to better inference:
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	X1<Integer> x1 = new X.X1<Integer>(1);\n" +
-			"	                       ^^\n" +
-			"Redundant specification of type arguments <Integer>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	X1<Number> x2 = new X.X1<Number>(1);\n" +
-			"	                      ^^\n" +
-			"Redundant specification of type arguments <Number>\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					X1<Integer> x1 = new X.X1<Integer>(1);
+					                       ^^
+				Redundant specification of type arguments <Integer>
+				----------
+				"""
+		: """
+			----------
+			1. ERROR in X.java (at line 5)
+				X1<Integer> x1 = new X.X1<Integer>(1);
+				                       ^^
+			Redundant specification of type arguments <Integer>
+			----------
+			2. ERROR in X.java (at line 6)
+				X1<Number> x2 = new X.X1<Number>(1);
+				                      ^^
+			Redundant specification of type arguments <Number>
+			----------
+			"""
 		),
 		null,
 		false,
@@ -2487,33 +2704,38 @@ public void test0056c() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X <T> {\n" +
-			"	X(T t){}\n" +
-			"	class X1<Z> {\n" +
-			"		X1(Z z){}\n" +
-			"	}\n" +
-			"	X<Integer>.X1<Number> x1 = new X<Integer>(1).new X1<Number>(1);\n" +
-			"}\n"
+			"""
+				public class X <T> {
+					X(T t){}
+					class X1<Z> {
+						X1(Z z){}
+					}
+					X<Integer>.X1<Number> x1 = new X<Integer>(1).new X1<Number>(1);
+				}
+				"""
 		},
 		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	X<Integer>.X1<Number> x1 = new X<Integer>(1).new X1<Number>(1);\n" +
-			"	                               ^\n" +
-			"Redundant specification of type arguments <Integer>\n" +
-			"----------\n"
-		: // additional error (2.) at inner allocation due to better inference:
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	X<Integer>.X1<Number> x1 = new X<Integer>(1).new X1<Number>(1);\n" +
-			"	                               ^\n" +
-			"Redundant specification of type arguments <Integer>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	X<Integer>.X1<Number> x1 = new X<Integer>(1).new X1<Number>(1);\n" +
-			"	                                                 ^^\n" +
-			"Redundant specification of type arguments <Number>\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					X<Integer>.X1<Number> x1 = new X<Integer>(1).new X1<Number>(1);
+					                               ^
+				Redundant specification of type arguments <Integer>
+				----------
+				"""
+		: """
+			----------
+			1. ERROR in X.java (at line 6)
+				X<Integer>.X1<Number> x1 = new X<Integer>(1).new X1<Number>(1);
+				                               ^
+			Redundant specification of type arguments <Integer>
+			----------
+			2. ERROR in X.java (at line 6)
+				X<Integer>.X1<Number> x1 = new X<Integer>(1).new X1<Number>(1);
+				                                                 ^^
+			Redundant specification of type arguments <Number>
+			----------
+			"""
 		),
 		null,
 		false,
@@ -2527,22 +2749,26 @@ public void test0057() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void test() {\n" +
-			"		Pair<Double, Integer> p = new InvertedPair<Integer, Double>();\n" +
-			"	}\n" +
-			"}\n" +
-			"class Pair<A, B> {\n" +
-			"}\n" +
-			"class InvertedPair<A, B> extends Pair<B, A> {\n" +
-			"}\n"
+			"""
+				public class X {
+					void test() {
+						Pair<Double, Integer> p = new InvertedPair<Integer, Double>();
+					}
+				}
+				class Pair<A, B> {
+				}
+				class InvertedPair<A, B> extends Pair<B, A> {
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	Pair<Double, Integer> p = new InvertedPair<Integer, Double>();\n" +
-		"	                              ^^^^^^^^^^^^\n" +
-		"Redundant specification of type arguments <Integer, Double>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				Pair<Double, Integer> p = new InvertedPair<Integer, Double>();
+				                              ^^^^^^^^^^^^
+			Redundant specification of type arguments <Integer, Double>
+			----------
+			""",
 		null,
 		false,
 		customOptions);
@@ -2555,23 +2781,27 @@ public void test0058() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"\n" +
-			"public class X {\n" +
-			"    public void test(boolean param) {\n" +
-			"        ArrayList<?> ls = (param) \n" +
-			"        		? new ArrayList<String>()\n" +
-			"        		: new ArrayList<Object>();\n" +
-			"        		\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.util.ArrayList;
+				
+				public class X {
+				    public void test(boolean param) {
+				        ArrayList<?> ls = (param)\s
+				        		? new ArrayList<String>()
+				        		: new ArrayList<Object>();
+				        	\t
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	: new ArrayList<Object>();\n" +
-		"	      ^^^^^^^^^\n" +
-		"Redundant specification of type arguments <Object>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				: new ArrayList<Object>();
+				      ^^^^^^^^^
+			Redundant specification of type arguments <Object>
+			----------
+			""",
 		null,
 		false,
 		customOptions);
@@ -2584,13 +2814,15 @@ public void test0059() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"\n" +
-			"public class X<T> {\n" +
-			"	 X(List<? extends T> p) {}\n" +
-			"    Object x = new X<CharSequence>((ArrayList<String>) null);\n" +
-			"}\n"
+			"""
+				import java.util.ArrayList;
+				import java.util.List;
+				
+				public class X<T> {
+					 X(List<? extends T> p) {}
+				    Object x = new X<CharSequence>((ArrayList<String>) null);
+				}
+				"""
 		},
 		"",
 		null,
@@ -2604,26 +2836,30 @@ public void test0060() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	 public void foo() {\n" +
-			"    	new ArrayList<>();\n" +
-			"	 }\n" +
-			"}\n"
+			"""
+				import java.util.ArrayList;
+				import java.util.List;
+				
+				public class X {
+					 public void foo() {
+				    	new ArrayList<>();
+					 }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	new ArrayList<>();\n" +
-		"	    ^^^^^^^^^\n" +
-		"\'<>\' operator is not allowed for source level below 1.7\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	new ArrayList<>();\n" +
-		"	    ^^^^^^^^^\n" +
-		"Incorrect number of arguments for type ArrayList<E>; it cannot be parameterized with arguments <>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				new ArrayList<>();
+				    ^^^^^^^^^
+			\'<>\' operator is not allowed for source level below 1.7
+			----------
+			2. ERROR in X.java (at line 6)
+				new ArrayList<>();
+				    ^^^^^^^^^
+			Incorrect number of arguments for type ArrayList<E>; it cannot be parameterized with arguments <>
+			----------
+			""",
 		null,
 		false,
 		customOptions);
@@ -2635,24 +2871,28 @@ public void test0060a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"\n" +
-			"public class X {\n" +
-			"	 public void foo() {\n" +
-			"    	new java.util.ArrayList<>();\n" +
-			"	 }\n" +
-			"}\n"
+			"""
+				
+				public class X {
+					 public void foo() {
+				    	new java.util.ArrayList<>();
+					 }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	new java.util.ArrayList<>();\n" +
-		"	    ^^^^^^^^^^^^^^^^^^^\n" +
-		"\'<>\' operator is not allowed for source level below 1.7\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	new java.util.ArrayList<>();\n" +
-		"	    ^^^^^^^^^^^^^^^^^^^\n" +
-		"Incorrect number of arguments for type ArrayList<E>; it cannot be parameterized with arguments <>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				new java.util.ArrayList<>();
+				    ^^^^^^^^^^^^^^^^^^^
+			\'<>\' operator is not allowed for source level below 1.7
+			----------
+			2. ERROR in X.java (at line 4)
+				new java.util.ArrayList<>();
+				    ^^^^^^^^^^^^^^^^^^^
+			Incorrect number of arguments for type ArrayList<E>; it cannot be parameterized with arguments <>
+			----------
+			""",
 		null,
 		false,
 		customOptions);
@@ -2662,35 +2902,40 @@ public void test0061() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.net.URI;" +
-			"import java.nio.file.FileSystems;" +
-			"import java.util.Collections;\n" +
-			"public class X {\n" +
-			"	 public static void foo() {\n" +
-			"    	URI uri = URI.create(\"http://www.eclipse.org\");\n" +
-			"		FileSystems.<String, Object>newFileSystem(uri, Collections.emptyMap());\n" +
-			"	 }\n" +
-			"}\n"
+			"""
+				import java.net.URI;\
+				import java.nio.file.FileSystems;\
+				import java.util.Collections;
+				public class X {
+					 public static void foo() {
+				    	URI uri = URI.create("http://www.eclipse.org");
+						FileSystems.<String, Object>newFileSystem(uri, Collections.emptyMap());
+					 }
+				}
+				"""
 		},
 		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	FileSystems.<String, Object>newFileSystem(uri, Collections.emptyMap());\n" +
-			"	                            ^^^^^^^^^^^^^\n" +
-			"The method newFileSystem(URI, Map<String,?>) in the type FileSystems is not applicable for the arguments (URI, Map<Object,Object>)\n" +
-			"----------\n"
-		: // with better inference, method is applicable, but then we have another problem:
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	FileSystems.<String, Object>newFileSystem(uri, Collections.emptyMap());\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Unhandled exception type IOException\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 5)\n" +
-			"	FileSystems.<String, Object>newFileSystem(uri, Collections.emptyMap());\n" +
-			"	             ^^^^^^^^^^^^^^\n" +
-			"Unused type arguments for the non generic method newFileSystem(URI, Map<String,?>) of type FileSystems; it should not be parameterized with arguments <String, Object>\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					FileSystems.<String, Object>newFileSystem(uri, Collections.emptyMap());
+					                            ^^^^^^^^^^^^^
+				The method newFileSystem(URI, Map<String,?>) in the type FileSystems is not applicable for the arguments (URI, Map<Object,Object>)
+				----------
+				"""
+		: """
+			----------
+			1. ERROR in X.java (at line 5)
+				FileSystems.<String, Object>newFileSystem(uri, Collections.emptyMap());
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Unhandled exception type IOException
+			----------
+			2. WARNING in X.java (at line 5)
+				FileSystems.<String, Object>newFileSystem(uri, Collections.emptyMap());
+				             ^^^^^^^^^^^^^^
+			Unused type arguments for the non generic method newFileSystem(URI, Map<String,?>) of type FileSystems; it should not be parameterized with arguments <String, Object>
+			----------
+			"""
 		));
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428220, [1.8][compiler] Javadoc processing interferes with type inference.
@@ -2700,24 +2945,28 @@ public void test428220() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class HashMap<K, V> {\n" +
-			"	static class Node<K, V> {\n" +
-			"		Node(int hash, K key, V value, Node<K, V> next) {}\n" +
-			"	}\n" +
-			"	/** @see #put(Object, Object) */\n" +
-			"	public V put(K key, V value) {	return null; }\n" +
-			"\n" +
-			"	Node<K, V> newNode(int hash, K key, V value, Node<K, V> next) {\n" +
-			"		return new Node<>(hash, key, value, next); // Error\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class HashMap<K, V> {
+					static class Node<K, V> {
+						Node(int hash, K key, V value, Node<K, V> next) {}
+					}
+					/** @see #put(Object, Object) */
+					public V put(K key, V value) {	return null; }
+				
+					Node<K, V> newNode(int hash, K key, V value, Node<K, V> next) {
+						return new Node<>(hash, key, value, next); // Error
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class HashMap<K, V> {\n" +
-		"	             ^^^^^^^\n" +
-		"The public type HashMap must be defined in its own file\n" +
-		"----------\n", null, true, customOptions);
+		"""
+			----------
+			1. ERROR in X.java (at line 1)
+				public class HashMap<K, V> {
+				             ^^^^^^^
+			The public type HashMap must be defined in its own file
+			----------
+			""", null, true, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428220, [1.8][compiler] Javadoc processing interferes with type inference.
 public void test428220a() {
@@ -2726,61 +2975,67 @@ public void test428220a() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class HashMap<K, V> {\n" +
-			"	static class Node<K, V> {\n" +
-			"		Node(int hash, K key, V value, Node<K, V> next) {}\n" +
-			"	}\n" +
-			"	/** @see #put(Object, Object) */\n" +
-			"	public V put(K key, V value) {	return null; }\n" +
-			"\n" +
-			"	Node<K, V> newNode(int hash, K key, V value, Node<K, V> next) {\n" +
-			"		return new Node<>(hash, key, value, next); // Error\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class HashMap<K, V> {
+					static class Node<K, V> {
+						Node(int hash, K key, V value, Node<K, V> next) {}
+					}
+					/** @see #put(Object, Object) */
+					public V put(K key, V value) {	return null; }
+				
+					Node<K, V> newNode(int hash, K key, V value, Node<K, V> next) {
+						return new Node<>(hash, key, value, next); // Error
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class HashMap<K, V> {\n" +
-		"	             ^^^^^^^\n" +
-		"The public type HashMap must be defined in its own file\n" +
-		"----------\n", null, true, customOptions);
+		"""
+			----------
+			1. ERROR in X.java (at line 1)
+				public class HashMap<K, V> {
+				             ^^^^^^^
+			The public type HashMap must be defined in its own file
+			----------
+			""", null, true, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=442929, [1.8][compiler] ClassCastException during runtime where is no cast
 public void test442929() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		shouldNotThrow();\n" +
-			"	}\n" +
-			"	static void shouldNotThrow() {\n" +
-			"		final String[] array = { \"\" };\n" +
-			"		final String[] expected = { \"\" };\n" +
-			"		// throws\n" +
-			"       try {\n" +
-			"		    assertThat(op(array, \"\")).isEqualTo(expected);\n" +
-			"       } catch (ClassCastException c) {\n" +
-			"           System.out.println(\"Expected CCE\");\n" +
-			"       }\n" +
-			"	}\n" +
-			"	static <T> T[] op(T[] array, T element) {\n" +
-			"		return asArray(element);\n" +
-			"	}\n" +
-			"	@SafeVarargs\n" +
-			"	static <T> T[] asArray(T... elements) {\n" +
-			"		return elements;\n" +
-			"	}\n" +
-			"	static <T> ObjectArrayAssert<T> assertThat(T actual) {\n" +
-			"		return new ObjectArrayAssert<>(actual);\n" +
-			"	}\n" +
-			"	static class ObjectArrayAssert<T> {\n" +
-			"		ObjectArrayAssert(T actual) {\n" +
-			"		}\n" +
-			"		void isEqualTo(T expected) {\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						shouldNotThrow();
+					}
+					static void shouldNotThrow() {
+						final String[] array = { "" };
+						final String[] expected = { "" };
+						// throws
+				       try {
+						    assertThat(op(array, "")).isEqualTo(expected);
+				       } catch (ClassCastException c) {
+				           System.out.println("Expected CCE");
+				       }
+					}
+					static <T> T[] op(T[] array, T element) {
+						return asArray(element);
+					}
+					@SafeVarargs
+					static <T> T[] asArray(T... elements) {
+						return elements;
+					}
+					static <T> ObjectArrayAssert<T> assertThat(T actual) {
+						return new ObjectArrayAssert<>(actual);
+					}
+					static class ObjectArrayAssert<T> {
+						ObjectArrayAssert(T actual) {
+						}
+						void isEqualTo(T expected) {
+						}
+					}
+				}
+				""",
 		},
 		"Expected CCE");
 }
@@ -2791,89 +3046,95 @@ public void test448028() {
 	this.runNegativeTest(
 		   new String[] {
 			   "X.java",
-			   "public class X {\n" +
-			   "\n" +
-			   "  public static interface I {/*empty*/}\n" +
-			   "\n" +
-			   "  public static class C\n" +
-			   "    implements I {/*empty*/}\n" +
-			   "\n" +
-			   "  public static class W<T extends I>\n" +
-			   "    implements I {\n" +
-			   "\n" +
-			   "    // --- problem is triggered only, when there is a vararg-parameter\n" +
-			   "    public W(final T t, final Object... o) {\n" +
-			   "      super();\n" +
-			   "    }\n" +
-			   "  }\n" +
-			   "\n" +
-			   "  // --- needed to trigger problem\n" +
-			   "  public static final <T> T inspect(final T t) {\n" +
-			   "    return t;\n" +
-			   "  }\n" +
-			   "\n" +
-			   "  // --- this compiles ok when having JDK Compilance set to 1.7 !\n" +
-			   "  public static final W<C> err1() {\n" +
-			   "    final C c = new C();\n" +
-			   "    final Object o = new Object();\n" +
-			   "    return inspect(new W<>(c, o)); // - ERROR: Cannot infer type arguments for W<> F.java\n" +
-			   "  }\n" +
-			   "\n" +
-			   "  public static final W<C> wrn1() {\n" +
-			   "    final C c = new C();\n" +
-			   "    final Object o = new Object();\n" +
-			   "    // --- giving the type-parameter yields a warning\n" +
-			   "    // --- comparing that to the error of method err1() it does not make much sense\n" +
-			   "    return inspect(new W<C>(c, o)); // - WARNING: Redundant specification of type arguments <F.C> F.java\n" +
-			   "  }\n" +
-			   "\n" +
-			   "  public static final W<C> ok1() {\n" +
-			   "    final C c = new C();\n" +
-			   "    // --- no extra vararg-paramaeter\n" +
-			   "    return inspect(new W<>(c)); // - OK\n" +
-			   "  }\n" +
-			   "\n" +
-			   "  public static final W<C> ok2() {\n" +
-			   "    final C c = new C();\n" +
-			   "    final Object o = new Object();\n" +
-			   "    // --- no check-method\n" +
-			   "    return new W<>(c, o); // - OK\n" +
-			   "  }\n" +
-			   "\n" +
-			   "  public static final W<C> ok3() {\n" +
-			   "    final C c = new C();\n" +
-			   "    // --- no check-method\n" +
-			   "    return new W<>(c); // - OK\n" +
-			   "  }\n" +
-			   "\n" +
-			   "  public static final W<C> ok4() {\n" +
-			   "    final C c = new C();\n" +
-			   "    final Object o = new Object();\n" +
-			   "    // --- this also compiles (my solution for now)\n" +
-			   "    final W<C> w = new W<>(c, o);\n" +
-			   "    return inspect(w);\n" +
-			   "  }\n" +
-			   "}\n",
+			   """
+				public class X {
+				
+				  public static interface I {/*empty*/}
+				
+				  public static class C
+				    implements I {/*empty*/}
+				
+				  public static class W<T extends I>
+				    implements I {
+				
+				    // --- problem is triggered only, when there is a vararg-parameter
+				    public W(final T t, final Object... o) {
+				      super();
+				    }
+				  }
+				
+				  // --- needed to trigger problem
+				  public static final <T> T inspect(final T t) {
+				    return t;
+				  }
+				
+				  // --- this compiles ok when having JDK Compilance set to 1.7 !
+				  public static final W<C> err1() {
+				    final C c = new C();
+				    final Object o = new Object();
+				    return inspect(new W<>(c, o)); // - ERROR: Cannot infer type arguments for W<> F.java
+				  }
+				
+				  public static final W<C> wrn1() {
+				    final C c = new C();
+				    final Object o = new Object();
+				    // --- giving the type-parameter yields a warning
+				    // --- comparing that to the error of method err1() it does not make much sense
+				    return inspect(new W<C>(c, o)); // - WARNING: Redundant specification of type arguments <F.C> F.java
+				  }
+				
+				  public static final W<C> ok1() {
+				    final C c = new C();
+				    // --- no extra vararg-paramaeter
+				    return inspect(new W<>(c)); // - OK
+				  }
+				
+				  public static final W<C> ok2() {
+				    final C c = new C();
+				    final Object o = new Object();
+				    // --- no check-method
+				    return new W<>(c, o); // - OK
+				  }
+				
+				  public static final W<C> ok3() {
+				    final C c = new C();
+				    // --- no check-method
+				    return new W<>(c); // - OK
+				  }
+				
+				  public static final W<C> ok4() {
+				    final C c = new C();
+				    final Object o = new Object();
+				    // --- this also compiles (my solution for now)
+				    final W<C> w = new W<>(c, o);
+				    return inspect(w);
+				  }
+				}
+				""",
 		   },
-		   "----------\n" +
-			"1. ERROR in X.java (at line 34)\n" +
-			"	return inspect(new W<C>(c, o)); // - WARNING: Redundant specification of type arguments <F.C> F.java\n" +
-			"	                   ^\n" +
-			"Redundant specification of type arguments <X.C>\n" +
-			"----------\n",
+		   """
+			----------
+			1. ERROR in X.java (at line 34)
+				return inspect(new W<C>(c, o)); // - WARNING: Redundant specification of type arguments <F.C> F.java
+				                   ^
+			Redundant specification of type arguments <X.C>
+			----------
+			""",
 			null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449619,  [1.8][compiler] Qualified <> allocation fails to compile.
 public void test449619() {
-	String source = "public class X {\n" +
-			   "	public class Y<T> {\n" +
-			   "	}\n" +
-			   "	static void foo(Y<String> ys) {\n" +
-			   "	}\n" +
-			   "	public static void main(String[] args) {\n" +
-			   "		foo(new X().new Y<>());\n" +
-			   "	}\n" +
-			   "}\n";
+	String source = """
+		public class X {
+			public class Y<T> {
+			}
+			static void foo(Y<String> ys) {
+			}
+			public static void main(String[] args) {
+				foo(new X().new Y<>());
+			}
+		}
+		""";
 	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
 		this.runConformTest(
 		   new String[] {
@@ -2887,32 +3148,36 @@ public void test449619() {
 			   "X.java",
 			   source,
 		   },
-		   "----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	foo(new X().new Y<>());\n" +
-			"	^^^\n" +
-			"The method foo(X.Y<String>) in the type X is not applicable for the arguments (X.Y<Object>)\n" +
-			"----------\n");
+		   """
+			----------
+			1. ERROR in X.java (at line 7)
+				foo(new X().new Y<>());
+				^^^
+			The method foo(X.Y<String>) in the type X is not applicable for the arguments (X.Y<Object>)
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429733, [1.8][bytecode] Bad type on operand stack
 public void test429733() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		test(new Some<>(1.1d));\n" +
-			"	}\n" +
-			"	static <S> void test(Option<S> value) {\n" +
-			"	}\n" +
-			"	static interface Option<T> {\n" +
-			"	}\n" +
-			"	static class Some<T> implements Option<T> {\n" +
-			"		Some(T value) {\n" +
-			"         System.out.println(value);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						test(new Some<>(1.1d));
+					}
+					static <S> void test(Option<S> value) {
+					}
+					static interface Option<T> {
+					}
+					static class Some<T> implements Option<T> {
+						Some(T value) {
+				         System.out.println(value);
+						}
+					}
+				}
+				"""
 		},
 		"1.1");
 }
@@ -2921,20 +3186,22 @@ public void test429733a() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		test(new Some<Double>(1.1d));\n" +
-			"	}\n" +
-			"	static <S> void test(Option<S> value) {\n" +
-			"	}\n" +
-			"	static interface Option<T> {\n" +
-			"	}\n" +
-			"	static class Some<T> implements Option<T> {\n" +
-			"		Some(T value) {\n" +
-			"         System.out.println(value);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						test(new Some<Double>(1.1d));
+					}
+					static <S> void test(Option<S> value) {
+					}
+					static interface Option<T> {
+					}
+					static class Some<T> implements Option<T> {
+						Some(T value) {
+				         System.out.println(value);
+						}
+					}
+				}
+				"""
 		},
 		"1.1");
 }
@@ -2943,50 +3210,56 @@ public void test375394a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    B<C, ? extends C<C>, ? extends C<C>> b = new B<>();\n" +
-			"}\n" +
-			"class B <T, U extends C<T>, V extends U>{}\n" +
-			"class C<T> {}\n",
+			"""
+				public class X {
+				    B<C, ? extends C<C>, ? extends C<C>> b = new B<>();
+				}
+				class B <T, U extends C<T>, V extends U>{}
+				class C<T> {}
+				""",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	B<C, ? extends C<C>, ? extends C<C>> b = new B<>();\n" +
-		"	  ^\n" +
-		"C is a raw type. References to generic type C<T> should be parameterized\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 2)\n" +
-		"	B<C, ? extends C<C>, ? extends C<C>> b = new B<>();\n" +
-		"	                 ^\n" +
-		"C is a raw type. References to generic type C<T> should be parameterized\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 2)\n" +
-		"	B<C, ? extends C<C>, ? extends C<C>> b = new B<>();\n" +
-		"	                                 ^\n" +
-		"C is a raw type. References to generic type C<T> should be parameterized\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 2)
+				B<C, ? extends C<C>, ? extends C<C>> b = new B<>();
+				  ^
+			C is a raw type. References to generic type C<T> should be parameterized
+			----------
+			2. WARNING in X.java (at line 2)
+				B<C, ? extends C<C>, ? extends C<C>> b = new B<>();
+				                 ^
+			C is a raw type. References to generic type C<T> should be parameterized
+			----------
+			3. WARNING in X.java (at line 2)
+				B<C, ? extends C<C>, ? extends C<C>> b = new B<>();
+				                                 ^
+			C is a raw type. References to generic type C<T> should be parameterized
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427728, [1.8] Type Inference rejects calls requiring boxing/unboxing
 public void test427728b() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.Collections;\n" +
-			"import java.util.LinkedHashMap;\n" +
-			"import java.util.Map;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		   Map<X, Integer> map = new LinkedHashMap<>();\n" +
-			"		   map.put(null, X.getInt());\n" +
-			"		   map.put(null, X.getint());\n" +
-			"		}\n" +
-			"		private static <T> int getInt() {\n" +
-			"		   return 0;\n" +
-			"		}\n" +
-			"		private static int getint() {\n" +
-			"			   return 0;\n" +
-			"		}\n" +
-			"}\n"
+			"""
+				import java.util.Collections;
+				import java.util.LinkedHashMap;
+				import java.util.Map;
+				public class X {
+					public static void main(String[] args) {
+						   Map<X, Integer> map = new LinkedHashMap<>();
+						   map.put(null, X.getInt());
+						   map.put(null, X.getint());
+						}
+						private static <T> int getInt() {
+						   return 0;
+						}
+						private static int getint() {
+							   return 0;
+						}
+				}
+				"""
 		},
 		"");
 }
@@ -2994,94 +3267,107 @@ public void testBug456508() {
 	runNegativeTest(
 		new String[] {
 			"QueryAtom.java",
-			"public class QueryAtom<T, P> {\n" +
-			"	public QueryAtom(SingularAttribute<? super T, P> path) {\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class QueryAtom<T, P> {
+					public QueryAtom(SingularAttribute<? super T, P> path) {
+					}
+				}
+				""",
 			"SubqueryIn.java",
-			"public class SubqueryIn<S, P>  {\n" +
-			"	public SubqueryIn(QueryAtom<S, P>... subqueryAtoms) {\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class SubqueryIn<S, P>  {
+					public SubqueryIn(QueryAtom<S, P>... subqueryAtoms) {
+					}
+				}
+				""",
 			"Test.java",
-			"class PAccount {}\n" +
-			"class PGroepAccount {}\n" +
-			"interface SingularAttribute<X, T> {}\n" +
-			"\n" +
-			"public class Test {\n" +
-			"    public static volatile SingularAttribute<PGroepAccount, PAccount> account;\n" +
-			"\n" +
-			"	public void nietInGroep() {\n" +
-			"		recordFilter(new SubqueryIn<>(new QueryAtom<>(account)));\n" +
-			"	}\n" +
-			"\n" +
-			"	protected <P> void recordFilter(SubqueryIn<?, P> atom) {\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				class PAccount {}
+				class PGroepAccount {}
+				interface SingularAttribute<X, T> {}
+				
+				public class Test {
+				    public static volatile SingularAttribute<PGroepAccount, PAccount> account;
+				
+					public void nietInGroep() {
+						recordFilter(new SubqueryIn<>(new QueryAtom<>(account)));
+					}
+				
+					protected <P> void recordFilter(SubqueryIn<?, P> atom) {
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in SubqueryIn.java (at line 2)\n" +
-		"	public SubqueryIn(QueryAtom<S, P>... subqueryAtoms) {\n" +
-		"	                                     ^^^^^^^^^^^^^\n" +
-		"Type safety: Potential heap pollution via varargs parameter subqueryAtoms\n" +
-		"----------\n" +
-		"----------\n" +
-		"1. WARNING in Test.java (at line 9)\n" +
-		"	recordFilter(new SubqueryIn<>(new QueryAtom<>(account)));\n" +
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: A generic array of QueryAtom<PGroepAccount,PAccount> is created for a varargs parameter\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in SubqueryIn.java (at line 2)
+				public SubqueryIn(QueryAtom<S, P>... subqueryAtoms) {
+				                                     ^^^^^^^^^^^^^
+			Type safety: Potential heap pollution via varargs parameter subqueryAtoms
+			----------
+			----------
+			1. WARNING in Test.java (at line 9)
+				recordFilter(new SubqueryIn<>(new QueryAtom<>(account)));
+				             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type safety: A generic array of QueryAtom<PGroepAccount,PAccount> is created for a varargs parameter
+			----------
+			""");
 }
 public void testBug462083() {
 	runConformTest(
 		new String[] {
 			"Java8InterfaceTest.java",
-			"public abstract class Java8InterfaceTest\n" +
-			"{\n" +
-			"	public static interface Entity {}\n" +
-			"\n" +
-			"	public static interface Service<T1 extends Entity> {}\n" +
-			"\n" +
-			"    public static interface ServiceLocator<T2 extends Entity> {}\n" +
-			"\n" +
-			"    public static class ConcreteClass<T3 extends Entity, S extends Service<T3>> implements ServiceLocator<T3> {}\n" +
-			"\n" +
-			"    protected abstract <T4 extends Entity> ConcreteClass<T4, ?> getParameterized(T4 entity);\n" +
-			"\n" +
-			"    protected <T5 extends Entity> ServiceLocator<T5> getInterface(T5 entity)\n" +
-			"    {\n" +
-			"    	return getParameterized(entity);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public abstract class Java8InterfaceTest
+				{
+					public static interface Entity {}
+				
+					public static interface Service<T1 extends Entity> {}
+				
+				    public static interface ServiceLocator<T2 extends Entity> {}
+				
+				    public static class ConcreteClass<T3 extends Entity, S extends Service<T3>> implements ServiceLocator<T3> {}
+				
+				    protected abstract <T4 extends Entity> ConcreteClass<T4, ?> getParameterized(T4 entity);
+				
+				    protected <T5 extends Entity> ServiceLocator<T5> getInterface(T5 entity)
+				    {
+				    	return getParameterized(entity);
+				    }
+				}
+				"""
 		});
 }
 public void testBug469653() {
 	String codeContent =
-		"import java.util.*;\n" +
-		"\n" +
-		"class ImmutableList<E> {\n" +
-		"	static <F> ImmutableList<F> copyOf(Iterable<? extends F> in) { return null; }\n" +
-		"	ImmutableList<E> reverse() { return this; }\n" +
-		"	Iterator<E> iterator() { return null; }\n" +
-		"}\n" +
-		"public class Code {\n" +
-		"  public static void test() {\n" +
-		"      Iterable<? extends String> services = null;\n" +
-		"      Iterator<String> reverseServices = ImmutableList.copyOf(services).reverse().iterator();\n" +
-		"  }\n" +
-		"}";
+		"""
+		import java.util.*;
+		
+		class ImmutableList<E> {
+			static <F> ImmutableList<F> copyOf(Iterable<? extends F> in) { return null; }
+			ImmutableList<E> reverse() { return this; }
+			Iterator<E> iterator() { return null; }
+		}
+		public class Code {
+		  public static void test() {
+		      Iterable<? extends String> services = null;
+		      Iterator<String> reverseServices = ImmutableList.copyOf(services).reverse().iterator();
+		  }
+		}""";
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
 		runConformTest(
 			new String[] { "Code.java", codeContent });
 	} else {
 		runNegativeTest(
 			new String[] { "Code.java", codeContent },
-			"----------\n" +
-			"1. ERROR in Code.java (at line 11)\n" +
-			"	Iterator<String> reverseServices = ImmutableList.copyOf(services).reverse().iterator();\n" +
-			"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from Iterator<capture#1-of ? extends String> to Iterator<String>\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in Code.java (at line 11)
+					Iterator<String> reverseServices = ImmutableList.copyOf(services).reverse().iterator();
+					                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Type mismatch: cannot convert from Iterator<capture#1-of ? extends String> to Iterator<String>
+				----------
+				""");
 	}
 }
 public void testBug488649_JDK6791481_ex1() {
@@ -3089,10 +3375,12 @@ public void testBug488649_JDK6791481_ex1() {
 	runNegativeTest(
 		new String[] {
 			"Test.java",
-			"class Test<X> {\n" +
-			"	X m(Class<X> c) {return null;}\n" +
-			"	X x = m((Class)String.class);\n" +
-			"}\n"
+			"""
+				class Test<X> {
+					X m(Class<X> c) {return null;}
+					X x = m((Class)String.class);
+				}
+				"""
 		},
 		"----------\n" +
 		(this.complianceLevel >= ClassFileConstants.JDK1_8

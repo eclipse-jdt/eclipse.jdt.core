@@ -37,105 +37,116 @@ public static Test suite() {
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
-		"package p;\n" +
-		"public class X {\n" +
-		"        int foo(){\n" +
-		"                int i;\n" +
-		"                return 1;\n" +
-		"        }\n" +
-		"}\n",
+		"""
+			package p;
+			public class X {
+			        int foo(){
+			                int i;
+			                return 1;
+			        }
+			}
+			""",
 	});
 }
 public void test002() {
 	this.runConformTest(new String[] {
 		"p/X.java",
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    String temp;\n" +
-		"    try {\n" +
-		"      return;\n" +
-		"    }\n" +
-		"    catch (Exception e){\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			package p;
+			public class X {
+			  void foo() {
+			    String temp;
+			    try {
+			      return;
+			    }
+			    catch (Exception e){
+			    }
+			  }
+			}
+			""",
 	});
 }
 public void test003() {
 	this.runConformTest(new String[] {
 		"p/X.java",
-		"package p;\n" +
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    String temp;\n" +
-		"    try {\n" +
-		"      return;\n" +
-		"    }\n" +
-		"    catch (Exception e) {\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			package p;
+			public class X {
+			  void foo() {
+			    String temp;
+			    try {
+			      return;
+			    }
+			    catch (Exception e) {
+			    }
+			  }
+			}
+			""",
 	});
 }
 public void test004() {
 	this.runConformTest(new String[] {
 		"p/X.java",
-		"package p;\n" +
-		"public class X {\n" +
-		"  {\n" +
-		"     int i = 1;\n" +
-		"    System.out.println(i);\n" +
-		"  }\n" +
-		"  X(int j){\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			package p;
+			public class X {
+			  {
+			     int i = 1;
+			    System.out.println(i);
+			  }
+			  X(int j){
+			  }
+			}
+			""",
 	});
 }
 public void test005() {
 	this.runConformTest(new String[] {
 		"p/X.java",
-		"package p;\n" +
-		"public class X {\n" +
-		"  int j;\n" +
-		"  void f1() {\n" +
-		"    int l;\n" +
-		"    switch (j) {\n" +
-		"      case 0 :\n" +
-		"        l = 10;\n" +
-		"		 l++;\n" + // at least one read usage
-		"        break;\n" +
-		"      case 1 :\n" +
-		"        l = 20;\n" +
-		"        break;\n" +
-		"      case 2 :\n" +
-		"        l = 30;\n" +
-		"        break;\n" +
-		"      default :\n" +
-		"        l = 10;\n" +
-		"        break;\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public static void main(String args[]) {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			package p;
+			public class X {
+			  int j;
+			  void f1() {
+			    int l;
+			    switch (j) {
+			      case 0 :
+			        l = 10;
+					 l++;
+			        break;
+			      case 1 :
+			        l = 20;
+			        break;
+			      case 2 :
+			        l = 30;
+			        break;
+			      default :
+			        l = 10;
+			        break;
+			    }
+			  }
+			  public static void main(String args[]) {
+			  }
+			}
+			""",
 	});
 }
 
 public void test006() {
 	this.runConformTest(new String[] {
 		"p/Truc.java",
-		"package p;\n" +
-		"public class Truc{\n" +
-		"   void foo(){\n" +
-		"      final int i; \n" +
-		"	   i = 1;\n" +
-		"      if (false) i = 2;\n" +
-		"   } \n" +
-		"	public static void main(java.lang.String[] args) {\n" +
-		"  		System.out.println(\"SUCCESS\"); \n" +
-		"	}	\n" +
-		"}",
+		"""
+			package p;
+			public class Truc{
+			   void foo(){
+			      final int i;\s
+				   i = 1;
+			      if (false) i = 2;
+			   }\s
+				public static void main(java.lang.String[] args) {
+			  		System.out.println("SUCCESS");\s
+				}\t
+			}""",
 	},
 	"SUCCESS");
 }
@@ -143,26 +154,28 @@ public void test006() {
 public void test007() {
 	this.runConformTest(new String[] {
 		"p/A.java",
-		"package p;\n" +
-		"import p.helper.Y;\n" +
-		"class A extends Y {\n" +
-		"  class Y {\n" +
-		"    int j = i;// i is a protected member inherited from Y\n" +
-		"  }\n" +
-		"}",
+		"""
+			package p;
+			import p.helper.Y;
+			class A extends Y {
+			  class Y {
+			    int j = i;// i is a protected member inherited from Y
+			  }
+			}""",
 
 		"p/helper/Y.java",
-		"package p.helper;\n" +
-		"public class Y {\n" +
-		"  protected int i = 10;\n" +
-		"  public inner in = new inner();\n" +
-		"    \n" +
-		"  protected class inner {\n" +
-		"    public int  f() {\n" +
-		"      return 20;\n" +
-		"    }\n" +
-		"  }\n" +
-		"}",
+		"""
+			package p.helper;
+			public class Y {
+			  protected int i = 10;
+			  public inner in = new inner();
+			   \s
+			  protected class inner {
+			    public int  f() {
+			      return 20;
+			    }
+			  }
+			}""",
 
 	});
 }
@@ -171,46 +184,52 @@ public void test008() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	class Y {\n" +
-			"		Y innerY;\n" +
-			"\n" +
-			"		int longMemberName;\n" +
-			"	}\n" +
-			"\n" +
-			"	static public void main(String args[]) {\n" +
-			"		Y y;\n" +
-			"		System.out.println(y.innerY.longMemberName);\n" +
-			"	}\n" +
-			"}"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 10)\n" +
-			"	System.out.println(y.innerY.longMemberName);\n" +
-			"	                   ^\n" +
-			"The local variable y may not have been initialized\n" +
-			"----------\n");
+			"""
+				class X {
+					class Y {
+						Y innerY;
+				
+						int longMemberName;
+					}
+				
+					static public void main(String args[]) {
+						Y y;
+						System.out.println(y.innerY.longMemberName);
+					}
+				}"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 10)
+					System.out.println(y.innerY.longMemberName);
+					                   ^
+				The local variable y may not have been initialized
+				----------
+				""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127078
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	class Y {\n" +
-			"		int longMemberName;\n" +
-			"	}\n" +
-			"\n" +
-			"	static public void main(String args[]) {\n" +
-			"		Y y;\n" +
-			"		System.out.println(y.longMemberName);\n" +
-			"	}\n" +
-			"}"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	System.out.println(y.longMemberName);\n" +
-			"	                   ^\n" +
-			"The local variable y may not have been initialized\n" +
-			"----------\n");
+			"""
+				class X {
+					class Y {
+						int longMemberName;
+					}
+				
+					static public void main(String args[]) {
+						Y y;
+						System.out.println(y.longMemberName);
+					}
+				}"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 8)
+					System.out.println(y.longMemberName);
+					                   ^
+				The local variable y may not have been initialized
+				----------
+				""");
 }
 public void test010() {
 	Map options = getCompilerOptions();
@@ -219,16 +238,18 @@ public void test010() {
 		CompilerOptions.ENABLED);
 	this.runConformTest(new String[] {
 		"p/X.java",
-		"package p;\n" +
-		"/**\n" +
-		" * @see Y\n" +
-		" */\n" +
-		"public class X {\n" +
-		"}",
+		"""
+			package p;
+			/**
+			 * @see Y
+			 */
+			public class X {
+			}""",
 		"p/Y.java",
-		"package p;\n" +
-		"class Z {\n" +
-		"}",
+		"""
+			package p;
+			class Z {
+			}""",
 	},
 	"",
 	null,
@@ -242,52 +263,60 @@ public void test011() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"        public static void main(String[] args) {\n" +
-				"                int x = 2;\n" +
-				"                if (true) {\n" +
-				"                        int x = 4;\n" +
-				"                }\n" +
-				"        }\n" +
-				"}\n",
+				"""
+					public class X {
+					        public static void main(String[] args) {
+					                int x = 2;
+					                if (true) {
+					                        int x = 4;
+					                }
+					        }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	int x = 4;\n" +
-			"	    ^\n" +
-			"Duplicate local variable x\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					int x = 4;
+					    ^
+				Duplicate local variable x
+				----------
+				""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
 public void test012() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"        public static void main(String[] args) {\n" +
-				"                int x = x = 0;\n" +
-				"                if (true) {\n" +
-				"                        int x = x = 1;\n" +
-				"                }\n" +
-				"        }\n" +
-				"}\n",
+				"""
+					public class X {
+					        public static void main(String[] args) {
+					                int x = x = 0;
+					                if (true) {
+					                        int x = x = 1;
+					                }
+					        }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	int x = x = 0;\n" +
-			"	    ^^^^^^^^^\n" +
-			"The assignment to variable x has no effect\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	int x = x = 1;\n" +
-			"	    ^\n" +
-			"Duplicate local variable x\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 5)\n" +
-			"	int x = x = 1;\n" +
-			"	    ^^^^^^^^^\n" +
-			"The assignment to variable x has no effect\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					int x = x = 0;
+					    ^^^^^^^^^
+				The assignment to variable x has no effect
+				----------
+				2. ERROR in X.java (at line 5)
+					int x = x = 1;
+					    ^
+				Duplicate local variable x
+				----------
+				3. WARNING in X.java (at line 5)
+					int x = x = 1;
+					    ^^^^^^^^^
+				The assignment to variable x has no effect
+				----------
+				""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858 - variation
 //check variable collision resiliance (catch argument)
@@ -296,48 +325,56 @@ public void test013() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"        public static void main(String[] args) {\n" +
-				"                int x = 2;\n" +
-				"                try {\n" +
-				"                	\n" +
-				"                } catch(Exception x) {\n" +
-				"                } catch(Exception e) {\n" +
-				"                }\n" +
-				"        }\n" +
-				"}\n",
+				"""
+					public class X {
+					        public static void main(String[] args) {
+					                int x = 2;
+					                try {
+					                \t
+					                } catch(Exception x) {
+					                } catch(Exception e) {
+					                }
+					        }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	} catch(Exception x) {\n" +
-			"	                  ^\n" +
-			"Duplicate parameter x\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	} catch(Exception e) {\n" +
-			"	        ^^^^^^^^^\n" +
-			"Unreachable catch block for Exception. It is already handled by the catch block for Exception\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					} catch(Exception x) {
+					                  ^
+				Duplicate parameter x
+				----------
+				2. ERROR in X.java (at line 7)
+					} catch(Exception e) {
+					        ^^^^^^^^^
+				Unreachable catch block for Exception. It is already handled by the catch block for Exception
+				----------
+				""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858 - variation
 public void test014() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	void foo(){\n" +
-				"		int x = 0;\n" +
-				"		String x = \"\";\n" +
-				"		x.toString();\n" +
-				"	  }\n" +
-				"	}\n",
+				"""
+					public class X {
+						void foo(){
+							int x = 0;
+							String x = "";
+							x.toString();
+						  }
+						}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	String x = \"\";\n" +
-			"	       ^\n" +
-			"Duplicate local variable x\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					String x = "";
+					       ^
+				Duplicate local variable x
+				----------
+				""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157379
 public void test015() {
@@ -347,17 +384,19 @@ public void test015() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"        public static boolean test() {\n" +
-				"                boolean b = false;\n" +
-				"                assert b = true;\n" +
-				"                return false;\n" +
-				"        }\n" +
-				"        public static void main(String[] args) {\n" +
-				"                test();\n" +
-				"                System.out.println(\"SUCCESS\");\n" +
-				"        }\n" +
-				"}\n",
+				"""
+					public class X {
+					        public static boolean test() {
+					                boolean b = false;
+					                assert b = true;
+					                return false;
+					        }
+					        public static void main(String[] args) {
+					                test();
+					                System.out.println("SUCCESS");
+					        }
+					}
+					""",
 			},
 			"SUCCESS",
 			null,
@@ -379,48 +418,50 @@ public void test016() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X extends Parent implements Doable {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	void foo(int value) { // X#foo(...)\n" +
-			"	}\n" +
-			"	void bar(int value) { // X#bar(...)\n" +
-			"	}\n" +
-			"\n" +
-			"	void top(int value) { /* X#top(...)*/}\n" +
-			"	void parent(int value) { /* X#parent(...) */}\n" +
-			"	public void doit(int value) { /* X#doit(...) */}\n" +
-			"}\n" +
-			"abstract class Top {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	abstract void top(int value); // Top#top(...)\n" +
-			"}\n" +
-			"abstract class Parent extends Top {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	void parent(int value) { /* Parent#parent(...) */}\n" +
-			"}\n" +
-			"interface Doable {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	void doit (int value); // Doable#doit(...)\n" +
-			"}", // =================
+			"""
+				public class X extends Parent implements Doable {
+					/**
+					 * @param value
+					 */
+					void foo(int value) { // X#foo(...)
+					}
+					void bar(int value) { // X#bar(...)
+					}
+				
+					void top(int value) { /* X#top(...)*/}
+					void parent(int value) { /* X#parent(...) */}
+					public void doit(int value) { /* X#doit(...) */}
+				}
+				abstract class Top {
+					/**
+					 * @param value
+					 */
+					abstract void top(int value); // Top#top(...)
+				}
+				abstract class Parent extends Top {
+					/**
+					 * @param value
+					 */
+					void parent(int value) { /* Parent#parent(...) */}
+				}
+				interface Doable {
+					/**
+					 * @param value
+					 */
+					void doit (int value); // Doable#doit(...)
+				}""", // =================
 		},
 		// compiler options
 		null /* no class libraries */,
 		options /* custom options */,
-		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 7)\n" +
-		"	void bar(int value) { // X#bar(...)\n" +
-		"	             ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				void bar(int value) { // X#bar(...)
+				             ^^^^^
+			The value of the parameter value is not used
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -437,58 +478,60 @@ public void test017() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X extends Parent implements Doable {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	void foo(int value) { // X#foo(...)\n" +
-			"	}\n" +
-			"	void bar(int value) { // X#bar(...)\n" +
-			"	}\n" +
-			"\n" +
-			"	void top(int value) { /* X#top(...)*/}\n" +
-			"	void parent(int value) { /* X#parent(...) */}\n" +
-			"	public void doit(int value) { /* X#doit(...) */}\n" +
-			"}\n" +
-			"abstract class Top {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	abstract void top(int value); // Top#top(...)\n" +
-			"}\n" +
-			"abstract class Parent extends Top {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	void parent(int value) { /* Parent#parent(...) */}\n" +
-			"}\n" +
-			"interface Doable {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	void doit (int value); // Doable#doit(...)\n" +
-			"}", // =================
+			"""
+				public class X extends Parent implements Doable {
+					/**
+					 * @param value
+					 */
+					void foo(int value) { // X#foo(...)
+					}
+					void bar(int value) { // X#bar(...)
+					}
+				
+					void top(int value) { /* X#top(...)*/}
+					void parent(int value) { /* X#parent(...) */}
+					public void doit(int value) { /* X#doit(...) */}
+				}
+				abstract class Top {
+					/**
+					 * @param value
+					 */
+					abstract void top(int value); // Top#top(...)
+				}
+				abstract class Parent extends Top {
+					/**
+					 * @param value
+					 */
+					void parent(int value) { /* Parent#parent(...) */}
+				}
+				interface Doable {
+					/**
+					 * @param value
+					 */
+					void doit (int value); // Doable#doit(...)
+				}""", // =================
 		},
 		// compiler options
 		null /* no class libraries */,
 		options /* custom options */,
-		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 5)\n" +
-		"	void foo(int value) { // X#foo(...)\n" +
-		"	             ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	void bar(int value) { // X#bar(...)\n" +
-		"	             ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 24)\n" +
-		"	void parent(int value) { /* Parent#parent(...) */}\n" +
-		"	                ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				void foo(int value) { // X#foo(...)
+				             ^^^^^
+			The value of the parameter value is not used
+			----------
+			2. ERROR in X.java (at line 7)
+				void bar(int value) { // X#bar(...)
+				             ^^^^^
+			The value of the parameter value is not used
+			----------
+			3. ERROR in X.java (at line 24)
+				void parent(int value) { /* Parent#parent(...) */}
+				                ^^^^^
+			The value of the parameter value is not used
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -505,58 +548,60 @@ public void test018() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X extends Parent implements Doable {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	void foo(int value) { // X#foo(...)\n" +
-			"	}\n" +
-			"	void bar(int value) { // X#bar(...)\n" +
-			"	}\n" +
-			"\n" +
-			"	void top(int value) { /* X#top(...)*/}\n" +
-			"	void parent(int value) { /* X#parent(...) */}\n" +
-			"	public void doit(int value) { /* X#doit(...) */}\n" +
-			"}\n" +
-			"abstract class Top {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	abstract void top(int value); // Top#top(...)\n" +
-			"}\n" +
-			"abstract class Parent extends Top {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	void parent(int value) { /* Parent#parent(...) */}\n" +
-			"}\n" +
-			"interface Doable {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	void doit (int value); // Doable#doit(...)\n" +
-			"}", // =================
+			"""
+				public class X extends Parent implements Doable {
+					/**
+					 * @param value
+					 */
+					void foo(int value) { // X#foo(...)
+					}
+					void bar(int value) { // X#bar(...)
+					}
+				
+					void top(int value) { /* X#top(...)*/}
+					void parent(int value) { /* X#parent(...) */}
+					public void doit(int value) { /* X#doit(...) */}
+				}
+				abstract class Top {
+					/**
+					 * @param value
+					 */
+					abstract void top(int value); // Top#top(...)
+				}
+				abstract class Parent extends Top {
+					/**
+					 * @param value
+					 */
+					void parent(int value) { /* Parent#parent(...) */}
+				}
+				interface Doable {
+					/**
+					 * @param value
+					 */
+					void doit (int value); // Doable#doit(...)
+				}""", // =================
 		},
 		// compiler options
 		null /* no class libraries */,
 		options /* custom options */,
-		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 5)\n" +
-		"	void foo(int value) { // X#foo(...)\n" +
-		"	             ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	void bar(int value) { // X#bar(...)\n" +
-		"	             ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 24)\n" +
-		"	void parent(int value) { /* Parent#parent(...) */}\n" +
-		"	                ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				void foo(int value) { // X#foo(...)
+				             ^^^^^
+			The value of the parameter value is not used
+			----------
+			2. ERROR in X.java (at line 7)
+				void bar(int value) { // X#bar(...)
+				             ^^^^^
+			The value of the parameter value is not used
+			----------
+			3. ERROR in X.java (at line 24)
+				void parent(int value) { /* Parent#parent(...) */}
+				                ^^^^^
+			The value of the parameter value is not used
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -573,73 +618,75 @@ public void test019() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X extends Parent implements Doable {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	void foo(int value) { // X#foo(...)\n" +
-			"	}\n" +
-			"	void bar(int value) { // X#bar(...)\n" +
-			"	}\n" +
-			"\n" +
-			"	void top(int value) { /* X#top(...)*/}\n" +
-			"	void parent(int value) { /* X#parent(...) */}\n" +
-			"	public void doit(int value) { /* X#doit(...) */}\n" +
-			"}\n" +
-			"abstract class Top {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	abstract void top(int value); // Top#top(...)\n" +
-			"}\n" +
-			"abstract class Parent extends Top {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	void parent(int value) { /* Parent#parent(...) */}\n" +
-			"}\n" +
-			"interface Doable {\n" +
-			"	/**\n" +
-			"	 * @param value\n" +
-			"	 */\n" +
-			"	void doit (int value); // Doable#doit(...)\n" +
-			"}", // =================
+			"""
+				public class X extends Parent implements Doable {
+					/**
+					 * @param value
+					 */
+					void foo(int value) { // X#foo(...)
+					}
+					void bar(int value) { // X#bar(...)
+					}
+				
+					void top(int value) { /* X#top(...)*/}
+					void parent(int value) { /* X#parent(...) */}
+					public void doit(int value) { /* X#doit(...) */}
+				}
+				abstract class Top {
+					/**
+					 * @param value
+					 */
+					abstract void top(int value); // Top#top(...)
+				}
+				abstract class Parent extends Top {
+					/**
+					 * @param value
+					 */
+					void parent(int value) { /* Parent#parent(...) */}
+				}
+				interface Doable {
+					/**
+					 * @param value
+					 */
+					void doit (int value); // Doable#doit(...)
+				}""", // =================
 		},
 		// compiler options
 		null /* no class libraries */,
 		options /* custom options */,
-		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 5)\n" +
-		"	void foo(int value) { // X#foo(...)\n" +
-		"	             ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	void bar(int value) { // X#bar(...)\n" +
-		"	             ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 10)\n" +
-		"	void top(int value) { /* X#top(...)*/}\n" +
-		"	             ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 11)\n" +
-		"	void parent(int value) { /* X#parent(...) */}\n" +
-		"	                ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 12)\n" +
-		"	public void doit(int value) { /* X#doit(...) */}\n" +
-		"	                     ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 24)\n" +
-		"	void parent(int value) { /* Parent#parent(...) */}\n" +
-		"	                ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				void foo(int value) { // X#foo(...)
+				             ^^^^^
+			The value of the parameter value is not used
+			----------
+			2. ERROR in X.java (at line 7)
+				void bar(int value) { // X#bar(...)
+				             ^^^^^
+			The value of the parameter value is not used
+			----------
+			3. ERROR in X.java (at line 10)
+				void top(int value) { /* X#top(...)*/}
+				             ^^^^^
+			The value of the parameter value is not used
+			----------
+			4. ERROR in X.java (at line 11)
+				void parent(int value) { /* X#parent(...) */}
+				                ^^^^^
+			The value of the parameter value is not used
+			----------
+			5. ERROR in X.java (at line 12)
+				public void doit(int value) { /* X#doit(...) */}
+				                     ^^^^^
+			The value of the parameter value is not used
+			----------
+			6. ERROR in X.java (at line 24)
+				void parent(int value) { /* Parent#parent(...) */}
+				                ^^^^^
+			The value of the parameter value is not used
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -656,68 +703,70 @@ public void test020() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X extends Parent implements Doable {\n" +
-			"	/** @param value */\n" +
-			"	void foo(int value) { // X#foo(...)\n" +
-			"	}\n" +
-			"	void bar(int value) { // X#bar(...)\n" +
-			"	}\n" +
-			"\n" +
-			"	/** @param value */\n" +
-			"	void top(int value) { /* X#top(...)*/}\n" +
-			"	/** @param value */\n" +
-			"	void parent(int value) { /* X#parent(...) */}\n" +
-			"	/** @param value */\n" +
-			"	public void doit(int value) { /* X#doit(...) */}\n" +
-			"}\n" +
-			"abstract class Top {\n" +
-			"	/** @param value */\n" +
-			"	abstract void top(int value); // Top#top(...)\n" +
-			"}\n" +
-			"abstract class Parent extends Top {\n" +
-			"	/** @param value */\n" +
-			"	void parent(int value) { /* Parent#parent(...) */}\n" +
-			"}\n" +
-			"interface Doable {\n" +
-			"	/** @param value */\n" +
-			"	void doit (int value); // Doable#doit(...)\n" +
-			"}", // =================
+			"""
+				public class X extends Parent implements Doable {
+					/** @param value */
+					void foo(int value) { // X#foo(...)
+					}
+					void bar(int value) { // X#bar(...)
+					}
+				
+					/** @param value */
+					void top(int value) { /* X#top(...)*/}
+					/** @param value */
+					void parent(int value) { /* X#parent(...) */}
+					/** @param value */
+					public void doit(int value) { /* X#doit(...) */}
+				}
+				abstract class Top {
+					/** @param value */
+					abstract void top(int value); // Top#top(...)
+				}
+				abstract class Parent extends Top {
+					/** @param value */
+					void parent(int value) { /* Parent#parent(...) */}
+				}
+				interface Doable {
+					/** @param value */
+					void doit (int value); // Doable#doit(...)
+				}""", // =================
 		},
 		// compiler options
 		null /* no class libraries */,
 		options /* custom options */,
-		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 3)\n" +
-		"	void foo(int value) { // X#foo(...)\n" +
-		"	             ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	void bar(int value) { // X#bar(...)\n" +
-		"	             ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 9)\n" +
-		"	void top(int value) { /* X#top(...)*/}\n" +
-		"	             ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 11)\n" +
-		"	void parent(int value) { /* X#parent(...) */}\n" +
-		"	                ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 13)\n" +
-		"	public void doit(int value) { /* X#doit(...) */}\n" +
-		"	                     ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 21)\n" +
-		"	void parent(int value) { /* Parent#parent(...) */}\n" +
-		"	                ^^^^^\n" +
-		"The value of the parameter value is not used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				void foo(int value) { // X#foo(...)
+				             ^^^^^
+			The value of the parameter value is not used
+			----------
+			2. ERROR in X.java (at line 5)
+				void bar(int value) { // X#bar(...)
+				             ^^^^^
+			The value of the parameter value is not used
+			----------
+			3. ERROR in X.java (at line 9)
+				void top(int value) { /* X#top(...)*/}
+				             ^^^^^
+			The value of the parameter value is not used
+			----------
+			4. ERROR in X.java (at line 11)
+				void parent(int value) { /* X#parent(...) */}
+				                ^^^^^
+			The value of the parameter value is not used
+			----------
+			5. ERROR in X.java (at line 13)
+				public void doit(int value) { /* X#doit(...) */}
+				                     ^^^^^
+			The value of the parameter value is not used
+			----------
+			6. ERROR in X.java (at line 21)
+				void parent(int value) { /* Parent#parent(...) */}
+				                ^^^^^
+			The value of the parameter value is not used
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -726,18 +775,20 @@ public void test020() {
 public void test412119a() {
 	runConformTest(new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"class X {\n" +
-			"	\n" +
-			"	void somethingDangerous() {}\n" +
-			"	void foo() {\n" +
-			"		try {\n" +
-			"			somethingDangerous();\n" +
-			"		} catch(Exception e) {\n" +
-			"			throw new RuntimeException();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				package p;
+				class X {
+				\t
+					void somethingDangerous() {}
+					void foo() {
+						try {
+							somethingDangerous();
+						} catch(Exception e) {
+							throw new RuntimeException();
+						}
+					}
+				}
+				""",
 		});
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
@@ -749,40 +800,40 @@ public void test412119b() {
 	runner.testFiles =
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"class X {\n" +
-				"	void somethingDangerous() {}\n" +
-				"	void foo() {\n" +
-				"		try {\n" +
-				"			somethingDangerous();\n" +
-				"		} catch(Exception e) {\n" +
-				"				throw new RuntimeException();\n" +
-				"		}\n" +
-				"		try {\n" +
-				"			somethingDangerous();\n" +
-
-				// Exception thrown under a true boolean expression
-				"		} catch(Exception e1) {\n" +
-				"				if (true)\n" +
-				"					throw new RuntimeException(e1);\n" +
-				"		}\n" +
-
-				// Catch clause parameter used.
-				"		try {\n" +
-				"			somethingDangerous();\n" +
-				"		} catch(Exception e2) {\n" +
-				"			throw new RuntimeException(e2);\n" +
-				"		}\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					package p;
+					class X {
+						void somethingDangerous() {}
+						void foo() {
+							try {
+								somethingDangerous();
+							} catch(Exception e) {
+									throw new RuntimeException();
+							}
+							try {
+								somethingDangerous();
+							} catch(Exception e1) {
+									if (true)
+										throw new RuntimeException(e1);
+							}
+							try {
+								somethingDangerous();
+							} catch(Exception e2) {
+								throw new RuntimeException(e2);
+							}
+					    }
+					}
+					""",
 			};
 	runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in p\\X.java (at line 7)\n" +
-			"	} catch(Exception e) {\n" +
-			"	                  ^\n" +
-			"The value of the exception parameter e is not used\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in p\\X.java (at line 7)
+					} catch(Exception e) {
+					                  ^
+				The value of the exception parameter e is not used
+				----------
+				""";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
@@ -797,39 +848,43 @@ public void test412119c() {
 	runner.testFiles =
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"class X {\n" +
-				"class Z2 extends Exception {\n" +
-				"	private static final long serialVersionUID = 1L;}\n" +
-				"class Z1 extends Exception {\n" +
-				"	private static final long serialVersionUID = 1L;}\n" +
-				"	void somethingDangerous(int x, int y) throws Z1, Z2 {\n" +
-				"		if (x < 1)\n" +
-				"			throw new Z1();\n" +
-				"		if (y > 1) \n" +
-				"			throw new Z2();\n" +
-				"	}\n" +
-				"	void foo(int x, int y) {\n" +
-				"		try {\n" +
-				"			somethingDangerous(x, y);\n" +
-				"		} catch(Z2|Z1 z) {\n" +
-				"			throw new RuntimeException();\n" +
-				"		}\n" +
-				"		try {\n" +
-				"			somethingDangerous(x, y);\n" +
-				"		} catch(Z2|Z1 z2) {\n" +
-				"			throw new RuntimeException(z2);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package p;
+					class X {
+					class Z2 extends Exception {
+						private static final long serialVersionUID = 1L;}
+					class Z1 extends Exception {
+						private static final long serialVersionUID = 1L;}
+						void somethingDangerous(int x, int y) throws Z1, Z2 {
+							if (x < 1)
+								throw new Z1();
+							if (y > 1)\s
+								throw new Z2();
+						}
+						void foo(int x, int y) {
+							try {
+								somethingDangerous(x, y);
+							} catch(Z2|Z1 z) {
+								throw new RuntimeException();
+							}
+							try {
+								somethingDangerous(x, y);
+							} catch(Z2|Z1 z2) {
+								throw new RuntimeException(z2);
+							}
+						}
+					}
+					"""
 			};
 	runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in p\\X.java (at line 16)\n" +
-			"	} catch(Z2|Z1 z) {\n" +
-			"	              ^\n" +
-			"The value of the exception parameter z is not used\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in p\\X.java (at line 16)
+					} catch(Z2|Z1 z) {
+					              ^
+				The value of the exception parameter z is not used
+				----------
+				""";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
@@ -844,20 +899,22 @@ public void test412119d() {
 	this.runNegativeTest(
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"class X {\n" +
-				"	@SuppressWarnings(\"unused\")\n" +
-				"	void foo(int x) {}\n" +
-				"	void somethingDangerous() {}\n" +
-				"	@SuppressWarnings(\"unused\")\n" +
-				"	void foo3() {\n" +
-				"		try {\n" +
-				"			somethingDangerous();\n" +
-				"		} catch(Exception e) {\n" +
-				"			throw new RuntimeException();\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package p;
+					class X {
+						@SuppressWarnings("unused")
+						void foo(int x) {}
+						void somethingDangerous() {}
+						@SuppressWarnings("unused")
+						void foo3() {
+							try {
+								somethingDangerous();
+							} catch(Exception e) {
+								throw new RuntimeException();
+							}
+						}
+					}
+					""",
 			},
 			"" ,
 			null,
@@ -870,53 +927,59 @@ public void testBug537033() {
 	runNegativeTest(
 		new String[] {
 			"ShowBug.java",
-			"import java.util.concurrent.Callable;\n" +
-			"\n" +
-			"public class ShowBug {\n" +
-			"    private static abstract class X {\n" +
-			"        abstract void x(int val);\n" +
-			"    }\n" +
-			"\n" +
-			"    public ShowBug() {\n" +
-			"        final X x = new X() {\n" +
-			"            void x(int val) {\n" +
-			"                if (val > 0) {\n" +
-			"                    // (1) The local variable x may not have been initialized\n" +
-			"                    x.x(val - 1);\n" +
-			"                }\n" +
-			"            }\n" +
-			"        };\n" +
-			"\n" +
-			"        new Callable<Void>() {\n" +
-			"            public Void call() {\n" +
-			"                // (2) Missing code implementation in the compiler\n" +
-			"                x.x(10);          \n" +
-			"                return null;\n" +
-			"            }\n" +
-			"        }.call();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.util.concurrent.Callable;
+				
+				public class ShowBug {
+				    private static abstract class X {
+				        abstract void x(int val);
+				    }
+				
+				    public ShowBug() {
+				        final X x = new X() {
+				            void x(int val) {
+				                if (val > 0) {
+				                    // (1) The local variable x may not have been initialized
+				                    x.x(val - 1);
+				                }
+				            }
+				        };
+				
+				        new Callable<Void>() {
+				            public Void call() {
+				                // (2) Missing code implementation in the compiler
+				                x.x(10);         \s
+				                return null;
+				            }
+				        }.call();
+				    }
+				}
+				"""
 		},
 		this.complianceLevel < ClassFileConstants.JDK11
 		?
-		"----------\n" +
-		"1. WARNING in ShowBug.java (at line 9)\n" +
-		"	final X x = new X() {\n" +
-		"	                ^^^\n" +
-		"Access to enclosing constructor ShowBug.X() is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"2. ERROR in ShowBug.java (at line 13)\n" +
-		"	x.x(val - 1);\n" +
-		"	^\n" +
-		"The local variable x may not have been initialized\n" +
-		"----------\n"
+		"""
+			----------
+			1. WARNING in ShowBug.java (at line 9)
+				final X x = new X() {
+				                ^^^
+			Access to enclosing constructor ShowBug.X() is emulated by a synthetic accessor method
+			----------
+			2. ERROR in ShowBug.java (at line 13)
+				x.x(val - 1);
+				^
+			The local variable x may not have been initialized
+			----------
+			"""
 		:
-		"----------\n" +
-		"1. ERROR in ShowBug.java (at line 13)\n" +
-		"	x.x(val - 1);\n" +
-		"	^\n" +
-		"The local variable x may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in ShowBug.java (at line 13)
+				x.x(val - 1);
+				^
+			The local variable x may not have been initialized
+			----------
+			""");
 }
 public static Class testClass() {
 	return LocalVariableTest.class;

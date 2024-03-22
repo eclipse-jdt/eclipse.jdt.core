@@ -80,18 +80,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	int i = switch (o) {\n");
-		buf.append(	    "		case Integer i -> 1;\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	};\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				int i = switch (o) {
+					case Integer i -> 1;
+					default       	-> 0;
+				};
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -131,18 +131,19 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	int i = switch (o) {\n");
-		buf.append(	    "		case Integer i -> 1;\n");
-		buf.append(	    "        case String s -> yield 2;\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	};\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				int i = switch (o) {
+					case Integer i -> 1;
+			        case String s -> yield 2;
+					default       	-> 0;
+				};
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void tesModifyTypePattern() throws Exception {
@@ -150,18 +151,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	int i = switch (o) {\n");
-		buf.append(	    "		case Integer i -> 1;\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	};\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				int i = switch (o) {
+					case Integer i -> 1;
+					default       	-> 0;
+				};
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -194,17 +195,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	int i = switch (o) {\n");
-		buf.append(	    "		case String s -> 1;\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	};\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				int i = switch (o) {
+					case String s -> 1;
+					default       	-> 0;
+				};
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testRemoveTypePattern() throws Exception {
@@ -212,19 +214,19 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	int i = switch (o) {\n");
-		buf.append(	    "		case Integer i -> 1;\n");
-		buf.append(	    "		case String s  -> 2;\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	};\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				int i = switch (o) {
+					case Integer i -> 1;
+					case String s  -> 2;
+					default       	-> 0;
+				};
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -254,17 +256,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	int i = switch (o) {\n");
-		buf.append(	    "		case Integer i -> 1;\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	};\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				int i = switch (o) {
+					case Integer i -> 1;
+					default       	-> 0;
+				};
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 
@@ -273,17 +276,17 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		default       	: System.out.println(\"0\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					default       	: System.out.println("0");
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -337,18 +340,19 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i when i > 10:\n");
-		buf.append(	    "            System.out.println(\"Greater than 10\");\n");
-		buf.append(	    "        default       	: System.out.println(\"0\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i when i > 10:
+			            System.out.println("Greater than 10");
+			        default       	: System.out.println("0");
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testModifyGuardedPattern() throws Exception {
@@ -356,18 +360,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "       case String s when s.equals(\"hi\") : System.out.println(\"hi\");\n");
-		buf.append(	    "		default       	: System.out.println(\"0\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+			       case String s when s.equals("hi") : System.out.println("hi");
+					default       	: System.out.println("0");
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -405,17 +409,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "       case Integer i when i > 10 : System.out.println(\"hi\");\n");
-		buf.append(	    "		default       	: System.out.println(\"0\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+			       case Integer i when i > 10 : System.out.println("hi");
+					default       	: System.out.println("0");
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testRemoveGuardedPattern() throws Exception {
@@ -423,19 +428,19 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	int i = switch (o) {\n");
-		buf.append(	    "		case Integer i when i > 10 : System.out.println(\"hi\");\n");
-		buf.append(	    "       case String s when s.equals(\"hi\") : System.out.println(\"hi\");\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	};\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				int i = switch (o) {
+					case Integer i when i > 10 : System.out.println("hi");
+			       case String s when s.equals("hi") : System.out.println("hi");
+					default       	-> 0;
+				};
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -463,17 +468,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	int i = switch (o) {\n");
-		buf.append(	    "		case String s when s.equals(\"hi\") : System.out.println(\"hi\");\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	};\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				int i = switch (o) {
+					case String s when s.equals("hi") : System.out.println("hi");
+					default       	-> 0;
+				};
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testAddNullPattern() throws Exception {
@@ -481,18 +487,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					default       	-> 0;
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -535,18 +541,19 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "        case null -> System.out.println(\"Null\");\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+			        case null -> System.out.println("Null");
+					default       	-> 0;
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testRemoveNullPattern() throws Exception {
@@ -554,19 +561,19 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		case null -> System.out.println(\"Null\");\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					case null -> System.out.println("Null");
+					default       	-> 0;
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -593,17 +600,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		default       	-> 0;\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					default       	-> 0;
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testAddCaseDefaultPattern() throws Exception {
@@ -611,17 +619,17 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -664,17 +672,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "        case default -> System.out.println(\"Default\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+			        case default -> System.out.println("Default");
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testRemoveCaseDefaultPattern() throws Exception {
@@ -682,18 +691,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		case default -> System.out.println(\"Default\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					case default -> System.out.println("Default");
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -719,16 +728,17 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testAddCaseDefaulAndNulltPattern() throws Exception {
@@ -736,17 +746,17 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -791,17 +801,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "        case default, null -> System.out.println(\"Default\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+			        case default, null -> System.out.println("Default");
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testRemoveCaseDefaultAndNullPattern() throws Exception {
@@ -809,18 +820,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		case default, null -> System.out.println(\"Default\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					case default, null -> System.out.println("Default");
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -846,16 +857,17 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testAddCaseDefaultToNullPattern() throws Exception {
@@ -863,18 +875,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		case null -> System.out.println(\"Default\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					case null -> System.out.println("Default");
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -901,17 +913,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		case null, default -> System.out.println(\"Default\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					case null, default -> System.out.println("Default");
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testAddNullPatternToCaseDefault() throws Exception {
@@ -919,18 +932,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		case default -> System.out.println(\"Default\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					case default -> System.out.println("Default");
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -957,17 +970,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		case null, default -> System.out.println(\"Default\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					case null, default -> System.out.println("Default");
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testRemoveNullPatternFromNullAndCaseDefault() throws Exception {
@@ -975,18 +989,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		case null, default -> System.out.println(\"Default\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					case null, default -> System.out.println("Default");
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1010,17 +1024,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		case default -> System.out.println(\"Default\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					case default -> System.out.println("Default");
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testRemoveDefaultPatternFromNullAndCaseDefault() throws Exception {
@@ -1028,18 +1043,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		case null, default -> System.out.println(\"Default\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					case null, default -> System.out.println("Default");
+				}
+			}
+			
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1063,17 +1078,18 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("public class X {\n");
-		buf.append(		"void foo(Object o) {\n");
-		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
-		buf.append(	    "		case null -> System.out.println(\"Default\");\n");
-		buf.append(	    "	}\n");
-		buf.append(	    "}\n");
-		buf.append(		"\n");
-		buf.append(		"}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class X {
+			void foo(Object o) {
+				switch (o) {
+					case Integer i -> System.out.println("Integer");
+					case null -> System.out.println("Default");
+				}
+			}
+			
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testNPEinASTRewriteFlattener() throws Exception {
@@ -1081,19 +1097,19 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
             return;
         }
         IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-        StringBuilder buf= new StringBuilder();
-        buf.append("public class X {\n");
-        buf.append(     "void foo(Object o) {\n");
-        buf.append(     "   switch (o) {\n");
-        buf.append(     "       case Integer i when i > 10:\n");
-        buf.append(     "            System.out.println(\"Greater than 10\");\n");
-        buf.append(     "       default         : System.out.println(\"0\");\n");
-        buf.append(     "   }\n");
-        buf.append(     "}\n");
-        buf.append(     "\n");
-        buf.append(     "}\n");
-
-        ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+        String str = """
+			public class X {
+			void foo(Object o) {
+			   switch (o) {
+			       case Integer i when i > 10:
+			            System.out.println("Greater than 10");
+			       default         : System.out.println("0");
+			   }
+			}
+			
+			}
+			""";
+        ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
         CompilationUnit astRoot= createAST(this.apiLevel, cu);
         ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1120,19 +1136,19 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 
         String preview= evaluateRewrite(cu, rewrite);
 
-        StringBuilder buf1= new StringBuilder();
-        buf1= new StringBuilder();
-        buf1.append("public class X {\n");
-        buf1.append(        "void foo(Object o) {\n");
-        buf1.append(        "   switch (o) {\n");
-        buf1.append(        "       case null when null:\n");
-        buf1.append(        "            System.out.println(\"Greater than 10\");\n");
-        buf1.append(        "       default         : System.out.println(\"0\");\n");
-        buf1.append(        "   }\n");
-        buf1.append(        "}\n");
-        buf1.append(        "\n");
-        buf1.append(        "}\n");
-        assertEqualString(preview, buf1.toString());
+        String str1 = """
+			public class X {
+			void foo(Object o) {
+			   switch (o) {
+			       case null when null:
+			            System.out.println("Greater than 10");
+			       default         : System.out.println("0");
+			   }
+			}
+			
+			}
+			""";
+        assertEqualString(preview, str1);
     }
 
 }

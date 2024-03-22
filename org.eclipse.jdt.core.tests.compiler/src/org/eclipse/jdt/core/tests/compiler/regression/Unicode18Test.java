@@ -33,11 +33,12 @@ public void test426214() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		int a\\u058f = 0; // new unicode character in 6.2.0 \n" +
-			"		String a41\\u08fc; // new unicode character in 6.2.0\n" +
-			"		float a\\u057f = 1;\n" +
-			"}",
+			"""
+				public class X {
+						int a\\u058f = 0; // new unicode character in 6.2.0\s
+						String a41\\u08fc; // new unicode character in 6.2.0
+						float a\\u057f = 1;
+				}""",
 		},
 		"",
 		options);
@@ -50,23 +51,26 @@ public void test426214_2() {
 		JavacTestOptions.Excuse.JavacCompilesIncorrectSource,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		int a\\u058f = 0; // new unicode character in 6.2.0 \n" +
-			"		String a41\\u08fc; // new unicode character in 6.2.0\n" +
-			"		float a\\u057f = 1;\n" +
-			"}",
+			"""
+				public class X {
+						int a\\u058f = 0; // new unicode character in 6.2.0\s
+						String a41\\u08fc; // new unicode character in 6.2.0
+						float a\\u057f = 1;
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	int a\\u058f = 0; // new unicode character in 6.2.0 \n" +
-		"	     ^^^^^^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	String a41\\u08fc; // new unicode character in 6.2.0\n" +
-		"	          ^^^^^^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				int a\\u058f = 0; // new unicode character in 6.2.0\s
+				     ^^^^^^
+			Syntax error on token "Invalid Character", delete this token
+			----------
+			2. ERROR in X.java (at line 3)
+				String a41\\u08fc; // new unicode character in 6.2.0
+				          ^^^^^^
+			Syntax error on token "Invalid Character", delete this token
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -79,23 +83,26 @@ public void test426214_3() {
 		JavacTestOptions.Excuse.JavacCompilesIncorrectSource,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		int a\\u058f = 0; // new unicode character in 6.2.0 \n" +
-			"		String a41\\u08fc; // new unicode character in 6.2.0\n" +
-			"		float a\\u057f = 1;\n" +
-			"}",
+			"""
+				public class X {
+						int a\\u058f = 0; // new unicode character in 6.2.0\s
+						String a41\\u08fc; // new unicode character in 6.2.0
+						float a\\u057f = 1;
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	int a\\u058f = 0; // new unicode character in 6.2.0 \n" +
-		"	     ^^^^^^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	String a41\\u08fc; // new unicode character in 6.2.0\n" +
-		"	          ^^^^^^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				int a\\u058f = 0; // new unicode character in 6.2.0\s
+				     ^^^^^^
+			Syntax error on token "Invalid Character", delete this token
+			----------
+			2. ERROR in X.java (at line 3)
+				String a41\\u08fc; // new unicode character in 6.2.0
+				          ^^^^^^
+			Syntax error on token "Invalid Character", delete this token
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -106,16 +113,19 @@ public void test426214_4() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		int a\\u061C = 0; // new unicode character in 6.3.0 \n" +
-			"}",
+			"""
+				public class X {
+						int a\\u061C = 0; // new unicode character in 6.3.0\s
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	int a\\u061C = 0; // new unicode character in 6.3.0 \n" +
-		"	     ^^^^^^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				int a\\u061C = 0; // new unicode character in 6.3.0\s
+				     ^^^^^^
+			Syntax error on token "Invalid Character", delete this token
+			----------
+			""",
 		null,
 		true,
 		options);

@@ -68,62 +68,65 @@ public class JavadocTestOptions extends JavadocTest {
 	private static final int DEFAULT_VISIBILITY = 2;
 	private static final int PRIVATE_VISIBILITY = 3;
 
-	private static final String INVALID_CLASS_JAVADOC_REF = "	/**\n" +
-		"	 * @see X_dep\n" +
-		"	 * @see X.X_priv\n" +
-		"	 * @see X.Unknown\n" +
-		"	 * @see X#X(int)\n" +
-		"	 * @see X#X(String)\n" +
-		"	 * @see X#X()\n" +
-		"	 * @see X#x_dep\n" +
-		"	 * @see X#x_priv\n" +
-		"	 * @see X#unknown\n" +
-		"	 * @see X#foo_dep()\n" +
-		"	 * @see X#foo_priv()\n" +
-		"	 * @see X#foo_dep(String)\n" +
-		"	 * @see X#unknown()\n" +
-		"	 */\n";
-	private static final String INVALID_METHOD_JAVADOC_REF = "	/**\n" +
-		"	 * @param str\n" +
-		"	 * @param str\n" +
-		"	 * @param xxx\n" +
-		"	 * @throws IllegalArgumentException\n" +
-		"	 * @throws IllegalArgumentException\n" +
-		"	 * @throws java.io.IOException\n" +
-		"	 * @throws Unknown\n" +
-		"	 * @see X_dep\n" +
-		"	 * @see X.X_priv\n" +
-		"	 * @see X.Unknown\n" +
-		"	 * @see X#X(int)\n" +
-		"	 * @see X#X(String)\n" +
-		"	 * @see X#X()\n" +
-		"	 * @see X#x_dep\n" +
-		"	 * @see X#x_priv\n" +
-		"	 * @see X#unknown\n" +
-		"	 * @see X#foo_dep()\n" +
-		"	 * @see X#foo_priv()\n" +
-		"	 * @see X#foo_dep(String)\n" +
-		"	 * @see X#unknown()\n" +
-		"	 */\n";
+	private static final String INVALID_CLASS_JAVADOC_REF = """
+			/**
+			 * @see X_dep
+			 * @see X.X_priv
+			 * @see X.Unknown
+			 * @see X#X(int)
+			 * @see X#X(String)
+			 * @see X#X()
+			 * @see X#x_dep
+			 * @see X#x_priv
+			 * @see X#unknown
+			 * @see X#foo_dep()
+			 * @see X#foo_priv()
+			 * @see X#foo_dep(String)
+			 * @see X#unknown()
+			 */
+		""";
+	private static final String INVALID_METHOD_JAVADOC_REF = """
+			/**
+			 * @param str
+			 * @param str
+			 * @param xxx
+			 * @throws IllegalArgumentException
+			 * @throws IllegalArgumentException
+			 * @throws java.io.IOException
+			 * @throws Unknown
+			 * @see X_dep
+			 * @see X.X_priv
+			 * @see X.Unknown
+			 * @see X#X(int)
+			 * @see X#X(String)
+			 * @see X#X()
+			 * @see X#x_dep
+			 * @see X#x_priv
+			 * @see X#unknown
+			 * @see X#foo_dep()
+			 * @see X#foo_priv()
+			 * @see X#foo_dep(String)
+			 * @see X#unknown()
+			 */
+		""";
 	private static final String DEP_CLASS =
 		"/** @deprecated */\n" +
 		"public class X_dep {}\n";
 	private static final String REF_CLASS =
-		"public class X {\n" +
-// Deprecated class must be a top level to avoid visibility issue
-//		"	/** @deprecated */\n" +
-//		"	class X_dep{}\n" +
-		"	private class X_priv{}\n" +
-		"	/** @deprecated */\n" +
-		"	public int x_dep;\n" +
-		"	private int x_priv;\n" +
-		"	/** @deprecated */\n" +
-		"	public X() {}\n" +
-		"	private X(int x) {}\n" +
-		"	/** @deprecated */\n" +
-		"	public void foo_dep() {}\n" +
-		"	private void foo_priv() {}\n" +
-		"	}\n";
+		"""
+		public class X {
+			private class X_priv{}
+			/** @deprecated */
+			public int x_dep;
+			private int x_priv;
+			/** @deprecated */
+			public X() {}
+			private X(int x) {}
+			/** @deprecated */
+			public void foo_dep() {}
+			private void foo_priv() {}
+			}
+		""";
 	private static final String[] CLASSES_INVALID_COMMENT = {
 		"X.java",
 		REF_CLASS,
@@ -198,702 +201,726 @@ public class JavadocTestOptions extends JavadocTest {
 	};
 	private static final String[] MISSING_TAGS = {
 		"X.java",
-		"public class X {\n" +
-			"	// public\n" +
-			"	/** */\n" +
-			"	public class PublicClass {}\n" +
-			"	/** */\n" +
-			"	public int publicField;\n" +
-			"	/** */\n" +
-			"	public X(int i) {}\n" +
-			"	/** */\n" +
-			"	public int publicMethod(long l) { return 0;}\n" +
-			"	// protected\n" +
-			"	/** */\n" +
-			"	protected class ProtectedClass {}\n" +
-			"	/** */\n" +
-			"	protected int protectedField;\n" +
-			"	/** */\n" +
-			"	protected X(long l) {}\n" +
-			"	/** */\n" +
-			"	protected int protectedMethod(long l) { return 0; }\n" +
-			"	// default\n" +
-			"	/** */\n" +
-			"	class PackageClass {}\n" +
-			"	/** */\n" +
-			"	int packageField;\n" +
-			"	/** */\n" +
-			"	X(float f) {}\n" +
-			"	/** */\n" +
-			"	int packageMethod(long l) { return 0;}\n" +
-			"	// private\n" +
-			"	/** */\n" +
-			"	private class PrivateClass {}\n" +
-			"	/** */\n" +
-			"	private int privateField;\n" +
-			"	/** */\n" +
-			"	private X(double d) {}\n" +
-			"	/** */\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"}\n" +
-		"\n",
+		"""
+			public class X {
+				// public
+				/** */
+				public class PublicClass {}
+				/** */
+				public int publicField;
+				/** */
+				public X(int i) {}
+				/** */
+				public int publicMethod(long l) { return 0;}
+				// protected
+				/** */
+				protected class ProtectedClass {}
+				/** */
+				protected int protectedField;
+				/** */
+				protected X(long l) {}
+				/** */
+				protected int protectedMethod(long l) { return 0; }
+				// default
+				/** */
+				class PackageClass {}
+				/** */
+				int packageField;
+				/** */
+				X(float f) {}
+				/** */
+				int packageMethod(long l) { return 0;}
+				// private
+				/** */
+				private class PrivateClass {}
+				/** */
+				private int privateField;
+				/** */
+				private X(double d) {}
+				/** */
+				private int privateMethod(long l) { return 0;}
+			}
+			
+			""",
 		"Y.java",
-		"/** */\n" +
-			"public class Y extends X {\n" +
-			"	public Y(int i) { super(i); }\n" +
-			"	//methods\n" +
-			"	/** */\n" +
-			"	public int publicMethod(long l) { return 0;}\n" +
-			"	/** */\n" +
-			"	protected int protectedMethod(long l) { return 0;}\n" +
-			"	/** */\n" +
-			"	int packageMethod(long l) { return 0;}\n" +
-			"	/** */\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"}\n"
+		"""
+			/** */
+			public class Y extends X {
+				public Y(int i) { super(i); }
+				//methods
+				/** */
+				public int publicMethod(long l) { return 0;}
+				/** */
+				protected int protectedMethod(long l) { return 0;}
+				/** */
+				int packageMethod(long l) { return 0;}
+				/** */
+				private int privateMethod(long l) { return 0;}
+			}
+			"""
 	};
 	private static final String[] MISSING_COMMENTS = {
 		"X.java",
-		"/** */\n" +
-			"public class X {\n" +
-			"	// public\n" +
-			"	public class PublicClass {}\n" +
-			"	public int publicField;\n" +
-			"	public X(int i) {}\n" +
-			"	public int publicMethod(long l) { return 0;}\n" +
-			"	// protected\n" +
-			"	protected class ProtectedClass {}\n" +
-			"	protected int protectedField;\n" +
-			"	protected X(long l) {}\n" +
-			"	protected int protectedMethod(long l) { return 0; }\n" +
-			"	// default\n" +
-			"	class PackageClass {}\n" +
-			"	int packageField;\n" +
-			"	X(float f) {}\n" +
-			"	int packageMethod(long l) { return 0;}\n" +
-			"	// private\n" +
-			"	private class PrivateClass {}\n" +
-			"	private int privateField;\n" +
-			"	private X(double d) {}\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"}\n" +
-			"\n",
+		"""
+			/** */
+			public class X {
+				// public
+				public class PublicClass {}
+				public int publicField;
+				public X(int i) {}
+				public int publicMethod(long l) { return 0;}
+				// protected
+				protected class ProtectedClass {}
+				protected int protectedField;
+				protected X(long l) {}
+				protected int protectedMethod(long l) { return 0; }
+				// default
+				class PackageClass {}
+				int packageField;
+				X(float f) {}
+				int packageMethod(long l) { return 0;}
+				// private
+				private class PrivateClass {}
+				private int privateField;
+				private X(double d) {}
+				private int privateMethod(long l) { return 0;}
+			}
+			
+			""",
 		"Y.java",
-		"/** */\n" +
-			"public class Y extends X {\n" +
-			"	/** */\n" +
-			"	public Y(int i) { super(i); }\n" +
-			"	public int publicMethod(long l) { return 0;}\n" +
-			"	protected int protectedMethod(long l) { return 0;}\n" +
-			"	int packageMethod(long l) { return 0;}\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"}\n"
+		"""
+			/** */
+			public class Y extends X {
+				/** */
+				public Y(int i) { super(i); }
+				public int publicMethod(long l) { return 0;}
+				protected int protectedMethod(long l) { return 0;}
+				int packageMethod(long l) { return 0;}
+				private int privateMethod(long l) { return 0;}
+			}
+			"""
 	};
 
 	private static final String[] CLASSES_ERRORS = {
-		"1. ERROR in Y.java (at line 3)\n" +
-			"	* @see X_dep\n" +
-			"	       ^^^^^\n" +
-			"Javadoc: The type X_dep is deprecated\n" +
-			"----------\n" +
-			"2. ERROR in Y.java (at line 4)\n" +
-			"	* @see X.X_priv\n" +
-			"	       ^^^^^^^^\n" +
-			"Javadoc: The type X.X_priv is not visible\n" +
-			"----------\n" +
-			"3. ERROR in Y.java (at line 5)\n" +
-			"	* @see X.Unknown\n" +
-			"	       ^^^^^^^^^\n" +
-			"Javadoc: X.Unknown cannot be resolved to a type\n" +
-			"----------\n" +
-			"4. ERROR in Y.java (at line 6)\n" +
-			"	* @see X#X(int)\n" +
-			"	         ^^^^^^\n" +
-			"Javadoc: The constructor X(int) is not visible\n" +
-			"----------\n" +
-			"5. ERROR in Y.java (at line 7)\n" +
-			"	* @see X#X(String)\n" +
-			"	         ^^^^^^^^^\n" +
-			"Javadoc: The constructor X(String) is undefined\n" +
-			"----------\n" +
-			"6. ERROR in Y.java (at line 8)\n" +
-			"	* @see X#X()\n" +
-			"	         ^^^\n" +
-			"Javadoc: The constructor X() is deprecated\n" +
-			"----------\n" +
-			"7. ERROR in Y.java (at line 9)\n" +
-			"	* @see X#x_dep\n" +
-			"	         ^^^^^\n" +
-			"Javadoc: The field X.x_dep is deprecated\n" +
-			"----------\n" +
-			"8. ERROR in Y.java (at line 10)\n" +
-			"	* @see X#x_priv\n" +
-			"	         ^^^^^^\n" +
-			"Javadoc: The field x_priv is not visible\n" +
-			"----------\n" +
-			"9. ERROR in Y.java (at line 11)\n" +
-			"	* @see X#unknown\n" +
-			"	         ^^^^^^^\n" +
-			"Javadoc: unknown cannot be resolved or is not a field\n" +
-			"----------\n" +
-			"10. ERROR in Y.java (at line 12)\n" +
-			"	* @see X#foo_dep()\n" +
-			"	         ^^^^^^^^^\n" +
-			"Javadoc: The method foo_dep() from the type X is deprecated\n" +
-			"----------\n" +
-			"11. ERROR in Y.java (at line 13)\n" +
-			"	* @see X#foo_priv()\n" +
-			"	         ^^^^^^^^\n" +
-			"Javadoc: The method foo_priv() from the type X is not visible\n" +
-			"----------\n" +
-			"12. ERROR in Y.java (at line 14)\n" +
-			"	* @see X#foo_dep(String)\n" +
-			"	         ^^^^^^^\n" +
-			"Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)\n" +
-			"----------\n" +
-			"13. ERROR in Y.java (at line 15)\n" +
-			"	* @see X#unknown()\n" +
-			"	         ^^^^^^^\n" +
-			"Javadoc: The method unknown() is undefined for the type X\n" +
-			"----------\n",
-		"14. ERROR in Y.java (at line 19)\n" +
-			"	* @see X_dep\n" +
-			"	       ^^^^^\n" +
-			"Javadoc: The type X_dep is deprecated\n" +
-			"----------\n" +
-			"15. ERROR in Y.java (at line 20)\n" +
-			"	* @see X.X_priv\n" +
-			"	       ^^^^^^^^\n" +
-			"Javadoc: The type X.X_priv is not visible\n" +
-			"----------\n" +
-			"16. ERROR in Y.java (at line 21)\n" +
-			"	* @see X.Unknown\n" +
-			"	       ^^^^^^^^^\n" +
-			"Javadoc: X.Unknown cannot be resolved to a type\n" +
-			"----------\n" +
-			"17. ERROR in Y.java (at line 22)\n" +
-			"	* @see X#X(int)\n" +
-			"	         ^^^^^^\n" +
-			"Javadoc: The constructor X(int) is not visible\n" +
-			"----------\n" +
-			"18. ERROR in Y.java (at line 23)\n" +
-			"	* @see X#X(String)\n" +
-			"	         ^^^^^^^^^\n" +
-			"Javadoc: The constructor X(String) is undefined\n" +
-			"----------\n" +
-			"19. ERROR in Y.java (at line 24)\n" +
-			"	* @see X#X()\n" +
-			"	         ^^^\n" +
-			"Javadoc: The constructor X() is deprecated\n" +
-			"----------\n" +
-			"20. ERROR in Y.java (at line 25)\n" +
-			"	* @see X#x_dep\n" +
-			"	         ^^^^^\n" +
-			"Javadoc: The field X.x_dep is deprecated\n" +
-			"----------\n" +
-			"21. ERROR in Y.java (at line 26)\n" +
-			"	* @see X#x_priv\n" +
-			"	         ^^^^^^\n" +
-			"Javadoc: The field x_priv is not visible\n" +
-			"----------\n" +
-			"22. ERROR in Y.java (at line 27)\n" +
-			"	* @see X#unknown\n" +
-			"	         ^^^^^^^\n" +
-			"Javadoc: unknown cannot be resolved or is not a field\n" +
-			"----------\n" +
-			"23. ERROR in Y.java (at line 28)\n" +
-			"	* @see X#foo_dep()\n" +
-			"	         ^^^^^^^^^\n" +
-			"Javadoc: The method foo_dep() from the type X is deprecated\n" +
-			"----------\n" +
-			"24. ERROR in Y.java (at line 29)\n" +
-			"	* @see X#foo_priv()\n" +
-			"	         ^^^^^^^^\n" +
-			"Javadoc: The method foo_priv() from the type X is not visible\n" +
-			"----------\n" +
-			"25. ERROR in Y.java (at line 30)\n" +
-			"	* @see X#foo_dep(String)\n" +
-			"	         ^^^^^^^\n" +
-			"Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)\n" +
-			"----------\n" +
-			"26. ERROR in Y.java (at line 31)\n" +
-			"	* @see X#unknown()\n" +
-			"	         ^^^^^^^\n" +
-			"Javadoc: The method unknown() is undefined for the type X\n" +
-			"----------\n",
-		"27. ERROR in Y.java (at line 35)\n" +
-			"	* @see X_dep\n" +
-			"	       ^^^^^\n" +
-			"Javadoc: The type X_dep is deprecated\n" +
-			"----------\n" +
-			"28. ERROR in Y.java (at line 36)\n" +
-			"	* @see X.X_priv\n" +
-			"	       ^^^^^^^^\n" +
-			"Javadoc: The type X.X_priv is not visible\n" +
-			"----------\n" +
-			"29. ERROR in Y.java (at line 37)\n" +
-			"	* @see X.Unknown\n" +
-			"	       ^^^^^^^^^\n" +
-			"Javadoc: X.Unknown cannot be resolved to a type\n" +
-			"----------\n" +
-			"30. ERROR in Y.java (at line 38)\n" +
-			"	* @see X#X(int)\n" +
-			"	         ^^^^^^\n" +
-			"Javadoc: The constructor X(int) is not visible\n" +
-			"----------\n" +
-			"31. ERROR in Y.java (at line 39)\n" +
-			"	* @see X#X(String)\n" +
-			"	         ^^^^^^^^^\n" +
-			"Javadoc: The constructor X(String) is undefined\n" +
-			"----------\n" +
-			"32. ERROR in Y.java (at line 40)\n" +
-			"	* @see X#X()\n" +
-			"	         ^^^\n" +
-			"Javadoc: The constructor X() is deprecated\n" +
-			"----------\n" +
-			"33. ERROR in Y.java (at line 41)\n" +
-			"	* @see X#x_dep\n" +
-			"	         ^^^^^\n" +
-			"Javadoc: The field X.x_dep is deprecated\n" +
-			"----------\n" +
-			"34. ERROR in Y.java (at line 42)\n" +
-			"	* @see X#x_priv\n" +
-			"	         ^^^^^^\n" +
-			"Javadoc: The field x_priv is not visible\n" +
-			"----------\n" +
-			"35. ERROR in Y.java (at line 43)\n" +
-			"	* @see X#unknown\n" +
-			"	         ^^^^^^^\n" +
-			"Javadoc: unknown cannot be resolved or is not a field\n" +
-			"----------\n" +
-			"36. ERROR in Y.java (at line 44)\n" +
-			"	* @see X#foo_dep()\n" +
-			"	         ^^^^^^^^^\n" +
-			"Javadoc: The method foo_dep() from the type X is deprecated\n" +
-			"----------\n" +
-			"37. ERROR in Y.java (at line 45)\n" +
-			"	* @see X#foo_priv()\n" +
-			"	         ^^^^^^^^\n" +
-			"Javadoc: The method foo_priv() from the type X is not visible\n" +
-			"----------\n" +
-			"38. ERROR in Y.java (at line 46)\n" +
-			"	* @see X#foo_dep(String)\n" +
-			"	         ^^^^^^^\n" +
-			"Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)\n" +
-			"----------\n" +
-			"39. ERROR in Y.java (at line 47)\n" +
-			"	* @see X#unknown()\n" +
-			"	         ^^^^^^^\n" +
-			"Javadoc: The method unknown() is undefined for the type X\n" +
-			"----------\n",
-		"40. ERROR in Y.java (at line 51)\n" +
-			"	* @see X_dep\n" +
-			"	       ^^^^^\n" +
-			"Javadoc: The type X_dep is deprecated\n" +
-			"----------\n" +
-			"41. ERROR in Y.java (at line 52)\n" +
-			"	* @see X.X_priv\n" +
-			"	       ^^^^^^^^\n" +
-			"Javadoc: The type X.X_priv is not visible\n" +
-			"----------\n" +
-			"42. ERROR in Y.java (at line 53)\n" +
-			"	* @see X.Unknown\n" +
-			"	       ^^^^^^^^^\n" +
-			"Javadoc: X.Unknown cannot be resolved to a type\n" +
-			"----------\n" +
-			"43. ERROR in Y.java (at line 54)\n" +
-			"	* @see X#X(int)\n" +
-			"	         ^^^^^^\n" +
-			"Javadoc: The constructor X(int) is not visible\n" +
-			"----------\n" +
-			"44. ERROR in Y.java (at line 55)\n" +
-			"	* @see X#X(String)\n" +
-			"	         ^^^^^^^^^\n" +
-			"Javadoc: The constructor X(String) is undefined\n" +
-			"----------\n" +
-			"45. ERROR in Y.java (at line 56)\n" +
-			"	* @see X#X()\n" +
-			"	         ^^^\n" +
-			"Javadoc: The constructor X() is deprecated\n" +
-			"----------\n" +
-			"46. ERROR in Y.java (at line 57)\n" +
-			"	* @see X#x_dep\n" +
-			"	         ^^^^^\n" +
-			"Javadoc: The field X.x_dep is deprecated\n" +
-			"----------\n" +
-			"47. ERROR in Y.java (at line 58)\n" +
-			"	* @see X#x_priv\n" +
-			"	         ^^^^^^\n" +
-			"Javadoc: The field x_priv is not visible\n" +
-			"----------\n" +
-			"48. ERROR in Y.java (at line 59)\n" +
-			"	* @see X#unknown\n" +
-			"	         ^^^^^^^\n" +
-			"Javadoc: unknown cannot be resolved or is not a field\n" +
-			"----------\n" +
-			"49. ERROR in Y.java (at line 60)\n" +
-			"	* @see X#foo_dep()\n" +
-			"	         ^^^^^^^^^\n" +
-			"Javadoc: The method foo_dep() from the type X is deprecated\n" +
-			"----------\n" +
-			"50. ERROR in Y.java (at line 61)\n" +
-			"	* @see X#foo_priv()\n" +
-			"	         ^^^^^^^^\n" +
-			"Javadoc: The method foo_priv() from the type X is not visible\n" +
-			"----------\n" +
-			"51. ERROR in Y.java (at line 62)\n" +
-			"	* @see X#foo_dep(String)\n" +
-			"	         ^^^^^^^\n" +
-			"Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)\n" +
-			"----------\n" +
-			"52. ERROR in Y.java (at line 63)\n" +
-			"	* @see X#unknown()\n" +
-			"	         ^^^^^^^\n" +
-			"Javadoc: The method unknown() is undefined for the type X\n" +
-			"----------\n"
+		"""
+			1. ERROR in Y.java (at line 3)
+				* @see X_dep
+				       ^^^^^
+			Javadoc: The type X_dep is deprecated
+			----------
+			2. ERROR in Y.java (at line 4)
+				* @see X.X_priv
+				       ^^^^^^^^
+			Javadoc: The type X.X_priv is not visible
+			----------
+			3. ERROR in Y.java (at line 5)
+				* @see X.Unknown
+				       ^^^^^^^^^
+			Javadoc: X.Unknown cannot be resolved to a type
+			----------
+			4. ERROR in Y.java (at line 6)
+				* @see X#X(int)
+				         ^^^^^^
+			Javadoc: The constructor X(int) is not visible
+			----------
+			5. ERROR in Y.java (at line 7)
+				* @see X#X(String)
+				         ^^^^^^^^^
+			Javadoc: The constructor X(String) is undefined
+			----------
+			6. ERROR in Y.java (at line 8)
+				* @see X#X()
+				         ^^^
+			Javadoc: The constructor X() is deprecated
+			----------
+			7. ERROR in Y.java (at line 9)
+				* @see X#x_dep
+				         ^^^^^
+			Javadoc: The field X.x_dep is deprecated
+			----------
+			8. ERROR in Y.java (at line 10)
+				* @see X#x_priv
+				         ^^^^^^
+			Javadoc: The field x_priv is not visible
+			----------
+			9. ERROR in Y.java (at line 11)
+				* @see X#unknown
+				         ^^^^^^^
+			Javadoc: unknown cannot be resolved or is not a field
+			----------
+			10. ERROR in Y.java (at line 12)
+				* @see X#foo_dep()
+				         ^^^^^^^^^
+			Javadoc: The method foo_dep() from the type X is deprecated
+			----------
+			11. ERROR in Y.java (at line 13)
+				* @see X#foo_priv()
+				         ^^^^^^^^
+			Javadoc: The method foo_priv() from the type X is not visible
+			----------
+			12. ERROR in Y.java (at line 14)
+				* @see X#foo_dep(String)
+				         ^^^^^^^
+			Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)
+			----------
+			13. ERROR in Y.java (at line 15)
+				* @see X#unknown()
+				         ^^^^^^^
+			Javadoc: The method unknown() is undefined for the type X
+			----------
+			""",
+		"""
+			14. ERROR in Y.java (at line 19)
+				* @see X_dep
+				       ^^^^^
+			Javadoc: The type X_dep is deprecated
+			----------
+			15. ERROR in Y.java (at line 20)
+				* @see X.X_priv
+				       ^^^^^^^^
+			Javadoc: The type X.X_priv is not visible
+			----------
+			16. ERROR in Y.java (at line 21)
+				* @see X.Unknown
+				       ^^^^^^^^^
+			Javadoc: X.Unknown cannot be resolved to a type
+			----------
+			17. ERROR in Y.java (at line 22)
+				* @see X#X(int)
+				         ^^^^^^
+			Javadoc: The constructor X(int) is not visible
+			----------
+			18. ERROR in Y.java (at line 23)
+				* @see X#X(String)
+				         ^^^^^^^^^
+			Javadoc: The constructor X(String) is undefined
+			----------
+			19. ERROR in Y.java (at line 24)
+				* @see X#X()
+				         ^^^
+			Javadoc: The constructor X() is deprecated
+			----------
+			20. ERROR in Y.java (at line 25)
+				* @see X#x_dep
+				         ^^^^^
+			Javadoc: The field X.x_dep is deprecated
+			----------
+			21. ERROR in Y.java (at line 26)
+				* @see X#x_priv
+				         ^^^^^^
+			Javadoc: The field x_priv is not visible
+			----------
+			22. ERROR in Y.java (at line 27)
+				* @see X#unknown
+				         ^^^^^^^
+			Javadoc: unknown cannot be resolved or is not a field
+			----------
+			23. ERROR in Y.java (at line 28)
+				* @see X#foo_dep()
+				         ^^^^^^^^^
+			Javadoc: The method foo_dep() from the type X is deprecated
+			----------
+			24. ERROR in Y.java (at line 29)
+				* @see X#foo_priv()
+				         ^^^^^^^^
+			Javadoc: The method foo_priv() from the type X is not visible
+			----------
+			25. ERROR in Y.java (at line 30)
+				* @see X#foo_dep(String)
+				         ^^^^^^^
+			Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)
+			----------
+			26. ERROR in Y.java (at line 31)
+				* @see X#unknown()
+				         ^^^^^^^
+			Javadoc: The method unknown() is undefined for the type X
+			----------
+			""",
+		"""
+			27. ERROR in Y.java (at line 35)
+				* @see X_dep
+				       ^^^^^
+			Javadoc: The type X_dep is deprecated
+			----------
+			28. ERROR in Y.java (at line 36)
+				* @see X.X_priv
+				       ^^^^^^^^
+			Javadoc: The type X.X_priv is not visible
+			----------
+			29. ERROR in Y.java (at line 37)
+				* @see X.Unknown
+				       ^^^^^^^^^
+			Javadoc: X.Unknown cannot be resolved to a type
+			----------
+			30. ERROR in Y.java (at line 38)
+				* @see X#X(int)
+				         ^^^^^^
+			Javadoc: The constructor X(int) is not visible
+			----------
+			31. ERROR in Y.java (at line 39)
+				* @see X#X(String)
+				         ^^^^^^^^^
+			Javadoc: The constructor X(String) is undefined
+			----------
+			32. ERROR in Y.java (at line 40)
+				* @see X#X()
+				         ^^^
+			Javadoc: The constructor X() is deprecated
+			----------
+			33. ERROR in Y.java (at line 41)
+				* @see X#x_dep
+				         ^^^^^
+			Javadoc: The field X.x_dep is deprecated
+			----------
+			34. ERROR in Y.java (at line 42)
+				* @see X#x_priv
+				         ^^^^^^
+			Javadoc: The field x_priv is not visible
+			----------
+			35. ERROR in Y.java (at line 43)
+				* @see X#unknown
+				         ^^^^^^^
+			Javadoc: unknown cannot be resolved or is not a field
+			----------
+			36. ERROR in Y.java (at line 44)
+				* @see X#foo_dep()
+				         ^^^^^^^^^
+			Javadoc: The method foo_dep() from the type X is deprecated
+			----------
+			37. ERROR in Y.java (at line 45)
+				* @see X#foo_priv()
+				         ^^^^^^^^
+			Javadoc: The method foo_priv() from the type X is not visible
+			----------
+			38. ERROR in Y.java (at line 46)
+				* @see X#foo_dep(String)
+				         ^^^^^^^
+			Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)
+			----------
+			39. ERROR in Y.java (at line 47)
+				* @see X#unknown()
+				         ^^^^^^^
+			Javadoc: The method unknown() is undefined for the type X
+			----------
+			""",
+		"""
+			40. ERROR in Y.java (at line 51)
+				* @see X_dep
+				       ^^^^^
+			Javadoc: The type X_dep is deprecated
+			----------
+			41. ERROR in Y.java (at line 52)
+				* @see X.X_priv
+				       ^^^^^^^^
+			Javadoc: The type X.X_priv is not visible
+			----------
+			42. ERROR in Y.java (at line 53)
+				* @see X.Unknown
+				       ^^^^^^^^^
+			Javadoc: X.Unknown cannot be resolved to a type
+			----------
+			43. ERROR in Y.java (at line 54)
+				* @see X#X(int)
+				         ^^^^^^
+			Javadoc: The constructor X(int) is not visible
+			----------
+			44. ERROR in Y.java (at line 55)
+				* @see X#X(String)
+				         ^^^^^^^^^
+			Javadoc: The constructor X(String) is undefined
+			----------
+			45. ERROR in Y.java (at line 56)
+				* @see X#X()
+				         ^^^
+			Javadoc: The constructor X() is deprecated
+			----------
+			46. ERROR in Y.java (at line 57)
+				* @see X#x_dep
+				         ^^^^^
+			Javadoc: The field X.x_dep is deprecated
+			----------
+			47. ERROR in Y.java (at line 58)
+				* @see X#x_priv
+				         ^^^^^^
+			Javadoc: The field x_priv is not visible
+			----------
+			48. ERROR in Y.java (at line 59)
+				* @see X#unknown
+				         ^^^^^^^
+			Javadoc: unknown cannot be resolved or is not a field
+			----------
+			49. ERROR in Y.java (at line 60)
+				* @see X#foo_dep()
+				         ^^^^^^^^^
+			Javadoc: The method foo_dep() from the type X is deprecated
+			----------
+			50. ERROR in Y.java (at line 61)
+				* @see X#foo_priv()
+				         ^^^^^^^^
+			Javadoc: The method foo_priv() from the type X is not visible
+			----------
+			51. ERROR in Y.java (at line 62)
+				* @see X#foo_dep(String)
+				         ^^^^^^^
+			Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)
+			----------
+			52. ERROR in Y.java (at line 63)
+				* @see X#unknown()
+				         ^^^^^^^
+			Javadoc: The method unknown() is undefined for the type X
+			----------
+			"""
 	};
 
 	private static final String[] METHODS_ERRORS = {
-			"1. ERROR in Y.java (at line 4)\n" +
-				"	* @param str\n" +
-				"	         ^^^\n" +
-				"Javadoc: Duplicate tag for parameter\n" +
-				"----------\n" +
-				"2. ERROR in Y.java (at line 5)\n" +
-				"	* @param xxx\n" +
-				"	         ^^^\n" +
-				"Javadoc: Parameter xxx is not declared\n" +
-				"----------\n" +
-				"3. ERROR in Y.java (at line 8)\n" +
-				"	* @throws java.io.IOException\n" +
-				"	          ^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Exception IOException is not declared\n" +
-				"----------\n" +
-				"4. ERROR in Y.java (at line 9)\n" +
-				"	* @throws Unknown\n" +
-				"	          ^^^^^^^\n" +
-				"Javadoc: Unknown cannot be resolved to a type\n" +
-				"----------\n" +
-				"5. ERROR in Y.java (at line 10)\n" +
-				"	* @see X_dep\n" +
-				"	       ^^^^^\n" +
-				"Javadoc: The type X_dep is deprecated\n" +
-				"----------\n" +
-				"6. ERROR in Y.java (at line 11)\n" +
-				"	* @see X.X_priv\n" +
-				"	       ^^^^^^^^\n" +
-				"Javadoc: The type X.X_priv is not visible\n" +
-				"----------\n" +
-				"7. ERROR in Y.java (at line 12)\n" +
-				"	* @see X.Unknown\n" +
-				"	       ^^^^^^^^^\n" +
-				"Javadoc: X.Unknown cannot be resolved to a type\n" +
-				"----------\n" +
-				"8. ERROR in Y.java (at line 13)\n" +
-				"	* @see X#X(int)\n" +
-				"	         ^^^^^^\n" +
-				"Javadoc: The constructor X(int) is not visible\n" +
-				"----------\n" +
-				"9. ERROR in Y.java (at line 14)\n" +
-				"	* @see X#X(String)\n" +
-				"	         ^^^^^^^^^\n" +
-				"Javadoc: The constructor X(String) is undefined\n" +
-				"----------\n" +
-				"10. ERROR in Y.java (at line 15)\n" +
-				"	* @see X#X()\n" +
-				"	         ^^^\n" +
-				"Javadoc: The constructor X() is deprecated\n" +
-				"----------\n" +
-				"11. ERROR in Y.java (at line 16)\n" +
-				"	* @see X#x_dep\n" +
-				"	         ^^^^^\n" +
-				"Javadoc: The field X.x_dep is deprecated\n" +
-				"----------\n" +
-				"12. ERROR in Y.java (at line 17)\n" +
-				"	* @see X#x_priv\n" +
-				"	         ^^^^^^\n" +
-				"Javadoc: The field x_priv is not visible\n" +
-				"----------\n" +
-				"13. ERROR in Y.java (at line 18)\n" +
-				"	* @see X#unknown\n" +
-				"	         ^^^^^^^\n" +
-				"Javadoc: unknown cannot be resolved or is not a field\n" +
-				"----------\n" +
-				"14. ERROR in Y.java (at line 19)\n" +
-				"	* @see X#foo_dep()\n" +
-				"	         ^^^^^^^^^\n" +
-				"Javadoc: The method foo_dep() from the type X is deprecated\n" +
-				"----------\n" +
-				"15. ERROR in Y.java (at line 20)\n" +
-				"	* @see X#foo_priv()\n" +
-				"	         ^^^^^^^^\n" +
-				"Javadoc: The method foo_priv() from the type X is not visible\n" +
-				"----------\n" +
-				"16. ERROR in Y.java (at line 21)\n" +
-				"	* @see X#foo_dep(String)\n" +
-				"	         ^^^^^^^\n" +
-				"Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)\n" +
-				"----------\n" +
-				"17. ERROR in Y.java (at line 22)\n" +
-				"	* @see X#unknown()\n" +
-				"	         ^^^^^^^\n" +
-				"Javadoc: The method unknown() is undefined for the type X\n" +
-				"----------\n",
-			"18. ERROR in Y.java (at line 27)\n" +
-				"	* @param str\n" +
-				"	         ^^^\n" +
-				"Javadoc: Duplicate tag for parameter\n" +
-				"----------\n" +
-				"19. ERROR in Y.java (at line 28)\n" +
-				"	* @param xxx\n" +
-				"	         ^^^\n" +
-				"Javadoc: Parameter xxx is not declared\n" +
-				"----------\n" +
-				"20. ERROR in Y.java (at line 31)\n" +
-				"	* @throws java.io.IOException\n" +
-				"	          ^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Exception IOException is not declared\n" +
-				"----------\n" +
-				"21. ERROR in Y.java (at line 32)\n" +
-				"	* @throws Unknown\n" +
-				"	          ^^^^^^^\n" +
-				"Javadoc: Unknown cannot be resolved to a type\n" +
-				"----------\n" +
-				"22. ERROR in Y.java (at line 33)\n" +
-				"	* @see X_dep\n" +
-				"	       ^^^^^\n" +
-				"Javadoc: The type X_dep is deprecated\n" +
-				"----------\n" +
-				"23. ERROR in Y.java (at line 34)\n" +
-				"	* @see X.X_priv\n" +
-				"	       ^^^^^^^^\n" +
-				"Javadoc: The type X.X_priv is not visible\n" +
-				"----------\n" +
-				"24. ERROR in Y.java (at line 35)\n" +
-				"	* @see X.Unknown\n" +
-				"	       ^^^^^^^^^\n" +
-				"Javadoc: X.Unknown cannot be resolved to a type\n" +
-				"----------\n" +
-				"25. ERROR in Y.java (at line 36)\n" +
-				"	* @see X#X(int)\n" +
-				"	         ^^^^^^\n" +
-				"Javadoc: The constructor X(int) is not visible\n" +
-				"----------\n" +
-				"26. ERROR in Y.java (at line 37)\n" +
-				"	* @see X#X(String)\n" +
-				"	         ^^^^^^^^^\n" +
-				"Javadoc: The constructor X(String) is undefined\n" +
-				"----------\n" +
-				"27. ERROR in Y.java (at line 38)\n" +
-				"	* @see X#X()\n" +
-				"	         ^^^\n" +
-				"Javadoc: The constructor X() is deprecated\n" +
-				"----------\n" +
-				"28. ERROR in Y.java (at line 39)\n" +
-				"	* @see X#x_dep\n" +
-				"	         ^^^^^\n" +
-				"Javadoc: The field X.x_dep is deprecated\n" +
-				"----------\n" +
-				"29. ERROR in Y.java (at line 40)\n" +
-				"	* @see X#x_priv\n" +
-				"	         ^^^^^^\n" +
-				"Javadoc: The field x_priv is not visible\n" +
-				"----------\n" +
-				"30. ERROR in Y.java (at line 41)\n" +
-				"	* @see X#unknown\n" +
-				"	         ^^^^^^^\n" +
-				"Javadoc: unknown cannot be resolved or is not a field\n" +
-				"----------\n" +
-				"31. ERROR in Y.java (at line 42)\n" +
-				"	* @see X#foo_dep()\n" +
-				"	         ^^^^^^^^^\n" +
-				"Javadoc: The method foo_dep() from the type X is deprecated\n" +
-				"----------\n" +
-				"32. ERROR in Y.java (at line 43)\n" +
-				"	* @see X#foo_priv()\n" +
-				"	         ^^^^^^^^\n" +
-				"Javadoc: The method foo_priv() from the type X is not visible\n" +
-				"----------\n" +
-				"33. ERROR in Y.java (at line 44)\n" +
-				"	* @see X#foo_dep(String)\n" +
-				"	         ^^^^^^^\n" +
-				"Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)\n" +
-				"----------\n" +
-				"34. ERROR in Y.java (at line 45)\n" +
-				"	* @see X#unknown()\n" +
-				"	         ^^^^^^^\n" +
-				"Javadoc: The method unknown() is undefined for the type X\n" +
-				"----------\n",
-			"35. ERROR in Y.java (at line 50)\n" +
-				"	* @param str\n" +
-				"	         ^^^\n" +
-				"Javadoc: Duplicate tag for parameter\n" +
-				"----------\n" +
-				"36. ERROR in Y.java (at line 51)\n" +
-				"	* @param xxx\n" +
-				"	         ^^^\n" +
-				"Javadoc: Parameter xxx is not declared\n" +
-				"----------\n" +
-				"37. ERROR in Y.java (at line 54)\n" +
-				"	* @throws java.io.IOException\n" +
-				"	          ^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Exception IOException is not declared\n" +
-				"----------\n" +
-				"38. ERROR in Y.java (at line 55)\n" +
-				"	* @throws Unknown\n" +
-				"	          ^^^^^^^\n" +
-				"Javadoc: Unknown cannot be resolved to a type\n" +
-				"----------\n" +
-				"39. ERROR in Y.java (at line 56)\n" +
-				"	* @see X_dep\n" +
-				"	       ^^^^^\n" +
-				"Javadoc: The type X_dep is deprecated\n" +
-				"----------\n" +
-				"40. ERROR in Y.java (at line 57)\n" +
-				"	* @see X.X_priv\n" +
-				"	       ^^^^^^^^\n" +
-				"Javadoc: The type X.X_priv is not visible\n" +
-				"----------\n" +
-				"41. ERROR in Y.java (at line 58)\n" +
-				"	* @see X.Unknown\n" +
-				"	       ^^^^^^^^^\n" +
-				"Javadoc: X.Unknown cannot be resolved to a type\n" +
-				"----------\n" +
-				"42. ERROR in Y.java (at line 59)\n" +
-				"	* @see X#X(int)\n" +
-				"	         ^^^^^^\n" +
-				"Javadoc: The constructor X(int) is not visible\n" +
-				"----------\n" +
-				"43. ERROR in Y.java (at line 60)\n" +
-				"	* @see X#X(String)\n" +
-				"	         ^^^^^^^^^\n" +
-				"Javadoc: The constructor X(String) is undefined\n" +
-				"----------\n" +
-				"44. ERROR in Y.java (at line 61)\n" +
-				"	* @see X#X()\n" +
-				"	         ^^^\n" +
-				"Javadoc: The constructor X() is deprecated\n" +
-				"----------\n" +
-				"45. ERROR in Y.java (at line 62)\n" +
-				"	* @see X#x_dep\n" +
-				"	         ^^^^^\n" +
-				"Javadoc: The field X.x_dep is deprecated\n" +
-				"----------\n" +
-				"46. ERROR in Y.java (at line 63)\n" +
-				"	* @see X#x_priv\n" +
-				"	         ^^^^^^\n" +
-				"Javadoc: The field x_priv is not visible\n" +
-				"----------\n" +
-				"47. ERROR in Y.java (at line 64)\n" +
-				"	* @see X#unknown\n" +
-				"	         ^^^^^^^\n" +
-				"Javadoc: unknown cannot be resolved or is not a field\n" +
-				"----------\n" +
-				"48. ERROR in Y.java (at line 65)\n" +
-				"	* @see X#foo_dep()\n" +
-				"	         ^^^^^^^^^\n" +
-				"Javadoc: The method foo_dep() from the type X is deprecated\n" +
-				"----------\n" +
-				"49. ERROR in Y.java (at line 66)\n" +
-				"	* @see X#foo_priv()\n" +
-				"	         ^^^^^^^^\n" +
-				"Javadoc: The method foo_priv() from the type X is not visible\n" +
-				"----------\n" +
-				"50. ERROR in Y.java (at line 67)\n" +
-				"	* @see X#foo_dep(String)\n" +
-				"	         ^^^^^^^\n" +
-				"Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)\n" +
-				"----------\n" +
-				"51. ERROR in Y.java (at line 68)\n" +
-				"	* @see X#unknown()\n" +
-				"	         ^^^^^^^\n" +
-				"Javadoc: The method unknown() is undefined for the type X\n" +
-				"----------\n",
-			"52. ERROR in Y.java (at line 73)\n" +
-				"	* @param str\n" +
-				"	         ^^^\n" +
-				"Javadoc: Duplicate tag for parameter\n" +
-				"----------\n" +
-				"53. ERROR in Y.java (at line 74)\n" +
-				"	* @param xxx\n" +
-				"	         ^^^\n" +
-				"Javadoc: Parameter xxx is not declared\n" +
-				"----------\n" +
-				"54. ERROR in Y.java (at line 77)\n" +
-				"	* @throws java.io.IOException\n" +
-				"	          ^^^^^^^^^^^^^^^^^^^\n" +
-				"Javadoc: Exception IOException is not declared\n" +
-				"----------\n" +
-				"55. ERROR in Y.java (at line 78)\n" +
-				"	* @throws Unknown\n" +
-				"	          ^^^^^^^\n" +
-				"Javadoc: Unknown cannot be resolved to a type\n" +
-				"----------\n" +
-				"56. ERROR in Y.java (at line 79)\n" +
-				"	* @see X_dep\n" +
-				"	       ^^^^^\n" +
-				"Javadoc: The type X_dep is deprecated\n" +
-				"----------\n" +
-				"57. ERROR in Y.java (at line 80)\n" +
-				"	* @see X.X_priv\n" +
-				"	       ^^^^^^^^\n" +
-				"Javadoc: The type X.X_priv is not visible\n" +
-				"----------\n" +
-				"58. ERROR in Y.java (at line 81)\n" +
-				"	* @see X.Unknown\n" +
-				"	       ^^^^^^^^^\n" +
-				"Javadoc: X.Unknown cannot be resolved to a type\n" +
-				"----------\n" +
-				"59. ERROR in Y.java (at line 82)\n" +
-				"	* @see X#X(int)\n" +
-				"	         ^^^^^^\n" +
-				"Javadoc: The constructor X(int) is not visible\n" +
-				"----------\n" +
-				"60. ERROR in Y.java (at line 83)\n" +
-				"	* @see X#X(String)\n" +
-				"	         ^^^^^^^^^\n" +
-				"Javadoc: The constructor X(String) is undefined\n" +
-				"----------\n" +
-				"61. ERROR in Y.java (at line 84)\n" +
-				"	* @see X#X()\n" +
-				"	         ^^^\n" +
-				"Javadoc: The constructor X() is deprecated\n" +
-				"----------\n" +
-				"62. ERROR in Y.java (at line 85)\n" +
-				"	* @see X#x_dep\n" +
-				"	         ^^^^^\n" +
-				"Javadoc: The field X.x_dep is deprecated\n" +
-				"----------\n" +
-				"63. ERROR in Y.java (at line 86)\n" +
-				"	* @see X#x_priv\n" +
-				"	         ^^^^^^\n" +
-				"Javadoc: The field x_priv is not visible\n" +
-				"----------\n" +
-				"64. ERROR in Y.java (at line 87)\n" +
-				"	* @see X#unknown\n" +
-				"	         ^^^^^^^\n" +
-				"Javadoc: unknown cannot be resolved or is not a field\n" +
-				"----------\n" +
-				"65. ERROR in Y.java (at line 88)\n" +
-				"	* @see X#foo_dep()\n" +
-				"	         ^^^^^^^^^\n" +
-				"Javadoc: The method foo_dep() from the type X is deprecated\n" +
-				"----------\n" +
-				"66. ERROR in Y.java (at line 89)\n" +
-				"	* @see X#foo_priv()\n" +
-				"	         ^^^^^^^^\n" +
-				"Javadoc: The method foo_priv() from the type X is not visible\n" +
-				"----------\n" +
-				"67. ERROR in Y.java (at line 90)\n" +
-				"	* @see X#foo_dep(String)\n" +
-				"	         ^^^^^^^\n" +
-				"Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)\n" +
-				"----------\n" +
-				"68. ERROR in Y.java (at line 91)\n" +
-				"	* @see X#unknown()\n" +
-				"	         ^^^^^^^\n" +
-				"Javadoc: The method unknown() is undefined for the type X\n" +
-				"----------\n",
+			"""
+				1. ERROR in Y.java (at line 4)
+					* @param str
+					         ^^^
+				Javadoc: Duplicate tag for parameter
+				----------
+				2. ERROR in Y.java (at line 5)
+					* @param xxx
+					         ^^^
+				Javadoc: Parameter xxx is not declared
+				----------
+				3. ERROR in Y.java (at line 8)
+					* @throws java.io.IOException
+					          ^^^^^^^^^^^^^^^^^^^
+				Javadoc: Exception IOException is not declared
+				----------
+				4. ERROR in Y.java (at line 9)
+					* @throws Unknown
+					          ^^^^^^^
+				Javadoc: Unknown cannot be resolved to a type
+				----------
+				5. ERROR in Y.java (at line 10)
+					* @see X_dep
+					       ^^^^^
+				Javadoc: The type X_dep is deprecated
+				----------
+				6. ERROR in Y.java (at line 11)
+					* @see X.X_priv
+					       ^^^^^^^^
+				Javadoc: The type X.X_priv is not visible
+				----------
+				7. ERROR in Y.java (at line 12)
+					* @see X.Unknown
+					       ^^^^^^^^^
+				Javadoc: X.Unknown cannot be resolved to a type
+				----------
+				8. ERROR in Y.java (at line 13)
+					* @see X#X(int)
+					         ^^^^^^
+				Javadoc: The constructor X(int) is not visible
+				----------
+				9. ERROR in Y.java (at line 14)
+					* @see X#X(String)
+					         ^^^^^^^^^
+				Javadoc: The constructor X(String) is undefined
+				----------
+				10. ERROR in Y.java (at line 15)
+					* @see X#X()
+					         ^^^
+				Javadoc: The constructor X() is deprecated
+				----------
+				11. ERROR in Y.java (at line 16)
+					* @see X#x_dep
+					         ^^^^^
+				Javadoc: The field X.x_dep is deprecated
+				----------
+				12. ERROR in Y.java (at line 17)
+					* @see X#x_priv
+					         ^^^^^^
+				Javadoc: The field x_priv is not visible
+				----------
+				13. ERROR in Y.java (at line 18)
+					* @see X#unknown
+					         ^^^^^^^
+				Javadoc: unknown cannot be resolved or is not a field
+				----------
+				14. ERROR in Y.java (at line 19)
+					* @see X#foo_dep()
+					         ^^^^^^^^^
+				Javadoc: The method foo_dep() from the type X is deprecated
+				----------
+				15. ERROR in Y.java (at line 20)
+					* @see X#foo_priv()
+					         ^^^^^^^^
+				Javadoc: The method foo_priv() from the type X is not visible
+				----------
+				16. ERROR in Y.java (at line 21)
+					* @see X#foo_dep(String)
+					         ^^^^^^^
+				Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)
+				----------
+				17. ERROR in Y.java (at line 22)
+					* @see X#unknown()
+					         ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type X
+				----------
+				""",
+			"""
+				18. ERROR in Y.java (at line 27)
+					* @param str
+					         ^^^
+				Javadoc: Duplicate tag for parameter
+				----------
+				19. ERROR in Y.java (at line 28)
+					* @param xxx
+					         ^^^
+				Javadoc: Parameter xxx is not declared
+				----------
+				20. ERROR in Y.java (at line 31)
+					* @throws java.io.IOException
+					          ^^^^^^^^^^^^^^^^^^^
+				Javadoc: Exception IOException is not declared
+				----------
+				21. ERROR in Y.java (at line 32)
+					* @throws Unknown
+					          ^^^^^^^
+				Javadoc: Unknown cannot be resolved to a type
+				----------
+				22. ERROR in Y.java (at line 33)
+					* @see X_dep
+					       ^^^^^
+				Javadoc: The type X_dep is deprecated
+				----------
+				23. ERROR in Y.java (at line 34)
+					* @see X.X_priv
+					       ^^^^^^^^
+				Javadoc: The type X.X_priv is not visible
+				----------
+				24. ERROR in Y.java (at line 35)
+					* @see X.Unknown
+					       ^^^^^^^^^
+				Javadoc: X.Unknown cannot be resolved to a type
+				----------
+				25. ERROR in Y.java (at line 36)
+					* @see X#X(int)
+					         ^^^^^^
+				Javadoc: The constructor X(int) is not visible
+				----------
+				26. ERROR in Y.java (at line 37)
+					* @see X#X(String)
+					         ^^^^^^^^^
+				Javadoc: The constructor X(String) is undefined
+				----------
+				27. ERROR in Y.java (at line 38)
+					* @see X#X()
+					         ^^^
+				Javadoc: The constructor X() is deprecated
+				----------
+				28. ERROR in Y.java (at line 39)
+					* @see X#x_dep
+					         ^^^^^
+				Javadoc: The field X.x_dep is deprecated
+				----------
+				29. ERROR in Y.java (at line 40)
+					* @see X#x_priv
+					         ^^^^^^
+				Javadoc: The field x_priv is not visible
+				----------
+				30. ERROR in Y.java (at line 41)
+					* @see X#unknown
+					         ^^^^^^^
+				Javadoc: unknown cannot be resolved or is not a field
+				----------
+				31. ERROR in Y.java (at line 42)
+					* @see X#foo_dep()
+					         ^^^^^^^^^
+				Javadoc: The method foo_dep() from the type X is deprecated
+				----------
+				32. ERROR in Y.java (at line 43)
+					* @see X#foo_priv()
+					         ^^^^^^^^
+				Javadoc: The method foo_priv() from the type X is not visible
+				----------
+				33. ERROR in Y.java (at line 44)
+					* @see X#foo_dep(String)
+					         ^^^^^^^
+				Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)
+				----------
+				34. ERROR in Y.java (at line 45)
+					* @see X#unknown()
+					         ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type X
+				----------
+				""",
+			"""
+				35. ERROR in Y.java (at line 50)
+					* @param str
+					         ^^^
+				Javadoc: Duplicate tag for parameter
+				----------
+				36. ERROR in Y.java (at line 51)
+					* @param xxx
+					         ^^^
+				Javadoc: Parameter xxx is not declared
+				----------
+				37. ERROR in Y.java (at line 54)
+					* @throws java.io.IOException
+					          ^^^^^^^^^^^^^^^^^^^
+				Javadoc: Exception IOException is not declared
+				----------
+				38. ERROR in Y.java (at line 55)
+					* @throws Unknown
+					          ^^^^^^^
+				Javadoc: Unknown cannot be resolved to a type
+				----------
+				39. ERROR in Y.java (at line 56)
+					* @see X_dep
+					       ^^^^^
+				Javadoc: The type X_dep is deprecated
+				----------
+				40. ERROR in Y.java (at line 57)
+					* @see X.X_priv
+					       ^^^^^^^^
+				Javadoc: The type X.X_priv is not visible
+				----------
+				41. ERROR in Y.java (at line 58)
+					* @see X.Unknown
+					       ^^^^^^^^^
+				Javadoc: X.Unknown cannot be resolved to a type
+				----------
+				42. ERROR in Y.java (at line 59)
+					* @see X#X(int)
+					         ^^^^^^
+				Javadoc: The constructor X(int) is not visible
+				----------
+				43. ERROR in Y.java (at line 60)
+					* @see X#X(String)
+					         ^^^^^^^^^
+				Javadoc: The constructor X(String) is undefined
+				----------
+				44. ERROR in Y.java (at line 61)
+					* @see X#X()
+					         ^^^
+				Javadoc: The constructor X() is deprecated
+				----------
+				45. ERROR in Y.java (at line 62)
+					* @see X#x_dep
+					         ^^^^^
+				Javadoc: The field X.x_dep is deprecated
+				----------
+				46. ERROR in Y.java (at line 63)
+					* @see X#x_priv
+					         ^^^^^^
+				Javadoc: The field x_priv is not visible
+				----------
+				47. ERROR in Y.java (at line 64)
+					* @see X#unknown
+					         ^^^^^^^
+				Javadoc: unknown cannot be resolved or is not a field
+				----------
+				48. ERROR in Y.java (at line 65)
+					* @see X#foo_dep()
+					         ^^^^^^^^^
+				Javadoc: The method foo_dep() from the type X is deprecated
+				----------
+				49. ERROR in Y.java (at line 66)
+					* @see X#foo_priv()
+					         ^^^^^^^^
+				Javadoc: The method foo_priv() from the type X is not visible
+				----------
+				50. ERROR in Y.java (at line 67)
+					* @see X#foo_dep(String)
+					         ^^^^^^^
+				Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)
+				----------
+				51. ERROR in Y.java (at line 68)
+					* @see X#unknown()
+					         ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type X
+				----------
+				""",
+			"""
+				52. ERROR in Y.java (at line 73)
+					* @param str
+					         ^^^
+				Javadoc: Duplicate tag for parameter
+				----------
+				53. ERROR in Y.java (at line 74)
+					* @param xxx
+					         ^^^
+				Javadoc: Parameter xxx is not declared
+				----------
+				54. ERROR in Y.java (at line 77)
+					* @throws java.io.IOException
+					          ^^^^^^^^^^^^^^^^^^^
+				Javadoc: Exception IOException is not declared
+				----------
+				55. ERROR in Y.java (at line 78)
+					* @throws Unknown
+					          ^^^^^^^
+				Javadoc: Unknown cannot be resolved to a type
+				----------
+				56. ERROR in Y.java (at line 79)
+					* @see X_dep
+					       ^^^^^
+				Javadoc: The type X_dep is deprecated
+				----------
+				57. ERROR in Y.java (at line 80)
+					* @see X.X_priv
+					       ^^^^^^^^
+				Javadoc: The type X.X_priv is not visible
+				----------
+				58. ERROR in Y.java (at line 81)
+					* @see X.Unknown
+					       ^^^^^^^^^
+				Javadoc: X.Unknown cannot be resolved to a type
+				----------
+				59. ERROR in Y.java (at line 82)
+					* @see X#X(int)
+					         ^^^^^^
+				Javadoc: The constructor X(int) is not visible
+				----------
+				60. ERROR in Y.java (at line 83)
+					* @see X#X(String)
+					         ^^^^^^^^^
+				Javadoc: The constructor X(String) is undefined
+				----------
+				61. ERROR in Y.java (at line 84)
+					* @see X#X()
+					         ^^^
+				Javadoc: The constructor X() is deprecated
+				----------
+				62. ERROR in Y.java (at line 85)
+					* @see X#x_dep
+					         ^^^^^
+				Javadoc: The field X.x_dep is deprecated
+				----------
+				63. ERROR in Y.java (at line 86)
+					* @see X#x_priv
+					         ^^^^^^
+				Javadoc: The field x_priv is not visible
+				----------
+				64. ERROR in Y.java (at line 87)
+					* @see X#unknown
+					         ^^^^^^^
+				Javadoc: unknown cannot be resolved or is not a field
+				----------
+				65. ERROR in Y.java (at line 88)
+					* @see X#foo_dep()
+					         ^^^^^^^^^
+				Javadoc: The method foo_dep() from the type X is deprecated
+				----------
+				66. ERROR in Y.java (at line 89)
+					* @see X#foo_priv()
+					         ^^^^^^^^
+				Javadoc: The method foo_priv() from the type X is not visible
+				----------
+				67. ERROR in Y.java (at line 90)
+					* @see X#foo_dep(String)
+					         ^^^^^^^
+				Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)
+				----------
+				68. ERROR in Y.java (at line 91)
+					* @see X#unknown()
+					         ^^^^^^^
+				Javadoc: The method unknown() is undefined for the type X
+				----------
+				""",
 	};
 
 	private String resultForInvalidTagsClassOrField(int visibility) {
@@ -1080,119 +1107,137 @@ public class JavadocTestOptions extends JavadocTest {
     }
 
 	private static final String[] X_MISSING_TAGS_ERRORS = {
-		"1. ERROR in X.java (at line 8)\n" +
-			"	public X(int i) {}\n" +
-			"	             ^\n" +
-			"Javadoc: Missing tag for parameter i\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
-			"	public int publicMethod(long l) { return 0;}\n" +
-			"	       ^^^\n" +
-			"Javadoc: Missing tag for return type\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
-			"	public int publicMethod(long l) { return 0;}\n" +
-			"	                             ^\n" +
-			"Javadoc: Missing tag for parameter l\n" +
-			"----------\n",
-		"4. ERROR in X.java (at line 17)\n" +
-			"	protected X(long l) {}\n" +
-			"	                 ^\n" +
-			"Javadoc: Missing tag for parameter l\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 19)\n" +
-			"	protected int protectedMethod(long l) { return 0; }\n" +
-			"	          ^^^\n" +
-			"Javadoc: Missing tag for return type\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 19)\n" +
-			"	protected int protectedMethod(long l) { return 0; }\n" +
-			"	                                   ^\n" +
-			"Javadoc: Missing tag for parameter l\n" +
-			"----------\n",
-		"7. ERROR in X.java (at line 26)\n" +
-			"	X(float f) {}\n" +
-			"	        ^\n" +
-			"Javadoc: Missing tag for parameter f\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 28)\n" +
-			"	int packageMethod(long l) { return 0;}\n" +
-			"	^^^\n" +
-			"Javadoc: Missing tag for return type\n" +
-			"----------\n" +
-			"9. ERROR in X.java (at line 28)\n" +
-			"	int packageMethod(long l) { return 0;}\n" +
-			"	                       ^\n" +
-			"Javadoc: Missing tag for parameter l\n" +
-			"----------\n",
-		"10. ERROR in X.java (at line 35)\n" +
-			"	private X(double d) {}\n" +
-			"	                 ^\n" +
-			"Javadoc: Missing tag for parameter d\n" +
-			"----------\n" +
-			"11. ERROR in X.java (at line 37)\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"	        ^^^\n" +
-			"Javadoc: Missing tag for return type\n" +
-			"----------\n" +
-			"12. ERROR in X.java (at line 37)\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"	                               ^\n" +
-			"Javadoc: Missing tag for parameter l\n" +
-			"----------\n"
+		"""
+			1. ERROR in X.java (at line 8)
+				public X(int i) {}
+				             ^
+			Javadoc: Missing tag for parameter i
+			----------
+			2. ERROR in X.java (at line 10)
+				public int publicMethod(long l) { return 0;}
+				       ^^^
+			Javadoc: Missing tag for return type
+			----------
+			3. ERROR in X.java (at line 10)
+				public int publicMethod(long l) { return 0;}
+				                             ^
+			Javadoc: Missing tag for parameter l
+			----------
+			""",
+		"""
+			4. ERROR in X.java (at line 17)
+				protected X(long l) {}
+				                 ^
+			Javadoc: Missing tag for parameter l
+			----------
+			5. ERROR in X.java (at line 19)
+				protected int protectedMethod(long l) { return 0; }
+				          ^^^
+			Javadoc: Missing tag for return type
+			----------
+			6. ERROR in X.java (at line 19)
+				protected int protectedMethod(long l) { return 0; }
+				                                   ^
+			Javadoc: Missing tag for parameter l
+			----------
+			""",
+		"""
+			7. ERROR in X.java (at line 26)
+				X(float f) {}
+				        ^
+			Javadoc: Missing tag for parameter f
+			----------
+			8. ERROR in X.java (at line 28)
+				int packageMethod(long l) { return 0;}
+				^^^
+			Javadoc: Missing tag for return type
+			----------
+			9. ERROR in X.java (at line 28)
+				int packageMethod(long l) { return 0;}
+				                       ^
+			Javadoc: Missing tag for parameter l
+			----------
+			""",
+		"""
+			10. ERROR in X.java (at line 35)
+				private X(double d) {}
+				                 ^
+			Javadoc: Missing tag for parameter d
+			----------
+			11. ERROR in X.java (at line 37)
+				private int privateMethod(long l) { return 0;}
+				        ^^^
+			Javadoc: Missing tag for return type
+			----------
+			12. ERROR in X.java (at line 37)
+				private int privateMethod(long l) { return 0;}
+				                               ^
+			Javadoc: Missing tag for parameter l
+			----------
+			"""
 	};
 	private static final String[] Y_MISSING_TAGS_ERRORS = {
-		"1. ERROR in Y.java (at line 6)\n" +
-			"	public int publicMethod(long l) { return 0;}\n" +
-			"	       ^^^\n" +
-			"Javadoc: Missing tag for return type\n" +
-			"----------\n" +
-			"2. ERROR in Y.java (at line 6)\n" +
-			"	public int publicMethod(long l) { return 0;}\n" +
-			"	                             ^\n" +
-			"Javadoc: Missing tag for parameter l\n" +
-			"----------\n",
-		"3. ERROR in Y.java (at line 8)\n" +
-			"	protected int protectedMethod(long l) { return 0;}\n" +
-			"	          ^^^\n" +
-			"Javadoc: Missing tag for return type\n" +
-			"----------\n" +
-			"4. ERROR in Y.java (at line 8)\n" +
-			"	protected int protectedMethod(long l) { return 0;}\n" +
-			"	                                   ^\n" +
-			"Javadoc: Missing tag for parameter l\n" +
-			"----------\n",
-		"5. ERROR in Y.java (at line 10)\n" +
-			"	int packageMethod(long l) { return 0;}\n" +
-			"	^^^\n" +
-			"Javadoc: Missing tag for return type\n" +
-			"----------\n" +
-			"6. ERROR in Y.java (at line 10)\n" +
-			"	int packageMethod(long l) { return 0;}\n" +
-			"	                       ^\n" +
-			"Javadoc: Missing tag for parameter l\n" +
-			"----------\n",
-		"7. ERROR in Y.java (at line 12)\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"	        ^^^\n" +
-			"Javadoc: Missing tag for return type\n" +
-			"----------\n" +
-			"8. ERROR in Y.java (at line 12)\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"	                               ^\n" +
-			"Javadoc: Missing tag for parameter l\n" +
-			"----------\n",
-		"----------\n" +
-			"1. ERROR in Y.java (at line 12)\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"	        ^^^\n" +
-			"Javadoc: Missing tag for return type\n" +
-			"----------\n" +
-			"2. ERROR in Y.java (at line 12)\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"	                               ^\n" +
-			"Javadoc: Missing tag for parameter l\n" +
-			"----------\n"
+		"""
+			1. ERROR in Y.java (at line 6)
+				public int publicMethod(long l) { return 0;}
+				       ^^^
+			Javadoc: Missing tag for return type
+			----------
+			2. ERROR in Y.java (at line 6)
+				public int publicMethod(long l) { return 0;}
+				                             ^
+			Javadoc: Missing tag for parameter l
+			----------
+			""",
+		"""
+			3. ERROR in Y.java (at line 8)
+				protected int protectedMethod(long l) { return 0;}
+				          ^^^
+			Javadoc: Missing tag for return type
+			----------
+			4. ERROR in Y.java (at line 8)
+				protected int protectedMethod(long l) { return 0;}
+				                                   ^
+			Javadoc: Missing tag for parameter l
+			----------
+			""",
+		"""
+			5. ERROR in Y.java (at line 10)
+				int packageMethod(long l) { return 0;}
+				^^^
+			Javadoc: Missing tag for return type
+			----------
+			6. ERROR in Y.java (at line 10)
+				int packageMethod(long l) { return 0;}
+				                       ^
+			Javadoc: Missing tag for parameter l
+			----------
+			""",
+		"""
+			7. ERROR in Y.java (at line 12)
+				private int privateMethod(long l) { return 0;}
+				        ^^^
+			Javadoc: Missing tag for return type
+			----------
+			8. ERROR in Y.java (at line 12)
+				private int privateMethod(long l) { return 0;}
+				                               ^
+			Javadoc: Missing tag for parameter l
+			----------
+			""",
+		"""
+			----------
+			1. ERROR in Y.java (at line 12)
+				private int privateMethod(long l) { return 0;}
+				        ^^^
+			Javadoc: Missing tag for return type
+			----------
+			2. ERROR in Y.java (at line 12)
+				private int privateMethod(long l) { return 0;}
+				                               ^
+			Javadoc: Missing tag for parameter l
+			----------
+			"""
 	};
 
 	private String resultForMissingTags(int visibility) {
@@ -1221,114 +1266,132 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	private static final String[] X_MISSING_COMMENTS_ERRORS = {
-		"1. ERROR in X.java (at line 4)\n" +
-			"	public class PublicClass {}\n" +
-			"	             ^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	public int publicField;\n" +
-			"	           ^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	public X(int i) {}\n" +
-			"	       ^^^^^^^^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 7)\n" +
-			"	public int publicMethod(long l) { return 0;}\n" +
-			"	           ^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n",
-		"5. ERROR in X.java (at line 9)\n" +
-			"	protected class ProtectedClass {}\n" +
-			"	                ^^^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for protected declaration\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 10)\n" +
-			"	protected int protectedField;\n" +
-			"	              ^^^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for protected declaration\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 11)\n" +
-			"	protected X(long l) {}\n" +
-			"	          ^^^^^^^^^\n" +
-			"Javadoc: Missing comment for protected declaration\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 12)\n" +
-			"	protected int protectedMethod(long l) { return 0; }\n" +
-			"	              ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for protected declaration\n" +
-			"----------\n",
-		"9. ERROR in X.java (at line 14)\n" +
-			"	class PackageClass {}\n" +
-			"	      ^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for default declaration\n" +
-			"----------\n" +
-			"10. ERROR in X.java (at line 15)\n" +
-			"	int packageField;\n" +
-			"	    ^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for default declaration\n" +
-			"----------\n" +
-			"11. ERROR in X.java (at line 16)\n" +
-			"	X(float f) {}\n" +
-			"	^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for default declaration\n" +
-			"----------\n" +
-			"12. ERROR in X.java (at line 17)\n" +
-			"	int packageMethod(long l) { return 0;}\n" +
-			"	    ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for default declaration\n" +
-			"----------\n",
-		"13. ERROR in X.java (at line 19)\n" +
-			"	private class PrivateClass {}\n" +
-			"	              ^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for private declaration\n" +
-			"----------\n" +
-			"14. ERROR in X.java (at line 20)\n" +
-			"	private int privateField;\n" +
-			"	            ^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for private declaration\n" +
-			"----------\n" +
-			"15. ERROR in X.java (at line 21)\n" +
-			"	private X(double d) {}\n" +
-			"	        ^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for private declaration\n" +
-			"----------\n" +
-			"16. ERROR in X.java (at line 22)\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"	            ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for private declaration\n" +
-			"----------\n"
+		"""
+			1. ERROR in X.java (at line 4)
+				public class PublicClass {}
+				             ^^^^^^^^^^^
+			Javadoc: Missing comment for public declaration
+			----------
+			2. ERROR in X.java (at line 5)
+				public int publicField;
+				           ^^^^^^^^^^^
+			Javadoc: Missing comment for public declaration
+			----------
+			3. ERROR in X.java (at line 6)
+				public X(int i) {}
+				       ^^^^^^^^
+			Javadoc: Missing comment for public declaration
+			----------
+			4. ERROR in X.java (at line 7)
+				public int publicMethod(long l) { return 0;}
+				           ^^^^^^^^^^^^^^^^^^^^
+			Javadoc: Missing comment for public declaration
+			----------
+			""",
+		"""
+			5. ERROR in X.java (at line 9)
+				protected class ProtectedClass {}
+				                ^^^^^^^^^^^^^^
+			Javadoc: Missing comment for protected declaration
+			----------
+			6. ERROR in X.java (at line 10)
+				protected int protectedField;
+				              ^^^^^^^^^^^^^^
+			Javadoc: Missing comment for protected declaration
+			----------
+			7. ERROR in X.java (at line 11)
+				protected X(long l) {}
+				          ^^^^^^^^^
+			Javadoc: Missing comment for protected declaration
+			----------
+			8. ERROR in X.java (at line 12)
+				protected int protectedMethod(long l) { return 0; }
+				              ^^^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: Missing comment for protected declaration
+			----------
+			""",
+		"""
+			9. ERROR in X.java (at line 14)
+				class PackageClass {}
+				      ^^^^^^^^^^^^
+			Javadoc: Missing comment for default declaration
+			----------
+			10. ERROR in X.java (at line 15)
+				int packageField;
+				    ^^^^^^^^^^^^
+			Javadoc: Missing comment for default declaration
+			----------
+			11. ERROR in X.java (at line 16)
+				X(float f) {}
+				^^^^^^^^^^
+			Javadoc: Missing comment for default declaration
+			----------
+			12. ERROR in X.java (at line 17)
+				int packageMethod(long l) { return 0;}
+				    ^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: Missing comment for default declaration
+			----------
+			""",
+		"""
+			13. ERROR in X.java (at line 19)
+				private class PrivateClass {}
+				              ^^^^^^^^^^^^
+			Javadoc: Missing comment for private declaration
+			----------
+			14. ERROR in X.java (at line 20)
+				private int privateField;
+				            ^^^^^^^^^^^^
+			Javadoc: Missing comment for private declaration
+			----------
+			15. ERROR in X.java (at line 21)
+				private X(double d) {}
+				        ^^^^^^^^^^^
+			Javadoc: Missing comment for private declaration
+			----------
+			16. ERROR in X.java (at line 22)
+				private int privateMethod(long l) { return 0;}
+				            ^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: Missing comment for private declaration
+			----------
+			"""
 	};
 	private static final String[] Y_MISSING_COMMENTS_ERRORS = {
-		"1. ERROR in Y.java (at line 5)\n" +
-			"	public int publicMethod(long l) { return 0;}\n" +
-			"	           ^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for public declaration\n" +
-			"----------\n",
-		"2. ERROR in Y.java (at line 6)\n" +
-			"	protected int protectedMethod(long l) { return 0;}\n" +
-			"	              ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for protected declaration\n" +
-			"----------\n",
-		"3. ERROR in Y.java (at line 7)\n" +
-			"	int packageMethod(long l) { return 0;}\n" +
-			"	    ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for default declaration\n" +
-			"----------\n",
-		"4. ERROR in Y.java (at line 8)\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"	            ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for private declaration\n" +
-			"----------\n",
-		"----------\n" +
-			"1. ERROR in Y.java (at line 8)\n" +
-			"	private int privateMethod(long l) { return 0;}\n" +
-			"	            ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Javadoc: Missing comment for private declaration\n" +
-			"----------\n"
+		"""
+			1. ERROR in Y.java (at line 5)
+				public int publicMethod(long l) { return 0;}
+				           ^^^^^^^^^^^^^^^^^^^^
+			Javadoc: Missing comment for public declaration
+			----------
+			""",
+		"""
+			2. ERROR in Y.java (at line 6)
+				protected int protectedMethod(long l) { return 0;}
+				              ^^^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: Missing comment for protected declaration
+			----------
+			""",
+		"""
+			3. ERROR in Y.java (at line 7)
+				int packageMethod(long l) { return 0;}
+				    ^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: Missing comment for default declaration
+			----------
+			""",
+		"""
+			4. ERROR in Y.java (at line 8)
+				private int privateMethod(long l) { return 0;}
+				            ^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: Missing comment for private declaration
+			----------
+			""",
+		"""
+			----------
+			1. ERROR in Y.java (at line 8)
+				private int privateMethod(long l) { return 0;}
+				            ^^^^^^^^^^^^^^^^^^^^^
+			Javadoc: Missing comment for private declaration
+			----------
+			"""
 	};
 
 	private String resultForMissingComments(int visibility) {

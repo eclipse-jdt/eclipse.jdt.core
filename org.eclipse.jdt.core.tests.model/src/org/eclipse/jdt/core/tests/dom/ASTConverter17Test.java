@@ -94,9 +94,10 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0001() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	public static final int VAR = 0b001;\n" +
-			"}";
+			"""
+			public class X {
+				public static final int VAR = 0b001;
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
@@ -120,9 +121,10 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0002() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	public static final int VAR = 0b0_0__1;\n" +
-			"}";
+			"""
+			public class X {
+				public static final int VAR = 0b0_0__1;
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
@@ -147,9 +149,10 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0003() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	public static final int VAR = 1_2_3_4;\n" +
-			"}";
+			"""
+			public class X {
+				public static final int VAR = 1_2_3_4;
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
@@ -176,15 +179,16 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0004() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	public void foo(String s) {\n" +
-			"		switch(s) {\n" +
-			"			case \"Hello\" :\n" +
-			"				System.out.println(s);\n" +
-			"				break;\n" +
-			"		}\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X {
+				public void foo(String s) {
+					switch(s) {
+						case "Hello" :
+							System.out.println(s);
+							break;
+					}
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
@@ -204,16 +208,17 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0005() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	public void foo(String s) {\n" +
-			"		try {\n" +
-			"			System.out.println(s);\n" +
-			"			Integer.parseInt(s);\n" +
-			"		} catch(NumberFormatException | ArithmeticException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X {
+				public void foo(String s) {
+					try {
+						System.out.println(s);
+						Integer.parseInt(s);
+					} catch(NumberFormatException | ArithmeticException e) {
+						e.printStackTrace();
+					}
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		ASTNode node = runConversion(getJLS4(), this.workingCopy, true);
@@ -237,16 +242,17 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0006() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	public void foo(String s) {\n" +
-			"		try {\n" +
-			"			System.out.println(s);\n" +
-			"			Integer.parseInt(s);\n" +
-			"		} catch(NumberFormatException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X {
+				public void foo(String s) {
+					try {
+						System.out.println(s);
+						Integer.parseInt(s);
+					} catch(NumberFormatException e) {
+						e.printStackTrace();
+					}
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		ASTNode node = runConversion(this.workingCopy, false);
@@ -268,16 +274,17 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0007() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	public void foo(String s) {\n" +
-			"		try (Reader r = new FileReader(s)) {\n" +
-			"			System.out.println(s);\n" +
-			"			Integer.parseInt(s);\n" +
-			"		} catch(NumberFormatException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X {
+				public void foo(String s) {
+					try (Reader r = new FileReader(s)) {
+						System.out.println(s);
+						Integer.parseInt(s);
+					} catch(NumberFormatException e) {
+						e.printStackTrace();
+					}
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		ASTNode node = runConversion(getJLS4(), this.workingCopy, false);
@@ -301,16 +308,17 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0008() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	public void foo(String s) {\n" +
-			"		try (Reader r = new FileReader(s);) {\n" +
-			"			System.out.println(s);\n" +
-			"			Integer.parseInt(s);\n" +
-			"		} catch(NumberFormatException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X {
+				public void foo(String s) {
+					try (Reader r = new FileReader(s);) {
+						System.out.println(s);
+						Integer.parseInt(s);
+					} catch(NumberFormatException e) {
+						e.printStackTrace();
+					}
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		ASTNode node = runConversion(getJLS4(), this.workingCopy, false);
@@ -334,16 +342,17 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0009() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	public void foo(String s) {\n" +
-			"		try (Reader r = new FileReader(s);Reader r2 = new FileReader(s);) {\n" +
-			"			System.out.println(s);\n" +
-			"			Integer.parseInt(s);\n" +
-			"		} catch(NumberFormatException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X {
+				public void foo(String s) {
+					try (Reader r = new FileReader(s);Reader r2 = new FileReader(s);) {
+						System.out.println(s);
+						Integer.parseInt(s);
+					} catch(NumberFormatException e) {
+						e.printStackTrace();
+					}
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		ASTNode node = runConversion(getJLS4(), this.workingCopy, false);
@@ -368,16 +377,17 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0010() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"	public void foo(String s) {\n" +
-			"		try (Reader r = new FileReader(s);Reader r2 = new FileReader(s)) {\n" +
-			"			System.out.println(s);\n" +
-			"			Integer.parseInt(s);\n" +
-			"		} catch(NumberFormatException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X {
+				public void foo(String s) {
+					try (Reader r = new FileReader(s);Reader r2 = new FileReader(s)) {
+						System.out.println(s);
+						Integer.parseInt(s);
+					} catch(NumberFormatException e) {
+						e.printStackTrace();
+					}
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		ASTNode node = runConversion(getJLS4(), this.workingCopy, false);
@@ -402,40 +412,41 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0011() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        try {\n" +
-			"            int option= 1;\n" +
-			"            throw option == 1 ? new ExceptionA() : new ExceptionB();\n" +
-			"        } catch (/*final*/ ExceptionA | ExceptionB ex) {\n" +
-			"            System.out.println(\"type of ex: \" + ex.getClass());\n" +
-			"            // next 2 methods on 'ex' use different parts of lub:\n" +
-			"            ex.myMethod();\n" +
-			"            throw ex;\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n" +
-			"interface Mix {\n" +
-			"    public void myMethod();\n" +
-			"}\n" +
-			"class ExceptionA extends RuntimeException implements Mix {\n" +
-			"    private static final long serialVersionUID = 1L;\n" +
-			"    public void myMethod() {\n" +
-			"        System.out.println(\"ExceptionA.myMethod()\");\n" +
-			"    }\n" +
-			"    public void onlyA() {\n" +
-			"        System.out.println(\"ExceptionA.onlyA()\");\n" +
-			"    }\n" +
-			"}\n" +
-			"class ExceptionB extends RuntimeException implements Mix {\n" +
-			"    private static final long serialVersionUID = 1L;\n" +
-			"    public void myMethod() {\n" +
-			"        System.out.println(\"ExceptionB.myMethod()\");\n" +
-			"    }\n" +
-			"    public void onlyB() {\n" +
-			"        System.out.println(\"ExceptionA.onlyB()\");\n" +
-			"    }\n" +
-			"}";
+			"""
+			public class X {
+			    public static void main(String[] args) {
+			        try {
+			            int option= 1;
+			            throw option == 1 ? new ExceptionA() : new ExceptionB();
+			        } catch (/*final*/ ExceptionA | ExceptionB ex) {
+			            System.out.println("type of ex: " + ex.getClass());
+			            // next 2 methods on 'ex' use different parts of lub:
+			            ex.myMethod();
+			            throw ex;
+			        }
+			    }
+			}
+			interface Mix {
+			    public void myMethod();
+			}
+			class ExceptionA extends RuntimeException implements Mix {
+			    private static final long serialVersionUID = 1L;
+			    public void myMethod() {
+			        System.out.println("ExceptionA.myMethod()");
+			    }
+			    public void onlyA() {
+			        System.out.println("ExceptionA.onlyA()");
+			    }
+			}
+			class ExceptionB extends RuntimeException implements Mix {
+			    private static final long serialVersionUID = 1L;
+			    public void myMethod() {
+			        System.out.println("ExceptionB.myMethod()");
+			    }
+			    public void onlyB() {
+			        System.out.println("ExceptionA.onlyB()");
+			    }
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		ASTNode node = runConversion(getJLS4(), this.workingCopy, true);
@@ -477,13 +488,14 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0013() throws JavaModelException {
 		String contents =
-				"import java.util.*;\n" +
-				"public class X {\n" +
-				"	public static Object foo() {\n" +
-				"		List<String> l = new ArrayList<>();\n" +
-				"		return l;\n" +
-				"	}\n" +
-				"}";
+				"""
+			import java.util.*;
+			public class X {
+				public static Object foo() {
+					List<String> l = new ArrayList<>();
+					return l;
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		ASTNode node = runConversion(getJLS4(), this.workingCopy, true);
@@ -503,13 +515,14 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0014() throws JavaModelException {
 		String contents =
-				"public class X {\n" +
-				"	void foo() {\n" +
-				"		try (Object | Integer res= null) {\n" +
-				"		} catch (Exception e) {\n" +
-				"		}\n" +
-				"	}\n" +
-				"}";
+				"""
+			public class X {
+				void foo() {
+					try (Object | Integer res= null) {
+					} catch (Exception e) {
+					}
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		ASTNode node = runConversion(getJLS4(), this.workingCopy, true, true);
@@ -523,52 +536,53 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0015() throws JavaModelException {
 		String contents =
-				"import java.lang.invoke.MethodHandle;\n" +
-				"import java.lang.invoke.MethodHandles;\n" +
-				"import java.lang.invoke.MethodType;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public static void main(String[] args) throws Throwable {\n" +
-				"		Object x;\n" +
-				"		String s;\n" +
-				"		int i;\n" +
-				"		MethodType mt;\n" +
-				"		MethodHandle mh;\n" +
-				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" +
-				"		// mt is (char,char)String\n" +
-				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" +
-				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" +
-				"		s = (String) mh.invokeExact(\"daddy\", 'd', 'n');\n" +
-				"		// invokeExact(Ljava/lang/String;CC)Ljava/lang/String;\n" +
-				"		assert s.equals(\"nanny\");\n" +
-				"		// weakly typed invocation (using MHs.invoke)\n" +
-				"		s = (String) mh.invokeWithArguments(\"sappy\", 'p', 'v');\n" +
-				"		assert s.equals(\"nanny\");\n" +
-				"		// mt is (Object[])List\n" +
-				"		mt = MethodType.methodType(java.util.List.class, Object[].class);\n" +
-				"		mh = lookup.findStatic(java.util.Arrays.class, \"asList\", mt);\n" +
-				"		assert (mh.isVarargsCollector());\n" +
-				"		x = mh.invoke(\"one\", \"two\");\n" +
-				"		// invoke(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;\n" +
-				"		System.out.println(x);\n" +
-				"		// mt is (Object,Object,Object)Object\n" +
-				"		mt = MethodType.genericMethodType(3);\n" +
-				"		mh = mh.asType(mt);\n" +
-				"		x = mh.invokeExact((Object) 1, (Object) 2, (Object) 3);\n" +
-				"		// invokeExact(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n" +
-				"		System.out.println(x);\n" +
-				"		// mt is ()int\n" +
-				"		mt = MethodType.methodType(int.class);\n" +
-				"		mh = lookup.findVirtual(java.util.List.class, \"size\", mt);\n" +
-				"		i = (int) mh.invokeExact(java.util.Arrays.asList(1, 2, 3));\n" +
-				"		// invokeExact(Ljava/util/List;)I\n" +
-				"		assert (i == 3);\n" +
-				"		mt = MethodType.methodType(void.class, String.class);\n" +
-				"		mh = lookup.findVirtual(java.io.PrintStream.class, \"println\", mt);\n" +
-				"		mh.invokeExact(System.out, \"Hello, world.\");\n" +
-				"		// invokeExact(Ljava/io/PrintStream;Ljava/lang/String;)V\n" +
-				"	}\n" +
-				"}";
+				"""
+			import java.lang.invoke.MethodHandle;
+			import java.lang.invoke.MethodHandles;
+			import java.lang.invoke.MethodType;
+			
+			public class X {
+				public static void main(String[] args) throws Throwable {
+					Object x;
+					String s;
+					int i;
+					MethodType mt;
+					MethodHandle mh;
+					MethodHandles.Lookup lookup = MethodHandles.lookup();
+					// mt is (char,char)String
+					mt = MethodType.methodType(String.class, char.class, char.class);
+					mh = lookup.findVirtual(String.class, "replace", mt);
+					s = (String) mh.invokeExact("daddy", 'd', 'n');
+					// invokeExact(Ljava/lang/String;CC)Ljava/lang/String;
+					assert s.equals("nanny");
+					// weakly typed invocation (using MHs.invoke)
+					s = (String) mh.invokeWithArguments("sappy", 'p', 'v');
+					assert s.equals("nanny");
+					// mt is (Object[])List
+					mt = MethodType.methodType(java.util.List.class, Object[].class);
+					mh = lookup.findStatic(java.util.Arrays.class, "asList", mt);
+					assert (mh.isVarargsCollector());
+					x = mh.invoke("one", "two");
+					// invoke(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+					System.out.println(x);
+					// mt is (Object,Object,Object)Object
+					mt = MethodType.genericMethodType(3);
+					mh = mh.asType(mt);
+					x = mh.invokeExact((Object) 1, (Object) 2, (Object) 3);
+					// invokeExact(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+					System.out.println(x);
+					// mt is ()int
+					mt = MethodType.methodType(int.class);
+					mh = lookup.findVirtual(java.util.List.class, "size", mt);
+					i = (int) mh.invokeExact(java.util.Arrays.asList(1, 2, 3));
+					// invokeExact(Ljava/util/List;)I
+					assert (i == 3);
+					mt = MethodType.methodType(void.class, String.class);
+					mh = lookup.findVirtual(java.io.PrintStream.class, "println", mt);
+					mh.invokeExact(System.out, "Hello, world.");
+					// invokeExact(Ljava/io/PrintStream;Ljava/lang/String;)V
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		ASTNode node = runConversion(getJLS4(), this.workingCopy, true);
@@ -618,20 +632,21 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	public void test0016() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		String contents =
-				"import java.lang.invoke.MethodHandle;\n" +
-				"import java.lang.invoke.MethodHandles;\n" +
-				"import java.lang.invoke.MethodType;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	void bar() throws Throwable {\n" +
-				"		MethodType mt;\n" +
-				"		MethodHandle mh;\n" +
-				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" +
-				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" +
-				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" +
-				"		String s = (String) mh.invokeExact(\"daddy\",'d','n');\n" +
-				"	}\n" +
-				"}";
+				"""
+			import java.lang.invoke.MethodHandle;
+			import java.lang.invoke.MethodHandles;
+			import java.lang.invoke.MethodType;
+			
+			public class X {
+				void bar() throws Throwable {
+					MethodType mt;
+					MethodHandle mh;
+					MethodHandles.Lookup lookup = MethodHandles.lookup();
+					mt = MethodType.methodType(String.class, char.class, char.class);
+					mh = lookup.findVirtual(String.class, "replace", mt);
+					String s = (String) mh.invokeExact("daddy",'d','n');
+				}
+			}""";
 		this.workingCopy.getBuffer().setContents(contents);
 		this.workingCopy.save(null, true);
 		final ASTNode[] asts = new ASTNode[1];
@@ -703,33 +718,34 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0018() throws JavaModelException {
 		String contents =
-			"public class X<T> {\n" +
-			"	T field1;\n" +
-			"	public X(T param){\n" +
-			"		field1 = param;\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<Object> a = new X<Object>(\"hello\");\n" +
-			"		X.testFunction(a.getField()); //prints 2\n" +
-			"		X<String> b = new X<>(\"hello\");\n" +
-			"		X.testFunction(b.getField()); // prints 1\n" +
-			"\n" +
-			"		X<Object> c = new X<>(null);\n" +
-			"		X.testFunction(c.getField()); // prints 2\n" +
-			"		X<String> d = new X<>(null);\n" +
-			"		X.testFunction(d.getField()); // prints 1\n" +
-			"	}\n" +
-			"	public static void testFunction(String param){\n" +
-			"		System.out.println(1 + \", String param: \" + param);\n" +
-			"	}\n" +
-			"	public static void testFunction(Object param){\n" +
-			"		System.out.println(2);\n" +
-			"	}\n" +
-			"	public T getField(){\n" +
-			"		return field1;\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X<T> {
+				T field1;
+				public X(T param){
+					field1 = param;
+				}
+			
+				public static void main(String[] args) {
+					X<Object> a = new X<Object>("hello");
+					X.testFunction(a.getField()); //prints 2
+					X<String> b = new X<>("hello");
+					X.testFunction(b.getField()); // prints 1
+			
+					X<Object> c = new X<>(null);
+					X.testFunction(c.getField()); // prints 2
+					X<String> d = new X<>(null);
+					X.testFunction(d.getField()); // prints 1
+				}
+				public static void testFunction(String param){
+					System.out.println(1 + ", String param: " + param);
+				}
+				public static void testFunction(Object param){
+					System.out.println(2);
+				}
+				public T getField(){
+					return field1;
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		ASTNode node = runConversion(getJLS4(), this.workingCopy, true);
@@ -781,12 +797,13 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0020() throws JavaModelException {
 		String contents =
-			"public class DiamondTest<T> {\n" +
-			"	public <U> DiamondTest(T t) {}\n" +
-			"	public static void main ( String[] args ) {\n" +
-			"		DiamondTest<String> d = new <Integer> DiamondTest<>();\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class DiamondTest<T> {
+				public <U> DiamondTest(T t) {}
+				public static void main ( String[] args ) {
+					DiamondTest<String> d = new <Integer> DiamondTest<>();
+				}
+			}""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/DiamondTest.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
 		ASTNode node = runConversion(this.workingCopy, true);
@@ -803,10 +820,12 @@ public class ASTConverter17Test extends ConverterTestSetup {
      * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402673
      */
     public void test402673a() throws JavaModelException {
-            String contents = "package test402673;"
-                    + "public class X {\n"
-                    + "    Runnable r = () -> System.out.println(\"hi\");\n"
-                    +"}\n";
+            String contents = """
+				package test402673;\
+				public class X {
+				    Runnable r = () -> System.out.println("hi");
+				}
+				""";
         	this.workingCopy = getWorkingCopy("/Converter/src/test402673/X.java", true/* resolve */);
         	this.workingCopy.getBuffer().setContents(contents);
         	ASTNode node = runConversion(this.workingCopy, true);
@@ -831,12 +850,14 @@ public class ASTConverter17Test extends ConverterTestSetup {
      * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402673
      */
     public void test402673b() throws JavaModelException {
-            String contents = "package test402673;"
-                    + "public class X {\n"
-            		+ "    public void foo() {\n"
-                    + "        Runnable r = () -> System.out.println(\"hi\");\n"
-                    +"    }\n"
-                    +"}\n";
+            String contents = """
+				package test402673;\
+				public class X {
+				    public void foo() {
+				        Runnable r = () -> System.out.println("hi");
+				    }
+				}
+				""";
         	this.workingCopy = getWorkingCopy("/Converter/src/test402673/X.java", true/* resolve */);
         	this.workingCopy.getBuffer().setContents(contents);
         	ASTNode node = runConversion(this.workingCopy, true);
@@ -865,24 +886,26 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	public void test403444() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test403444/X.java",
 				true/* resolve */);
-		String contents = "package test403444;" +
-				"public class X {\n" +
-				"  public static interface StringToInt {\n" +
-				"   	int stoi(String s);\n" +
-				"  }\n" +
-				"  public static interface ReduceInt {\n" +
-				"      int reduce(int a, int b);\n" +
-				"  }\n" +
-				"  void foo(StringToInt s) { }\n" +
-				"  void bar(ReduceInt r) { }\n" +
-				"  void bar() {\n" +
-				"      foo(s -> s.length());\n" +
-				"      foo((s) -> s.length());\n" +
-				"      foo((String s) -> s.length()); //SingleVariableDeclaration is OK\n" +
-				"      bar((x, y) -> x+y);\n" +
-				"      bar((int x, int y) -> x+y); //SingleVariableDeclarations are OK\n" +
-				"  }\n" +
-				"}\n";
+		String contents = """
+			package test403444;\
+			public class X {
+			  public static interface StringToInt {
+			   	int stoi(String s);
+			  }
+			  public static interface ReduceInt {
+			      int reduce(int a, int b);
+			  }
+			  void foo(StringToInt s) { }
+			  void bar(ReduceInt r) { }
+			  void bar() {
+			      foo(s -> s.length());
+			      foo((s) -> s.length());
+			      foo((String s) -> s.length()); //SingleVariableDeclaration is OK
+			      bar((x, y) -> x+y);
+			      bar((int x, int y) -> x+y); //SingleVariableDeclarations are OK
+			  }
+			}
+			""";
 
 
     	this.workingCopy = getWorkingCopy("/Converter/src/test403444/X.java", true/* resolve */);
@@ -892,11 +915,12 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 
-		String error = "Lambda expressions are allowed only at source level 1.8 or above\n" +
-				"Lambda expressions are allowed only at source level 1.8 or above\n" +
-				"Lambda expressions are allowed only at source level 1.8 or above\n" +
-				"Lambda expressions are allowed only at source level 1.8 or above\n" +
-				"Lambda expressions are allowed only at source level 1.8 or above";
+		String error = """
+			Lambda expressions are allowed only at source level 1.8 or above
+			Lambda expressions are allowed only at source level 1.8 or above
+			Lambda expressions are allowed only at source level 1.8 or above
+			Lambda expressions are allowed only at source level 1.8 or above
+			Lambda expressions are allowed only at source level 1.8 or above""";
 		assertProblemsSize(unit, 5, error);
 
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(unit, 0);
@@ -944,10 +968,12 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0021() throws JavaModelException {
 		String contents =
-				"public interface X {\n" +
-				"	static void foo(){}\n" +
-				"   default void foo(int i){}\n" +
-				"}\n";
+				"""
+			public interface X {
+				static void foo(){}
+			   default void foo(int i){}
+			}
+			""";
 			this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false);
 			ASTNode node = buildAST(contents, this.workingCopy, false);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -968,9 +994,11 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0022() throws JavaModelException {
 		String contents =
-				"public class X {\n" +
-				"	void foo() throws  @NonNull EOFException, java.io.@NonNull FileNotFoundException {}\n" +
-				"}\n";
+				"""
+			public class X {
+				void foo() throws  @NonNull EOFException, java.io.@NonNull FileNotFoundException {}
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false);
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());

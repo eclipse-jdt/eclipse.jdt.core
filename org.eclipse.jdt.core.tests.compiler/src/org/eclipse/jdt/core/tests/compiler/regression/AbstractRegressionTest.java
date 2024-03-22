@@ -245,8 +245,9 @@ static class JavacCompiler {
 		this.compliance = CompilerOptions.versionToJdkLevel(this.version);
 		this.minor = minorFromRawVersion(this.version, rawVersion);
 		this.rawVersion = rawVersion;
-		StringBuilder classpathBuffer = new StringBuilder(" -classpath ");
-		this.classpath = classpathBuffer.toString();
+		this.classpath = """
+			 -classpath \
+			""";
 	}
 	/** Call this if " -classpath " should be replaced by some other option token. */
 	protected void usePathOption(String option) {

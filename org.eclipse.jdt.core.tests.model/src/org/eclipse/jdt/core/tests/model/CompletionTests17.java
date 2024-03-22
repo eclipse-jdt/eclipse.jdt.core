@@ -52,19 +52,21 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String /*here*/s     -> System.out.println(\"String:\" + s.);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i     -> System.out.println("Integer:" + i);
+						case String /*here*/s     -> System.out.println("String:" + s.);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -94,20 +96,22 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static  int field \n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + /*here*/fie);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  int field\s
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i   -> System.out.println("Integer:" + i);
+						case String s     -> System.out.println("String:" + s + /*here*/fie);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -125,20 +129,22 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static  int field; \n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s && /*here*/fie    -> System.out.println(\"String:\" + s );\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  int field;\s
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i   -> System.out.println("Integer:" + i);
+						case String s && /*here*/fie    -> System.out.println("String:" + s );
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -155,21 +161,23 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static  int /*here*/field \n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" int local=0;" +
-						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + /*here*/loc);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  int /*here*/field\s
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 int local=0;\
+					 switch (o) {
+						case Integer i   -> System.out.println("Integer:" + i);
+						case String s     -> System.out.println("String:" + s + /*here*/loc);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -189,21 +197,23 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static  int /*here*/field \n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" int local=0;" +
-						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s  && /*here*/loc   -> System.out.println(\"String:\" + s);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  int /*here*/field\s
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 int local=0;\
+					 switch (o) {
+						case Integer i   -> System.out.println("Integer:" + i);
+						case String s  && /*here*/loc   -> System.out.println("String:" + s);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -221,20 +231,22 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static  String field = new String();\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s && /*here*/field.   -> System.out.println(\"String:\" + s );\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  String field = new String();
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i   -> System.out.println("Integer:" + i);
+						case String s && /*here*/field.   -> System.out.println("String:" + s );
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -263,21 +275,23 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"sealed interface I permits AClass, B {}\n" +
-						"final class AClass implements S {}\n" +
-						"final class B implements S {}\n" +
-						"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(new A());\n" +
-						"}\n" +
-						"private static void foo(S o) {\n" +
-						" switch (o) {\n" +
-						"	case *here*ACla :     System.out.println(\"A:\" + a +a); break;\n" +
-						"	case B b :     System.out.println(\"B:\" + b);\n" +
-						"	default  : System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					sealed interface I permits AClass, B {}
+					final class AClass implements S {}
+					final class B implements S {}
+					public class X {
+					public static void main(String[] args) {
+					foo(new A());
+					}
+					private static void foo(S o) {
+					 switch (o) {
+						case *here*ACla :     System.out.println("A:" + a +a); break;
+						case B b :     System.out.println("B:" + b);
+						default  : System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -295,21 +309,23 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"sealed interface I permits AClass, B {}\n" +
-						"final class AClass implements S {}\n" +
-						"final class B implements S {}\n" +
-						"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(new A());\n" +
-						"}\n" +
-						"private static void foo(S o) {\n" +
-						" switch (o) {\n" +
-						"	case AClass a && a. :     System.out.println(\"A:\" + a +a); break;\n" +
-						"	case B b :     System.out.println(\"B:\" + b);\n" +
-						"	default  : System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					sealed interface I permits AClass, B {}
+					final class AClass implements S {}
+					final class B implements S {}
+					public class X {
+					public static void main(String[] args) {
+					foo(new A());
+					}
+					private static void foo(S o) {
+					 switch (o) {
+						case AClass a && a. :     System.out.println("A:" + a +a); break;
+						case B b :     System.out.println("B:" + b);
+						default  : System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -336,19 +352,21 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i     : System.out.println(\"Integer:\" + i);break;\n" +
-						"	case String /*here*/s     : System.out.println(\"String:\" + s.);break;\n" +
-						"	default       : System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i     : System.out.println("Integer:" + i);break;
+						case String /*here*/s     : System.out.println("String:" + s.);break;
+						default       : System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -378,19 +396,21 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i     : System.out.println(\"Integer:\" + i);break;\n" +
-						"	case String /*here*/s  && s.   : System.out.println(\"String:\" + s);break;\n" +
-						"	default       : System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i     : System.out.println("Integer:" + i);break;
+						case String /*here*/s  && s.   : System.out.println("String:" + s);break;
+						default       : System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -418,17 +438,19 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case     : System.out.println(\"Integer:\" + i);break;\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case     : System.out.println("Integer:" + i);break;
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -445,17 +467,19 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case nu    : System.out.println(\"Integer:\" + i);break;\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case nu    : System.out.println("Integer:" + i);break;
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -471,17 +495,19 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case de    : System.out.println(\"Integer:\" + i);break;\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case de    : System.out.println("Integer:" + i);break;
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -497,18 +523,20 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case null    : System.out.println(\"Integer:\" + i);break;\n" +
-						"	/*here*/case nu    : System.out.println(\"Integer:\" + i);break;\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case null    : System.out.println("Integer:" + i);break;
+						/*here*/case nu    : System.out.println("Integer:" + i);break;
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -524,18 +552,20 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case default    : System.out.println(\"Integer:\" + i);break;\n" +
-						"	/*here*/case de    : System.out.println(\"Integer:\" + i);break;\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case default    : System.out.println("Integer:" + i);break;
+						/*here*/case de    : System.out.println("Integer:" + i);break;
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -551,17 +581,19 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case nu    -> System.out.println(\"Integer:\" + i);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case nu    -> System.out.println("Integer:" + i);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -577,17 +609,19 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case de    -> System.out.println(\"Integer:\" + i);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case de    -> System.out.println("Integer:" + i);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -603,18 +637,20 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i    -> System.out.println(\"Integer:\"  +i);\n" +
-						"	case de    -> System.out.println(\"Integer:\" + i);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i    -> System.out.println("Integer:"  +i);
+						case de    -> System.out.println("Integer:" + i);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -630,18 +666,20 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i    -> System.out.println(\"Integer:\"  +i);\n" +
-						"	case n    -> System.out.println(\"Integer:\" + i);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i    -> System.out.println("Integer:"  +i);
+						case n    -> System.out.println("Integer:" + i);
+					 	}
+					}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -659,19 +697,21 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"import java.lang.StackWalker.Option;\n" +
-				"public class X {\n" +
-				"	private void test() {\n" +
-				"		Option opt = Option.RETAIN_CLASS_REFERENCE;\n" +
-				"		boolean testswitch (opt) { // <- remove pipe and press CTRL+Space\n" +
-				"			case RETAIN_CLASS_REFERENCE -> {\n" +
-				"			}\n" +
-				"			case SHOW_HIDDEN_FRAMES -> {\n" +
-				"			}\n" +
-				"			case SHOW_REFLECT_FRAMES -> throw new UnsupportedOperationException(\"Unimplemented case: \");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					import java.lang.StackWalker.Option;
+					public class X {
+						private void test() {
+							Option opt = Option.RETAIN_CLASS_REFERENCE;
+							boolean testswitch (opt) { // <- remove pipe and press CTRL+Space
+								case RETAIN_CLASS_REFERENCE -> {
+								}
+								case SHOW_HIDDEN_FRAMES -> {
+								}
+								case SHOW_REFLECT_FRAMES -> throw new UnsupportedOperationException("Unimplemented case: ");
+							}
+						}
+					}
+					"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -689,12 +729,14 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Dog.java",
-				"public class Dog {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		Object o = null;\n" +
-				"		if (o instanceof Dog )\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					public class Dog {
+						public static void main(String[] args) {
+							Object o = null;
+							if (o instanceof Dog )
+						}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();

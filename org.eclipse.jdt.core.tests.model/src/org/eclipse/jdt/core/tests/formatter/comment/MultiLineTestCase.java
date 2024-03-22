@@ -114,13 +114,15 @@ public class MultiLineTestCase extends CommentTestCase {
 	 */
 	public void testMultiLineCommentFor145544() {
 		setUserOption(DefaultCodeFormatterConstants.getJavaConventionsSettings());
-		String input= "/**\n" +  //$NON-NLS-1$
-				" * Member comment\n" +//$NON-NLS-1$
-				" */";//$NON-NLS-1$
+		String input= """
+			/**
+			 * Member comment
+			 */""";//$NON-NLS-1$
 		String result= testFormat(input, 0, input.length(), CodeFormatter.K_MULTI_LINE_COMMENT , 2);
-		String expectedOutput = "/**\n" +
-			" * Member comment\n" +
-			" */";
+		String expectedOutput = """
+			/**
+			 * Member comment
+			 */""";
 		assertEquals("Different output", expectedOutput, result);
 	}
 
@@ -222,15 +224,17 @@ public class MultiLineTestCase extends CommentTestCase {
 	public void _test170580() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 
-		String input = "/*\n" +
-				"<pre>\n" +
-				"&lt;test&gt;\n" +
-				"</pre>\n" +
-				"         */";
+		String input = """
+			/*
+			<pre>
+			&lt;test&gt;
+			</pre>
+			         */""";
 
-		String expected= "/*\n" +
-				" * <pre>&lt;test&gt;</pre>\n" +
-				" */";
+		String expected= """
+			/*
+			 * <pre>&lt;test&gt;</pre>
+			 */""";
 
 		String result=testFormat(input, options);
 		assertEquals(expected, result);

@@ -116,35 +116,36 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 	public void testBug497719_0002() throws JavaModelException {
 		String contents =
-				"import java.io.IOException;\n" +
-				"\n" +
-				"class Z {\n" +
-				"	 final Y yz = new Y();\n" +
-				"}\n" +
-				"public class X extends Z {\n" +
-				"	final  Y y2 = new Y();\n" +
-				"	\n" +
-				"	 Y bar() {\n" +
-				"		 return new Y();\n" +
-				"	 }\n" +
-				"	public void foo() {\n" +
-				"		Y y3 = new Y();\n" +
-				"		int a[];\n" +
-				"		try (y3; y3;super.yz;super.yz;this.y2;Y y4 = new Y())  {  \n" +
-				"			System.out.println(\"In Try\");\n" +
-				"		} catch (IOException e) {			  \n" +
-				"		} \n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new X().foo();\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y implements AutoCloseable {\n" +
-				"	@Override\n" +
-				"	public void close() throws IOException {\n" +
-				"		System.out.println(\"Closed\");\n" +
-				"	}  \n" +
-				"}";
+				"""
+			import java.io.IOException;
+			
+			class Z {
+				 final Y yz = new Y();
+			}
+			public class X extends Z {
+				final  Y y2 = new Y();
+			\t
+				 Y bar() {
+					 return new Y();
+				 }
+				public void foo() {
+					Y y3 = new Y();
+					int a[];
+					try (y3; y3;super.yz;super.yz;this.y2;Y y4 = new Y())  { \s
+						System.out.println("In Try");
+					} catch (IOException e) {			 \s
+					}\s
+				}
+				public static void main(String[] args) {
+					new X().foo();
+				}
+			}
+			class Y implements AutoCloseable {
+				@Override
+				public void close() throws IOException {
+					System.out.println("Closed");
+				} \s
+			}""";
 			this.workingCopy = getWorkingCopy("/Converter9/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(contents, this.workingCopy, false);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -173,12 +174,13 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	}
 	public void testBug496123_0001() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		String content =  "module first {"
-				+ "  requires second;\n"
-				+ "  exports pack11 to third, fourth;\n"
-				+ "  uses NewType;\n"
-				+ "  provides pack22.I22 with pack11.packinternal.Z11;\n"
-				+ "}";
+		String content =  """
+			module first {\
+			  requires second;
+			  exports pack11 to third, fourth;
+			  uses NewType;
+			  provides pack22.I22 with pack11.packinternal.Z11;
+			}""";
 		this.workingCopies[0] = getWorkingCopy(
 				"/Converter9/src/module-info.java", content);
 
@@ -222,10 +224,11 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String content =
-				"module first {\n" +
-				"    requires second.third;\n" +
-				"    exports pack1.X11 to org.eclipse.jdt;\n" +
-				"}";
+				"""
+				module first {
+				    requires second.third;
+				    exports pack1.X11 to org.eclipse.jdt;
+				}""";
 			createFile("/ConverterTests9/src/module-info.java",	content);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X11.java",
@@ -270,11 +273,13 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		try {
 			createJava9Project("Bug514417", new String[]{"src"});
 			createFolder("/Bug514417/src/pack1");
-			String content =  "package pack1;\n" +
-					"import java.lang.String;\n" +
-					"public class X { \n" +
-					"	java.lang.String str = null;\n" +
-					"}\n";
+			String content =  """
+				package pack1;
+				import java.lang.String;
+				public class X {\s
+					java.lang.String str = null;
+				}
+				""";
 			createFile("/Bug514417/src/pack1/X.java", content);
 			ICompilationUnit sourceUnit = getCompilationUnit("Bug514417" , "src", "pack1", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			ASTNode unit = runConversion(this.ast.apiLevel(), sourceUnit, true);
@@ -307,13 +312,14 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	}
 	public void testBug516785_0001_since_9() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
-		String content =  "open module first {"
-				+ "  requires one;\n"
-				+ "  requires static two;\n"
-				+ "  requires transitive three;\n"
-				+ "  requires static transitive four;\n"
-				+ "  requires transitive static five;\n"
-				+ "}";
+		String content =  """
+			open module first {\
+			  requires one;
+			  requires static two;
+			  requires transitive three;
+			  requires static transitive four;
+			  requires transitive static five;
+			}""";
 		this.workingCopies[0] = getWorkingCopy(
 				"/Converter9/src/module-info.java", content);
 
@@ -354,10 +360,11 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String content =
-				"module first {\n" +
-				"    requires transitive static second.third;\n" +
-				"    exports pack1.X11 to org.eclipse.jdt;\n" +
-				"}";
+				"""
+				module first {
+				    requires transitive static second.third;
+				    exports pack1.X11 to org.eclipse.jdt;
+				}""";
 			createFile("/ConverterTests9/src/module-info.java",	content);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X11.java",
@@ -397,11 +404,12 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    requires second;\n" +
-				"	 uses pack22.I22;\n" +
-				"    provides pack22.I22 with pack1.X11;\n" +
-				"}";
+				"""
+				module first {
+				    requires second;
+					 uses pack22.I22;
+				    provides pack22.I22 with pack1.X11;
+				}""";
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X11.java",
@@ -412,9 +420,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
-					"module second {\n" +
-					"    exports pack22 to first;\n" +
-					"}";
+					"""
+				module second {
+				    exports pack22 to first;
+				}""";
 			createFile("/second/src/module-info.java",	secondFile);
 			createFolder("/second/src/pack22");
 			createFile("/second/src/pack22/I22.java",
@@ -428,9 +437,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project3.open(null);
 			addClasspathEntry(project3, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String thirdFile =
-					"module third {\n" +
-					"    requires first;\n" +
-					"}";
+					"""
+				module third {
+				    requires first;
+				}""";
 			createFile("/third/src/module-info.java",	thirdFile);
 			addClasspathEntry(project3, JavaCore.newProjectEntry(project1.getPath()));
 			//
@@ -519,10 +529,11 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    requires second;\n" +
-				"    provides pack22.I22 with pack1.X11;\n" +
-				"}";
+				"""
+				module first {
+				    requires second;
+				    provides pack22.I22 with pack1.X11;
+				}""";
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X11.java",
@@ -533,9 +544,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
-					"module second {\n" +
-					"    exports pack22 to first;\n" +
-					"}";
+					"""
+				module second {
+				    exports pack22 to first;
+				}""";
 			createFile("/second/src/module-info.java",	secondFile);
 			createFolder("/second/src/pack22");
 			createFile("/second/src/pack22/I22.java",
@@ -575,10 +587,11 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"open module first {\n" +
-				"    requires second;\n" +
-				"    provides pack22.I22 with pack1.X11;\n" +
-				"}";
+				"""
+				open module first {
+				    requires second;
+				    provides pack22.I22 with pack1.X11;
+				}""";
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X11.java",
@@ -589,9 +602,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
-					"open module second {\n" +
-					"    exports pack22 to first;\n" +
-					"}";
+					"""
+				open module second {
+				    exports pack22 to first;
+				}""";
 			createFile("/second/src/module-info.java",	secondFile);
 			createFolder("/second/src/pack22");
 			createFile("/second/src/pack22/I22.java",
@@ -636,12 +650,13 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    requires second;\n" +
-				"    exports pack1 to test;\n" +
-				"    opens pack1 to test;\n" +
-				"    provides pack22.I22 with pack1.X11, pack1.X12;\n" +
-				"}";
+				"""
+				module first {
+				    requires second;
+				    exports pack1 to test;
+				    opens pack1 to test;
+				    provides pack22.I22 with pack1.X11, pack1.X12;
+				}""";
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X11.java",
@@ -655,9 +670,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
-					"module second {\n" +
-					"    exports pack22 to first;\n" +
-					"}";
+					"""
+				module second {
+				    exports pack22 to first;
+				}""";
 			createFile("/second/src/module-info.java",	secondFile);
 			createFolder("/second/src/pack22");
 			createFile("/second/src/pack22/I22.java",
@@ -718,9 +734,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 	public void testBug518843_001() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
-		String content =  "module first {"
-				+ "  exports pack11.module to third, fourth;\n"
-				+ "}";
+		String content =  """
+			module first {\
+			  exports pack11.module to third, fourth;
+			}""";
 		this.workingCopies[0] = getWorkingCopy("/Converter9/src/module-info.java", content);
 
 		CompilationUnit unit = (CompilationUnit) runConversion(this.ast.apiLevel(), this.workingCopies[0], false/*no bindings*/);
@@ -729,10 +746,11 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	}
 	public void testBug519310_001() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
-		String content =  "package p;\n"
-				+ "  public interface I1 {\n"
-				+ "  private void foo() {}\n"
-				+ "}";
+		String content =  """
+			package p;
+			  public interface I1 {
+			  private void foo() {}
+			}""";
 		this.workingCopies[0] = getWorkingCopy("/Converter9/src/p/I1.java", content);
 
 		CompilationUnit unit = (CompilationUnit) runConversion(this.ast.apiLevel(), this.workingCopies[0], false/*no bindings*/);
@@ -850,9 +868,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project1.open(null);
 			String fileContent =
-				"module first {\n" +
-				"    exports pack1;\n" +
-				"}";
+				"""
+				module first {
+				    exports pack1;
+				}""";
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X.java",
@@ -883,9 +902,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project1.open(null);
 			String fileContent =
-				"module first {\n" +
-				"    exports pack1;\n" +
-				"}";
+				"""
+				module first {
+				    exports pack1;
+				}""";
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X.java",
@@ -914,16 +934,19 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project1.open(null);
 			String fileContent =
-				"module first {\n" +
-				"    exports pack1;\n" +
-				"}";
+				"""
+				module first {
+				    exports pack1;
+				}""";
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X.java",
-					"package pack1;\n" +
-					"public class X{\n" +
-					"    public class Y{}\n" +
-					"}\n");
+					"""
+						package pack1;
+						public class X{
+						    public class Y{}
+						}
+						""");
 
 			project1.close(); // sync
 			project1.open(null);
@@ -1011,10 +1034,12 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X.java",
-					"package pack1;\n" +
-					"public class X{\n" +
-					"    public class Y{}\n" +
-					"}\n");
+					"""
+						package pack1;
+						public class X{
+						    public class Y{}
+						}
+						""");
 
 			project1.close(); // sync
 			project1.open(null);
@@ -1045,9 +1070,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack");
 			createFile("/ConverterTests9/src/pack/X.java",
-					"package pack;\n" +
-					"import java.MyObject;\n" +
-					"public class X{}");
+					"""
+						package pack;
+						import java.MyObject;
+						public class X{}""");
 
 			project1.close(); // sync
 			project1.open(null);
@@ -1080,12 +1106,13 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    requires second;\n" +
-				"    exports pack1 to test;\n" +
-				"    opens pack1 to test;\n" +
-				"    provides pack22.I22 with pack1.X11, pack1.X12;\n" +
-				"}";
+				"""
+				module first {
+				    requires second;
+				    exports pack1 to test;
+				    opens pack1 to test;
+				    provides pack22.I22 with pack1.X11, pack1.X12;
+				}""";
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X11.java",
@@ -1099,9 +1126,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
-					"module second {\n" +
-					"    exports pack22 to first;\n" +
-					"}";
+					"""
+				module second {
+				    exports pack22 to first;
+				}""";
 			createFile("/second/src/module-info.java",	secondFile);
 			createFolder("/second/src/pack22");
 			createFile("/second/src/pack22/I22.java",
@@ -1147,12 +1175,13 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    requires second;\n" +
-				"    exports pack1 to test;\n" +
-				"    opens pack1 to test;\n" +
-				"    provides pack22.I22 with pack1.X12, pack1.X11;\n" +
-				"}";
+				"""
+				module first {
+				    requires second;
+				    exports pack1 to test;
+				    opens pack1 to test;
+				    provides pack22.I22 with pack1.X12, pack1.X11;
+				}""";
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X11.java",
@@ -1166,9 +1195,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
-					"module second {\n" +
-					"    exports pack22 to first;\n" +
-					"}";
+					"""
+				module second {
+				    exports pack22 to first;
+				}""";
 			createFile("/second/src/module-info.java",	secondFile);
 			createFolder("/second/src/pack22");
 			createFile("/second/src/pack22/I22.java",
@@ -1217,12 +1247,13 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    requires second;\n" +
-				"    exports pack1 to test;\n" +
-				"    opens pack1 to test;\n" +
-				"    provides pack22.I22 with pack3.Z, pack1.X11;\n" +
-				"}";
+				"""
+				module first {
+				    requires second;
+				    exports pack1 to test;
+				    opens pack1 to test;
+				    provides pack22.I22 with pack3.Z, pack1.X11;
+				}""";
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X11.java",
@@ -1240,9 +1271,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
-					"module second {\n" +
-					"    exports pack22 to first;\n" +
-					"}";
+					"""
+				module second {
+				    exports pack22 to first;
+				}""";
 			createFile("/second/src/module-info.java",	secondFile);
 			createFolder("/second/src/pack22");
 			createFile("/second/src/pack22/I22.java",
@@ -1295,9 +1327,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack");
 			createFile("/ConverterTests9/src/pack/X.java",
-					"package pack;\n" +
-					"import java.MyObject;\n" +
-					"public class X{}");
+					"""
+						package pack;
+						import java.MyObject;
+						public class X{}""");
 
 			project1.close(); // sync
 			project1.open(null);
@@ -1361,9 +1394,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 					false));
 			project2.open(null);
 			createFile("/Second/src/module-info.java",
-					"module second {\n" +
-					"	requires first;\n" +
-					"}");
+					"""
+						module second {
+							requires first;
+						}""");
 			project2.close(); // sync
 			project2.open(null);
 
@@ -1391,16 +1425,18 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 			createFolder("/Foo/src/foo");
 			createFile("/Foo/src/foo/Foo.java",
-					"package foo;\n" +
-					"\n" +
-					"public class Foo {\n" +
-					"	public interface MyInterface<T> {\n" +
-					"		public void perform(T t);\n" +
-					"	}\n" +
-					"	public <T> MyInterface<T> createMyInterface() {\n" +
-					"		return new My\n" + // incomplete, use case is: completion after "My"
-					"	}\n" +
-					"}\n");
+					"""
+						package foo;
+						
+						public class Foo {
+							public interface MyInterface<T> {
+								public void perform(T t);
+							}
+							public <T> MyInterface<T> createMyInterface() {
+								return new My
+							}
+						}
+						""");
 			ASTParser parser = ASTParser.newParser(this.ast.apiLevel());
 			parser.setProject(project1);
 			parser.setResolveBindings(true);
@@ -1427,22 +1463,26 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		try {
 			createFolder("/Foo/src/test");
 			createFile("/Foo/src/test/ReaderWarningView.java",
-					"package test;\n" +
-					"@java.lang.Deprecated\n" +
-					"public class ReaderWarningView {}\n");
+					"""
+						package test;
+						@java.lang.Deprecated
+						public class ReaderWarningView {}
+						""");
 			String source =
 					"public class Test implements test.Screen.Component {}\n";
 			createFile("/Foo/src/Test.java", source);
 			createFile("/Foo/src/test/Screen.java",
-					"package test;\n" +
-					"@interface Annot{ Class<?> value(); }\n" +
-					"@Annot(test.Screen.Component.class)\n" +
-					"@java.lang.Deprecated\n" +
-					"public final class Screen {\n" +
-					"	@java.lang.Deprecated\n" +
-					"	public interface Component extends test.ReaderWarningView.Component {\n" +
-					"	}\n" +
-					"}\n");
+					"""
+						package test;
+						@interface Annot{ Class<?> value(); }
+						@Annot(test.Screen.Component.class)
+						@java.lang.Deprecated
+						public final class Screen {
+							@java.lang.Deprecated
+							public interface Component extends test.ReaderWarningView.Component {
+							}
+						}
+						""");
 			ICompilationUnit cuD = getCompilationUnit("/Foo/src/Test.java");
 
 			p.setOption(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.ERROR);
@@ -1455,21 +1495,23 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
 			IProblem[] problems = cuAST.getProblems();
 			assertProblems("Unexpected problems",
-					"1. ERROR in /Foo/src/Test.java (at line 1)\n" +
-					"	public class Test implements test.Screen.Component {}\n" +
-					"	             ^^^^\n" +
-					"The hierarchy of the type Test is inconsistent\n" +
-					"----------\n" +
-					"2. ERROR in /Foo/src/Test.java (at line 1)\n" +
-					"	public class Test implements test.Screen.Component {}\n" +
-					"	                                  ^^^^^^\n" +
-					"The type Screen is deprecated\n" +
-					"----------\n" +
-					"3. ERROR in /Foo/src/Test.java (at line 1)\n" +
-					"	public class Test implements test.Screen.Component {}\n" +
-					"	                                         ^^^^^^^^^\n" +
-					"The type Screen.Component is deprecated\n" +
-					"----------\n",
+					"""
+						1. ERROR in /Foo/src/Test.java (at line 1)
+							public class Test implements test.Screen.Component {}
+							             ^^^^
+						The hierarchy of the type Test is inconsistent
+						----------
+						2. ERROR in /Foo/src/Test.java (at line 1)
+							public class Test implements test.Screen.Component {}
+							                                  ^^^^^^
+						The type Screen is deprecated
+						----------
+						3. ERROR in /Foo/src/Test.java (at line 1)
+							public class Test implements test.Screen.Component {}
+							                                         ^^^^^^^^^
+						The type Screen.Component is deprecated
+						----------
+						""",
 					problems, source.toCharArray());
 		} finally {
 			deleteProject(p);

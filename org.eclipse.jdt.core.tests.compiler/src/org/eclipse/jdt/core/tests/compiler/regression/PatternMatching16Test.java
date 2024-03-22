@@ -79,19 +79,24 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X1.java",
-						"public class X1 {\n" +
-						"  public void foo(Object obj) {\n" +
-						"		if (obj instanceof String s) {\n" +
-						"		}\n " +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X1 {
+							  public void foo(Object obj) {
+									if (obj instanceof String s) {
+									}
+							 \
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X1.java (at line 3)\n" +
-				"	if (obj instanceof String s) {\n" +
-				"	                   ^^^^^^^^\n" +
-				"The Java feature 'Pattern Matching in instanceof Expressions' is only available with source level 16 and above\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X1.java (at line 3)
+						if (obj instanceof String s) {
+						                   ^^^^^^^^
+					The Java feature 'Pattern Matching in instanceof Expressions' is only available with source level 16 and above
+					----------
+					""",
 				null,
 				true,
 				options);
@@ -109,12 +114,15 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X1.java",
-						"public class X1 {\n" +
-						"  public void foo(Object obj) {\n" +
-						"		if (obj instanceof String s) {\n" +
-						"		}\n " +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X1 {
+							  public void foo(Object obj) {
+									if (obj instanceof String s) {
+									}
+							 \
+								}
+							}
+							""",
 				},
 				"----------\n" +
 				"1. ERROR in X1.java (at line 0)\n" +
@@ -135,14 +143,17 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X1.java",
-						"public class X1 {\n" +
-						"  public void foo(Object obj) {\n" +
-						"		if (obj instanceof String s) {\n" +
-						"		}\n " +
-						"	}\n" +
-						"  public static void main(String[] obj) {\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X1 {
+							  public void foo(Object obj) {
+									if (obj instanceof String s) {
+									}
+							 \
+								}
+							  public static void main(String[] obj) {
+								}
+							}
+							""",
 				},
 				"",
 				options);
@@ -152,20 +163,25 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X2.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X2 {\n" +
-						"  public void foo(Integer obj) {\n" +
-						"		if (obj instanceof String s) {\n" +
-						"		}\n " +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X2 {
+							  public void foo(Integer obj) {
+									if (obj instanceof String s) {
+									}
+							 \
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X2.java (at line 4)\n" +
-				"	if (obj instanceof String s) {\n" +
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Incompatible conditional operand types Integer and String\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X2.java (at line 4)
+						if (obj instanceof String s) {
+						    ^^^^^^^^^^^^^^^^^^^^^^^
+					Incompatible conditional operand types Integer and String
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -176,21 +192,26 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X3.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X3 {\n" +
-						"  public void foo(Number num) {\n" +
-						"		if (num instanceof Integer s) {\n" +
-						"		} else if (num instanceof String) {\n" +
-						"		}\n " +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X3 {
+							  public void foo(Number num) {
+									if (num instanceof Integer s) {
+									} else if (num instanceof String) {
+									}
+							 \
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X3.java (at line 5)\n" +
-				"	} else if (num instanceof String) {\n" +
-				"	           ^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Incompatible conditional operand types Number and String\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X3.java (at line 5)
+						} else if (num instanceof String) {
+						           ^^^^^^^^^^^^^^^^^^^^^
+					Incompatible conditional operand types Number and String
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -201,20 +222,25 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X3.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X3 {\n" +
-						"  public void foo(Number num) {\n" +
-						"		if (num instanceof int) {\n" +
-						"		}\n " +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X3 {
+							  public void foo(Number num) {
+									if (num instanceof int) {
+									}
+							 \
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X3.java (at line 4)\n" +
-				"	if (num instanceof int) {\n" +
-				"	    ^^^^^^^^^^^^^^^^^^\n" +
-				"Incompatible conditional operand types Number and int\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X3.java (at line 4)
+						if (num instanceof int) {
+						    ^^^^^^^^^^^^^^^^^^
+					Incompatible conditional operand types Number and int
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -225,22 +251,27 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X4.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X4 {\n" +
-						"  public void foo(Object obj) {\n" +
-						"		String s = null;\n" +
-						"		if (obj instanceof Integer s) {\n" +
-						"		} else if (obj instanceof String) {\n" +
-						"		}\n " +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X4 {
+							  public void foo(Object obj) {
+									String s = null;
+									if (obj instanceof Integer s) {
+									} else if (obj instanceof String) {
+									}
+							 \
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X4.java (at line 5)\n" +
-				"	if (obj instanceof Integer s) {\n" +
-				"	                           ^\n" +
-				"Duplicate local variable s\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X4.java (at line 5)
+						if (obj instanceof Integer s) {
+						                           ^
+					Duplicate local variable s
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -251,20 +282,23 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X5.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X5 {\n" +
-						"@SuppressWarnings(\"preview\")\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		if (obj instanceof Integer i) {\n" +
-						"			System.out.print(i);\n" +
-						"		} else if (obj instanceof String s) {\n" +
-						"			System.out.print(s);\n" +
-						"		}\n " +
-						"	}\n" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(100);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X5 {
+							@SuppressWarnings("preview")
+							  public static void foo(Object obj) {
+									if (obj instanceof Integer i) {
+										System.out.print(i);
+									} else if (obj instanceof String s) {
+										System.out.print(s);
+									}
+							 \
+								}
+							  public static void main(String[] obj) {
+									foo(100);
+								}
+							}
+							""",
 				},
 				"100",
 				options);
@@ -274,19 +308,22 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X6.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X6 {\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		if (obj instanceof Integer i) {\n" +
-						"			System.out.print(i);\n" +
-						"		} else if (obj instanceof String s) {\n" +
-						"			System.out.print(s);\n" +
-						"		}\n " +
-						"	}\n" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X6 {
+							  public static void foo(Object obj) {
+									if (obj instanceof Integer i) {
+										System.out.print(i);
+									} else if (obj instanceof String s) {
+										System.out.print(s);
+									}
+							 \
+								}
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
 				"abcd",
 				options);
@@ -296,34 +333,40 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X6a.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X6a {\n" +
-						"	public static void foo(Object obj) {\n" +
-						"		if (obj != null) {\n" +
-						"			if (obj instanceof Integer i) {\n" +
-						"				System.out.print(i);\n" +
-						"			} else if (obj instanceof String s) {\n" +
-						"				System.out.print(i);\n" +
-						"			}\n " +
-						"		}\n " +
-						"		System.out.print(i);\n" +
-						"	}\n" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X6a {
+								public static void foo(Object obj) {
+									if (obj != null) {
+										if (obj instanceof Integer i) {
+											System.out.print(i);
+										} else if (obj instanceof String s) {
+											System.out.print(i);
+										}
+							 \
+									}
+							 \
+									System.out.print(i);
+								}
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X6a.java (at line 8)\n" +
-				"	System.out.print(i);\n" +
-				"	                 ^\n" +
-				"i cannot be resolved to a variable\n" +
-				"----------\n" +
-				"2. ERROR in X6a.java (at line 11)\n" +
-				"	System.out.print(i);\n" +
-				"	                 ^\n" +
-				"i cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X6a.java (at line 8)
+						System.out.print(i);
+						                 ^
+					i cannot be resolved to a variable
+					----------
+					2. ERROR in X6a.java (at line 11)
+						System.out.print(i);
+						                 ^
+					i cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -334,34 +377,40 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X6b.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X6b {\n" +
-						"	public static void foo(Object obj) {\n" +
-						"		if (obj != null) {\n" +
-						"			if (obj instanceof Integer i) {\n" +
-						"				System.out.print(i);\n" +
-						"			} else if (obj instanceof String s) {\n" +
-						"				System.out.print(i);\n" +
-						"			}\n " +
-						"		}\n " +
-						"		System.out.print(s);\n" +
-						"	}\n" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X6b {
+								public static void foo(Object obj) {
+									if (obj != null) {
+										if (obj instanceof Integer i) {
+											System.out.print(i);
+										} else if (obj instanceof String s) {
+											System.out.print(i);
+										}
+							 \
+									}
+							 \
+									System.out.print(s);
+								}
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X6b.java (at line 8)\n" +
-				"	System.out.print(i);\n" +
-				"	                 ^\n" +
-				"i cannot be resolved to a variable\n" +
-				"----------\n" +
-				"2. ERROR in X6b.java (at line 11)\n" +
-				"	System.out.print(s);\n" +
-				"	                 ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X6b.java (at line 8)
+						System.out.print(i);
+						                 ^
+					i cannot be resolved to a variable
+					----------
+					2. ERROR in X6b.java (at line 11)
+						System.out.print(s);
+						                 ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -372,26 +421,31 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X6c.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X6c {\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		if (obj instanceof Integer i) {\n" +
-						"			System.out.print(i);\n" +
-						"		} else if (obj instanceof String s) {\n" +
-						"			System.out.print(i);\n" +
-						"		}\n " +
-						"	}\n" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X6c {
+							  public static void foo(Object obj) {
+									if (obj instanceof Integer i) {
+										System.out.print(i);
+									} else if (obj instanceof String s) {
+										System.out.print(i);
+									}
+							 \
+								}
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X6c.java (at line 7)\n" +
-				"	System.out.print(i);\n" +
-				"	                 ^\n" +
-				"i cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X6c.java (at line 7)
+						System.out.print(i);
+						                 ^
+					i cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -402,26 +456,31 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X6d.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X6d {\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		if (obj instanceof Integer i) {\n" +
-						"			System.out.print(i);\n" +
-						"		} else {\n" +
-						"			System.out.print(i);\n" +
-						"		}\n " +
-						"	}\n" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X6d {
+							  public static void foo(Object obj) {
+									if (obj instanceof Integer i) {
+										System.out.print(i);
+									} else {
+										System.out.print(i);
+									}
+							 \
+								}
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X6d.java (at line 7)\n" +
-				"	System.out.print(i);\n" +
-				"	                 ^\n" +
-				"i cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X6d.java (at line 7)
+						System.out.print(i);
+						                 ^
+					i cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -432,39 +491,45 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X7.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X7 {\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		if (obj instanceof Integer i) {\n" +
-						"			System.out.print(i);\n" +
-						"		} else if (obj instanceof String s) {\n" +
-						"			System.out.print(i);\n" +
-						"		}\n " +
-						"	}\n" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X7 {
+							  public static void foo(Object obj) {
+									if (obj instanceof Integer i) {
+										System.out.print(i);
+									} else if (obj instanceof String s) {
+										System.out.print(i);
+									}
+							 \
+								}
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X7.java (at line 7)\n" +
-				"	System.out.print(i);\n" +
-				"	                 ^\n" +
-				"i cannot be resolved to a variable\n" +
-				"----------\n",
-				"X7.java:4: warning: [preview] pattern matching in instanceof is a preview feature and may be removed in a future release.\n" +
-				"		if (obj instanceof Integer i) {\n" +
-				"		                           ^\n" +
-				"X7.java:6: warning: [preview] pattern matching in instanceof is a preview feature and may be removed in a future release.\n" +
-				"		} else if (obj instanceof String s) {\n" +
-				"		                                 ^\n" +
-				"X7.java:7: error: cannot find symbol\n" +
-				"			System.out.print(i);\n" +
-				"			                 ^\n" +
-				"  symbol:   variable i\n" +
-				"  location: class X7\n" +
-				"1 error\n" +
-				"2 warnings",
+				"""
+					----------
+					1. ERROR in X7.java (at line 7)
+						System.out.print(i);
+						                 ^
+					i cannot be resolved to a variable
+					----------
+					""",
+				"""
+					X7.java:4: warning: [preview] pattern matching in instanceof is a preview feature and may be removed in a future release.
+							if (obj instanceof Integer i) {
+							                           ^
+					X7.java:6: warning: [preview] pattern matching in instanceof is a preview feature and may be removed in a future release.
+							} else if (obj instanceof String s) {
+							                                 ^
+					X7.java:7: error: cannot find symbol
+								System.out.print(i);
+								                 ^
+					  symbol:   variable i
+					  location: class X7
+					1 error
+					2 warnings""",
 				null,
 				true,
 				options);
@@ -474,22 +539,24 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X8.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X8 {\n" +
-						"  	public static void foo(Object b) {\n" +
-						"		Object c = null;\n" +
-						"		if (b != c) {\n" +
-						"			if ((b instanceof String s) && (s.length() != 0))\n" +
-						"				System.out.println(\"s:\" + s);\n" +
-						"			else \n" +
-						"				System.out.println(\"b:\" + b);\n" +
-						"		}\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(100);\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X8 {
+							  	public static void foo(Object b) {
+									Object c = null;
+									if (b != c) {
+										if ((b instanceof String s) && (s.length() != 0))
+											System.out.println("s:" + s);
+										else\s
+											System.out.println("b:" + b);
+									}
+								}\
+							  public static void main(String[] obj) {
+									foo(100);
+									foo("abcd");
+								}
+							}
+							""",
 				},
 				"b:100\n" +
 				"s:abcd",
@@ -500,22 +567,24 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X9.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X9 {\n" +
-						"  	public static void foo(Object b) {\n" +
-						"		Object c = null;\n" +
-						"		if (b != c) {\n" +
-						"			if ((b instanceof String s) && (s.length() != 0))\n" +
-						"				System.out.println(\"s:\" + s);\n" +
-						"			else if ((b instanceof Integer i2))\n" +
-						"				System.out.println(\"i2:\" + i2);\n" +
-						"		}\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(100);\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X9 {
+							  	public static void foo(Object b) {
+									Object c = null;
+									if (b != c) {
+										if ((b instanceof String s) && (s.length() != 0))
+											System.out.println("s:" + s);
+										else if ((b instanceof Integer i2))
+											System.out.println("i2:" + i2);
+									}
+								}\
+							  public static void main(String[] obj) {
+									foo(100);
+									foo("abcd");
+								}
+							}
+							""",
 				},
 				"i2:100\n" +
 				"s:abcd",
@@ -526,22 +595,24 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X10.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X10 {\n" +
-						"  	public static void foo(Object b) {\n" +
-						"		Object c = null;\n" +
-						"		if (b != c) {\n" +
-						"			if (b != null && (b instanceof String s))\n" +
-						"				System.out.println(\"s:\" + s);\n" +
-						"			else " +
-						"				System.out.println(\"b:\" + b);\n" +
-						"		}\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(100);\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X10 {
+							  	public static void foo(Object b) {
+									Object c = null;
+									if (b != c) {
+										if (b != null && (b instanceof String s))
+											System.out.println("s:" + s);
+										else \
+											System.out.println("b:" + b);
+									}
+								}\
+							  public static void main(String[] obj) {
+									foo(100);
+									foo("abcd");
+								}
+							}
+							""",
 				},
 				"b:100\n" +
 				"s:abcd",
@@ -552,27 +623,31 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X11.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X11 {\n" +
-						"  	public static void foo(Object b) {\n" +
-						"		Object c = null;\n" +
-						"		if (b == null && (b instanceof String s)) {\n" +
-						"		} else {" +
-						"		}\n" +
-						"		System.out.println(s);\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(100);\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X11 {
+							  	public static void foo(Object b) {
+									Object c = null;
+									if (b == null && (b instanceof String s)) {
+									} else {\
+									}
+									System.out.println(s);
+								}\
+							  public static void main(String[] obj) {
+									foo(100);
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X11.java (at line 7)\n" +
-				"	System.out.println(s);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X11.java (at line 7)
+						System.out.println(s);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -583,31 +658,35 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X12.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X12 {\n" +
-						"  	public static void foo(Object b) {\n" +
-						"		Object c = new Object();\n" +
-						"		if (b != c) {\n" +
-						"			if (b == null && (b instanceof String s)) {\n" +
-						"				System.out.println(\"s:\" + s);\n" +
-						"			} else {\n" +
-						"				System.out.println(\"b:\" + b);\n" +
-						"			}\n" +
-						"			s = null;\n" +
-						"		}\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(100);\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X12 {
+							  	public static void foo(Object b) {
+									Object c = new Object();
+									if (b != c) {
+										if (b == null && (b instanceof String s)) {
+											System.out.println("s:" + s);
+										} else {
+											System.out.println("b:" + b);
+										}
+										s = null;
+									}
+								}\
+							  public static void main(String[] obj) {
+									foo(100);
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X12.java (at line 11)\n" +
-				"	s = null;\n" +
-				"	^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X12.java (at line 11)
+						s = null;
+						^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -618,30 +697,34 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X13.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X13 {\n" +
-						"  	public static void foo(Object b) {\n" +
-						"		Object c = null;\n" +
-						"		if (b != c) {\n" +
-						"			if (b == null && (b instanceof String s))\n" +
-						"				System.out.println(\"s:\" + s);\n" +
-						"			else " +
-						"				System.out.println(\"b:\" + b);\n" +
-						"			System.out.println(s);\n" +
-						"		}\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(100);\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X13 {
+							  	public static void foo(Object b) {
+									Object c = null;
+									if (b != c) {
+										if (b == null && (b instanceof String s))
+											System.out.println("s:" + s);
+										else \
+											System.out.println("b:" + b);
+										System.out.println(s);
+									}
+								}\
+							  public static void main(String[] obj) {
+									foo(100);
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X13.java (at line 9)\n" +
-				"	System.out.println(s);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X13.java (at line 9)
+						System.out.println(s);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -652,26 +735,30 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X14.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X14 {\n" +
-						"  	public static void foo(Object o) {\n" +
-						"		if (!(o instanceof String s)) {\n" +
-						"			System.out.print(\"then:\" + s);\n" +
-						"		} else {\n" +
-						"			System.out.print(\"else:\" + s);\n" +
-						"		}\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X14 {
+							  	public static void foo(Object o) {
+									if (!(o instanceof String s)) {
+										System.out.print("then:" + s);
+									} else {
+										System.out.print("else:" + s);
+									}
+								}\
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X14.java (at line 5)\n" +
-				"	System.out.print(\"then:\" + s);\n" +
-				"	                           ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X14.java (at line 5)
+						System.out.print("then:" + s);
+						                           ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -682,26 +769,30 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X14a.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X14a {\n" +
-						"  	public static void foo(Object o) {\n" +
-						"		if (!(o instanceof String s)) {\n" +
-						"			System.out.print(\"then:\" + s);\n" +
-						"		} else {\n" +
-						"			System.out.print(\"else:\" + s);\n" +
-						"		}\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X14a {
+							  	public static void foo(Object o) {
+									if (!(o instanceof String s)) {
+										System.out.print("then:" + s);
+									} else {
+										System.out.print("else:" + s);
+									}
+								}\
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X14a.java (at line 5)\n" +
-				"	System.out.print(\"then:\" + s);\n" +
-				"	                           ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X14a.java (at line 5)
+						System.out.print("then:" + s);
+						                           ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -712,26 +803,30 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X14b.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X14b {\n" +
-						"  	public static void foo(Object o) {\n" +
-						"		if (!!(o instanceof String s)) {\n" +
-						"			System.out.print(\"then:\" + s);\n" +
-						"		} else {\n" +
-						"			System.out.print(\"else:\" + s);\n" +
-						"		}\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X14b {
+							  	public static void foo(Object o) {
+									if (!!(o instanceof String s)) {
+										System.out.print("then:" + s);
+									} else {
+										System.out.print("else:" + s);
+									}
+								}\
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X14b.java (at line 7)\n" +
-				"	System.out.print(\"else:\" + s);\n" +
-				"	                           ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X14b.java (at line 7)
+						System.out.print("else:" + s);
+						                           ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -742,26 +837,30 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X14c.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X14c {\n" +
-						"  	public static void foo(Object o) {\n" +
-						"		if (o == null) {\n" +
-						"			System.out.print(\"null\");\n" +
-						"		} else if(!(o instanceof String s)) {\n" +
-						"			System.out.print(\"else:\" + s);\n" +
-						"		}\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X14c {
+							  	public static void foo(Object o) {
+									if (o == null) {
+										System.out.print("null");
+									} else if(!(o instanceof String s)) {
+										System.out.print("else:" + s);
+									}
+								}\
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X14c.java (at line 7)\n" +
-				"	System.out.print(\"else:\" + s);\n" +
-				"	                           ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X14c.java (at line 7)
+						System.out.print("else:" + s);
+						                           ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -772,19 +871,21 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X14d.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X14d {\n" +
-						"  	public static void foo(Object o) {\n" +
-						"		if (o == null) {\n" +
-						"			System.out.print(\"null\");\n" +
-						"		} else if(!!(o instanceof String s)) {\n" +
-						"			System.out.print(\"else:\" + s);\n" +
-						"		}\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X14d {
+							  	public static void foo(Object o) {
+									if (o == null) {
+										System.out.print("null");
+									} else if(!!(o instanceof String s)) {
+										System.out.print("else:" + s);
+									}
+								}\
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
 				"else:abcd",
 				options);
@@ -794,18 +895,20 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X14a.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X14a {\n" +
-						"  	public static void foo(Object o) {\n" +
-						"		 if (!(!(o instanceof String s))) {\n" +
-						"			System.out.print(\"s:\" + s);\n" +
-						"		} else {\n" +
-						"		}\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X14a {
+							  	public static void foo(Object o) {
+									 if (!(!(o instanceof String s))) {
+										System.out.print("s:" + s);
+									} else {
+									}
+								}\
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
 				"s:abcd",
 				options);
@@ -819,20 +922,22 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X15.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X15 {\n" +
-						"  	public static void foo(Object o) {\n" +
-						"		if (!(o instanceof String s)) {\n" +
-						"			throw new IllegalArgumentException();\n" +
-						"		} else {\n" +
-						"			System.out.print(\"s:\" + s);\n" +
-						"		}\n" +
-						"		System.out.print(s);\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X15 {
+							  	public static void foo(Object o) {
+									if (!(o instanceof String s)) {
+										throw new IllegalArgumentException();
+									} else {
+										System.out.print("s:" + s);
+									}
+									System.out.print(s);
+								}\
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
 				"s:abcdabcd",
 				options);
@@ -846,18 +951,20 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X15a.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X15a {\n" +
-						"  	public static void foo(Object o) {\n" +
-						"		if (!(o instanceof String s)) {\n" +
-						"			throw new IllegalArgumentException();\n" +
-						"		}\n" +
-						"		System.out.print(s);\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X15a {
+							  	public static void foo(Object o) {
+									if (!(o instanceof String s)) {
+										throw new IllegalArgumentException();
+									}
+									System.out.print(s);
+								}\
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
 				"abcd",
 				options);
@@ -871,27 +978,31 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X15b.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X15b {\n" +
-						"  	public static void foo(Object o) {\n" +
-						"		if (!(o instanceof String s)) {\n" +
-						"			//throw new IllegalArgumentException();\n" +
-						"		} else {\n" +
-						"			System.out.print(\"s:\" + s);\n" +
-						"		}\n" +
-						"		System.out.print(s);\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(\"abcd\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X15b {
+							  	public static void foo(Object o) {
+									if (!(o instanceof String s)) {
+										//throw new IllegalArgumentException();
+									} else {
+										System.out.print("s:" + s);
+									}
+									System.out.print(s);
+								}\
+							  public static void main(String[] obj) {
+									foo("abcd");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X15b.java (at line 9)\n" +
-				"	System.out.print(s);\n" +
-				"	                 ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X15b.java (at line 9)
+						System.out.print(s);
+						                 ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -902,16 +1013,18 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X16.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X16 {\n" +
-						"  	public static void foo(Object o) {\n" +
-						"		boolean b = (o instanceof String[] s && s.length == 1);\n" +
-						"		System.out.print(b);\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(new String[]{\"one\"});\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X16 {
+							  	public static void foo(Object o) {
+									boolean b = (o instanceof String[] s && s.length == 1);
+									System.out.print(b);
+								}\
+							  public static void main(String[] obj) {
+									foo(new String[]{"one"});
+								}
+							}
+							""",
 				},
 				"true",
 				options);
@@ -921,23 +1034,27 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X17.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X17 {\n" +
-						"  	public static void foo(Object o) {\n" +
-						"		boolean b = (o instanceof String[] s && s.length == 1);\n" +
-						"		System.out.print(s[0]);\n" +
-						"	}" +
-						"  public static void main(String[] obj) {\n" +
-						"		foo(new String[]{\"one\"});\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X17 {
+							  	public static void foo(Object o) {
+									boolean b = (o instanceof String[] s && s.length == 1);
+									System.out.print(s[0]);
+								}\
+							  public static void main(String[] obj) {
+									foo(new String[]{"one"});
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X17.java (at line 5)\n" +
-				"	System.out.print(s[0]);\n" +
-				"	                 ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X17.java (at line 5)
+						System.out.print(s[0]);
+						                 ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -951,21 +1068,23 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X18.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X18 {\n" +
-						"  public static void main(String[] obj) {\n" +
-						"  		foo(obj);\n" +
-						"  }\n" +
-						"  public static void foo(Object[] obj) {\n" +
-						"		boolean a = true;\n" +
-						"		{\n" +
-						"			boolean b = (obj instanceof String[] s && s.length == 0);\n" +
-						"			System.out.print(b + \",\");\n" +
-						"		}\n" +
-						"		boolean b = a ? false : (obj instanceof String[] s && s.length == 0);\n" +
-						"		System.out.print(b);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X18 {
+							  public static void main(String[] obj) {
+							  		foo(obj);
+							  }
+							  public static void foo(Object[] obj) {
+									boolean a = true;
+									{
+										boolean b = (obj instanceof String[] s && s.length == 0);
+										System.out.print(b + ",");
+									}
+									boolean b = a ? false : (obj instanceof String[] s && s.length == 0);
+									System.out.print(b);
+								}
+							}
+							""",
 				},
 				"true,false",
 				options);
@@ -978,21 +1097,23 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X19.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X19 {\n" +
-						"  public static void main(String[] obj) {\n" +
-						"  		foo(obj);\n" +
-						"  }\n" +
-						"  public static void foo(Object[] obj) {\n" +
-						"		boolean a = true;\n" +
-						"		boolean b = a ? false : (obj instanceof String[] s && s.length == 0);\n" +
-						"		System.out.print(b + \",\");\n" +
-						"		{\n" +
-						"			b = (obj instanceof String[] s && s.length == 0);\n" +
-						"			System.out.print(b);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X19 {
+							  public static void main(String[] obj) {
+							  		foo(obj);
+							  }
+							  public static void foo(Object[] obj) {
+									boolean a = true;
+									boolean b = a ? false : (obj instanceof String[] s && s.length == 0);
+									System.out.print(b + ",");
+									{
+										b = (obj instanceof String[] s && s.length == 0);
+										System.out.print(b);
+									}
+								}
+							}
+							""",
 				},
 				"false,true",
 				options);
@@ -1004,26 +1125,30 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X19b.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X19b {\n" +
-						"  public static void main(String[] obj) {\n" +
-						"  		foo(obj);\n" +
-						"  }\n" +
-						"  public static void foo(Object[] obj) {\n" +
-						"		boolean a = true;\n" +
-						"		if (obj instanceof String[] s && s.length == 0) {\n" +
-						"			boolean b = (obj instanceof String[] s && s.length == 0);\n" +
-						"			System.out.print(b);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X19b {
+							  public static void main(String[] obj) {
+							  		foo(obj);
+							  }
+							  public static void foo(Object[] obj) {
+									boolean a = true;
+									if (obj instanceof String[] s && s.length == 0) {
+										boolean b = (obj instanceof String[] s && s.length == 0);
+										System.out.print(b);
+									}
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X19b.java (at line 9)\n" +
-				"	boolean b = (obj instanceof String[] s && s.length == 0);\n" +
-				"	                                     ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X19b.java (at line 9)
+						boolean b = (obj instanceof String[] s && s.length == 0);
+						                                     ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1037,22 +1162,26 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X20.java",
-						"public class X20 {\n" +
-						"  public static void main(String[] obj) {\n" +
-						"  		foo(obj);\n" +
-						"  }\n" +
-						"  public static void foo(Object[] o) {\n" +
-						"		boolean b = (o instanceof String[] s) && s instanceof CharSequence[] s2;\n" +
-						"		System.out.print(b1);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X20 {
+							  public static void main(String[] obj) {
+							  		foo(obj);
+							  }
+							  public static void foo(Object[] o) {
+									boolean b = (o instanceof String[] s) && s instanceof CharSequence[] s2;
+									System.out.print(b1);
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X20.java (at line 7)\n" +
-				"	System.out.print(b1);\n" +
-				"	                 ^^\n" +
-				"b1 cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X20.java (at line 7)
+						System.out.print(b1);
+						                 ^^
+					b1 cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1065,16 +1194,18 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X20.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X20 {\n" +
-						"  public static void main(String[] obj) {\n" +
-						"  		foo(obj);\n" +
-						"  }\n" +
-						"  public static void foo(Object[] o) {\n" +
-						"		boolean b = (o instanceof CharSequence[] s) && s instanceof String[] s2;\n" +
-						"		System.out.print(b);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X20 {
+							  public static void main(String[] obj) {
+							  		foo(obj);
+							  }
+							  public static void foo(Object[] o) {
+									boolean b = (o instanceof CharSequence[] s) && s instanceof String[] s2;
+									System.out.print(b);
+								}
+							}
+							""",
 				},
 				"true",
 				options);
@@ -1086,29 +1217,33 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X21.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X21 {\n" +
-						"  public static void main(String[] obj) {\n" +
-						"  		foo(obj);\n" +
-						"  }\n" +
-						"  public static void foo(Object[] o) {\n" +
-						"		boolean b = (o instanceof CharSequence[] s) && s instanceof String[] s2;\n" +
-						"		System.out.print(s);\n" +
-						"		System.out.print(s2);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X21 {
+							  public static void main(String[] obj) {
+							  		foo(obj);
+							  }
+							  public static void foo(Object[] o) {
+									boolean b = (o instanceof CharSequence[] s) && s instanceof String[] s2;
+									System.out.print(s);
+									System.out.print(s2);
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X21.java (at line 8)\n" +
-				"	System.out.print(s);\n" +
-				"	                 ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n" +
-				"2. ERROR in X21.java (at line 9)\n" +
-				"	System.out.print(s2);\n" +
-				"	                 ^^\n" +
-				"s2 cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X21.java (at line 8)
+						System.out.print(s);
+						                 ^
+					s cannot be resolved to a variable
+					----------
+					2. ERROR in X21.java (at line 9)
+						System.out.print(s2);
+						                 ^^
+					s2 cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1121,18 +1256,20 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X22.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X22 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o) {\n" +
-						"		while ((o instanceof String s) && s.length() > 0) {\n" +
-						"			o = s.substring(0, s.length() - 1);\n" +
-						"			System.out.println(s);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X22 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object o) {
+									while ((o instanceof String s) && s.length() > 0) {
+										o = s.substring(0, s.length() - 1);
+										System.out.println(s);
+									}
+								}
+							}
+							""",
 				},
 				"one\non\no",
 				options);
@@ -1142,35 +1279,39 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X22a.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X22a {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o) {\n" +
-						"		do {\n" +
-						"			o = s.substring(0, s.length() - 1);\n" +
-						"			System.out.println(s);\n" +
-						"		} while ((o instanceof String s) && s.length() > 0);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X22a {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object o) {
+									do {
+										o = s.substring(0, s.length() - 1);
+										System.out.println(s);
+									} while ((o instanceof String s) && s.length() > 0);
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X22a.java (at line 8)\n" +
-				"	o = s.substring(0, s.length() - 1);\n" +
-				"	    ^\n" +
-				"s cannot be resolved\n" +
-				"----------\n" +
-				"2. ERROR in X22a.java (at line 8)\n" +
-				"	o = s.substring(0, s.length() - 1);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved\n" +
-				"----------\n" +
-				"3. ERROR in X22a.java (at line 9)\n" +
-				"	System.out.println(s);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X22a.java (at line 8)
+						o = s.substring(0, s.length() - 1);
+						    ^
+					s cannot be resolved
+					----------
+					2. ERROR in X22a.java (at line 8)
+						o = s.substring(0, s.length() - 1);
+						                   ^
+					s cannot be resolved
+					----------
+					3. ERROR in X22a.java (at line 9)
+						System.out.println(s);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				null,
 				true,
 				options);
@@ -1180,25 +1321,29 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X22b.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X22b {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o) {\n" +
-						"		do {\n" +
-						"			// nothing\n" +
-						"		} while ((o instanceof String s));\n" +
-						"		System.out.println(s);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X22b {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object o) {
+									do {
+										// nothing
+									} while ((o instanceof String s));
+									System.out.println(s);
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X22b.java (at line 10)\n" +
-				"	System.out.println(s);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X22b.java (at line 10)
+						System.out.println(s);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				null,
 				true,
 				options);
@@ -1208,18 +1353,20 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X22c.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X22c {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o) {\n" +
-						"		do {\n" +
-						"			// nothing\n" +
-						"		} while (!(o instanceof String s));\n" +
-						"		System.out.println(s);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X22c {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object o) {
+									do {
+										// nothing
+									} while (!(o instanceof String s));
+									System.out.println(s);
+								}
+							}
+							""",
 				},
 				"one",
 				options);
@@ -1231,30 +1378,34 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X23.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X23 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o) {\n" +
-						"		while (!(o instanceof String s) && s.length() > 0) {\n" +
-						"			System.out.println(s);\n" +
-						"			break;\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X23 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object o) {
+									while (!(o instanceof String s) && s.length() > 0) {
+										System.out.println(s);
+										break;
+									}
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X23.java (at line 7)\n" +
-				"	while (!(o instanceof String s) && s.length() > 0) {\n" +
-				"	                                   ^\n" +
-				"s cannot be resolved\n" +
-				"----------\n" +
-				"2. ERROR in X23.java (at line 8)\n" +
-				"	System.out.println(s);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X23.java (at line 7)
+						while (!(o instanceof String s) && s.length() > 0) {
+						                                   ^
+					s cannot be resolved
+					----------
+					2. ERROR in X23.java (at line 8)
+						System.out.println(s);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1265,30 +1416,34 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X23a.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X23a {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o) {\n" +
-						"		do {\n" +
-						"			System.out.println(s);\n" +
-						"			break;\n" +
-						"		} while (!(o instanceof String s) && s.length() > 0);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X23a {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object o) {
+									do {
+										System.out.println(s);
+										break;
+									} while (!(o instanceof String s) && s.length() > 0);
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X23a.java (at line 8)\n" +
-				"	System.out.println(s);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n" +
-				"2. ERROR in X23a.java (at line 10)\n" +
-				"	} while (!(o instanceof String s) && s.length() > 0);\n" +
-				"	                                     ^\n" +
-				"s cannot be resolved\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X23a.java (at line 8)
+						System.out.println(s);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					2. ERROR in X23a.java (at line 10)
+						} while (!(o instanceof String s) && s.length() > 0);
+						                                     ^
+					s cannot be resolved
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1301,30 +1456,34 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X23b.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X23b {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o) {\n" +
-						"		while (!(o instanceof String s) && s.length() > 0) {\n" +
-						"			System.out.println(s);\n" +
-						"			//break;\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X23b {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object o) {
+									while (!(o instanceof String s) && s.length() > 0) {
+										System.out.println(s);
+										//break;
+									}
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X23b.java (at line 7)\n" +
-				"	while (!(o instanceof String s) && s.length() > 0) {\n" +
-				"	                                   ^\n" +
-				"s cannot be resolved\n" +
-				"----------\n" +
-				"2. ERROR in X23b.java (at line 8)\n" +
-				"	System.out.println(s);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X23b.java (at line 7)
+						while (!(o instanceof String s) && s.length() > 0) {
+						                                   ^
+					s cannot be resolved
+					----------
+					2. ERROR in X23b.java (at line 8)
+						System.out.println(s);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1336,30 +1495,34 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X23c.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X23c {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o) {\n" +
-						"		do {\n" +
-						"			System.out.println(s);\n" +
-						"			//break;\n" +
-						"		}while (!(o instanceof String s) && s.length() > 0);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X23c {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object o) {
+									do {
+										System.out.println(s);
+										//break;
+									}while (!(o instanceof String s) && s.length() > 0);
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X23c.java (at line 8)\n" +
-				"	System.out.println(s);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n" +
-				"2. ERROR in X23c.java (at line 10)\n" +
-				"	}while (!(o instanceof String s) && s.length() > 0);\n" +
-				"	                                    ^\n" +
-				"s cannot be resolved\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X23c.java (at line 8)
+						System.out.println(s);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					2. ERROR in X23c.java (at line 10)
+						}while (!(o instanceof String s) && s.length() > 0);
+						                                    ^
+					s cannot be resolved
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1370,18 +1533,20 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X24a.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X24a {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o) {\n" +
-						"		while (!(o instanceof String s)) {\n" +
-						"			throw new IllegalArgumentException();\n" +
-						"		}\n" +
-						"		System.out.println(s);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X24a {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object o) {
+									while (!(o instanceof String s)) {
+										throw new IllegalArgumentException();
+									}
+									System.out.println(s);
+								}
+							}
+							""",
 				},
 				"one",
 				options);
@@ -1391,18 +1556,20 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X24a.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X24a {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o) {\n" +
-						"		for (;!(o instanceof String s);) {\n" +
-						"			 throw new IllegalArgumentException();\n" +
-						"		}\n" +
-						"		System.out.println(s);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X24a {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object o) {
+									for (;!(o instanceof String s);) {
+										 throw new IllegalArgumentException();
+									}
+									System.out.println(s);
+								}
+							}
+							""",
 				},
 				"one",
 				options);
@@ -1416,24 +1583,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X25.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X25 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\", \"two\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o, Object p) {\n" +
-						"		if ((o instanceof String s) != p instanceof String s) {\n" +
-						"			System.out.print(\"s:\" + s);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X25 {
+							  public static void main(String[] o) {
+									foo("one", "two");
+								}
+							  public static void foo(Object o, Object p) {
+									if ((o instanceof String s) != p instanceof String s) {
+										System.out.print("s:" + s);
+									}
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X25.java (at line 8)\n" +
-				"	System.out.print(\"s:\" + s);\n" +
-				"	                        ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X25.java (at line 8)
+						System.out.print("s:" + s);
+						                        ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1444,24 +1615,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X25.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X25 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o) {\n" +
-						"		if ( (o instanceof String a) || (! (o instanceof String a)) ) {\n" +
-						"			System.out.print(\"a:\" + a);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X25 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object o) {
+									if ( (o instanceof String a) || (! (o instanceof String a)) ) {
+										System.out.print("a:" + a);
+									}
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X25.java (at line 8)\n" +
-				"	System.out.print(\"a:\" + a);\n" +
-				"	                        ^\n" +
-				"a cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X25.java (at line 8)
+						System.out.print("a:" + a);
+						                        ^
+					a cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1472,19 +1647,21 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X25.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X25 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o) {\n" +
-						"		if ( (o instanceof String a) || (! (o instanceof String a)) ) {\n" +
-						"			System.out.println(\"none\");\n" +
-						"		} else {\n" +
-						"			System.out.print(\"a:\" + a);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X25 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object o) {
+									if ( (o instanceof String a) || (! (o instanceof String a)) ) {
+										System.out.println("none");
+									} else {
+										System.out.print("a:" + a);
+									}
+								}
+							}
+							""",
 				},
 				"none",
 				options);
@@ -1494,19 +1671,21 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X25.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X25 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\", new Integer(0));\n" +
-						"	}\n" +
-						"  public static void foo(Object o, Object p) {\n" +
-						"		if ( (o instanceof String a) || (! (p instanceof String a)) ) {\n" +
-						"			System.out.println(\"none\");\n" +
-						"		} else {\n" +
-						"			System.out.print(\"a:\" + a);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X25 {
+							  public static void main(String[] o) {
+									foo("one", new Integer(0));
+								}
+							  public static void foo(Object o, Object p) {
+									if ( (o instanceof String a) || (! (p instanceof String a)) ) {
+										System.out.println("none");
+									} else {
+										System.out.print("a:" + a);
+									}
+								}
+							}
+							""",
 				},
 				"none",
 				options);
@@ -1520,24 +1699,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X26.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X26 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\", \"two\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o, Object p) {\n" +
-						"		if ((o instanceof String s) && (p instanceof String s)) {\n" +
-						"			System.out.print(\"s:\" + s);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X26 {
+							  public static void main(String[] o) {
+									foo("one", "two");
+								}
+							  public static void foo(Object o, Object p) {
+									if ((o instanceof String s) && (p instanceof String s)) {
+										System.out.print("s:" + s);
+									}
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X26.java (at line 7)\n" +
-				"	if ((o instanceof String s) && (p instanceof String s)) {\n" +
-				"	                                                    ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X26.java (at line 7)
+						if ((o instanceof String s) && (p instanceof String s)) {
+						                                                    ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1552,24 +1735,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X26.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X26 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\", \"two\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o, Object p) {\n" +
-						"		if ((o instanceof String s) && (!(o instanceof String s))) {\n" +
-						"			System.out.print(\"s:\" + s);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X26 {
+							  public static void main(String[] o) {
+									foo("one", "two");
+								}
+							  public static void foo(Object o, Object p) {
+									if ((o instanceof String s) && (!(o instanceof String s))) {
+										System.out.print("s:" + s);
+									}
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X26.java (at line 7)\n" +
-				"	if ((o instanceof String s) && (!(o instanceof String s))) {\n" +
-				"	                                                      ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X26.java (at line 7)
+						if ((o instanceof String s) && (!(o instanceof String s))) {
+						                                                      ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1584,24 +1771,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X26.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X26 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\", \"two\");\n" +
-						"	}\n" +
-						"  public static void foo(Object o, Object p) {\n" +
-						"		if ((o instanceof String s) == p instanceof String s) {\n" +
-						"			System.out.print(\"s:\" + s);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X26 {
+							  public static void main(String[] o) {
+									foo("one", "two");
+								}
+							  public static void foo(Object o, Object p) {
+									if ((o instanceof String s) == p instanceof String s) {
+										System.out.print("s:" + s);
+									}
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X26.java (at line 8)\n" +
-				"	System.out.print(\"s:\" + s);\n" +
-				"	                        ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X26.java (at line 8)
+						System.out.print("s:" + s);
+						                        ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1611,17 +1802,19 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X27.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X27 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		for(int i = 0; (obj instanceof String[] s && s.length > 0 && i < s.length); i++) {\n" +
-						"			System.out.println(s[i]);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X27 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object obj) {
+									for(int i = 0; (obj instanceof String[] s && s.length > 0 && i < s.length); i++) {
+										System.out.println(s[i]);
+									}
+								}
+							}
+							""",
 				},
 				"",
 				getCompilerOptions(true));
@@ -1630,17 +1823,19 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X28.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X28 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(new String[] {\"one\", \"two\"});\n" +
-						"	}\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		for(int i = 0; (obj instanceof String[] s && s.length > 0 && i < s.length); i++) {\n" +
-						"			System.out.println(s[i]);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X28 {
+							  public static void main(String[] o) {
+									foo(new String[] {"one", "two"});
+								}
+							  public static void foo(Object obj) {
+									for(int i = 0; (obj instanceof String[] s && s.length > 0 && i < s.length); i++) {
+										System.out.println(s[i]);
+									}
+								}
+							}
+							""",
 				},
 				"one\ntwo",
 				getCompilerOptions(true));
@@ -1649,17 +1844,19 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X29.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X29 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(new String[] {\"one\", \"two\"});\n" +
-						"	}\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		for(int i = 0; (obj instanceof String[] s) && s.length > 0 && i < s.length; i = (s != null ? i + 1 : i)) {\n" +
-						"			System.out.println(s[i]);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X29 {
+							  public static void main(String[] o) {
+									foo(new String[] {"one", "two"});
+								}
+							  public static void foo(Object obj) {
+									for(int i = 0; (obj instanceof String[] s) && s.length > 0 && i < s.length; i = (s != null ? i + 1 : i)) {
+										System.out.println(s[i]);
+									}
+								}
+							}
+							""",
 				},
 				"one\ntwo",
 				getCompilerOptions(true));
@@ -1672,24 +1869,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X30.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X30 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		for(int i = 0, length = (obj instanceof String s) ? s.length() : 0; i < length; i++) {\n" +
-						"			System.out.print(s.charAt(i));\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X30 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object obj) {
+									for(int i = 0, length = (obj instanceof String s) ? s.length() : 0; i < length; i++) {
+										System.out.print(s.charAt(i));
+									}
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X30.java (at line 8)\n" +
-				"	System.out.print(s.charAt(i));\n" +
-				"	                 ^\n" +
-				"s cannot be resolved\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X30.java (at line 8)
+						System.out.print(s.charAt(i));
+						                 ^
+					s cannot be resolved
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1699,34 +1900,38 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X31.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X31 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		for(int i = 0; !(obj instanceof String[] s) && s.length > 0 && i < s.length; i++) {\n" +
-						"			System.out.println(s[i]);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X31 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object obj) {
+									for(int i = 0; !(obj instanceof String[] s) && s.length > 0 && i < s.length; i++) {
+										System.out.println(s[i]);
+									}
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X31.java (at line 7)\n" +
-				"	for(int i = 0; !(obj instanceof String[] s) && s.length > 0 && i < s.length; i++) {\n" +
-				"	                                               ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n" +
-				"2. ERROR in X31.java (at line 7)\n" +
-				"	for(int i = 0; !(obj instanceof String[] s) && s.length > 0 && i < s.length; i++) {\n" +
-				"	                                                                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n" +
-				"3. ERROR in X31.java (at line 8)\n" +
-				"	System.out.println(s[i]);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X31.java (at line 7)
+						for(int i = 0; !(obj instanceof String[] s) && s.length > 0 && i < s.length; i++) {
+						                                               ^
+					s cannot be resolved to a variable
+					----------
+					2. ERROR in X31.java (at line 7)
+						for(int i = 0; !(obj instanceof String[] s) && s.length > 0 && i < s.length; i++) {
+						                                                                   ^
+					s cannot be resolved to a variable
+					----------
+					3. ERROR in X31.java (at line 8)
+						System.out.println(s[i]);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1736,23 +1941,25 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X32.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X32 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		String res = null;\n" +
-						"		int i = 0;\n" +
-						"		switch(i) {\n" +
-						"		case 0:\n" +
-						"			res = (obj instanceof String) ? null : null;\n" +
-						"		default:\n" +
-						"			break;\n" +
-						"		}\n" +
-						"		System.out.println(res);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X32 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object obj) {
+									String res = null;
+									int i = 0;
+									switch(i) {
+									case 0:
+										res = (obj instanceof String) ? null : null;
+									default:
+										break;
+									}
+									System.out.println(res);
+								}
+							}
+							""",
 				},
 				"null",
 				getCompilerOptions(true));
@@ -1761,23 +1968,25 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X32.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X32 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		String res = null;\n" +
-						"		int i = 0;\n" +
-						"		switch(i) {\n" +
-						"		case 0:\n" +
-						"			res = (obj instanceof String s) ? s : null;\n" +
-						"		default:\n" +
-						"			break;\n" +
-						"		}\n" +
-						"		System.out.println(res);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X32 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object obj) {
+									String res = null;
+									int i = 0;
+									switch(i) {
+									case 0:
+										res = (obj instanceof String s) ? s : null;
+									default:
+										break;
+									}
+									System.out.println(res);
+								}
+							}
+							""",
 				},
 				"one",
 				getCompilerOptions(true));
@@ -1786,31 +1995,35 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X33.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X33 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		String res = null;\n" +
-						"		int i = 0;\n" +
-						"		switch(i) {\n" +
-						"		case 0:\n" +
-						"			res = (obj instanceof String s) ? s : null;\n" +
-						"			res = s.substring(1);\n" +
-						"		default:\n" +
-						"			break;\n" +
-						"		}\n" +
-						"		System.out.println(res);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X33 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object obj) {
+									String res = null;
+									int i = 0;
+									switch(i) {
+									case 0:
+										res = (obj instanceof String s) ? s : null;
+										res = s.substring(1);
+									default:
+										break;
+									}
+									System.out.println(res);
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X33.java (at line 12)\n" +
-				"	res = s.substring(1);\n" +
-				"	      ^\n" +
-				"s cannot be resolved\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X33.java (at line 12)
+						res = s.substring(1);
+						      ^
+					s cannot be resolved
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1820,32 +2033,36 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X34.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X34 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		int i = 0;\n" +
-						"		String result = switch(i) {\n" +
-						"			case 0 -> {\n" +
-						"				result = (obj instanceof String s) ? s : null;\n" +
-						"				yield result;\n" +
-						"			}\n" +
-						"			default -> {\n" +
-						"				yield result;\n" +
-						"			}\n" +
-						"		};\n" +
-						"		System.out.println(result);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X34 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object obj) {
+									int i = 0;
+									String result = switch(i) {
+										case 0 -> {
+											result = (obj instanceof String s) ? s : null;
+											yield result;
+										}
+										default -> {
+											yield result;
+										}
+									};
+									System.out.println(result);
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X34.java (at line 14)\n" +
-				"	yield result;\n" +
-				"	      ^^^^^^\n" +
-				"The local variable result may not have been initialized\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X34.java (at line 14)
+						yield result;
+						      ^^^^^^
+					The local variable result may not have been initialized
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1855,37 +2072,41 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X35.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X35 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		int i = 0;\n" +
-						"		String result = switch(i) {\n" +
-						"			case 0 -> {\n" +
-						"				result = (obj instanceof String s) ? s : null;\n" +
-						"				yield s;\n" +
-						"			}\n" +
-						"			default -> {\n" +
-						"				yield s;\n" +
-						"			}\n" +
-						"		};\n" +
-						"		System.out.println(result);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X35 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object obj) {
+									int i = 0;
+									String result = switch(i) {
+										case 0 -> {
+											result = (obj instanceof String s) ? s : null;
+											yield s;
+										}
+										default -> {
+											yield s;
+										}
+									};
+									System.out.println(result);
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X35.java (at line 11)\n" +
-				"	yield s;\n" +
-				"	      ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n" +
-				"2. ERROR in X35.java (at line 14)\n" +
-				"	yield s;\n" +
-				"	      ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X35.java (at line 11)
+						yield s;
+						      ^
+					s cannot be resolved to a variable
+					----------
+					2. ERROR in X35.java (at line 14)
+						yield s;
+						      ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1895,22 +2116,24 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X36.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X36 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(\"one\");\n" +
-						"	}\n" +
-						"  public static void foo(Object obj) {\n" +
-						"		int i = 0;\n" +
-						"		String result = switch(i) {\n" +
-						"			default -> {\n" +
-						"				result = (obj instanceof String s) ? s : null;\n" +
-						"				yield result;\n" +
-						"			}\n" +
-						"		};\n" +
-						"		System.out.println(result);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X36 {
+							  public static void main(String[] o) {
+									foo("one");
+								}
+							  public static void foo(Object obj) {
+									int i = 0;
+									String result = switch(i) {
+										default -> {
+											result = (obj instanceof String s) ? s : null;
+											yield result;
+										}
+									};
+									System.out.println(result);
+								}
+							}
+							""",
 				},
 				"one",
 				getCompilerOptions(true));
@@ -1919,24 +2142,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X37.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X37 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(new String[] {\"abcd\"});\n" +
-						"	}\n" +
-						"  public static void foo(Object[] obj) {\n" +
-						"		for(int i = 0; (obj[i] instanceof String s) && s.length() > 0 ; i++) {\n" +
-						"			System.out.println(s[i]);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X37 {
+							  public static void main(String[] o) {
+									foo(new String[] {"abcd"});
+								}
+							  public static void foo(Object[] obj) {
+									for(int i = 0; (obj[i] instanceof String s) && s.length() > 0 ; i++) {
+										System.out.println(s[i]);
+									}
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X37.java (at line 8)\n" +
-				"	System.out.println(s[i]);\n" +
-				"	                   ^^^^\n" +
-				"The type of the expression must be an array type but it resolved to String\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X37.java (at line 8)
+						System.out.println(s[i]);
+						                   ^^^^
+					The type of the expression must be an array type but it resolved to String
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1946,25 +2173,29 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X38.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X38 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(new String[] {\"abcd\"});\n" +
-						"	}\n" +
-						"  public static void foo(Object[] obj) {\n" +
-						"		for(int i = 0; (obj[i] instanceof String s) && s.length() > 0 ;) {\n" +
-						"			throw new IllegalArgumentException();\n" +
-						"		}\n" +
-						"		System.out.println(s);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X38 {
+							  public static void main(String[] o) {
+									foo(new String[] {"abcd"});
+								}
+							  public static void foo(Object[] obj) {
+									for(int i = 0; (obj[i] instanceof String s) && s.length() > 0 ;) {
+										throw new IllegalArgumentException();
+									}
+									System.out.println(s);
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X38.java (at line 10)\n" +
-				"	System.out.println(s);\n" +
-				"	                   ^\n" +
-				"s cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X38.java (at line 10)
+						System.out.println(s);
+						                   ^
+					s cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -1974,17 +2205,19 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X39.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X39 {\n" +
-						"  public static void main(String[] o) {\n" +
-						"		foo(new String[] {\"one\"});;\n" +
-						"	}\n" +
-						"  public static void foo(Object[] obj) {\n" +
-						"		for(int i = 0; i < obj.length && (obj[i] instanceof String s) && i < s.length(); i++) {\n" +
-						"			System.out.println(s);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X39 {
+							  public static void main(String[] o) {
+									foo(new String[] {"one"});;
+								}
+							  public static void foo(Object[] obj) {
+									for(int i = 0; i < obj.length && (obj[i] instanceof String s) && i < s.length(); i++) {
+										System.out.println(s);
+									}
+								}
+							}
+							""",
 				},
 				"one",
 				getCompilerOptions(true));
@@ -1993,24 +2226,26 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X40.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X40 {\n" +
-						"	String a;\n" +
-						"    Object o1 = \"x\";\n" +
-						"    public static void main(String argv[]) {\n" +
-						"        System.out.println(new X40().foo());\n" +
-						"    }\n" +
-						"    public String foo() {\n" +
-						"        String res = \"\";\n" +
-						"    	 Object o2 = \"x\";\n" +
-						"        if (o1 instanceof String s) { \n" +
-						"            res = \"then_\" + s;\n" +
-						"        } else {\n" +
-						"            res = \"else_\";\n" +
-						"        }\n" +
-						"        return res;\n" +
-						"    }\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X40 {
+								String a;
+							    Object o1 = "x";
+							    public static void main(String argv[]) {
+							        System.out.println(new X40().foo());
+							    }
+							    public String foo() {
+							        String res = "";
+							    	 Object o2 = "x";
+							        if (o1 instanceof String s) {\s
+							            res = "then_" + s;
+							        } else {
+							            res = "else_";
+							        }
+							        return res;
+							    }
+							}
+							""",
 				},
 				"then_x",
 				getCompilerOptions(true));
@@ -2019,24 +2254,26 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X41.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X41 {\n" +
-						"	String a;\n" +
-						"    Object o1 = \"x\";\n" +
-						"    public static void main(String argv[]) {\n" +
-						"        System.out.println(new X41().foo());\n" +
-						"    }\n" +
-						"    public String foo() {\n" +
-						"        String res = \"\";\n" +
-						"        Object o2 = \"x\";\n" +
-						"        if ( !(o1 instanceof String s) || !o1.equals(s) ) { \n" +
-						"            res = \"then_\";\n" +
-						"        } else {\n" +
-						"            res = \"else_\" + s;\n" +
-						"        }\n" +
-						"        return res;\n" +
-						"    }\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X41 {
+								String a;
+							    Object o1 = "x";
+							    public static void main(String argv[]) {
+							        System.out.println(new X41().foo());
+							    }
+							    public String foo() {
+							        String res = "";
+							        Object o2 = "x";
+							        if ( !(o1 instanceof String s) || !o1.equals(s) ) {\s
+							            res = "then_";
+							        } else {
+							            res = "else_" + s;
+							        }
+							        return res;
+							    }
+							}
+							""",
 				},
 				"else_x",
 				getCompilerOptions(true));
@@ -2045,24 +2282,26 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X42.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X42 {\n" +
-						"	 String a;\n" +
-						"    Object o1 = \"x\";\n" +
-						"    public static void main(String argv[]) {\n" +
-						"        System.out.println(new X42().foo());\n" +
-						"    }\n" +
-						"    public String foo() {\n" +
-						"        String res = \"\";\n" +
-						"        Object o2 = o1;\n" +
-						"        if ( !(o1 instanceof String s) || !o1.equals(s) ) { \n" +
-						"            res = \"then_\";\n" +
-						"        } else {\n" +
-						"            res = \"else_\" + s;\n" +
-						"        }\n" +
-						"        return res;\n" +
-						"    }\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X42 {
+								 String a;
+							    Object o1 = "x";
+							    public static void main(String argv[]) {
+							        System.out.println(new X42().foo());
+							    }
+							    public String foo() {
+							        String res = "";
+							        Object o2 = o1;
+							        if ( !(o1 instanceof String s) || !o1.equals(s) ) {\s
+							            res = "then_";
+							        } else {
+							            res = "else_" + s;
+							        }
+							        return res;
+							    }
+							}
+							""",
 				},
 				"else_x",
 				getCompilerOptions(true));
@@ -2071,26 +2310,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X43.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X43 {\n" +
-						"	 public static void main(String argv[]) {\n" +
-						"		System.out.println(new X43().foo(\"foo\", \"test\"));\n" +
-						"	}\n" +
-						"	public boolean foo(Object obj, String s) {\n" +
-						"		class Inner {\n" +
-						"			public boolean foo(Object obj) {\n" +
-						"				if (obj instanceof String s) {\n" +
-						"					// s is shadowed now\n" +
-						"					if (!\"foo\".equals(s))\n" +
-						"						return false;\n" +
-						"				}\n" +
-						"				// s is not shadowed\n" +
-						"				return \"test\".equals(s);\n" +
-						"			}\n" +
-						"		}\n" +
-						"		return new Inner().foo(obj);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X43 {
+								 public static void main(String argv[]) {
+									System.out.println(new X43().foo("foo", "test"));
+								}
+								public boolean foo(Object obj, String s) {
+									class Inner {
+										public boolean foo(Object obj) {
+											if (obj instanceof String s) {
+												// s is shadowed now
+												if (!"foo".equals(s))
+													return false;
+											}
+											// s is not shadowed
+											return "test".equals(s);
+										}
+									}
+									return new Inner().foo(obj);
+								}
+							}
+							""",
 				},
 				"true",
 				getCompilerOptions(true));
@@ -2102,21 +2343,23 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X44.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"class Inner<T> {\n" +
-						"    public boolean foo(Object obj) {\n" +
-						"        if (obj instanceof Inner<?> p) {\n" +
-						"            return true;\n" +
-						"        }\n" +
-						"        return false;\n" +
-						"    }\n" +
-						"} \n" +
-						"public class X44  {\n" +
-						"    public static void main(String argv[]) {\n" +
-						"    	Inner<String> param = new Inner<>();\n" +
-						"    	System.out.println(new Inner<String>().foo(param));\n" +
-						"    }\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							class Inner<T> {
+							    public boolean foo(Object obj) {
+							        if (obj instanceof Inner<?> p) {
+							            return true;
+							        }
+							        return false;
+							    }
+							}\s
+							public class X44  {
+							    public static void main(String argv[]) {
+							    	Inner<String> param = new Inner<>();
+							    	System.out.println(new Inner<String>().foo(param));
+							    }
+							}
+							""",
 				},
 				"true",
 				compilerOptions);
@@ -2129,14 +2372,16 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X45.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X45 {\n" +
-						"    Object s = \"test\";\n" +
-						"    boolean result = s instanceof String s1;\n" +
-						"	 public static void main(String argv[]) {\n" +
-						"    	System.out.println(\"true\");\n" +
-						"    }\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X45 {
+							    Object s = "test";
+							    boolean result = s instanceof String s1;
+								 public static void main(String argv[]) {
+							    	System.out.println("true");
+							    }
+							}
+							""",
 				},
 				"true",
 				compilerOptions);
@@ -2149,14 +2394,16 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X46.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X46 {\n" +
-						"    Object s = \"test\";\n" +
-						"    boolean result = (s instanceof String s1 && s1 != null);\n" +
-						"	 public static void main(String argv[]) {\n" +
-						"    	System.out.println(\"true\");\n" +
-						"    }\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X46 {
+							    Object s = "test";
+							    boolean result = (s instanceof String s1 && s1 != null);
+								 public static void main(String argv[]) {
+							    	System.out.println("true");
+							    }
+							}
+							""",
 				},
 				"true",
 				compilerOptions);
@@ -2169,16 +2416,18 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"InstanceOfPatternTest.java",
-						"public class InstanceOfPatternTest {\n" +
-						"	public static void main(String[] args) {\n" +
-						"		if (getChars() instanceof String s) {\n" +
-						"			System.out.println(s);\n" +
-						"		}\n" +
-						"	}\n" +
-						"	static CharSequence getChars() {\n" +
-						"		return \"xyz\";\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class InstanceOfPatternTest {
+								public static void main(String[] args) {
+									if (getChars() instanceof String s) {
+										System.out.println(s);
+									}
+								}
+								static CharSequence getChars() {
+									return "xyz";
+								}
+							}
+							""",
 				},
 				"xyz",
 				compilerOptions);
@@ -2191,16 +2440,18 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"InstanceOfPatternTest.java",
-						"public class InstanceOfPatternTest {\n" +
-						"	public static void main(String[] args) {\n" +
-						"		if (getChars() instanceof String s) {\n" +
-						"			System.out.println(s);\n" +
-						"		}\n" +
-						"	}\n" +
-						"	static CharSequence getChars() {\n" +
-						"		return \"xyz\";\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class InstanceOfPatternTest {
+								public static void main(String[] args) {
+									if (getChars() instanceof String s) {
+										System.out.println(s);
+									}
+								}
+								static CharSequence getChars() {
+									return "xyz";
+								}
+							}
+							""",
 				},
 				"xyz",
 				compilerOptions);
@@ -2213,16 +2464,18 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"InstanceOfPatternTest.java",
-						"public class InstanceOfPatternTest {\n" +
-						"	public static void main(String[] args) {\n" +
-						"		if ( ((CharSequence) getChars()) instanceof String s) {\n" +
-						"			System.out.println(s);\n" +
-						"		}\n" +
-						"	}\n" +
-						"	static Object getChars() {\n" +
-						"		return \"xyz\";\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class InstanceOfPatternTest {
+								public static void main(String[] args) {
+									if ( ((CharSequence) getChars()) instanceof String s) {
+										System.out.println(s);
+									}
+								}
+								static Object getChars() {
+									return "xyz";
+								}
+							}
+							""",
 				},
 				"xyz",
 				compilerOptions);
@@ -2235,24 +2488,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"InstanceOfPatternTest.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class InstanceOfPatternTest {\n" +
-						"	public static void main(String[] args) {\n" +
-						"		if ( ((s) -> {return s;}) instanceof I s) {\n" +
-						"			System.out.println(s);\n" +
-						"		}\n" +
-						"	}\n" +
-						"} \n" +
-						"interface I {\n" +
-						"	public String foo(String s);\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class InstanceOfPatternTest {
+								public static void main(String[] args) {
+									if ( ((s) -> {return s;}) instanceof I s) {
+										System.out.println(s);
+									}
+								}
+							}\s
+							interface I {
+								public String foo(String s);
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in InstanceOfPatternTest.java (at line 4)\n" +
-				"	if ( ((s) -> {return s;}) instanceof I s) {\n" +
-				"	     ^^^^^^^\n" +
-				"The target type of this expression must be a functional interface\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in InstanceOfPatternTest.java (at line 4)
+						if ( ((s) -> {return s;}) instanceof I s) {
+						     ^^^^^^^
+					The target type of this expression must be a functional interface
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -2266,18 +2523,20 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"InstanceOfPatternTest.java",
-						"public class InstanceOfPatternTest {\n" +
-						"	static String STR = \"2\";\n" +
-						"	public static void main(String[] args) {\n" +
-						"		if ( switch(STR) {\n" +
-						"				case \"1\" -> (CharSequence) \"one\";\n" +
-						"				default -> (CharSequence) \"Unknown\";\n" +
-						"			  } \n" +
-						"				instanceof String s) {\n" +
-						"			System.out.println(s);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class InstanceOfPatternTest {
+								static String STR = "2";
+								public static void main(String[] args) {
+									if ( switch(STR) {
+											case "1" -> (CharSequence) "one";
+											default -> (CharSequence) "Unknown";
+										  }\s
+											instanceof String s) {
+										System.out.println(s);
+									}
+								}
+							}
+							""",
 				},
 				"Unknown",
 				compilerOptions);
@@ -2290,27 +2549,29 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"	@SuppressWarnings(\"preview\")\n" +
-						"	public static void main(String args[]) {\n" +
-						"		String result = null;\n" +
-						"		Object obj = \"abc\";\n" +
-						"		int i = switch (0) {\n" +
-						"			case 1 -> {\n" +
-						"				yield 1;\n" +
-						"			}\n" +
-						"			default -> {\n" +
-						"				for (int j = 0; !(obj instanceof String s);) {\n" +
-						"					obj = null;\n" +
-						"				}\n" +
-						"				result = s;\n" +
-						"				System.out.println(result);\n" +
-						"				yield 2;\n" +
-						"			}\n" +
-						"		};\n" +
-						"		System.out.println(i);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X {
+								@SuppressWarnings("preview")
+								public static void main(String args[]) {
+									String result = null;
+									Object obj = "abc";
+									int i = switch (0) {
+										case 1 -> {
+											yield 1;
+										}
+										default -> {
+											for (int j = 0; !(obj instanceof String s);) {
+												obj = null;
+											}
+											result = s;
+											System.out.println(result);
+											yield 2;
+										}
+									};
+									System.out.println(i);
+								}
+							}
+							""",
 				},
 				"abc\n" +
 				"2",
@@ -2322,18 +2583,20 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X<T> {\n" +
-						"	public boolean foo(T obj) {\n" +
-						"		if (obj instanceof String s) {\n" +
-						"			System.out.println(s);\n" +
-						"		}\n" +
-						"		return true;\n" +
-						"	}\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		String s = \"x\";\n" +
-						"		System.out.println(new X<Object>().foo(s));\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X<T> {
+								public boolean foo(T obj) {
+									if (obj instanceof String s) {
+										System.out.println(s);
+									}
+									return true;
+								}
+								public static void main(String argv[]) {
+									String s = "x";
+									System.out.println(new X<Object>().foo(s));
+								}
+							}
+							""",
 				},
 				"x\n" +
 				"true",
@@ -2344,30 +2607,35 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X<T> {\n" +
-						"	public boolean foo(Object obj) {\n" +
-						"        if (obj instanceof T) {\n" +
-						"            return false;\n" +
-						"        }\n" +
-						"        return true;\n" +
-						"    }\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		System.out.println(\"\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X<T> {
+								public boolean foo(Object obj) {
+							        if (obj instanceof T) {
+							            return false;
+							        }
+							        return true;
+							    }
+								public static void main(String argv[]) {
+									System.out.println("");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	if (obj instanceof T) {\n" +
-				"	    ^^^\n" +
-				"Type Object cannot be safely cast to T\n" +
-				"----------\n",
-				"X.java:4: error: Object cannot be safely cast to T\n" +
-				"        if (obj instanceof T) {\n" +
-				"            ^\n" +
-				"  where T is a type-variable:\n" +
-				"    T extends Object declared in class X",
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						if (obj instanceof T) {
+						    ^^^
+					Type Object cannot be safely cast to T
+					----------
+					""",
+				"""
+					X.java:4: error: Object cannot be safely cast to T
+					        if (obj instanceof T) {
+					            ^
+					  where T is a type-variable:
+					    T extends Object declared in class X""",
 				null,
 				true,
 				compilerOptions);
@@ -2377,30 +2645,35 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X<T> {\n" +
-						"	public boolean foo(Object obj) {\n" +
-						"        if (obj instanceof T t) {\n" +
-						"            return false;\n" +
-						"        }\n" +
-						"        return true;\n" +
-						"    }\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		System.out.println(\"\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X<T> {
+								public boolean foo(Object obj) {
+							        if (obj instanceof T t) {
+							            return false;
+							        }
+							        return true;
+							    }
+								public static void main(String argv[]) {
+									System.out.println("");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	if (obj instanceof T t) {\n" +
-				"	    ^^^\n" +
-				"Type Object cannot be safely cast to T\n" +
-				"----------\n",
-				"X.java:4: error: Object cannot be safely cast to T\n" +
-				"        if (obj instanceof T t) {\n" +
-				"            ^\n" +
-				"  where T is a type-variable:\n" +
-				"    T extends Object declared in class X",
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						if (obj instanceof T t) {
+						    ^^^
+					Type Object cannot be safely cast to T
+					----------
+					""",
+				"""
+					X.java:4: error: Object cannot be safely cast to T
+					        if (obj instanceof T t) {
+					            ^
+					  where T is a type-variable:
+					    T extends Object declared in class X""",
 				null,
 				true,
 				compilerOptions);
@@ -2410,25 +2683,29 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X<T> {\n" +
-						"	public boolean foo(Object obj) {\n" +
-						"        if (null instanceof T t) {\n" +
-						"            return false;\n" +
-						"        }\n" +
-						"        return true;\n" +
-						"    }\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		System.out.println(abc);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X<T> {
+								public boolean foo(Object obj) {
+							        if (null instanceof T t) {
+							            return false;
+							        }
+							        return true;
+							    }
+								public static void main(String argv[]) {
+									System.out.println(abc);
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
-				"	System.out.println(abc);\n" +
-				"	                   ^^^\n" +
-				"abc cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 10)
+						System.out.println(abc);
+						                   ^^^
+					abc cannot be resolved to a variable
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -2439,22 +2716,26 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X<T> {\n" +
-						"	public boolean foo(X<?> obj) {\n" +
-						"        if (obj instanceof X<String> p) {\n" +
-						"            return true;\n" +
-						"        }\n" +
-						"        return false;\n" +
-						"    }\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X<T> {
+								public boolean foo(X<?> obj) {
+							        if (obj instanceof X<String> p) {
+							            return true;
+							        }
+							        return false;
+							    }
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	if (obj instanceof X<String> p) {\n" +
-				"	    ^^^\n" +
-				"Type X<capture#1-of ?> cannot be safely cast to X<String>\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						if (obj instanceof X<String> p) {
+						    ^^^
+					Type X<capture#1-of ?> cannot be safely cast to X<String>
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -2465,26 +2746,30 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"class Outer<T> {\n" +
-						"    static class Inner<T> {\n" +
-						"    }\n" +
-						"}\n" +
-						"@SuppressWarnings({\"preview\", \"rawtypes\"})\n" +
-						"class X<T> {\n" +
-						"    public boolean foo(Outer.Inner obj) {\n" +
-						"        if (obj instanceof Outer<?> p) {\n" +
-						"            return true;\n" +
-						"        }\n" +
-						"        return false;\n" +
-						"    }\n" +
-						"}\n",
+						"""
+							class Outer<T> {
+							    static class Inner<T> {
+							    }
+							}
+							@SuppressWarnings({"preview", "rawtypes"})
+							class X<T> {
+							    public boolean foo(Outer.Inner obj) {
+							        if (obj instanceof Outer<?> p) {
+							            return true;
+							        }
+							        return false;
+							    }
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	if (obj instanceof Outer<?> p) {\n" +
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Incompatible conditional operand types Outer.Inner and Outer<?>\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 8)
+						if (obj instanceof Outer<?> p) {
+						    ^^^^^^^^^^^^^^^^^^^^^^^^^
+					Incompatible conditional operand types Outer.Inner and Outer<?>
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -2495,23 +2780,25 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"class Outer<T> {\n" +
-						"    static class Inner<T> {\n" +
-						"    }\n" +
-						"}\n" +
-						"@SuppressWarnings({\"preview\", \"rawtypes\"})\n" +
-						"class X<T> {\n" +
-						"    public boolean foo(Object obj) {\n" +
-						"        if (obj instanceof Outer.Inner<?> p) {\n" +
-						"            return true;\n" +
-						"        }\n" +
-						"        return false;\n" +
-						"    }\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		Outer.Inner inn = new Outer.Inner();\n" +
-						"    	System.out.println(new X<String>().foo(inn));\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							class Outer<T> {
+							    static class Inner<T> {
+							    }
+							}
+							@SuppressWarnings({"preview", "rawtypes"})
+							class X<T> {
+							    public boolean foo(Object obj) {
+							        if (obj instanceof Outer.Inner<?> p) {
+							            return true;
+							        }
+							        return false;
+							    }
+								public static void main(String argv[]) {
+									Outer.Inner inn = new Outer.Inner();
+							    	System.out.println(new X<String>().foo(inn));
+								}
+							}
+							""",
 				},
 				"true",
 				compilerOptions);
@@ -2521,28 +2808,32 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings({\"rawtypes\"})\n" +
-						"class Y extends X {}\n" +
-						"@SuppressWarnings({\"rawtypes\"})\n" +
-						"public class X<T> {\n" +
-						"	public boolean foo(X[] obj) {\n" +
-						"        if (obj instanceof Y[] p) {\n" +
-						"            return true;\n" +
-						"        }\n" +
-						"        return false;\n" +
-						"    }\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		Object[] param = {new X()};\n" +
-						"       System.out.println(new X<String>().foo(param));\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							@SuppressWarnings({"rawtypes"})
+							class Y extends X {}
+							@SuppressWarnings({"rawtypes"})
+							public class X<T> {
+								public boolean foo(X[] obj) {
+							        if (obj instanceof Y[] p) {
+							            return true;
+							        }
+							        return false;
+							    }
+								public static void main(String argv[]) {
+									Object[] param = {new X()};
+							       System.out.println(new X<String>().foo(param));
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 13)\n" +
-				"	System.out.println(new X<String>().foo(param));\n" +
-				"	                                   ^^^\n" +
-				"The method foo(X[]) in the type X<String> is not applicable for the arguments (Object[])\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 13)
+						System.out.println(new X<String>().foo(param));
+						                                   ^^^
+					The method foo(X[]) in the type X<String> is not applicable for the arguments (Object[])
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -2556,26 +2847,30 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"Test.java",
-						"import java.util.ArrayList;\n" +
-								"import java.util.List;\n" +
-								"import java.util.function.Function;\n" +
-								"import java.util.function.UnaryOperator;\n" +
-								"@SuppressWarnings({\"preview\"})\n" +
-								"public class Test<T> {\n" +
-								"    public boolean foo(Function<ArrayList<T>, ArrayList<T>> obj) {\n" +
-								"        if (obj instanceof UnaryOperator<? extends List<T>>) {\n" +
-								"            return false;\n" +
-								"        }\n" +
-								"        return true;\n" +
-								"    }\n" +
-								"}\n",
+						"""
+							import java.util.ArrayList;
+							import java.util.List;
+							import java.util.function.Function;
+							import java.util.function.UnaryOperator;
+							@SuppressWarnings({"preview"})
+							public class Test<T> {
+							    public boolean foo(Function<ArrayList<T>, ArrayList<T>> obj) {
+							        if (obj instanceof UnaryOperator<? extends List<T>>) {
+							            return false;
+							        }
+							        return true;
+							    }
+							}
+							""",
 				},
-				"----------\n" +
-					"1. ERROR in Test.java (at line 8)\n" +
-					"	if (obj instanceof UnaryOperator<? extends List<T>>) {\n" +
-					"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Cannot perform instanceof check against parameterized type UnaryOperator<? extends List<T>>. Use the form UnaryOperator<?> instead since further generic type information will be erased at runtime\n" +
-					"----------\n",
+				"""
+					----------
+					1. ERROR in Test.java (at line 8)
+						if (obj instanceof UnaryOperator<? extends List<T>>) {
+						    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Cannot perform instanceof check against parameterized type UnaryOperator<? extends List<T>>. Use the form UnaryOperator<?> instead since further generic type information will be erased at runtime
+					----------
+					""",
 					"",
 					null,
 					true,
@@ -2589,22 +2884,24 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"Test.java",
-						"import java.util.ArrayList;\n" +
-						"import java.util.List;\n" +
-						"import java.util.function.Function;\n" +
-						"import java.util.function.UnaryOperator;\n" +
-						"@SuppressWarnings({\"preview\", \"rawtypes\"})\n" +
-						"public class Test<T> {\n" +
-						"    public boolean foo(Function<ArrayList<T>, ArrayList<T>> obj) {\n" +
-						"        if (obj instanceof UnaryOperator<? extends List<T>>) {\n" +
-						"            return false;\n" +
-						"        }\n" +
-						"        return true;\n" +
-						"    }\n" +
-						"	public static void main(String argv[]) {\n" +
-						"       System.out.println(\"\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							import java.util.ArrayList;
+							import java.util.List;
+							import java.util.function.Function;
+							import java.util.function.UnaryOperator;
+							@SuppressWarnings({"preview", "rawtypes"})
+							public class Test<T> {
+							    public boolean foo(Function<ArrayList<T>, ArrayList<T>> obj) {
+							        if (obj instanceof UnaryOperator<? extends List<T>>) {
+							            return false;
+							        }
+							        return true;
+							    }
+								public static void main(String argv[]) {
+							       System.out.println("");
+								}
+							}
+							""",
 				},
 				"",
 				compilerOptions);
@@ -2614,17 +2911,19 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"	@SuppressWarnings(\"preview\")\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		Object obj = \"x\";\n" +
-						"		if (obj instanceof String s) {\n" +
-						"			System.out.println(s);\n" +
-						"		}\n" +
-						"		String s = \"y\";\n" +
-						"		System.out.println(s);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X {
+								@SuppressWarnings("preview")
+								public static void main(String argv[]) {
+									Object obj = "x";
+									if (obj instanceof String s) {
+										System.out.println(s);
+									}
+									String s = "y";
+									System.out.println(s);
+								}
+							}
+							""",
 				},
 				"x\n" +
 				"y",
@@ -2635,17 +2934,19 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"	@SuppressWarnings(\"preview\")\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		Object obj = \"x\";\n" +
-						"		while (!(obj instanceof String s)) {\n" +
-						"			String s = \"y\";\n" +
-						"			System.out.println(s);\n" +
-						"		}\n" +
-						"		System.out.println(s);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X {
+								@SuppressWarnings("preview")
+								public static void main(String argv[]) {
+									Object obj = "x";
+									while (!(obj instanceof String s)) {
+										String s = "y";
+										System.out.println(s);
+									}
+									System.out.println(s);
+								}
+							}
+							""",
 				},
 				"x",
 				compilerOptions);
@@ -2655,22 +2956,24 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"public static void main(String argv[]) {\n" +
-						"		String result = \"\";\n" +
-						"		Object obj = \"abc\";\n" +
-						"		for (; !(obj instanceof String a);) {\n" +
-						"			String a = \"\";\n" +
-						"			result = a;\n" +
-						"			obj = null;\n" +
-						"		}\n" +
-						"		if (!result.equals(\"abc\")) {\n" +
-						"			System.out.println(\"PASS\");\n" +
-						"		} else {\n" +
-						"			System.out.println(\"FAIL\");\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X {
+							public static void main(String argv[]) {
+									String result = "";
+									Object obj = "abc";
+									for (; !(obj instanceof String a);) {
+										String a = "";
+										result = a;
+										obj = null;
+									}
+									if (!result.equals("abc")) {
+										System.out.println("PASS");
+									} else {
+										System.out.println("FAIL");
+									}
+								}
+							}
+							""",
 				},
 				"PASS",
 				compilerOptions);
@@ -2681,26 +2984,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X {\n" +
-						"	public static int impl(I a) {\n" +
-						"		return a.foo(\"Default\");\n" +
-						"	}\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		String result = \"\";\n" +
-						"		Object obj = \"a\";\n" +
-						"		for (int i = 0; !(obj instanceof String a); i = impl(a -> a.length())) {\n" +
-						"			obj = null;\n" +
-						"		}\n" +
-						"		if (!result.equals(\"\"))\n" +
-						"			System.out.println(\"FAIL\");\n" +
-						"		else\n" +
-						"			System.out.println(\"PASS\");\n" +
-						"	}\n" +
-						"}\n" +
-						"interface I {\n" +
-						"	int foo(String s);\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+								public static int impl(I a) {
+									return a.foo("Default");
+								}
+								public static void main(String argv[]) {
+									String result = "";
+									Object obj = "a";
+									for (int i = 0; !(obj instanceof String a); i = impl(a -> a.length())) {
+										obj = null;
+									}
+									if (!result.equals(""))
+										System.out.println("FAIL");
+									else
+										System.out.println("PASS");
+								}
+							}
+							interface I {
+								int foo(String s);
+							}
+							""",
 				},
 				"PASS",
 				compilerOptions);
@@ -2711,29 +3016,31 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X {\n" +
-						"	public static int impl(I a) {\n" +
-						"		return a.foo(\"Default\");\n" +
-						"	}\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		String result = \"\";\n" +
-						"		Object obj = \"a\";\n" +
-						"		for (int i = 0; !(obj instanceof String a); i = impl(x -> {\n" +
-						"															String a = \"\";\n" +
-						"															return a.length();\n" +
-						"														})) {\n" +
-						"			obj = null;\n" +
-						"		}\n" +
-						"		if (!result.equals(\"\"))\n" +
-						"			System.out.println(\"FAIL\");\n" +
-						"		else\n" +
-						"			System.out.println(\"PASS\");\n" +
-						"	}\n" +
-						"}\n" +
-						"interface I {\n" +
-						"	int foo(String s);\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+								public static int impl(I a) {
+									return a.foo("Default");
+								}
+								public static void main(String argv[]) {
+									String result = "";
+									Object obj = "a";
+									for (int i = 0; !(obj instanceof String a); i = impl(x -> {
+																						String a = "";
+																						return a.length();
+																					})) {
+										obj = null;
+									}
+									if (!result.equals(""))
+										System.out.println("FAIL");
+									else
+										System.out.println("PASS");
+								}
+							}
+							interface I {
+								int foo(String s);
+							}
+							""",
 				},
 				"PASS",
 				compilerOptions);
@@ -2744,26 +3051,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X {\n" +
-						"	public static int impl(I a) {\n" +
-						"		return a.foo(\"Default\");\n" +
-						"	}\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		String result = \"\";\n" +
-						"		Object obj = \"a\";\n" +
-						"		if (!(obj instanceof String a)) {\n" +
-						"			  int i = impl(a -> a.length());\n" +
-						"		}\n" +
-						"		if (!result.equals(\"\"))\n" +
-						"			System.out.println(\"FAIL\");\n" +
-						"		else\n" +
-						"			System.out.println(\"PASS\");\n" +
-						"	}\n" +
-						"}\n" +
-						"interface I {\n" +
-						"	int foo(String s);\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+								public static int impl(I a) {
+									return a.foo("Default");
+								}
+								public static void main(String argv[]) {
+									String result = "";
+									Object obj = "a";
+									if (!(obj instanceof String a)) {
+										  int i = impl(a -> a.length());
+									}
+									if (!result.equals(""))
+										System.out.println("FAIL");
+									else
+										System.out.println("PASS");
+								}
+							}
+							interface I {
+								int foo(String s);
+							}
+							""",
 				},
 				"PASS",
 				compilerOptions);
@@ -2774,33 +3083,37 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n" +
-						"public class X {\n" +
-						"	public static int impl(I a) {\n" +
-						"		return a.foo(\"Default\");\n" +
-						"	}\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		String result = \"\";\n" +
-						"		Object obj = \"a\";\n" +
-						"		for (int i = 0; (obj instanceof String a); i = impl(a -> a.length())) {\n" +
-						"			obj = null;\n" +
-						"		}\n" +
-						"		if (!result.equals(\"\"))\n" +
-						"			System.out.println(\"FAIL\");\n" +
-						"		else\n" +
-						"			System.out.println(\"PASS\");\n" +
-						"	}\n" +
-						"}\n" +
-						"interface I {\n" +
-						"	int foo(String s);\n" +
-						"}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+								public static int impl(I a) {
+									return a.foo("Default");
+								}
+								public static void main(String argv[]) {
+									String result = "";
+									Object obj = "a";
+									for (int i = 0; (obj instanceof String a); i = impl(a -> a.length())) {
+										obj = null;
+									}
+									if (!result.equals(""))
+										System.out.println("FAIL");
+									else
+										System.out.println("PASS");
+								}
+							}
+							interface I {
+								int foo(String s);
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	for (int i = 0; (obj instanceof String a); i = impl(a -> a.length())) {\n" +
-				"	                                                    ^\n" +
-				"Lambda expression\'s parameter a cannot redeclare another local variable defined in an enclosing scope. \n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 9)
+						for (int i = 0; (obj instanceof String a); i = impl(a -> a.length())) {
+						                                                    ^
+					Lambda expression\'s parameter a cannot redeclare another local variable defined in an enclosing scope.\s
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -2815,25 +3128,29 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"	@SuppressWarnings(\"preview\")\n" +
-						"	public static void main(String argv[]) {\n" +
-						"		Object obj = \"x\";\n" +
-						"		if (obj instanceof String s) {\n" +
-						"			String s = \"\";\n" +
-						"			System.out.println(s);\n" +
-						"		}\n" +
-						"		String s = \"y\";\n" +
-						"		System.out.println(s);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X {
+								@SuppressWarnings("preview")
+								public static void main(String argv[]) {
+									Object obj = "x";
+									if (obj instanceof String s) {
+										String s = "";
+										System.out.println(s);
+									}
+									String s = "y";
+									System.out.println(s);
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	String s = \"\";\n" +
-				"	       ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						String s = "";
+						       ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -2844,22 +3161,26 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"	@SuppressWarnings(\"preview\")\n" +
-						"	public static void main(String[] s) {\n" +
-						"		Object obj = \"x\";\n" +
-						"		if (obj instanceof String[] s && s.length > 0) {\n" +
-						"			System.out.println(s[0]);\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X {
+								@SuppressWarnings("preview")
+								public static void main(String[] s) {
+									Object obj = "x";
+									if (obj instanceof String[] s && s.length > 0) {
+										System.out.println(s[0]);
+									}
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	if (obj instanceof String[] s && s.length > 0) {\n" +
-				"	                            ^\n" +
-				"Duplicate local variable s\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						if (obj instanceof String[] s && s.length > 0) {
+						                            ^
+					Duplicate local variable s
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -2870,20 +3191,21 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"+
-						" static int count;\n"+
-						" public static void main(String[] args) {\n"+
-						"   int i = 10;\n"+
-						"   if (foo() instanceof String s) {\n"+
-						"     ++i;\n"+
-						"   }\n"+
-						"   System.out.println(\"count:\"+X.count+\" i:\"+i);\n"+
-						" }\n"+
-						" public static Object foo() {\n"+
-						"   ++X.count;\n"+
-						"   return new Object();\n"+
-						" }  \n"+
-						"}",
+						"""
+							public class X {
+							 static int count;
+							 public static void main(String[] args) {
+							   int i = 10;
+							   if (foo() instanceof String s) {
+							     ++i;
+							   }
+							   System.out.println("count:"+X.count+" i:"+i);
+							 }
+							 public static Object foo() {
+							   ++X.count;
+							   return new Object();
+							 } \s
+							}""",
 				},
 				"count:1 i:10",
 				compilerOptions);
@@ -2893,20 +3215,21 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"+
-						" static int count;\n"+
-						" public static void main(String[] args) {\n"+
-						"   int i = 10;\n"+
-						"   if (foo() instanceof String s) {\n"+
-						"     ++i;\n"+
-						"   }\n"+
-						"   System.out.println(\"count:\"+X.count+\" i:\"+i);\n"+
-						" }\n"+
-						" public static Object foo() {\n"+
-						"   ++X.count;\n"+
-						"   return new String(\"hello\");\n"+
-						" }  \n"+
-						"}",
+						"""
+							public class X {
+							 static int count;
+							 public static void main(String[] args) {
+							   int i = 10;
+							   if (foo() instanceof String s) {
+							     ++i;
+							   }
+							   System.out.println("count:"+X.count+" i:"+i);
+							 }
+							 public static Object foo() {
+							   ++X.count;
+							   return new String("hello");
+							 } \s
+							}""",
 				},
 				"count:1 i:11",
 				compilerOptions);
@@ -2916,18 +3239,19 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"+
-						" static int count;\n"+
-						" static String STR = \"FAIL\";\n"+
-						" @SuppressWarnings(\"preview\")\n"+
-						" public static void main(String[] args) {\n"+
-						"   if ( switch(STR) {\n"+
-						"       default -> (CharSequence)\"PASS\";\n"+
-						"       } instanceof String s) {\n"+
-						"     System.out.println(s);\n"+
-						"   }\n"+
-						" }\n"+
-						"}",
+						"""
+							public class X {
+							 static int count;
+							 static String STR = "FAIL";
+							 @SuppressWarnings("preview")
+							 public static void main(String[] args) {
+							   if ( switch(STR) {
+							       default -> (CharSequence)"PASS";
+							       } instanceof String s) {
+							     System.out.println(s);
+							   }
+							 }
+							}""",
 				},
 				"PASS",
 				compilerOptions);
@@ -2937,25 +3261,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"+
-						" @SuppressWarnings(\"preview\")\n"+
-						" public void foo(Object o) {\n"+
-						"   int len  = (o instanceof String p) ? test(p -> p.length()) : test(p -> p.length());\n"+
-						" }\n"+
-						"  public int test(FI fi) {\n" +
-						"	  return fi.length(\"\");\n" +
-						"  } \n" +
-						"  interface FI {\n" +
-						"	  public int length(String str);\n" +
-						"  }" +
-						"}",
+						"""
+							public class X {
+							 @SuppressWarnings("preview")
+							 public void foo(Object o) {
+							   int len  = (o instanceof String p) ? test(p -> p.length()) : test(p -> p.length());
+							 }
+							  public int test(FI fi) {
+								  return fi.length("");
+							  }\s
+							  interface FI {
+								  public int length(String str);
+							  }\
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	int len  = (o instanceof String p) ? test(p -> p.length()) : test(p -> p.length());\n" +
-				"	                                          ^\n" +
-				"Lambda expression\'s parameter p cannot redeclare another local variable defined in an enclosing scope. \n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						int len  = (o instanceof String p) ? test(p -> p.length()) : test(p -> p.length());
+						                                          ^
+					Lambda expression\'s parameter p cannot redeclare another local variable defined in an enclosing scope.\s
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -2967,25 +3294,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"+
-						" @SuppressWarnings(\"preview\")\n"+
-						" public void foo(Object o) {\n"+
-						"   int len  = !(o instanceof String p) ? test(p -> p.length()) : test(p -> p.length());\n"+
-						" }\n"+
-						"  public int test(FI fi) {\n" +
-						"	  return fi.length(\"\");\n" +
-						"  } \n" +
-						"  interface FI {\n" +
-						"	  public int length(String str);\n" +
-						"  }" +
-						"}",
+						"""
+							public class X {
+							 @SuppressWarnings("preview")
+							 public void foo(Object o) {
+							   int len  = !(o instanceof String p) ? test(p -> p.length()) : test(p -> p.length());
+							 }
+							  public int test(FI fi) {
+								  return fi.length("");
+							  }\s
+							  interface FI {
+								  public int length(String str);
+							  }\
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	int len  = !(o instanceof String p) ? test(p -> p.length()) : test(p -> p.length());\n" +
-				"	                                                                   ^\n" +
-				"Lambda expression\'s parameter p cannot redeclare another local variable defined in an enclosing scope. \n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						int len  = !(o instanceof String p) ? test(p -> p.length()) : test(p -> p.length());
+						                                                                   ^
+					Lambda expression\'s parameter p cannot redeclare another local variable defined in an enclosing scope.\s
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -2997,25 +3327,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"+
-						" @SuppressWarnings(\"preview\")\n"+
-						" public void foo(Object o) {\n"+
-						"   int len  = (o instanceof String p) ? test(p1 -> p.length()) : test(p2 -> p.length());\n"+
-						" }\n"+
-						"  public int test(FI fi) {\n" +
-						"	  return fi.length(\"\");\n" +
-						"  } \n" +
-						"  interface FI {\n" +
-						"	  public int length(String str);\n" +
-						"  }" +
-						"}",
+						"""
+							public class X {
+							 @SuppressWarnings("preview")
+							 public void foo(Object o) {
+							   int len  = (o instanceof String p) ? test(p1 -> p.length()) : test(p2 -> p.length());
+							 }
+							  public int test(FI fi) {
+								  return fi.length("");
+							  }\s
+							  interface FI {
+								  public int length(String str);
+							  }\
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	int len  = (o instanceof String p) ? test(p1 -> p.length()) : test(p2 -> p.length());\n" +
-				"	                                                                         ^\n" +
-				"p cannot be resolved\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						int len  = (o instanceof String p) ? test(p1 -> p.length()) : test(p2 -> p.length());
+						                                                                         ^
+					p cannot be resolved
+					----------
+					""",
 				"",
 				null,
 				true,
@@ -3027,35 +3360,38 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"+
-						" @SuppressWarnings(\"preview\")\n"+
-						" public void foo(Object o) {\n"
-						+ "		int len = (o instanceof String p) ? test(new X.FI() {\n"
-						+ "			@Override\n"
-						+ "			public int length(String p1) {\n"
-						+ "				return p.length();\n"
-						+ "			}\n"
-						+ "		}) : test(new X.FI() {\n"
-						+ "			@Override\n"
-						+ "			public int length(String p2) {\n"
-						+ "				return p.length();\n"
-						+ "			}\n"
-						+ "		});\n"
-						+ "	}\n"
-						+ "	public int test(FI fi) {\n"
-						+ "		return fi.length(\"\");\n"
-						+ "	}\n"
-						+ "	interface FI {\n"
-						+ "		public int length(String str);\n"
-						+ "	}" +
-						"}",
+						"""
+							public class X {
+							 @SuppressWarnings("preview")
+							 public void foo(Object o) {
+									int len = (o instanceof String p) ? test(new X.FI() {
+										@Override
+										public int length(String p1) {
+											return p.length();
+										}
+									}) : test(new X.FI() {
+										@Override
+										public int length(String p2) {
+											return p.length();
+										}
+									});
+								}
+								public int test(FI fi) {
+									return fi.length("");
+								}
+								interface FI {
+									public int length(String str);
+								}\
+							}""",
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 12)\n" +
-					"	return p.length();\n" +
-					"	       ^\n" +
-					"p cannot be resolved\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in X.java (at line 12)
+							return p.length();
+							       ^
+						p cannot be resolved
+						----------
+						""",
 					"",
 					null,
 					true,
@@ -3068,33 +3404,34 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"+
-						"	public static void main(String argv[]) {\n" +
-						"		System.out.println(new X().foo(\"test\"));\n" +
-						"	}\n" +
-						" @SuppressWarnings(\"preview\")\n"+
-						" public int foo(Object o) {\n"
-						+ "		int len = (o instanceof String p) ? test(new X.FI() {\n"
-						+ "			String s = p; // allowed\n"
-						+ "			@Override\n"
-						+ "			public int length(String p) {\n"
-						+ "				return p.length();\n"
-						+ "			}\n"
-						+ "		}) : test(new X.FI() {\n"
-						+ "			@Override\n"
-						+ "			public int length(String p) {\n"
-						+ "				return p.length();\n"
-						+ "			}\n"
-						+ "		});\n"
-						+ "		return len;\n"
-						+ "	}\n"
-						+ "	public int test(FI fi) {\n"
-						+ "		return fi.length(\"fi\");\n"
-						+ "	}\n"
-						+ "	interface FI {\n"
-						+ "		public int length(String str);\n"
-						+ "	}" +
-						"}",
+						"""
+							public class X {
+								public static void main(String argv[]) {
+									System.out.println(new X().foo("test"));
+								}
+							 @SuppressWarnings("preview")
+							 public int foo(Object o) {
+									int len = (o instanceof String p) ? test(new X.FI() {
+										String s = p; // allowed
+										@Override
+										public int length(String p) {
+											return p.length();
+										}
+									}) : test(new X.FI() {
+										@Override
+										public int length(String p) {
+											return p.length();
+										}
+									});
+									return len;
+								}
+								public int test(FI fi) {
+									return fi.length("fi");
+								}
+								interface FI {
+									public int length(String str);
+								}\
+							}""",
 					},
 					"2",
 					compilerOptions);
@@ -3104,27 +3441,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"+
-						"public class X {\n"+
-						" 	public static void main(String argv[]) {\n" +
-						"		System.out.println(new X().foo(\"foo\", \"test\"));\n" +
-						"	}\n" +
-						"	public boolean foo(Object obj, String s) {\n" +
-						"		class Inner {\n" +
-						"			public boolean foo(Object obj) {\n" +
-						"				if (obj instanceof String s) {\n" +
-						"					// s is shadowed now\n" +
-						"					if (\"foo\".equals(s))\n" +
-						"						return false;\n" +
-						"				} else if (obj instanceof String s) { \n" +
-						"				}\n"+
-						"				// s is not shadowed\n" +
-						"				return \"test\".equals(s);\n" +
-						"			}\n" +
-						"		}\n" +
-						"		return new Inner().foo(obj);\n" +
-						"	}" +
-						"}",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+							 	public static void main(String argv[]) {
+									System.out.println(new X().foo("foo", "test"));
+								}
+								public boolean foo(Object obj, String s) {
+									class Inner {
+										public boolean foo(Object obj) {
+											if (obj instanceof String s) {
+												// s is shadowed now
+												if ("foo".equals(s))
+													return false;
+											} else if (obj instanceof String s) {\s
+											}
+											// s is not shadowed
+											return "test".equals(s);
+										}
+									}
+									return new Inner().foo(obj);
+								}\
+							}""",
 				},
 				"false",
 				compilerOptions);
@@ -3134,20 +3472,21 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"+
-						"public class X {\n"+
-						" 	public static void main(String argv[]) {\n"
-						+ "		new X().foo(\"foo\");\n"
-						+ "	}\n"
-						+ "	public void foo(Object o) {\n"
-						+ "		if ((o instanceof String s)) {\n"
-						+ "			System.out.println(\"if:\" + s);\n"
-						+ "		} else {\n"
-						+ "			throw new IllegalArgumentException();\n"
-						+ "		}\n"
-						+ "		System.out.println(\"after:\" + s);\n"
-						+ "	}" +
-						"}",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+							 	public static void main(String argv[]) {
+									new X().foo("foo");
+								}
+								public void foo(Object o) {
+									if ((o instanceof String s)) {
+										System.out.println("if:" + s);
+									} else {
+										throw new IllegalArgumentException();
+									}
+									System.out.println("after:" + s);
+								}\
+							}""",
 				},
 				"if:foo\n" +
 				"after:foo",
@@ -3158,18 +3497,19 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"+
-						"public class X {\n"
-						+ "    protected Object x = \"FIELD X\";\n"
-						+ "    public void f(Object obj, boolean b) {\n"
-						+ "        if ((x instanceof String x)) {\n"
-						+ "            System.out.println(x.toLowerCase());\n"
-						+ "        }\n"
-						+ "    }\n"
-						+ "	public static void main(String[] args) {\n"
-						+ "		new X().f(Integer.parseInt(\"1\"), false);\n"
-						+ "	}\n"
-						+ "}",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+							    protected Object x = "FIELD X";
+							    public void f(Object obj, boolean b) {
+							        if ((x instanceof String x)) {
+							            System.out.println(x.toLowerCase());
+							        }
+							    }
+								public static void main(String[] args) {
+									new X().f(Integer.parseInt("1"), false);
+								}
+							}""",
 				},
 				"field x",
 				compilerOptions);
@@ -3179,18 +3519,19 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"+
-						"public class X {\n"
-						+ "    protected Object x = \"FIELD X\";\n"
-						+ "    public void f(Object obj, boolean b) {\n"
-						+ "        if ((x instanceof String x) && x.length() > 0) {\n"
-						+ "            System.out.println(x.toLowerCase());\n"
-						+ "        }\n"
-						+ "    }\n"
-						+ "	public static void main(String[] args) {\n"
-						+ "		new X().f(Integer.parseInt(\"1\"), false);\n"
-						+ "	}\n"
-						+ "}",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+							    protected Object x = "FIELD X";
+							    public void f(Object obj, boolean b) {
+							        if ((x instanceof String x) && x.length() > 0) {
+							            System.out.println(x.toLowerCase());
+							        }
+							    }
+								public static void main(String[] args) {
+									new X().f(Integer.parseInt("1"), false);
+								}
+							}""",
 				},
 				"field x",
 				compilerOptions);
@@ -3200,17 +3541,18 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"+
-						"public class X {\n"
-						+ "    static void foo(Object o) {\n"
-						+ "		if (o instanceof X x || o instanceof X) {\n"
-						+ "            System.out.println(\"X\");\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "	public static void main(String[] args) {\n"
-						+ "		foo(new X());\n"
-						+ "	}\n"
-						+ "}",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+							    static void foo(Object o) {
+									if (o instanceof X x || o instanceof X) {
+							            System.out.println("X");
+									}
+								}
+								public static void main(String[] args) {
+									foo(new X());
+								}
+							}""",
 				},
 				"X",
 				compilerOptions);
@@ -3220,25 +3562,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"+
-						"class XPlus extends X {}\n"
-						+ "public class X {\n"
-						+ "    static void foo(Object o) {\n"
-						+ "		if (o instanceof X x && x instanceof XPlus x) {\n"
-						+ "            System.out.println(\"X\");\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "	public static void main(String[] args) {\n"
-						+ "		foo(new X());\n"
-						+ "	}\n"
-						+ "}",
+						"""
+							@SuppressWarnings("preview")
+							class XPlus extends X {}
+							public class X {
+							    static void foo(Object o) {
+									if (o instanceof X x && x instanceof XPlus x) {
+							            System.out.println("X");
+									}
+								}
+								public static void main(String[] args) {
+									foo(new X());
+								}
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	if (o instanceof X x && x instanceof XPlus x) {\n" +
-				"	                                           ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						if (o instanceof X x && x instanceof XPlus x) {
+						                                           ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					""",
 				null,
 				true,
 				compilerOptions);
@@ -3248,24 +3593,27 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"+
-						"public class X {\n"
-						+ "    static void foo(Object o) {\n"
-						+ "		if (o instanceof X x || o instanceof X x) {\n"
-						+ "            System.out.println(\"X\");\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "	public static void main(String[] args) {\n"
-						+ "		foo(new X());\n"
-						+ "	}\n"
-						+ "}",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+							    static void foo(Object o) {
+									if (o instanceof X x || o instanceof X x) {
+							            System.out.println("X");
+									}
+								}
+								public static void main(String[] args) {
+									foo(new X());
+								}
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\r\n" +
-				"	if (o instanceof X x || o instanceof X x) {\r\n" +
-				"	                                       ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)\r
+						if (o instanceof X x || o instanceof X x) {\r
+						                                       ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					""");
 	}
 
 	public void test071() {
@@ -3273,29 +3621,32 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"+
-								"public class X {\n"
-								+ "    static void foo(Object o) {\n"
-								+ "		if (o instanceof X x || o instanceof X x) {\n"
-								+ "            System.out.println(x);\n"
-								+ "		}\n"
-								+ "	}\n"
-								+ "	public static void main(String[] args) {\n"
-								+ "		foo(new X());\n"
-								+ "	}\n"
-								+ "}",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+							    static void foo(Object o) {
+									if (o instanceof X x || o instanceof X x) {
+							            System.out.println(x);
+									}
+								}
+								public static void main(String[] args) {
+									foo(new X());
+								}
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	if (o instanceof X x || o instanceof X x) {\n" +
-				"	                                       ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	System.out.println(x);\n" +
-				"	                   ^\n" +
-				"x cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						if (o instanceof X x || o instanceof X x) {
+						                                       ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					2. ERROR in X.java (at line 5)
+						System.out.println(x);
+						                   ^
+					x cannot be resolved to a variable
+					----------
+					""",
 				null,
 				true,
 				compilerOptions);
@@ -3306,30 +3657,33 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"+
-								"public class X {\n"
-								+ "    static void foo(Object o) {\n"
-								+ "		if (o instanceof X x || o instanceof X x) {\n"
-								+ "			throw new IllegalArgumentException();\n"
-								+ "		}\n"
-								+ "     System.out.println(x);\n"
-								+ "	}\n"
-								+ "	public static void main(String[] args) {\n"
-								+ "		foo(new X());\n"
-								+ "	}\n"
-								+ "}",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+							    static void foo(Object o) {
+									if (o instanceof X x || o instanceof X x) {
+										throw new IllegalArgumentException();
+									}
+							     System.out.println(x);
+								}
+								public static void main(String[] args) {
+									foo(new X());
+								}
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	if (o instanceof X x || o instanceof X x) {\n" +
-				"	                                       ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
-				"	System.out.println(x);\n" +
-				"	                   ^\n" +
-				"x cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						if (o instanceof X x || o instanceof X x) {
+						                                       ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					2. ERROR in X.java (at line 7)
+						System.out.println(x);
+						                   ^
+					x cannot be resolved to a variable
+					----------
+					""",
 				null,
 				true,
 				compilerOptions);
@@ -3339,26 +3693,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"+
-								"public class X {\n"
-								+ " static void foo(Object o) {\n"
-								+ "		try {\n"
-								+ "			if (!(o instanceof X x) || x != null || x!= null) { // allowed \n"
-								+ "				throw new IllegalArgumentException();\n"
-								+ "			}\n"
-								+ "    	 	System.out.println(x); // allowed \n"
-								+ "	  	} catch (Throwable e) {\n"
-								+ "	  		e.printStackTrace(System.out);\n"
-								+ "	  	}\n"
-								+ "	}\n"
-								+ "	public static void main(String[] args) {\n"
-								+ "		foo(new X());\n"
-								+ "	}\n"
-								+ "}",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+							 static void foo(Object o) {
+									try {
+										if (!(o instanceof X x) || x != null || x!= null) { // allowed\s
+											throw new IllegalArgumentException();
+										}
+							    	 	System.out.println(x); // allowed\s
+								  	} catch (Throwable e) {
+								  		e.printStackTrace(System.out);
+								  	}
+								}
+								public static void main(String[] args) {
+									foo(new X());
+								}
+							}""",
 				},
-				"java.lang.IllegalArgumentException\n" +
-				"	at X.foo(X.java:6)\n" +
-				"	at X.main(X.java:14)",
+				"""
+					java.lang.IllegalArgumentException
+						at X.foo(X.java:6)
+						at X.main(X.java:14)""",
 				compilerOptions);
 	}
 	public void test074() {
@@ -3366,24 +3722,27 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"+
-								"public class X {\n"
-								+ "   static void foo(Object o) {\n"
-								+ "		if (!(o instanceof X x) || x != null || x!= null) {\n"
-								+ "     	System.out.println(x); // not allowed\n"
-								+ "		}\n"
-								+ "	  }\n"
-								+ "	public static void main(String[] args) {\n"
-								+ "		foo(new X());\n"
-								+ "	}\n"
-								+ "}",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+							   static void foo(Object o) {
+									if (!(o instanceof X x) || x != null || x!= null) {
+							     	System.out.println(x); // not allowed
+									}
+								  }
+								public static void main(String[] args) {
+									foo(new X());
+								}
+							}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	System.out.println(x); // not allowed\n" +
-				"	                   ^\n" +
-				"x cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						System.out.println(x); // not allowed
+						                   ^
+					x cannot be resolved to a variable
+					----------
+					""",
 				null,
 				true,
 				compilerOptions);
@@ -3393,16 +3752,18 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"+
-								"public class X {\n"
-								+ " public boolean isMyError(Exception e) {\n"
-								+ "        return e instanceof MyError my && (my.getMessage().contains(\"something\") || my.getMessage().contains(\"somethingelse\"));\n"
-								+ " }\n"
-								+ "	public static void main(String[] args) {\n"
-								+ "		System.out.println(\"hello\");\n"
-								+ "	}\n"
-								+ "}\n"
-								+ "class MyError extends Exception {}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+							 public boolean isMyError(Exception e) {
+							        return e instanceof MyError my && (my.getMessage().contains("something") || my.getMessage().contains("somethingelse"));
+							 }
+								public static void main(String[] args) {
+									System.out.println("hello");
+								}
+							}
+							class MyError extends Exception {}
+							""",
 				},
 				"hello",
 				compilerOptions);
@@ -3412,24 +3773,28 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"@SuppressWarnings(\"preview\")\n"
-						+ "public class X {\n"
-						+ "   static void foo(Object o) {\n"
-						+ "	   if ( (! (o instanceof String a)) || (o instanceof String a) ) {\n"
-						+ "		   // Nothing\n"
-						+ "	   }\n"
-						+ "	  }\n"
-						+ "	public static void main(String[] args) {\n"
-						+ "		System.out.println(\"hello\");\n"
-						+ "	}\n"
-						+ "}\n",
+						"""
+							@SuppressWarnings("preview")
+							public class X {
+							   static void foo(Object o) {
+								   if ( (! (o instanceof String a)) || (o instanceof String a) ) {
+									   // Nothing
+								   }
+								  }
+								public static void main(String[] args) {
+									System.out.println("hello");
+								}
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	if ( (! (o instanceof String a)) || (o instanceof String a) ) {\n" +
-				"	                                                         ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						if ( (! (o instanceof String a)) || (o instanceof String a) ) {
+						                                                         ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					""",
 				null,
 				true,
 				compilerOptions);
@@ -3440,17 +3805,18 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-								"public class X {\n"
-								+ "    static void foo(Object o) {\n"
-								+ "		if (o instanceof X x) {\n"
-								+ "			x = null;\n"
-								+ "         System.out.println(x);\n"
-								+ "		}\n"
-								+ "	}\n"
-								+ "	public static void main(String[] args) {\n"
-								+ "		foo(new X());\n"
-								+ "	}\n"
-								+ "}",
+								"""
+									public class X {
+									    static void foo(Object o) {
+											if (o instanceof X x) {
+												x = null;
+									         System.out.println(x);
+											}
+										}
+										public static void main(String[] args) {
+											foo(new X());
+										}
+									}""",
 				},
 				"null",
 				compilerOptions);
@@ -3461,23 +3827,26 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-								"public class X {\n"
-								+ "    static void foo(Object o) {\n"
-								+ "		if (o instanceof final X x) {\n"
-								+ "			x = null;\n"
-								+ "		}\n"
-								+ "	}\n"
-								+ "	public static void main(String[] args) {\n"
-								+ "		foo(new X());\n"
-								+ "	}\n"
-								+ "}",
+								"""
+									public class X {
+									    static void foo(Object o) {
+											if (o instanceof final X x) {
+												x = null;
+											}
+										}
+										public static void main(String[] args) {
+											foo(new X());
+										}
+									}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	x = null;\n" +
-				"	^\n" +
-				"The pattern variable x is final and cannot be assigned again\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						x = null;
+						^
+					The pattern variable x is final and cannot be assigned again
+					----------
+					""",
 				null,
 				true,
 				compilerOptions);
@@ -3487,23 +3856,26 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-								"public class X {\n"
-								+ "    static void foo(Object o) {\n"
-								+ "		if (o instanceof public X x) {\n"
-								+ "			x = null;\n"
-								+ "		}\n"
-								+ "	}\n"
-								+ "	public static void main(String[] args) {\n"
-								+ "		foo(new X());\n"
-								+ "	}\n"
-								+ "}",
+								"""
+									public class X {
+									    static void foo(Object o) {
+											if (o instanceof public X x) {
+												x = null;
+											}
+										}
+										public static void main(String[] args) {
+											foo(new X());
+										}
+									}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	if (o instanceof public X x) {\n" +
-				"	                          ^\n" +
-				"Illegal modifier for the pattern variable x; only final is permitted\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						if (o instanceof public X x) {
+						                          ^
+					Illegal modifier for the pattern variable x; only final is permitted
+					----------
+					""",
 				null,
 				true,
 				compilerOptions);
@@ -3514,16 +3886,17 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "    static void foo(Object o) {\n"
-						+ "		if (o instanceof final X x) {\n"
-						+ "            System.out.println(\"X\");\n"
-						+ "		}\n"
-						+ "	}\n"
-						+ "	public static void main(String[] args) {\n"
-						+ "		foo(new X());\n"
-						+ "	}\n"
-						+ "}",
+						"""
+							public class X {
+							    static void foo(Object o) {
+									if (o instanceof final X x) {
+							            System.out.println("X");
+									}
+								}
+								public static void main(String[] args) {
+									foo(new X());
+								}
+							}""",
 				},
 				"X",
 				compilerOptions);
@@ -3533,80 +3906,83 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-								"public class X<T> {\n"
-								+ "	public void foo(T o) {\n"
-								+ "		// Rejected\n"
-								+ "		boolean b1 = (o instanceof String a) ? (o instanceof String a) : false;\n"
-								+ "		boolean b2 = !(o instanceof String a) ? (o instanceof String a) : false;\n"
-								+ "		boolean b3 = (o instanceof String a) ? !(o instanceof String a) : false;\n"
-								+ "		boolean b4 = !(o instanceof String a) ? !(o instanceof String a) : false;\n"
-								+ "		\n"
-								+ "		boolean b5 = (o instanceof String a) ? true : (o instanceof String a);\n"
-								+ "		boolean b6 = !(o instanceof String a) ? true : (o instanceof String a);\n"
-								+ "		boolean b7 = (o instanceof String a) ? true : !(o instanceof String a);\n"
-								+ "		boolean b8 = !(o instanceof String a) ? true : !(o instanceof String a);\n"
-								+ "		\n"
-								+ "		boolean b9 = (o instanceof String) ? (o instanceof String a) : (o instanceof String a);\n"
-								+ "		boolean b10 = (o instanceof String) ? !(o instanceof String a) : !(o instanceof String a);\n"
-								+ "		\n"
-								+ "		// These are allowed\n"
-								+ "		boolean b11 = (o instanceof String) ? !(o instanceof String a) : !!(o instanceof String a);\n"
-								+ "		boolean b12 = (o instanceof String) ? !(o instanceof String a) : (o instanceof String a);\n"
-								+ "		boolean b21 = (o instanceof String a) ? false : ((o instanceof String a) ? false : true); \n"
-								+ "	} \n"
-								+ "}",
+								"""
+									public class X<T> {
+										public void foo(T o) {
+											// Rejected
+											boolean b1 = (o instanceof String a) ? (o instanceof String a) : false;
+											boolean b2 = !(o instanceof String a) ? (o instanceof String a) : false;
+											boolean b3 = (o instanceof String a) ? !(o instanceof String a) : false;
+											boolean b4 = !(o instanceof String a) ? !(o instanceof String a) : false;
+										\t
+											boolean b5 = (o instanceof String a) ? true : (o instanceof String a);
+											boolean b6 = !(o instanceof String a) ? true : (o instanceof String a);
+											boolean b7 = (o instanceof String a) ? true : !(o instanceof String a);
+											boolean b8 = !(o instanceof String a) ? true : !(o instanceof String a);
+										\t
+											boolean b9 = (o instanceof String) ? (o instanceof String a) : (o instanceof String a);
+											boolean b10 = (o instanceof String) ? !(o instanceof String a) : !(o instanceof String a);
+										\t
+											// These are allowed
+											boolean b11 = (o instanceof String) ? !(o instanceof String a) : !!(o instanceof String a);
+											boolean b12 = (o instanceof String) ? !(o instanceof String a) : (o instanceof String a);
+											boolean b21 = (o instanceof String a) ? false : ((o instanceof String a) ? false : true);\s
+										}\s
+									}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	boolean b1 = (o instanceof String a) ? (o instanceof String a) : false;\n" +
-				"	                                                            ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	boolean b2 = !(o instanceof String a) ? (o instanceof String a) : false;\n" +
-				"	                                                             ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 6)\n" +
-				"	boolean b3 = (o instanceof String a) ? !(o instanceof String a) : false;\n" +
-				"	                                                             ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 7)\n" +
-				"	boolean b4 = !(o instanceof String a) ? !(o instanceof String a) : false;\n" +
-				"	                                                              ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 9)\n" +
-				"	boolean b5 = (o instanceof String a) ? true : (o instanceof String a);\n" +
-				"	                                                                   ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 10)\n" +
-				"	boolean b6 = !(o instanceof String a) ? true : (o instanceof String a);\n" +
-				"	                                                                    ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"7. ERROR in X.java (at line 11)\n" +
-				"	boolean b7 = (o instanceof String a) ? true : !(o instanceof String a);\n" +
-				"	                                                                    ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"8. ERROR in X.java (at line 12)\n" +
-				"	boolean b8 = !(o instanceof String a) ? true : !(o instanceof String a);\n" +
-				"	                                                                     ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"9. ERROR in X.java (at line 14)\n" +
-				"	boolean b9 = (o instanceof String) ? (o instanceof String a) : (o instanceof String a);\n" +
-				"	                                                                                    ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"10. ERROR in X.java (at line 15)\n" +
-				"	boolean b10 = (o instanceof String) ? !(o instanceof String a) : !(o instanceof String a);\n" +
-				"	                                                                                       ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						boolean b1 = (o instanceof String a) ? (o instanceof String a) : false;
+						                                                            ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					2. ERROR in X.java (at line 5)
+						boolean b2 = !(o instanceof String a) ? (o instanceof String a) : false;
+						                                                             ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					3. ERROR in X.java (at line 6)
+						boolean b3 = (o instanceof String a) ? !(o instanceof String a) : false;
+						                                                             ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					4. ERROR in X.java (at line 7)
+						boolean b4 = !(o instanceof String a) ? !(o instanceof String a) : false;
+						                                                              ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					5. ERROR in X.java (at line 9)
+						boolean b5 = (o instanceof String a) ? true : (o instanceof String a);
+						                                                                   ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					6. ERROR in X.java (at line 10)
+						boolean b6 = !(o instanceof String a) ? true : (o instanceof String a);
+						                                                                    ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					7. ERROR in X.java (at line 11)
+						boolean b7 = (o instanceof String a) ? true : !(o instanceof String a);
+						                                                                    ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					8. ERROR in X.java (at line 12)
+						boolean b8 = !(o instanceof String a) ? true : !(o instanceof String a);
+						                                                                     ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					9. ERROR in X.java (at line 14)
+						boolean b9 = (o instanceof String) ? (o instanceof String a) : (o instanceof String a);
+						                                                                                    ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					10. ERROR in X.java (at line 15)
+						boolean b10 = (o instanceof String) ? !(o instanceof String a) : !(o instanceof String a);
+						                                                                                       ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					""",
 				null,
 				true,
 				compilerOptions);
@@ -3616,28 +3992,31 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-							"public class X {\n"
-							+ "	public static void run() {\n"
-							+ "		String s = \"s\";\n"
-							+ "		Object o = null;\n"
-							+ "		{\n"
-							+ "			while (!(o instanceof String v)) {\n"
-							+ "				o = null;\n"
-							+ "			}\n"
-							+ "			s = s + v; // allowed\n"
-							+ "		}\n"
-							+ "		for (int i = 0; i < 1; i++) {\n"
-							+ "			s = s + v; // not allowed\n"
-							+ "		}\n"
-							+ "	}\n"
-							+ "}",
+							"""
+								public class X {
+									public static void run() {
+										String s = "s";
+										Object o = null;
+										{
+											while (!(o instanceof String v)) {
+												o = null;
+											}
+											s = s + v; // allowed
+										}
+										for (int i = 0; i < 1; i++) {
+											s = s + v; // not allowed
+										}
+									}
+								}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 12)\n" +
-				"	s = s + v; // not allowed\n" +
-				"	        ^\n" +
-				"v cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 12)
+						s = s + v; // not allowed
+						        ^
+					v cannot be resolved to a variable
+					----------
+					""",
 				null,
 				true,
 				compilerOptions);
@@ -3647,29 +4026,32 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-							"public class X {\n"
-							+ "	public static void run() {\n"
-							+ "		String s = \"s\";\n"
-							+ "		Object o = null;\n"
-							+ "		{\n"
-							+ "			int local = 0;\n"
-							+ "			while (!(o instanceof String v)) {\n"
-							+ "				o = null;\n"
-							+ "			}\n"
-							+ "			s = s + v; // allowed\n"
-							+ "		}\n"
-							+ "		for (int i = 0; i < 1; i++) {\n"
-							+ "			s = s + v; // not allowed\n"
-							+ "		}\n"
-							+ "	}\n"
-							+ "}",
+							"""
+								public class X {
+									public static void run() {
+										String s = "s";
+										Object o = null;
+										{
+											int local = 0;
+											while (!(o instanceof String v)) {
+												o = null;
+											}
+											s = s + v; // allowed
+										}
+										for (int i = 0; i < 1; i++) {
+											s = s + v; // not allowed
+										}
+									}
+								}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 13)\n" +
-				"	s = s + v; // not allowed\n" +
-				"	        ^\n" +
-				"v cannot be resolved to a variable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 13)
+						s = s + v; // not allowed
+						        ^
+					v cannot be resolved to a variable
+					----------
+					""",
 				null,
 				true,
 				compilerOptions);
@@ -3679,25 +4061,27 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X1.java",
-						"\n"
-						+ "public class X1 {\n"
-						+ "    boolean b1, b2, b3;\n"
-						+ "\n"
-						+ "    static boolean bubbleOut(Object obj) {\n"
-						+ "	       return obj instanceof X1 that && that.b1 && that.b2 && that.b3;\n"
-						+ "    }\n"
-						+ "\n"
-						+ "    static boolean propagateTrueIn(Object obj) {\n"
-						+ "        return obj instanceof X1 that && (that.b1 && that.b2 && that.b3);\n"
-						+ "    }\n"
-						+ "\n"
-						+ "    public static void main(String[] obj) {\n"
-						+ "        var ip = new X1();\n"
-						+ "        ip.b1 = ip.b2 = ip.b3 = true;\n"
-						+ "        System.out.println(bubbleOut(ip) && propagateTrueIn(ip));\n"
-						+ "    }\n"
-						+ "\n"
-						+ "}\n",
+						"""
+							
+							public class X1 {
+							    boolean b1, b2, b3;
+							
+							    static boolean bubbleOut(Object obj) {
+								       return obj instanceof X1 that && that.b1 && that.b2 && that.b3;
+							    }
+							
+							    static boolean propagateTrueIn(Object obj) {
+							        return obj instanceof X1 that && (that.b1 && that.b2 && that.b3);
+							    }
+							
+							    public static void main(String[] obj) {
+							        var ip = new X1();
+							        ip.b1 = ip.b2 = ip.b3 = true;
+							        System.out.println(bubbleOut(ip) && propagateTrueIn(ip));
+							    }
+							
+							}
+							""",
 				},
 				"true",
 				options);
@@ -3707,20 +4091,22 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X1.java",
-						"\n"
-						+ "public class X1 {\n"
-						+ "    boolean b1, b2, b3;\n"
-						+ "    static boolean testErrorOr(Object obj) {\n"
-						+ "        return (!(obj instanceof X1 that)) || that.b1 && that.b2;\n"
-						+ "    }\n"
-						+ "    \n"
-						+ "    public static void main(String[] obj) {\n"
-						+ "        var ip = new X1();\n"
-						+ "        ip.b1 = ip.b2 = ip.b3 = true;\n"
-						+ "        System.out.println(testErrorOr(ip));\n"
-						+ "    }\n"
-						+ "\n"
-						+ "}\n",
+						"""
+							
+							public class X1 {
+							    boolean b1, b2, b3;
+							    static boolean testErrorOr(Object obj) {
+							        return (!(obj instanceof X1 that)) || that.b1 && that.b2;
+							    }
+							   \s
+							    public static void main(String[] obj) {
+							        var ip = new X1();
+							        ip.b1 = ip.b2 = ip.b3 = true;
+							        System.out.println(testErrorOr(ip));
+							    }
+							
+							}
+							""",
 				},
 				"true",
 				options);
@@ -3730,17 +4116,19 @@ public class PatternMatching16Test extends AbstractRegressionTest {
         runConformTest(
                 new String[] {
                         "X1.java",
-                        "\n"
-                        + "public class X1 {\n"
-                        + "    static boolean testConditional(Object obj) {\n"
-                        + "        return obj instanceof Integer other\n"
-                        + "                && ( other.intValue() > 100\n"
-                        + "                   ? other.intValue() < 200 : other.intValue() < 50);\n"
-                        + "    }\n"
-                        + "    public static void main(String[] obj) {\n"
-                        + "        System.out.println(testConditional(101));\n"
-                        + "    }\n"
-                        + "}\n",
+                        """
+							
+							public class X1 {
+							    static boolean testConditional(Object obj) {
+							        return obj instanceof Integer other
+							                && ( other.intValue() > 100
+							                   ? other.intValue() < 200 : other.intValue() < 50);
+							    }
+							    public static void main(String[] obj) {
+							        System.out.println(testConditional(101));
+							    }
+							}
+							""",
                 },
                 "true",
                 options);
@@ -3750,17 +4138,18 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "			   static public void something () {\n"
-						+ "			      boolean bool = true;\n"
-						+ "			      Object object = null;\n"
-						+ "			      if (object instanceof String string) {\n"
-						+ "			      } else if (bool && object instanceof Integer integer) {\n"
-						+ "			      }\n"
-						+ "			   }\n"
-						+ "			   static public void main (String[] args) throws Exception {\n"
-						+ "			   }\n"
-						+ "			}",
+						"""
+							public class X {
+										   static public void something () {
+										      boolean bool = true;
+										      Object object = null;
+										      if (object instanceof String string) {
+										      } else if (bool && object instanceof Integer integer) {
+										      }
+										   }
+										   static public void main (String[] args) throws Exception {
+										   }
+										}""",
 				},
 				"",
 				options);
@@ -3771,19 +4160,20 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  static public void something () {\n"
-						+ "    boolean bool = true;\n"
-						+ "    Object object = null;\n"
-						+ "    if (object instanceof String string) {\n"
-						+ "    } else if (bool) {\n"
-						+ "      if (object instanceof Integer integer) {\n"
-						+ "      }\n"
-						+ "    }\n"
-						+ "  }\n"
-						+ "  static public void main (String[] args) throws Exception {\n"
-						+ "  }\n"
-						+ "}",
+						"""
+							public class X {
+							  static public void something () {
+							    boolean bool = true;
+							    Object object = null;
+							    if (object instanceof String string) {
+							    } else if (bool) {
+							      if (object instanceof Integer integer) {
+							      }
+							    }
+							  }
+							  static public void main (String[] args) throws Exception {
+							  }
+							}""",
 				},
 				"",
 				options);
@@ -3794,16 +4184,17 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  static public void something () {\n"
-						+ "    boolean bool = true;\n"
-						+ "    Object object = null;\n"
-						+ "    if (bool && object instanceof Integer i) {\n"
-						+ "	   }\n"
-						+ "  }\n"
-						+ "  static public void main (String[] args) throws Exception {\n"
-						+ "  }\n"
-						+ "}",
+						"""
+							public class X {
+							  static public void something () {
+							    boolean bool = true;
+							    Object object = null;
+							    if (bool && object instanceof Integer i) {
+								   }
+							  }
+							  static public void main (String[] args) throws Exception {
+							  }
+							}""",
 				},
 				"",
 				options);
@@ -3814,16 +4205,17 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  static public void something () {\n"
-						+ "    boolean bool = true;\n"
-						+ "    Object object = null;\n"
-						+ "    if (!(object instanceof Integer i)) {\n"
-						+ "	   }\n"
-						+ "  }\n"
-						+ "  static public void main (String[] args) throws Exception {\n"
-						+ "  }\n"
-						+ "}",
+						"""
+							public class X {
+							  static public void something () {
+							    boolean bool = true;
+							    Object object = null;
+							    if (!(object instanceof Integer i)) {
+								   }
+							  }
+							  static public void main (String[] args) throws Exception {
+							  }
+							}""",
 				},
 				"",
 				options);
@@ -3834,17 +4226,18 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  static public void something () {\n"
-						+ "    boolean bool = true;\n"
-						+ "    Object object = null;\n"
-						+ "    if (false) {\n"
-						+ "	   } else if (!(object instanceof Integer i)) {\n"
-						+ "	   }\n"
-						+ "  }\n"
-						+ "  static public void main (String[] args) throws Exception {\n"
-						+ "  }\n"
-						+ "}",
+						"""
+							public class X {
+							  static public void something () {
+							    boolean bool = true;
+							    Object object = null;
+							    if (false) {
+								   } else if (!(object instanceof Integer i)) {
+								   }
+							  }
+							  static public void main (String[] args) throws Exception {
+							  }
+							}""",
 				},
 				"",
 				options);
@@ -3855,22 +4248,23 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  static public void something () {\n"
-						+ "    boolean bool = true;\n"
-						+ "		Object object = null;\n"
-						+ "		for (int i = 0; i < 10; i++) {\n"
-						+ "			if (object instanceof String string) {\n"
-						+ "				System.out.println(i);\n"
-						+ "			} else if (bool) {\n"
-						+ "				if (i == 4) continue;\n"
-						+ "				System.out.println(i);\n"
-						+ "			}\n"
-						+ "		}\n"
-						+ "  }\n"
-						+ "  static public void main (String[] args) throws Exception {\n"
-						+ "  }\n"
-						+ "}",
+						"""
+							public class X {
+							  static public void something () {
+							    boolean bool = true;
+									Object object = null;
+									for (int i = 0; i < 10; i++) {
+										if (object instanceof String string) {
+											System.out.println(i);
+										} else if (bool) {
+											if (i == 4) continue;
+											System.out.println(i);
+										}
+									}
+							  }
+							  static public void main (String[] args) throws Exception {
+							  }
+							}""",
 				},
 				"",
 				options);
@@ -3883,20 +4277,23 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-							"public class X {\n"
-							+ "	public void foo(Object o) {\n"
-							+ "		if (o instanceof var s) {\n"
-							+ "			System.out.println(s);\n"
-							+ "		}\n"
-							+ "	}\n"
-							+ "}",
+							"""
+								public class X {
+									public void foo(Object o) {
+										if (o instanceof var s) {
+											System.out.println(s);
+										}
+									}
+								}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	if (o instanceof var s) {\n" +
-				"	                 ^^^\n" +
-				"\'var\' is not allowed here\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						if (o instanceof var s) {
+						                 ^^^
+					\'var\' is not allowed here
+					----------
+					""",
 				null,
 				true,
 				compilerOptions);
@@ -3906,15 +4303,17 @@ public class PatternMatching16Test extends AbstractRegressionTest {
         runConformTest(
                 new String[] {
                         "X1.java",
-                        "\n"
-                        + "public class X1 {\n"
-                        + "    static boolean testConditional(Object obj) {\n"
-                        + "        return obj instanceof Number oNum && oNum.intValue() < 0 && !(oNum instanceof Integer);\n"
-                        + "    }\n"
-                        + "    public static void main(String[] obj) {\n"
-                        + "        System.out.println(testConditional(-2f));\n"
-                        + "    }\n"
-                        + "}\n",
+                        """
+							
+							public class X1 {
+							    static boolean testConditional(Object obj) {
+							        return obj instanceof Number oNum && oNum.intValue() < 0 && !(oNum instanceof Integer);
+							    }
+							    public static void main(String[] obj) {
+							        System.out.println(testConditional(-2f));
+							    }
+							}
+							""",
                 },
                 "true",
                 options);
@@ -3922,78 +4321,80 @@ public class PatternMatching16Test extends AbstractRegressionTest {
     public void testBug575035() throws ClassFormatException, IOException {
         Map<String, String> options = getCompilerOptions(false);
     	String source =
-    			"import java.lang.annotation.ElementType;\n" +
-    			"import java.lang.annotation.Retention;\n" +
-    			"import java.lang.annotation.RetentionPolicy;\n" +
-    			"import java.lang.annotation.Target;\n" +
-    			" \n" +
-    			"public class Test {\n" +
-    			"    @Target({ ElementType.LOCAL_VARIABLE})\n" +
-    			"    @Retention(RetentionPolicy.RUNTIME)\n" +
-    			"    @interface Var {}\n" +
-    			"    @Target({ ElementType.TYPE_USE})\n" +
-    			"    @Retention(RetentionPolicy.RUNTIME)\n" +
-    			"    @interface Type {}\n" +
-    			"    public static void main(String[] args) {" +
-    			"        @Var @Type String y = \"OK: \";\n" +
-    			"        if (((Object)\"local\") instanceof @Var @Type String x) {\n" +
-    			"            System.out.println(new StringBuilder(y).append(x));\n" +
-    			"        }\n" +
-    		    "    }\n" +
-    			"}";
-    	String expectedOutput =  "  public static void main(String[] args);\n" +
-    			"     0  ldc <String \"OK: \"> [16]\n" +
-    			"     2  astore_1 [y]\n" +
-    			"     3  ldc <String \"local\"> [18]\n" +
-    			"     5  dup\n" +
-    			"     6  astore_3\n" +
-    			"     7  instanceof String [20]\n" +
-    			"    10  ifeq 36\n" +
-    			"    13  aload_3\n" +
-    			"    14  checkcast String [20]\n" +
-    			"    17  astore_2 [x]\n" +
-    		    "    18  getstatic System.out : PrintStream [22]\n" +
-    		    "    21  new StringBuilder [28]\n" +
-    		    "    24  dup\n" +
-    		    "    25  aload_1 [y]\n" +
-    		    "    26  invokespecial StringBuilder(String) [30]\n" +
-    		    "    29  aload_2 [x]\n" +
-    		    "    30  invokevirtual StringBuilder.append(String) : StringBuilder [33]\n" +
-    		    "    33  invokevirtual PrintStream.println(Object) : void [37]\n" +
-    		    "    36  return\n" +
-    			"      Line numbers:\n" +
-    			"        [pc: 0, line: 13]\n" +
-    			"        [pc: 3, line: 14]\n" +
-    			"        [pc: 18, line: 15]\n" +
-    			"        [pc: 36, line: 17]\n" +
-    			"      Local variable table:\n" +
-    			"        [pc: 0, pc: 37] local: args index: 0 type: String[]\n" +
-    			"        [pc: 3, pc: 37] local: y index: 1 type: String\n" +
-    			"        [pc: 18, pc: 36] local: x index: 2 type: String\n" +
-    			"      Stack map table: number of frames 1\n" +
-    			"        [pc: 36, append: {String}]\n" +
-    			"    RuntimeVisibleTypeAnnotations: \n" +
-    			"      #50 @Type(\n" +
-    			"        target type = 0x40 LOCAL_VARIABLE\n" +
-    			"        local variable entries:\n" +
-    			"          [pc: 3, pc: 37] index: 1\n" +
-    			"      )\n" +
-    			"      #50 @Type(\n" +
-    			"        target type = 0x40 LOCAL_VARIABLE\n" +
-    			"        local variable entries:\n" +
-    			"          [pc: 18, pc: 36] index: 2\n" +
-    			"      )\n" +
-    			"\n" +
-    			"  Inner classes:\n" +
-    			"    [inner class info: #54 Test$Type, outer class info: #1 Test\n" +
-    			"     inner name: #56 Type, accessflags: 9736 abstract static],\n" +
-    			"    [inner class info: #57 Test$Var, outer class info: #1 Test\n" +
-    			"     inner name: #59 Var, accessflags: 9736 abstract static]\n" +
-    			"\n" +
-    			"Nest Members:\n" +
-    			"   #54 Test$Type,\n" +
-    			"   #57 Test$Var\n" +
-    			"}";
+    			"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.RetentionPolicy;
+			import java.lang.annotation.Target;
+			\s
+			public class Test {
+			    @Target({ ElementType.LOCAL_VARIABLE})
+			    @Retention(RetentionPolicy.RUNTIME)
+			    @interface Var {}
+			    @Target({ ElementType.TYPE_USE})
+			    @Retention(RetentionPolicy.RUNTIME)
+			    @interface Type {}
+			    public static void main(String[] args) {\
+			        @Var @Type String y = "OK: ";
+			        if (((Object)"local") instanceof @Var @Type String x) {
+			            System.out.println(new StringBuilder(y).append(x));
+			        }
+			    }
+			}""";
+    	String expectedOutput =  """
+			  public static void main(String[] args);
+			     0  ldc <String "OK: "> [16]
+			     2  astore_1 [y]
+			     3  ldc <String "local"> [18]
+			     5  dup
+			     6  astore_3
+			     7  instanceof String [20]
+			    10  ifeq 36
+			    13  aload_3
+			    14  checkcast String [20]
+			    17  astore_2 [x]
+			    18  getstatic System.out : PrintStream [22]
+			    21  new StringBuilder [28]
+			    24  dup
+			    25  aload_1 [y]
+			    26  invokespecial StringBuilder(String) [30]
+			    29  aload_2 [x]
+			    30  invokevirtual StringBuilder.append(String) : StringBuilder [33]
+			    33  invokevirtual PrintStream.println(Object) : void [37]
+			    36  return
+			      Line numbers:
+			        [pc: 0, line: 13]
+			        [pc: 3, line: 14]
+			        [pc: 18, line: 15]
+			        [pc: 36, line: 17]
+			      Local variable table:
+			        [pc: 0, pc: 37] local: args index: 0 type: String[]
+			        [pc: 3, pc: 37] local: y index: 1 type: String
+			        [pc: 18, pc: 36] local: x index: 2 type: String
+			      Stack map table: number of frames 1
+			        [pc: 36, append: {String}]
+			    RuntimeVisibleTypeAnnotations:\s
+			      #50 @Type(
+			        target type = 0x40 LOCAL_VARIABLE
+			        local variable entries:
+			          [pc: 3, pc: 37] index: 1
+			      )
+			      #50 @Type(
+			        target type = 0x40 LOCAL_VARIABLE
+			        local variable entries:
+			          [pc: 18, pc: 36] index: 2
+			      )
+			
+			  Inner classes:
+			    [inner class info: #54 Test$Type, outer class info: #1 Test
+			     inner name: #56 Type, accessflags: 9736 abstract static],
+			    [inner class info: #57 Test$Var, outer class info: #1 Test
+			     inner name: #59 Var, accessflags: 9736 abstract static]
+			
+			Nest Members:
+			   #54 Test$Type,
+			   #57 Test$Var
+			}""";
     	checkClassFile("Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
         runConformTest(
                 new String[] {
@@ -4010,31 +4411,34 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-							"public class X {\n"
-							+ "    public static Object str = \"a\";\n"
-							+ "    public static void foo() {\n"
-							+ "    	if (str instanceof (String a && a == null)) {\n"
-							+ "            System.out.println(true);\n"
-							+ "        } else {\n"
-							+ "        	System.out.println(false);\n"
-							+ "        }\n"
-							+ "    } \n"
-							+ "    public static void main(String[] argv) {\n"
-							+ "    	foo();\n"
-							+ "    }\n"
-							+ "}",
+							"""
+								public class X {
+								    public static Object str = "a";
+								    public static void foo() {
+								    	if (str instanceof (String a && a == null)) {
+								            System.out.println(true);
+								        } else {
+								        	System.out.println(false);
+								        }
+								    }\s
+								    public static void main(String[] argv) {
+								    	foo();
+								    }
+								}""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	if (str instanceof (String a && a == null)) {\n" +
-				"	                   ^\n" +
-				"Syntax error on token \"(\", delete this token\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	if (str instanceof (String a && a == null)) {\n" +
-				"	                                          ^\n" +
-				"Syntax error on token \")\", delete this token\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						if (str instanceof (String a && a == null)) {
+						                   ^
+					Syntax error on token "(", delete this token
+					----------
+					2. ERROR in X.java (at line 4)
+						if (str instanceof (String a && a == null)) {
+						                                          ^
+					Syntax error on token ")", delete this token
+					----------
+					""",
 				false);
 	}
 	public void testBug578628_1a() {
@@ -4044,19 +4448,20 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-							"public class X {\n"
-							+ "    public static Object str = \"a\";\n"
-							+ "    public static void foo() {\n"
-							+ "    	if (str instanceof String a && a == null) {\n"
-							+ "            System.out.println(true);\n"
-							+ "        } else {\n"
-							+ "        	System.out.println(false);\n"
-							+ "        }\n"
-							+ "    } \n"
-							+ "    public static void main(String[] argv) {\n"
-							+ "    	foo();\n"
-							+ "    }\n"
-							+ "}",
+							"""
+								public class X {
+								    public static Object str = "a";
+								    public static void foo() {
+								    	if (str instanceof String a && a == null) {
+								            System.out.println(true);
+								        } else {
+								        	System.out.println(false);
+								        }
+								    }\s
+								    public static void main(String[] argv) {
+								    	foo();
+								    }
+								}""",
 				},
 				"false",
 				compilerOptions);
@@ -4068,19 +4473,20 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-							"public class X {\n"
-							+ "    public static Object str = \"a\";\n"
-							+ "    public static void foo() {\n"
-							+ "    	if (str instanceof String a && a != null) {\n"
-							+ "            System.out.println(true);\n"
-							+ "        } else {\n"
-							+ "        	System.out.println(false);\n"
-							+ "        }\n"
-							+ "    } \n"
-							+ "    public static void main(String[] argv) {\n"
-							+ "    	foo();\n"
-							+ "    }\n"
-							+ "}",
+							"""
+								public class X {
+								    public static Object str = "a";
+								    public static void foo() {
+								    	if (str instanceof String a && a != null) {
+								            System.out.println(true);
+								        } else {
+								        	System.out.println(false);
+								        }
+								    }\s
+								    public static void main(String[] argv) {
+								    	foo();
+								    }
+								}""",
 				},
 				"true",
 				compilerOptions);
@@ -4092,18 +4498,19 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-							"public class X {\n"
-							+ "    public static Object str = \"a\";\n"
-							+ "    public static void foo() {\n"
-							+ "    	bar(str instanceof String a && a == null);\n"
-							+ "    } \n"
-							+ "    public static void bar(boolean arg) {\n"
-							+ "    	System.out.println(arg);\n"
-							+ "    }\n"
-							+ "    public static void main(String[] argv) {\n"
-							+ "    	foo();\n"
-							+ "    }\n"
-							+ "}",
+							"""
+								public class X {
+								    public static Object str = "a";
+								    public static void foo() {
+								    	bar(str instanceof String a && a == null);
+								    }\s
+								    public static void bar(boolean arg) {
+								    	System.out.println(arg);
+								    }
+								    public static void main(String[] argv) {
+								    	foo();
+								    }
+								}""",
 				},
 				"false",
 				compilerOptions);
@@ -4115,21 +4522,22 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-							"public class X {\n"
-							+ "    public static Object str = \"a\";\n"
-							+ "public static void foo() {\n"
-							+ "    	boolean b = switch (str) {\n"
-							+ "    		case String s -> {\n"
-							+ "    			yield (str instanceof String a && a != null);\n"
-							+ "    		}\n"
-							+ "    		default -> false;\n"
-							+ "    	};\n"
-							+ "    	System.out.println(b);\n"
-							+ "    }\n"
-							+ "    public static void main(String[] argv) {\n"
-							+ "    	foo();\n"
-							+ "    }\n"
-							+ "}",
+							"""
+								public class X {
+								    public static Object str = "a";
+								public static void foo() {
+								    	boolean b = switch (str) {
+								    		case String s -> {
+								    			yield (str instanceof String a && a != null);
+								    		}
+								    		default -> false;
+								    	};
+								    	System.out.println(b);
+								    }
+								    public static void main(String[] argv) {
+								    	foo();
+								    }
+								}""",
 				},
 				"true",
 				compilerOptions);
@@ -4420,57 +4828,59 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						}
 						""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 13)\n" +
-				"	boolean b = o instanceof String a && o instanceof Double a;   // Error: correct\n" +
-				"	                                                         ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 14)\n" +
-				"	b = !(o instanceof String a) && !(o instanceof Double a);     // <<<----- Error NOT reported by ECJ. Javac complains\n" +
-				"	                                                      ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 25)\n" +
-				"	b =  o instanceof String a || o instanceof Double a;      // <<<----- Error NOT reported by ECJ. Javac complains\n" +
-				"	                                                  ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 26)\n" +
-				"	b =  !(o instanceof String a) || !(o instanceof Double a); // Error: correct\n" +
-				"	                                                       ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 46)\n" +
-				"	b = o instanceof String a ? true : o instanceof String a;  // error correctly reported\n" +
-				"	                                                       ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 47)\n" +
-				"	b = o instanceof String a ? true : !(o instanceof String a); // error correctly reported\n" +
-				"	                                                         ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"7. ERROR in X.java (at line 48)\n" +
-				"	b = !(o instanceof String a) ? o instanceof String a : true; // error correctly reported\n" +
-				"	                                                   ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"8. ERROR in X.java (at line 49)\n" +
-				"	b = !(o instanceof String a) ? !(o instanceof String a) : true; // error correctly reported\n" +
-				"	                                                     ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"9. ERROR in X.java (at line 50)\n" +
-				"	b = b ? (o instanceof String a) : (o instanceof String a); // error correctly reported\n" +
-				"	                                                       ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n" +
-				"10. ERROR in X.java (at line 51)\n" +
-				"	b = b ? !(o instanceof String a) : !(o instanceof String a); // error correctly reported\n" +
-				"	                                                         ^\n" +
-				"A pattern variable with the same name is already defined in the statement\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 13)
+						boolean b = o instanceof String a && o instanceof Double a;   // Error: correct
+						                                                         ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					2. ERROR in X.java (at line 14)
+						b = !(o instanceof String a) && !(o instanceof Double a);     // <<<----- Error NOT reported by ECJ. Javac complains
+						                                                      ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					3. ERROR in X.java (at line 25)
+						b =  o instanceof String a || o instanceof Double a;      // <<<----- Error NOT reported by ECJ. Javac complains
+						                                                  ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					4. ERROR in X.java (at line 26)
+						b =  !(o instanceof String a) || !(o instanceof Double a); // Error: correct
+						                                                       ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					5. ERROR in X.java (at line 46)
+						b = o instanceof String a ? true : o instanceof String a;  // error correctly reported
+						                                                       ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					6. ERROR in X.java (at line 47)
+						b = o instanceof String a ? true : !(o instanceof String a); // error correctly reported
+						                                                         ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					7. ERROR in X.java (at line 48)
+						b = !(o instanceof String a) ? o instanceof String a : true; // error correctly reported
+						                                                   ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					8. ERROR in X.java (at line 49)
+						b = !(o instanceof String a) ? !(o instanceof String a) : true; // error correctly reported
+						                                                     ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					9. ERROR in X.java (at line 50)
+						b = b ? (o instanceof String a) : (o instanceof String a); // error correctly reported
+						                                                       ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					10. ERROR in X.java (at line 51)
+						b = b ? !(o instanceof String a) : !(o instanceof String a); // error correctly reported
+						                                                         ^
+					A pattern variable with the same name is already defined in the statement
+					----------
+					""");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1406
 	// [Patterns] Bizarre code generation for type test patterns
@@ -4488,16 +4898,18 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				}
     			""";
     	String expectedOutput =
-    			"  public static void main(String[] args);\n"
-    			+ "     0  aconst_null\n"
-    			+ "     1  astore_1 [o]\n"
-    			+ "     2  aload_1 [o]\n"
-    			+ "     3  instanceof String [16]\n"
-    			+ "     6  ifeq 14\n"
-    			+ "     9  aload_1 [o]\n"
-    			+ "    10  checkcast String [16]\n"
-    			+ "    13  astore_2\n"
-    			+ "    14  return\n";
+    			"""
+			  public static void main(String[] args);
+			     0  aconst_null
+			     1  astore_1 [o]
+			     2  aload_1 [o]
+			     3  instanceof String [16]
+			     6  ifeq 14
+			     9  aload_1 [o]
+			    10  checkcast String [16]
+			    13  astore_2
+			    14  return
+			""";
     	checkClassFile("X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
         runConformTest(
                 new String[] {
@@ -4527,17 +4939,19 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				}
     			""";
     	String expectedOutput =
-    			 "  public void foo();\n" +
-				 "     0  aload_0 [this]\n" +
-				 "     1  getfield X.o : Object [14]\n" +
-				 "     4  dup\n" +
-				 "     5  astore_2\n" +
-				 "     6  instanceof String [21]\n" +
-				 "     9  ifeq 17\n" +
-				 "    12  aload_2\n" +
-				 "    13  checkcast String [21]\n" +
-				 "    16  astore_1\n" +
-				 "    17  return\n";
+    			 """
+			  public void foo();
+			     0  aload_0 [this]
+			     1  getfield X.o : Object [14]
+			     4  dup
+			     5  astore_2
+			     6  instanceof String [21]
+			     9  ifeq 17
+			    12  aload_2
+			    13  checkcast String [21]
+			    16  astore_1
+			    17  return
+			""";
     	checkClassFile("X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
         runConformTest(
                 new String[] {
@@ -4835,9 +5249,10 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						}
 						""",
 				},
-				"false\n"
-				+ "true\n"
-				+ "false\n"
-				+ "true");
+				"""
+					false
+					true
+					false
+					true""");
 	}
 }

@@ -30,29 +30,31 @@ public static Test suite() {
  */
 public void testInIfStatement1() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		if (true) {							\n" +
-		"			new z.y.X(1, 2, i);				\n" +
-		"		}									\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					if (true) {						\t
+						new z.y.X(1, 2, i);			\t
+					}								\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X(",
 		// expectedCompletionNodeToString:
 		"<CompleteOnAllocationExpression:new z.y.X(<CompleteOnName:>, 2, i)>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    if (true)\n" +
-		"        {\n" +
-		"          <CompleteOnAllocationExpression:new z.y.X(<CompleteOnName:>, 2, i)>;\n" +
-		"        }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    if (true)
+			        {
+			          <CompleteOnAllocationExpression:new z.y.X(<CompleteOnName:>, 2, i)>;
+			        }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -63,29 +65,31 @@ public void testInIfStatement1() {
 }
 public void testInIfStatement2() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		if (true) {							\n" +
-		"			new z.y.X(1, 2, i);				\n" +
-		"		}									\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					if (true) {						\t
+						new z.y.X(1, 2, i);			\t
+					}								\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X(1, 2,",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    if (true)\n" +
-		"        {\n" +
-		"          new z.y.X(1, 2, <CompleteOnName:>, i);\n" +
-		"        }\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    if (true)
+			        {
+			          new z.y.X(1, 2, <CompleteOnName:>, i);
+			        }
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -102,24 +106,26 @@ public void testInIfStatement2() {
  */
 public void testNoQualificationQualifiedTypeName1() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		new z.y.X(1, 2, i);					\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					new z.y.X(1, 2, i);				\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X(",
 		// expectedCompletionNodeToString:
 		"<CompleteOnAllocationExpression:new z.y.X()>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnAllocationExpression:new z.y.X()>;\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    <CompleteOnAllocationExpression:new z.y.X()>;
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -130,24 +136,26 @@ public void testNoQualificationQualifiedTypeName1() {
 }
 public void testNoQualificationQualifiedTypeName2() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		new z.y.X(1, 2, i);					\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					new z.y.X(1, 2, i);				\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X(1, 2,",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    new z.y.X(1, 2, <CompleteOnName:>, i);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    new z.y.X(1, 2, <CompleteOnName:>, i);
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -164,24 +172,26 @@ public void testNoQualificationQualifiedTypeName2() {
  */
 public void testNoQualificationSimpleTypeName1() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		new X(1, 2, i);						\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					new X(1, 2, i);					\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X(",
 		// expectedCompletionNodeToString:
 		"<CompleteOnAllocationExpression:new X()>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnAllocationExpression:new X()>;\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    <CompleteOnAllocationExpression:new X()>;
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -192,24 +202,26 @@ public void testNoQualificationSimpleTypeName1() {
 }
 public void testNoQualificationSimpleTypeName2() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		new X(1, 2, i);						\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					new X(1, 2, i);					\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X(1, 2,",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    new X(1, 2, <CompleteOnName:>, i);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    new X(1, 2, <CompleteOnName:>, i);
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -225,24 +237,26 @@ public void testNoQualificationSimpleTypeName2() {
  */
 public void testQualifiedWithName1() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {\n" +
-		"	void foo() {							\n" +
-		"		Buz.x.new X(1, 2, i);				\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {
+				void foo() {						\t
+					Buz.x.new X(1, 2, i);			\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X(",
 		// expectedCompletionNodeToString:
 		"<CompleteOnQualifiedAllocationExpression:Buz.x.new X(<CompleteOnName:>, 2, i)>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnQualifiedAllocationExpression:Buz.x.new X(<CompleteOnName:>, 2, i)>;\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    <CompleteOnQualifiedAllocationExpression:Buz.x.new X(<CompleteOnName:>, 2, i)>;
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -253,24 +267,26 @@ public void testQualifiedWithName1() {
 }
 public void testQualifiedWithName2() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {\n" +
-		"	void foo() {							\n" +
-		"		Buz.x.new X(1, 2, i);				\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {
+				void foo() {						\t
+					Buz.x.new X(1, 2, i);			\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X(1, 2,",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    Buz.x.new X(1, 2, <CompleteOnName:>, i);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    Buz.x.new X(1, 2, <CompleteOnName:>, i);
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -286,24 +302,26 @@ public void testQualifiedWithName2() {
  */
 public void testQualifiedWithPrimary1() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		primary().new X(1, 2, i);			\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					primary().new X(1, 2, i);		\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X(",
 		// expectedCompletionNodeToString:
 		"<CompleteOnQualifiedAllocationExpression:primary().new X(<CompleteOnName:>, 2, i)>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnQualifiedAllocationExpression:primary().new X(<CompleteOnName:>, 2, i)>;\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    <CompleteOnQualifiedAllocationExpression:primary().new X(<CompleteOnName:>, 2, i)>;
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
@@ -314,24 +332,26 @@ public void testQualifiedWithPrimary1() {
 }
 public void testQualifiedWithPrimary2() {
 	this.runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {								\n" +
-		"	void foo() {							\n" +
-		"		primary().new X(1, 2, i);			\n" +
-		"	}										\n" +
-		"}\n",
+		"""
+			class Bar {							\t
+				void foo() {						\t
+					primary().new X(1, 2, i);		\t
+				}									\t
+			}
+			""",
 		// completeBehind:
 		"X(1, 2,",
 		// expectedCompletionNodeToString:
 		"<CompleteOnName:>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    primary().new X(1, 2, <CompleteOnName:>, i);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			  }
+			  void foo() {
+			    primary().new X(1, 2, <CompleteOnName:>, i);
+			  }
+			}
+			""",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:

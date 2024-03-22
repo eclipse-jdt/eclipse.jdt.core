@@ -32,12 +32,14 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
 	}
 	public void test001() throws JavaModelException {
 		String string =
-				"public class X {\n" +
-				"    static int field = 1234;\n" +
-				"	 public static void main(String [] args) {\n" +
-				"        String s = STR.\"Field = \\{field}\";\n" +
-				"    }\n" +
-				"}\n";
+				"""
+			public class X {
+			    static int field = 1234;
+				 public static void main(String [] args) {
+			        String s = STR."Field = \\{field}";
+			    }
+			}
+			""";
 
 		String selection = "field";
 		String selectKey = "<SelectOnName:";
@@ -45,16 +47,18 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
 
 		String selectionIdentifier = "field";
 		String expectedUnitDisplayString =
-				"public class X {\n" +
-						"  static int field;\n" +
-						"  <clinit>() {\n" +
-						"  }\n" +
-						"  public X() {\n" +
-						"  }\n" +
-						"  public static void main(String[] args) {\n" +
-						"    String s = STR.\"Field = \\{<SelectOnName:field>}\";\n" +
-						"  }\n" +
-						"}\n";
+				"""
+			public class X {
+			  static int field;
+			  <clinit>() {
+			  }
+			  public X() {
+			  }
+			  public static void main(String[] args) {
+			    String s = STR."Field = \\{<SelectOnName:field>}";
+			  }
+			}
+			""";
 		String expectedReplacedSource = "field";
 		String testName = "X.java";
 
@@ -66,27 +70,33 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
 	}
 	public void test002() throws JavaModelException {
 		String string =
-				"public class X {\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    String[] fruit = { \"apples\", \"oranges\", \"peaches\" };\n"
-				+ "    String s = STR.\"\\{fruit[0]}, \\{STR.\"\\{/*here*/fruit[1]}, \\{fruit[2]}\"}\\u002e\";\n"
-				+ "    System.out.println(s);\n"
-				+ "  }\n"
-				+ "}";
+				"""
+			public class X {
+			  public static void main(String[] args) {
+			    String[] fruit = { "apples", "oranges", "peaches" };
+			    String s = STR."\\{fruit[0]}, \\{STR."\\{/*here*/fruit[1]}, \\{fruit[2]}"}\\u002e";
+			    System.out.println(s);
+			  }
+			}""";
 
 		String selection = "/*here*/fruit";
-		String expectedSelection = "<SelectOnName:" + "fruit" + ">";
+		String expectedSelection = """
+			<SelectOnName:\
+			fruit\
+			>""";
 
 		String selectionIdentifier = "fruit";
 		String expectedUnitDisplayString =
-				"public class X {\n" +
-				"  public X() {\n" +
-				"  }\n" +
-				"  public static void main(String[] args) {\n" +
-				"    String[] fruit;\n" +
-				"    String s = STR.\"\\{fruit[0]}, \\{STR.\"\\{<SelectOnName:fruit>[1]}, \\{fruit[2]}\"}.\";\n" +
-				"  }\n" +
-				"}\n";
+				"""
+			public class X {
+			  public X() {
+			  }
+			  public static void main(String[] args) {
+			    String[] fruit;
+			    String s = STR."\\{fruit[0]}, \\{STR."\\{<SelectOnName:fruit>[1]}, \\{fruit[2]}"}.";
+			  }
+			}
+			""";
 		String expectedReplacedSource = "fruit";
 		String testName = "X.java";
 
@@ -116,7 +126,10 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
 				}""";
 
 		String selection = "name";
-		String expectedSelection = "<SelectOnName:" + "name" + ">";
+		String expectedSelection = """
+			<SelectOnName:\
+			name\
+			>""";
 
 		String selectionIdentifier = "name";
 		String expectedUnitDisplayString =
@@ -157,13 +170,16 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
 		String expectedCompletionNodeToString = "<SelectOnMessageSend:System.out.println(\"\"\"\nHello\"\"\")>";
 		String completionIdentifier = "println";
 		String expectedUnitDisplayString =
-			"public class X<R> {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  public static void main(String[] args) {\n" +
-			"    <SelectOnMessageSend:System.out.println(\"\"\"\nHello\"\"\")>;\n" +
-			"  }\n" +
-			"}\n";
+			"""
+			public class X<R> {
+			  public X() {
+			  }
+			  public static void main(String[] args) {
+			    <SelectOnMessageSend:System.out.println(\"""
+			Hello\""")>;
+			  }
+			}
+			""";
 		String expectedReplacedSource = "System.out.println(\"\"\"\n\t\t\tHello\"\"\")";
 		String testName = "<select message send>";
 
@@ -183,29 +199,32 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
 	// test selection after template
 	public void test005() throws JavaModelException {
 		String string =
-				"public class X {\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    String[] fruit = { \"apples\", \"oranges\", \"peaches\" };\n"
-				+ "    String s = STR.\"\\{fruit[0]}, \\{STR.\"\\{/*here*/fruit[1]}, \\{fruit[2]}\"}\\u002e\";\n"
-				+ "    System.out.println(s);\n"
-				+ "    System.out.println(s.hashCode());\n"
-				+ "  }\n"
-				+ "}";
+				"""
+			public class X {
+			  public static void main(String[] args) {
+			    String[] fruit = { "apples", "oranges", "peaches" };
+			    String s = STR."\\{fruit[0]}, \\{STR."\\{/*here*/fruit[1]}, \\{fruit[2]}"}\\u002e";
+			    System.out.println(s);
+			    System.out.println(s.hashCode());
+			  }
+			}""";
 
 		String selection = "hashCode";
 		String expectedSelection = "<SelectOnMessageSend:s.hashCode()>";
 
 		String selectionIdentifier = "hashCode";
 		String expectedUnitDisplayString =
-				"public class X {\n" +
-				"  public X() {\n" +
-				"  }\n" +
-				"  public static void main(String[] args) {\n" +
-				"    String[] fruit;\n" +
-				"    String s;\n" +
-				"    System.out.println(<SelectOnMessageSend:s.hashCode()>);\n" +
-				"  }\n" +
-				"}\n";
+				"""
+			public class X {
+			  public X() {
+			  }
+			  public static void main(String[] args) {
+			    String[] fruit;
+			    String s;
+			    System.out.println(<SelectOnMessageSend:s.hashCode()>);
+			  }
+			}
+			""";
 		String expectedReplacedSource = "s.hashCode()";
 		String testName = "X.java";
 

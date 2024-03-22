@@ -54,19 +54,20 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	public void testNamesWithDelete() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("    public void foo(String s, int i) {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("            i--;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			
+			    public int x1;
+			
+			    public void foo(String s, int i) {
+			        while (i == 0) {
+			            i--;
+			        }
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -92,17 +93,17 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("\n");
-		buf.append("    public void foo(String s, int i) {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("            i--;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		String expected= buf.toString();
+		String expected= """
+			package test1;
+			public class C {
+			
+			    public void foo(String s, int i) {
+			        while (i == 0) {
+			            i--;
+			        }
+			    }
+			}
+			""";
 		assertEqualString(preview, expected);
 
 		assertCorrectTracking(names, positions, expected);
@@ -121,19 +122,20 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	public void testNamesWithInsert_only_2_3_4() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("    public void foo(String s, int i) {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("            i--;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			
+			    public int x1;
+			
+			    public void foo(String s, int i) {
+			        while (i == 0) {
+			            i--;
+			        }
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -171,19 +173,19 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("\n");
-		buf.append("    public int newVariable[][], x1;\n");
-		buf.append("\n");
-		buf.append("    public void foo(String s, int i) {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("            i--;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		String expected= buf.toString();
+		String expected= """
+			package test1;
+			public class C {
+			
+			    public int newVariable[][], x1;
+			
+			    public void foo(String s, int i) {
+			        while (i == 0) {
+			            i--;
+			        }
+			    }
+			}
+			""";
 		assertEqualString(preview, expected);
 
 		assertCorrectTracking(names, positions, expected);
@@ -193,19 +195,20 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	public void testNamesWithReplace_only_2() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("    public void foo(String s, int i) {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("            ++i;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			
+			    public int x1;
+			
+			    public void foo(String s, int i) {
+			        while (i == 0) {
+			            ++i;
+			        }
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -249,19 +252,19 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class XX {\n");
-		buf.append("\n");
-		buf.append("    private static transient int x1;\n");
-		buf.append("\n");
-		buf.append("    public void foo(String s, int i) {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("            ++i;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		String expected= buf.toString();
+		String expected= """
+			package test1;
+			public class XX {
+			
+			    private static transient int x1;
+			
+			    public void foo(String s, int i) {
+			        while (i == 0) {
+			            ++i;
+			        }
+			    }
+			}
+			""";
 		assertEqualString(preview, expected);
 
 		assertCorrectTracking(names, positions, expected);
@@ -270,19 +273,20 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	public void testNamesWithMove1_only_2_3_4() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("    public void foo(String s, int i) {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("            ++i;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			
+			    public int x1;
+			
+			    public void foo(String s, int i) {
+			        while (i == 0) {
+			            ++i;
+			        }
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -323,19 +327,19 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("\n");
-		buf.append("    public void foo(String s, int i) {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("            ++i;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("}\n");
-		String expected= buf.toString();
+		String expected= """
+			package test1;
+			public class C {
+			
+			    public void foo(String s, int i) {
+			        while (i == 0) {
+			            ++i;
+			        }
+			    }
+			
+			    public int x1;
+			}
+			""";
 		assertEqualString(preview, expected);
 
 		assertCorrectTracking(names, positions, expected);
@@ -345,16 +349,17 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	public void testNamesWithMove2() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("    public void foo(String s, int i) {\n");
-		buf.append("        while (i == 0) {\n");
-		buf.append("            ++i;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			    public void foo(String s, int i) {
+			        while (i == 0) {
+			            ++i;
+			        }
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -392,19 +397,19 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("    public void foo(String s, int i) {\n");
-		buf.append("        try {\n");
-		buf.append("            while (i == 0) {\n");
-		buf.append("                ++i;\n");
-		buf.append("            }\n");
-		buf.append("        } finally {\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		String expected= buf.toString();
+		String expected= """
+			package test1;
+			public class C {
+			    public void foo(String s, int i) {
+			        try {
+			            while (i == 0) {
+			                ++i;
+			            }
+			        } finally {
+			        }
+			    }
+			}
+			""";
 		assertEqualString(preview, expected);
 
 		assertCorrectTracking(names, positions, expected);
@@ -413,16 +418,17 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	public void testNamesWithMove3_only_2_3_4() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("\n");
-		buf.append("    public void foo(String s, int i) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			
+			    public int x1;
+			
+			    public void foo(String s, int i) {
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -451,16 +457,16 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("\n");
-		buf.append("    public void foo(String s, int i) {\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("    public int x1;\n");
-		buf.append("}\n");
-		String expected= buf.toString();
+		String expected= """
+			package test1;
+			public class C {
+			
+			    public void foo(String s, int i) {
+			    }
+			
+			    public int x1;
+			}
+			""";
 		assertEqualString(preview, expected);
 
 		assertCorrectTracking(names, positions, expected);
@@ -469,14 +475,15 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	public void testNamesWithPlaceholder() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("    public String foo(Object s) {\n");
-		buf.append("        return s;\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			    public String foo(Object s) {
+			        return s;
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
@@ -518,14 +525,14 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("    public String foo(Object s) {\n");
-		buf.append("        return (String) s;\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		String expected= buf.toString();
+		String expected= """
+			package test1;
+			public class C {
+			    public String foo(Object s) {
+			        return (String) s;
+			    }
+			}
+			""";
 		assertEqualString(preview, expected);
 
 		assertCorrectTracking(names, positions, expected);

@@ -169,24 +169,26 @@ protected void setUp () throws Exception {
 public void _testBug499338_001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n" +
-			"    public static void main(String [] args) throws Exception {\n" +
-			"    	Z z1 = new Z();\n" +
-			"        try (z1;  z1) {\n" +
-			"        }  \n" +
-			"    }  \n" +
-			"}\n" +
-			"class Y implements AutoCloseable {\n" +
-			"	public void close() throws Exception {\n" +
-			"		System.out.println(\"Y CLOSE\");\n" +
-			"	}\n" +
-			"}\n" +
-			"\n" +
-			"class Z implements AutoCloseable {\n" +
-			"	public void close() throws Exception {\n" +
-			"		System.out.println(\"Z CLOSE\");\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+				    public static void main(String [] args) throws Exception {
+				    	Z z1 = new Z();
+				        try (z1;  z1) {
+				        } \s
+				    } \s
+				}
+				class Y implements AutoCloseable {
+					public void close() throws Exception {
+						System.out.println("Y CLOSE");
+					}
+				}
+				
+				class Z implements AutoCloseable {
+					public void close() throws Exception {
+						System.out.println("Z CLOSE");
+					}
+				}
+				"""
 			);
 	String str = this.workingCopies[0].getSource();
 	String selection = "z1";
@@ -208,9 +210,11 @@ public void testBug501162_001() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    exports pack1 to second;\n" +
-			"}\n";
+			"""
+			module first {
+			    exports pack1 to second;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -221,9 +225,11 @@ public void testBug501162_001() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    requires first;\n" +
-				"}\n";
+				"""
+			module second {
+			    requires first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 
 		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
@@ -259,11 +265,13 @@ public void testBug501162_002() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    exports pack1 to second;\n" +
-			"    exports pack1 to third;\n" +
-			"    opens pack1 to fourth;\n" +
-			"}\n";
+			"""
+			module first {
+			    exports pack1 to second;
+			    exports pack1 to third;
+			    opens pack1 to fourth;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -274,9 +282,11 @@ public void testBug501162_002() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    requires first;\n" +
-				"}\n";
+				"""
+			module second {
+			    requires first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 
 		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
@@ -295,10 +305,11 @@ public void testBug501162_002() throws Exception {
 			scope,
 			this.resultCollector);
 		assertSearchResults(
-			"src/module-info.java first [pack1] EXACT_MATCH\n" +
-			"src/module-info.java first [pack1] EXACT_MATCH\n" +
-			"src/module-info.java first [pack1] EXACT_MATCH\n" +
-			"src/pack1 pack1 EXACT_MATCH",
+			"""
+				src/module-info.java first [pack1] EXACT_MATCH
+				src/module-info.java first [pack1] EXACT_MATCH
+				src/module-info.java first [pack1] EXACT_MATCH
+				src/pack1 pack1 EXACT_MATCH""",
 			this.resultCollector);
 
 	}
@@ -314,10 +325,12 @@ public void testBug501162_003() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    requires second;" +
-			"    provides pack22.I22 with pack1.X11;" +
-			"}\n";
+			"""
+			module first {
+			    requires second;\
+			    provides pack22.I22 with pack1.X11;\
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -328,9 +341,11 @@ public void testBug501162_003() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    exports pack22 to first;\n" +
-				"}\n";
+				"""
+			module second {
+			    exports pack22 to first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack22");
 		createFile("/second/src/pack22/I22.java",
@@ -353,9 +368,10 @@ public void testBug501162_003() throws Exception {
 			scope,
 			this.resultCollector);
 		assertSearchResults(
-			"src/module-info.java first [pack22] EXACT_MATCH\n" +
-			"src/pack1/X11.java pack1.X11 [pack22] EXACT_MATCH\n" +
-			"src/module-info.java second [pack22] EXACT_MATCH",
+			"""
+				src/module-info.java first [pack22] EXACT_MATCH
+				src/pack1/X11.java pack1.X11 [pack22] EXACT_MATCH
+				src/module-info.java second [pack22] EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -366,10 +382,12 @@ public void testBug501162_003() throws Exception {
 public void testBug501162_005() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
-			"module first {\n" +
-			"    requires second;" +
-			"    provides pack22.I22 with pack1.X11;" +
-			"}\n"
+			"""
+				module first {
+				    requires second;\
+				    provides pack22.I22 with pack1.X11;\
+				}
+				"""
 			);
 	String str = this.workingCopies[0].getSource();
 	String selection = "first";
@@ -389,10 +407,12 @@ public void testBug501162_006() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    requires second;" +
-			"    provides pack22.I22 with pack1.X11;" +
-			"}\n";
+			"""
+			module first {
+			    requires second;\
+			    provides pack22.I22 with pack1.X11;\
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -403,9 +423,11 @@ public void testBug501162_006() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    exports pack22 to first;\n" +
-				"}\n";
+				"""
+			module second {
+			    exports pack22 to first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack1");
 		createFile("/second/src/pack1/I22.java",
@@ -438,10 +460,12 @@ public void testBug501162_007() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first.test.org {\n" +
-			"    requires second;" +
-			"    provides pack22.I22 with pack1.X11;" +
-			"}\n";
+			"""
+			module first.test.org {
+			    requires second;\
+			    provides pack22.I22 with pack1.X11;\
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -452,9 +476,11 @@ public void testBug501162_007() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    exports pack22 to first.test.org;\n" +
-				"}\n";
+				"""
+			module second {
+			    exports pack22 to first.test.org;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack1");
 		createFile("/second/src/pack1/I22.java",
@@ -487,10 +513,12 @@ public void testBug501162_008() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    requires second;" +
-			"    provides pack22.I22 with pack1.X11;" +
-			"}\n";
+			"""
+			module first {
+			    requires second;\
+			    provides pack22.I22 with pack1.X11;\
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -501,9 +529,11 @@ public void testBug501162_008() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    exports pack22 to first;\n" +
-				"}\n";
+				"""
+			module second {
+			    exports pack22 to first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack1");
 		createFile("/second/src/pack1/I22.java",
@@ -537,11 +567,13 @@ public void testBug501162_009() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    exports pack1;\n" +
-			"    exports pack2;\n" +
-			"    opens pack1 to fourth;\n" +
-			"}\n";
+			"""
+			module first {
+			    exports pack1;
+			    exports pack2;
+			    opens pack1 to fourth;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -556,9 +588,11 @@ public void testBug501162_009() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    requires first;\n" +
-				"}\n";
+				"""
+			module second {
+			    requires first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 
 		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
@@ -594,10 +628,12 @@ public void testBug501162_010() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    requires second;" +
-			"    provides pack22.I22 with pack1.X11;" +
-			"}\n";
+			"""
+			module first {
+			    requires second;\
+			    provides pack22.I22 with pack1.X11;\
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -608,9 +644,11 @@ public void testBug501162_010() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    exports pack22 to first, zero;\n" +
-				"}\n";
+				"""
+			module second {
+			    exports pack22 to first, zero;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack1");
 		createFile("/second/src/pack1/I22.java",
@@ -643,10 +681,12 @@ public void testBug501162_011() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    requires second;" +
-			"    provides pack22.I22 with pack1.X11;" +
-			"}\n";
+			"""
+			module first {
+			    requires second;\
+			    provides pack22.I22 with pack1.X11;\
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -657,9 +697,11 @@ public void testBug501162_011() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    opens pack22 to first, zero;\n" +
-				"}\n";
+				"""
+			module second {
+			    opens pack22 to first, zero;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack1");
 		createFile("/second/src/pack1/I22.java",
@@ -691,10 +733,12 @@ public void testBug501162_012() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    exports pack1 to one;\n" +
-			"    exports pack2;\n" +
-			"}\n";
+			"""
+			module first {
+			    exports pack1 to one;
+			    exports pack2;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -709,9 +753,11 @@ public void testBug501162_012() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    requires first;\n" +
-				"}\n";
+				"""
+			module second {
+			    requires first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 
 		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
@@ -746,10 +792,12 @@ public void testBug501162_013() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    opens pack1 to one;\n" +
-			"    opens pack2;\n" +
-			"}\n";
+			"""
+			module first {
+			    opens pack1 to one;
+			    opens pack2;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -764,9 +812,11 @@ public void testBug501162_013() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    requires first;\n" +
-				"}\n";
+				"""
+			module second {
+			    requires first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 
 		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
@@ -801,10 +851,12 @@ public void testBug501162_014() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    opens pack1;\n" +
-			"    opens pack2;\n" +
-			"}\n";
+			"""
+			module first {
+			    opens pack1;
+			    opens pack2;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -819,9 +871,11 @@ public void testBug501162_014() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    requires first;\n" +
-				"}\n";
+				"""
+			module second {
+			    requires first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 
 		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
@@ -856,10 +910,12 @@ public void testBug501162_015() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    opens pack1;\n" +
-			"    exports pack2;\n" +
-			"}\n";
+			"""
+			module first {
+			    opens pack1;
+			    exports pack2;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -874,9 +930,11 @@ public void testBug501162_015() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    requires first;\n" +
-				"}\n";
+				"""
+			module second {
+			    requires first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 
 		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
@@ -911,10 +969,12 @@ public void testBug501162_016() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    opens pack1 to one;\n" +
-			"    exports pack2;\n" +
-			"}\n";
+			"""
+			module first {
+			    opens pack1 to one;
+			    exports pack2;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -929,9 +989,11 @@ public void testBug501162_016() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    requires first;\n" +
-				"}\n";
+				"""
+			module second {
+			    requires first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 
 		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
@@ -966,10 +1028,12 @@ public void testBug501162_017() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    exports pack1 to one;\n" +
-			"    opens pack2;\n" +
-			"}\n";
+			"""
+			module first {
+			    exports pack1 to one;
+			    opens pack2;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -984,9 +1048,11 @@ public void testBug501162_017() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    requires first;\n" +
-				"}\n";
+				"""
+			module second {
+			    requires first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 
 		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
@@ -1021,9 +1087,11 @@ public void testBug501162_018() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    opens pack2;\n" +
-			"}\n";
+			"""
+			module first {
+			    opens pack2;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -1038,9 +1106,11 @@ public void testBug501162_018() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    requires first;\n" +
-				"}\n";
+				"""
+			module second {
+			    requires first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 
 		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
@@ -1075,19 +1145,23 @@ public void testBug501162_019() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1099,9 +1173,10 @@ public void testBug501162_019() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"src/pack1/X.java [pack.one] EXACT_MATCH\n" +
-				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+				"""
+					src/pack1/X.java [pack.one] EXACT_MATCH
+					lib/bzero501162.jar zero [No source] EXACT_MATCH
+					lib/bzero501162.jar zero [No source] EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -1114,19 +1189,23 @@ public void testBug501162_020() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1138,10 +1217,11 @@ public void testBug501162_020() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"src/pack1/X.java [pack.two] EXACT_MATCH\n" +
-				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+				"""
+					src/pack1/X.java [pack.two] EXACT_MATCH
+					lib/bzero501162.jar zero [No source] EXACT_MATCH
+					lib/bzero501162.jar zero [No source] EXACT_MATCH
+					lib/bzero501162.jar zero [No source] EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -1154,19 +1234,23 @@ public void testBug501162_021() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1178,10 +1262,11 @@ public void testBug501162_021() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+				"""
+					lib/bzero501162.jar zero [No source] EXACT_MATCH
+					lib/bzero501162.jar zero [No source] EXACT_MATCH
+					lib/bzero501162.jar zero [No source] EXACT_MATCH
+					lib/bzero501162.jar zero [No source] EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -1194,19 +1279,23 @@ public void testBug501162_022() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1231,19 +1320,23 @@ public void testBug501162_023() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
 		project1.close(); // sync
 		project1.open(null);
@@ -1269,19 +1362,23 @@ public void testBug501162_024() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
 		project1.close(); // sync
 		project1.open(null);
@@ -1306,19 +1403,23 @@ public void testBug501162_025() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
 		project1.close(); // sync
 		project1.open(null);
@@ -1343,19 +1444,23 @@ public void testBug501162_026() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
 		project1.close(); // sync
 		project1.open(null);
@@ -1380,19 +1485,23 @@ public void testBug501162_027() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1404,9 +1513,10 @@ public void testBug501162_027() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"src/pack1/X.java [XOne] EXACT_MATCH\n" +
-				"src/pack1/X.java pack1.X.X1 [XOne] EXACT_MATCH\n" +
-				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+				"""
+					src/pack1/X.java [XOne] EXACT_MATCH
+					src/pack1/X.java pack1.X.X1 [XOne] EXACT_MATCH
+					lib/bzero501162.jar zero [No source] EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -1419,19 +1529,23 @@ public void testBug501162_028() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1456,19 +1570,23 @@ public void testBug501162_029() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1480,10 +1598,11 @@ public void testBug501162_029() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"src/pack1/X.java [ITwo] EXACT_MATCH\n" +
-				"src/pack1/X.java pack1.X.i2 [ITwo] EXACT_MATCH\n" +
-				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n"
-				+ "lib/bzero501162.jar pack.one.XOne.itwo [No source] EXACT_MATCH",
+				"""
+					src/pack1/X.java [ITwo] EXACT_MATCH
+					src/pack1/X.java pack1.X.i2 [ITwo] EXACT_MATCH
+					lib/bzero501162.jar zero [No source] EXACT_MATCH
+					lib/bzero501162.jar pack.one.XOne.itwo [No source] EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -1496,19 +1615,23 @@ public void testBug501162_030() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1533,19 +1656,23 @@ public void testBug501162_031() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1570,19 +1697,23 @@ public void testBug501162_032() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1607,19 +1738,23 @@ public void testBug501162_033() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
 		project1.close(); // sync
 		project1.open(null);
@@ -1631,9 +1766,10 @@ public void testBug501162_033() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"src/pack1/X.java [pack.one] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero EXACT_MATCH",
+				"""
+					src/pack1/X.java [pack.one] EXACT_MATCH
+					lib/bzero.src.501162.jar zero EXACT_MATCH
+					lib/bzero.src.501162.jar zero EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -1646,19 +1782,23 @@ public void testBug501162_034() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1670,10 +1810,11 @@ public void testBug501162_034() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"src/pack1/X.java [pack.two] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero EXACT_MATCH",
+				"""
+					src/pack1/X.java [pack.two] EXACT_MATCH
+					lib/bzero.src.501162.jar zero EXACT_MATCH
+					lib/bzero.src.501162.jar zero EXACT_MATCH
+					lib/bzero.src.501162.jar zero EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -1686,19 +1827,23 @@ public void testBug501162_035() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1710,10 +1855,11 @@ public void testBug501162_035() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero EXACT_MATCH",
+				"""
+					lib/bzero.src.501162.jar zero EXACT_MATCH
+					lib/bzero.src.501162.jar zero EXACT_MATCH
+					lib/bzero.src.501162.jar zero EXACT_MATCH
+					lib/bzero.src.501162.jar zero EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -1726,19 +1872,23 @@ public void _testBug501162_036() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
 		project1.close(); // sync
 		project1.open(null);
@@ -1763,19 +1913,23 @@ public void testBug501162_037() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
 		project1.close(); // sync
 		project1.open(null);
@@ -1801,19 +1955,23 @@ public void testBug501162_038() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
 		project1.close(); // sync
 		project1.open(null);
@@ -1838,19 +1996,23 @@ public void testBug501162_039() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
 		project1.close(); // sync
 		project1.open(null);
@@ -1875,19 +2037,23 @@ public void testBug501162_040() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
 		project1.close(); // sync
 		project1.open(null);
@@ -1912,19 +2078,23 @@ public void testBug501162_041() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1936,9 +2106,10 @@ public void testBug501162_041() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"src/pack1/X.java [XOne] EXACT_MATCH\n" +
-				"src/pack1/X.java pack1.X.X1 [XOne] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero EXACT_MATCH",
+				"""
+					src/pack1/X.java [XOne] EXACT_MATCH
+					src/pack1/X.java pack1.X.X1 [XOne] EXACT_MATCH
+					lib/bzero.src.501162.jar zero EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -1951,19 +2122,23 @@ public void testBug501162_042() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -1988,19 +2163,23 @@ public void testBug501162_043() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -2012,12 +2191,13 @@ public void testBug501162_043() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"src/pack1/X.java [ITwo] EXACT_MATCH\n" +
-				"src/pack1/X.java pack1.X.i2 [ITwo] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar pack.one.XOne EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar pack.one.XOne.itwo EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar pack.two.XTwo EXACT_MATCH",
+				"""
+					src/pack1/X.java [ITwo] EXACT_MATCH
+					src/pack1/X.java pack1.X.i2 [ITwo] EXACT_MATCH
+					lib/bzero.src.501162.jar zero EXACT_MATCH
+					lib/bzero.src.501162.jar pack.one.XOne EXACT_MATCH
+					lib/bzero.src.501162.jar pack.one.XOne.itwo EXACT_MATCH
+					lib/bzero.src.501162.jar pack.two.XTwo EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -2030,19 +2210,23 @@ public void testBug501162_044() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -2068,19 +2252,23 @@ public void testBug501162_045() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
@@ -2105,19 +2293,23 @@ public void testBug501162_046() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module zerotest {\n" +
-			"    requires zero;\n" +
-			"}\n";
+			"""
+			module zerotest {
+			    requires zero;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X.java",
-				"package pack1;\n" +
-				"import pack.one.XOne;\n" +
-				"import pack.two.ITwo;\n" +
-				"public class X {\n" +
-				"    public ITwo i2;\n" +
-				"    public XOne X1;\n" +
-				"}\n");
+				"""
+					package pack1;
+					import pack.one.XOne;
+					import pack.two.ITwo;
+					public class X {
+					    public ITwo i2;
+					    public XOne X1;
+					}
+					""");
 		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
 		project1.close(); // sync
 		project1.open(null);
@@ -2142,14 +2334,16 @@ public void _testBug501162_047() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-				"package pack.top;\n" +
-				"import pack.first.Y;\n" +
-				"//import pack.first.second.Z;\n" +
-				"\n" +
-				"public class X {\n" +
-				"	public Y y;\n" +
-				"	//public Z z;\n" +
-				"}\n";
+				"""
+			package pack.top;
+			import pack.first.Y;
+			//import pack.first.second.Z;
+			
+			public class X {
+				public Y y;
+				//public Z z;
+			}
+			""";
 		createFolder("/JavaSearchBugs9/src/top");
 		createFile("/JavaSearchBugs9/src/top/X.java",	fileContent);
 		project1.close(); // sync
@@ -2159,9 +2353,11 @@ public void _testBug501162_047() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String file =
-				"module split.first {\n" +
-				"    exports  pack.first;\n" +
-				"}\n";
+				"""
+			module split.first {
+			    exports  pack.first;
+			}
+			""";
 		createFile("/split.first/src/module-info.java",	file);
 		createFolder("/split.first/src/pack");
 		createFolder("/split.first/src/pack/first");
@@ -2173,9 +2369,11 @@ public void _testBug501162_047() throws Exception {
 		IJavaProject project3 = createJavaProject("split.second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project3.open(null);
 		file =
-				"module split.second {\n" +
-				"    exports  pack.first.second;\n" +
-				"}\n";
+				"""
+					module split.second {
+					    exports  pack.first.second;
+					}
+					""";
 		createFile("/split.second/src/module-info.java", file);
 		createFolder("/split.second/src/pack");
 		createFolder("/split.second/src/pack/first");
@@ -2215,10 +2413,12 @@ public void testBug519211_001() throws CoreException {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    requires second;" +
-			"    provides pack22.I22 with pack1.X11;" +
-			"}\n";
+			"""
+			module first {
+			    requires second;\
+			    provides pack22.I22 with pack1.X11;\
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -2229,9 +2429,11 @@ public void testBug519211_001() throws CoreException {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    exports pack22 to first;\n" +
-				"}\n";
+				"""
+			module second {
+			    exports pack22 to first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack1");
 		createFile("/second/src/pack1/I22.java",
@@ -2267,10 +2469,12 @@ public void testBug519980_001() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    requires second;" +
-			"    provides pack22.I22 with pack1.X11;" +
-			"}\n";
+			"""
+			module first {
+			    requires second;\
+			    provides pack22.I22 with pack1.X11;\
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -2281,9 +2485,11 @@ public void testBug519980_001() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    exports pack22 to first;\n" +
-				"}\n";
+				"""
+			module second {
+			    exports pack22 to first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack22");
 		createFile("/second/src/pack22/I22.java",
@@ -2315,10 +2521,12 @@ public void testBug519980_002() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    requires second;" +
-			"    provides pack22.I22 with pack1.X11;" +
-			"}\n";
+			"""
+			module first {
+			    requires second;\
+			    provides pack22.I22 with pack1.X11;\
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack1");
 		createFile("/JavaSearchBugs9/src/pack1/X11.java",
@@ -2329,9 +2537,11 @@ public void testBug519980_002() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module second {\n" +
-				"    exports pack22 to first;\n" +
-				"}\n";
+				"""
+			module second {
+			    exports pack22 to first;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack22");
 		createFile("/second/src/pack22/I22.java",
@@ -2363,20 +2573,26 @@ public void testBug520477_001() throws Exception {
 		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src", "src2"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		String fileContent =
-			"module first {\n" +
-			"    exports pack1;\n" +
-			"}\n";
+			"""
+			module first {
+			    exports pack1;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFile("/JavaSearchBugs9/src/X.java",
-				"public class X {\n" +
-				"    pack1.C C;\n" +
-				"}\n"
+				"""
+					public class X {
+					    pack1.C C;
+					}
+					"""
 		);
 		createFolder("/JavaSearchBugs9/src2/pack1");
 		createFile("/JavaSearchBugs9/src2/pack1/C.java",
-				"package pack1;\n" +
-				"public class C {\n" +
-				"}\n"
+				"""
+					package pack1;
+					public class C {
+					}
+					"""
 		);
 
 		SearchPattern pattern = SearchPattern.createPattern("pack1", IJavaSearchConstants.PACKAGE, REFERENCES, EXACT_RULE);
@@ -2401,16 +2617,20 @@ public void testBug521221_001() throws Exception {
 		project1.setOptions(options);
 		project1.open(null);
 		createFolder("/JavaSearchBugs9/src/pack11");
-		String fileContent = "package pack11;\n" +
-				"public class X11 implements pack22.I22 {\n" +
-				"}\n";
+		String fileContent = """
+			package pack11;
+			public class X11 implements pack22.I22 {
+			}
+			""";
 
 		createFile("/JavaSearchBugs9/src/pack11/X11.java", fileContent);
 		createFolder("/JavaSearchBugs9/src/pack12");
 		createFile("/JavaSearchBugs9/src/pack12/X12.java",
-				"package pack12;\n" +
-				"public class X12 extends pack11.X11 implements pack22.I22 {\n" +
-				"}\n"
+				"""
+					package pack12;
+					public class X12 extends pack11.X11 implements pack22.I22 {
+					}
+					"""
 		);
 		ICompilationUnit unit = getCompilationUnit("/JavaSearchBugs9/src/pack11/X11.java");
 		String x11 = "X11";
@@ -2428,16 +2648,19 @@ public void testBug521221_001() throws Exception {
 public void testBug522455_001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/MyAnnot.java",
-			"package pack;\n" +
-			"import java.lang.annotation.ElementType;\n" +
-			"import java.lang.annotation.Target;\n" +
-			"@Target({ElementType.MODULE})\n" +
-			"@interface MyAnnot {}\n"
+			"""
+				package pack;
+				import java.lang.annotation.ElementType;
+				import java.lang.annotation.Target;
+				@Target({ElementType.MODULE})
+				@interface MyAnnot {}
+				"""
 			);
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
-			"import pack.*;\n" +
-			"@MyAnnot\n" +
-			"module mod.one {}");
+			"""
+				import pack.*;
+				@MyAnnot
+				module mod.one {}""");
 
 	SearchPattern pattern = SearchPattern.createPattern(
 			"MyAnnot",
@@ -2938,9 +3161,11 @@ public void testBug519151_013() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module first {\n" +
-			"    requires second;\n" +
-			"}\n";
+			"""
+			module first {
+			    requires second;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack");
 		createFile("/JavaSearchBugs9/src/pack/X.java",
@@ -2987,9 +3212,11 @@ public void testBug519151_014() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module mod.first {\n" +
-			"    requires mod.second {\n" +
-			"}\n";
+			"""
+			module mod.first {
+			    requires mod.second {
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack");
 		createFile("/JavaSearchBugs9/src/pack/X.java",
@@ -3000,9 +3227,11 @@ public void testBug519151_014() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module mod.second {\n" +
-				"    requires third;\n" +
-				"}\n";
+				"""
+			module mod.second {
+			    requires third;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack");
 		createFile("/second/src/pack/X.java",
@@ -3053,9 +3282,11 @@ public void testBug519151_015() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module mod.first {\n" +
-			"    requires mod.second {\n" +
-			"}\n";
+			"""
+			module mod.first {
+			    requires mod.second {
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack");
 		createFile("/JavaSearchBugs9/src/pack/X.java",
@@ -3066,9 +3297,11 @@ public void testBug519151_015() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module mod.second {\n" +
-				"    requires third;\n" +
-				"}\n";
+				"""
+			module mod.second {
+			    requires third;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack");
 		createFile("/second/src/pack/X.java",
@@ -3120,9 +3353,11 @@ public void testBug519151_016() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module mod.first {\n" +
-			"    requires mod.second {\n" +
-			"}\n";
+			"""
+			module mod.first {
+			    requires mod.second {
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack");
 		createFile("/JavaSearchBugs9/src/pack/X.java",
@@ -3133,9 +3368,11 @@ public void testBug519151_016() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module mod.second {\n" +
-				"    requires third;\n" +
-				"}\n";
+				"""
+			module mod.second {
+			    requires third;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack");
 		createFile("/second/src/pack/X.java",
@@ -3184,9 +3421,11 @@ public void testBug519151_017() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module mod.first {\n" +
-			"    requires mod.second {\n" +
-			"}\n";
+			"""
+			module mod.first {
+			    requires mod.second {
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack");
 		createFile("/JavaSearchBugs9/src/pack/X.java",
@@ -3197,9 +3436,11 @@ public void testBug519151_017() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module mod.second {\n" +
-				"    requires third;\n" +
-				"}\n";
+				"""
+			module mod.second {
+			    requires third;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack");
 		createFile("/second/src/pack/X.java",
@@ -3414,9 +3655,11 @@ public void testBug519151_021() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module mod.second {\n" +
-				"    requires third;\n"+
-				"}\n";
+				"""
+			module mod.second {
+			    requires third;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack");
 		createFile("/second/src/pack/X.java",
@@ -3453,9 +3696,10 @@ public void testBug519151_021() throws Exception {
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
 		assertSearchResults(
-			"src/pack/X.java pack.X [X] EXACT_MATCH\n" +
-			"src/pack/X.java pack.X [X] EXACT_MATCH\n" +
-			"src/pack/X.java pack.X [X] EXACT_MATCH",
+			"""
+				src/pack/X.java pack.X [X] EXACT_MATCH
+				src/pack/X.java pack.X [X] EXACT_MATCH
+				src/pack/X.java pack.X [X] EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -4073,9 +4317,11 @@ public void testBug528059_007() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module mod.first {\n" +
-		    " requires second;\n" +
-			"}\n";
+			"""
+			module mod.first {
+			 requires second;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack");
 		createFile("/JavaSearchBugs9/src/pack/X.java",
@@ -4086,9 +4332,11 @@ public void testBug528059_007() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module mod.second {\n" +
-				"  requires third;\n"+
-				"}\n";
+				"""
+			module mod.second {
+			  requires third;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack");
 		createFile("/second/src/pack/X.java",
@@ -4436,9 +4684,11 @@ public void testBug530016_007() throws Exception {
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent =
-			"module mod.first {\n" +
-		    " requires second;\n" +
-			"}\n";
+			"""
+			module mod.first {
+			 requires second;
+			}
+			""";
 		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
 		createFolder("/JavaSearchBugs9/src/pack");
 		createFile("/JavaSearchBugs9/src/pack/X.java",
@@ -4449,9 +4699,11 @@ public void testBug530016_007() throws Exception {
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile =
-				"module mod.second {\n" +
-				"  requires third;\n"+
-				"}\n";
+				"""
+			module mod.second {
+			  requires third;
+			}
+			""";
 		createFile("/second/src/module-info.java",	secondFile);
 		createFolder("/second/src/pack");
 		createFile("/second/src/pack/X.java",
@@ -4502,13 +4754,15 @@ public void testBug529367() throws Exception {
 		project1.open(null);
 		createFolder("/Library/src/javax/xml/bind");
 		createFile("/Library/src/javax/xml/bind/JAXBContext.java",
-				"package javax.xml.bind;\n" +
-				"public abstract class JAXBContext {\n" +
-				"	public static JAXBContext newInstance( String contextPath )\n" +
-				"		throws JAXBException {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					package javax.xml.bind;
+					public abstract class JAXBContext {
+						public static JAXBContext newInstance( String contextPath )
+							throws JAXBException {
+							return null;
+						}
+					}
+					""");
 		createFile("/Library/src/javax/xml/bind/JAXBException.java",
 				"package javax.xml.bind;\n" +
 				"public class JAXBException extends Exception {}\n");
@@ -4518,17 +4772,19 @@ public void testBug529367() throws Exception {
 		addClasspathEntry(project2, JavaCore.newProjectEntry(project1.getPath()));
 		createFolder("/second/src/p1");
 		createFile("/second/src/p1/ImportJAXBType.java",
-				"package p1;\n" +
-				"\n" +
-				"import javax.xml.bind.JAXBContext;\n" +
-				"\n" +
-				"public class ImportJAXBType {\n" +
-				"\n" +
-				"	public static void main(String[] args) throws Exception {\n" +
-				"		JAXBContext context = JAXBContext.newInstance(\"\");\n" +
-				"	}\n" +
-				"\n" +
-				"}\n");
+				"""
+					package p1;
+					
+					import javax.xml.bind.JAXBContext;
+					
+					public class ImportJAXBType {
+					
+						public static void main(String[] args) throws Exception {
+							JAXBContext context = JAXBContext.newInstance("");
+						}
+					
+					}
+					""");
 
 		project1.close(); // sync
 		project2.close();
@@ -4541,10 +4797,11 @@ public void testBug529367() throws Exception {
 				{project2});
 		search(pattern, scope, this.resultCollector);
 		assertSearchResults(
-				"src/javax/xml/bind/JAXBContext.java JAXBContext javax.xml.bind.JAXBContext.newInstance(String) [JAXBContext] EXACT_MATCH\n" +
-				"src/p1/ImportJAXBType.java [JAXBContext] EXACT_MATCH\n" +
-				"src/p1/ImportJAXBType.java void p1.ImportJAXBType.main(String[]) [JAXBContext] EXACT_MATCH\n" +
-				"src/p1/ImportJAXBType.java void p1.ImportJAXBType.main(String[]) [JAXBContext] EXACT_MATCH",
+				"""
+					src/javax/xml/bind/JAXBContext.java JAXBContext javax.xml.bind.JAXBContext.newInstance(String) [JAXBContext] EXACT_MATCH
+					src/p1/ImportJAXBType.java [JAXBContext] EXACT_MATCH
+					src/p1/ImportJAXBType.java void p1.ImportJAXBType.main(String[]) [JAXBContext] EXACT_MATCH
+					src/p1/ImportJAXBType.java void p1.ImportJAXBType.main(String[]) [JAXBContext] EXACT_MATCH""",
 			this.resultCollector);
 	}
 	finally {
@@ -4599,12 +4856,13 @@ public void testBug545293() throws Exception {
 		createJar(
 			new String[] {
 					"javax/dummy/Dummy.java",
-					"package javax.dummy;\n" + //
-					"\n" + //
-					"public class Dummy {\n" + //
-					"	public Dummy(String s) {\n" +//
-					"	}\n" + //
-					"}"
+					"""
+						package javax.dummy;
+						
+						public class Dummy {
+							public Dummy(String s) {
+							}
+						}"""
 			},
 			dummyJarPath.toOSString()
 		);
@@ -4629,9 +4887,11 @@ public void testBug545293() throws Exception {
 
 		createFolder("/P1/src/com/example");
 		createFile("/P1/src/com/example/Bar.java",
-				"package com.example.bar;\n" +
-				"public class Bar {\n" +
-				"}\n");
+				"""
+					package com.example.bar;
+					public class Bar {
+					}
+					""");
 
 
 		p.close();
@@ -4784,13 +5044,14 @@ public void testMethodReferenceForTypeFromJREModuleBugGh740() throws Exception {
 		String packageFolder = "/" + projectName + "/src/test";
 		createFolder(packageFolder);
 		String testSource =
-				"package test;\n" +
-				"public class Test {\n" +
-				"  public Object testField;\n" +
-				"  public void testMethod() {\n" +
-				"    testField = null;\n" +
-				"  }\n" +
-				"}";
+				"""
+			package test;
+			public class Test {
+			  public Object testField;
+			  public void testMethod() {
+			    testField = null;
+			  }
+			}""";
 		createFile(packageFolder + "/Test.java", testSource);
 		buildAndExpectNoProblems(project);
 		IType type = project.findType("test.Test");
@@ -4999,9 +5260,10 @@ public void testNoMatchesInModularJarOnClasspathBugGh935() throws Exception {
 				"libGh935.src.zip",
 				new String[]  {
 						"module-info.java",
-						"module testmodule {\n" +
-						"  exports test;\n" +
-						"}",
+						"""
+							module testmodule {
+							  exports test;
+							}""",
 						"test/Test1.java",
 						snippet1,
 						"test/Test2.java",

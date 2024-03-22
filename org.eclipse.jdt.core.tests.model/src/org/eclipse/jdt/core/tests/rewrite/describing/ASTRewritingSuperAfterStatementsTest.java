@@ -140,47 +140,46 @@ public class ASTRewritingSuperAfterStatementsTest extends ASTRewritingTest{
         // Add class to compilation unit
         compilationUnit.types().add(classDeclaration);
 
-		StringBuilder buf = new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("class X {\n");
-		buf.append("  X(  int i){\n");
-		buf.append("    if (i < 0) {\n");
-		buf.append("      i++;\n");
-		buf.append("    }\n");
-		buf.append("    super();\n");
-		buf.append("  }\n");
-		buf.append("  public void main(  String[] argv){\n");
-		buf.append("    new X(0);\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(compilationUnit.toString(), buf.toString());
+		String str = """
+			package test1;
+			class X {
+			  X(  int i){
+			    if (i < 0) {
+			      i++;
+			    }
+			    super();
+			  }
+			  public void main(  String[] argv){
+			    new X(0);
+			  }
+			}
+			""";
+		assertEqualString(compilationUnit.toString(), str);
 	}
 	//modify one statement with super
 	public void test002() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf = new StringBuilder();
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("class X {\n");
-		buf.append("  void hello() {\n");
-		buf.append("    System.out.println(\"Hello\");\n");
-		buf.append("  }\n");
-		buf.append("  void hi() {\n");
-		buf.append("    System.out.println(\"Hi\");\n");
-		buf.append("  }\n");
-		buf.append("  class Inner {\n");
-		buf.append("    Inner() {\n");
-		buf.append("      hello();\n");
-		buf.append("      hi();\n");
-		buf.append("    }\n");
-		buf.append("  }\n");
-		buf.append("  public static void main(String[] args) {\n");
-		buf.append("    new X().new Inner();\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			class X {
+			  void hello() {
+			    System.out.println("Hello");
+			  }
+			  void hi() {
+			    System.out.println("Hi");
+			  }
+			  class Inner {
+			    Inner() {
+			      hello();
+			      hi();
+			    }
+			  }
+			  public static void main(String[] args) {
+			    new X().new Inner();
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
         CompilationUnit astRoot= createAST(this.apiLevel, cu);
         ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
         AST ast= astRoot.getAST();
@@ -199,54 +198,53 @@ public class ASTRewritingSuperAfterStatementsTest extends ASTRewritingTest{
 			rewrite.replace(hiStatement, superInvocation, null);
 		}
 		String preview = evaluateRewrite(cu, rewrite);
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("class X {\n");
-		buf.append("  void hello() {\n");
-		buf.append("    System.out.println(\"Hello\");\n");
-		buf.append("  }\n");
-		buf.append("  void hi() {\n");
-		buf.append("    System.out.println(\"Hi\");\n");
-		buf.append("  }\n");
-		buf.append("  class Inner {\n");
-		buf.append("    Inner() {\n");
-		buf.append("      hello();\n");
-		buf.append("      super();\n");
-		buf.append("    }\n");
-		buf.append("  }\n");
-		buf.append("  public static void main(String[] args) {\n");
-		buf.append("    new X().new Inner();\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			class X {
+			  void hello() {
+			    System.out.println("Hello");
+			  }
+			  void hi() {
+			    System.out.println("Hi");
+			  }
+			  class Inner {
+			    Inner() {
+			      hello();
+			      super();
+			    }
+			  }
+			  public static void main(String[] args) {
+			    new X().new Inner();
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 	//replace super() with another statement
 	public void test003() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf = new StringBuilder();
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("class X {\n");
-		buf.append("  void hello() {\n");
-		buf.append("    System.out.println(\"Hello\");\n");
-		buf.append("  }\n");
-		buf.append("  void hi() {\n");
-		buf.append("    System.out.println(\"Hi\");\n");
-		buf.append("  }\n");
-		buf.append("  class Inner {\n");
-		buf.append("    Inner() {\n");
-		buf.append("      hello();\n");
-		buf.append("      super();\n");
-		buf.append("    }\n");
-		buf.append("  }\n");
-		buf.append("  public static void main(String[] args) {\n");
-		buf.append("    new X().new Inner();\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			class X {
+			  void hello() {
+			    System.out.println("Hello");
+			  }
+			  void hi() {
+			    System.out.println("Hi");
+			  }
+			  class Inner {
+			    Inner() {
+			      hello();
+			      super();
+			    }
+			  }
+			  public static void main(String[] args) {
+			    new X().new Inner();
+			  }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
         CompilationUnit astRoot= createAST(this.apiLevel, cu);
         ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
         AST ast= astRoot.getAST();
@@ -268,27 +266,27 @@ public class ASTRewritingSuperAfterStatementsTest extends ASTRewritingTest{
 			rewrite.replace(superStatement, hiExpressionStatement, null);
 		}
 		String preview = evaluateRewrite(cu, rewrite);
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("class X {\n");
-		buf.append("  void hello() {\n");
-		buf.append("    System.out.println(\"Hello\");\n");
-		buf.append("  }\n");
-		buf.append("  void hi() {\n");
-		buf.append("    System.out.println(\"Hi\");\n");
-		buf.append("  }\n");
-		buf.append("  class Inner {\n");
-		buf.append("    Inner() {\n");
-		buf.append("      hello();\n");
-		buf.append("      hi();\n");
-		buf.append("    }\n");
-		buf.append("  }\n");
-		buf.append("  public static void main(String[] args) {\n");
-		buf.append("    new X().new Inner();\n");
-		buf.append("  }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			class X {
+			  void hello() {
+			    System.out.println("Hello");
+			  }
+			  void hi() {
+			    System.out.println("Hi");
+			  }
+			  class Inner {
+			    Inner() {
+			      hello();
+			      hi();
+			    }
+			  }
+			  public static void main(String[] args) {
+			    new X().new Inner();
+			  }
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 }

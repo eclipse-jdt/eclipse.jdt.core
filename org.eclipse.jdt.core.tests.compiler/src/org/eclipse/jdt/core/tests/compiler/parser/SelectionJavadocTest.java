@@ -184,13 +184,15 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	public void test01() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	/** @see #foo() */\n" +
-			"	void bar() {\n" +
-			"		foo();\n" +
-			"	}\n" +
-			"	void foo() {}\n" +
-			"}\n"
+			"""
+				public class Test {
+					/** @see #foo() */
+					void bar() {
+						foo();
+					}
+					void foo() {}
+				}
+				"""
 		);
 		findJavadoc("foo");
 		assertValid("/**<SelectOnMethod:#foo()>*/\n");
@@ -198,13 +200,15 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	public void test02() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	/** {@link #foo() foo} */\n" +
-			"	void bar() {\n" +
-			"		foo();\n" +
-			"	}\n" +
-			"	void foo() {}\n" +
-			"}\n"
+			"""
+				public class Test {
+					/** {@link #foo() foo} */
+					void bar() {
+						foo();
+					}
+					void foo() {}
+				}
+				"""
 		);
 		findJavadoc("foo");
 		assertValid("/**<SelectOnMethod:#foo()>*/\n");
@@ -212,10 +216,12 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	public void test03() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	/** @see Test */\n" +
-			"	void foo() {}\n" +
-			"}\n"
+			"""
+				public class Test {
+					/** @see Test */
+					void foo() {}
+				}
+				"""
 		);
 		findJavadoc("Test", 2);
 		assertValid("/**<SelectOnType:Test>*/\n");
@@ -223,10 +229,12 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	public void test04() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	/** Javadoc {@link Test} */\n" +
-			"	void foo() {}\n" +
-			"}\n"
+			"""
+				public class Test {
+					/** Javadoc {@link Test} */
+					void foo() {}
+				}
+				"""
 		);
 		findJavadoc("Test", 2);
 		assertValid("/**<SelectOnType:Test>*/\n");
@@ -234,11 +242,13 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	public void test05() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	int field;\n" +
-			"	/** @see #field */\n" +
-			"	void foo() {}\n" +
-			"}\n"
+			"""
+				public class Test {
+					int field;
+					/** @see #field */
+					void foo() {}
+				}
+				"""
 		);
 		findJavadoc("field", 2);
 		assertValid("/**<SelectOnField:#field>*/\n");
@@ -246,11 +256,13 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	public void test06() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	int field;\n" +
-			"	/**{@link #field}*/\n" +
-			"	void foo() {}\n" +
-			"}\n"
+			"""
+				public class Test {
+					int field;
+					/**{@link #field}*/
+					void foo() {}
+				}
+				"""
 		);
 		findJavadoc("field", 2);
 		assertValid("/**<SelectOnField:#field>*/\n");
@@ -258,18 +270,20 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	public void test07() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see Test#field\n" +
-			"	 * @see #foo(int, String)\n" +
-			"	 * @see Test#foo(int, String)\n" +
-			"	 */\n" +
-			"	void bar() {\n" +
-			"		foo(0, \"\");\n" +
-			"	}\n" +
-			"	int field;\n" +
-			"	void foo(int x, String s) {}\n" +
-			"}\n"
+			"""
+				public class Test {
+					/**
+					 * @see Test#field
+					 * @see #foo(int, String)
+					 * @see Test#foo(int, String)
+					 */
+					void bar() {
+						foo(0, "");
+					}
+					int field;
+					void foo(int x, String s) {}
+				}
+				"""
 		);
 		findJavadoc("foo");
 		findJavadoc("String");
@@ -279,30 +293,34 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("Test", 3);
 		findJavadoc("field");
 		assertValid(
-			"/**<SelectOnMethod:#foo(int , String )>*/\n" +
-			"/**<SelectOnType:String>*/\n" +
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnMethod:Test#foo(int , String )>*/\n" +
-			"/**<SelectOnType:String>*/\n" +
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnField:Test#field>*/\n"
+			"""
+				/**<SelectOnMethod:#foo(int , String )>*/
+				/**<SelectOnType:String>*/
+				/**<SelectOnType:Test>*/
+				/**<SelectOnMethod:Test#foo(int , String )>*/
+				/**<SelectOnType:String>*/
+				/**<SelectOnType:Test>*/
+				/**<SelectOnField:Test#field>*/
+				"""
 		);
 	}
 
 	public void test08() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * First {@link #foo(int, String)}\n" +
-			"	 * Second {@link Test#foo(int, String) method foo}\n" +
-			"	 * Third {@link Test#field field}\n" +
-			"	 */\n" +
-			"	void bar() {\n" +
-			"		foo(0, \"\");\n" +
-			"	}\n" +
-			"	int field;\n" +
-			"	void foo(int x, String s) {}\n" +
-			"}\n"
+			"""
+				public class Test {
+					/**
+					 * First {@link #foo(int, String)}
+					 * Second {@link Test#foo(int, String) method foo}
+					 * Third {@link Test#field field}
+					 */
+					void bar() {
+						foo(0, "");
+					}
+					int field;
+					void foo(int x, String s) {}
+				}
+				"""
 		);
 		findJavadoc("foo");
 		findJavadoc("String");
@@ -312,31 +330,35 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("Test", 3);
 		findJavadoc("field");
 		assertValid(
-			"/**<SelectOnMethod:#foo(int , String )>*/\n" +
-			"/**<SelectOnType:String>*/\n" +
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnMethod:Test#foo(int , String )>*/\n" +
-			"/**<SelectOnType:String>*/\n" +
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnField:Test#field>*/\n"
+			"""
+				/**<SelectOnMethod:#foo(int , String )>*/
+				/**<SelectOnType:String>*/
+				/**<SelectOnType:Test>*/
+				/**<SelectOnMethod:Test#foo(int , String )>*/
+				/**<SelectOnType:String>*/
+				/**<SelectOnType:Test>*/
+				/**<SelectOnField:Test#field>*/
+				"""
 		);
 	}
 
 	public void test09() {
 		setUnit("test/junit/Test.java",
-			"package test.junit;\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see test.junit.Test\n" +
-			"	 * @see test.junit.Test#field\n" +
-			"	 * @see test.junit.Test#foo(Object[] array)\n" +
-			"	 */\n" +
-			"	void bar() {\n" +
-			"		foo(null);\n" +
-			"	}\n" +
-			"	int field;\n" +
-			"	void foo(Object[] array) {}\n" +
-			"}\n"
+			"""
+				package test.junit;
+				public class Test {
+					/**
+					 * @see test.junit.Test
+					 * @see test.junit.Test#field
+					 * @see test.junit.Test#foo(Object[] array)
+					 */
+					void bar() {
+						foo(null);
+					}
+					int field;
+					void foo(Object[] array) {}
+				}
+				"""
 		);
 		findJavadoc("test", 2);
 		findJavadoc("junit", 2);
@@ -352,37 +374,41 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("Object");
 		findJavadoc("array");
 		assertValid(
-			"/**<SelectOnType:test>*/\n" +
-			"/**<SelectOnType:test.junit>*/\n" +
-			"/**<SelectOnType:test.junit.Test>*/\n" +
-			"/**<SelectOnType:test>*/\n" +
-			"/**<SelectOnType:test.junit>*/\n" +
-			"/**<SelectOnType:test.junit.Test>*/\n" +
-			"/**<SelectOnField:test.junit.Test#field>*/\n" +
-			"/**<SelectOnType:test>*/\n" +
-			"/**<SelectOnType:test.junit>*/\n" +
-			"/**<SelectOnType:test.junit.Test>*/\n" +
-			"/**<SelectOnMethod:test.junit.Test#foo(Object[] array)>*/\n" +
-			"/**<SelectOnType:Object>*/\n" +
-			"/**\n" +
-			" */\n"
+			"""
+				/**<SelectOnType:test>*/
+				/**<SelectOnType:test.junit>*/
+				/**<SelectOnType:test.junit.Test>*/
+				/**<SelectOnType:test>*/
+				/**<SelectOnType:test.junit>*/
+				/**<SelectOnType:test.junit.Test>*/
+				/**<SelectOnField:test.junit.Test#field>*/
+				/**<SelectOnType:test>*/
+				/**<SelectOnType:test.junit>*/
+				/**<SelectOnType:test.junit.Test>*/
+				/**<SelectOnMethod:test.junit.Test#foo(Object[] array)>*/
+				/**<SelectOnType:Object>*/
+				/**
+				 */
+				"""
 		);
 	}
 
 	public void test10() {
 		setUnit("test/junit/Test.java",
-			"package test.junit;\n" +
-			"public class Test {\n" +
-			"	/** Javadoc {@linkplain test.junit.Test}\n" +
-			"	 * {@linkplain test.junit.Test#field field}\n" +
-			"	 * last line {@linkplain test.junit.Test#foo(Object[] array) foo(Object[])}\n" +
-			"	 */\n" +
-			"	void bar() {\n" +
-			"		foo(null);\n" +
-			"	}\n" +
-			"	int field;\n" +
-			"	void foo(Object[] array) {}\n" +
-			"}\n"
+			"""
+				package test.junit;
+				public class Test {
+					/** Javadoc {@linkplain test.junit.Test}
+					 * {@linkplain test.junit.Test#field field}
+					 * last line {@linkplain test.junit.Test#foo(Object[] array) foo(Object[])}
+					 */
+					void bar() {
+						foo(null);
+					}
+					int field;
+					void foo(Object[] array) {}
+				}
+				"""
 		);
 		findJavadoc("test", 2);
 		findJavadoc("junit", 2);
@@ -398,32 +424,36 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("Object");
 		findJavadoc("array");
 		assertValid(
-			"/**<SelectOnType:test>*/\n" +
-			"/**<SelectOnType:test.junit>*/\n" +
-			"/**<SelectOnType:test.junit.Test>*/\n" +
-			"/**<SelectOnType:test>*/\n" +
-			"/**<SelectOnType:test.junit>*/\n" +
-			"/**<SelectOnType:test.junit.Test>*/\n" +
-			"/**<SelectOnField:test.junit.Test#field>*/\n" +
-			"/**<SelectOnType:test>*/\n" +
-			"/**<SelectOnType:test.junit>*/\n" +
-			"/**<SelectOnType:test.junit.Test>*/\n" +
-			"/**<SelectOnMethod:test.junit.Test#foo(Object[] array)>*/\n" +
-			"/**<SelectOnType:Object>*/\n" +
-			"/**\n" +
-			" */\n"
+			"""
+				/**<SelectOnType:test>*/
+				/**<SelectOnType:test.junit>*/
+				/**<SelectOnType:test.junit.Test>*/
+				/**<SelectOnType:test>*/
+				/**<SelectOnType:test.junit>*/
+				/**<SelectOnType:test.junit.Test>*/
+				/**<SelectOnField:test.junit.Test#field>*/
+				/**<SelectOnType:test>*/
+				/**<SelectOnType:test.junit>*/
+				/**<SelectOnType:test.junit.Test>*/
+				/**<SelectOnMethod:test.junit.Test#foo(Object[] array)>*/
+				/**<SelectOnType:Object>*/
+				/**
+				 */
+				"""
 		);
 	}
 
 	public void test11() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @throws RuntimeException runtime exception\n" +
-			"	 * @throws InterruptedException interrupted exception\n" +
-			"	 */\n" +
-			"	void foo() {}\n" +
-			"}\n"
+			"""
+				public class Test {
+					/**
+					 * @throws RuntimeException runtime exception
+					 * @throws InterruptedException interrupted exception
+					 */
+					void foo() {}
+				}
+				"""
 		);
 		findJavadoc("RuntimeException");
 		findJavadoc("InterruptedException");
@@ -435,13 +465,15 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	public void test12() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @exception RuntimeException runtime exception\n" +
-			"	 * @exception InterruptedException interrupted exception\n" +
-			"	 */\n" +
-			"	void foo() {}\n" +
-			"}\n"
+			"""
+				public class Test {
+					/**
+					 * @exception RuntimeException runtime exception
+					 * @exception InterruptedException interrupted exception
+					 */
+					void foo() {}
+				}
+				"""
 		);
 		findJavadoc("RuntimeException");
 		findJavadoc("InterruptedException");
@@ -453,13 +485,15 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	public void test13() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @param xxx integer param\n" +
-			"	 * @param str string param\n" +
-			"	 */\n" +
-			"	void foo(int xxx, String str) {}\n" +
-			"}\n"
+			"""
+				public class Test {
+					/**
+					 * @param xxx integer param
+					 * @param str string param
+					 */
+					void foo(int xxx, String str) {}
+				}
+				"""
 		);
 		findJavadoc("xxx");
 		findJavadoc("str");
@@ -471,23 +505,25 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	public void test14() {
 		setUnit("Test.java",
-			"/**\n" +
-			" * Javadoc of {@link Test}\n" +
-			" * @see Field#foo\n" +
-			" */\n" +
-			"public class Test {}\n" +
-			"/**\n" +
-			" * Javadoc on {@link Field} to test selection in javadoc field references\n" +
-			" * @see #foo\n" +
-			" */\n" +
-			"class Field {\n" +
-			"	/**\n" +
-			"	 * Javadoc on {@link #foo} to test selection in javadoc field references\n" +
-			"	 * @see #foo\n" +
-			"	 * @see Field#foo\n" +
-			"	 */\n" +
-			"	int foo;\n" +
-			"}\n"
+			"""
+				/**
+				 * Javadoc of {@link Test}
+				 * @see Field#foo
+				 */
+				public class Test {}
+				/**
+				 * Javadoc on {@link Field} to test selection in javadoc field references
+				 * @see #foo
+				 */
+				class Field {
+					/**
+					 * Javadoc on {@link #foo} to test selection in javadoc field references
+					 * @see #foo
+					 * @see Field#foo
+					 */
+					int foo;
+				}
+				"""
 		);
 		findJavadoc("Field");
 		findJavadoc("foo");
@@ -498,44 +534,48 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("Field", 4);
 		findJavadoc("foo", 5);
 		assertValid(
-			"/**<SelectOnType:Field>*/\n" +
-			"/**<SelectOnField:Field#foo>*/\n" +
-			"/**<SelectOnType:Field>*/\n" +
-			"/**<SelectOnField:#foo>*/\n" +
-			"/**<SelectOnField:#foo>*/\n" +
-			"/**<SelectOnField:#foo>*/\n" +
-			"/**<SelectOnType:Field>*/\n" +
-			"/**<SelectOnField:Field#foo>*/\n"
+			"""
+				/**<SelectOnType:Field>*/
+				/**<SelectOnField:Field#foo>*/
+				/**<SelectOnType:Field>*/
+				/**<SelectOnField:#foo>*/
+				/**<SelectOnField:#foo>*/
+				/**<SelectOnField:#foo>*/
+				/**<SelectOnType:Field>*/
+				/**<SelectOnField:Field#foo>*/
+				"""
 		);
 	}
 
 	public void test15() {
 		setUnit("Test.java",
-			"/**\n" +
-			" * Javadoc of {@link Test}\n" +
-			" * @see Method#foo(int, String)\n" +
-			" */\n" +
-			"public class Test {}\n" +
-			"/**\n" +
-			" * Javadoc on {@link Method} to test selection in javadoc method references\n" +
-			" * @see #foo(int, String)\n" +
-			" */\n" +
-			"class Method {\n" +
-			"	/**\n" +
-			"	 * Javadoc on {@link #foo(int,String)} to test selection in javadoc method references\n" +
-			"	 * @see #foo(int, String)\n" +
-			"	 * @see Method#foo(int, String)\n" +
-			"	 */\n" +
-			"	void bar() {}\n" +
-			"	/**\n" +
-			"	 * Method with parameter and throws clause to test selection in javadoc\n" +
-			"	 * @param xxx TODO\n" +
-			"	 * @param str TODO\n" +
-			"	 * @throws RuntimeException blabla\n" +
-			"	 * @throws InterruptedException bloblo\n" +
-			"	 */\n" +
-			"	void foo(int xxx, String str) throws RuntimeException, InterruptedException {}\n" +
-			"}\n"
+			"""
+				/**
+				 * Javadoc of {@link Test}
+				 * @see Method#foo(int, String)
+				 */
+				public class Test {}
+				/**
+				 * Javadoc on {@link Method} to test selection in javadoc method references
+				 * @see #foo(int, String)
+				 */
+				class Method {
+					/**
+					 * Javadoc on {@link #foo(int,String)} to test selection in javadoc method references
+					 * @see #foo(int, String)
+					 * @see Method#foo(int, String)
+					 */
+					void bar() {}
+					/**
+					 * Method with parameter and throws clause to test selection in javadoc
+					 * @param xxx TODO
+					 * @param str TODO
+					 * @throws RuntimeException blabla
+					 * @throws InterruptedException bloblo
+					 */
+					void foo(int xxx, String str) throws RuntimeException, InterruptedException {}
+				}
+				"""
 		);
 		findJavadoc("Method");
 		findJavadoc("foo");
@@ -550,64 +590,72 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("RuntimeException");
 		findJavadoc("InterruptedException");
 		assertValid(
-			"/**<SelectOnType:Method>*/\n" +
-			"/**<SelectOnMethod:Method#foo(int , String )>*/\n" +
-			"/**<SelectOnType:Method>*/\n" +
-			"/**<SelectOnMethod:#foo(int , String )>*/\n" +
-			"/**<SelectOnMethod:#foo(int , String )>*/\n" +
-			"/**<SelectOnMethod:#foo(int , String )>*/\n" +
-			"/**<SelectOnType:Method>*/\n" +
-			"/**<SelectOnMethod:Method#foo(int , String )>*/\n" +
-			"/**<SelectOnLocalVariable:xxx>*/\n" +
-			"/**<SelectOnLocalVariable:str>*/\n" +
-			"/**<SelectOnType:RuntimeException>*/\n" +
-			"/**<SelectOnType:InterruptedException>*/\n"
+			"""
+				/**<SelectOnType:Method>*/
+				/**<SelectOnMethod:Method#foo(int , String )>*/
+				/**<SelectOnType:Method>*/
+				/**<SelectOnMethod:#foo(int , String )>*/
+				/**<SelectOnMethod:#foo(int , String )>*/
+				/**<SelectOnMethod:#foo(int , String )>*/
+				/**<SelectOnType:Method>*/
+				/**<SelectOnMethod:Method#foo(int , String )>*/
+				/**<SelectOnLocalVariable:xxx>*/
+				/**<SelectOnLocalVariable:str>*/
+				/**<SelectOnType:RuntimeException>*/
+				/**<SelectOnType:InterruptedException>*/
+				"""
 		);
 	}
 
 	public void test16() {
 		setUnit("Test.java",
-			"/**\n" +
-			" * Javadoc of {@link Test}\n" +
-			" * @see Other\n" +
-			" */\n" +
-			"public class Test {}\n" +
-			"/**\n" +
-			" * Javadoc of {@link Other}\n" +
-			" * @see Test\n" +
-			" */\n" +
-			"class Other {}\n"
+			"""
+				/**
+				 * Javadoc of {@link Test}
+				 * @see Other
+				 */
+				public class Test {}
+				/**
+				 * Javadoc of {@link Other}
+				 * @see Test
+				 */
+				class Other {}
+				"""
 		);
 		findJavadoc("Test");
 		findJavadoc("Other");
 		findJavadoc("Test", 3);
 		findJavadoc("Other", 2);
 		assertValid(
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnType:Other>*/\n" +
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnType:Other>*/\n"
+			"""
+				/**<SelectOnType:Test>*/
+				/**<SelectOnType:Other>*/
+				/**<SelectOnType:Test>*/
+				/**<SelectOnType:Other>*/
+				"""
 		);
 	}
 
 	public void test17() {
 		setUnit("Test.java",
-			"/**\n" +
-			" * @see Test.Field#foo\n" +
-			" */\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see Field#foo\n" +
-			"	 */\n" +
-			"	class Field {\n" +
-			"		/**\n" +
-			"		 * @see #foo\n" +
-			"		 * @see Field#foo\n" +
-			"		 * @see Test.Field#foo\n" +
-			"		 */\n" +
-			"		int foo;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				/**
+				 * @see Test.Field#foo
+				 */
+				public class Test {
+					/**
+					 * @see Field#foo
+					 */
+					class Field {
+						/**
+						 * @see #foo
+						 * @see Field#foo
+						 * @see Test.Field#foo
+						 */
+						int foo;
+					}
+				}
+				"""
 		);
 		findJavadoc("Test");
 		findJavadoc("Field");
@@ -621,38 +669,41 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("Field", 5);
 		findJavadoc("foo", 5);
 		assertValid(
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnType:Test.Field>*/\n" +
-			"/**<SelectOnField:Test.Field#foo>*/\n" +
-			"/**<SelectOnType:Field>*/\n" +
-			"/**<SelectOnField:Field#foo>*/\n" +
-			"/**<SelectOnField:#foo>*/\n" +
-			"/**<SelectOnType:Field>*/\n" +
-			"/**<SelectOnField:Field#foo>*/\n" +
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnType:Test.Field>*/\n" +
-			"/**<SelectOnField:Test.Field#foo>*/\n"
+			"""
+				/**<SelectOnType:Test>*/
+				/**<SelectOnType:Test.Field>*/
+				/**<SelectOnField:Test.Field#foo>*/
+				/**<SelectOnType:Field>*/
+				/**<SelectOnField:Field#foo>*/
+				/**<SelectOnField:#foo>*/
+				/**<SelectOnType:Field>*/
+				/**<SelectOnField:Field#foo>*/
+				/**<SelectOnType:Test>*/
+				/**<SelectOnType:Test.Field>*/
+				/**<SelectOnField:Test.Field#foo>*/
+				"""
 		);
 	}
 
 	public void test18() {
 		setUnit("Test.java",
-			"/**\n" +
-			" * @see Test.Method#foo()\n" +
-			" */\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see Method#foo()\n" +
-			"	 */\n" +
-			"	class Method {\n" +
-			"		/**\n" +
-			"		 * @see #foo()\n" +
-			"		 * @see Method#foo()\n" +
-			"		 * @see Test.Method#foo()\n" +
-			"		 */\n" +
-			"		void foo() {}\n" +
-			"	}\n" +
-			"}"
+			"""
+				/**
+				 * @see Test.Method#foo()
+				 */
+				public class Test {
+					/**
+					 * @see Method#foo()
+					 */
+					class Method {
+						/**
+						 * @see #foo()
+						 * @see Method#foo()
+						 * @see Test.Method#foo()
+						 */
+						void foo() {}
+					}
+				}"""
 		);
 		findJavadoc("Test");
 		findJavadoc("Method");
@@ -666,33 +717,36 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("Method", 5);
 		findJavadoc("foo", 5);
 		assertValid(
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnType:Test.Method>*/\n" +
-			"/**<SelectOnMethod:Test.Method#foo()>*/\n" +
-			"/**<SelectOnType:Method>*/\n" +
-			"/**<SelectOnMethod:Method#foo()>*/\n" +
-			"/**<SelectOnMethod:#foo()>*/\n" +
-			"/**<SelectOnType:Method>*/\n" +
-			"/**<SelectOnMethod:Method#foo()>*/\n" +
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnType:Test.Method>*/\n" +
-			"/**<SelectOnMethod:Test.Method#foo()>*/\n"
+			"""
+				/**<SelectOnType:Test>*/
+				/**<SelectOnType:Test.Method>*/
+				/**<SelectOnMethod:Test.Method#foo()>*/
+				/**<SelectOnType:Method>*/
+				/**<SelectOnMethod:Method#foo()>*/
+				/**<SelectOnMethod:#foo()>*/
+				/**<SelectOnType:Method>*/
+				/**<SelectOnMethod:Method#foo()>*/
+				/**<SelectOnType:Test>*/
+				/**<SelectOnType:Test.Method>*/
+				/**<SelectOnMethod:Test.Method#foo()>*/
+				"""
 		);
 	}
 
 	public void test19() {
 		setUnit("Test.java",
-			"/**\n" +
-			" * @see Test.Other\n" +
-			" */\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see Test\n" +
-			"	 * @see Other\n" +
-			"	 * @see Test.Other\n" +
-			"	 */\n" +
-			"	class Other {}\n" +
-			"}"
+			"""
+				/**
+				 * @see Test.Other
+				 */
+				public class Test {
+					/**
+					 * @see Test
+					 * @see Other
+					 * @see Test.Other
+					 */
+					class Other {}
+				}"""
 		);
 		findJavadoc("Test");
 		findJavadoc("Other");
@@ -701,31 +755,35 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("Test", 4);
 		findJavadoc("Other", 3);
 		assertValid(
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnType:Test.Other>*/\n" +
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnType:Other>*/\n" +
-			"/**<SelectOnType:Test>*/\n" +
-			"/**<SelectOnType:Test.Other>*/\n"
+			"""
+				/**<SelectOnType:Test>*/
+				/**<SelectOnType:Test.Other>*/
+				/**<SelectOnType:Test>*/
+				/**<SelectOnType:Other>*/
+				/**<SelectOnType:Test>*/
+				/**<SelectOnType:Test.Other>*/
+				"""
 		);
 	}
 
 	public void test20() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	void bar() {\n" +
-			"		/**\n" +
-			"		 * @see Field#foo\n" +
-			"		 */\n" +
-			"		class Field {\n" +
-			"			/**\n" +
-			"			 * @see #foo\n" +
-			"			 * @see Field#foo\n" +
-			"			 */\n" +
-			"			int foo;\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Test {
+					void bar() {
+						/**
+						 * @see Field#foo
+						 */
+						class Field {
+							/**
+							 * @see #foo
+							 * @see Field#foo
+							 */
+							int foo;
+						}
+					}
+				}
+				"""
 		);
 		findJavadoc("Field");
 		findJavadoc("foo");
@@ -733,30 +791,33 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("Field", 3);
 		findJavadoc("foo", 3);
 		assertValid(
-			"/**<SelectOnType:Field>*/\n" +
-			"/**<SelectOnField:Field#foo>*/\n" +
-			"/**<SelectOnField:#foo>*/\n" +
-			"/**<SelectOnType:Field>*/\n" +
-			"/**<SelectOnField:Field#foo>*/\n"
+			"""
+				/**<SelectOnType:Field>*/
+				/**<SelectOnField:Field#foo>*/
+				/**<SelectOnField:#foo>*/
+				/**<SelectOnType:Field>*/
+				/**<SelectOnField:Field#foo>*/
+				"""
 		);
 	}
 
 	public void test21() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	void bar() {\n" +
-			"		/**\n" +
-			"		 * @see Method#foo()\n" +
-			"		 */\n" +
-			"		class Method {\n" +
-			"			/**\n" +
-			"			 * @see #foo()\n" +
-			"			 * @see Method#foo()\n" +
-			"			 */\n" +
-			"			void foo() {}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class Test {
+					void bar() {
+						/**
+						 * @see Method#foo()
+						 */
+						class Method {
+							/**
+							 * @see #foo()
+							 * @see Method#foo()
+							 */
+							void foo() {}
+						}
+					}
+				}"""
 		);
 		findJavadoc("Method");
 		findJavadoc("foo");
@@ -764,25 +825,28 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("Method", 3);
 		findJavadoc("foo", 3);
 		assertValid(
-			"/**<SelectOnType:Method>*/\n" +
-			"/**<SelectOnMethod:Method#foo()>*/\n" +
-			"/**<SelectOnMethod:#foo()>*/\n" +
-			"/**<SelectOnType:Method>*/\n" +
-			"/**<SelectOnMethod:Method#foo()>*/\n"
+			"""
+				/**<SelectOnType:Method>*/
+				/**<SelectOnMethod:Method#foo()>*/
+				/**<SelectOnMethod:#foo()>*/
+				/**<SelectOnType:Method>*/
+				/**<SelectOnMethod:Method#foo()>*/
+				"""
 		);
 	}
 
 	public void test22() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	void bar() {\n" +
-			"		/**\n" +
-			"		 * @see Test\n" +
-			"		 * @see Other\n" +
-			"		 */\n" +
-			"		class Other {}\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class Test {
+					void bar() {
+						/**
+						 * @see Test
+						 * @see Other
+						 */
+						class Other {}
+					}
+				}"""
 		);
 		findJavadoc("Test", 2);
 		findJavadoc("Other");
@@ -794,22 +858,24 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	public void test23() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	void bar() {\n" +
-			"		new Object() {\n" +
-			"			/**\n" +
-			"			 * @see Field#foo\n" +
-			"			 */\n" +
-			"			class Field {\n" +
-			"				/**\n" +
-			"				 * @see #foo\n" +
-			"				 * @see Field#foo\n" +
-			"				 */\n" +
-			"				int foo;\n" +
-			"			}\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Test {
+					void bar() {
+						new Object() {
+							/**
+							 * @see Field#foo
+							 */
+							class Field {
+								/**
+								 * @see #foo
+								 * @see Field#foo
+								 */
+								int foo;
+							}
+						};
+					}
+				}
+				"""
 		);
 		findJavadoc("Field");
 		findJavadoc("foo");
@@ -817,32 +883,35 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("Field", 3);
 		findJavadoc("foo", 3);
 		assertValid(
-			"/**<SelectOnType:Field>*/\n" +
-			"/**<SelectOnField:Field#foo>*/\n" +
-			"/**<SelectOnField:#foo>*/\n" +
-			"/**<SelectOnType:Field>*/\n" +
-			"/**<SelectOnField:Field#foo>*/\n"
+			"""
+				/**<SelectOnType:Field>*/
+				/**<SelectOnField:Field#foo>*/
+				/**<SelectOnField:#foo>*/
+				/**<SelectOnType:Field>*/
+				/**<SelectOnField:Field#foo>*/
+				"""
 		);
 	}
 
 	public void test24() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	void bar() {\n" +
-			"		new Object() {\n" +
-			"			/**\n" +
-			"			 * @see Method#foo()\n" +
-			"			 */\n" +
-			"			class Method {\n" +
-			"				/**\n" +
-			"				 * @see #foo()\n" +
-			"				 * @see Method#foo()\n" +
-			"				 */\n" +
-			"				void foo() {}\n" +
-			"			}\n" +
-			"		};\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class Test {
+					void bar() {
+						new Object() {
+							/**
+							 * @see Method#foo()
+							 */
+							class Method {
+								/**
+								 * @see #foo()
+								 * @see Method#foo()
+								 */
+								void foo() {}
+							}
+						};
+					}
+				}"""
 		);
 		findJavadoc("Method");
 		findJavadoc("foo");
@@ -850,27 +919,30 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		findJavadoc("Method", 3);
 		findJavadoc("foo", 3);
 		assertValid(
-			"/**<SelectOnType:Method>*/\n" +
-			"/**<SelectOnMethod:Method#foo()>*/\n" +
-			"/**<SelectOnMethod:#foo()>*/\n" +
-			"/**<SelectOnType:Method>*/\n" +
-			"/**<SelectOnMethod:Method#foo()>*/\n"
+			"""
+				/**<SelectOnType:Method>*/
+				/**<SelectOnMethod:Method#foo()>*/
+				/**<SelectOnMethod:#foo()>*/
+				/**<SelectOnType:Method>*/
+				/**<SelectOnMethod:Method#foo()>*/
+				"""
 		);
 	}
 
 	public void test25() {
 		setUnit("Test.java",
-			"public class Test {\n" +
-			"	void bar() {\n" +
-			"		new Object() {\n" +
-			"			/**\n" +
-			"			 * @see Test\n" +
-			"			 * @see Other\n" +
-			"			 */\n" +
-			"			class Other {}\n" +
-			"		};\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class Test {
+					void bar() {
+						new Object() {
+							/**
+							 * @see Test
+							 * @see Other
+							 */
+							class Other {}
+						};
+					}
+				}"""
 		);
 		findJavadoc("Test", 2);
 		findJavadoc("Other");
@@ -886,20 +958,21 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 	 */
 	public void test26() {
 		setUnit("Test.java",
-			"/**\n" +
-			" * @see \n" +
-			" * @throws noException\n" +
-			" * @see Test\n" +
-			" * @see Other\n" +
-			" */\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see\n" +
-			"	 * @param noParam\n" +
-			"	 * @throws noException\n" +
-			"	 */\n" +
-			"	void bar() {}\n" +
-			"}"
+			"""
+				/**
+				 * @see\s
+				 * @throws noException
+				 * @see Test
+				 * @see Other
+				 */
+				public class Test {
+					/**
+					 * @see
+					 * @param noParam
+					 * @throws noException
+					 */
+					void bar() {}
+				}"""
 		);
 
 		// parse and check results

@@ -67,16 +67,17 @@ protected void tearDown() throws Exception {
 
 public void test001() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"public class X {\n"
-			+ "  private String abc = \"abc\"; // unused\n"
-			+ "  public void main(String[] args) {\n"
-			+ "    String s = STR.\"A simple String \\{clone(abc)}\";\n"
-			+ "    System.out.println(s);\n"
-			+ "  }\n"
-			+ "  public String clone(String s) {\n"
-			+ "    return \"clone\";\n"
-			+ "  }\n"
-			+ "}");
+			"""
+				public class X {
+				  private String abc = "abc"; // unused
+				  public void main(String[] args) {
+				    String s = STR."A simple String \\{clone(abc)}";
+				    System.out.println(s);
+				  }
+				  public String clone(String s) {
+				    return "clone";
+				  }
+				}""");
 	String str = this.wc.getSource();
 	String selection = "clone";
 	int start = str.indexOf(selection);
@@ -90,16 +91,17 @@ public void test001() throws JavaModelException {
 }
 public void test002() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"public class X {\n"
-			+ "  private String abc = \"abc\"; // unused\n"
-			+ "  public void main(String[] args) {\n"
-			+ "    String s = STR.\"A simple String \\{clone(abc)}\";\n"
-			+ "    System.out.println(s);\n"
-			+ "  }\n"
-			+ "  public String clone(String s) {\n"
-			+ "    return \"clone\";\n"
-			+ "  }\n"
-			+ "}");
+			"""
+				public class X {
+				  private String abc = "abc"; // unused
+				  public void main(String[] args) {
+				    String s = STR."A simple String \\{clone(abc)}";
+				    System.out.println(s);
+				  }
+				  public String clone(String s) {
+				    return "clone";
+				  }
+				}""");
 	String str = this.wc.getSource();
 	String selection = "abc";
 	int start = str.lastIndexOf(selection);
@@ -113,16 +115,17 @@ public void test002() throws JavaModelException {
 }
 public void test003() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"public class X {\n"
-			+ "  static int CONST = 0;\n"
-			+ "    private static int foo() {\n"
-			+ "    return CONST;\n"
-			+ "  }\n"
-			+ "  public static void main(String argv[]) {\n"
-			+ "    String str = STR.\"{\\{new Object() { class Test { int i; Test() { i = foo();}}}.new Test().i\\u007d}\";\n"
-			+ "    System.out.println(str.equals(\"{0}\"));\n"
-			+ "  }\n"
-			+ "}");
+			"""
+				public class X {
+				  static int CONST = 0;
+				    private static int foo() {
+				    return CONST;
+				  }
+				  public static void main(String argv[]) {
+				    String str = STR."{\\{new Object() { class Test { int i; Test() { i = foo();}}}.new Test().i\\u007d}";
+				    System.out.println(str.equals("{0}"));
+				  }
+				}""");
 	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
@@ -136,27 +139,28 @@ public void test003() throws JavaModelException {
 }
 public void test004() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"public class X {\n"
-			+ "    private final static int LF  = (char) 0x000A;\n"
-			+ "    private static boolean compare(String s) {\n"
-			+ "        char[] chars = new char[] {LF,'a','b','c','d'};\n"
-			+ "        if (chars.length != s.length())\n"
-			+ "            return false;\n"
-			+ "        for (int i = 0; i < s.length(); i++) {\n"
-			+ "            if(chars[i] != s.charAt(i)) {\n"
-			+ "                return false;\n"
-			+ "            }\n"
-			+ "        }\n"
-			+ "        return true;\n"
-			+ "    }\n"
-			+ "    public static void main(String argv[]) {\n"
-			+ "        String abcd = \"abcd\"; //$NON-NLS-1$\n"
-			+ "        String textBlock = STR.\"\"\"\n"
-			+ "   \n"
-			+ "\\{abcd}\"\"\";//$NON-NLS-1$\n"
-			+ "        System.out.println(compare(textBlock));\n"
-			+ "    }\n"
-			+ "}");
+			"""
+				public class X {
+				    private final static int LF  = (char) 0x000A;
+				    private static boolean compare(String s) {
+				        char[] chars = new char[] {LF,'a','b','c','d'};
+				        if (chars.length != s.length())
+				            return false;
+				        for (int i = 0; i < s.length(); i++) {
+				            if(chars[i] != s.charAt(i)) {
+				                return false;
+				            }
+				        }
+				        return true;
+				    }
+				    public static void main(String argv[]) {
+				        String abcd = "abcd"; //$NON-NLS-1$
+				        String textBlock = STR.\"""
+				  \s
+				\\{abcd}\""";//$NON-NLS-1$
+				        System.out.println(compare(textBlock));
+				    }
+				}""");
 	String str = this.wc.getSource();
 	String selection = "abcd";
 	int start = str.lastIndexOf(selection);

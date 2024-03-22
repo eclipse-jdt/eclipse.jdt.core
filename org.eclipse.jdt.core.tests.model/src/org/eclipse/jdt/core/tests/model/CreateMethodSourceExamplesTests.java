@@ -84,14 +84,18 @@ public void testCreateMethodWithBody() {
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
 	method.setBody(
-		" {\n" +
-		"\t...method body...\n" +
-		"}\n");
+		"""
+			 {
+				...method body...
+			}
+			""");
 	assertSourceEquals(
 		"source code incorrect",
-		"public void foo() {\n" +
-		"\t...method body...\n" +
-		"}\n",
+		"""
+			public void foo() {
+				...method body...
+			}
+			""",
 		method.getContents());
 
 }

@@ -235,9 +235,10 @@ public void testCopyCU01() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
@@ -257,9 +258,10 @@ public void testCopyCU02() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
@@ -278,18 +280,20 @@ public void testCopyCU03() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
 	this.createFolder("/P/src/p2");
 	this.createFile(
 		"/P/src/p2/X.java",
-		"package p2;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p2;
+			public class X {
+			}"""
 	);
 	IPackageFragment pkgDest = getPackage("/P/src/p2");
 
@@ -322,9 +326,10 @@ public void testCopyCU05() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
@@ -347,9 +352,10 @@ public void testCopyCU06() throws CoreException {
 		this.createFolder("/P/src/p1");
 		file = this.createFile(
 			"/P/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		Util.setReadOnly(file, true);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
@@ -380,18 +386,20 @@ public void testCopyCU07() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
 	this.createFolder("/P/src/p2");
 	this.createFile(
 		"/P/src/p2/Y.java",
-		"package p2;\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p2;
+			public class Y {
+			}"""
 	);
 	IPackageFragment pkgDest = getPackage("/P/src/p2");
 
@@ -404,18 +412,20 @@ public void testCopyCU08() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
 	this.createFolder("/P/src/p2");
 	this.createFile(
 		"/P/src/p2/X.java",
-		"package p2;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p2;
+			public class X {
+			}"""
 	);
 	IPackageFragment pkgDest = getPackage("/P/src/p2");
 
@@ -428,9 +438,10 @@ public void testCopyCU09() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
@@ -443,9 +454,10 @@ public void testCopyCU10() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
@@ -464,9 +476,10 @@ public void testCopyCU11() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
@@ -513,9 +526,10 @@ public void testCopyPackageFragment() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	IPackageFragment pkgSource = getPackage("/P/src/p1");
 
@@ -537,9 +551,10 @@ public void testCopyReadOnlyPackageFragment() throws CoreException {
 		this.createFolder("/P/src/p1/p2/p3");
 		this.createFile(
 			"/P/src/p1/p2/p3/X.java",
-			"package p1.p2.p3;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1.p2.p3;
+				public class X {
+				}"""
 		);
 		Util.setReadOnly(getFile("/P/src/p1/p2/p3/X.java"), true);
 		pkgSource = getPackage("/P/src/p1");
@@ -590,9 +605,10 @@ public void testCopyWorkingCopy() throws CoreException {
 		this.createFolder("/P/src/p1");
 		this.createFile(
 			"/P/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
@@ -615,10 +631,11 @@ public void testCopyWorkingCopyDestination() throws CoreException {
 		createFolder("/P/src/p1");
 		createFile(
 			"/P/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"  void foo() {}\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				  void foo() {}
+				}"""
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
@@ -626,10 +643,11 @@ public void testCopyWorkingCopyDestination() throws CoreException {
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
 		createFile(
 			"/P/src/p2/X.java",
-			"\n" +
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				
+				package p1;
+				public class X {
+				}"""
 		);
 		copy = getCompilationUnit("/P/src/p2/X.java");
 		copy.becomeWorkingCopy(null);
@@ -648,9 +666,10 @@ public void testCopyWorkingCopyForce() throws CoreException {
 		this.createFolder("/P/src/p1");
 		this.createFile(
 			"/P/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
@@ -658,9 +677,10 @@ public void testCopyWorkingCopyForce() throws CoreException {
 		this.createFolder("/P/src/p2");
 		this.createFile(
 			"/P/src/p2/X.java",
-			"package p2;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p2;
+				public class X {
+				}"""
 		);
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
 
@@ -679,9 +699,10 @@ public void testCopyWorkingCopyRename() throws CoreException {
 		this.createFolder("/P/src/p1");
 		this.createFile(
 			"/P/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
@@ -704,9 +725,10 @@ public void testCopyWorkingCopyRenameForce() throws CoreException {
 		this.createFolder("/P/src/p1");
 		this.createFile(
 			"/P/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
@@ -714,9 +736,10 @@ public void testCopyWorkingCopyRenameForce() throws CoreException {
 		this.createFolder("/P/src/p2");
 		this.createFile(
 			"/P/src/p2/Y.java",
-			"package p2;\n" +
-			"public class Y {\n" +
-			"}"
+			"""
+				package p2;
+				public class Y {
+				}"""
 		);
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
 
@@ -734,9 +757,10 @@ public void testCopyWorkingCopyWithCollision() throws CoreException {
 		this.createFolder("/P/src/p1");
 		this.createFile(
 			"/P/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
@@ -744,9 +768,10 @@ public void testCopyWorkingCopyWithCollision() throws CoreException {
 		this.createFolder("/P/src/p2");
 		this.createFile(
 			"/P/src/p2/X.java",
-			"package p2;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p2;
+				public class X {
+				}"""
 		);
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
 
@@ -764,9 +789,10 @@ public void testCopyWorkingCopyWithInvalidDestination() throws CoreException {
 		this.createFolder("/P/src/p1");
 		this.createFile(
 			"/P/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
@@ -783,9 +809,10 @@ public void testMoveCU01() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
@@ -805,9 +832,10 @@ public void testMoveCU02() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
@@ -829,30 +857,33 @@ public void testMoveCU03() throws CoreException {
 		this.createFolder("/P/src/p1");
 		this.createFile(
 			"/P/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
 		this.createFolder("/P/src/p2");
 		this.createFile(
 			"/P/src/p2/X.java",
-			"package p2;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p2;
+				public class X {
+				}"""
 		);
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
 		startDeltas(listener);
 		movePositive(new IJavaElement[] {cuSource}, new IJavaElement[] {pkgDest}, null, null, true, false, null);
 			assertDeltas(
 					"Incorrect delta",
-					"P[*]: {CHILDREN}\n"
-							+ "	src[*]: {CHILDREN}\n"
-							+ "		p1[*]: {CHILDREN}\n"
-							+ "			X.java[-]: {MOVED_TO(X.java [in p2 [in src [in P]]])}\n"
-							+ "		p2[*]: {CHILDREN}\n"
-							+ "			X.java[*]: {CONTENT | PRIMARY RESOURCE}", listener);
+					"""
+						P[*]: {CHILDREN}
+							src[*]: {CHILDREN}
+								p1[*]: {CHILDREN}
+									X.java[-]: {MOVED_TO(X.java [in p2 [in src [in P]]])}
+								p2[*]: {CHILDREN}
+									X.java[*]: {CONTENT | PRIMARY RESOURCE}""", listener);
 	}
 	finally {
 		stopDeltas(listener);
@@ -866,9 +897,10 @@ public void testMoveCU04() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
@@ -887,31 +919,34 @@ public void testMoveCU05() throws CoreException {
 		this.createFolder("/P/src/p1");
 		this.createFile(
 			"/P/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
 		this.createFolder("/P/src/p2");
 		this.createFile(
 			"/P/src/p2/Y.java",
-			"package p2;\n" +
-			"public class Y {\n" +
-			"}"
+			"""
+				package p2;
+				public class Y {
+				}"""
 		);
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
 		startDeltas(listener);
 		movePositive(new IJavaElement[] {cuSource}, new IJavaElement[] {pkgDest}, null, new String[]{"Y.java"}, true, false, null);
 		assertDeltas(
 					"Incorrect delta",
-					"P[*]: {CHILDREN}\n"
-							+ "	src[*]: {CHILDREN}\n"
-							+ "		p1[*]: {CHILDREN}\n"
-							+ "			X.java[-]: {MOVED_TO(Y.java [in p2 [in src [in P]]])}\n"
-							+ "		p2[*]: {CHILDREN}\n"
-							+ "			Y.java[*]: {CHILDREN | CONTENT | FINE GRAINED | PRIMARY RESOURCE}\n"
-							+ "				Y[+]: {MOVED_FROM(X [in X.java [in p1 [in src [in P]]]])}", listener);
+					"""
+						P[*]: {CHILDREN}
+							src[*]: {CHILDREN}
+								p1[*]: {CHILDREN}
+									X.java[-]: {MOVED_TO(Y.java [in p2 [in src [in P]]])}
+								p2[*]: {CHILDREN}
+									Y.java[*]: {CHILDREN | CONTENT | FINE GRAINED | PRIMARY RESOURCE}
+										Y[+]: {MOVED_FROM(X [in X.java [in p1 [in src [in P]]]])}""", listener);
 	}
 	finally {
 		stopDeltas(listener);
@@ -925,18 +960,20 @@ public void testMoveCU06() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
 	this.createFolder("/P/src/p2");
 	this.createFile(
 		"/P/src/p2/X.java",
-		"package p2;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p2;
+			public class X {
+			}"""
 	);
 	IPackageFragment pkgDest = getPackage("/P/src/p2");
 
@@ -949,9 +986,10 @@ public void testMoveCU07() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
@@ -964,9 +1002,10 @@ public void testMoveCU08() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
@@ -1004,10 +1043,11 @@ public void testMoveCU10() throws CoreException {
 	createFolder("/P/src/p1");
 	createFile(
 		"/P/src/p1/X.java",
-		"/* some comment */\n" +
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			/* some comment */
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 	IPackageFragment pkgDest = getPackage("/P/src");
@@ -1016,10 +1056,11 @@ public void testMoveCU10() throws CoreException {
 	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
 	assertSourceEquals(
 		"Unexpected source",
-		"/* some comment */\n" +
-		"\n" +
-		"public class X {\n" +
-		"}",
+		"""
+			/* some comment */
+			
+			public class X {
+			}""",
 		cuDest.getSource());
 }
 /*
@@ -1030,11 +1071,12 @@ public void testMoveCU11() throws CoreException {
 	createFolder("/P/src/p1");
 	createFile(
 		"/P/src/p1/X.java",
-		"/* some comment */\n" +
-		"/* other comment */\n" +
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			/* some comment */
+			/* other comment */
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 	IPackageFragment pkgDest = getPackage("/P/src");
@@ -1043,11 +1085,12 @@ public void testMoveCU11() throws CoreException {
 	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
 	assertSourceEquals(
 		"Unexpected source",
-		"/* some comment */\n" +
-		"/* other comment */\n" +
-		"\n" +
-		"public class X {\n" +
-		"}",
+		"""
+			/* some comment */
+			/* other comment */
+			
+			public class X {
+			}""",
 		cuDest.getSource());
 }
 /*
@@ -1058,10 +1101,11 @@ public void testMoveCU12() throws CoreException {
 	createFolder("/P/src/p1");
 	createFile(
 		"/P/src/p1/X.java",
-		"/** some Javadoc */\n" +
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			/** some Javadoc */
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 	IPackageFragment pkgDest = getPackage("/P/src");
@@ -1070,10 +1114,11 @@ public void testMoveCU12() throws CoreException {
 	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
 	assertSourceEquals(
 		"Unexpected source",
-		"/** some Javadoc */\n" +
-		"\n" +
-		"public class X {\n" +
-		"}",
+		"""
+			/** some Javadoc */
+			
+			public class X {
+			}""",
 		cuDest.getSource());
 }
 /*
@@ -1084,11 +1129,12 @@ public void testMoveCU13() throws CoreException {
 	createFolder("/P/src/p1");
 	createFile(
 		"/P/src/p1/X.java",
-		"/** some Javadoc */\n" +
-		"// some line comment\n" +
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			/** some Javadoc */
+			// some line comment
+			package p1;
+			public class X {
+			}"""
 	);
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 	IPackageFragment pkgDest = getPackage("/P/src");
@@ -1097,11 +1143,12 @@ public void testMoveCU13() throws CoreException {
 	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
 	assertSourceEquals(
 		"Unexpected source",
-		"/** some Javadoc */\n" +
-		"// some line comment\n" +
-		"\n" +
-		"public class X {\n" +
-		"}",
+		"""
+			/** some Javadoc */
+			// some line comment
+			
+			public class X {
+			}""",
 		cuDest.getSource());
 }
 /**
@@ -1111,9 +1158,10 @@ public void testMovePackageFragment() throws CoreException {
 	this.createFolder("/P/src/p1");
 	this.createFile(
 		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p1;
+			public class X {
+			}"""
 	);
 	IPackageFragment pkgSource = getPackage("/P/src/p1");
 
@@ -1135,9 +1183,10 @@ public void testMoveReadOnlyPackageFragment() throws CoreException {
 		this.createFolder("/P/src/p1/p2/p3");
 		this.createFile(
 			"/P/src/p1/p2/p3/X.java",
-			"package p1.p2.p3;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1.p2.p3;
+				public class X {
+				}"""
 		);
 		Util.setReadOnly(getFile("/P/src/p1/p2/p3/X.java"), true);
 		pkgSource = getPackage("/P/src/p1");
@@ -1188,9 +1237,10 @@ public void testMoveWorkingCopy() throws CoreException {
 		this.createFolder("/P/src/p1");
 		this.createFile(
 			"/P/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 		copy = cuSource.getWorkingCopy(null);
@@ -1215,9 +1265,10 @@ public void testMoveWorkingCopy2() throws CoreException {
 		this.createFolder("/P/src/p1");
 		this.createFile(
 			"/P/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		copy = getCompilationUnit("/P/src/p1/X.java");
 		copy.becomeWorkingCopy(null);

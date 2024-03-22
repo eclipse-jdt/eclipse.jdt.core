@@ -53,17 +53,18 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 
 	public void test001_classTypeParameter() throws Exception {
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"public class X<@Foo T1,@Bar(iii=99) T2> {}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int iii() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			public class X<@Foo T1,@Bar(iii=99) T2> {}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int iii() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
 
@@ -76,17 +77,18 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 
 	public void test001a_classTypeParameterDifferingRetentions() throws Exception {
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"public class X<@Foo T1,@Bar(iii=99) T2> {}\n" +
-			"@Retention(RetentionPolicy.RUNTIME)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int iii() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			public class X<@Foo T1,@Bar(iii=99) T2> {}
+			@Retention(RetentionPolicy.RUNTIME)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int iii() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
 
@@ -99,19 +101,20 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 
 	public void test002_methodTypeParameter() throws Exception {
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"public class X {\n" +
-			"	<@Foo T1, @Bar(3) T2> void foo(T1 t1,T2 t2) {}\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int value() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			public class X {
+				<@Foo T1, @Bar(3) T2> void foo(T1 t1,T2 t2) {}
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int value() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
 
@@ -127,18 +130,19 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 	public void test003_classExtends() throws Exception {
 		this.complianceLevel = ClassFileConstants.JDK1_8;
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"public class X extends @Foo @Bar(iii=34) Object implements java.io.@Bar(iii=1) Serializable {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int iii() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			public class X extends @Foo @Bar(iii=34) Object implements java.io.@Bar(iii=1) Serializable {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int iii() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
 
@@ -151,20 +155,21 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 
 	public void test004_classExtends() throws Exception {
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"public class X extends Y<@Foo String,@Bar Integer> implements I<@Foo String> {\n" +
-			"}\n" +
-			"class Y<T1, T2> {}\n" +
-			"interface I<T1> {}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int iii() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			public class X extends Y<@Foo String,@Bar Integer> implements I<@Foo String> {
+			}
+			class Y<T1, T2> {}
+			interface I<T1> {}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int iii() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
 
@@ -177,18 +182,19 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 
 	public void test005_classTypeParameterBound() throws Exception {
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"public class X<U, T extends Y<@Foo String @Bar(1)[][]@Bar(2)[]> & @Bar(3) Cloneable> {}\n" +
-			"class Y<T> {}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int value() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			public class X<U, T extends Y<@Foo String @Bar(1)[][]@Bar(2)[]> & @Bar(3) Cloneable> {}
+			class Y<T> {}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int value() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
 
@@ -202,21 +208,22 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 
 	public void test006_methodTypeParameterBound() throws Exception {
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"public class X{\n" +
-			"	<T extends Y<@Foo Z @Bar(1)[][]@Bar(2)[]> & @Bar(3) Cloneable> void foo(T t) {}\n" +
-			"}\n" +
-			"class Y<T> {}\n" +
-			"class Z {}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int value() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			public class X{
+				<T extends Y<@Foo Z @Bar(1)[][]@Bar(2)[]> & @Bar(3) Cloneable> void foo(T t) {}
+			}
+			class Y<T> {}
+			class Z {}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int value() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
 
@@ -233,22 +240,23 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 
 	public void test007_field() throws Exception {
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"import java.util.Map;\n" +
-			"public class X{\n" +
-			"	@Foo Map<@Bar(1) String, @Bar(2) String @Bar(3)[] @Bar(4)[] @Bar(5)[]> field3;\n" +
-			"}\n" +
-			"class Y<T> {}\n" +
-			"class Z {}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int value() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			import java.util.Map;
+			public class X{
+				@Foo Map<@Bar(1) String, @Bar(2) String @Bar(3)[] @Bar(4)[] @Bar(5)[]> field3;
+			}
+			class Y<T> {}
+			class Z {}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int value() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
 
@@ -267,25 +275,26 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 
 	public void test008_methodReturn() throws Exception {
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"import java.util.Map;\n" +
-			"public class X{\n" +
-			"	@Bar(3) @Foo int foo() {\n" +
-			"		return 1;\n" +
-			"	}\n" +
-			"	@Bar(3) int @Foo [] foo2() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int value() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			import java.util.Map;
+			public class X{
+				@Bar(3) @Foo int foo() {
+					return 1;
+				}
+				@Bar(3) int @Foo [] foo2() {
+					return null;
+				}
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int value() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
 
@@ -308,20 +317,21 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 
 	public void test009_methodReceiver() throws Exception {
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"import java.util.Map;\n" +
-			"public class X{\n" +
-			"	void foo(@Bar(3) X this) {}\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int value() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			import java.util.Map;
+			public class X{
+				void foo(@Bar(3) X this) {}
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int value() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
 
@@ -335,20 +345,21 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 
 	public void test010_methodFormalParameter() throws Exception {
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"import java.util.Map;\n" +
-			"public class X{\n" +
-			"	void foo(@Bar(3) String s, @Foo int i) {}\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int value() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			import java.util.Map;
+			public class X{
+				void foo(@Bar(3) String s, @Foo int i) {}
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int value() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
 
@@ -363,20 +374,21 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 
 	public void test011_throws() throws Exception {
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"import java.util.Map;\n" +
-			"public class X{\n" +
-			"	void foo() throws @Foo Exception, @Bar(1) Throwable {}\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int value() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			import java.util.Map;
+			public class X{
+				void foo() throws @Foo Exception, @Bar(1) Throwable {}
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int value() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
 
@@ -390,22 +402,23 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 	}
 	public void test012_annotationMethodReturn() throws Exception {
 		String source =
-			"import java.lang.annotation.*;\n" +
-			"import java.util.Map;\n" +
-			"public @interface X{\n" +
-			"	@Bar(3) @Foo int foo();\n" +
-			"	@Bar(3) int @Foo [] foo2();\n" +
-			"	@Bar(7) @Foo String value() default \"aaa\";\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Foo {\n" +
-			"}\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Bar {\n" +
-			"        int value() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.*;
+			import java.util.Map;
+			public @interface X{
+				@Bar(3) @Foo int foo();
+				@Bar(3) int @Foo [] foo2();
+				@Bar(7) @Foo String value() default "aaa";
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Foo {
+			}
+			@Retention(RetentionPolicy.CLASS)
+			@Target(ElementType.TYPE_USE)
+			@interface Bar {
+			        int value() default -1;
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
 
@@ -455,13 +468,14 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 				"j/Usage.java",
-				"package j;\n" +
-				"\n" +
-				"import k.A.B.C;\n" +
-				"\n" +
-				"public class Usage {\n" +
-				"    C c;\n" +
-				"}"
+				"""
+					package j;
+					
+					import k.A.B.C;
+					
+					public class Usage {
+					    C c;
+					}"""
 			},
 			"",
 			libs,

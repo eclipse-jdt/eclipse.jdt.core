@@ -47,14 +47,15 @@ public class ASTRewritingGroupNodeTest extends ASTRewritingTest {
 	public void testCollapsedTargetNodes() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo(Object o) {\n");
-		buf.append("        return;\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    public void foo(Object o) {
+			        return;
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -79,15 +80,15 @@ public class ASTRewritingGroupNodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo(Object o) {\n");
-		buf.append("        foo1();\n");
-		buf.append("        foo2();\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		String expected= buf.toString();
+		String expected= """
+			package test1;
+			public class E {
+			    public void foo(Object o) {
+			        foo1();
+			        foo2();
+			    }
+			}
+			""";
 
 		assertEqualString(preview, expected);
 	}
@@ -95,16 +96,17 @@ public class ASTRewritingGroupNodeTest extends ASTRewritingTest {
 	public void testCollapsedTargetNodes2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo(Object o) {\n");
-		buf.append("        {\n");
-		buf.append("            return;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    public void foo(Object o) {
+			        {
+			            return;
+			        }
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -131,16 +133,16 @@ public class ASTRewritingGroupNodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo(Object o) {\n");
-		buf.append("        foo1();\n");
-		buf.append("        foo2();\n");
-		buf.append("        return;\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		String expected= buf.toString();
+		String expected= """
+			package test1;
+			public class E {
+			    public void foo(Object o) {
+			        foo1();
+			        foo2();
+			        return;
+			    }
+			}
+			""";
 
 		assertEqualString(preview, expected);
 	}

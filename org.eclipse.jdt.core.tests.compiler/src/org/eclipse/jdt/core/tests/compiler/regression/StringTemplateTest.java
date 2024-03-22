@@ -85,12 +85,13 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String s = STR.\"A simple String\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String s = STR."A simple String";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"A simple String");
 	}
@@ -98,12 +99,13 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String s = STR.\"\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String s = STR."";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"");
 	}
@@ -111,13 +113,14 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String s = STR.\"\"\"\n"
-						+ "        A simple Text block\"\"\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String s = STR.\"""
+							        A simple Text block\""";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"A simple Text block");
 	}
@@ -125,13 +128,14 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String s = STR.\"\"\"\n"
-						+ "        \"\"\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String s = STR.\"""
+							        \""";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"");
 	}
@@ -139,14 +143,15 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String firstName = \"Bill\";\n"
-						+ "    String lastName = \"Duck\";\n"
-						+ "    String fullName = STR.\"Name: \\{firstName} \\{lastName}\";\n"
-						+ "    System.out.println(fullName);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String firstName = "Bill";
+							    String lastName = "Duck";
+							    String fullName = STR."Name: \\{firstName} \\{lastName}";
+							    System.out.println(fullName);
+							  }
+							}"""
 				},
 				"Name: Bill Duck");
 	}
@@ -154,13 +159,14 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    int x = 10, y = 20;\n"
-						+ "    String s = STR.\"\\{x} + \\{y} = \\{x + y}\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    int x = 10, y = 20;
+							    String s = STR."\\{x} + \\{y} = \\{x + y}";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"10 + 20 = 30");
 	}
@@ -168,13 +174,14 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String[] fruit = { \"apples\", \"oranges\", \"peaches\" };\n"
-						+ "    String s = STR.\"\\{fruit[0]}, \\{STR.\"\\{fruit[1]}, \\{fruit[2]}\"}\\u002e\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String[] fruit = { "apples", "oranges", "peaches" };
+							    String s = STR."\\{fruit[0]}, \\{STR."\\{fruit[1]}, \\{fruit[2]}"}\\u002e";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"apples, oranges, peaches.");
 	}
@@ -182,14 +189,15 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String[] fruit = { \"apples\", \"oranges\", \"peaches\" };\n"
-						+ "    String tmp = STR.\"\\{fruit[1]}, \\{fruit[2]}\";"
-						+ "    String s = STR.\"\\{fruit[0]}, \\{tmp}\";"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String[] fruit = { "apples", "oranges", "peaches" };
+							    String tmp = STR."\\{fruit[1]}, \\{fruit[2]}";\
+							    String s = STR."\\{fruit[0]}, \\{tmp}";\
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"apples, oranges, peaches");
 	}
@@ -197,14 +205,15 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String[] fruit = { \"apples\", \"oranges\", \"peaches\" };\n"
-						+ "    String tmp = STR.\"\\{fruit[1]}, \\{fruit[2]}\";"
-						+ "    String s = STR.\"\\{fruit[0]}, \\{tmp}\";"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String[] fruit = { "apples", "oranges", "peaches" };
+							    String tmp = STR."\\{fruit[1]}, \\{fruit[2]}";\
+							    String s = STR."\\{fruit[0]}, \\{tmp}";\
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"apples, oranges, peaches");
 	}
@@ -213,83 +222,89 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "	@SuppressWarnings(\"nls\")\n"
-						+ "	public static void main(String[] args) {\n"
-						+ "		String name    = \"Joan Smith\";\n"
-						+ "		String phone   = \"555-123-4567\";\n"
-						+ "		String address = \"1 Maple Drive, Anytown\";\n"
-						+ "		String doc = STR.\"\"\"\n"
-						+ "		    {\n"
-						+ "		        \"name\":    \"\\{name}\",\n"
-						+ "		        \"phone\":   \"\\{phone}\",\n"
-						+ "		        \"address\": \"\\{address}\"\n"
-						+ "		    };\"\"\";\n"
-						+ "		System.out.println(doc);\n"
-						+ "	}\n"
-						+ "}"
+						"""
+							public class X {
+								@SuppressWarnings("nls")
+								public static void main(String[] args) {
+									String name    = "Joan Smith";
+									String phone   = "555-123-4567";
+									String address = "1 Maple Drive, Anytown";
+									String doc = STR.\"""
+									    {
+									        "name":    "\\{name}",
+									        "phone":   "\\{phone}",
+									        "address": "\\{address}"
+									    };\""";
+									System.out.println(doc);
+								}
+							}"""
 				},
-				"{\n"
-				+ "    \"name\":    \"Joan Smith\",\n"
-				+ "    \"phone\":   \"555-123-4567\",\n"
-				+ "    \"address\": \"1 Maple Drive, Anytown\"\n"
-				+ "};");
+				"""
+					{
+					    "name":    "Joan Smith",
+					    "phone":   "555-123-4567",
+					    "address": "1 Maple Drive, Anytown"
+					};""");
 	}
 	// Simple text block with a string literal as an embedded expression
 	public void test008a() {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X<R> {\n"
-						+ "@SuppressWarnings(\"nls\")\n"
-						+ "public static void main(String[] args) {\n"
-						+ "  String name    = \"Joan Smith\";\n"
-						+ "  String phone   = \"555-123-4567\";\n"
-						+ "  String address = \"1 Maple Drive, Anytown\";\n"
-						+ "  String doc = STR.\"\"\"\n"
-						+ "    {\n"
-						+ "        \"name\":    \"\\{STR.\"\\{name}\"}\",\n"
-						+ "        \"phone\":   \"\\{phone}\",\n"
-						+ "        \"address\": \"\\{address}\" \n"
-						+ "    };\"\"\";\n"
-						+ "  System.out.println(doc);\n"
-						+ "  }   \n"
-						+ "} "
+						"""
+							public class X<R> {
+							@SuppressWarnings("nls")
+							public static void main(String[] args) {
+							  String name    = "Joan Smith";
+							  String phone   = "555-123-4567";
+							  String address = "1 Maple Drive, Anytown";
+							  String doc = STR.\"""
+							    {
+							        "name":    "\\{STR."\\{name}"}",
+							        "phone":   "\\{phone}",
+							        "address": "\\{address}"\s
+							    };\""";
+							  System.out.println(doc);
+							  }  \s
+							} """
 				},
-				"{\n"
-				+ "    \"name\":    \"Joan Smith\",\n"
-				+ "    \"phone\":   \"555-123-4567\",\n"
-				+ "    \"address\": \"1 Maple Drive, Anytown\"\n"
-				+ "};");
+				"""
+					{
+					    "name":    "Joan Smith",
+					    "phone":   "555-123-4567",
+					    "address": "1 Maple Drive, Anytown"
+					};""");
 	}
 	// Simple text block with a nested text block as an embedded expression
 	public void test008b() {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X<R> {\n"
-						+ "  @SuppressWarnings(\"nls\")\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String name    = \"Joan Smith\";\n"
-						+ "    String phone   = \"555-123-4567\";\n"
-						+ "    String address = \"1 Maple Drive, Anytown\";\n"
-						+ "    String doc = STR.\"\"\"\n"
-						+ "      {\n"
-						+ "          \"name\":    \"\\{\n"
-						+ "          STR.\"\"\"\n"
-						+ "            \\{name}\"\"\"}\",\n"
-						+ "          \"phone\":   \"\\{phone}\",\n"
-						+ "          \"address\": \"\\{address}\" \n"
-						+ "      };\"\"\";\n"
-						+ "    System.out.println(doc);\n"
-						+ "  }   \n"
-						+ "} "
+						"""
+							public class X<R> {
+							  @SuppressWarnings("nls")
+							  public static void main(String[] args) {
+							    String name    = "Joan Smith";
+							    String phone   = "555-123-4567";
+							    String address = "1 Maple Drive, Anytown";
+							    String doc = STR.\"""
+							      {
+							          "name":    "\\{
+							          STR.\"""
+							            \\{name}\"""}",
+							          "phone":   "\\{phone}",
+							          "address": "\\{address}"\s
+							      };\""";
+							    System.out.println(doc);
+							  }  \s
+							} """
 				},
-				"{\n"
-				+ "    \"name\":    \"Joan Smith\",\n"
-				+ "    \"phone\":   \"555-123-4567\",\n"
-				+ "    \"address\": \"1 Maple Drive, Anytown\"\n"
-				+ "};");
+				"""
+					{
+					    "name":    "Joan Smith",
+					    "phone":   "555-123-4567",
+					    "address": "1 Maple Drive, Anytown"
+					};""");
 	}
 	// Same as above, but the nested text block has a smaller indentation than the outer
 	// But this should not influence the formatting of the outer block
@@ -297,44 +312,47 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X<R> {\n"
-						+ "  @SuppressWarnings(\"nls\")\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String name    = \"Joan Smith\";\n"
-						+ "    String phone   = \"555-123-4567\";\n"
-						+ "    String address = \"1 Maple Drive, Anytown\";\n"
-						+ "    String doc = STR.\"\"\"\n"
-						+ "    {\n"
-						+ "        \"name\":    \"\\{\n"
-						+ "      STR.\"\"\"\n"
-						+ "\\{name}\"\"\"}\",\n"
-						+ "        \"phone\":   \"\\{phone}\",\n"
-						+ "        \"address\": \"\\{address}\" \n"
-						+ "    };\"\"\";\n"
-						+ "    System.out.println(doc);\n"
-						+ "  }   \n"
-						+ "} "
+						"""
+							public class X<R> {
+							  @SuppressWarnings("nls")
+							  public static void main(String[] args) {
+							    String name    = "Joan Smith";
+							    String phone   = "555-123-4567";
+							    String address = "1 Maple Drive, Anytown";
+							    String doc = STR.\"""
+							    {
+							        "name":    "\\{
+							      STR.\"""
+							\\{name}\"""}",
+							        "phone":   "\\{phone}",
+							        "address": "\\{address}"\s
+							    };\""";
+							    System.out.println(doc);
+							  }  \s
+							} """
 				},
-				"{\n"
-				+ "    \"name\":    \"Joan Smith\",\n"
-				+ "    \"phone\":   \"555-123-4567\",\n"
-				+ "    \"address\": \"1 Maple Drive, Anytown\"\n"
-				+ "};");
+				"""
+					{
+					    "name":    "Joan Smith",
+					    "phone":   "555-123-4567",
+					    "address": "1 Maple Drive, Anytown"
+					};""");
 	}
 	public void test009() {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String first = \"Bill\";\n"
-						+ "    String last = \"Duck\";\n"
-						+ "    foo(STR.\"\\{first} \\{last}\");\n"
-						+ "  }\n"
-						+ "  public static void foo(String s) {\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String first = "Bill";
+							    String last = "Duck";
+							    foo(STR."\\{first} \\{last}");
+							  }
+							  public static void foo(String s) {
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"Bill Duck");
 	}
@@ -342,14 +360,15 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String first = \"Bill\";\n"
-						+ "    String last = \"Duck\";\n"
-						+ "    String s = STR.\"\\{first}\" + \" \" + STR.\"\\{last}\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String first = "Bill";
+							    String last = "Duck";
+							    String s = STR."\\{first}" + " " + STR."\\{last}";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"Bill Duck");
 	}
@@ -357,16 +376,17 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String first = \"Bill\";\n"
-						+ "    String last = \"Duck\";\n"
-						+ "    foo(STR.\"\\{first}\" + \" \" + STR.\"\\{last}\");\n"
-						+ "  }\n"
-						+ "  public static void foo(String s) {\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String first = "Bill";
+							    String last = "Duck";
+							    foo(STR."\\{first}" + " " + STR."\\{last}");
+							  }
+							  public static void foo(String s) {
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"Bill Duck");
 	}
@@ -375,13 +395,14 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String first = \"Bill\";\n"
-						+ "    String s = STR.\"\\{first + STR.\"\"}\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String first = "Bill";
+							    String s = STR."\\{first + STR.""}";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"Bill");
 	}
@@ -390,12 +411,13 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String s = STR.\"\\{}\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String s = STR."\\{}";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"null");
 	}
@@ -404,12 +426,13 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String s = STR.\"\\{null}\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String s = STR."\\{null}";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"null");
 	}
@@ -417,12 +440,13 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String s = STR.\"\\{STR.\"\\{STR.\"abc\"}\"}\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String s = STR."\\{STR."\\{STR."abc"}"}";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"abc");
 	}
@@ -430,103 +454,116 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String first = \"Bill\";\n"
-						+ "    String s = \"Name is \\{first}\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String first = "Bill";
+							    String s = "Name is \\{first}";
+							    System.out.println(s);
+							  }
+							}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	String s = \"Name is \\{first}\";\n" +
-				"	           ^^^^^^^^^^^^^^^^^^\n" +
-				"Syntax error on token \"StringTemplate\", invalid Expression\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						String s = "Name is \\{first}";
+						           ^^^^^^^^^^^^^^^^^^
+					Syntax error on token "StringTemplate", invalid Expression
+					----------
+					""");
 	}
 	public void test015a() {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String first = \"Bill\";\n"
-						+ "    String s = \"\"\"\n"
-						+ "Name is \\{first}\"\"\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String first = "Bill";
+							    String s = \"""
+							Name is \\{first}\""";
+							    System.out.println(s);
+							  }
+							}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	String s = \"\"\"\n" +
-				"Name is \\{first}\"\"\";\n" +
-				"	           ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Syntax error on token \"TextBlockTemplate\", invalid Expression\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						String s = \"""
+					Name is \\{first}\""";
+						           ^^^^^^^^^^^^^^^^^^^^^^^
+					Syntax error on token "TextBlockTemplate", invalid Expression
+					----------
+					""");
 	}
 	public void test016() {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String first = \"Bill\";\n"
-						+ "    String s = \"\"\"\n"
-						+ "      \\{first}\n"
-						+ "    \"\"\"\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String first = "Bill";
+							    String s = \"""
+							      \\{first}
+							    \"""
+							    System.out.println(s);
+							  }
+							}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	String s = \"\"\"\n" +
-				"      \\{first}\n" +
-				"    \"\"\"\n" +
-				"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Syntax error on token \"TextBlockTemplate\", delete this token\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						String s = \"""
+					      \\{first}
+					    \"""
+						           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Syntax error on token "TextBlockTemplate", delete this token
+					----------
+					""");
 	}
 	public void test017() {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String first = \"Bill\";\n"
-						+ "    String s = STR1.\"\"\"\n"
-						+ "				 \\{first} \n"
-						+ "				\"\"\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String first = "Bill";
+							    String s = STR1.\"""
+											 \\{first}\s
+											\""";
+							    System.out.println(s);
+							  }
+							}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	String s = STR1.\"\"\"\n" +
-				"	           ^^^^\n" +
-				"STR1 cannot be resolved\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						String s = STR1.\"""
+						           ^^^^
+					STR1 cannot be resolved
+					----------
+					""");
 	}
 	public void test018() {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  static final StringTemplate.Processor<String, RuntimeException> PROC = null;\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String first = \"Bill\";\n"
-						+ "    boolean isNull = false;\n"
-						+ "    try {\n"
-						+ "      String s = PROC.\"\\{first}\";\n"
-						+ "      } catch (NullPointerException e) {\n"
-						+ "        isNull = true;\n"
-						+ "      }"
-						+ "      System.out.println(isNull);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  static final StringTemplate.Processor<String, RuntimeException> PROC = null;
+							  public static void main(String[] args) {
+							    String first = "Bill";
+							    boolean isNull = false;
+							    try {
+							      String s = PROC."\\{first}";
+							      } catch (NullPointerException e) {
+							        isNull = true;
+							      }\
+							      System.out.println(isNull);
+							  }
+							}"""
 				},
 				"true");
 	}
@@ -534,64 +571,71 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"import static java.lang.StringTemplate.STR;\n"
-						+ "public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String first = \"Bill\";\n"
-						+ "    String s = STR.\"\\{first}\";\n"
-						+ "    System.out.println(s1);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							import static java.lang.StringTemplate.STR;
+							public class X {
+							  public static void main(String[] args) {
+							    String first = "Bill";
+							    String s = STR."\\{first}";
+							    System.out.println(s1);
+							  }
+							}"""
 				},
-				"----------\n" +
-				"1. WARNING in X.java (at line 1)\n" +
-				"	import static java.lang.StringTemplate.STR;\n" +
-				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"The import java.lang.StringTemplate.STR is never used\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	System.out.println(s1);\n" +
-				"	                   ^^\n" +
-				"s1 cannot be resolved to a variable\n" +
-				"----------\n");
+				"""
+					----------
+					1. WARNING in X.java (at line 1)
+						import static java.lang.StringTemplate.STR;
+						              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					The import java.lang.StringTemplate.STR is never used
+					----------
+					2. ERROR in X.java (at line 6)
+						System.out.println(s1);
+						                   ^^
+					s1 cannot be resolved to a variable
+					----------
+					""");
 	}
 	public void test020() {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"import java.lang.StringTemplate.STR;\n"
-						+ "public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String first = \"Bill\";\n"
-						+ "    String s = STR.\"\\{first}\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							import java.lang.StringTemplate.STR;
+							public class X {
+							  public static void main(String[] args) {
+							    String first = "Bill";
+							    String s = STR."\\{first}";
+							    System.out.println(s);
+							  }
+							}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 1)\n" +
-				"	import java.lang.StringTemplate.STR;\n" +
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"The import java.lang.StringTemplate.STR cannot be resolved\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 1)
+						import java.lang.StringTemplate.STR;
+						       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					The import java.lang.StringTemplate.STR cannot be resolved
+					----------
+					""");
 	}
 	// Tests that use a non-name expression for processors
 	public void test021() {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X  {\n"
-						+ "  public static void main(String argv[]) {\n"
-						+ "    int i1 = 1; int i2 = 2; int i3 = 3; int i4 = 4; int i5 = 5; int i6 = 6; int i7 = 7; int i8 = 8; int i9 = 9; int i10 = 10; int i11 = 11; int i12 = 12; int i13 = 13; int i14 = 14; int i15 = 15; int i16 = 16; int i17 = 17; int i18 = 18; int i19 = 19; int i20 = 20; int i21 = 21; int i22 = 22; int i23 = 23; int i24 = 24; int i25 = 25; int i26 = 26; int i27 = 27; int i28 = 28; int i29 = 29; int i30 = 30; int i31 = 31; int i32 = 32; int i33 = 33; int i34 = 34; int i35 = 35; int i36 = 36; int i37 = 37; int i38 = 38; int i39 = 39; int i40 = 40; int i41 = 41; int i42 = 42; int i43 = 43; int i44 = 44; int i45 = 45; int i46 = 46; int i47 = 47; int i48 = 48; int i49 = 49; int i50 = 50; int i51 = 51; int i52 = 52; int i53 = 53; int i54 = 54; int i55 = 55; int i56 = 56; int i57 = 57; int i58 = 58; int i59 = 59; int i60 = 60; int i61 = 61; int i62 = 62; int i63 = 63; int i64 = 64; int i65 = 65; int i66 = 66; int i67 = 67; int i68 = 68; int i69 = 69; int i70 = 70; int i71 = 71; int i72 = 72; int i73 = 73; int i74 = 74; int i75 = 75; int i76 = 76; int i77 = 77; int i78 = 78; int i79 = 79; int i80 = 80; int i81 = 81; int i82 = 82; int i83 = 83; int i84 = 84; int i85 = 85; int i86 = 86; int i87 = 87; int i88 = 88; int i89 = 89; int i90 = 90; int i91 = 91; int i92 = 92; int i93 = 93; int i94 = 94; int i95 = 95; int i96 = 96; int i97 = 97; int i98 = 98; int i99 = 99; int i100 = 100; \n"
-						+ "    String s = (new MyProcessor()).\"s1\\{i1}s2\\{i2}s3\\{i3}s4\\{i4}s5\\{i5}s6\\{i6}s7\\{i7}s8\\{i8}s9\\{i9}s10\\{i10}s11\\{i11}s12\\{i12}s13\\{i13}s14\\{i14}s15\\{i15}s16\\{i16}s17\\{i17}s18\\{i18}s19\\{i19}s20\\{i20}s21\\{i21}s22\\{i22}s23\\{i23}s24\\{i24}s25\\{i25}s26\\{i26}s27\\{i27}s28\\{i28}s29\\{i29}s30\\{i30}s31\\{i31}s32\\{i32}s33\\{i33}s34\\{i34}s35\\{i35}s36\\{i36}s37\\{i37}s38\\{i38}s39\\{i39}s40\\{i40}s41\\{i41}s42\\{i42}s43\\{i43}s44\\{i44}s45\\{i45}s46\\{i46}s47\\{i47}s48\\{i48}s49\\{i49}s50\\{i50}s51\\{i51}s52\\{i52}s53\\{i53}s54\\{i54}s55\\{i55}s56\\{i56}s57\\{i57}s58\\{i58}s59\\{i59}s60\\{i60}s61\\{i61}s62\\{i62}s63\\{i63}s64\\{i64}s65\\{i65}s66\\{i66}s67\\{i67}s68\\{i68}s69\\{i69}s70\\{i70}s71\\{i71}s72\\{i72}s73\\{i73}s74\\{i74}s75\\{i75}s76\\{i76}s77\\{i77}s78\\{i78}s79\\{i79}s80\\{i80}s81\\{i81}s82\\{i82}s83\\{i83}s84\\{i84}s85\\{i85}s86\\{i86}s87\\{i87}s88\\{i88}s89\\{i89}s90\\{i90}s91\\{i91}s92\\{i92}s93\\{i93}s94\\{i94}s95\\{i95}s96\\{i96}s97\\{i97}s98\\{i98}s99\\{i99}s100\\{i100}s101\";\n"
-						+ "    System.out.println(s.equals(\"\\\"s11s22s33s44s55s66s77s88s99s1010s1111s1212s1313s1414s1515s1616s1717s1818s1919s2020s2121s2222s2323s2424s2525s2626s2727s2828s2929s3030s3131s3232s3333s3434s3535s3636s3737s3838s3939s4040s4141s4242s4343s4444s4545s4646s4747s4848s4949s5050s5151s5252s5353s5454s5555s5656s5757s5858s5959s6060s6161s6262s6363s6464s6565s6666s6767s6868s6969s7070s7171s7272s7373s7474s7575s7676s7777s7878s7979s8080s8181s8282s8383s8484s8585s8686s8787s8888s8989s9090s9191s9292s9393s9494s9595s9696s9797s9898s9999s100100s101\\\"\"));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "class MyProcessor implements StringTemplate.Processor<String, RuntimeException>  {\n"
-						+ "  public String process(StringTemplate st) {\n"
-						+ "    return \"\\\"\" + STR.process(st) + \"\\\"\";\n"
-						+ "  };\n"
-						+ "}"
+						"""
+							public class X  {
+							  public static void main(String argv[]) {
+							    int i1 = 1; int i2 = 2; int i3 = 3; int i4 = 4; int i5 = 5; int i6 = 6; int i7 = 7; int i8 = 8; int i9 = 9; int i10 = 10; int i11 = 11; int i12 = 12; int i13 = 13; int i14 = 14; int i15 = 15; int i16 = 16; int i17 = 17; int i18 = 18; int i19 = 19; int i20 = 20; int i21 = 21; int i22 = 22; int i23 = 23; int i24 = 24; int i25 = 25; int i26 = 26; int i27 = 27; int i28 = 28; int i29 = 29; int i30 = 30; int i31 = 31; int i32 = 32; int i33 = 33; int i34 = 34; int i35 = 35; int i36 = 36; int i37 = 37; int i38 = 38; int i39 = 39; int i40 = 40; int i41 = 41; int i42 = 42; int i43 = 43; int i44 = 44; int i45 = 45; int i46 = 46; int i47 = 47; int i48 = 48; int i49 = 49; int i50 = 50; int i51 = 51; int i52 = 52; int i53 = 53; int i54 = 54; int i55 = 55; int i56 = 56; int i57 = 57; int i58 = 58; int i59 = 59; int i60 = 60; int i61 = 61; int i62 = 62; int i63 = 63; int i64 = 64; int i65 = 65; int i66 = 66; int i67 = 67; int i68 = 68; int i69 = 69; int i70 = 70; int i71 = 71; int i72 = 72; int i73 = 73; int i74 = 74; int i75 = 75; int i76 = 76; int i77 = 77; int i78 = 78; int i79 = 79; int i80 = 80; int i81 = 81; int i82 = 82; int i83 = 83; int i84 = 84; int i85 = 85; int i86 = 86; int i87 = 87; int i88 = 88; int i89 = 89; int i90 = 90; int i91 = 91; int i92 = 92; int i93 = 93; int i94 = 94; int i95 = 95; int i96 = 96; int i97 = 97; int i98 = 98; int i99 = 99; int i100 = 100;\s
+							    String s = (new MyProcessor())."s1\\{i1}s2\\{i2}s3\\{i3}s4\\{i4}s5\\{i5}s6\\{i6}s7\\{i7}s8\\{i8}s9\\{i9}s10\\{i10}s11\\{i11}s12\\{i12}s13\\{i13}s14\\{i14}s15\\{i15}s16\\{i16}s17\\{i17}s18\\{i18}s19\\{i19}s20\\{i20}s21\\{i21}s22\\{i22}s23\\{i23}s24\\{i24}s25\\{i25}s26\\{i26}s27\\{i27}s28\\{i28}s29\\{i29}s30\\{i30}s31\\{i31}s32\\{i32}s33\\{i33}s34\\{i34}s35\\{i35}s36\\{i36}s37\\{i37}s38\\{i38}s39\\{i39}s40\\{i40}s41\\{i41}s42\\{i42}s43\\{i43}s44\\{i44}s45\\{i45}s46\\{i46}s47\\{i47}s48\\{i48}s49\\{i49}s50\\{i50}s51\\{i51}s52\\{i52}s53\\{i53}s54\\{i54}s55\\{i55}s56\\{i56}s57\\{i57}s58\\{i58}s59\\{i59}s60\\{i60}s61\\{i61}s62\\{i62}s63\\{i63}s64\\{i64}s65\\{i65}s66\\{i66}s67\\{i67}s68\\{i68}s69\\{i69}s70\\{i70}s71\\{i71}s72\\{i72}s73\\{i73}s74\\{i74}s75\\{i75}s76\\{i76}s77\\{i77}s78\\{i78}s79\\{i79}s80\\{i80}s81\\{i81}s82\\{i82}s83\\{i83}s84\\{i84}s85\\{i85}s86\\{i86}s87\\{i87}s88\\{i88}s89\\{i89}s90\\{i90}s91\\{i91}s92\\{i92}s93\\{i93}s94\\{i94}s95\\{i95}s96\\{i96}s97\\{i97}s98\\{i98}s99\\{i99}s100\\{i100}s101";
+							    System.out.println(s.equals("\\"s11s22s33s44s55s66s77s88s99s1010s1111s1212s1313s1414s1515s1616s1717s1818s1919s2020s2121s2222s2323s2424s2525s2626s2727s2828s2929s3030s3131s3232s3333s3434s3535s3636s3737s3838s3939s4040s4141s4242s4343s4444s4545s4646s4747s4848s4949s5050s5151s5252s5353s5454s5555s5656s5757s5858s5959s6060s6161s6262s6363s6464s6565s6666s6767s6868s6969s7070s7171s7272s7373s7474s7575s7676s7777s7878s7979s8080s8181s8282s8383s8484s8585s8686s8787s8888s8989s9090s9191s9292s9393s9494s9595s9696s9797s9898s9999s100100s101\\""));
+							  }
+							}
+							class MyProcessor implements StringTemplate.Processor<String, RuntimeException>  {
+							  public String process(StringTemplate st) {
+							    return "\\"" + STR.process(st) + "\\"";
+							  };
+							}"""
 				},
 				"true");
 	}
@@ -599,15 +643,16 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String argv[]) {\n"
-						+ "      String s = getProc().\"\\{\"pass\"}\";\n"
-						+ "      System.out.println(s);\n"
-						+ "  }\n"
-						+ "  public static StringTemplate.Processor<String, RuntimeException> getProc() {\n"
-						+ "      return StringTemplate.STR;\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String argv[]) {
+							      String s = getProc()."\\{"pass"}";
+							      System.out.println(s);
+							  }
+							  public static StringTemplate.Processor<String, RuntimeException> getProc() {
+							      return StringTemplate.STR;
+							  }
+							}"""
 				},
 				"pass");
 	}
@@ -615,19 +660,20 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String argv[]) {\n"
-						+ "    int i1 = 1; int i2 = 2; int i3 = 3; int i4 = 4; int i5 = 5; int i6 = 6; int i7 = 7; int i8 = 8; int i9 = 9; int i10 = 10; int i11 = 11; int i12 = 12; int i13 = 13; int i14 = 14; int i15 = 15; int i16 = 16; int i17 = 17; int i18 = 18; int i19 = 19; int i20 = 20; int i21 = 21; int i22 = 22; int i23 = 23; int i24 = 24; int i25 = 25; int i26 = 26; int i27 = 27; int i28 = 28; int i29 = 29; int i30 = 30; int i31 = 31; int i32 = 32; int i33 = 33; int i34 = 34; int i35 = 35; int i36 = 36; int i37 = 37; int i38 = 38; int i39 = 39; int i40 = 40; int i41 = 41; int i42 = 42; int i43 = 43; int i44 = 44; int i45 = 45; int i46 = 46; int i47 = 47; int i48 = 48; int i49 = 49; int i50 = 50; int i51 = 51; int i52 = 52; int i53 = 53; int i54 = 54; int i55 = 55; int i56 = 56; int i57 = 57; int i58 = 58; int i59 = 59; int i60 = 60; int i61 = 61; int i62 = 62; int i63 = 63; int i64 = 64; int i65 = 65; int i66 = 66; int i67 = 67; int i68 = 68; int i69 = 69; int i70 = 70; int i71 = 71; int i72 = 72; int i73 = 73; int i74 = 74; int i75 = 75; int i76 = 76; int i77 = 77; int i78 = 78; int i79 = 79; int i80 = 80; int i81 = 81; int i82 = 82; int i83 = 83; int i84 = 84; int i85 = 85; int i86 = 86; int i87 = 87; int i88 = 88; int i89 = 89; int i90 = 90; int i91 = 91; int i92 = 92; int i93 = 93; int i94 = 94; int i95 = 95; int i96 = 96; int i97 = 97; int i98 = 98; int i99 = 99; int i100 = 100; \n"
-						+ "    MyProcessor tProcessor = new MyProcessor();\n"
-						+ "    String s = tProcessor.\"s1\\{i1}s2\\{i2}s3\\{i3}s4\\{i4}s5\\{i5}s6\\{i6}s7\\{i7}s8\\{i8}s9\\{i9}s10\\{i10}s11\\{i11}s12\\{i12}s13\\{i13}s14\\{i14}s15\\{i15}s16\\{i16}s17\\{i17}s18\\{i18}s19\\{i19}s20\\{i20}s21\\{i21}s22\\{i22}s23\\{i23}s24\\{i24}s25\\{i25}s26\\{i26}s27\\{i27}s28\\{i28}s29\\{i29}s30\\{i30}s31\\{i31}s32\\{i32}s33\\{i33}s34\\{i34}s35\\{i35}s36\\{i36}s37\\{i37}s38\\{i38}s39\\{i39}s40\\{i40}s41\\{i41}s42\\{i42}s43\\{i43}s44\\{i44}s45\\{i45}s46\\{i46}s47\\{i47}s48\\{i48}s49\\{i49}s50\\{i50}s51\\{i51}s52\\{i52}s53\\{i53}s54\\{i54}s55\\{i55}s56\\{i56}s57\\{i57}s58\\{i58}s59\\{i59}s60\\{i60}s61\\{i61}s62\\{i62}s63\\{i63}s64\\{i64}s65\\{i65}s66\\{i66}s67\\{i67}s68\\{i68}s69\\{i69}s70\\{i70}s71\\{i71}s72\\{i72}s73\\{i73}s74\\{i74}s75\\{i75}s76\\{i76}s77\\{i77}s78\\{i78}s79\\{i79}s80\\{i80}s81\\{i81}s82\\{i82}s83\\{i83}s84\\{i84}s85\\{i85}s86\\{i86}s87\\{i87}s88\\{i88}s89\\{i89}s90\\{i90}s91\\{i91}s92\\{i92}s93\\{i93}s94\\{i94}s95\\{i95}s96\\{i96}s97\\{i97}s98\\{i98}s99\\{i99}s100\\{i100}s101\";\n"
-						+ "    System.out.println(s.equals(\"\\\"s11s22s33s44s55s66s77s88s99s1010s1111s1212s1313s1414s1515s1616s1717s1818s1919s2020s2121s2222s2323s2424s2525s2626s2727s2828s2929s3030s3131s3232s3333s3434s3535s3636s3737s3838s3939s4040s4141s4242s4343s4444s4545s4646s4747s4848s4949s5050s5151s5252s5353s5454s5555s5656s5757s5858s5959s6060s6161s6262s6363s6464s6565s6666s6767s6868s6969s7070s7171s7272s7373s7474s7575s7676s7777s7878s7979s8080s8181s8282s8383s8484s8585s8686s8787s8888s8989s9090s9191s9292s9393s9494s9595s9696s9797s9898s9999s100100s101\\\"\"));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "class MyProcessor implements StringTemplate.Processor<String, RuntimeException> {\n"
-						+ "  public String process(StringTemplate st) {\n"
-						+ "    return \"\\\"\" + STR.process(st) + \"\\\"\";\n"
-						+ "  };\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String argv[]) {
+							    int i1 = 1; int i2 = 2; int i3 = 3; int i4 = 4; int i5 = 5; int i6 = 6; int i7 = 7; int i8 = 8; int i9 = 9; int i10 = 10; int i11 = 11; int i12 = 12; int i13 = 13; int i14 = 14; int i15 = 15; int i16 = 16; int i17 = 17; int i18 = 18; int i19 = 19; int i20 = 20; int i21 = 21; int i22 = 22; int i23 = 23; int i24 = 24; int i25 = 25; int i26 = 26; int i27 = 27; int i28 = 28; int i29 = 29; int i30 = 30; int i31 = 31; int i32 = 32; int i33 = 33; int i34 = 34; int i35 = 35; int i36 = 36; int i37 = 37; int i38 = 38; int i39 = 39; int i40 = 40; int i41 = 41; int i42 = 42; int i43 = 43; int i44 = 44; int i45 = 45; int i46 = 46; int i47 = 47; int i48 = 48; int i49 = 49; int i50 = 50; int i51 = 51; int i52 = 52; int i53 = 53; int i54 = 54; int i55 = 55; int i56 = 56; int i57 = 57; int i58 = 58; int i59 = 59; int i60 = 60; int i61 = 61; int i62 = 62; int i63 = 63; int i64 = 64; int i65 = 65; int i66 = 66; int i67 = 67; int i68 = 68; int i69 = 69; int i70 = 70; int i71 = 71; int i72 = 72; int i73 = 73; int i74 = 74; int i75 = 75; int i76 = 76; int i77 = 77; int i78 = 78; int i79 = 79; int i80 = 80; int i81 = 81; int i82 = 82; int i83 = 83; int i84 = 84; int i85 = 85; int i86 = 86; int i87 = 87; int i88 = 88; int i89 = 89; int i90 = 90; int i91 = 91; int i92 = 92; int i93 = 93; int i94 = 94; int i95 = 95; int i96 = 96; int i97 = 97; int i98 = 98; int i99 = 99; int i100 = 100;\s
+							    MyProcessor tProcessor = new MyProcessor();
+							    String s = tProcessor."s1\\{i1}s2\\{i2}s3\\{i3}s4\\{i4}s5\\{i5}s6\\{i6}s7\\{i7}s8\\{i8}s9\\{i9}s10\\{i10}s11\\{i11}s12\\{i12}s13\\{i13}s14\\{i14}s15\\{i15}s16\\{i16}s17\\{i17}s18\\{i18}s19\\{i19}s20\\{i20}s21\\{i21}s22\\{i22}s23\\{i23}s24\\{i24}s25\\{i25}s26\\{i26}s27\\{i27}s28\\{i28}s29\\{i29}s30\\{i30}s31\\{i31}s32\\{i32}s33\\{i33}s34\\{i34}s35\\{i35}s36\\{i36}s37\\{i37}s38\\{i38}s39\\{i39}s40\\{i40}s41\\{i41}s42\\{i42}s43\\{i43}s44\\{i44}s45\\{i45}s46\\{i46}s47\\{i47}s48\\{i48}s49\\{i49}s50\\{i50}s51\\{i51}s52\\{i52}s53\\{i53}s54\\{i54}s55\\{i55}s56\\{i56}s57\\{i57}s58\\{i58}s59\\{i59}s60\\{i60}s61\\{i61}s62\\{i62}s63\\{i63}s64\\{i64}s65\\{i65}s66\\{i66}s67\\{i67}s68\\{i68}s69\\{i69}s70\\{i70}s71\\{i71}s72\\{i72}s73\\{i73}s74\\{i74}s75\\{i75}s76\\{i76}s77\\{i77}s78\\{i78}s79\\{i79}s80\\{i80}s81\\{i81}s82\\{i82}s83\\{i83}s84\\{i84}s85\\{i85}s86\\{i86}s87\\{i87}s88\\{i88}s89\\{i89}s90\\{i90}s91\\{i91}s92\\{i92}s93\\{i93}s94\\{i94}s95\\{i95}s96\\{i96}s97\\{i97}s98\\{i98}s99\\{i99}s100\\{i100}s101";
+							    System.out.println(s.equals("\\"s11s22s33s44s55s66s77s88s99s1010s1111s1212s1313s1414s1515s1616s1717s1818s1919s2020s2121s2222s2323s2424s2525s2626s2727s2828s2929s3030s3131s3232s3333s3434s3535s3636s3737s3838s3939s4040s4141s4242s4343s4444s4545s4646s4747s4848s4949s5050s5151s5252s5353s5454s5555s5656s5757s5858s5959s6060s6161s6262s6363s6464s6565s6666s6767s6868s6969s7070s7171s7272s7373s7474s7575s7676s7777s7878s7979s8080s8181s8282s8383s8484s8585s8686s8787s8888s8989s9090s9191s9292s9393s9494s9595s9696s9797s9898s9999s100100s101\\""));
+							  }
+							}
+							class MyProcessor implements StringTemplate.Processor<String, RuntimeException> {
+							  public String process(StringTemplate st) {
+							    return "\\"" + STR.process(st) + "\\"";
+							  };
+							}"""
 				},
 				"true");
 	}
@@ -635,12 +681,13 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String s = STR.\"\\{STR.\"\\{STR.\"}abc{\"}\"}\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String s = STR."\\{STR."\\{STR."}abc{"}"}";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"}abc{");
 	}
@@ -648,12 +695,13 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    String s = STR.\"\\{STR.\"}\\{STR.\"}abc{\"}\"}{\";\n"
-						+ "    System.out.println(s);\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  public static void main(String[] args) {
+							    String s = STR."\\{STR."}\\{STR."}abc{"}"}{";
+							    System.out.println(s);
+							  }
+							}"""
 				},
 				"}}abc{{");
 	}
@@ -664,17 +712,18 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "    static String value1 = \"1\";\n"
-						+ "    private String getValue() {\n"
-						+ "        return value1;\n"
-						+ "    }\n"
-						+ "\n"
-						+ "    public static void main(String argv[]) {\n"
-						+ "        String str = STR.\"{}\\{(new X()).getValue()\\u007d\";\n"
-						+ "        System.out.println(str.equals(\"{}1\"));\n"
-						+ "    }\n"
-						+ "}"
+						"""
+							public class X {
+							    static String value1 = "1";
+							    private String getValue() {
+							        return value1;
+							    }
+							
+							    public static void main(String argv[]) {
+							        String str = STR."{}\\{(new X()).getValue()\\u007d";
+							        System.out.println(str.equals("{}1"));
+							    }
+							}"""
 				},
 				"true");
 	}
@@ -683,20 +732,23 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "    static String value1 = \"1\";\n"
-						+ "    public static void main(String argv[]) {\n"
-						+ "        String str = STR.\"{}\\{(new X()).getValue()\\u007d\";\n"
-						+ "        System.out.println(str.equals(\"{}1\"));\n"
-						+ "    }\n"
-						+ "}"
+						"""
+							public class X {
+							    static String value1 = "1";
+							    public static void main(String argv[]) {
+							        String str = STR."{}\\{(new X()).getValue()\\u007d";
+							        System.out.println(str.equals("{}1"));
+							    }
+							}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	String str = STR.\"{}\\{(new X()).getValue()\\u007d\";\n" +
-				"	                                ^^^^^^^^\n" +
-				"The method getValue() is undefined for the type X\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						String str = STR."{}\\{(new X()).getValue()\\u007d";
+						                                ^^^^^^^^
+					The method getValue() is undefined for the type X
+					----------
+					""");
 	}
 	// Text block template
 	// embedded expression contains an instantiation and method invocation
@@ -705,17 +757,18 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "    static String value1 = \"1\";\n"
-						+ "    private String getValue() {\n"
-						+ "        return value1;\n"
-						+ "    }\n"
-						+ "    public static void main(String argv[]) {\n"
-						+ "        String str = STR.\"\"\"\n"
-						+ "			{}\\{(new X()).getValue()\\u007d\"\"\";\n"
-						+ "        System.out.println(str.equals(\"{}1\"));\n"
-						+ "    }\n"
-						+ "}"
+						"""
+							public class X {
+							    static String value1 = "1";
+							    private String getValue() {
+							        return value1;
+							    }
+							    public static void main(String argv[]) {
+							        String str = STR.\"""
+										{}\\{(new X()).getValue()\\u007d\""";
+							        System.out.println(str.equals("{}1"));
+							    }
+							}"""
 				},
 				"true");
 	}
@@ -723,17 +776,18 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "    static String value1 = \"1\";\n"
-						+ "    private String getValue() {\n"
-						+ "        return value1;\n"
-						+ "    }\n"
-						+ "    public static void main(String argv[]) {\n"
-						+ "        String str = STR.\"\"\"\n"
-						+ "			{}\\{(new X()).getValue()}\"\"\";\n"
-						+ "        System.out.println(str.equals(\"{}1\"));\n"
-						+ "    }\n"
-						+ "}"
+						"""
+							public class X {
+							    static String value1 = "1";
+							    private String getValue() {
+							        return value1;
+							    }
+							    public static void main(String argv[]) {
+							        String str = STR.\"""
+										{}\\{(new X()).getValue()}\""";
+							        System.out.println(str.equals("{}1"));
+							    }
+							}"""
 				},
 				"true");
 	}
@@ -742,21 +796,24 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "    static String value1 = \"1\";\n"
-						+ "    public static void main(String argv[]) {\n"
-						+ "        String str = STR.\"\"\"\n"
-						+ "			{}\\{(new X()).getValue()\\u007d\"\"\";\n"
-						+ "        System.out.println(str.equals(\"{}1\"));\n"
-						+ "    }\n"
-						+ "}"
+						"""
+							public class X {
+							    static String value1 = "1";
+							    public static void main(String argv[]) {
+							        String str = STR.\"""
+										{}\\{(new X()).getValue()\\u007d\""";
+							        System.out.println(str.equals("{}1"));
+							    }
+							}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	{}\\{(new X()).getValue()\\u007d\"\"\";\n" +
-				"	              ^^^^^^^^\n" +
-				"The method getValue() is undefined for the type X\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						{}\\{(new X()).getValue()\\u007d\""";
+						              ^^^^^^^^
+					The method getValue() is undefined for the type X
+					----------
+					""");
 	}
 	// Flow analysis related tests
 	public void test027() {
@@ -767,13 +824,14 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 			runConformTest(
 					new String[] {
 							"X.java",
-							"public class X {\n"
-							+ "  public static void main(String[] args) {\n"
-							+ "    String abc = \"abc\";\n"
-							+ "    String s = STR.\"A simple String: \\{abc}\";\n"
-							+ "    System.out.println(s);\n"
-							+ "  }\n"
-							+ "}"
+							"""
+								public class X {
+								  public static void main(String[] args) {
+								    String abc = "abc";
+								    String s = STR."A simple String: \\{abc}";
+								    System.out.println(s);
+								  }
+								}"""
 					},
 					"A simple String: abc",
 					options);
@@ -789,21 +847,24 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 			runNegativeTest(
 					new String[] {
 							"X.java",
-							"public class X {\n"
-							+ "  public static void main(String[] args) {\n"
-							+ "    String abc = \"abc\"; // unused\n"
-							+ "    String def = \"def\";\n"
-							+ "    String s = STR.\"A simple String \\{def}\";\n"
-							+ "    System.out.println(s);\n"
-							+ "  }\n"
-							+ "}"
+							"""
+								public class X {
+								  public static void main(String[] args) {
+								    String abc = "abc"; // unused
+								    String def = "def";
+								    String s = STR."A simple String \\{def}";
+								    System.out.println(s);
+								  }
+								}"""
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 3)\n" +
-					"	String abc = \"abc\"; // unused\n" +
-					"	       ^^^\n" +
-					"The value of the local variable abc is not used\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in X.java (at line 3)
+							String abc = "abc"; // unused
+							       ^^^
+						The value of the local variable abc is not used
+						----------
+						""",
 					null,
 					false,
 					options);
@@ -819,21 +880,24 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 			runNegativeTest(
 					new String[] {
 							"X.java",
-							"public class X {\n"
-							+ "  private String abc = \"abc\"; // unused\n"
-							+ "  private String def = \"def\"; // unused\n"
-							+ "  public void main(String[] args) {\n"
-							+ "    String s = STR.\"A simple String \\{def}\";\n"
-							+ "    System.out.println(s);\n"
-							+ "  }\n"
-							+ "}"
+							"""
+								public class X {
+								  private String abc = "abc"; // unused
+								  private String def = "def"; // unused
+								  public void main(String[] args) {
+								    String s = STR."A simple String \\{def}";
+								    System.out.println(s);
+								  }
+								}"""
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 2)\n" +
-					"	private String abc = \"abc\"; // unused\n" +
-					"	               ^^^\n" +
-					"The value of the field X.abc is not used\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in X.java (at line 2)
+							private String abc = "abc"; // unused
+							               ^^^
+						The value of the field X.abc is not used
+						----------
+						""",
 					null,
 					false,
 					options);
@@ -849,24 +913,27 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 			runNegativeTest(
 					new String[] {
 							"X.java",
-							"public class X {\n"
-							+ "  private String abc = \"abc\"; // unused\n"
-							+ "  private String def = \"def\"; // unused\n"
-							+ "  public void main(String[] args) {\n"
-							+ "    String s = STR.\"A simple String \\{clone(def)}\";\n"
-							+ "    System.out.println(s);\n"
-							+ "  }\n"
-							+ "  public String clone(String s) {\n"
-							+ "    return s;\n"
-							+ "  }\n"
-							+ "}"
+							"""
+								public class X {
+								  private String abc = "abc"; // unused
+								  private String def = "def"; // unused
+								  public void main(String[] args) {
+								    String s = STR."A simple String \\{clone(def)}";
+								    System.out.println(s);
+								  }
+								  public String clone(String s) {
+								    return s;
+								  }
+								}"""
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 2)\n" +
-					"	private String abc = \"abc\"; // unused\n" +
-					"	               ^^^\n" +
-					"The value of the field X.abc is not used\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in X.java (at line 2)
+							private String abc = "abc"; // unused
+							               ^^^
+						The value of the field X.abc is not used
+						----------
+						""",
 					null,
 					false,
 					options);
@@ -882,16 +949,17 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 			runConformTest(
 					new String[] {
 							"X.java",
-							"public class X {\n"
-							+ "  private String abc = \"abc\"; // unused\n"
-							+ "  public void main(String[] args) {\n"
-							+ "    String s = STR.\"A simple String \\{clone(abc)}\";\n"
-							+ "    System.out.println(s);\n"
-							+ "  }\n"
-							+ "  public String clone(String s) {\n"
-							+ "    return \"clone\";\n"
-							+ "  }\n"
-							+ "}"
+							"""
+								public class X {
+								  private String abc = "abc"; // unused
+								  public void main(String[] args) {
+								    String s = STR."A simple String \\{clone(abc)}";
+								    System.out.println(s);
+								  }
+								  public String clone(String s) {
+								    return "clone";
+								  }
+								}"""
 					},
 					"A simple String clone",
 					options);
@@ -903,16 +971,17 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  static int CONST = 0;\n"
-						+ "    private static int foo() {\n"
-						+ "    return CONST;\n"
-						+ "  }\n"
-						+ "  public static void main(String argv[]) {\n"
-						+ "    String str = STR.\"{\\{new Object() { class Test { int i; Test() { i = foo();}}}.new Test().i\\u007d}\";\n"
-						+ "    System.out.println(str.equals(\"{0}\"));\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  static int CONST = 0;
+							    private static int foo() {
+							    return CONST;
+							  }
+							  public static void main(String argv[]) {
+							    String str = STR."{\\{new Object() { class Test { int i; Test() { i = foo();}}}.new Test().i\\u007d}";
+							    System.out.println(str.equals("{0}"));
+							  }
+							}"""
 				},
 				"true");
 	}
@@ -921,17 +990,18 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "  static int CONST = 0;\n"
-						+ "    private static int foo() {\n"
-						+ "    return CONST;\n"
-						+ "  }\n"
-						+ "  public static void main(String argv[]) {\n"
-						+ "    String str = STR.\"\"\"\n"
-						+ "      {\\{new Object() { class Test { int i; Test() { i = foo();}}}.new Test().i\\u007d}\"\"\";\n"
-						+ "    System.out.println(str.equals(\"{0}\"));\n"
-						+ "  }\n"
-						+ "}"
+						"""
+							public class X {
+							  static int CONST = 0;
+							    private static int foo() {
+							    return CONST;
+							  }
+							  public static void main(String argv[]) {
+							    String str = STR.\"""
+							      {\\{new Object() { class Test { int i; Test() { i = foo();}}}.new Test().i\\u007d}\""";
+							    System.out.println(str.equals("{0}"));
+							  }
+							}"""
 				},
 				"true");
 	}
@@ -939,13 +1009,14 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "    public static void main(String argv[]) {\n"
-						+ "        String abc;\n"
-						+ "        String temp = STR.\"\\{abc = \"abc\"}\\{abc}\";\n"
-						+ "        System.out.println(temp);\n"
-						+ "    }\n"
-						+ "}"
+						"""
+							public class X {
+							    public static void main(String argv[]) {
+							        String abc;
+							        String temp = STR."\\{abc = "abc"}\\{abc}";
+							        System.out.println(temp);
+							    }
+							}"""
 				},
 				"abcabc");
 	}
@@ -953,20 +1024,23 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "    public static void main(String argv[]) {\n"
-						+ "        String abc;\n"
-						+ "        String temp = STR.\"\\{}\\{abc}\";\n"
-						+ "        System.out.println(temp);\n"
-						+ "    }\n"
-						+ "}"
+						"""
+							public class X {
+							    public static void main(String argv[]) {
+							        String abc;
+							        String temp = STR."\\{}\\{abc}";
+							        System.out.println(temp);
+							    }
+							}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	String temp = STR.\"\\{}\\{abc}\";\n" +
-				"	                        ^^^\n" +
-				"The local variable abc may not have been initialized\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						String temp = STR."\\{}\\{abc}";
+						                        ^^^
+					The local variable abc may not have been initialized
+					----------
+					""");
 	}
 	// Test that newlines and such are allowed in strings if they are inside embedded expressions
 	public void test033() {
@@ -1027,27 +1101,28 @@ public class X {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "    private final static int LF  = (char) 0x000A;\n"
-						+ "    private static boolean compare(String s) {\n"
-						+ "        char[] chars = new char[] {LF,'a','b','c','d'};\n"
-						+ "        if (chars.length != s.length())\n"
-						+ "            return false;\n"
-						+ "        for (int i = 0; i < s.length(); i++) {\n"
-						+ "            if(chars[i] != s.charAt(i)) {\n"
-						+ "                return false;\n"
-						+ "            }\n"
-						+ "        }\n"
-						+ "        return true;\n"
-						+ "    }\n"
-						+ "    public static void main(String argv[]) {\n"
-						+ "        String abcd = \"abcd\"; //$NON-NLS-1$\n"
-						+ "        String textBlock = STR.\"\"\"\n"
-						+ "   \n"
-						+ "\\{abcd}\"\"\";//$NON-NLS-1$\n"
-						+ "        System.out.println(compare(textBlock));\n"
-						+ "    }\n"
-						+ "}"
+						"""
+							public class X {
+							    private final static int LF  = (char) 0x000A;
+							    private static boolean compare(String s) {
+							        char[] chars = new char[] {LF,'a','b','c','d'};
+							        if (chars.length != s.length())
+							            return false;
+							        for (int i = 0; i < s.length(); i++) {
+							            if(chars[i] != s.charAt(i)) {
+							                return false;
+							            }
+							        }
+							        return true;
+							    }
+							    public static void main(String argv[]) {
+							        String abcd = "abcd"; //$NON-NLS-1$
+							        String textBlock = STR.\"""
+							  \s
+							\\{abcd}\""";//$NON-NLS-1$
+							        System.out.println(compare(textBlock));
+							    }
+							}"""
 				},
 				"true");
 	}
@@ -1059,27 +1134,28 @@ public class X {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "    private final static int LF  = (char) 0x000A;\n"
-						+ "    private static boolean compare(String s) {\n"
-						+ "        char[] chars = new char[] {' ', ' ', ' ', LF, 'a','b','c','d'};\n"
-						+ "        if (chars.length != s.length())\n"
-						+ "            return false;\n"
-						+ "        for (int i = 0; i < s.length(); i++) {\n"
-						+ "            if(chars[i] != s.charAt(i)) {\n"
-						+ "                return false;\n"
-						+ "            }\n"
-						+ "        }\n"
-						+ "        return true;\n"
-						+ "    }\n"
-						+ "    public static void main(String argv[]) {\n"
-						+ "        String abcd = \"abcd\"; //$NON-NLS-1$\n"
-						+ "        String textBlock = STR.\"\"\"\n"
-						+ "\\40\\40\\40\n"
-						+ "\\{abcd}\"\"\";//$NON-NLS-1$\n"
-						+ "        System.out.println(compare(textBlock));\n"
-						+ "    }\n"
-						+ "}"
+						"""
+							public class X {
+							    private final static int LF  = (char) 0x000A;
+							    private static boolean compare(String s) {
+							        char[] chars = new char[] {' ', ' ', ' ', LF, 'a','b','c','d'};
+							        if (chars.length != s.length())
+							            return false;
+							        for (int i = 0; i < s.length(); i++) {
+							            if(chars[i] != s.charAt(i)) {
+							                return false;
+							            }
+							        }
+							        return true;
+							    }
+							    public static void main(String argv[]) {
+							        String abcd = "abcd"; //$NON-NLS-1$
+							        String textBlock = STR.\"""
+							\\40\\40\\40
+							\\{abcd}\""";//$NON-NLS-1$
+							        System.out.println(compare(textBlock));
+							    }
+							}"""
 				},
 				"true");
 	}
@@ -1088,27 +1164,28 @@ public class X {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"public class X {\n"
-						+ "    private final static int LF  = (char) 0x000A;\n"
-						+ "    private static boolean compare(String s) {\n"
-						+ "        char[] chars = new char[] {' ', ' ', ' ', LF, 'a','b','c','d'};\n"
-						+ "        if (chars.length != s.length())\n"
-						+ "            return false;\n"
-						+ "        for (int i = 0; i < s.length(); i++) {\n"
-						+ "            if(chars[i] != s.charAt(i)) {\n"
-						+ "                return false;\n"
-						+ "            }\n"
-						+ "        }\n"
-						+ "        return true;\n"
-						+ "    }\n"
-						+ "    public static void main(String argv[]) {\n"
-						+ "        String abcd = \"abcd\"; //$NON-NLS-1$\n"
-						+ "        String textBlock = \"\"\"\n"
-						+ "\\40\\40\\40\n"
-						+ "abcd\"\"\";//$NON-NLS-1$\n"
-						+ "        System.out.println(compare(textBlock));\n"
-						+ "    }\n"
-						+ "}"
+						"""
+							public class X {
+							    private final static int LF  = (char) 0x000A;
+							    private static boolean compare(String s) {
+							        char[] chars = new char[] {' ', ' ', ' ', LF, 'a','b','c','d'};
+							        if (chars.length != s.length())
+							            return false;
+							        for (int i = 0; i < s.length(); i++) {
+							            if(chars[i] != s.charAt(i)) {
+							                return false;
+							            }
+							        }
+							        return true;
+							    }
+							    public static void main(String argv[]) {
+							        String abcd = "abcd"; //$NON-NLS-1$
+							        String textBlock = \"""
+							\\40\\40\\40
+							abcd\""";//$NON-NLS-1$
+							        System.out.println(compare(textBlock));
+							    }
+							}"""
 				},
 				"true");
 	}
@@ -1182,9 +1259,10 @@ String s = STR.\"""
     }
 }"""
 				},
-				"xyz\n" +
-				" abc\n" +
-				"def123");
+				"""
+					xyz
+					 abc
+					def123""");
 	}
 	public void test041() {
 		runConformTest(
@@ -1204,9 +1282,10 @@ String s = STR.\"""
     }
 }"""
 				},
-				"xyz\n" +
-				"abc\n" +
-				"def123");
+				"""
+					xyz
+					abc
+					def123""");
 	}
 	public void test0041() {
 		runConformTest(new String[]{
@@ -1364,12 +1443,14 @@ String s = STR.\"""
 				}
 """
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	String template = StringTemplate.RAW.\"\\{name}\";\n" +
-			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from StringTemplate to String\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					String template = StringTemplate.RAW."\\{name}";
+					                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Type mismatch: cannot convert from StringTemplate to String
+				----------
+				"""
 );
 	}
 	// pass string template with embedded expression as argument to a method invocation
@@ -1468,12 +1549,14 @@ public class X {
 }
 """
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	Hello \\u005c\\u007bnames}\\{\"!\"}\n" +
-			"	                  ^^^^^\n" +
-			"names cannot be resolved to a variable\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					Hello \\u005c\\u007bnames}\\{"!"}
+					                  ^^^^^
+				names cannot be resolved to a variable
+				----------
+				"""
 	);
 	}
 	public void test053() {
@@ -1517,22 +1600,24 @@ s
 	}
 """
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	s\n" +
-				"	^\n" +
-				"The local variable s may not have been initialized\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 9)\n" +
-				"	s\n" +
-				"	^\n" +
-				"The local variable s may not have been initialized\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 13)\n" +
-				"	String s2 = \"\" + s + \"\";\n" +
-				"	                 ^\n" +
-				"The local variable s may not have been initialized\n" +
-				"----------\n"
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						s
+						^
+					The local variable s may not have been initialized
+					----------
+					2. ERROR in X.java (at line 9)
+						s
+						^
+					The local variable s may not have been initialized
+					----------
+					3. ERROR in X.java (at line 13)
+						String s2 = "" + s + "";
+						                 ^
+					The local variable s may not have been initialized
+					----------
+					"""
 		);
 	}
 	public void test0055() {
@@ -1558,12 +1643,14 @@ s
 						}
 					"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	s\n" +
-				"	^\n" +
-				"The local variable s may not have been initialized\n" +
-				"----------\n"
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						s
+						^
+					The local variable s may not have been initialized
+					----------
+					"""
 		);
 	}
 	public void test0056() {
@@ -1609,12 +1696,14 @@ s
 							}
 						"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 1)\n" +
-				"	s=\"Jay\";\n" +
-				"	       ^\n" +
-				"Syntax error on token \";\", delete this token\n" +
-				"----------\n"
+				"""
+					----------
+					1. ERROR in X.java (at line 1)
+						s="Jay";
+						       ^
+					Syntax error on token ";", delete this token
+					----------
+					"""
 		);
 	}
 	// Test with assignment of the outer string literal inside the template expression
@@ -1706,9 +1795,10 @@ s
 					}
 					"""
 				},
-				"SELECT * FROM\n"
-				+ "SELECT * FROM\n"
-				+ "SELECT * FROM"
+				"""
+					SELECT * FROM
+					SELECT * FROM
+					SELECT * FROM"""
 		);
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2125
@@ -1761,9 +1851,10 @@ s
 					}
 					"""
 				},
-				"SELECT * FROM\n"
-				+ "SELECT * FROM\n"
-				+ "SELECT * FROM"
+				"""
+					SELECT * FROM
+					SELECT * FROM
+					SELECT * FROM"""
 		);
 	}
 	// Test with read of the outer string literal inside the template expression
@@ -1784,12 +1875,14 @@ s
 						}
 					"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	greet\n" +
-				"	^^^^^\n" +
-				"The local variable greet may not have been initialized\n" +
-				"----------\n"
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						greet
+						^^^^^
+					The local variable greet may not have been initialized
+					----------
+					"""
 		);
 	}
 	public void test0061() {
@@ -1805,12 +1898,14 @@ s
 						}
 					}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	String greet = STR.\"Hello!\";\n" +
-				"	               ^^^^^^^^^^^^\n" +
-				"String Template is a preview feature and disabled by default. Use --enable-preview to enable\n" +
-				"----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						String greet = STR."Hello!";
+						               ^^^^^^^^^^^^
+					String Template is a preview feature and disabled by default. Use --enable-preview to enable
+					----------
+					""",
 				"",
 				null,
 				false,
@@ -1832,12 +1927,14 @@ s
 						}
 					}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 1)\n" +
-				"	String greet = STR.\"Hello \\{name + foo())}!\";\n" +
-				"	                                        ^\n" +
-				"Syntax error on token \")\", delete this token\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 1)
+						String greet = STR."Hello \\{name + foo())}!";
+						                                        ^
+					Syntax error on token ")", delete this token
+					----------
+					""");
 	}
 	public void test0063() {
 		runNegativeTest(
@@ -1857,12 +1954,14 @@ s
 					interface Intf {
 					}"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 1)\n" +
-				"	String greet = STR.\"Hello \\{name + foo())}!\";\n" +
-				"	                                        ^\n" +
-				"Syntax error on token \")\", delete this token\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 1)
+						String greet = STR."Hello \\{name + foo())}!";
+						                                        ^
+					Syntax error on token ")", delete this token
+					----------
+					""");
 	}
 	public void testIssue1719() {
 		runConformTest(

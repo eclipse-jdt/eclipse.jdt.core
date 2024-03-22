@@ -47,27 +47,28 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-				+ "public class X {\n"
-				+ "  public static void printLowerRight(Rectangle r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr)  -> {\n"
-				+ "        		yield 1;  \n"
-				+ "        } \n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "    fals \n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-				+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case Rectangle(ColoredPoint(Point(int x, int y), Color c),
+					                               ColoredPoint lr)  -> {
+					        		yield 1; \s
+					        }\s
+					        default -> 0;
+					    };\s
+					    fals\s
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -84,26 +85,27 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-				+ "public class X {\n"
-				+ "  public static void printLowerRight(Rectangle r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "       case /*here*/ Rectangl (ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr)  -> {\n"
-				+ "        		yield 1;  \n"
-				+ "        } \n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-				+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case /*here*/ Rectangl (ColoredPoint(Point(int x, int y), Color c),
+					                               ColoredPoint lr)  -> {
+					        		yield 1; \s
+					        }\s
+					        default -> 0;
+					    };\s
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -120,26 +122,27 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-				+ "public class X {\n"
-				+ "  public static void printLowerRight(Rectangle r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "       case  Rectangle(/*here*/ ColoredPoin(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr)  -> {\n"
-				+ "        		yield 1;  \n"
-				+ "        } \n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-				+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case  Rectangle(/*here*/ ColoredPoin(Point(int x, int y), Color c),
+					                               ColoredPoint lr)  -> {
+					        		yield 1; \s
+					        }\s
+					        default -> 0;
+					    };\s
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -156,26 +159,27 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-				+ "public class X {\n"
-				+ "  public static void printLowerRight(Rectangle r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "       case  Rectangle(ColoredPoint(/*here*/ Poin(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr)  -> {\n"
-				+ "        		yield 1;  \n"
-				+ "        } \n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-				+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case  Rectangle(ColoredPoint(/*here*/ Poin(int x, int y), Color c),
+					                               ColoredPoint lr)  -> {
+					        		yield 1; \s
+					        }\s
+					        default -> 0;
+					    };\s
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -192,26 +196,27 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-				+ "public class X {\n"
-				+ "  public static void printLowerRight(Rectangle r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "       case  Rectangle(ColoredPoint( Point(int x, int y), /*here*/ Colo c),\n"
-				+ "                               ColoredPoint lr)  -> {\n"
-				+ "        		yield 1;  \n"
-				+ "        } \n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-				+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case  Rectangle(ColoredPoint( Point(int x, int y), /*here*/ Colo c),
+					                               ColoredPoint lr)  -> {
+					        		yield 1; \s
+					        }\s
+					        default -> 0;
+					    };\s
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -229,27 +234,28 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-				+ "public class X {\n"
-				+ "  public static void printLowerRight(Rectangle r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "       case  Rectangle(ColoredPoint( Point(int x, int y),  Color c),\n"
-				+ "                               ColoredPoint lr)  -> {\n"
-				+ "        		lr.toStrin ;"
-				+ "				yield 1;\n"
-				+ "        } \n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-				+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case  Rectangle(ColoredPoint( Point(int x, int y),  Color c),
+					                               ColoredPoint lr)  -> {
+					        		lr.toStrin ;\
+									yield 1;
+					        }\s
+					        default -> 0;
+					    };\s
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -266,23 +272,24 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-				+ "public class X {\n"
-				+ "  static void print(Rectangle r) {\n"
-				+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "                              /*here*/ ColoredPoin lr) r1)) {\n"
-				+ "        System.out.println(\"Upper-left corner: \" + r1);\n"
-				+ "    }\n"
-				+ "  }\n"
-				+ "  public static void main(String[] obj) {\n"
-				+ "    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
-				+ "                               new ColoredPoint(new Point(10, 15), Color.RED)));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Point(int x, int y) {}\n"
-				+ "enum Color { RED, GREEN, BLUE }\n"
-				+ "record ColoredPoint(Point p, Color c) {}\n"
-				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  static void print(Rectangle r) {
+					    if (r instanceof (Rectangle(ColoredPoint(Point(int x, int y), Color c),
+					                              /*here*/ ColoredPoin lr) r1)) {
+					        System.out.println("Upper-left corner: " + r1);
+					    }
+					  }
+					  public static void main(String[] obj) {
+					    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE),\s
+					                               new ColoredPoint(new Point(10, 15), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -299,23 +306,24 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/Completion/src/X.java",
-					"@SuppressWarnings(\"preview\")"
-					+ "public class X {\n"
-					+ "  static void print(Rectangle r) {\n"
-					+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-					+ "                              /*here*/ ColoredPoin lr) r1)) {\n"
-					+ "        System.out.println(\"Upper-left corner: \" + r1);\n"
-					+ "    }\n"
-					+ "  }\n"
-					+ "  public static void main(String[] obj) {\n"
-					+ "    print(new Rectangle(new /*here*/ ColoredPoin(new Point(0, 0), Color.BLUE), \n"
-					+ "                               new ColoredPoint(new Point(10, 15), Color.RED)));\n"
-					+ "  }\n"
-					+ "}\n"
-					+ "record Point(int x, int y) {}\n"
-					+ "enum Color { RED, GREEN, BLUE }\n"
-					+ "record ColoredPoint(Point p, Color c) {}\n"
-					+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+					"""
+						@SuppressWarnings("preview")\
+						public class X {
+						  static void print(Rectangle r) {
+						    if (r instanceof (Rectangle(ColoredPoint(Point(int x, int y), Color c),
+						                              /*here*/ ColoredPoin lr) r1)) {
+						        System.out.println("Upper-left corner: " + r1);
+						    }
+						  }
+						  public static void main(String[] obj) {
+						    print(new Rectangle(new /*here*/ ColoredPoin(new Point(0, 0), Color.BLUE),\s
+						                               new ColoredPoint(new Point(10, 15), Color.RED)));
+						  }
+						}
+						record Point(int x, int y) {}
+						enum Color { RED, GREEN, BLUE }
+						record ColoredPoint(Point p, Color c) {}
+						record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 					);
 			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 			requestor.allowAllRequiredProposals();
@@ -332,33 +340,34 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/Completion/src/X.java",
-					"@SuppressWarnings(\"preview\")"
-							+ "public class X {\n"
-							+ "  public static void printLowerRight(Rectangle r) {\n"
-							+ "    int res = switch(r) {\n"
-							+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-							+ "                               ColoredPoint lr) whe x > 0 -> {\n"
-							+ "        		yield 1;  \n"
-							+ "        } \n"
-							+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-							+ "                               ColoredPoint lr) when x <= 0 -> {\n"
-							+ "        		yield -1;  \n"
-							+ "        } \n"
-							+ "        default -> 0;\n"
-							+ "    }; \n"
-							+ "    System.out.println(\"Returns: \" + res);\n"
-							+ "  }\n"
-							+ "  public static void main(String[] args) {\n"
-							+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
-							+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-							+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(5, 5), Color.BLUE), \n"
-							+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-							+ "  }\n"
-							+ "}\n"
-							+ "record Point(int x, int y) {}\n"
-							+ "enum Color { RED, GREEN, BLUE }\n"
-							+ "record ColoredPoint(Point p, Color c) {}\n"
-							+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+					"""
+						@SuppressWarnings("preview")\
+						public class X {
+						  public static void printLowerRight(Rectangle r) {
+						    int res = switch(r) {
+						       case Rectangle(ColoredPoint(Point(int x, int y), Color c),
+						                               ColoredPoint lr) whe x > 0 -> {
+						        		yield 1; \s
+						        }\s
+						       case Rectangle(ColoredPoint(Point(int x, int y), Color c),
+						                               ColoredPoint lr) when x <= 0 -> {
+						        		yield -1; \s
+						        }\s
+						        default -> 0;
+						    };\s
+						    System.out.println("Returns: " + res);
+						  }
+						  public static void main(String[] args) {
+						    printLowerRight(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE),\s
+						        new ColoredPoint(new Point(30, 10), Color.RED)));
+						    printLowerRight(new Rectangle(new ColoredPoint(new Point(5, 5), Color.BLUE),\s
+						        new ColoredPoint(new Point(30, 10), Color.RED)));
+						  }
+						}
+						record Point(int x, int y) {}
+						enum Color { RED, GREEN, BLUE }
+						record ColoredPoint(Point p, Color c) {}
+						record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 					);
 			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 			requestor.allowAllRequiredProposals();
@@ -375,37 +384,38 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/Completion/src/X.java",
-					"@SuppressWarnings(\"preview\")"
-					+ "public class X {\n"
-					+ "  public static void printLowerRight(Rectangle r) {\n"
-					+ "    int res = switch(r) {\n"
-					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-					+ "                               ColoredPoint lr)  -> {\n"
-					+ "    			/*here*/lr.co	"
-					+ "System.out.println(\"x= \" + x);\n"
-					+ "    				System.out.println(\"y= \" + y);\n"
-					+ "    				System.out.println(\"lr= \" + lr);\n"
-					+ "    				System.out.println(\"lr.c()= \" + lr.c());\n"
-					+ "    				System.out.println(\"lr.p()= \" + lr.p());\n"
-					+ "    				System.out.println(\"lr.p().x()= \" + lr.p().x());\n"
-					+ "    				System.out.println(\"lr.p().y()= \" + lr.p().y());\n"
-					+ "    				System.out.println(\"c= \" + c);\n"
-					+ "    				System.out.println(\"r1= \" + r1);\n"
-					+ "        		yield x;  \n"
-					+ "        } \n"
-					+ "        default -> 0;\n"
-					+ "    }; \n"
-					+ "    System.out.println(\"Returns: \" + res);\n"
-					+ "  }\n"
-					+ "  public static void main(String[] args) {\n"
-					+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-					+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-					+ "  }\n"
-					+ "}\n"
-					+ "record Point(int x, int y) {}\n"
-					+ "enum Color { RED, GREEN, BLUE }\n"
-					+ "record ColoredPoint(Point p, Color color) {}\n"
-					+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+					"""
+						@SuppressWarnings("preview")\
+						public class X {
+						  public static void printLowerRight(Rectangle r) {
+						    int res = switch(r) {
+						       case Rectangle(ColoredPoint(Point(int x, int y), Color c),
+						                               ColoredPoint lr)  -> {
+						    			/*here*/lr.co	\
+						System.out.println("x= " + x);
+						    				System.out.println("y= " + y);
+						    				System.out.println("lr= " + lr);
+						    				System.out.println("lr.c()= " + lr.c());
+						    				System.out.println("lr.p()= " + lr.p());
+						    				System.out.println("lr.p().x()= " + lr.p().x());
+						    				System.out.println("lr.p().y()= " + lr.p().y());
+						    				System.out.println("c= " + c);
+						    				System.out.println("r1= " + r1);
+						        		yield x; \s
+						        }\s
+						        default -> 0;
+						    };\s
+						    System.out.println("Returns: " + res);
+						  }
+						  public static void main(String[] args) {
+						    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+						        new ColoredPoint(new Point(30, 10), Color.RED)));
+						  }
+						}
+						record Point(int x, int y) {}
+						enum Color { RED, GREEN, BLUE }
+						record ColoredPoint(Point p, Color color) {}
+						record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 					);
 			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 			requestor.allowAllRequiredProposals();
@@ -424,28 +434,29 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/Completion/src/X.java",
-					"@SuppressWarnings(\"preview\")"
-					+ "public class X {\n"
-					+ "  public static void printLowerRight(Rectangle r) {\n"
-					+ "    int res = switch(r) {\n"
-					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-					+ "                               ColoredPoint lr)  -> {\n"
-					+ "                               fals "
-					+ "        		yield 1;  \n"
-					+ "        } \n"
-					+ "        default -> 0;\n"
-					+ "    }; \n"
-					+ "     \n"
-					+ "  }\n"
-					+ "  public static void main(String[] args) {\n"
-					+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-					+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-					+ "  }\n"
-					+ "}\n"
-					+ "record Point(int x, int y) {}\n"
-					+ "enum Color { RED, GREEN, BLUE }\n"
-					+ "record ColoredPoint(Point p, Color c) {}\n"
-					+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+					"""
+						@SuppressWarnings("preview")\
+						public class X {
+						  public static void printLowerRight(Rectangle r) {
+						    int res = switch(r) {
+						       case Rectangle(ColoredPoint(Point(int x, int y), Color c),
+						                               ColoredPoint lr)  -> {
+						                               fals \
+						        		yield 1; \s
+						        }\s
+						        default -> 0;
+						    };\s
+						    \s
+						  }
+						  public static void main(String[] args) {
+						    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+						        new ColoredPoint(new Point(30, 10), Color.RED)));
+						  }
+						}
+						record Point(int x, int y) {}
+						enum Color { RED, GREEN, BLUE }
+						record ColoredPoint(Point p, Color c) {}
+						record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 					);
 			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 			requestor.allowAllRequiredProposals();
@@ -461,18 +472,19 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/Completion/src/X.java",
-					"public class X {\n"
-					+ "    public static boolean foo(Object o) {\n"
-					+ "        boolean ret = false;\n"
-					+ "        R[] recArray = {new R(0)};\n"
-					+ "        for (R(int x_1) : recArray) {\n"
-					+ "            System.out.println(x_);  \n"
-					+ "            ret = true;\n"
-					+ "        }\n"
-					+ "        return ret;\n"
-					+ "    }\n"
-					+ "}\n"
-					+ "record R(int i) {}"
+					"""
+						public class X {
+						    public static boolean foo(Object o) {
+						        boolean ret = false;
+						        R[] recArray = {new R(0)};
+						        for (R(int x_1) : recArray) {
+						            System.out.println(x_); \s
+						            ret = true;
+						        }
+						        return ret;
+						    }
+						}
+						record R(int i) {}"""
 					);
 			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 			requestor.allowAllRequiredProposals();
@@ -487,17 +499,18 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/Completion/src/X.java",
-					"public class X {\n"
-					+ "    public static void foo(ColoredRectangle[] array) {\n"
-					+ "       for(ColoredRectangle(int x_1, int y_1, Color col) : array) {\n"
-					+ "    	  int per = 2 * x_ + 2 * y_1;\n"
-					+ "       }\n"
-					+ "    }\n"
-					+ "}\n"
-					+ "record ColoredRectangle(int length, int width, Color color) {}\n"
-					+ "enum Color {\n"
-					+ "	RED, GREEN, BLUE;\n"
-					+ "}"
+					"""
+						public class X {
+						    public static void foo(ColoredRectangle[] array) {
+						       for(ColoredRectangle(int x_1, int y_1, Color col) : array) {
+						    	  int per = 2 * x_ + 2 * y_1;
+						       }
+						    }
+						}
+						record ColoredRectangle(int length, int width, Color color) {}
+						enum Color {
+							RED, GREEN, BLUE;
+						}"""
 					);
 			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 			requestor.allowAllRequiredProposals();
@@ -512,17 +525,18 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/Completion/src/X.java",
-					"public class X {\n"
-					+ "    public static void foo(ColoredRectangle[] array) {\n"
-					+ "       for(ColoredRectangle(int x_1, int y_1, Color col) : array) {\n"
-					+ "    	  int per = 2 * x_1 + 2 * y_;\n"
-					+ "       }\n"
-					+ "    }\n"
-					+ "}\n"
-					+ "record ColoredRectangle(int length, int width, Color color) {}\n"
-					+ "enum Color {\n"
-					+ "	RED, GREEN, BLUE;\n"
-					+ "}"
+					"""
+						public class X {
+						    public static void foo(ColoredRectangle[] array) {
+						       for(ColoredRectangle(int x_1, int y_1, Color col) : array) {
+						    	  int per = 2 * x_1 + 2 * y_;
+						       }
+						    }
+						}
+						record ColoredRectangle(int length, int width, Color color) {}
+						enum Color {
+							RED, GREEN, BLUE;
+						}"""
 					);
 			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 			requestor.allowAllRequiredProposals();
@@ -537,17 +551,18 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/Completion/src/X.java",
-					"public class X {\n"
-					+ "    public static void foo(ColoredRectangle[] ar_ray) {\n"
-					+ "       for(ColoredRectangle(int x_1, int y_1, Color col) : ar_) {\n"
-					+ "    	  int per = 2 * x_1 + 2 * y_1;\n"
-					+ "       }\n"
-					+ "    }\n"
-					+ "}\n"
-					+ "record ColoredRectangle(int length, int width, Color color) {}\n"
-					+ "enum Color {\n"
-					+ "	RED, GREEN, BLUE;\n"
-					+ "}"
+					"""
+						public class X {
+						    public static void foo(ColoredRectangle[] ar_ray) {
+						       for(ColoredRectangle(int x_1, int y_1, Color col) : ar_) {
+						    	  int per = 2 * x_1 + 2 * y_1;
+						       }
+						    }
+						}
+						record ColoredRectangle(int length, int width, Color color) {}
+						enum Color {
+							RED, GREEN, BLUE;
+						}"""
 					);
 			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 			requestor.allowAllRequiredProposals();

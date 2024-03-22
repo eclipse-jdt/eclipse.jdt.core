@@ -61,36 +61,40 @@ public class ModelTester8Proc extends AbstractProcessor {
 	public static final String TEST_METHOD_PARAMETERS_TYPE1_PKG = "p";
 	public static final String TEST_METHOD_PARAMETERS_TYPE1_CLASS = "Bar";
 	public static final String TEST_METHOD_PARAMETERS_TYPE1_SOURCE =
-			"package p;\n" +
-					"public class Bar {\n" +
-					"    public void otherStuff(final double fun, String beans) { }\n" +
-					"}";
+			"""
+		package p;
+		public class Bar {
+		    public void otherStuff(final double fun, String beans) { }
+		}""";
 
 	public static final String TEST_METHOD_PARAMETERS_TYPE2_PKG = "p";
 	public static final String TEST_METHOD_PARAMETERS_TYPE2_CLASS = "MyEnum";
 	public static final String TEST_METHOD_PARAMETERS_TYPE2_SOURCE =
-			"package p;\n" +
-					"\n" +
-					"public enum MyEnum {\n" +
-					"	ONE(1), TWO(2);\n" +
-					"	\n" +
-					"	private MyEnum(final int finalIntValue) { this.var = finalIntValue; }\n" +
-					"	int var;\n" +
-					"}\n";
+			"""
+		package p;
+		
+		public enum MyEnum {
+			ONE(1), TWO(2);
+		\t
+			private MyEnum(final int finalIntValue) { this.var = finalIntValue; }
+			int var;
+		}
+		""";
 
 	public static final String TEST_METHOD_PARAMETERS_TYPE3_PKG = "p";
 	public static final String TEST_METHOD_PARAMETERS_TYPE3_CLASS = "Foo";
 	public static final String TEST_METHOD_PARAMETERS_TYPE3_SOURCE =
-		"package p;\n" +
-		"import org.eclipse.jdt.apt.pluggable.tests.annotations.ModelTest8Trigger;\n" +
-		"import org.eclipse.jdt.apt.pluggable.tests.annotations.LookAt;\n" +
-		"@ModelTest8Trigger(test = \"testMethodParameters\")" +
-		"public class Foo {\n" +
-		"    @LookAt\n" +
-		"    public Bar doStuff(final int number, String textual) { return null; }\n" +
-		"    @LookAt\n" +
-		"    public MyEnum guess(final int isItOne) { return isItOne == 1 ? MyEnum.ONE : MyEnum.TWO; }\n" +
-		"}";
+		"""
+		package p;
+		import org.eclipse.jdt.apt.pluggable.tests.annotations.ModelTest8Trigger;
+		import org.eclipse.jdt.apt.pluggable.tests.annotations.LookAt;
+		@ModelTest8Trigger(test = "testMethodParameters")\
+		public class Foo {
+		    @LookAt
+		    public Bar doStuff(final int number, String textual) { return null; }
+		    @LookAt
+		    public MyEnum guess(final int isItOne) { return isItOne == 1 ? MyEnum.ONE : MyEnum.TWO; }
+		}""";
 
 
 	@SuppressWarnings("unused")

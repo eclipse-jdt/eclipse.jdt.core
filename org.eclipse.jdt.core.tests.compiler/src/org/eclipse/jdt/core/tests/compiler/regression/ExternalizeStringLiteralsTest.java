@@ -43,27 +43,29 @@ public void test001() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"A.java",
-			"public class A {\n" +
-			"	void foo() {\n" +
-			"		System.out.println(\"a\");\n" +
-			"	} //$NON-NLS-1$	\n" +
-			"}"
+			"""
+				public class A {
+					void foo() {
+						System.out.println("a");
+					} //$NON-NLS-1$\t
+				}"""
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +  /* expected compiler log */
-		"1. ERROR in A.java (at line 3)\n" +
-		"	System.out.println(\"a\");\n" +
-		"	                   ^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n" +
-		"2. ERROR in A.java (at line 4)\n" +
-		"	} //$NON-NLS-1$	\n" +
-		"	  ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in A.java (at line 3)
+				System.out.println("a");
+				                   ^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			2. ERROR in A.java (at line 4)
+				} //$NON-NLS-1$\t
+				  ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -76,60 +78,62 @@ public void test002() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"class X {\n" +
-			"	String s = null; //$NON-NLS-1$\n" +
-			"	String s2 = \"\"; //$NON-NLS-1$\n" +
-			"	String s3 = \"\"; //$NON-NLS-1$//$NON-NLS-2$\n" +
-			"	\n" +
-			"	void foo() {\n" +
-			"		String s4 = null; //$NON-NLS-1$\n" +
-			"		String s5 = \"\"; //$NON-NLS-1$\n" +
-			"		String s6 = \"\"; //$NON-NLS-2$//$NON-NLS-1$\n" +
-			"		System.out.println(\"foo\");//$NON-NLS-1$//$NON-NLS-2$\n" +
-			"	} //$NON-NLS-1$\n" +
-			"	//$NON-NLS-1$\n" +
-			"}//$NON-NLS-3$",
+			"""
+				class X {
+					String s = null; //$NON-NLS-1$
+					String s2 = ""; //$NON-NLS-1$
+					String s3 = ""; //$NON-NLS-1$//$NON-NLS-2$
+				\t
+					void foo() {
+						String s4 = null; //$NON-NLS-1$
+						String s5 = ""; //$NON-NLS-1$
+						String s6 = ""; //$NON-NLS-2$//$NON-NLS-1$
+						System.out.println("foo");//$NON-NLS-1$//$NON-NLS-2$
+					} //$NON-NLS-1$
+					//$NON-NLS-1$
+				}//$NON-NLS-3$""",
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +  /* expected compiler log */
-		"1. ERROR in X.java (at line 2)\n" +
-		"	String s = null; //$NON-NLS-1$\n" +
-		"	                 ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	String s3 = \"\"; //$NON-NLS-1$//$NON-NLS-2$\n" +
-		"	                             ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 7)\n" +
-		"	String s4 = null; //$NON-NLS-1$\n" +
-		"	                  ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 9)\n" +
-		"	String s6 = \"\"; //$NON-NLS-2$//$NON-NLS-1$\n" +
-		"	                ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 10)\n" +
-		"	System.out.println(\"foo\");//$NON-NLS-1$//$NON-NLS-2$\n" +
-		"	                                       ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 11)\n" +
-		"	} //$NON-NLS-1$\n" +
-		"	  ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 13)\n" +
-		"	}//$NON-NLS-3$\n" +
-		"	 ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				String s = null; //$NON-NLS-1$
+				                 ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			2. ERROR in X.java (at line 4)
+				String s3 = ""; //$NON-NLS-1$//$NON-NLS-2$
+				                             ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			3. ERROR in X.java (at line 7)
+				String s4 = null; //$NON-NLS-1$
+				                  ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			4. ERROR in X.java (at line 9)
+				String s6 = ""; //$NON-NLS-2$//$NON-NLS-1$
+				                ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			5. ERROR in X.java (at line 10)
+				System.out.println("foo");//$NON-NLS-1$//$NON-NLS-2$
+				                                       ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			6. ERROR in X.java (at line 11)
+				} //$NON-NLS-1$
+				  ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			7. ERROR in X.java (at line 13)
+				}//$NON-NLS-3$
+				 ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -139,24 +143,27 @@ public void test003() {
 	this.runNegativeTest(
 		new String[] {
 			"p/Foo.java",
-			"package p;\n" +
-			"public class Foo { \n" +
-			"    public void foo() {\n" +
-			"		System.out.println(\"string1\" + \"string2\" //$NON-NLS-1$\n" +
-			"		);\n" +
-			"}",
+			"""
+				package p;
+				public class Foo {\s
+				    public void foo() {
+						System.out.println("string1" + "string2" //$NON-NLS-1$
+						);
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in p\\Foo.java (at line 4)\n" +
-		"	System.out.println(\"string1\" + \"string2\" //$NON-NLS-1$\n" +
-		"	                               ^^^^^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n" +
-		"2. ERROR in p\\Foo.java (at line 6)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in p\\Foo.java (at line 4)
+				System.out.println("string1" + "string2" //$NON-NLS-1$
+				                               ^^^^^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			2. ERROR in p\\Foo.java (at line 6)
+				}
+				^
+			Syntax error, insert "}" to complete ClassBody
+			----------
+			""",
 		null,
 		true,
 		customOptions);
@@ -167,12 +174,13 @@ public void test004() {
 	this.runConformTest(
 		new String[] {
 			"p/Foo.java",
-			"package p;\n" +
-			"public class Foo { \n" +
-			"    public void foo() {\n" +
-			"		//$NON-NLS-1$\n" +
-			"	 };\n" +
-			"}",
+			"""
+				package p;
+				public class Foo {\s
+				    public void foo() {
+						//$NON-NLS-1$
+					 };
+				}""",
 		},
 		"",
 		null,
@@ -189,22 +197,24 @@ public void test005() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\r\n" +
-			"	public static void main(String[] args) {\r\n" +
-			"		String s = \"\"; //$NON-NLS-1$//$NON-NLS-1$\r\n" +
-			"    }\r\n" +
-			"}",
+			"""
+				public class X {\r
+					public static void main(String[] args) {\r
+						String s = ""; //$NON-NLS-1$//$NON-NLS-1$\r
+				    }\r
+				}""",
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +  /* expected compiler log */
-		"1. ERROR in X.java (at line 3)\n" +
-		"	String s = \"\"; //$NON-NLS-1$//$NON-NLS-1$\n" +
-		"	                            ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				String s = ""; //$NON-NLS-1$//$NON-NLS-1$
+				                            ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -220,17 +230,19 @@ public void test006() {
 			"    }\r\n" +
 			"",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	String s = \"\"; //$NON-NLS-1$//$NON-NLS-1$\n" +
-		"	                            ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				String s = ""; //$NON-NLS-1$//$NON-NLS-1$
+				                            ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			2. ERROR in X.java (at line 4)
+				}
+				^
+			Syntax error, insert "}" to complete ClassBody
+			----------
+			""",
 		null,
 		true,
 		customOptions);
@@ -243,27 +255,29 @@ public void test007() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\r\n" +
-			"	public static void main(String[] args) {\r\n" +
-			"		String s = null; //$NON-NLS-1$//$NON-NLS-1$\r\n" +
-			"    }\r\n" +
-			"}",
+			"""
+				public class X {\r
+					public static void main(String[] args) {\r
+						String s = null; //$NON-NLS-1$//$NON-NLS-1$\r
+				    }\r
+				}""",
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +  /* expected compiler log */
-		"1. ERROR in X.java (at line 3)\n" +
-		"	String s = null; //$NON-NLS-1$//$NON-NLS-1$\n" +
-		"	                 ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	String s = null; //$NON-NLS-1$//$NON-NLS-1$\n" +
-		"	                              ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				String s = null; //$NON-NLS-1$//$NON-NLS-1$
+				                 ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			2. ERROR in X.java (at line 3)
+				String s = null; //$NON-NLS-1$//$NON-NLS-1$
+				                              ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -275,32 +289,34 @@ public void test008() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\r\n" +
-			"	public static void main(String[] args) {\r\n" +
-			"		String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\r\n" +
-			"    }\r\n" +
-			"}",
+			"""
+				public class X {\r
+					public static void main(String[] args) {\r
+						String s = "test"; //$NON-NLS-2$//$NON-NLS-3$\r
+				    }\r
+				}""",
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +  /* expected compiler log */
-		"1. ERROR in X.java (at line 3)\n" +
-		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
-		"	           ^^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
-		"	                   ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 3)\n" +
-		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
-		"	                                ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				String s = "test"; //$NON-NLS-2$//$NON-NLS-3$
+				           ^^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			2. ERROR in X.java (at line 3)
+				String s = "test"; //$NON-NLS-2$//$NON-NLS-3$
+				                   ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			3. ERROR in X.java (at line 3)
+				String s = "test"; //$NON-NLS-2$//$NON-NLS-3$
+				                                ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -310,12 +326,13 @@ public void test009() {
 	this.runConformTest(
 		new String[] {
 			"p/Foo.java",
-			"package p;\n" +
-			"public class Foo { \n" +
-			"    public void foo(int i) {\n" +
-			"		System.out.println(\"test1\" + i + \"test2\"); //$NON-NLS-2$//$NON-NLS-1$\r\n" +
-			"	 };\n" +
-			"}",
+			"""
+				package p;
+				public class Foo {\s
+				    public void foo(int i) {
+						System.out.println("test1" + i + "test2"); //$NON-NLS-2$//$NON-NLS-1$\r
+					 };
+				}""",
 		},
 		"",
 		null,
@@ -330,35 +347,38 @@ public void test010() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
-			"		int i = s;\n" +
-			"		System.out.println(s);\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						String s = "test"; //$NON-NLS-2$//$NON-NLS-3$
+						int i = s;
+						System.out.println(s);
+				    }
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
-		"	           ^^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
-		"	                   ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 3)\n" +
-		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
-		"	                                ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 4)\n" +
-		"	int i = s;\n" +
-		"	        ^\n" +
-		"Type mismatch: cannot convert from String to int\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				String s = "test"; //$NON-NLS-2$//$NON-NLS-3$
+				           ^^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			2. ERROR in X.java (at line 3)
+				String s = "test"; //$NON-NLS-2$//$NON-NLS-3$
+				                   ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			3. ERROR in X.java (at line 3)
+				String s = "test"; //$NON-NLS-2$//$NON-NLS-3$
+				                                ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			4. ERROR in X.java (at line 4)
+				int i = s;
+				        ^
+			Type mismatch: cannot convert from String to int
+			----------
+			""",
 		null,
 		true,
 		customOptions);
@@ -369,35 +389,38 @@ public void test011() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		int i = null;\n" +
-			"		String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
-			"		System.out.println(s + i);\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						int i = null;
+						String s = "test"; //$NON-NLS-2$//$NON-NLS-3$
+						System.out.println(s + i);
+				    }
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	int i = null;\n" +
-		"	        ^^^^\n" +
-		"Type mismatch: cannot convert from null to int\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
-		"	           ^^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
-		"	                   ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 4)\n" +
-		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
-		"	                                ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				int i = null;
+				        ^^^^
+			Type mismatch: cannot convert from null to int
+			----------
+			2. ERROR in X.java (at line 4)
+				String s = "test"; //$NON-NLS-2$//$NON-NLS-3$
+				           ^^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			3. ERROR in X.java (at line 4)
+				String s = "test"; //$NON-NLS-2$//$NON-NLS-3$
+				                   ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			4. ERROR in X.java (at line 4)
+				String s = "test"; //$NON-NLS-2$//$NON-NLS-3$
+				                                ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			""",
 		null,
 		true,
 		customOptions);
@@ -408,30 +431,33 @@ public void test012() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		int i = null;\n" +
-			"		String s = null; //$NON-NLS-2$//$NON-NLS-3$\n" +
-			"		System.out.println(s + i);\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						int i = null;
+						String s = null; //$NON-NLS-2$//$NON-NLS-3$
+						System.out.println(s + i);
+				    }
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	int i = null;\n" +
-		"	        ^^^^\n" +
-		"Type mismatch: cannot convert from null to int\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	String s = null; //$NON-NLS-2$//$NON-NLS-3$\n" +
-		"	                 ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	String s = null; //$NON-NLS-2$//$NON-NLS-3$\n" +
-		"	                              ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				int i = null;
+				        ^^^^
+			Type mismatch: cannot convert from null to int
+			----------
+			2. ERROR in X.java (at line 4)
+				String s = null; //$NON-NLS-2$//$NON-NLS-3$
+				                 ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			3. ERROR in X.java (at line 4)
+				String s = null; //$NON-NLS-2$//$NON-NLS-3$
+				                              ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			""",
 		null,
 		true,
 		customOptions);
@@ -444,23 +470,25 @@ public void test013() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		String s = \"test1\";\n" +
-			"		System.out.println(s);\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						String s = "test1";
+						System.out.println(s);
+				    }
+				}""",
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +  /* expected compiler log */
-		"1. ERROR in X.java (at line 3)\n" +
-		"	String s = \"test1\";\n" +
-		"	           ^^^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				String s = "test1";
+				           ^^^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -473,28 +501,30 @@ public void test014() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		String s = \"test1\"; //$NON-NLS-?$\n" +
-			"		System.out.println(s);\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						String s = "test1"; //$NON-NLS-?$
+						System.out.println(s);
+				    }
+				}""",
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +  /* expected compiler log */
-		"1. ERROR in X.java (at line 3)\n" +
-		"	String s = \"test1\"; //$NON-NLS-?$\n" +
-		"	           ^^^^^^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	String s = \"test1\"; //$NON-NLS-?$\n" +
-		"	                    ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				String s = "test1"; //$NON-NLS-?$
+				           ^^^^^^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			2. ERROR in X.java (at line 3)
+				String s = "test1"; //$NON-NLS-?$
+				                    ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -507,28 +537,30 @@ public void test015() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"		String s1= null; //$NON-NLS-1$\n" +
-			"		String s2= \"\";\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public void foo() {
+						String s1= null; //$NON-NLS-1$
+						String s2= "";
+					}
+				}""",
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +  /* expected compiler log */
-		"1. ERROR in X.java (at line 3)\n" +
-		"	String s1= null; //$NON-NLS-1$\n" +
-		"	                 ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	String s2= \"\";\n" +
-		"	           ^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				String s1= null; //$NON-NLS-1$
+				                 ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			2. ERROR in X.java (at line 4)
+				String s2= "";
+				           ^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -542,29 +574,31 @@ public void test016() {
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
-			"public class X {\n" +
-			"	private String s1= null; //$NON-NLS-1$\n" +
-			"	\n" +
-			"	public void foo() {\n" +
-			"		String s2= \"\";\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					private String s1= null; //$NON-NLS-1$
+				\t
+					public void foo() {
+						String s2= "";
+					}
+				}""",
 		},
 		// compiler options
 		null /* no class libraries */,
 		customOptions /* custom options */,
-		// compiler results
-		"----------\n" +  /* expected compiler log */
-		"1. ERROR in X.java (at line 2)\n" +
-		"	private String s1= null; //$NON-NLS-1$\n" +
-		"	                         ^^^^^^^^^^^^^\n" +
-		"Unnecessary $NON-NLS$ tag\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	String s2= \"\";\n" +
-		"	           ^^\n" +
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				private String s1= null; //$NON-NLS-1$
+				                         ^^^^^^^^^^^^^
+			Unnecessary $NON-NLS$ tag
+			----------
+			2. ERROR in X.java (at line 5)
+				String s2= "";
+				           ^^
+			Non-externalized string literal; it should be followed by //$NON-NLS-<n>$
+			----------
+			""",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
@@ -575,21 +609,24 @@ public void test017() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public void foo(String locationInAST) {\n" +
-			"		String enclosingType= \"\"; //$NON-NLS-1$\n" +
-			"		if (locationInAST != null) {\n" +
-			"			enclosingType.toString()\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public void foo(String locationInAST) {
+						String enclosingType= ""; //$NON-NLS-1$
+						if (locationInAST != null) {
+							enclosingType.toString()
+						}
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	enclosingType.toString()\n" +
-		"	                       ^\n" +
-		"Syntax error, insert \";\" to complete BlockStatements\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				enclosingType.toString()
+				                       ^
+			Syntax error, insert ";" to complete BlockStatements
+			----------
+			""",
 		null,
 		true,
 		customOptions,
@@ -606,20 +643,23 @@ public void test018() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	#\n" +
-			"	String s1= \"1\"; //$NON-NLS-1$\n" +
-			"	public void foo() {\n" +
-			"		String s2= \"2\"; //$NON-NLS-1$\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					#
+					String s1= "1"; //$NON-NLS-1$
+					public void foo() {
+						String s2= "2"; //$NON-NLS-1$
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				#
+				^
+			Syntax error on token "Invalid Character", delete this token
+			----------
+			""",
 		null,
 		true,
 		customOptions,
@@ -636,20 +676,23 @@ public void test019() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String s1= \"1\"; //$NON-NLS-1$\n" +
-			"	#\n" +
-			"	public void foo() {\n" +
-			"		String s2= \"2\"; //$NON-NLS-1$\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					String s1= "1"; //$NON-NLS-1$
+					#
+					public void foo() {
+						String s2= "2"; //$NON-NLS-1$
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				#
+				^
+			Syntax error on token "Invalid Character", delete this token
+			----------
+			""",
 		null,
 		true,
 		customOptions,
@@ -666,20 +709,23 @@ public void test020() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String s1= \"1\"; //$NON-NLS-1$\n" +
-			"	public void foo() {\n" +
-			"		#\n" +
-			"		String s2= \"2\"; //$NON-NLS-1$\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					String s1= "1"; //$NON-NLS-1$
+					public void foo() {
+						#
+						String s2= "2"; //$NON-NLS-1$
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				#
+				^
+			Syntax error on token "Invalid Character", delete this token
+			----------
+			""",
 		null,
 		true,
 		customOptions,
@@ -696,20 +742,23 @@ public void test021() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String s1= \"1\"; //$NON-NLS-1$\n" +
-			"	public void foo() {\n" +
-			"		String s2= \"2\"; //$NON-NLS-1$\n" +
-			"		#\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					String s1= "1"; //$NON-NLS-1$
+					public void foo() {
+						String s2= "2"; //$NON-NLS-1$
+						#
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				#
+				^
+			Syntax error on token "Invalid Character", delete this token
+			----------
+			""",
 		null,
 		true,
 		customOptions,
@@ -726,26 +775,29 @@ public void test022() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	#\n" +
-			"	String s1= \"1\"; //$NON-NLS-1$\n" +
-			"	public void foo() {\n" +
-			"		#\n" +
-			"		String s2= \"2\"; //$NON-NLS-1$\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					#
+					String s1= "1"; //$NON-NLS-1$
+					public void foo() {
+						#
+						String s2= "2"; //$NON-NLS-1$
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	#\n" +
-		"	^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				#
+				^
+			Syntax error on token "Invalid Character", delete this token
+			----------
+			2. ERROR in X.java (at line 5)
+				#
+				^
+			Syntax error on token "Invalid Character", delete this token
+			----------
+			""",
 		null,
 		true,
 		customOptions,
@@ -762,21 +814,24 @@ public void test023() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"        public String toString() {\n" +
-			"                StringBuffer output = new StringBuffer(10);\n" +
-			"                output.append(this != null) ? null : \"<no type>\"); //$NON-NLS-1$\n" +
-			"                output.append(\" \"); //$NON-NLS-1$\n" +
-			"                return output.toString();\n" +
-			"        }       \n" +
-			"}",
+			"""
+				public class X {
+				        public String toString() {
+				                StringBuffer output = new StringBuffer(10);
+				                output.append(this != null) ? null : "<no type>"); //$NON-NLS-1$
+				                output.append(" "); //$NON-NLS-1$
+				                return output.toString();
+				        }      \s
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	output.append(this != null) ? null : \"<no type>\"); //$NON-NLS-1$\n" +
-		"	                          ^\n" +
-		"Syntax error on token \")\", delete this token\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				output.append(this != null) ? null : "<no type>"); //$NON-NLS-1$
+				                          ^
+			Syntax error on token ")", delete this token
+			----------
+			""",
 		null,
 		true,
 		customOptions,
@@ -795,16 +850,18 @@ public void test443456() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.concurrent.Callable;\n" +
-			"public class X {\n" +
-			"    Callable<String> c;\n" +
-			"    void setC(Callable<String> c) {\n" +
-			"        this.c = c;\n" +
-			"    }\n" +
-			"    X() {\n" +
-			"        setC(() -> \"ee\"); //$NON-NLS-1$\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				import java.util.concurrent.Callable;
+				public class X {
+				    Callable<String> c;
+				    void setC(Callable<String> c) {
+				        this.c = c;
+				    }
+				    X() {
+				        setC(() -> "ee"); //$NON-NLS-1$
+				    }
+				}
+				""",
 		},
 		"",
 		null,

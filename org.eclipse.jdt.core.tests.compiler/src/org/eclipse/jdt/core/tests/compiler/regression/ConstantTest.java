@@ -55,60 +55,66 @@ public static Test suite() {
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
-		"package p;\n" +
-		"public class  X { \n" +
-		"public static void main (String args []) {\n" +
-		"  foo(); \n" +
-		"}\n" +
-		"public static void foo() {\n" +
-		"  if(55f!=00000000000000000000055F)      // HERE VA/Java detects an unexpected error\n" +
-		"  {\n" +
-		"System.out.println(\"55f!=00000000000000000000055F\");\n" +
-		"  }\n" +
-		"  else\n" +
-		"  {\n" +
-		"System.out.println(\"55f==00000000000000000000055F\");\n" +
-		"  }\n" +
-		" }      \n" +
-		"}\n",
+		"""
+			package p;
+			public class  X {\s
+			public static void main (String args []) {
+			  foo();\s
+			}
+			public static void foo() {
+			  if(55f!=00000000000000000000055F)      // HERE VA/Java detects an unexpected error
+			  {
+			System.out.println("55f!=00000000000000000000055F");
+			  }
+			  else
+			  {
+			System.out.println("55f==00000000000000000000055F");
+			  }
+			 }     \s
+			}
+			""",
 	});
 }
 
 public void test002() {
 	this.runConformTest(new String[] {
 		"p/X.java",
-		"package p;\n" +
-		"public class X {\n" +
-		"  public static void main (String args []) {\n" +
-		"    foo();\n" +
-		"  }\n" +
-		"  public static void foo() {\n" +
-		"    if(55f!=00000000000000000000055F)      // HERE VA/Java detects an unexpected error\n" +
-		"      {\n" +
-		"      System.out.println(\"55f!=00000000000000000000055F\");\n" +
-		"    }\n" +
-		"    else\n" +
-		"    {\n" +
-		"      System.out.println(\"55f==00000000000000000000055F\");\n" +
-		"    }\n" +
-		"  }      \n" +
-		"}\n",
+		"""
+			package p;
+			public class X {
+			  public static void main (String args []) {
+			    foo();
+			  }
+			  public static void foo() {
+			    if(55f!=00000000000000000000055F)      // HERE VA/Java detects an unexpected error
+			      {
+			      System.out.println("55f!=00000000000000000000055F");
+			    }
+			    else
+			    {
+			      System.out.println("55f==00000000000000000000055F");
+			    }
+			  }     \s
+			}
+			""",
 	});
 }
 
 public void test003() {
 	this.runConformTest(new String[] {
 		"p/Z.java",
-		"package p;\n" +
-		"public class Z {\n" +
-		"  public static void main(String[] cargs) throws Exception {\n" +
-		"    System.out.println(System.getProperty(\"java.vm.info\", \"J9\"));\n" +
-		"    System.out.write((byte) 0x89);\n" +
-		"    System.out.println();\n" +
-		"    System.out.println(\"\u00E2?\u00B0\");\n" +
-		"    System.out.println(Integer.toHexString(\"\u00E2?\u00B0\".charAt(0)));\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			package p;
+			public class Z {
+			  public static void main(String[] cargs) throws Exception {
+			    System.out.println(System.getProperty("java.vm.info", "J9"));
+			    System.out.write((byte) 0x89);
+			    System.out.println();
+			    System.out.println("\u00E2?\u00B0");
+			    System.out.println(Integer.toHexString("\u00E2?\u00B0".charAt(0)));
+			  }
+			}
+			""",
 	});
 }
 
@@ -116,135 +122,136 @@ public void test004() {
 	this.runConformTest(
 		new String[] {
 			"TempClassFormat.java",
-			"/**\n" +
-			" * Insert the type's description here.\n" +
-			" * Creation date: (02/28/01 2:58:07 PM)\n" +
-			" * @author: Administrator\n" +
-			" */\n" +
-			"public class TempClassFormat {\n" +
-			"		// ERROR NUMBERS\n" +
-			"\n" +
-			"	// Blank field error numbers\n" +
-			"	private static final String PERSON_ID_BLANK = \"2\";\n" +
-			"	private static final String DEMOGRAPHIC_TYPE_BLANK = \"3\";\n" +
-			"	private static final String EMPLOYEE_NUMBER_BLANK = \"23\";\n" +
-			"	private static final String WORK_PHONE_AREA_CODE_BLANK = \"25\";\n" +
-			"	private static final String WORK_PHONE1_BLANK = \"26\";\n" +
-			"	private static final String WORK_PHONE2_BLANK = \"27\";\n" +
-			"	private static final String WORK_ADDRESS1_BLANK = \"28\";\n" +
-			"	private static final String WORK_CITY_BLANK = \"29\";\n" +
-			"	private static final String WORK_STATE_BLANK = \"30\";\n" +
-			"	private static final String WORK_ZIP5_BLANK = \"31\";\n" +
-			"	private static final String BENEFITS_SALARY_BLANK = \"32\";\n" +
-			"	private static final String TRUE_SALARY_BLANK = \"33\";\n" +
-			"	private static final String PAY_FREQUENCY_BLANK = \"34\";\n" +
-			"	private static final String WORK_HOURS_BLANK = \"35\";\n" +
-			"	private static final String LOCATION_ID_BLANK = \"36\";\n" +
-			"	private static final String SALARY_GRADE_BLANK = \"37\";\n" +
-			"	private static final String DATE_OF_HIRE_BLANK = \"38\";\n" +
-			"	private static final String RETIRE_VEST_PERCENT_BLANK = \"39\";\n" +
-			"	private static final String JOB_CODE_BLANK = \"40\";\n" +
-			"	private static final String UNION_FLAG_BLANK = \"41\";\n" +
-			"	private static final String OFFICER_FLAG_BLANK = \"42\";\n" +
-			"	private static final String PIN_USER_ID_BLANK = \"43\";\n" +
-			"	private static final String VENDOR_EMPLOYEE_ID_BLANK = \"44\";\n" +
-			"	private static final String MODIFIED_BY_BLANK = \"8\";\n" +
-			"	private static final String MODIFIED_DATE_BLANK = \"9\";\n" +
-			"	\n" +
-			"	\n" +
-			"	// Invalid field error numbers\n" +
-			"	private static final String DEMOGRAPHIC_TYPE_INVALID = \"54\";\n" +
-			"	private static final String EMPLOYER_ID_INVALID = \"22\";\n" +
-			"	private static final String WORK_STATE_INVALID = \"70\";\n" +
-			"	private static final String PAY_FREQUENCY_INVALID = \"138\";\n" +
-			"	private static final String WORK_HOURS_TOO_SMALL = \"140\";\n" +
-			"	private static final String DATE_OF_HIRE_INVALID = \"75\";\n" +
-			"	private static final String DATE_OF_HIRE_AFTER_TODAY = \"137\";\n" +
-			"	private static final String RETIRE_VEST_PERCENT_TOO_LARGE = \"77\";\n" +
-			"	private static final String RETIRE_VEST_PERCENT_TOO_SMALL = \"139\";\n" +
-			"	private static final String UNION_FLAG_INVALID = \"78\";\n" +
-			"	private static final String OFFICER_FLAG_INVALID = \"79\";\n" +
-			"	private static final String BENEFIT_GROUP_ID_INVALID = \"45\";\n" +
-			"	private static final String LAST_PERSON_SEQ_NUMBER_INVALID = \"80\";\n" +
-			"\n" +
-			"	// Field not numeric error numbers\n" +
-			"	private static final String WORK_PHONE_AREA_CODE_NOT_NUMERIC = \"67\";\n" +
-			"	private static final String WORK_PHONE1_NOT_NUMERIC = \"68\";\n" +
-			"	private static final String WORK_PHONE2_NOT_NUMERIC = \"69\";\n" +
-			"	private static final String WORK_PHONE_EXTENSION_NOT_NUMERIC = \"109\";\n" +
-			"	private static final String WORK_ZIP5_NOT_NUMERIC = \"71\";\n" +
-			"	private static final String WORK_ZIP4_NOT_NUMERIC = \"46\";\n" +
-			"	private static final String BENEFITS_SALARY_NOT_NUMERIC = \"72\";\n" +
-			"	private static final String TRUE_SALARY_NOT_NUMERIC = \"73\";\n" +
-			"	private static final String WORK_HOURS_NOT_NUMERIC = \"74\";\n" +
-			"	private static final String RETIRE_VEST_PERCENT_NOT_NUMERIC = \"76\";\n" +
-			"	\n" +
-			"	// Field too short error numbers\n" +
-			"	private static final String WORK_PHONE_AREA_CODE_TOO_SHORT = \"110\";\n" +
-			"	private static final String WORK_PHONE1_TOO_SHORT = \"111\";\n" +
-			"	private static final String WORK_PHONE2_TOO_SHORT = \"112\";\n" +
-			"	private static final String WORK_STATE_TOO_SHORT = \"113\";\n" +
-			"	private static final String WORK_ZIP5_TOO_SHORT = \"114\";\n" +
-			"	private static final String WORK_ZIP4_TOO_SHORT = \"115\";\n" +
-			"\n" +
-			"	// Field too long error numbers\n" +
-			"	private static final String PERSON_ID_TOO_LONG = \"82\";\n" +
-			"	private static final String EMPLOYEE_NUMBER_TOO_LONG = \"116\";\n" +
-			"	private static final String WORK_PHONE_AREA_CODE_TOO_LONG = \"117\";\n" +
-			"	private static final String WORK_PHONE1_TOO_LONG = \"118\";\n" +
-			"	private static final String WORK_PHONE2_TOO_LONG = \"119\";\n" +
-			"	private static final String WORK_PHONE_EXTENSION_TOO_LONG = \"120\";\n" +
-			"	private static final String WORK_ADDRESS1_TOO_LONG = \"121\";\n" +
-			"	private static final String WORK_ADDRESS2_TOO_LONG = \"122\";\n" +
-			"	private static final String WORK_CITY_TOO_LONG = \"123\";\n" +
-			"	private static final String WORK_STATE_TOO_LONG = \"124\";\n" +
-			"	private static final String WORK_ZIP5_TOO_LONG = \"125\";\n" +
-			"	private static final String WORK_ZIP4_TOO_LONG = \"126\";\n" +
-			"	private static final String BENEFITS_SALARY_TOO_LONG = \"127\";\n" +
-			"	private static final String TRUE_SALARY_TOO_LONG = \"128\";\n" +
-			"	private static final String WORK_HOURS_TOO_LONG = \"129\";\n" +
-			"	private static final String LOCATION_ID_TOO_LONG = \"130\";\n" +
-			"	private static final String SALARY_GRADE_TOO_LONG = \"131\";\n" +
-			"	private static final String RETIRE_VEST_PERCENT_TOO_LONG = \"132\";\n" +
-			"	private static final String JOB_CODE_TOO_LONG = \"133\";\n" +
-			"	private static final String PIN_USER_ID_TOO_LONG = \"134\";\n" +
-			"	private static final String VENDOR_EMPLOYEE_ID_TOO_LONG = \"135\";\n" +
-			"	private static final String MODIFIED_BY_TOO_LONG = \"86\";\n" +
-			"\n" +
-			"	// Administrator approval error numbers\n" +
-			"	private static final String EMPLOYER_ID_REQ_APPR = \"623\";\n" +
-			"	private static final String EMPLOYEE_NUMBER_REQ_APPR = \"624\";\n" +
-			"	private static final String STATUS_FLAG_REQ_APPR = \"625\";\n" +
-			"	private static final String WORK_PHONE_AREA_CODE_REQ_APPR = \"626\";\n" +
-			"	private static final String WORK_PHONE1_REQ_APPR = \"627\";\n" +
-			"	private static final String WORK_PHONE2_REQ_APPR = \"628\";\n" +
-			"	private static final String WORK_PHONE_EXTENSION_REQ_APPR = \"629\";\n" +
-			"	private static final String WORK_ADDRESS1_REQ_APPR = \"630\";\n" +
-			"	private static final String WORK_ADDRESS2_REQ_APPR = \"631\";\n" +
-			"	private static final String WORK_CITY_REQ_APPR = \"632\";\n" +
-			"	private static final String WORK_STATE_REQ_APPR = \"633\";\n" +
-			"	private static final String WORK_ZIP5_REQ_APPR = \"634\";\n" +
-			"	private static final String WORK_ZIP4_REQ_APPR = \"635\";\n" +
-			"	private static final String BENEFITS_SALARY_REQ_APPR = \"636\";\n" +
-			"	private static final String TRUE_SALARY_REQ_APPR = \"637\";\n" +
-			"	private static final String PAY_FREQUENCY_REQ_APPR = \"638\";\n" +
-			"	private static final String WORK_HOURS_REQ_APPR = \"639\";\n" +
-			"	private static final String LOCATION_ID_REQ_APPR = \"640\";\n" +
-			"	private static final String SALARY_GRADE_REQ_APPR = \"641\";\n" +
-			"	private static final String DATE_OF_HIRE_REQ_APPR = \"642\";\n" +
-			"	private static final String RETIRE_VEST_PERCENT_REQ_APPR = \"643\";\n" +
-			"	private static final String JOB_CODE_REQ_APPR = \"644\";\n" +
-			"	private static final String UNION_FLAG_REQ_APPR = \"645\";\n" +
-			"	private static final String OFFICER_FLAG_REQ_APPR = \"646\";\n" +
-			"	private static final String PIN_USER_ID_REQ_APPR = \"647\";\n" +
-			"	private static final String VENDOR_EMPLOYEE_ID_REQ_APPR = \"648\";\n" +
-			"	private static final String BENEFIT_GROUP_ID_REQ_APPR = \"649\";\n" +
-			"	private static final String LAST_PERSON_SEQ_NBR_REQ_APPR = \"650\";\n" +
-			"	\n" +
-			"public static void main(String[] args) {\n" +
-			"		System.out.println(\"Success\");\n" +
-			"}\n" +
-			"}"
+			"""
+				/**
+				 * Insert the type's description here.
+				 * Creation date: (02/28/01 2:58:07 PM)
+				 * @author: Administrator
+				 */
+				public class TempClassFormat {
+						// ERROR NUMBERS
+				
+					// Blank field error numbers
+					private static final String PERSON_ID_BLANK = "2";
+					private static final String DEMOGRAPHIC_TYPE_BLANK = "3";
+					private static final String EMPLOYEE_NUMBER_BLANK = "23";
+					private static final String WORK_PHONE_AREA_CODE_BLANK = "25";
+					private static final String WORK_PHONE1_BLANK = "26";
+					private static final String WORK_PHONE2_BLANK = "27";
+					private static final String WORK_ADDRESS1_BLANK = "28";
+					private static final String WORK_CITY_BLANK = "29";
+					private static final String WORK_STATE_BLANK = "30";
+					private static final String WORK_ZIP5_BLANK = "31";
+					private static final String BENEFITS_SALARY_BLANK = "32";
+					private static final String TRUE_SALARY_BLANK = "33";
+					private static final String PAY_FREQUENCY_BLANK = "34";
+					private static final String WORK_HOURS_BLANK = "35";
+					private static final String LOCATION_ID_BLANK = "36";
+					private static final String SALARY_GRADE_BLANK = "37";
+					private static final String DATE_OF_HIRE_BLANK = "38";
+					private static final String RETIRE_VEST_PERCENT_BLANK = "39";
+					private static final String JOB_CODE_BLANK = "40";
+					private static final String UNION_FLAG_BLANK = "41";
+					private static final String OFFICER_FLAG_BLANK = "42";
+					private static final String PIN_USER_ID_BLANK = "43";
+					private static final String VENDOR_EMPLOYEE_ID_BLANK = "44";
+					private static final String MODIFIED_BY_BLANK = "8";
+					private static final String MODIFIED_DATE_BLANK = "9";
+				\t
+				\t
+					// Invalid field error numbers
+					private static final String DEMOGRAPHIC_TYPE_INVALID = "54";
+					private static final String EMPLOYER_ID_INVALID = "22";
+					private static final String WORK_STATE_INVALID = "70";
+					private static final String PAY_FREQUENCY_INVALID = "138";
+					private static final String WORK_HOURS_TOO_SMALL = "140";
+					private static final String DATE_OF_HIRE_INVALID = "75";
+					private static final String DATE_OF_HIRE_AFTER_TODAY = "137";
+					private static final String RETIRE_VEST_PERCENT_TOO_LARGE = "77";
+					private static final String RETIRE_VEST_PERCENT_TOO_SMALL = "139";
+					private static final String UNION_FLAG_INVALID = "78";
+					private static final String OFFICER_FLAG_INVALID = "79";
+					private static final String BENEFIT_GROUP_ID_INVALID = "45";
+					private static final String LAST_PERSON_SEQ_NUMBER_INVALID = "80";
+				
+					// Field not numeric error numbers
+					private static final String WORK_PHONE_AREA_CODE_NOT_NUMERIC = "67";
+					private static final String WORK_PHONE1_NOT_NUMERIC = "68";
+					private static final String WORK_PHONE2_NOT_NUMERIC = "69";
+					private static final String WORK_PHONE_EXTENSION_NOT_NUMERIC = "109";
+					private static final String WORK_ZIP5_NOT_NUMERIC = "71";
+					private static final String WORK_ZIP4_NOT_NUMERIC = "46";
+					private static final String BENEFITS_SALARY_NOT_NUMERIC = "72";
+					private static final String TRUE_SALARY_NOT_NUMERIC = "73";
+					private static final String WORK_HOURS_NOT_NUMERIC = "74";
+					private static final String RETIRE_VEST_PERCENT_NOT_NUMERIC = "76";
+				\t
+					// Field too short error numbers
+					private static final String WORK_PHONE_AREA_CODE_TOO_SHORT = "110";
+					private static final String WORK_PHONE1_TOO_SHORT = "111";
+					private static final String WORK_PHONE2_TOO_SHORT = "112";
+					private static final String WORK_STATE_TOO_SHORT = "113";
+					private static final String WORK_ZIP5_TOO_SHORT = "114";
+					private static final String WORK_ZIP4_TOO_SHORT = "115";
+				
+					// Field too long error numbers
+					private static final String PERSON_ID_TOO_LONG = "82";
+					private static final String EMPLOYEE_NUMBER_TOO_LONG = "116";
+					private static final String WORK_PHONE_AREA_CODE_TOO_LONG = "117";
+					private static final String WORK_PHONE1_TOO_LONG = "118";
+					private static final String WORK_PHONE2_TOO_LONG = "119";
+					private static final String WORK_PHONE_EXTENSION_TOO_LONG = "120";
+					private static final String WORK_ADDRESS1_TOO_LONG = "121";
+					private static final String WORK_ADDRESS2_TOO_LONG = "122";
+					private static final String WORK_CITY_TOO_LONG = "123";
+					private static final String WORK_STATE_TOO_LONG = "124";
+					private static final String WORK_ZIP5_TOO_LONG = "125";
+					private static final String WORK_ZIP4_TOO_LONG = "126";
+					private static final String BENEFITS_SALARY_TOO_LONG = "127";
+					private static final String TRUE_SALARY_TOO_LONG = "128";
+					private static final String WORK_HOURS_TOO_LONG = "129";
+					private static final String LOCATION_ID_TOO_LONG = "130";
+					private static final String SALARY_GRADE_TOO_LONG = "131";
+					private static final String RETIRE_VEST_PERCENT_TOO_LONG = "132";
+					private static final String JOB_CODE_TOO_LONG = "133";
+					private static final String PIN_USER_ID_TOO_LONG = "134";
+					private static final String VENDOR_EMPLOYEE_ID_TOO_LONG = "135";
+					private static final String MODIFIED_BY_TOO_LONG = "86";
+				
+					// Administrator approval error numbers
+					private static final String EMPLOYER_ID_REQ_APPR = "623";
+					private static final String EMPLOYEE_NUMBER_REQ_APPR = "624";
+					private static final String STATUS_FLAG_REQ_APPR = "625";
+					private static final String WORK_PHONE_AREA_CODE_REQ_APPR = "626";
+					private static final String WORK_PHONE1_REQ_APPR = "627";
+					private static final String WORK_PHONE2_REQ_APPR = "628";
+					private static final String WORK_PHONE_EXTENSION_REQ_APPR = "629";
+					private static final String WORK_ADDRESS1_REQ_APPR = "630";
+					private static final String WORK_ADDRESS2_REQ_APPR = "631";
+					private static final String WORK_CITY_REQ_APPR = "632";
+					private static final String WORK_STATE_REQ_APPR = "633";
+					private static final String WORK_ZIP5_REQ_APPR = "634";
+					private static final String WORK_ZIP4_REQ_APPR = "635";
+					private static final String BENEFITS_SALARY_REQ_APPR = "636";
+					private static final String TRUE_SALARY_REQ_APPR = "637";
+					private static final String PAY_FREQUENCY_REQ_APPR = "638";
+					private static final String WORK_HOURS_REQ_APPR = "639";
+					private static final String LOCATION_ID_REQ_APPR = "640";
+					private static final String SALARY_GRADE_REQ_APPR = "641";
+					private static final String DATE_OF_HIRE_REQ_APPR = "642";
+					private static final String RETIRE_VEST_PERCENT_REQ_APPR = "643";
+					private static final String JOB_CODE_REQ_APPR = "644";
+					private static final String UNION_FLAG_REQ_APPR = "645";
+					private static final String OFFICER_FLAG_REQ_APPR = "646";
+					private static final String PIN_USER_ID_REQ_APPR = "647";
+					private static final String VENDOR_EMPLOYEE_ID_REQ_APPR = "648";
+					private static final String BENEFIT_GROUP_ID_REQ_APPR = "649";
+					private static final String LAST_PERSON_SEQ_NBR_REQ_APPR = "650";
+				\t
+				public static void main(String[] args) {
+						System.out.println("Success");
+				}
+				}"""
 		},
 		"Success");
 }
@@ -253,16 +260,17 @@ public void test005() {
 	this.runConformTest(
 		new String[] {
 			"Code.java",
-			"public class Code {\n" +
-			"  public static final String s = \"<clinit>\";\n" +
-			"  public static final String s2 = \"()V\";\n" +
-			"  public Code(int i) {\n" +
-			"  }\n" +
-			"public static void main(String[] args) {\n" +
-			"  System.out.print(s.length());\n" +
-			"  System.out.println(s2.length());\n" +
-			"}\n" +
-			"}"
+			"""
+				public class Code {
+				  public static final String s = "<clinit>";
+				  public static final String s2 = "()V";
+				  public Code(int i) {
+				  }
+				public static void main(String[] args) {
+				  System.out.print(s.length());
+				  System.out.println(s2.length());
+				}
+				}"""
 		},
 		"83");
 }
@@ -271,18 +279,20 @@ public void test006() {
 	this.runConformTest(
 		new String[] {
 			"p1/X.java",
-			"package p1;	\n" +
-			"public class X {	\n" +
-			"	X otherX;	\n" +
-			"	static String STR = \"SUCCESS\";	\n" +
-			"	public static void main(String args[]) {	\n" +
-			"		try {	\n" +
-			"			System.out.println(new X().otherX.STR);	\n" +
-			"		} catch(NullPointerException e){	\n" +
-			"			System.out.println(\"FAILED\");	\n" +
-			"		}	\n" +
-			"	}	\n" +
-			"}	\n",
+			"""
+				package p1;\t
+				public class X {\t
+					X otherX;\t
+					static String STR = "SUCCESS";\t
+					public static void main(String args[]) {\t
+						try {\t
+							System.out.println(new X().otherX.STR);\t
+						} catch(NullPointerException e){\t
+							System.out.println("FAILED");\t
+						}\t
+					}\t
+				}\t
+				""",
 		},
 		"SUCCESS");
 }
@@ -295,16 +305,18 @@ public void test007() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {	\n"+
-			"    public static final boolean F = false;	\n"+
-			"    public static final String Str = F ? \"dummy\" : null;	\n"+
-			"    public static void main(String[] args) {	\n"+
-			"        if (Str == null)	\n"+
-			"        	System.out.println(\"SUCCESS\");	\n"+
-			"       	else	\n"+
-			"        	System.out.println(\"FAILED\");	\n"+
-			"    }	\n"+
-			"}	\n",
+			"""
+				public class X {\t
+				    public static final boolean F = false;\t
+				    public static final String Str = F ? "dummy" : null;\t
+				    public static void main(String[] args) {\t
+				        if (Str == null)\t
+				        	System.out.println("SUCCESS");\t
+				       	else\t
+				        	System.out.println("FAILED");\t
+				    }\t
+				}\t
+				""",
 		},
 		"SUCCESS");
 }
@@ -317,15 +329,17 @@ public void test008() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {	\n"+
-			"    public static void main(String[] args) {	\n"+
-			"      	System.out.println(\"SUCCESS\");	\n"+
-			"	} 	\n"+
-			"	void foo(){	\n"+
-			"		while (null == null);	//not an inlinable constant\n"+
-			"		System.out.println(\"unreachable but shouldn't be flagged\");	\n" +
-			"	}	\n"+
-			"}	\n",
+			"""
+				public class X {\t
+				    public static void main(String[] args) {\t
+				      	System.out.println("SUCCESS");\t
+					} \t
+					void foo(){\t
+						while (null == null);	//not an inlinable constant
+						System.out.println("unreachable but shouldn't be flagged");\t
+					}\t
+				}\t
+				""",
 		},
 		"SUCCESS");
 }
@@ -342,19 +356,20 @@ public void test009() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {	\n" +
-			"    public static void main(String[] args) {	\n" +
-			"        if (null == null) System.out.print(\"1\");	\n" +
-			"        if ((null==null ? null:null) == (null==null ? null:null))	\n" +
-			"        	System.out.print(\"2\");	\n" +
-			"		boolean b = (\"[\" + null + \"]\") == \"[null]\";  // cannot inline	\n" +
-			"		System.out.print(\"3\");	\n" +
-			"		final String s = (String) null;	\n" +
-			"		if (s == null) System.out.print(\"4\");	\n" +
-			"		final String s2 = (String) \"aaa\";	\n" +
-			"		if (s2 == \"aaa\") System.out.println(\"5\");	\n" +
-			"    }	\n" +
-			"}",
+			"""
+				public class X {\t
+				    public static void main(String[] args) {\t
+				        if (null == null) System.out.print("1");\t
+				        if ((null==null ? null:null) == (null==null ? null:null))\t
+				        	System.out.print("2");\t
+						boolean b = ("[" + null + "]") == "[null]";  // cannot inline\t
+						System.out.print("3");\t
+						final String s = (String) null;\t
+						if (s == null) System.out.print("4");\t
+						final String s2 = (String) "aaa";\t
+						if (s2 == "aaa") System.out.println("5");\t
+				    }\t
+				}""",
 		},
 		"12345");
 
@@ -512,15 +527,17 @@ public void test010() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {	\n" +
-			"    public static void main(String[] args) {	\n" +
-			"       if (null == null) {\n"+
-			"			System.out.print(\"SUCCESS\");	\n" +
-			"			return;	\n" +
-			"		}	\n" +
-			"		System.out.print(\"SHOULDN'T BE GENERATED\");	\n" +
-			"    }	\n" +
-			"}	\n",
+			"""
+				public class X {\t
+				    public static void main(String[] args) {\t
+				       if (null == null) {
+							System.out.print("SUCCESS");\t
+							return;\t
+						}\t
+						System.out.print("SHOULDN'T BE GENERATED");\t
+				    }\t
+				}\t
+				""",
 		},
 		"SUCCESS");
 
@@ -533,24 +550,26 @@ public void test010() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =
-		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-		"  // Stack: 2, Locals: 1\n" +
-		"  public static void main(java.lang.String[] args);\n" +
-		"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"     3  ldc <String \"SUCCESS\"> [22]\n" +
-		"     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
-		"     8  return\n" +
-		"     9  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    12  ldc <String \"SHOULDN\'T BE GENERATED\"> [30]\n" +
-		"    14  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
-		"    17  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 4]\n" +
-		"        [pc: 8, line: 5]\n" +
-		"        [pc: 9, line: 7]\n" +
-		"        [pc: 17, line: 8]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 18] local: args index: 0 type: java.lang.String[]\n";
+		"""
+		  // Method descriptor #15 ([Ljava/lang/String;)V
+		  // Stack: 2, Locals: 1
+		  public static void main(java.lang.String[] args);
+		     0  getstatic java.lang.System.out : java.io.PrintStream [16]
+		     3  ldc <String "SUCCESS"> [22]
+		     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]
+		     8  return
+		     9  getstatic java.lang.System.out : java.io.PrintStream [16]
+		    12  ldc <String "SHOULDN\'T BE GENERATED"> [30]
+		    14  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]
+		    17  return
+		      Line numbers:
+		        [pc: 0, line: 4]
+		        [pc: 8, line: 5]
+		        [pc: 9, line: 7]
+		        [pc: 17, line: 8]
+		      Local variable table:
+		        [pc: 0, pc: 18] local: args index: 0 type: java.lang.String[]
+		""";
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
 		System.out.println(Util.displayString(actualOutput, 2));
@@ -565,11 +584,12 @@ public void test011() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
-			"public class A {\n" +
-			"    public static void main(String[] args) {\n" +
-			"		System.out.print((01.f == 1) && (01e0f == 1));	\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class A {
+				    public static void main(String[] args) {
+						System.out.print((01.f == 1) && (01e0f == 1));\t
+				    }
+				}""",
 		},
 		"true");
 }
@@ -579,15 +599,16 @@ public void test012() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static String C = \"\" + +\' \';\n" +
-			"    public static String I = \"\" + +32;\n" +
-			"\n" +
-			"    public static void main(String[] args) {\n" +
-			"        System.out.print(C);\n" +
-			"        System.out.print(I);\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X {
+					public static String C = "" + +\' \';
+				    public static String I = "" + +32;
+				
+				    public static void main(String[] args) {
+				        System.out.print(C);
+				        System.out.print(I);
+				    }
+				}""",
 		},
 		"3232");
 }
@@ -596,39 +617,42 @@ public void test013() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(-9223372036854775809L); // KO\n" +
-			"		System.out.println(9223372036854775809L); // KO\n" +
-			"		System.out.println(9223372036854775808L); // KO\n" +
-			"		System.out.println(23092395825689123986L); // KO\n" +
-			"		System.out.println(-9223372036854775808L); // OK\n" +
-			"		System.out.println(9223372036854775807L); // OK\n" +
-			"		System.out.println(2309239582568912398L); // OK\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						System.out.println(-9223372036854775809L); // KO
+						System.out.println(9223372036854775809L); // KO
+						System.out.println(9223372036854775808L); // KO
+						System.out.println(23092395825689123986L); // KO
+						System.out.println(-9223372036854775808L); // OK
+						System.out.println(9223372036854775807L); // OK
+						System.out.println(2309239582568912398L); // OK
+					}
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	System.out.println(-9223372036854775809L); // KO\n" +
-		"	                    ^^^^^^^^^^^^^^^^^^^^\n" +
-		"The literal 9223372036854775809L of type long is out of range \n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	System.out.println(9223372036854775809L); // KO\n" +
-		"	                   ^^^^^^^^^^^^^^^^^^^^\n" +
-		"The literal 9223372036854775809L of type long is out of range \n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 5)\n" +
-		"	System.out.println(9223372036854775808L); // KO\n" +
-		"	                   ^^^^^^^^^^^^^^^^^^^^\n" +
-		"The literal 9223372036854775808L of type long is out of range \n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 6)\n" +
-		"	System.out.println(23092395825689123986L); // KO\n" +
-		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The literal 23092395825689123986L of type long is out of range \n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				System.out.println(-9223372036854775809L); // KO
+				                    ^^^^^^^^^^^^^^^^^^^^
+			The literal 9223372036854775809L of type long is out of range\s
+			----------
+			2. ERROR in X.java (at line 4)
+				System.out.println(9223372036854775809L); // KO
+				                   ^^^^^^^^^^^^^^^^^^^^
+			The literal 9223372036854775809L of type long is out of range\s
+			----------
+			3. ERROR in X.java (at line 5)
+				System.out.println(9223372036854775808L); // KO
+				                   ^^^^^^^^^^^^^^^^^^^^
+			The literal 9223372036854775808L of type long is out of range\s
+			----------
+			4. ERROR in X.java (at line 6)
+				System.out.println(23092395825689123986L); // KO
+				                   ^^^^^^^^^^^^^^^^^^^^^
+			The literal 23092395825689123986L of type long is out of range\s
+			----------
+			""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110182
 public void test014() throws Exception {
@@ -636,146 +660,150 @@ public void test014() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	X fx;\n" +
-			"	final static boolean DBG = false;\n" +
-			"	void foo1(X x) {\n" +
-			"		if (x.DBG) {\n" +
-			"			boolean b = x.DBG;\n" +
-			"		}\n" +
-			"		boolean bb;\n" +
-			"		if (bb = x.DBG) {\n" +
-			"			boolean b = x.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo2(X x) {\n" +
-			"		while (x.DBG) {\n" +
-			"			boolean b = x.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo3(X x) {\n" +
-			"		for (;x.DBG;) {\n" +
-			"			boolean b = x.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo4(X x) {\n" +
-			"		boolean b = x.DBG ? x == null : x.DBG;\n" +
-			"	}\n" +
-			"	void foo5() {\n" +
-			"		if (this.fx.DBG) {\n" +
-			"			boolean b = this.fx.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo6() {\n" +
-			"		while (this.fx.DBG) {\n" +
-			"			boolean b = this.fx.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo7() {\n" +
-			"		for (;this.fx.DBG;) {\n" +
-			"			boolean b = this.fx.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo8() {\n" +
-			"		boolean b = this.fx.DBG ? this.fx == null : this.fx.DBG;\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					X fx;
+					final static boolean DBG = false;
+					void foo1(X x) {
+						if (x.DBG) {
+							boolean b = x.DBG;
+						}
+						boolean bb;
+						if (bb = x.DBG) {
+							boolean b = x.DBG;
+						}
+					}
+					void foo2(X x) {
+						while (x.DBG) {
+							boolean b = x.DBG;
+						}
+					}
+					void foo3(X x) {
+						for (;x.DBG;) {
+							boolean b = x.DBG;
+						}
+					}
+					void foo4(X x) {
+						boolean b = x.DBG ? x == null : x.DBG;
+					}
+					void foo5() {
+						if (this.fx.DBG) {
+							boolean b = this.fx.DBG;
+						}
+					}
+					void foo6() {
+						while (this.fx.DBG) {
+							boolean b = this.fx.DBG;
+						}
+					}
+					void foo7() {
+						for (;this.fx.DBG;) {
+							boolean b = this.fx.DBG;
+						}
+					}
+					void foo8() {
+						boolean b = this.fx.DBG ? this.fx == null : this.fx.DBG;
+					}
+				}
+				""",
 		},
 		"");
 	// ensure boolean codegen got optimized (optimizedBooleanConstant)
 	String expectedOutput =
-		"  // Method descriptor #20 (LX;)V\n" +
-		"  // Stack: 2, Locals: 4\n" +
-		"  void foo1(X x);\n" +
-		"    0  iconst_0\n" +
-		"    1  dup\n" +
-		"    2  istore_2 [bb]\n" +
-		"    3  ifeq 8\n" +
-		"    6  iconst_0\n" +
-		"    7  istore_3\n" +
-		"    8  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 9]\n" +
-		"        [pc: 6, line: 10]\n" +
-		"        [pc: 8, line: 12]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 9] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 9] local: x index: 1 type: X\n" +
-		"        [pc: 3, pc: 9] local: bb index: 2 type: boolean\n" +
-		"  \n" +
-		"  // Method descriptor #20 (LX;)V\n" +
-		"  // Stack: 0, Locals: 2\n" +
-		"  void foo2(X x);\n" +
-		"    0  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 17]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 1] local: x index: 1 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #20 (LX;)V\n" +
-		"  // Stack: 0, Locals: 2\n" +
-		"  void foo3(X x);\n" +
-		"    0  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 22]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 1] local: x index: 1 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #20 (LX;)V\n" +
-		"  // Stack: 1, Locals: 3\n" +
-		"  void foo4(X x);\n" +
-		"    0  iconst_0\n" +
-		"    1  istore_2 [b]\n" +
-		"    2  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 24]\n" +
-		"        [pc: 2, line: 25]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 3] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 3] local: x index: 1 type: X\n" +
-		"        [pc: 2, pc: 3] local: b index: 2 type: boolean\n" +
-		"  \n" +
-		"  // Method descriptor #12 ()V\n" +
-		"  // Stack: 0, Locals: 1\n" +
-		"  void foo5();\n" +
-		"    0  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 30]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #12 ()V\n" +
-		"  // Stack: 0, Locals: 1\n" +
-		"  void foo6();\n" +
-		"    0  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 35]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #12 ()V\n" +
-		"  // Stack: 0, Locals: 1\n" +
-		"  void foo7();\n" +
-		"    0  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 40]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #12 ()V\n" +
-		"  // Stack: 1, Locals: 2\n" +
-		"  void foo8();\n" +
-		"    0  iconst_0\n" +
-		"    1  istore_1 [b]\n" +
-		"    2  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 42]\n" +
-		"        [pc: 2, line: 43]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 3] local: this index: 0 type: X\n" +
-		"        [pc: 2, pc: 3] local: b index: 1 type: boolean\n";
+		"""
+		  // Method descriptor #20 (LX;)V
+		  // Stack: 2, Locals: 4
+		  void foo1(X x);
+		    0  iconst_0
+		    1  dup
+		    2  istore_2 [bb]
+		    3  ifeq 8
+		    6  iconst_0
+		    7  istore_3
+		    8  return
+		      Line numbers:
+		        [pc: 0, line: 9]
+		        [pc: 6, line: 10]
+		        [pc: 8, line: 12]
+		      Local variable table:
+		        [pc: 0, pc: 9] local: this index: 0 type: X
+		        [pc: 0, pc: 9] local: x index: 1 type: X
+		        [pc: 3, pc: 9] local: bb index: 2 type: boolean
+		 \s
+		  // Method descriptor #20 (LX;)V
+		  // Stack: 0, Locals: 2
+		  void foo2(X x);
+		    0  return
+		      Line numbers:
+		        [pc: 0, line: 17]
+		      Local variable table:
+		        [pc: 0, pc: 1] local: this index: 0 type: X
+		        [pc: 0, pc: 1] local: x index: 1 type: X
+		 \s
+		  // Method descriptor #20 (LX;)V
+		  // Stack: 0, Locals: 2
+		  void foo3(X x);
+		    0  return
+		      Line numbers:
+		        [pc: 0, line: 22]
+		      Local variable table:
+		        [pc: 0, pc: 1] local: this index: 0 type: X
+		        [pc: 0, pc: 1] local: x index: 1 type: X
+		 \s
+		  // Method descriptor #20 (LX;)V
+		  // Stack: 1, Locals: 3
+		  void foo4(X x);
+		    0  iconst_0
+		    1  istore_2 [b]
+		    2  return
+		      Line numbers:
+		        [pc: 0, line: 24]
+		        [pc: 2, line: 25]
+		      Local variable table:
+		        [pc: 0, pc: 3] local: this index: 0 type: X
+		        [pc: 0, pc: 3] local: x index: 1 type: X
+		        [pc: 2, pc: 3] local: b index: 2 type: boolean
+		 \s
+		  // Method descriptor #12 ()V
+		  // Stack: 0, Locals: 1
+		  void foo5();
+		    0  return
+		      Line numbers:
+		        [pc: 0, line: 30]
+		      Local variable table:
+		        [pc: 0, pc: 1] local: this index: 0 type: X
+		 \s
+		  // Method descriptor #12 ()V
+		  // Stack: 0, Locals: 1
+		  void foo6();
+		    0  return
+		      Line numbers:
+		        [pc: 0, line: 35]
+		      Local variable table:
+		        [pc: 0, pc: 1] local: this index: 0 type: X
+		 \s
+		  // Method descriptor #12 ()V
+		  // Stack: 0, Locals: 1
+		  void foo7();
+		    0  return
+		      Line numbers:
+		        [pc: 0, line: 40]
+		      Local variable table:
+		        [pc: 0, pc: 1] local: this index: 0 type: X
+		 \s
+		  // Method descriptor #12 ()V
+		  // Stack: 1, Locals: 2
+		  void foo8();
+		    0  iconst_0
+		    1  istore_1 [b]
+		    2  return
+		      Line numbers:
+		        [pc: 0, line: 42]
+		        [pc: 2, line: 43]
+		      Local variable table:
+		        [pc: 0, pc: 3] local: this index: 0 type: X
+		        [pc: 2, pc: 3] local: b index: 1 type: boolean
+		""";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -796,146 +824,150 @@ public void test015() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	X fx;\n" +
-			"	final static boolean DBG = false;\n" +
-			"	void foo1(X x) {\n" +
-			"		if (x.DBG) {\n" +
-			"			boolean b = x.DBG;\n" +
-			"		}\n" +
-			"		boolean bb;\n" +
-			"		if (bb = x.DBG) {\n" +
-			"			boolean b = x.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo2(X x) {\n" +
-			"		while (x.DBG) {\n" +
-			"			boolean b = x.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo3(X x) {\n" +
-			"		for (;x.DBG;) {\n" +
-			"			boolean b = x.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo4(X x) {\n" +
-			"		boolean b = x.DBG ? x == null : x.DBG;\n" +
-			"	}\n" +
-			"	void foo5() {\n" +
-			"		if (this.fx.DBG) {\n" +
-			"			boolean b = this.fx.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo6() {\n" +
-			"		while (this.fx.DBG) {\n" +
-			"			boolean b = this.fx.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo7() {\n" +
-			"		for (;this.fx.DBG;) {\n" +
-			"			boolean b = this.fx.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo8() {\n" +
-			"		boolean b = this.fx.DBG ? this.fx == null : this.fx.DBG;\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					X fx;
+					final static boolean DBG = false;
+					void foo1(X x) {
+						if (x.DBG) {
+							boolean b = x.DBG;
+						}
+						boolean bb;
+						if (bb = x.DBG) {
+							boolean b = x.DBG;
+						}
+					}
+					void foo2(X x) {
+						while (x.DBG) {
+							boolean b = x.DBG;
+						}
+					}
+					void foo3(X x) {
+						for (;x.DBG;) {
+							boolean b = x.DBG;
+						}
+					}
+					void foo4(X x) {
+						boolean b = x.DBG ? x == null : x.DBG;
+					}
+					void foo5() {
+						if (this.fx.DBG) {
+							boolean b = this.fx.DBG;
+						}
+					}
+					void foo6() {
+						while (this.fx.DBG) {
+							boolean b = this.fx.DBG;
+						}
+					}
+					void foo7() {
+						for (;this.fx.DBG;) {
+							boolean b = this.fx.DBG;
+						}
+					}
+					void foo8() {
+						boolean b = this.fx.DBG ? this.fx == null : this.fx.DBG;
+					}
+				}
+				""",
 		},
 		"");
 	// ensure boolean codegen got optimized (optimizedBooleanConstant)
 	String expectedOutput =
-		"  // Method descriptor #20 (LX;)V\n" +
-		"  // Stack: 2, Locals: 4\n" +
-		"  void foo1(X x);\n" +
-		"    0  iconst_0\n" +
-		"    1  dup\n" +
-		"    2  istore_2 [bb]\n" +
-		"    3  ifeq 8\n" +
-		"    6  iconst_0\n" +
-		"    7  istore_3\n" +
-		"    8  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 9]\n" +
-		"        [pc: 6, line: 10]\n" +
-		"        [pc: 8, line: 12]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 9] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 9] local: x index: 1 type: X\n" +
-		"        [pc: 3, pc: 9] local: bb index: 2 type: boolean\n" +
-		"  \n" +
-		"  // Method descriptor #20 (LX;)V\n" +
-		"  // Stack: 0, Locals: 2\n" +
-		"  void foo2(X x);\n" +
-		"    0  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 17]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 1] local: x index: 1 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #20 (LX;)V\n" +
-		"  // Stack: 0, Locals: 2\n" +
-		"  void foo3(X x);\n" +
-		"    0  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 22]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 1] local: x index: 1 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #20 (LX;)V\n" +
-		"  // Stack: 1, Locals: 3\n" +
-		"  void foo4(X x);\n" +
-		"    0  iconst_0\n" +
-		"    1  istore_2 [b]\n" +
-		"    2  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 24]\n" +
-		"        [pc: 2, line: 25]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 3] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 3] local: x index: 1 type: X\n" +
-		"        [pc: 2, pc: 3] local: b index: 2 type: boolean\n" +
-		"  \n" +
-		"  // Method descriptor #12 ()V\n" +
-		"  // Stack: 0, Locals: 1\n" +
-		"  void foo5();\n" +
-		"    0  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 30]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #12 ()V\n" +
-		"  // Stack: 0, Locals: 1\n" +
-		"  void foo6();\n" +
-		"    0  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 35]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #12 ()V\n" +
-		"  // Stack: 0, Locals: 1\n" +
-		"  void foo7();\n" +
-		"    0  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 40]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #12 ()V\n" +
-		"  // Stack: 1, Locals: 2\n" +
-		"  void foo8();\n" +
-		"    0  iconst_0\n" +
-		"    1  istore_1 [b]\n" +
-		"    2  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 42]\n" +
-		"        [pc: 2, line: 43]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 3] local: this index: 0 type: X\n" +
-		"        [pc: 2, pc: 3] local: b index: 1 type: boolean\n";
+		"""
+		  // Method descriptor #20 (LX;)V
+		  // Stack: 2, Locals: 4
+		  void foo1(X x);
+		    0  iconst_0
+		    1  dup
+		    2  istore_2 [bb]
+		    3  ifeq 8
+		    6  iconst_0
+		    7  istore_3
+		    8  return
+		      Line numbers:
+		        [pc: 0, line: 9]
+		        [pc: 6, line: 10]
+		        [pc: 8, line: 12]
+		      Local variable table:
+		        [pc: 0, pc: 9] local: this index: 0 type: X
+		        [pc: 0, pc: 9] local: x index: 1 type: X
+		        [pc: 3, pc: 9] local: bb index: 2 type: boolean
+		 \s
+		  // Method descriptor #20 (LX;)V
+		  // Stack: 0, Locals: 2
+		  void foo2(X x);
+		    0  return
+		      Line numbers:
+		        [pc: 0, line: 17]
+		      Local variable table:
+		        [pc: 0, pc: 1] local: this index: 0 type: X
+		        [pc: 0, pc: 1] local: x index: 1 type: X
+		 \s
+		  // Method descriptor #20 (LX;)V
+		  // Stack: 0, Locals: 2
+		  void foo3(X x);
+		    0  return
+		      Line numbers:
+		        [pc: 0, line: 22]
+		      Local variable table:
+		        [pc: 0, pc: 1] local: this index: 0 type: X
+		        [pc: 0, pc: 1] local: x index: 1 type: X
+		 \s
+		  // Method descriptor #20 (LX;)V
+		  // Stack: 1, Locals: 3
+		  void foo4(X x);
+		    0  iconst_0
+		    1  istore_2 [b]
+		    2  return
+		      Line numbers:
+		        [pc: 0, line: 24]
+		        [pc: 2, line: 25]
+		      Local variable table:
+		        [pc: 0, pc: 3] local: this index: 0 type: X
+		        [pc: 0, pc: 3] local: x index: 1 type: X
+		        [pc: 2, pc: 3] local: b index: 2 type: boolean
+		 \s
+		  // Method descriptor #12 ()V
+		  // Stack: 0, Locals: 1
+		  void foo5();
+		    0  return
+		      Line numbers:
+		        [pc: 0, line: 30]
+		      Local variable table:
+		        [pc: 0, pc: 1] local: this index: 0 type: X
+		 \s
+		  // Method descriptor #12 ()V
+		  // Stack: 0, Locals: 1
+		  void foo6();
+		    0  return
+		      Line numbers:
+		        [pc: 0, line: 35]
+		      Local variable table:
+		        [pc: 0, pc: 1] local: this index: 0 type: X
+		 \s
+		  // Method descriptor #12 ()V
+		  // Stack: 0, Locals: 1
+		  void foo7();
+		    0  return
+		      Line numbers:
+		        [pc: 0, line: 40]
+		      Local variable table:
+		        [pc: 0, pc: 1] local: this index: 0 type: X
+		 \s
+		  // Method descriptor #12 ()V
+		  // Stack: 1, Locals: 2
+		  void foo8();
+		    0  iconst_0
+		    1  istore_1 [b]
+		    2  return
+		      Line numbers:
+		        [pc: 0, line: 42]
+		        [pc: 2, line: 43]
+		      Local variable table:
+		        [pc: 0, pc: 3] local: this index: 0 type: X
+		        [pc: 2, pc: 3] local: b index: 1 type: boolean
+		""";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -955,86 +987,90 @@ public void test016() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	X fx;\n" +
-			"	final static boolean DBG = false;\n" +
-			"	void foo1(X x) {\n" +
-			"		boolean b;\n" +
-			"		if (false ? false : x.DBG) {\n" +
-			"			boolean bb = x.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo2(X x) {\n" +
-			"		boolean b;\n" +
-			"		while (x == null ? x.DBG : x.DBG) {\n" +
-			"			boolean bb = x.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo3(X x) {\n" +
-			"		boolean b;\n" +
-			"		for (;x == null ? x.DBG : x.DBG;) {\n" +
-			"			boolean bb = x.DBG;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void foo4(X x) {\n" +
-			"		boolean bb = (x == null ? x.DBG :  x.DBG) ? x == null : x.DBG;\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class X {
+					X fx;
+					final static boolean DBG = false;
+					void foo1(X x) {
+						boolean b;
+						if (false ? false : x.DBG) {
+							boolean bb = x.DBG;
+						}
+					}
+					void foo2(X x) {
+						boolean b;
+						while (x == null ? x.DBG : x.DBG) {
+							boolean bb = x.DBG;
+						}
+					}
+					void foo3(X x) {
+						boolean b;
+						for (;x == null ? x.DBG : x.DBG;) {
+							boolean bb = x.DBG;
+						}
+					}
+					void foo4(X x) {
+						boolean bb = (x == null ? x.DBG :  x.DBG) ? x == null : x.DBG;
+					}
+				}
+				""",
 		},
 		"");
 	// ensure boolean codegen got optimized (optimizedBooleanConstant)
 	String expectedOutput =
-		"  // Method descriptor #20 (LX;)V\n" +
-		"  // Stack: 0, Locals: 2\n" +
-		"  void foo1(X x);\n" +
-		"    0  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 9]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 1] local: x index: 1 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #20 (LX;)V\n" +
-		"  // Stack: 1, Locals: 2\n" +
-		"  void foo2(X x);\n" +
-		"    0  aload_1 [x]\n" +
-		"    1  ifnonnull 4\n" +
-		"    4  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 12]\n" +
-		"        [pc: 4, line: 15]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 5] local: x index: 1 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #20 (LX;)V\n" +
-		"  // Stack: 1, Locals: 2\n" +
-		"  void foo3(X x);\n" +
-		"    0  aload_1 [x]\n" +
-		"    1  ifnonnull 4\n" +
-		"    4  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 18]\n" +
-		"        [pc: 4, line: 21]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 5] local: x index: 1 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #20 (LX;)V\n" +
-		"  // Stack: 1, Locals: 3\n" +
-		"  void foo4(X x);\n" +
-		"    0  aload_1 [x]\n" +
-		"    1  ifnonnull 4\n" +
-		"    4  iconst_0\n" +
-		"    5  istore_2 [bb]\n" +
-		"    6  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 23]\n" +
-		"        [pc: 6, line: 24]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 7] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 7] local: x index: 1 type: X\n" +
-		"        [pc: 6, pc: 7] local: bb index: 2 type: boolean\n";
+		"""
+		  // Method descriptor #20 (LX;)V
+		  // Stack: 0, Locals: 2
+		  void foo1(X x);
+		    0  return
+		      Line numbers:
+		        [pc: 0, line: 9]
+		      Local variable table:
+		        [pc: 0, pc: 1] local: this index: 0 type: X
+		        [pc: 0, pc: 1] local: x index: 1 type: X
+		 \s
+		  // Method descriptor #20 (LX;)V
+		  // Stack: 1, Locals: 2
+		  void foo2(X x);
+		    0  aload_1 [x]
+		    1  ifnonnull 4
+		    4  return
+		      Line numbers:
+		        [pc: 0, line: 12]
+		        [pc: 4, line: 15]
+		      Local variable table:
+		        [pc: 0, pc: 5] local: this index: 0 type: X
+		        [pc: 0, pc: 5] local: x index: 1 type: X
+		 \s
+		  // Method descriptor #20 (LX;)V
+		  // Stack: 1, Locals: 2
+		  void foo3(X x);
+		    0  aload_1 [x]
+		    1  ifnonnull 4
+		    4  return
+		      Line numbers:
+		        [pc: 0, line: 18]
+		        [pc: 4, line: 21]
+		      Local variable table:
+		        [pc: 0, pc: 5] local: this index: 0 type: X
+		        [pc: 0, pc: 5] local: x index: 1 type: X
+		 \s
+		  // Method descriptor #20 (LX;)V
+		  // Stack: 1, Locals: 3
+		  void foo4(X x);
+		    0  aload_1 [x]
+		    1  ifnonnull 4
+		    4  iconst_0
+		    5  istore_2 [bb]
+		    6  return
+		      Line numbers:
+		        [pc: 0, line: 23]
+		        [pc: 6, line: 24]
+		      Local variable table:
+		        [pc: 0, pc: 7] local: this index: 0 type: X
+		        [pc: 0, pc: 7] local: x index: 1 type: X
+		        [pc: 6, pc: 7] local: bb index: 2 type: boolean
+		""";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -1053,12 +1089,13 @@ public void test017() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public static void main(String[] args) {\n" +
-			"		int x = 2;\n" +
-			"       System.out.println(\"n: \"+(x > 1  ? 2 : 1.0));\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X {
+				    public static void main(String[] args) {
+						int x = 2;
+				       System.out.println("n: "+(x > 1  ? 2 : 1.0));
+				    }
+				}""",
 		},
 		"n: 2.0");
 }
@@ -1067,11 +1104,12 @@ public void test018() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public static void main(String[] args) {\n" +
-			"		System.out.println(\"n: \"+(true ? 2 : 1.0));\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X {
+				    public static void main(String[] args) {
+						System.out.println("n: "+(true ? 2 : 1.0));
+				    }
+				}""",
 		},
 		"n: 2.0");
 }
@@ -1082,15 +1120,16 @@ public void test019() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    static class Enclosed {\n" +
-			"		 static final String constant = \"\";\n" +
-			"		 static final String notAConstant;\n" +
-			"        static {\n" +
-			"		     notAConstant = null;\n" +
-			"        }\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X {
+				    static class Enclosed {
+						 static final String constant = "";
+						 static final String notAConstant;
+				        static {
+						     notAConstant = null;
+				        }
+				    }
+				}""",
 		},
 		"");
 }
@@ -1104,19 +1143,22 @@ public void test020() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    class Inner {\n" +
-			"		 static final String constant = \"\";\n" +
-			"		 static final String notAConstant = null;\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X {
+				    class Inner {
+						 static final String constant = "";
+						 static final String notAConstant = null;
+				    }
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	static final String notAConstant = null;\n" +
-		"	                    ^^^^^^^^^^^^\n" +
-		"The field notAConstant cannot be declared static in a non-static inner type, unless initialized with a constant expression\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				static final String notAConstant = null;
+				                    ^^^^^^^^^^^^
+			The field notAConstant cannot be declared static in a non-static inner type, unless initialized with a constant expression
+			----------
+			""");
 }
 public void testAllConstants() {
 	Constant byteConstant = ByteConstant.fromValue((byte) 1);
@@ -1420,96 +1462,100 @@ public void test021() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(0x0L); // OK\n" +
-			"		System.out.println(0x8000000000000000L); // OK\n" +
-			"		System.out.println(0x8000000000000000l); // OK\n" +
-			"		System.out.println(01000000000000000000000L); // OK\n" +
-			"		System.out.println(01000000000000000000000l); // OK\n" +
-			"		System.out.println(-9223372036854775808L); // OK\n" +
-			"		System.out.println(-9223372036854775808l); // OK\n" +
-			"		System.out.println(0x7fffffffffffffffL); // OK\n" +
-			"		System.out.println(0x7fffffffffffffffl); // OK\n" +
-			"		System.out.println(0777777777777777777777L); // OK\n" +
-			"		System.out.println(0777777777777777777777l); // OK\n" +
-			"		System.out.println(9223372036854775807L); // OK\n" +
-			"		System.out.println(9223372036854775807l); // OK\n" +
-			"		System.out.println(0xffffffffffffffffL); // OK\n" +
-			"		System.out.println(0x0000000000000ffffffffffffffffL); // OK\n" +
-			"		System.out.println(0xffffffffffffffffl); // OK\n" +
-			"		System.out.println(01777777777777777777777L); // OK\n" +
-			"		System.out.println(01777777777777777777777l); // OK\n" +
-			"		System.out.println(-0x1L); // OK\n" +
-			"		System.out.println(-0x1l); // OK\n" +
-			"		System.out.println(0677777777777777777777L);\n" +
-			"		System.out.println(0677777777777777777777l);\n" +
-			"		System.out.println(0x0000000000000L); // OK\n" +
-			"		System.out.println(0L); // OK\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						System.out.println(0x0L); // OK
+						System.out.println(0x8000000000000000L); // OK
+						System.out.println(0x8000000000000000l); // OK
+						System.out.println(01000000000000000000000L); // OK
+						System.out.println(01000000000000000000000l); // OK
+						System.out.println(-9223372036854775808L); // OK
+						System.out.println(-9223372036854775808l); // OK
+						System.out.println(0x7fffffffffffffffL); // OK
+						System.out.println(0x7fffffffffffffffl); // OK
+						System.out.println(0777777777777777777777L); // OK
+						System.out.println(0777777777777777777777l); // OK
+						System.out.println(9223372036854775807L); // OK
+						System.out.println(9223372036854775807l); // OK
+						System.out.println(0xffffffffffffffffL); // OK
+						System.out.println(0x0000000000000ffffffffffffffffL); // OK
+						System.out.println(0xffffffffffffffffl); // OK
+						System.out.println(01777777777777777777777L); // OK
+						System.out.println(01777777777777777777777l); // OK
+						System.out.println(-0x1L); // OK
+						System.out.println(-0x1l); // OK
+						System.out.println(0677777777777777777777L);
+						System.out.println(0677777777777777777777l);
+						System.out.println(0x0000000000000L); // OK
+						System.out.println(0L); // OK
+					}
+				}""",
 		},
-		"0\n" +
-		"-9223372036854775808\n" +
-		"-9223372036854775808\n" +
-		"-9223372036854775808\n" +
-		"-9223372036854775808\n" +
-		"-9223372036854775808\n" +
-		"-9223372036854775808\n" +
-		"9223372036854775807\n" +
-		"9223372036854775807\n" +
-		"9223372036854775807\n" +
-		"9223372036854775807\n" +
-		"9223372036854775807\n" +
-		"9223372036854775807\n" +
-		"-1\n" +
-		"-1\n" +
-		"-1\n" +
-		"-1\n" +
-		"-1\n" +
-		"-1\n" +
-		"-1\n" +
-		"8070450532247928831\n" +
-		"8070450532247928831\n" +
-		"0\n" +
-		"0");
+		"""
+			0
+			-9223372036854775808
+			-9223372036854775808
+			-9223372036854775808
+			-9223372036854775808
+			-9223372036854775808
+			-9223372036854775808
+			9223372036854775807
+			9223372036854775807
+			9223372036854775807
+			9223372036854775807
+			9223372036854775807
+			9223372036854775807
+			-1
+			-1
+			-1
+			-1
+			-1
+			-1
+			-1
+			8070450532247928831
+			8070450532247928831
+			0
+			0""");
 }
 //test corner values (max, min, -1) for ints
 public void test022() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(0x0); // OK\n" +
-			"		System.out.println(0x80000000); // OK\n" +
-			"		System.out.println(020000000000); // OK\n" +
-			"		System.out.println(-2147483648); // OK\n" +
-			"		System.out.println(0x7fffffff); // OK\n" +
-			"		System.out.println(017777777777); // OK\n" +
-			"		System.out.println(2147483647); // OK\n" +
-			"		System.out.println(0xffffffff); // OK\n" +
-			"		System.out.println(0x0000000000000ffffffff); // OK\n" +
-			"		System.out.println(037777777777); // OK\n" +
-			"		System.out.println(-0x1); // OK\n" +
-			"		System.out.println(0xDADACAFE);\n" +
-			"		System.out.println(0x0000000000000); // OK\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						System.out.println(0x0); // OK
+						System.out.println(0x80000000); // OK
+						System.out.println(020000000000); // OK
+						System.out.println(-2147483648); // OK
+						System.out.println(0x7fffffff); // OK
+						System.out.println(017777777777); // OK
+						System.out.println(2147483647); // OK
+						System.out.println(0xffffffff); // OK
+						System.out.println(0x0000000000000ffffffff); // OK
+						System.out.println(037777777777); // OK
+						System.out.println(-0x1); // OK
+						System.out.println(0xDADACAFE);
+						System.out.println(0x0000000000000); // OK
+					}
+				}""",
 		},
-		"0\n" +
-		"-2147483648\n" +
-		"-2147483648\n" +
-		"-2147483648\n" +
-		"2147483647\n" +
-		"2147483647\n" +
-		"2147483647\n" +
-		"-1\n" +
-		"-1\n" +
-		"-1\n" +
-		"-1\n" +
-		"-623195394\n" +
-		"0");
+		"""
+			0
+			-2147483648
+			-2147483648
+			-2147483648
+			2147483647
+			2147483647
+			2147483647
+			-1
+			-1
+			-1
+			-1
+			-623195394
+			0""");
 }
 public void testBug566332_01() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
@@ -1518,15 +1564,16 @@ public void testBug566332_01() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "    public static void main(String[] args) {\n"
-				+ "        String switchVar = \"abc\";\n"
-				+ "        final String caseStr =  true ? \"abc\" : \"def\";\n"
-				+ "        switch (switchVar) {\n"
-				+ "            case caseStr: System.out.println(\"Pass\");\n"
-				+ "        }\n"
-				+ "    }\n"
-				+ "} ",
+				"""
+					public class X {
+					    public static void main(String[] args) {
+					        String switchVar = "abc";
+					        final String caseStr =  true ? "abc" : "def";
+					        switch (switchVar) {
+					            case caseStr: System.out.println("Pass");
+					        }
+					    }
+					} """,
 			},
 			"Pass");
 }
@@ -1537,15 +1584,16 @@ public void testBug566332_02() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "    public static void main(String[] args) {\n"
-				+ "        String switchVar = \"abc\";\n"
-				+ "        final String caseStr =  false ? \"abc\" : \"def\";\n"
-				+ "        switch (switchVar) {\n"
-				+ "            case caseStr: System.out.println(\"Pass\");\n"
-				+ "        }\n"
-				+ "    }\n"
-				+ "} ",
+				"""
+					public class X {
+					    public static void main(String[] args) {
+					        String switchVar = "abc";
+					        final String caseStr =  false ? "abc" : "def";
+					        switch (switchVar) {
+					            case caseStr: System.out.println("Pass");
+					        }
+					    }
+					} """,
 			},
 			"");
 }
@@ -1556,23 +1604,26 @@ public void testBug566332_03() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "    public static void main(String[] args) {\n"
-				+ "        boolean b = true;\n"
-				+ "        String switchVar = \"abc\";\n"
-				+ "        final String caseStr =  b ? \"abc\" : \"def\";\n"
-				+ "        switch (switchVar) {\n"
-				+ "            case caseStr: System.out.println(\"Pass\");\n"
-				+ "        }\n"
-				+ "    }\n"
-				+ "} ",
+				"""
+					public class X {
+					    public static void main(String[] args) {
+					        boolean b = true;
+					        String switchVar = "abc";
+					        final String caseStr =  b ? "abc" : "def";
+					        switch (switchVar) {
+					            case caseStr: System.out.println("Pass");
+					        }
+					    }
+					} """,
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	case caseStr: System.out.println(\"Pass\");\n" +
-			"	     ^^^^^^^\n" +
-			"case expressions must be constant expressions\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					case caseStr: System.out.println("Pass");
+					     ^^^^^^^
+				case expressions must be constant expressions
+				----------
+				""");
 }
 // Same as testBug566332_01(), but without the variable being final
 public void testBug566332_04() {
@@ -1582,27 +1633,30 @@ public void testBug566332_04() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "    public static void main(String[] args) {\n"
-				+ "        String switchVar = \"abc\";\n"
-				+ "        String caseStr =  true ? \"abc\" : \"def\";\n"
-				+ "        switch (switchVar) {\n"
-				+ "            case caseStr: System.out.println(\"Pass\");\n"
-				+ "        }\n"
-				+ "    }\n"
-				+ "} ",
+				"""
+					public class X {
+					    public static void main(String[] args) {
+					        String switchVar = "abc";
+					        String caseStr =  true ? "abc" : "def";
+					        switch (switchVar) {
+					            case caseStr: System.out.println("Pass");
+					        }
+					    }
+					} """,
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	String caseStr =  true ? \"abc\" : \"def\";\n" +
-			"	                                 ^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	case caseStr: System.out.println(\"Pass\");\n" +
-			"	     ^^^^^^^\n" +
-			"case expressions must be constant expressions\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 4)
+					String caseStr =  true ? "abc" : "def";
+					                                 ^^^^^
+				Dead code
+				----------
+				2. ERROR in X.java (at line 6)
+					case caseStr: System.out.println("Pass");
+					     ^^^^^^^
+				case expressions must be constant expressions
+				----------
+				""");
 }
 public void testBug569498() {
 	if (this.complianceLevel < ClassFileConstants.JDK11) {
@@ -1611,15 +1665,16 @@ public void testBug569498() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "	final String s1 = \"\";\n"
-				+ "	public void m(Object s) {\n"
-				+ "		final boolean b = false;\n"
-				+ "		final String s2 = \"\";\n"
-				+ "		m(b? s1 : s2);\n"
-				+ "	}\n"
-				+ "    public static void main(String[] args) {}\n"
-				+ "}",
+				"""
+					public class X {
+						final String s1 = "";
+						public void m(Object s) {
+							final boolean b = false;
+							final String s2 = "";
+							m(b? s1 : s2);
+						}
+					    public static void main(String[] args) {}
+					}""",
 			},
 			"");
 }
@@ -1628,13 +1683,14 @@ public void testGH1256() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n"
-			+ "	public static void main(String[] args) {\n"
-			+ "		String value = \"12345\";\n"
-			+ "		value.equalsIgnoreCase(\"\" + null);\n"
-			+ "		System.out.println(value.substring(1));\n"
-			+ "	}\n"
-			+ "}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						String value = "12345";
+						value.equalsIgnoreCase("" + null);
+						System.out.println(value.substring(1));
+					}
+				}""",
 		 },
 	"2345");
 }

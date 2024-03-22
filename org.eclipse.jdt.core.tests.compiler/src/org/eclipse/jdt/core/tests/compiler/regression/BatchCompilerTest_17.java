@@ -57,17 +57,18 @@ public class BatchCompilerTest_17 extends AbstractBatchCompilerTest {
 		Path root = Files.createDirectories(Paths.get(OUTPUT_DIR));
 		String[] sources = new String[] {
 				"X.java",
-				"public class X {\n"
-				+ "	public static void main(String[] args) {\n"
-				+ "		new X().printHello();\n"
-				+ "		new Thread(() -> {\n"
-				+ "			new X().printHello();\n"
-				+ "		}).start();\n"
-				+ "	}\n"
-				+ "	private void printHello() {\n"
-				+ "		System.out.println(\"Hello \" + Thread.currentThread());\n"
-				+ "	}\n"
-				+ "}",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							new X().printHello();
+							new Thread(() -> {
+								new X().printHello();
+							}).start();
+						}
+						private void printHello() {
+							System.out.println("Hello " + Thread.currentThread());
+						}
+					}""",
 				"ExampleEnum.java",
 				"public enum ExampleEnum {\n"
 				+ "	A, B, C;\n"

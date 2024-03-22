@@ -158,17 +158,19 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				}
       			"""
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 12)\n" +
-			"	super(value);\n" +
-			"	^^^^^^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 16)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 12)
+					super(value);
+					^^^^^^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				2. ERROR in X.java (at line 16)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void test002() {
 		runConformTest(new String[] {
@@ -312,27 +314,29 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	this.i++;                   // Error\n" +
-				"	^^^^\n" +
-				"Cannot use this in a pre-construction context\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	this.hashCode();            // Error\n" +
-				"	^^^^\n" +
-				"Cannot use this in a pre-construction context\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 6)\n" +
-				"	System.out.print(this);     // Error\n" +
-				"	                 ^^^^\n" +
-				"Cannot use this in a pre-construction context\n" +
-				"----------\n" +
-				"4. WARNING in X.java (at line 7)\n" +
-				"	super();\n" +
-				"	^^^^^^^^\n" +
-				"You are using a preview language feature that may or may not be supported in a future release\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						this.i++;                   // Error
+						^^^^
+					Cannot use this in a pre-construction context
+					----------
+					2. ERROR in X.java (at line 5)
+						this.hashCode();            // Error
+						^^^^
+					Cannot use this in a pre-construction context
+					----------
+					3. ERROR in X.java (at line 6)
+						System.out.print(this);     // Error
+						                 ^^^^
+					Cannot use this in a pre-construction context
+					----------
+					4. WARNING in X.java (at line 7)
+						super();
+						^^^^^^^^
+					You are using a preview language feature that may or may not be supported in a future release
+					----------
+					""");
 	}
 	// any field access, method invocation, or method reference
 	// qualified by super is disallowed in a pre-construction context:
@@ -351,17 +355,19 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	super.i++;                  // Error\n" +
-			"	^^^^^\n" +
-			"Cannot use super in a pre-construction context\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 7)\n" +
-			"	super();\n" +
-			"	^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					super.i++;                  // Error
+					^^^^^
+				Cannot use super in a pre-construction context
+				----------
+				2. WARNING in X.java (at line 7)
+					super();
+					^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				"""
 		);
 	}
 	// an illegal access does not need to contain a this or super keyword:
@@ -379,22 +385,24 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	i++;                        // Error\n" +
-			"	^\n" +
-			"Cannot use i in a pre-construction context\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	hashCode();                 // Error\n" +
-			"	^^^^^^^^^^\n" +
-			"Cannot use hashCode() in a pre-construction context\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 6)\n" +
-			"	super();\n" +
-			"	^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					i++;                        // Error
+					^
+				Cannot use i in a pre-construction context
+				----------
+				2. ERROR in X.java (at line 5)
+					hashCode();                 // Error
+					^^^^^^^^^^
+				Cannot use hashCode() in a pre-construction context
+				----------
+				3. WARNING in X.java (at line 6)
+					super();
+					^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				""");
 	}
 	//an expression involving this does not refer to the current instance but,
 	// rather, to the enclosing instance of an inner class:
@@ -415,17 +423,19 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	C.this.c++;             // Error - same instance\n" +
-			"	^^^^^^\n" +
-			"Cannot use C.this in a pre-construction context\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 8)\n" +
-			"	super();\n" +
-			"	^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					C.this.c++;             // Error - same instance
+					^^^^^^
+				Cannot use C.this in a pre-construction context
+				----------
+				2. WARNING in X.java (at line 8)
+					super();
+					^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				""");
 	}
 	/* The invocation hello() that appears in the pre-construction context of the
 	 * Inner constructor is allowed because it refers to the enclosing instance of
@@ -471,17 +481,19 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	new Inner(); // Error - \'this\' is enclosing instance\n" +
-			"	^^^^^^^^^^^\n" +
-			"Cannot use new Inner() in a pre-construction context\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 5)\n" +
-			"	super();\n" +
-			"	^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					new Inner(); // Error - \'this\' is enclosing instance
+					^^^^^^^^^^^
+				Cannot use new Inner() in a pre-construction context
+				----------
+				2. WARNING in X.java (at line 5)
+					super();
+					^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				""");
 	}
 	/* in a pre-construction context, class instance creation expressions that declare
 	 * anonymous classes cannot have the newly created object as the implicit enclosing
@@ -500,21 +512,23 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	var tmp = new S() { };      // Error\n" +
-			"	          ^^^^^^^^^^^\n" +
-			"Cannot use new S() {\n" +
-			"  x() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"} in a pre-construction context\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 5)\n" +
-			"	super();\n" +
-			"	^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					var tmp = new S() { };      // Error
+					          ^^^^^^^^^^^
+				Cannot use new S() {
+				  x() {
+				    super();
+				  }
+				} in a pre-construction context
+				----------
+				2. WARNING in X.java (at line 5)
+					super();
+					^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				""");
 	}
 	/* in a pre-construction context, class instance creation expressions that declare
 	 * anonymous classes are allowed if the class S is declared static, or if it were
@@ -661,12 +675,14 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 10)\n" +
-			"	return 0; // Error - return not allowed here\n" +
-			"	^^^^^^^^^\n" +
-			"Void methods cannot return a value\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 10)
+					return 0; // Error - return not allowed here
+					^^^^^^^^^
+				Void methods cannot return a value
+				----------
+				""");
 	}
 	/* It is a compile-time error if a return statement appears in the prologue of a constructor body.
 	 */
@@ -692,17 +708,19 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	return; // Error - return not allowed here\n" +
-			"	^^^^^^^\n" +
-			"return ; statement not allowed in prologue\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 10)\n" +
-			"	super(i);\n" +
-			"	^^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 9)
+					return; // Error - return not allowed here
+					^^^^^^^
+				return ; statement not allowed in prologue
+				----------
+				2. WARNING in X.java (at line 10)
+					super(i);
+					^^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				""");
 	}
 	/* It is a compile-time error if a return statement appears in the prologue of a constructor body.
 	 */
@@ -726,17 +744,19 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	return; // Error - return not allowed here\n" +
-			"	^^^^^^^\n" +
-			"return ; statement not allowed in prologue\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 5)\n" +
-			"	this(i, 0);\n" +
-			"	^^^^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					return; // Error - return not allowed here
+					^^^^^^^
+				return ; statement not allowed in prologue
+				----------
+				2. WARNING in X.java (at line 5)
+					this(i, 0);
+					^^^^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				""");
 	}
 	/* Throwing an exception in a prologue of a constructor body is permitted.
 	 */
@@ -847,22 +867,24 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
-			"	int j = a.i;\n" +
-			"	        ^^^\n" +
-			"Cannot use a.i in a pre-construction context\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 13)\n" +
-			"	this.b = j == 0;\n" +
-			"	^^^^\n" +
-			"Cannot use this in a pre-construction context\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 14)\n" +
-			"	super();\n" +
-			"	^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 12)
+					int j = a.i;
+					        ^^^
+				Cannot use a.i in a pre-construction context
+				----------
+				2. ERROR in X.java (at line 13)
+					this.b = j == 0;
+					^^^^
+				Cannot use this in a pre-construction context
+				----------
+				3. WARNING in X.java (at line 14)
+					super();
+					^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				""");
 	}
 	/* Its an error of this is used in super(this) - no change for this error
 	 */
@@ -885,12 +907,14 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	super(this); // Error - refers to \'this\'\n" +
-			"	      ^^^^\n" +
-			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					super(this); // Error - refers to \'this\'
+					      ^^^^
+				Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor
+				----------
+				""");
 		}
 	/**
 	 *
@@ -919,17 +943,19 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	I tos = super::toString;\n" +
-			"	        ^^^^^\n" +
-			"Cannot use super in a pre-construction context\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 9)\n" +
-			"	this(i, 0);\n" +
-			"	^^^^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 8)
+					I tos = super::toString;
+					        ^^^^^
+				Cannot use super in a pre-construction context
+				----------
+				2. WARNING in X.java (at line 9)
+					this(i, 0);
+					^^^^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				""");
 	}
 	public void test027() {
 		runNegativeTest(new String[] {
@@ -957,22 +983,24 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 13)\n" +
-			"	int j = a.getI();\n" +
-			"	        ^\n" +
-			"Cannot use a in a pre-construction context\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 14)\n" +
-			"	this.b = j == 0;\n" +
-			"	^^^^\n" +
-			"Cannot use this in a pre-construction context\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 15)\n" +
-			"	super();\n" +
-			"	^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 13)
+					int j = a.getI();
+					        ^
+				Cannot use a in a pre-construction context
+				----------
+				2. ERROR in X.java (at line 14)
+					this.b = j == 0;
+					^^^^
+				Cannot use this in a pre-construction context
+				----------
+				3. WARNING in X.java (at line 15)
+					super();
+					^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				""");
 	}
 	public void test028() {
 		runNegativeTest(new String[] {
@@ -997,17 +1025,19 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	int j = J.super.getI();\n" +
-			"	        ^^^^^^^\n" +
-			"Cannot use J.super in a pre-construction context\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 9)\n" +
-			"	super();\n" +
-			"	^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 8)
+					int j = J.super.getI();
+					        ^^^^^^^
+				Cannot use J.super in a pre-construction context
+				----------
+				2. WARNING in X.java (at line 9)
+					super();
+					^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				""");
 	}
 	public void test029() {
 		runNegativeTest(new String[] {
@@ -1032,17 +1062,19 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	int j = J.super.getI();\n" +
-			"	        ^^^^^^^\n" +
-			"Cannot use J.super in a pre-construction context\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 9)\n" +
-			"	this(j);\n" +
-			"	^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 8)
+					int j = J.super.getI();
+					        ^^^^^^^
+				Cannot use J.super in a pre-construction context
+				----------
+				2. WARNING in X.java (at line 9)
+					this(j);
+					^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				""");
 	}
 	public void test030() {
 		runConformTest(new String[] {
@@ -1069,43 +1101,47 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	public void test031() {
 		runNegativeTest(new String[] {
 			"X.java",
-			"       class X {\n" +
-					"       int j = 0;\n" +
-					"       X() {}\n" +
-					"       X(int i) {\n" +
-					"           if (i == 0) {\n" +
-					"               String s = STR.\"\\{j}\";\n" +
-					"               i += s.length();\n" +
-					"           }\n" +
-					"           this();\n" +
-					"       }\n" +
-					"       public static void main(String[] args) {\n" +
-					"         Zork();\n" +
-					"         System.out.println(0);\n" +
-					"       }\n" +
-					"   }\n"
+			"""
+				       class X {
+				       int j = 0;
+				       X() {}
+				       X(int i) {
+				           if (i == 0) {
+				               String s = STR."\\{j}";
+				               i += s.length();
+				           }
+				           this();
+				       }
+				       public static void main(String[] args) {
+				         Zork();
+				         System.out.println(0);
+				       }
+				   }
+				"""
 			},
-				"----------\n" +
-				"1. WARNING in X.java (at line 6)\n" +
-				"	String s = STR.\"\\{j}\";\n" +
-				"	           ^^^^^^^^^\n" +
-				"You are using a preview language feature that may or may not be supported in a future release\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	String s = STR.\"\\{j}\";\n" +
-				"	                  ^\n" +
-				"Cannot use j in a pre-construction context\n" +
-				"----------\n" +
-				"3. WARNING in X.java (at line 9)\n" +
-				"	this();\n" +
-				"	^^^^^^^\n" +
-				"You are using a preview language feature that may or may not be supported in a future release\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 12)\n" +
-				"	Zork();\n" +
-				"	^^^^\n" +
-				"The method Zork() is undefined for the type X\n" +
-				"----------\n"
+				"""
+					----------
+					1. WARNING in X.java (at line 6)
+						String s = STR."\\{j}";
+						           ^^^^^^^^^
+					You are using a preview language feature that may or may not be supported in a future release
+					----------
+					2. ERROR in X.java (at line 6)
+						String s = STR."\\{j}";
+						                  ^
+					Cannot use j in a pre-construction context
+					----------
+					3. WARNING in X.java (at line 9)
+						this();
+						^^^^^^^
+					You are using a preview language feature that may or may not be supported in a future release
+					----------
+					4. ERROR in X.java (at line 12)
+						Zork();
+						^^^^
+					The method Zork() is undefined for the type X
+					----------
+					"""
 			);
 	}
 	public void test032() {
@@ -1156,12 +1192,14 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	this(0);\n" +
-		"	^^^^^^^^\n" +
-		"Constructor call must be the first statement in a constructor\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				this(0);
+				^^^^^^^^
+			Constructor call must be the first statement in a constructor
+			----------
+			"""
 			);
 	}
 	public void test034() {
@@ -1185,22 +1223,24 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	public X(int i){}\n" +
-		"	       ^^^^^^^^\n" +
-		"Implicit super constructor Y() is undefined. Must explicitly invoke another constructor\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	super();\n" +
-		"	^^^^^^^^\n" +
-		"The constructor Y() is undefined\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 9)\n" +
-		"	this(0);\n" +
-		"	^^^^^^^^\n" +
-		"Constructor call must be the first statement in a constructor\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				public X(int i){}
+				       ^^^^^^^^
+			Implicit super constructor Y() is undefined. Must explicitly invoke another constructor
+			----------
+			2. ERROR in X.java (at line 8)
+				super();
+				^^^^^^^^
+			The constructor Y() is undefined
+			----------
+			3. ERROR in X.java (at line 9)
+				this(0);
+				^^^^^^^^
+			Constructor call must be the first statement in a constructor
+			----------
+			"""
 			);
 	}
 	public void test035() {
@@ -1224,17 +1264,19 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	super();\n" +
-		"	^^^^^^^^\n" +
-		"The constructor Y() is undefined\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
-		"	this(0);\n" +
-		"	^^^^^^^^\n" +
-		"Constructor call must be the first statement in a constructor\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				super();
+				^^^^^^^^
+			The constructor Y() is undefined
+			----------
+			2. ERROR in X.java (at line 9)
+				this(0);
+				^^^^^^^^
+			Constructor call must be the first statement in a constructor
+			----------
+			"""
 			);
 	}
 	public void test036() {
@@ -1256,12 +1298,14 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 			},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	this();\n" +
-		"	^^^^^^^\n" +
-		"Constructor call must be the first statement in a constructor\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				this();
+				^^^^^^^
+			Constructor call must be the first statement in a constructor
+			----------
+			"""
 			);
 	}
 	public void test037() {

@@ -2184,35 +2184,39 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79809/Test.java",
-			"package javadoc.b79809;\n" +
-			"/**\n" +
-			" * @param <E>  Class type parameter\n" +
-			" * @see Object\n" +
-			" */\n" +
-			"public class Test<E> {\n" +
-			"	/**\n" +
-			"	 * @param t\n" +
-			"	 * @param <T> Method type parameter\n" +
-			"	 */\n" +
-			"	<T> void foo(T t) {}\n" +
-			"}\n");
+			"""
+				package javadoc.b79809;
+				/**
+				 * @param <E>  Class type parameter
+				 * @see Object
+				 */
+				public class Test<E> {
+					/**
+					 * @param t
+					 * @param <T> Method type parameter
+					 */
+					<T> void foo(T t) {}
+				}
+				""");
 		verifyWorkingCopiesComments();
 	}
 	public void testBug79809b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79809/Test.java",
-			"package javadoc.b79809;\n" +
-			"\n" +
-			"/**\n" +
-			" * New tags for 5.0\n" +
-			" *  - literal: {@literal a<B>c}\n" +
-			" *  - code: {@code abc}\n" +
-			" *  - value: {@value System#out}\n" +
-			" */\n" +
-			"public class Test {\n" +
-			"\n" +
-			"}\n");
+			"""
+				package javadoc.b79809;
+				
+				/**
+				 * New tags for 5.0
+				 *  - literal: {@literal a<B>c}
+				 *  - code: {@code abc}
+				 *  - value: {@value System#out}
+				 */
+				public class Test {
+				
+				}
+				""");
 		verifyWorkingCopiesComments();
 	}
 
@@ -2224,18 +2228,20 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79904/Test.java",
-			"package javadoc.b79904;\n" +
-			"/**\n" +
-			" * @param <E>\n" +
-			" * @see Object\n" +
-			" */\n" +
-			"public class Test<E> {\n" +
-			"	/**\n" +
-			"	 * @param t\n" +
-			"	 * @param <T>\n" +
-			"	 */\n" +
-			"	<T> void foo(T t) {}\n" +
-			"}\n");
+			"""
+				package javadoc.b79904;
+				/**
+				 * @param <E>
+				 * @see Object
+				 */
+				public class Test<E> {
+					/**
+					 * @param t
+					 * @param <T>
+					 */
+					<T> void foo(T t) {}
+				}
+				""");
 		verifyWorkingCopiesComments();
 	}
 
@@ -2247,15 +2253,17 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b80221/Test.java",
-			"package javadoc.b80221;\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see Object Unknown: ref is not resolved due to compile error...\n" +
-			"	 */\n" +
-			"	public foo() {\n" +
-			"		return 1;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package javadoc.b80221;
+				public class Test {
+					/**
+					 * @see Object Unknown: ref is not resolved due to compile error...
+					 */
+					public foo() {
+						return 1;
+					}
+				}
+				"""
 		);
 		verifyWorkingCopiesComments();
 	}
@@ -2268,17 +2276,19 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b80257/Test.java",
-			"package javadoc.b80257;\n" +
-			"import java.util.*;\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see ArrayList\n" +
-			"	 * @return {@link java.util.List}\n" +
-			"	 */\n" +
-			"	List<String> getList() {\n" +
-			"		return new ArrayList<String>();\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package javadoc.b80257;
+				import java.util.*;
+				public class Test {
+					/**
+					 * @see ArrayList
+					 * @return {@link java.util.List}
+					 */
+					List<String> getList() {
+						return new ArrayList<String>();
+					}
+				}
+				"""
 			);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2345,14 +2355,16 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b84049/Test.java",
-			"package javadoc.b84049;\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see Object\n" +
-			"	 */\n" +
-			"	foo() {\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package javadoc.b84049;
+				public class Test {
+					/**
+					 * @see Object
+					 */
+					foo() {
+					}
+				}
+				"""
 			);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2381,34 +2393,36 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b87845/Test.java",
-			"package javadoc.b87845;\n" +
-			"public class Test {\n" +
-			"	public void foo(int a, int b) {} \n" +
-			"	public void foo(int a, int... args) {}\n" +
-			"	public void foo(String... args) {}\n" +
-			"	public void foo(Exception str, boolean... args) {}\n" +
-			"	/**\n" +
-			"	* @see Test#foo(int, int)\n" +
-			"	* @see Test#foo(int, int[])\n" +
-			"	* @see Test#foo(int, int...)\n" +
-			"	* @see Test#foo(String[])\n" +
-			"	* @see Test#foo(String...)\n" +
-			"	* @see Test#foo(Exception, boolean[])\n" +
-			"	* @see Test#foo(Exception, boolean...)\n" +
-			"	*/\n" +
-			"	public void valid() {}\n" +
-			"	/**\n" +
-			"	* @see Test#foo(int)\n" +
-			"	* @see Test#foo(int, int, int)\n" +
-			"	* @see Test#foo()\n" +
-			"	* @see Test#foo(String)\n" +
-			"	* @see Test#foo(String, String)\n" +
-			"	* @see Test#foo(Exception)\n" +
-			"	* @see Test#foo(Exception, boolean)\n" +
-			"	* @see Test#foo(Exception, boolean, boolean)\n" +
-			"	*/\n" +
-			"	public void invalid() {}\n" +
-			"}\n"
+			"""
+				package javadoc.b87845;
+				public class Test {
+					public void foo(int a, int b) {}\s
+					public void foo(int a, int... args) {}
+					public void foo(String... args) {}
+					public void foo(Exception str, boolean... args) {}
+					/**
+					* @see Test#foo(int, int)
+					* @see Test#foo(int, int[])
+					* @see Test#foo(int, int...)
+					* @see Test#foo(String[])
+					* @see Test#foo(String...)
+					* @see Test#foo(Exception, boolean[])
+					* @see Test#foo(Exception, boolean...)
+					*/
+					public void valid() {}
+					/**
+					* @see Test#foo(int)
+					* @see Test#foo(int, int, int)
+					* @see Test#foo()
+					* @see Test#foo(String)
+					* @see Test#foo(String, String)
+					* @see Test#foo(Exception)
+					* @see Test#foo(Exception, boolean)
+					* @see Test#foo(Exception, boolean, boolean)
+					*/
+					public void invalid() {}
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2456,12 +2470,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/Test.java",
-			"/**\n" +
-			" * Javadoc\n" +
-			" */\n" +
-			"package javadoc.b93880;\n" +
-			"public class Test {\n" +
-			"}\n"
+			"""
+				/**
+				 * Javadoc
+				 */
+				package javadoc.b93880;
+				public class Test {
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2480,10 +2496,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
-			"/**\n" +
-			" * Javadoc for all package\n" +
-			" */\n" +
-			"package javadoc.b93880;"
+			"""
+				/**
+				 * Javadoc for all package
+				 */
+				package javadoc.b93880;"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2502,10 +2519,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
-			"/**\n" +
-			" * Javadoc for all package\n" +
-			" */\n" +
-			"private package javadoc.b93880;"
+			"""
+				/**
+				 * Javadoc for all package
+				 */
+				private package javadoc.b93880;"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2524,11 +2542,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
-			"/**\n" +
-			" * Javadoc for all package\n" +
-			" */\n" +
-			"@Deprecated\n" +
-			"package javadoc.b93880;"
+			"""
+				/**
+				 * Javadoc for all package
+				 */
+				@Deprecated
+				package javadoc.b93880;"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2548,10 +2567,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
-			"/* (non-javadoc)\n" +
-			" * No comment\n" +
-			" */\n" +
-			"package javadoc.b93880;"
+			"""
+				/* (non-javadoc)
+				 * No comment
+				 */
+				package javadoc.b93880;"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2572,12 +2592,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/Test.java",
-			"/**\n" +
-			" * Javadoc\n" +
-			" */\n" +
-			"package javadoc.b93880;\n" +
-			"public class Test {\n" +
-			"}\n"
+			"""
+				/**
+				 * Javadoc
+				 */
+				package javadoc.b93880;
+				public class Test {
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2593,10 +2615,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
-			"/**\n" +
-			" * Javadoc for all package\n" +
-			" */\n" +
-			"package javadoc.b93880;"
+			"""
+				/**
+				 * Javadoc for all package
+				 */
+				package javadoc.b93880;"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2612,10 +2635,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
-			"/**\n" +
-			" * Javadoc for all package\n" +
-			" */\n" +
-			"private package javadoc.b93880;"
+			"""
+				/**
+				 * Javadoc for all package
+				 */
+				private package javadoc.b93880;"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2631,11 +2655,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
-			"/**\n" +
-			" * Javadoc for all package\n" +
-			" */\n" +
-			"@Deprecated\n" +
-			"package javadoc.b93880;"
+			"""
+				/**
+				 * Javadoc for all package
+				 */
+				@Deprecated
+				package javadoc.b93880;"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2652,10 +2677,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
-			"/* (non-javadoc)\n" +
-			" * No comment\n" +
-			" */\n" +
-			"package javadoc.b93880;"
+			"""
+				/* (non-javadoc)
+				 * No comment
+				 */
+				package javadoc.b93880;"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2678,19 +2704,21 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b94150/Category.java",
-			"package javadoc.b94150;\n" +
-			"public enum Category {\n" +
-			"    /**\n" +
-			"     * history style\n" +
-			"     * @see Object\n" +
-			"     */ \n" +
-			"     HISTORY,\n" +
-			"\n" +
-			"    /**\n" +
-			"     * war style\n" +
-			"     */ \n" +
-			"     WAR;\n" +
-			"}\n"
+			"""
+				package javadoc.b94150;
+				public enum Category {
+				    /**
+				     * history style
+				     * @see Object
+				     */\s
+				     HISTORY,
+				
+				    /**
+				     * war style
+				     */\s
+				     WAR;
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2718,10 +2746,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug99507() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b99507/X.java",
-			"package javadoc.b99507;\n" +
-			"public class X {\n" +
-			"}\n" +
-			"/** @param test*/"
+			"""
+				package javadoc.b99507;
+				public class X {
+				}
+				/** @param test*/"""
 		);
 		verifyComments(this.workingCopies[0]);
 	}
@@ -2740,18 +2769,19 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug100041() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b100041/X.java",
-			"package javadoc.b100041;\n" +
-			"class X {\n" +
-			"	static Object object;\n" +
-			"	static void foo() {\n" +
-			"		/**\n" +
-			"		 * javadoc comment.\n" +
-			"		 */\n" +
-			"		if (object instanceof String) {\n" +
-			"			final String clr = null;\n" +
-			"		}\n" +
-			"	}\n" +
-			"}"
+			"""
+				package javadoc.b100041;
+				class X {
+					static Object object;
+					static void foo() {
+						/**
+						 * javadoc comment.
+						 */
+						if (object instanceof String) {
+							final String clr = null;
+						}
+					}
+				}"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2782,17 +2812,18 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug100041b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b100041/X.java",
-			"package javadoc.b100041;\n" +
-			"class X {\n" +
-			"	static Object object;\n" +
-			"	static void foo() {\n" +
-			"		/**\n" +
-			"		 * javadoc comment.\n" +
-			"		 */\n" +
-			"		if (object instanceof String)\n" +
-			"			return;\n" +
-			"	}\n" +
-			"}"
+			"""
+				package javadoc.b100041;
+				class X {
+					static Object object;
+					static void foo() {
+						/**
+						 * javadoc comment.
+						 */
+						if (object instanceof String)
+							return;
+					}
+				}"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2817,23 +2848,25 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug100041c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b100041/Z.java",
-			"package javadoc.b100041;\n" +
-			"public class Z {\n" +
-			"	/** C1 */\n" +
-			"	class Z1 {}\n" +
-			"	/** C2 */\n" +
-			"	Z1 z1;\n" +
-			"	/** C3 */\n" +
-			"	public static void foo(Object object) {\n" +
-			"		/** C4 */\n" +
-			"		class ZZ {\n" +
-			"			/** C5 */\n" +
-			"			ZZ zz;\n" +
-			"			/** C6 */\n" +
-			"			public void bar() {}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package javadoc.b100041;
+				public class Z {
+					/** C1 */
+					class Z1 {}
+					/** C2 */
+					Z1 z1;
+					/** C3 */
+					public static void foo(Object object) {
+						/** C4 */
+						class ZZ {
+							/** C5 */
+							ZZ zz;
+							/** C6 */
+							public void bar() {}
+						}
+					}
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2902,20 +2935,22 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.packageBinding = false; // do NOT verify that qualification only can be package name
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b103304/Test.java",
-			"package javadoc.b103304;\n" +
-			"interface IAFAState {\n" +
-			"    public class ValidationException extends Exception {\n" +
-			"        public ValidationException(String variableName, IAFAState subformula) {\n" +
-			"            super(\"Variable \'\"+variableName+\"\' may be unbound in \'\"+subformula+\"\'\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @see IAFAState.ValidationException#IAFAState.ValidationException(String, IAFAState)\n" +
-			"	 */\n" +
-			"	IAFAState.ValidationException valid;\n" +
-			"}\n"
+			"""
+				package javadoc.b103304;
+				interface IAFAState {
+				    public class ValidationException extends Exception {
+				        public ValidationException(String variableName, IAFAState subformula) {
+				            super("Variable \'"+variableName+"\' may be unbound in \'"+subformula+"\'");
+				        }
+				    }
+				}
+				public class Test {
+					/**
+					 * @see IAFAState.ValidationException#IAFAState.ValidationException(String, IAFAState)
+					 */
+					IAFAState.ValidationException valid;
+				}
+				"""
 		);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		verifyWorkingCopiesComments();
@@ -2948,13 +2983,15 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b106581/A.java",
-			"package javadoc.b106581;\n" +
-			"public class A {\n" +
-			"    /**\n" +
-			"     * @param x\n" +
-			"     */ \n" +
-			"     public void foo(int x) {},\n" +
-			"}\n"
+			"""
+				package javadoc.b106581;
+				public class A {
+				    /**
+				     * @param x
+				     */\s
+				     public void foo(int x) {},
+				}
+				"""
 		);
 		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2983,23 +3020,24 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b108622/Test.java",
-			"package javadoc.b108622;\n" +
-			"/**\n" +
-			" * \n" +
-			" */\n" +
-			"public abstract class Test {\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * \n" +
-			"	 */\n" +
-			"	public abstract Zork getFoo();\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * \n" +
-			"	 */\n" +
-			"	public abstract void setFoo(Zork dept);\n" +
-			"\n" +
-			"}"
+			"""
+				package javadoc.b108622;
+				/**
+				 *\s
+				 */
+				public abstract class Test {
+				
+					/**
+					 *\s
+					 */
+					public abstract Zork getFoo();
+				
+					/**
+					 *\s
+					 */
+					public abstract void setFoo(Zork dept);
+				
+				}"""
 			);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -3032,19 +3070,20 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
-			"package javadoc.b113108;\n" +
-			"/** C0 */\n" +
-			"public class Test {\n" +
-			"	/* C1 */\n" +
-			"	/** C2 */\n" +
-			"	// C3\n" +
-			"	public void foo() {\n" +
-			"		/* C4 */\n" +
-			"	}\n" +
-			"	/* C5 */\n" +
-			"	/** C6 */\n" +
-			"	// C7\n" +
-			"}"
+			"""
+				package javadoc.b113108;
+				/** C0 */
+				public class Test {
+					/* C1 */
+					/** C2 */
+					// C3
+					public void foo() {
+						/* C4 */
+					}
+					/* C5 */
+					/** C6 */
+					// C7
+				}"""
 			);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		verifyWorkingCopiesComments();
@@ -3069,19 +3108,20 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
-			"package javadoc.b113108;\n" +
-			"/** C0 */\n" +
-			"public class Test {\n" +
-			"	/** C1 */\n" +
-			"	// C2\n" +
-			"	/* C3 */\n" +
-			"	public void foo() {\n" +
-			"		// C4\n" +
-			"	}\n" +
-			"	/** C5 */\n" +
-			"	/// C6\n" +
-			"	/* C7 */\n" +
-			"}"
+			"""
+				package javadoc.b113108;
+				/** C0 */
+				public class Test {
+					/** C1 */
+					// C2
+					/* C3 */
+					public void foo() {
+						// C4
+					}
+					/** C5 */
+					/// C6
+					/* C7 */
+				}"""
 			);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		verifyWorkingCopiesComments();
@@ -3106,19 +3146,20 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
-			"package javadoc.b113108;\n" +
-			"/** C0 */\n" +
-			"public class Test {\n" +
-			"	// C1\n" +
-			"	/* C2 */\n" +
-			"	/** C3 */\n" +
-			"	public void foo() {\n" +
-			"		/** C4 */\n" +
-			"	}\n" +
-			"	// C5\n" +
-			"	/* C6 */\n" +
-			"	/** C7 */\n" +
-			"}"
+			"""
+				package javadoc.b113108;
+				/** C0 */
+				public class Test {
+					// C1
+					/* C2 */
+					/** C3 */
+					public void foo() {
+						/** C4 */
+					}
+					// C5
+					/* C6 */
+					/** C7 */
+				}"""
 			);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		verifyWorkingCopiesComments();
@@ -3148,57 +3189,63 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[3];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b125676/A.java",
-			"package javadoc.b125676;\n" +
-			"public class A {\n" +
-			"        /**\n" +
-			"         * @category \n" +
-			"         * When searching for field matches, it will exclusively find read accesses, as\n" +
-			"         * opposed to write accesses. Note that some expressions are considered both\n" +
-			"         * as field read/write accesses: for example, x++; x+= 1;\n" +
-			"         * \n" +
-			"         * @since 2.0\n" +
-			"         */\n" +
-			"        int READ_ACCESSES = 4;\n" +
-			"}\n"
+			"""
+				package javadoc.b125676;
+				public class A {
+				        /**
+				         * @category\s
+				         * When searching for field matches, it will exclusively find read accesses, as
+				         * opposed to write accesses. Note that some expressions are considered both
+				         * as field read/write accesses: for example, x++; x+= 1;
+				         *\s
+				         * @since 2.0
+				         */
+				        int READ_ACCESSES = 4;
+				}
+				"""
 		);
 		this.workingCopies[1] = getWorkingCopy("/Converter15/src/javadoc/b125676/B.java",
-			"package javadoc.b125676;\n" +
-			"public class B {\n" +
-			"        /**\n" +
-			"         * @category test\n" +
-			"         */\n" +
-			"        int field1;\n" +
-			"        /**\n" +
-			"         * @category     test\n" +
-			"         */\n" +
-			"        int field2;\n" +
-			"        /**\n" +
-			"         * @category test    \n" +
-			"         */\n" +
-			"        int field3;\n" +
-			"        /**\n" +
-			"         * @category    test    \n" +
-			"         */\n" +
-			"        int field4;\n" +
-			"        /** @category test */\n" +
-			"        int field5;\n" +
-			"\n" +
-			"}\n"
+			"""
+				package javadoc.b125676;
+				public class B {
+				        /**
+				         * @category test
+				         */
+				        int field1;
+				        /**
+				         * @category     test
+				         */
+				        int field2;
+				        /**
+				         * @category test   \s
+				         */
+				        int field3;
+				        /**
+				         * @category    test   \s
+				         */
+				        int field4;
+				        /** @category test */
+				        int field5;
+				
+				}
+				"""
 		);
 		this.workingCopies[2] = getWorkingCopy("/Converter15/src/javadoc/b125676/C.java",
-			"package javadoc.b125676;\n" +
-			"public class C { \n" +
-			"        /**\n" +
-			"         * @category test mutli ids\n" +
-			"         */\n" +
-			"        int field1;\n" +
-			"        /**\n" +
-			"         * @category    test    mutli    ids   \n" +
-			"         */\n" +
-			"        int field2;\n" +
-			"        /** @category    test    mutli    ids*/\n" +
-			"        int field3;\n" +
-			"}\n"
+			"""
+				package javadoc.b125676;
+				public class C {\s
+				        /**
+				         * @category test mutli ids
+				         */
+				        int field1;
+				        /**
+				         * @category    test    mutli    ids  \s
+				         */
+				        int field2;
+				        /** @category    test    mutli    ids*/
+				        int field3;
+				}
+				"""
 		);
 		verifyWorkingCopiesComments();
 	}
@@ -3211,14 +3258,16 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b125903/Test.java",
-			"package javadoc.b125903;\n" +
-			"/**\n" +
-			" * {@ link java.lang.String}\n" +
-			" * @ since 2.1\n" +
-			" */\n" +
-			"public class Test {\n" +
-			"\n" +
-			"}\n"
+			"""
+				package javadoc.b125903;
+				/**
+				 * {@ link java.lang.String}
+				 * @ since 2.1
+				 */
+				public class Test {
+				
+				}
+				"""
 		);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		verifyWorkingCopiesComments();
@@ -3245,11 +3294,13 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug130752() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b130752/Test.java",
-			"/* Ceci n'est pas\n" +
-			" * une ligne. */\n" +
-			"package javadoc.b130752;\n" +
-			"public class Test {\n" +
-			"}\n"
+			"""
+				/* Ceci n'est pas
+				 * une ligne. */
+				package javadoc.b130752;
+				public class Test {
+				}
+				"""
 		);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		verifyWorkingCopiesComments();
@@ -3264,10 +3315,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug130752b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b130752/Test.java",
-			"// Line comment\n" +
-			"package javadoc.b130752;\n" +
-			"public class Test {\n" +
-			"}\n"
+			"""
+				// Line comment
+				package javadoc.b130752;
+				public class Test {
+				}
+				"""
 		);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		verifyWorkingCopiesComments();
@@ -3282,10 +3335,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug130752c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b130752/Test.java",
-			"/** Javadoc comment */\n" +
-			"package javadoc.b130752;\n" +
-			"public class Test {\n" +
-			"}\n"
+			"""
+				/** Javadoc comment */
+				package javadoc.b130752;
+				public class Test {
+				}
+				"""
 		);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		verifyWorkingCopiesComments();
@@ -3306,16 +3361,18 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug165525() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b165525/Test.java",
-			"package javadoc.b165525;\n" +
-			"public enum Test {\n" +
-			"	ENUM_CONST_1(\"String constant 1\") //$NON-NLS-1$\n" +
-			"	, ENUM_CONST_2(\"String constant 2\") //$NON-NLS-1$\n" +
-			"	;\n" +
-			"	Test(String x) {\n" +
-			"	}\n" +
-			"	String a = \"a\"; //$NON-NLS-1$\n" +
-			"	String b = \"b\"; //$NON-NLS-1$\n" +
-			"}\n"
+			"""
+				package javadoc.b165525;
+				public enum Test {
+					ENUM_CONST_1("String constant 1") //$NON-NLS-1$
+					, ENUM_CONST_2("String constant 2") //$NON-NLS-1$
+					;
+					Test(String x) {
+					}
+					String a = "a"; //$NON-NLS-1$
+					String b = "b"; //$NON-NLS-1$
+				}
+				"""
 		);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
 		verifyWorkingCopiesComments();
@@ -3407,12 +3464,13 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug481143a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/a/X.java",
-			"package a;\n" +
-			"public class X {\n" +
-			"	public X subtest = new X(\"Test1\", // comment\n" +
-			"			\"Test2\") { };\n" +
-			"	public X(String foo, String bar) { }\n" +
-			"}"
+			"""
+				package a;
+				public class X {
+					public X subtest = new X("Test1", // comment
+							"Test2") { };
+					public X(String foo, String bar) { }
+				}"""
 		);
 		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
 		assumeEquals(this.prefix+"Wrong number of comments", 1, unit.getCommentList().size());
@@ -3423,10 +3481,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug481143b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/a/X.java",
-				"package a;\n" +
-				"public enum X implements // comment\n" +
-				"	Serializable {\n" +
-				"}"
+				"""
+					package a;
+					public enum X implements // comment
+						Serializable {
+					}"""
 		);
 		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
 		assumeEquals(this.prefix+"Wrong number of comments", 1, unit.getCommentList().size());
@@ -3437,10 +3496,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug481143c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/a/X.java",
-				"package a;\n" +
-				"public @interface X // comment\n" +
-				"	{\n" +
-				"}"
+				"""
+					package a;
+					public @interface X // comment
+						{
+					}"""
 		);
 		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
 		assumeEquals(this.prefix+"Wrong number of comments", 1, unit.getCommentList().size());
@@ -3455,17 +3515,19 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = AST.JLS3;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b206345/X.java",
-			"package javadoc.b206345;\n" +
-			"\n" +
-			"public class X extends Object {\n" +
-			"	/**\n" +
-			"	 * This is {@literal raw text:\n" +
-			"	 * 			{@link BadLink} is just text}\n" +
-			"	 */\n" +
-			"	public String toString() { \n" +
-			"		return \"foo\";\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package javadoc.b206345;
+				
+				public class X extends Object {
+					/**
+					 * This is {@literal raw text:
+					 * 			{@link BadLink} is just text}
+					 */
+					public String toString() {\s
+						return "foo";
+					}
+				}
+				"""
 		);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		verifyWorkingCopiesComments();
@@ -3502,17 +3564,19 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = AST.JLS3;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b206345/X.java",
-			"package javadoc.b206345;\n" +
-			"\n" +
-			"public class X extends Object {\n" +
-			"	/**\n" +
-			"	 * This is {@code raw text:\n" +
-			"	 * 			{@link BadLink} is just text}\n" +
-			"	 */\n" +
-			"	public String toString() { \n" +
-			"		return \"foo\";\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package javadoc.b206345;
+				
+				public class X extends Object {
+					/**
+					 * This is {@code raw text:
+					 * 			{@link BadLink} is just text}
+					 */
+					public String toString() {\s
+						return "foo";
+					}
+				}
+				"""
 		);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		verifyWorkingCopiesComments();

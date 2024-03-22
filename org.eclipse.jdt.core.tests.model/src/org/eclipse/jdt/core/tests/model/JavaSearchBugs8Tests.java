@@ -157,13 +157,15 @@ protected void setUp () throws Exception {
 public void testBug400899g1() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    @Marker int x;\n" +
-		"}\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    @Marker int x;
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -189,13 +191,15 @@ assertSearchResults(
 public void testBug400899g2() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    @Marker <T> int x() { return 10; };\n" +
-		"}\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    @Marker <T> int x() { return 10; };
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -221,13 +225,15 @@ assertSearchResults(
 public void testBug400899g3() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    int x(@Marker int p) { return 10; };\n" +
-		"}\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    int x(@Marker int p) { return 10; };
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -253,13 +259,15 @@ assertSearchResults(
 public void testBug400899g4() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    int x(@Marker int ... p) { return 10; };\n" +
-		"}\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    int x(@Marker int ... p) { return 10; };
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -285,13 +293,15 @@ assertSearchResults(
 public void testBug400899g5() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    int x(@Marker int [] @Marker ... p) { return 10; };\n" +
-		"}\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    int x(@Marker int [] @Marker ... p) { return 10; };
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -319,18 +329,20 @@ assertSearchResults(
 public void testBug400899g6() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    int x() {\n" +
-		"        try {\n" +
-		"        } catch (@Marker NullPointerException | @Marker ArrayIndexOutOfBoundsException e) {\n" +
-		"        }\n" +
-		"        return 10;\n" +
-		"    }\n" +
-		"}\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    int x() {
+			        try {
+			        } catch (@Marker NullPointerException | @Marker ArrayIndexOutOfBoundsException e) {
+			        }
+			        return 10;
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -358,18 +370,20 @@ assertSearchResults(
 public void testBug400899g7() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    int x() {\n" +
-		"        @Marker int p;\n" +
-		"        final @Marker int q;\n" +
-		"        @Marker final int r;\n" +
-		"        return 10;\n" +
-		"    }\n" +
-		"}\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    int x() {
+			        @Marker int p;
+			        final @Marker int q;
+			        @Marker final int r;
+			        return 10;
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -382,9 +396,10 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH
+			src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH
+			src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH"""
 );
 }
 
@@ -398,17 +413,19 @@ assertSearchResults(
 public void testBug400899g8() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    int x() {\n" +
-		"        try (@Marker Integer p = null; final @Marker Integer q = null; @Marker final Integer r = null) {\n" +
-		"        }\n" +
-		"        return 10;\n" +
-		"    }\n" +
-		"}\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    int x() {
+			        try (@Marker Integer p = null; final @Marker Integer q = null; @Marker final Integer r = null) {
+			        }
+			        return 10;
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -421,9 +438,10 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH
+			src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH
+			src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH"""
 );
 }
 
@@ -437,18 +455,20 @@ assertSearchResults(
 public void testBug400899g9() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    int x() {\n" +
-		"        for (@Marker int i: new int[3]) {}\n" +
-		"        for (final @Marker int i: new int[3]) {}\n" +
-		"        for (@Marker final int i: new int[3]) {}\n" +
-		"        return 10;\n" +
-		"    }\n" +
-		"}\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    int x() {
+			        for (@Marker int i: new int[3]) {}
+			        for (final @Marker int i: new int[3]) {}
+			        for (@Marker final int i: new int[3]) {}
+			        return 10;
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -461,9 +481,10 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH
+			src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH
+			src/b400899/X.java int b400899.X.x() [Marker] EXACT_MATCH"""
 );
 }
 
@@ -477,15 +498,17 @@ assertSearchResults(
 public void testBug400899g10() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public @interface X { \n" +
-		"	public @Marker String value(); \n" +
-		"	@Marker String value2(); \n" +
-		"	@Marker public String value3(); \n" +
-		"}\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public @interface X {\s
+				public @Marker String value();\s
+				@Marker String value2();\s
+				@Marker public String value3();\s
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -498,9 +521,10 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java String b400899.X.value() [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java String b400899.X.value2() [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java String b400899.X.value3() [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java String b400899.X.value() [Marker] EXACT_MATCH
+			src/b400899/X.java String b400899.X.value2() [Marker] EXACT_MATCH
+			src/b400899/X.java String b400899.X.value3() [Marker] EXACT_MATCH"""
 );
 }
 
@@ -514,18 +538,20 @@ assertSearchResults(
 public void testBug400899g12() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"interface I {\n" +
-		"    Object copy(int [] ia);\n" +
-		"}\n" +
-		"public class X  {\n" +
-		"    public static void main(String [] args) {\n" +
-		"        I i = @Marker int @Marker []::<String>clone;\n" +
-		"    }\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			interface I {
+			    Object copy(int [] ia);
+			}
+			public class X  {
+			    public static void main(String [] args) {
+			        I i = @Marker int @Marker []::<String>clone;
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -553,16 +579,18 @@ assertSearchResults(
 public void testBug400899g13() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X  {\n" +
-		"    public static void main(String [] args) {\n" +
-		"        int i [] = new @Marker int @Marker [4];\n" +
-		"        int j [] = new @Marker int @Marker [] { 10 };\n" +
-		"    }\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X  {
+			    public static void main(String [] args) {
+			        int i [] = new @Marker int @Marker [4];
+			        int j [] = new @Marker int @Marker [] { 10 };
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -575,10 +603,11 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH"""
 );
 }
 
@@ -591,16 +620,18 @@ assertSearchResults(
 public void testBug400899g14() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X  {\n" +
-		"    public static void main(String [] args) {\n" +
-		"        int i = (@Marker int) 0;\n" +
-		"        int j [] = (@Marker int @Marker []) null;\n" +
-		"    }\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X  {
+			    public static void main(String [] args) {
+			        int i = (@Marker int) 0;
+			        int j [] = (@Marker int @Marker []) null;
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -613,9 +644,10 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH"""
 );
 }
 
@@ -628,16 +660,18 @@ assertSearchResults(
 public void testBug400899g15() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X  {\n" +
-		"    public static void main(String [] args) {\n" +
-		"        if (args instanceof @Marker String[]) {\n" +
-		"        }\n" +
-		"    }\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X  {
+			    public static void main(String [] args) {
+			        if (args instanceof @Marker String[]) {
+			        }
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -663,13 +697,15 @@ assertSearchResults(
 public void testBug400899g16() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X extends Y<@Marker Integer, String> {}\n" +
-		"class Y<T, V> {\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X extends Y<@Marker Integer, String> {}
+			class Y<T, V> {
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -695,13 +731,15 @@ assertSearchResults(
 public void testBug400899g17() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X extends Y<@Marker Integer> {}\n" +
-		"class Y<T> {\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X extends Y<@Marker Integer> {}
+			class Y<T> {
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -727,13 +765,15 @@ assertSearchResults(
 public void testBug400899g18() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X<T extends @Marker Object & @Marker Comparable<@Marker ? super @Marker String>> {}\n" +
-		"class Y<T> {\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X<T extends @Marker Object & @Marker Comparable<@Marker ? super @Marker String>> {}
+			class Y<T> {
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -746,10 +786,11 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java b400899.X [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java b400899.X [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X [Marker] EXACT_MATCH"""
 );
 }
 
@@ -763,15 +804,17 @@ assertSearchResults(
 public void testBug400899g20() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"import java.util.Map;\n" +
-		"public class X {\n" +
-		"	void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}\n" +
-		"   void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			import java.util.Map;
+			public class X {
+				void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}
+			   void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -784,14 +827,15 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java void b400899.X.foo(Map<? super Object,? extends String>) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.foo(Map<? super Object,? extends String>) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.foo(Map<? super Object,? extends String>) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.foo(Map<? super Object,? extends String>) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.goo(Map<? extends Object,? super String>) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.goo(Map<? extends Object,? super String>) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.goo(Map<? extends Object,? super String>) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.goo(Map<? extends Object,? super String>) [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java void b400899.X.foo(Map<? super Object,? extends String>) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.foo(Map<? super Object,? extends String>) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.foo(Map<? super Object,? extends String>) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.foo(Map<? super Object,? extends String>) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.goo(Map<? extends Object,? super String>) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.goo(Map<? extends Object,? super String>) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.goo(Map<? extends Object,? super String>) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.goo(Map<? extends Object,? super String>) [Marker] EXACT_MATCH"""
 );
 }
 
@@ -808,22 +852,24 @@ assertSearchResults(
 public void testBug400899g22() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public interface X<U extends J<? extends X<U>>> {\n" +
-		"}\n" +
-		"interface J<T extends X<? extends J<T>>> {\n" +
-		"}\n" +
-		"class CI<U extends CJ<T, U> & @Marker J<@Marker T>,\n" +
-		"			T extends CI<U, T> & @Marker X<U>>\n" +
-		"	implements X<U> {\n" +
-		"}\n" +
-		"class CJ<T extends CI<U, T> & @Marker X<@Marker U>,\n" +
-		"			U extends CJ<T, U> & J<T>>\n" +
-		"	implements J<T> {\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public interface X<U extends J<? extends X<U>>> {
+			}
+			interface J<T extends X<? extends J<T>>> {
+			}
+			class CI<U extends CJ<T, U> & @Marker J<@Marker T>,
+						T extends CI<U, T> & @Marker X<U>>
+				implements X<U> {
+			}
+			class CJ<T extends CI<U, T> & @Marker X<@Marker U>,
+						U extends CJ<T, U> & J<T>>
+				implements J<T> {
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -836,11 +882,12 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java b400899.CI [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.CI [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.CI [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.CJ [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.CJ [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java b400899.CI [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.CI [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.CI [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.CJ [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.CJ [Marker] EXACT_MATCH"""
 );
 }
 
@@ -853,19 +900,21 @@ assertSearchResults(
 public void testBug400899g23() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X<E> {\n" +
-		"  class Y {\n" +
-		"    E e;\n" +
-		"    E getOtherElement(Object other) {\n" +
-		"      if (!(other instanceof @Marker X<?>.Y)) {};\n" +
-		"      return null;\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X<E> {
+			  class Y {
+			    E e;
+			    E getOtherElement(Object other) {
+			      if (!(other instanceof @Marker X<?>.Y)) {};
+			      return null;
+			    }
+			  }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -890,15 +939,17 @@ assertSearchResults(
 public void testBug400899g24() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X<P, C> {\n" +
-		"  public X() {\n" +
-		"    if (!(this instanceof @Marker X)) {}\n" +
-		"  }\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X<P, C> {
+			  public X() {
+			    if (!(this instanceof @Marker X)) {}
+			  }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -924,15 +975,17 @@ assertSearchResults(
 public void testBug400899g25() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"package b400899;\n" +
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"	public class Z <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker CharSequence> {\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n" +
-		"interface Y<U> {}\n"
+		"""
+			package b400899;
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+				public class Z <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker CharSequence> {
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			interface Y<U> {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -945,11 +998,12 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH"""
 );
 }
 
@@ -963,16 +1017,18 @@ assertSearchResults(
 public void testBug400899g26() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    public static void main(String [] args) {\n" +
-		"        X [] x = new @Marker X @Marker [5];\n" +
-		"        X [] x2 = new @Marker X @Marker [] { null };\n" +
-		"    }\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    public static void main(String [] args) {
+			        X [] x = new @Marker X @Marker [5];
+			        X [] x2 = new @Marker X @Marker [] { null };
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -985,10 +1041,11 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH"""
 );
 }
 
@@ -1001,15 +1058,17 @@ assertSearchResults(
 public void testBug400899g27() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    public static void main(String [] args) {\n" +
-		"        java.util.Map.Entry [] e = (java.util.Map<String, String>.@Marker Entry []) null;\n" +
-		"    }\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    public static void main(String [] args) {
+			        java.util.Map.Entry [] e = (java.util.Map<String, String>.@Marker Entry []) null;
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -1037,15 +1096,17 @@ assertSearchResults(
 public void testBug400899g28() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"import java.io.Serializable;\n" +
-		"import java.util.List;\n" +
-		"public class X<T extends Comparable<T> & Serializable> {\n" +
-		"	void foo(List<? extends @Marker Comparable<T>> p) {} \n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			import java.io.Serializable;
+			import java.util.List;
+			public class X<T extends Comparable<T> & Serializable> {
+				void foo(List<? extends @Marker Comparable<T>> p) {}\s
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -1073,16 +1134,18 @@ assertSearchResults(
 public void testBug400899g29() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"class Base {\n" +
-		"}\n" +
-		"class Foo<U extends Base, V extends Bar<U, @Marker Foo<U, V>>> {\n" +
-		"}\n" +
-		"class Bar<E extends Base, F extends Foo<E, @Marker Bar<E, F>>> {\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			class Base {
+			}
+			class Foo<U extends Base, V extends Bar<U, @Marker Foo<U, V>>> {
+			}
+			class Bar<E extends Base, F extends Foo<E, @Marker Bar<E, F>>> {
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -1109,12 +1172,14 @@ assertSearchResults(
 public void testBug400899g30() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X extends @Marker Object {\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X extends @Marker Object {
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -1141,14 +1206,16 @@ assertSearchResults(
 public void testBug400899g31() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    X x = new @Marker X();\n" +
-		"    X y = new <String> @Marker X();\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    X x = new @Marker X();
+			    X y = new <String> @Marker X();
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -1176,16 +1243,18 @@ assertSearchResults(
 public void testBug400899g32() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    class Y {\n" +
-		"    }\n" +
-		"    Y y1 = new @Marker X().new @Marker Y();\n" +
-		"    Y y2 = new @Marker X().new <String> @Marker Y();\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    class Y {
+			    }
+			    Y y1 = new @Marker X().new @Marker Y();
+			    Y y2 = new @Marker X().new <String> @Marker Y();
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -1198,10 +1267,11 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java b400899.X.y1 [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X.y1 [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X.y2 [Marker] POTENTIAL_MATCH\n" +
-		"src/b400899/X.java b400899.X.y2 [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java b400899.X.y1 [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X.y1 [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X.y2 [Marker] POTENTIAL_MATCH
+			src/b400899/X.java b400899.X.y2 [Marker] EXACT_MATCH"""
 );
 }
 
@@ -1215,17 +1285,19 @@ assertSearchResults(
 public void testBug400899g33() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    X x;\n" +
-		"    class Y {\n" +
-		"    }\n" +
-		"    Y y1 = x.new @Marker Y();\n" +
-		"    Y y2 = x.new <String> @Marker Y();\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    X x;
+			    class Y {
+			    }
+			    Y y1 = x.new @Marker Y();
+			    Y y2 = x.new <String> @Marker Y();
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -1255,13 +1327,15 @@ assertSearchResults(
 public void testBug400899g34() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    void foo() throws @Marker NullPointerException, @Marker ArrayIndexOutOfBoundsException {}\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    void foo() throws @Marker NullPointerException, @Marker ArrayIndexOutOfBoundsException {}
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -1292,16 +1366,18 @@ assertSearchResults(
 public void testBug400899g35() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"interface I {}\n" +
-		"interface J {}\n" +
-		"interface K extends @Marker I, @Marker J {}\n" +
-		"interface L {}\n" +
-		"public class X implements @Marker K, @Marker L {\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			interface I {}
+			interface J {}
+			interface K extends @Marker I, @Marker J {}
+			interface L {}
+			public class X implements @Marker K, @Marker L {
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -1314,10 +1390,11 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java b400899.K [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.K [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java b400899.K [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.K [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X [Marker] EXACT_MATCH"""
 );
 }
 
@@ -1330,18 +1407,20 @@ assertSearchResults(
 public void testBug400899g36() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"interface I {\n" +
-		"    void foo(int x);\n" +
-		"}\n" +
-		"public class X  {\n" +
-		"    public static void main(String [] args) {\n" +
-		"        I i = @Marker Y. @Marker Z @Marker [] [] @Marker [] ::foo;\n" +
-		"        i.foo(10); \n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			interface I {
+			    void foo(int x);
+			}
+			public class X  {
+			    public static void main(String [] args) {
+			        I i = @Marker Y. @Marker Z @Marker [] [] @Marker [] ::foo;
+			        i.foo(10);\s
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -1354,10 +1433,11 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH"""
 );
 }
 
@@ -1370,35 +1450,37 @@ assertSearchResults(
 public void testBug400899g37() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"interface I {\n" +
-		"    Y foo(int x);\n" +
-		"}\n" +
-		"public class X  {\n" +
-		"    class Z extends Y {\n" +
-		"        public Z(int x) {\n" +
-		"            super(x);\n" +
-		"            System.out.println();\n" +
-		"        }\n" +
-		"    }\n" +
-		"    public static void main(String [] args) {\n" +
-		"        i = @Marker W<@Marker Integer>::<@Marker String> new;\n" +
-		"    }\n" +
-		"}\n" +
-		"class W<T> extends Y {\n" +
-		"    public W(T x) {\n" +
-		"        super(0);\n" +
-		"        System.out.println(x);\n" +
-		"    }\n" +
-		"}\n" +
-		"class Y {\n" +
-		"    public Y(int x) {\n" +
-		"        System.out.println(x);\n" +
-		"    }\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			interface I {
+			    Y foo(int x);
+			}
+			public class X  {
+			    class Z extends Y {
+			        public Z(int x) {
+			            super(x);
+			            System.out.println();
+			        }
+			    }
+			    public static void main(String [] args) {
+			        i = @Marker W<@Marker Integer>::<@Marker String> new;
+			    }
+			}
+			class W<T> extends Y {
+			    public W(T x) {
+			        super(0);
+			        System.out.println(x);
+			    }
+			}
+			class Y {
+			    public Y(int x) {
+			        System.out.println(x);
+			    }
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -1411,9 +1493,10 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH
+			src/b400899/X.java void b400899.X.main(String[]) [Marker] EXACT_MATCH"""
 );
 }
 
@@ -1429,16 +1512,18 @@ assertSearchResults(
 public void testBug400899g38() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X {\n" +
-		"    Object o = (@Marker X) null;\n" +
-		"    Object p = (@Marker X @Marker []) null;\n" +
-		"    Object q = (java.util. @Marker List<@Marker String> []) null;\n" +
-		"    Object r = (java.util.Map.@Marker Entry @Marker []) null;\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Marker {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			public class X {
+			    Object o = (@Marker X) null;
+			    Object p = (@Marker X @Marker []) null;
+			    Object q = (java.util. @Marker List<@Marker String> []) null;
+			    Object r = (java.util.Map.@Marker Entry @Marker []) null;
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Marker {}
+			"""
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -1451,13 +1536,14 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java b400899.X.o [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X.p [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X.p [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X.q [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X.q [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X.r [Marker] EXACT_MATCH\n" +
-		"src/b400899/X.java b400899.X.r [Marker] EXACT_MATCH"
+		"""
+			src/b400899/X.java b400899.X.o [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X.p [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X.p [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X.q [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X.q [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X.r [Marker] EXACT_MATCH
+			src/b400899/X.java b400899.X.r [Marker] EXACT_MATCH"""
 );
 }
 
@@ -1471,18 +1557,19 @@ assertSearchResults(
 public void testBug400902() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400902/X.java",
-			"import java.lang.annotation.ElementType;\n" +
-			"import java.lang.annotation.Target;\n" +
-			"import java.io.Serializable;\n" +
-			"@Marker1 @Marker public class X extends @Marker Object implements @Marker Serializable {\n" +
-			"	private static final long serialVersionUID = 1L;\n" +
-			"	int x = (@Marker int) 0;\n" +
-			" 	@Marker public class Y {}\n" +
-			"}\n" +
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Marker {}\n" +
-			"@Target(ElementType.TYPE)\n" +
-			"@interface Marker1 {}"
+			"""
+				import java.lang.annotation.ElementType;
+				import java.lang.annotation.Target;
+				import java.io.Serializable;
+				@Marker1 @Marker public class X extends @Marker Object implements @Marker Serializable {
+					private static final long serialVersionUID = 1L;
+					int x = (@Marker int) 0;
+				 	@Marker public class Y {}
+				}
+				@Target(ElementType.TYPE_USE)
+				@interface Marker {}
+				@Target(ElementType.TYPE)
+				@interface Marker1 {}"""
 		);
 	SearchPattern pattern = SearchPattern.createPattern(
 			"Marker",
@@ -1495,11 +1582,12 @@ public void testBug400902() throws CoreException {
 	this.resultCollector,
 	null);
 	assertSearchResults(
-			"src/b400902/X.java b400902.X [Marker] EXACT_MATCH\n" +
-			"src/b400902/X.java b400902.X [Marker] EXACT_MATCH\n" +
-			"src/b400902/X.java b400902.X [Marker] EXACT_MATCH\n" +
-			"src/b400902/X.java b400902.X.x [Marker] EXACT_MATCH\n" +
-			"src/b400902/X.java b400902.X$Y [Marker] EXACT_MATCH"
+			"""
+				src/b400902/X.java b400902.X [Marker] EXACT_MATCH
+				src/b400902/X.java b400902.X [Marker] EXACT_MATCH
+				src/b400902/X.java b400902.X [Marker] EXACT_MATCH
+				src/b400902/X.java b400902.X.x [Marker] EXACT_MATCH
+				src/b400902/X.java b400902.X$Y [Marker] EXACT_MATCH"""
 	);
 }
 
@@ -1513,19 +1601,21 @@ public void testBug400902() throws CoreException {
 public void testBug424119_001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b424119/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"import java.io.Serializable;\n" +
-		"public class X{\n" +
-		"{\n" +
-		"	String tab @Annot() [] = null;\n" +
-		"}\n" +
-		"public void foo() {\n" +
-		"	String t @Annot() [] @Annot()[] = null, s @Annot() [];\n" +
-		"}\n" +
-		"String tab @Annot() [] = null;\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Annot {}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			import java.io.Serializable;
+			public class X{
+			{
+				String tab @Annot() [] = null;
+			}
+			public void foo() {
+				String t @Annot() [] @Annot()[] = null, s @Annot() [];
+			}
+			String tab @Annot() [] = null;
+			@Target(ElementType.TYPE_USE)
+			@interface Annot {}
+			"""
 	);
 	SearchPattern pattern = SearchPattern.createPattern(
 		"Annot",
@@ -1538,11 +1628,12 @@ public void testBug424119_001() throws CoreException {
 			this.resultCollector,
 			null);
 	assertSearchResults(
-		"src/b424119/X.java b424119.X.{} [Annot] EXACT_MATCH\n" +
-		"src/b424119/X.java b424119.X.tab [Annot] EXACT_MATCH\n" +
-		"src/b424119/X.java void b424119.X.foo() [Annot] EXACT_MATCH\n" +
-		"src/b424119/X.java void b424119.X.foo() [Annot] EXACT_MATCH\n" +
-		"src/b424119/X.java void b424119.X.foo() [Annot] EXACT_MATCH"
+		"""
+			src/b424119/X.java b424119.X.{} [Annot] EXACT_MATCH
+			src/b424119/X.java b424119.X.tab [Annot] EXACT_MATCH
+			src/b424119/X.java void b424119.X.foo() [Annot] EXACT_MATCH
+			src/b424119/X.java void b424119.X.foo() [Annot] EXACT_MATCH
+			src/b424119/X.java void b424119.X.foo() [Annot] EXACT_MATCH"""
 	);
 }
 
@@ -1557,17 +1648,19 @@ public void testBug424119_001() throws CoreException {
 public void testBug424119_002() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b424119/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"import java.io.Serializable;\n" +
-		"public class X{\n" +
-		"{\n" +
-		"	String tab @Annot(int[].class) [] = null;\n" +
-		"}\n" +
-		"@Target(ElementType.TYPE_USE)\n" +
-		"@interface Annot {\n" +
-		"	Class<int[]> value();\n" +
-		"}\n"
+		"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+			import java.io.Serializable;
+			public class X{
+			{
+				String tab @Annot(int[].class) [] = null;
+			}
+			@Target(ElementType.TYPE_USE)
+			@interface Annot {
+				Class<int[]> value();
+			}
+			"""
 	);
 	SearchPattern pattern = SearchPattern.createPattern(
 		"Annot",
@@ -1597,15 +1690,18 @@ public void testBug424119_003() throws CoreException {
 		IJavaProject project = createJavaProject("P1", new String[] {"src"}, new String[] {"bin"}, "bin");
 		createFile(
 			"/P1/src/X.java",
-			"public class X {\n" +
-			"	String tab @Annot(int[].class) [] = null;\n" +
-			"}\n");
+			"""
+				public class X {
+					String tab @Annot(int[].class) [] = null;
+				}
+				""");
 		createFile(
 			"P1/src/Annot.java",
-			"@Target(ElementType.TYPE_USE)\n" +
-			"@interface Annot {\n" +
-			"	Class<int[]> value();\n" +
-			"}"
+			"""
+				@Target(ElementType.TYPE_USE)
+				@interface Annot {
+					Class<int[]> value();
+				}"""
 		);
 		waitUntilIndexesReady();
 
@@ -1634,18 +1730,20 @@ public void testBug424119_003() throws CoreException {
 public void testBug427537a() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b427537/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"interface J {}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I i = (I & J) () -> {};\n" +
-			"		i.foo();\n" +
-			"		I j = (J & I) () -> {};\n" +
-			"		j.foo();\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {
+					void foo();
+				}
+				interface J {}
+				public class X {
+					public static void main(String[] args) {
+						I i = (I & J) () -> {};
+						i.foo();
+						I j = (J & I) () -> {};
+						j.foo();
+					}
+				}
+				"""
 	);
 	SearchPattern pattern = SearchPattern.createPattern(
 		"I",
@@ -1670,10 +1768,11 @@ public void testBug427537a() throws CoreException {
 public void testBug427677() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b427677/X.java",
-			"import java.lang.annotation.*; \n" +
-			"class X implements unresolved. @Marker1 Collection<Integer> { } \n" +
-			"@Target (ElementType.TYPE_USE) \n" +
-			"@interface Marker1 {}"
+			"""
+				import java.lang.annotation.*;\s
+				class X implements unresolved. @Marker1 Collection<Integer> { }\s
+				@Target (ElementType.TYPE_USE)\s
+				@interface Marker1 {}"""
 	);
 	SearchPattern pattern = SearchPattern.createPattern(
 		"Marker1",
@@ -1696,23 +1795,25 @@ public void testBug427677() throws CoreException {
 public void testBug400904_0001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"    public static void main(String [] args) {\n" +
-			"	new X().doit();\n" +
-			"    }\n" +
-			"    void doit() {\n" +
-			"        I i = super::foo;\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    public void foo(int x) {\n" +
-			"	System.out.println(x);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X extends Y {
+				    public static void main(String [] args) {
+					new X().doit();
+				    }
+				    void doit() {
+				        I i = super::foo;
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				    public void foo(int x) {
+					System.out.println(x);
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -1725,23 +1826,25 @@ public void testBug400904_0001() throws CoreException {
 public void testBug400904_0001a() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"    public static void main(String [] args) {\n" +
-			"	new X().doit();\n" +
-			"    }\n" +
-			"    void doit() {\n" +
-			"        I i = super::foo;\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    public void foo(int x) {\n" +
-			"	System.out.println(x);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X extends Y {
+				    public static void main(String [] args) {
+					new X().doit();
+				    }
+				    void doit() {
+				        I i = super::foo;
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				    public void foo(int x) {
+					System.out.println(x);
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -1760,23 +1863,25 @@ public void testBug400904_0001a() throws CoreException {
 public void testBug400904_0002() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"    public static void main(String [] args) {\n" +
-			"	new X().doit();\n" +
-			"    }\n" +
-			"    void doit() {\n" +
-			"        I i = super::<String>foo;\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    public void foo(int x) {\n" +
-			"	System.out.println(x);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X extends Y {
+				    public static void main(String [] args) {
+					new X().doit();
+				    }
+				    void doit() {
+				        I i = super::<String>foo;
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				    public void foo(int x) {
+					System.out.println(x);
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -1795,25 +1900,27 @@ public void testBug400904_0002() throws CoreException {
 public void testBug400904_0003() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-			"	public void doit();\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	Y() {}\n" +
-			"	Y(int i) {}\n" +
-			"}\n" +
-			"\n" +
-			"public class X {\n" +
-			"    X(int i) {} \n" +
-			"   static void foo() {}\n" +
-			"   static void foo(int i) {}\n" +
-			"	I i = X :: foo;\n" +
-			"	I j = Y :: new;\n" +
-			"   public static void main() { \n" +
-			"     Y y = new Y(); \n" +
-			"     foo(); \n" +
-			"   }\n" +
-			"}\n"
+			"""
+				interface I {
+					public void doit();
+				}
+				class Y {
+					Y() {}
+					Y(int i) {}
+				}
+				
+				public class X {
+				    X(int i) {}\s
+				   static void foo() {}
+				   static void foo(int i) {}
+					I i = X :: foo;
+					I j = Y :: new;
+				   public static void main() {\s
+				     Y y = new Y();\s
+				     foo();\s
+				   }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("X");
 	IMethod method = type.getMethod("foo", null);
@@ -1833,20 +1940,22 @@ public void testBug400904_0003() throws CoreException {
 public void testBug400904_0004() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y::<String>foo;\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    public static void foo(int x) {\n" +
-			"	System.out.println(x);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = Y::<String>foo;
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				    public static void foo(int x) {
+					System.out.println(x);
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -1865,22 +1974,24 @@ public void testBug400904_0004() throws CoreException {
 public void testBug400904_0005() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y.Z::foo;\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    static class Z {\n" +
-			"        public static void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = Y.Z::foo;
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				    static class Z {
+				        public static void foo(int x) {
+					    System.out.println(x);
+				        }
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y").getType("Z");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -1899,22 +2010,24 @@ public void testBug400904_0005() throws CoreException {
 public void testBug400904_0006() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y.Z::<String>foo;\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    static class Z {\n" +
-			"        public static void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = Y.Z::<String>foo;
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				    static class Z {
+				        public static void foo(int x) {
+					    System.out.println(x);
+				        }
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y").getType("Z");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -1933,20 +2046,22 @@ public void testBug400904_0006() throws CoreException {
 public void testBug400904_0007() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = new Y()::foo;\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"        void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = new Y()::foo;
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				        void foo(int x) {
+					    System.out.println(x);
+				        }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -1965,20 +2080,22 @@ public void testBug400904_0007() throws CoreException {
 public void testBug400904_0008() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = new Y()::<String>foo;\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"        void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = new Y()::<String>foo;
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				        void foo(int x) {
+					    System.out.println(x);
+				        }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -1997,26 +2114,28 @@ public void testBug400904_0008() throws CoreException {
 public void testBug400904_0009() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-			"  void foo(Y<String> y, int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  public static void main(String[] args) {\n" +
-			"    I i = Y<String>::foo;\n" +
-			"    i.foo(new Y<String>(), 10);\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"  Y() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  void foo(int x) {\n" +
-			"    System.out.println(x);\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				interface I {
+				  void foo(Y<String> y, int x);
+				}
+				public class X {
+				  public X() {
+				    super();
+				  }
+				  public static void main(String[] args) {
+				    I i = Y<String>::foo;
+				    i.foo(new Y<String>(), 10);
+				  }
+				}
+				class Y<T> {
+				  Y() {
+				    super();
+				  }
+				  void foo(int x) {
+				    System.out.println(x);
+				  }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -2036,26 +2155,28 @@ public void testBug400904_0009() throws CoreException {
 public void testBug400904_0010() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-			"  void foo(Y<String> y, int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  public static void main(String[] args) {\n" +
-			"    I i = Y<String>::<String>foo;\n" +
-			"    i.foo(new Y<String>(), 10);\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"  Y() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  void foo(int x) {\n" +
-			"    System.out.println(x);\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				interface I {
+				  void foo(Y<String> y, int x);
+				}
+				public class X {
+				  public X() {
+				    super();
+				  }
+				  public static void main(String[] args) {
+				    I i = Y<String>::<String>foo;
+				    i.foo(new Y<String>(), 10);
+				  }
+				}
+				class Y<T> {
+				  Y() {
+				    super();
+				  }
+				  void foo(int x) {
+				    System.out.println(x);
+				  }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -2074,24 +2195,26 @@ public void testBug400904_0010() throws CoreException {
 public void testBug400904_0011() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-				"    void foo(Y<String>.Z z, int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y<String>.Z::foo;\n" +
-			"        i.foo(new Y<String>().new Z(), 10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"    class Z {\n" +
-			"        void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n" +
-			"\n"
+			"""
+				interface I {
+				    void foo(Y<String>.Z z, int x);
+				}
+				public class X  {
+					@SuppressWarnings("unused")
+				    public static void main(String [] args) {
+				        I i = Y<String>.Z::foo;
+				        i.foo(new Y<String>().new Z(), 10);\s
+				    }
+				}
+				class Y<T> {
+				    class Z {
+				        void foo(int x) {
+					    System.out.println(x);
+				        }
+				    }
+				}
+				
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	type = type.getType("Z");
@@ -2111,24 +2234,26 @@ public void testBug400904_0011() throws CoreException {
 public void testBug400904_0012() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-				"    void foo(Y<String>.Z z, int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y<String>.Z::<String>foo;\n" +
-			"        i.foo(new Y<String>().new Z(), 10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"    class Z {\n" +
-			"        void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n" +
-			"\n"
+			"""
+				interface I {
+				    void foo(Y<String>.Z z, int x);
+				}
+				public class X  {
+					@SuppressWarnings("unused")
+				    public static void main(String [] args) {
+				        I i = Y<String>.Z::<String>foo;
+				        i.foo(new Y<String>().new Z(), 10);\s
+				    }
+				}
+				class Y<T> {
+				    class Z {
+				        void foo(int x) {
+					    System.out.println(x);
+				        }
+				    }
+				}
+				
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	type = type.getType("Z");
@@ -2148,23 +2273,25 @@ public void testBug400904_0012() throws CoreException {
 public void testBug400904_0013() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-				"    void foo(Y<String>.Z<String> z, int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y<String>.Z<String>::foo;\n" +
-			"        i.foo(new Y<String>().new Z<String>(), 10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"    class Z<K> {\n" +
-			"        void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n" +
-			"\n"
+			"""
+				interface I {
+				    void foo(Y<String>.Z<String> z, int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = Y<String>.Z<String>::foo;
+				        i.foo(new Y<String>().new Z<String>(), 10);\s
+				    }
+				}
+				class Y<T> {
+				    class Z<K> {
+				        void foo(int x) {
+					    System.out.println(x);
+				        }
+				    }
+				}
+				
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	type = type.getType("Z");
@@ -2184,23 +2311,25 @@ public void testBug400904_0013() throws CoreException {
 public void testBug400904_0014() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-				"    void foo(Y<String>.Z<String> z, int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y<String>.Z<String>::<String>foo;\n" +
-			"        i.foo(new Y<String>().new Z<String>(), 10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"    class Z<K> {\n" +
-			"        void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n" +
-			"\n"
+			"""
+				interface I {
+				    void foo(Y<String>.Z<String> z, int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = Y<String>.Z<String>::<String>foo;
+				        i.foo(new Y<String>().new Z<String>(), 10);\s
+				    }
+				}
+				class Y<T> {
+				    class Z<K> {
+				        void foo(int x) {
+					    System.out.println(x);
+				        }
+				    }
+				}
+				
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	type = type.getType("Z");
@@ -2220,25 +2349,27 @@ public void testBug400904_0014() throws CoreException {
 public void testBug400904_0015() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
-			"interface I {\n" +
-				"    void foo(Y<String> y);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y<String>.Z<String>::<String>new;\n" +
-			"        i.foo(new Y<String>()); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"    class Z<K> {\n" +
-			"        Z(Y<String> y) {\n" +
-			"            System.out.println(\"Y<T>.Z<K>::new\");\n" +
-			"        }\n" +
-			"        Z1(Y<String> y) {\n" +
-			"            System.out.println(\"Y<T>.Z<K>::new\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(Y<String> y);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = Y<String>.Z<String>::<String>new;
+				        i.foo(new Y<String>());\s
+				    }
+				}
+				class Y<T> {
+				    class Z<K> {
+				        Z(Y<String> y) {
+				            System.out.println("Y<T>.Z<K>::new");
+				        }
+				        Z1(Y<String> y) {
+				            System.out.println("Y<T>.Z<K>::new");
+				        }
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	type = type.getType("Z");
@@ -2257,26 +2388,29 @@ public void testBug400904_0015() throws CoreException {
 public void testBug400905_0001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/X.java",
-			"interface I {\n" +
-			"    int foo();\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"    public static void main(String [] args) {\n" +
-			"	     I i = () -> 42;\n" +
-			"    }\n" +
-			"	public void bar(I i) {}\n" +
-			" 	public void doit() {\n" +
-			"		bar(() ->1);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {
+				    int foo();
+				}
+				public class X extends Y {
+				    public static void main(String [] args) {
+					     I i = () -> 42;
+				    }
+					public void bar(I i) {}
+				 	public void doit() {
+						bar(() ->1);
+					}
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("I");
 	IMethod method = type.getMethod("foo", new String[] {});
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
-			"src/b400905/X.java int b400905.I.foo() [foo] EXACT_MATCH\n" +
-			"src/b400905/X.java int void b400905.X.main(String[]):<lambda #1>.foo() [() ->] EXACT_MATCH\n" +
-			"src/b400905/X.java int void b400905.X.doit():<lambda #1>.foo() [() ->] EXACT_MATCH");
+			"""
+				src/b400905/X.java int b400905.I.foo() [foo] EXACT_MATCH
+				src/b400905/X.java int void b400905.X.main(String[]):<lambda #1>.foo() [() ->] EXACT_MATCH
+				src/b400905/X.java int void b400905.X.doit():<lambda #1>.foo() [() ->] EXACT_MATCH""");
 }
 /**
  * bug 400905
@@ -2288,37 +2422,44 @@ public void testBug400905_0001() throws CoreException {
 public void testBug400905_0002() throws CoreException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/X.java",
-			"public class X extends Y {\n" +
-			"    public static void main(String [] args) {\n" +
-			"		Y y = new Y();\n" +
-			"		I i = () -> {};\n" + // variable declaration context
-			"		I i1;\n" +
-			"		i1 = ()  -> {}" + // assignment context
-			"		y.goo(()-> {});\n" + // method argument context
-			"		i.foo();\n" +
-			"	}\n" +
-			"	public I bar() {\n" +
-			"		return () -> {};\n" + // return statement context
-			"	}\n" +
-			"}\n"
+			"""
+				public class X extends Y {
+				    public static void main(String [] args) {
+						Y y = new Y();
+						I i = () -> {};
+						I i1;
+						i1 = ()  -> {}\
+						y.goo(()-> {});
+						i.foo();
+					}
+					public I bar() {
+						return () -> {};
+					}
+				}
+				"""
 	);
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b400905/I.java",
-			"public interface I {\n" +
-			"    int foo();\n" +
-			"}\n") ;
+			"""
+				public interface I {
+				    int foo();
+				}
+				""") ;
 	this.workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b400905/Y.java",
-			"public class Y {\n" +
-			"    void goo(I i) {};\n" +
-			"}\n") ;
+			"""
+				public class Y {
+				    void goo(I i) {};
+				}
+				""") ;
 	IType type = this.workingCopies[1].getType("I");
 	IMethod method = type.getMethod("foo", new String[] {});
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
-			"src/b400905/I.java int b400905.I.foo() [foo] EXACT_MATCH\n" +
-			"src/b400905/X.java int void b400905.X.main(String[]):<lambda #1>.foo() [() ->] EXACT_MATCH\n" +
-			"src/b400905/X.java int void b400905.X.main(String[]):<lambda #1>.foo() [()  ->] EXACT_MATCH\n" +
-			"src/b400905/X.java int void b400905.X.main(String[]):<lambda #1>.foo() [()->] EXACT_MATCH\n" +
-			"src/b400905/X.java int I b400905.X.bar():<lambda #1>.foo() [() ->] EXACT_MATCH");
+			"""
+				src/b400905/I.java int b400905.I.foo() [foo] EXACT_MATCH
+				src/b400905/X.java int void b400905.X.main(String[]):<lambda #1>.foo() [() ->] EXACT_MATCH
+				src/b400905/X.java int void b400905.X.main(String[]):<lambda #1>.foo() [()  ->] EXACT_MATCH
+				src/b400905/X.java int void b400905.X.main(String[]):<lambda #1>.foo() [()->] EXACT_MATCH
+				src/b400905/X.java int I b400905.X.bar():<lambda #1>.foo() [() ->] EXACT_MATCH""");
 }
 /**
  * bug 400905
@@ -2330,30 +2471,37 @@ public void testBug400905_0002() throws CoreException {
 public void testBug400905_0003() throws CoreException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/X.java",
-			"public class X extends Y {\n" +
-			"    public static void main(String [] args) {\n" +
-			"		I[] i = new I[] { y-> y.exists(), y -> y.canRead(), y  -> y.canWrite()};\n" + // array initialization context
-			"	}\n" +
-			"}\n"
+			"""
+				public class X extends Y {
+				    public static void main(String [] args) {
+						I[] i = new I[] { y-> y.exists(), y -> y.canRead(), y  -> y.canWrite()};
+					}
+				}
+				"""
 	);
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b400905/I.java",
-			"public interface I {\n" +
-			"    boolean foo(Y y);\n" +
-			"}\n") ;
+			"""
+				public interface I {
+				    boolean foo(Y y);
+				}
+				""") ;
 	this.workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b400905/Y.java",
-			"public class Y {\n" +
-			"    public boolean exists() { return true};\n" +
-			"    public boolean canRead() { return true};\n" +
-			"    public boolean canWrite() { return true};\n" +
-			"}\n") ;
+			"""
+				public class Y {
+				    public boolean exists() { return true};
+				    public boolean canRead() { return true};
+				    public boolean canWrite() { return true};
+				}
+				""") ;
 	IType type = this.workingCopies[1].getType("I");
 	IMethod method = type.getMethod("foo", new String[] {"QY;"});
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
-			"src/b400905/I.java boolean b400905.I.foo(Y) [foo] EXACT_MATCH\n" +
-			"src/b400905/X.java boolean void b400905.X.main(String[]):<lambda #1>.foo(b400905.Y) [y->] EXACT_MATCH\n" +
-			"src/b400905/X.java boolean void b400905.X.main(String[]):<lambda #1>.foo(b400905.Y) [y ->] EXACT_MATCH\n" +
-			"src/b400905/X.java boolean void b400905.X.main(String[]):<lambda #1>.foo(b400905.Y) [y  ->] EXACT_MATCH"
+			"""
+				src/b400905/I.java boolean b400905.I.foo(Y) [foo] EXACT_MATCH
+				src/b400905/X.java boolean void b400905.X.main(String[]):<lambda #1>.foo(b400905.Y) [y->] EXACT_MATCH
+				src/b400905/X.java boolean void b400905.X.main(String[]):<lambda #1>.foo(b400905.Y) [y ->] EXACT_MATCH
+				src/b400905/X.java boolean void b400905.X.main(String[]):<lambda #1>.foo(b400905.Y) [y  ->] EXACT_MATCH"""
 	);
 }
 /**
@@ -2366,31 +2514,39 @@ public void testBug400905_0003() throws CoreException {
 public void testBug400905_0004() throws CoreException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/X.java",
-			"public class X extends Y {\n" +
-			"    public static void main(String [] args) {\n" +
-			"		I<Y> c = () /* foo */ -> () /* bar */ -> {};\n" + // array initialization context
-			"		I<Y> y = args.length < 1 ? (() /* true */-> 42) : (() /* false */ -> 23);\n" + // conditional expression context
-			"		Object o = (I) () /* cast */ -> 42;\n " + //cast expression
-			"	}\n" +
-			"}\n"
+			"""
+				public class X extends Y {
+				    public static void main(String [] args) {
+						I<Y> c = () /* foo */ -> () /* bar */ -> {};
+						I<Y> y = args.length < 1 ? (() /* true */-> 42) : (() /* false */ -> 23);
+						Object o = (I) () /* cast */ -> 42;
+				 \
+					}
+				}
+				"""
 	);
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b400905/I.java",
-			"public interface I<T> {\n" +
-			"    public T foo();\n" +
-			"}\n") ;
+			"""
+				public interface I<T> {
+				    public T foo();
+				}
+				""") ;
 	this.workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b400905/Y.java",
-			"public interface Y {\n" +
-			"    public abstract void run() { };\n" +
-			"}\n") ;
+			"""
+				public interface Y {
+				    public abstract void run() { };
+				}
+				""") ;
 	IType type = this.workingCopies[1].getType("I");
 	IMethod method = type.getMethod("foo", new String[] {});
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
-					"src/b400905/I.java T b400905.I.foo() [foo] EXACT_MATCH\n" +
-					"src/b400905/X.java b400905.Y void b400905.X.main(String[]):<lambda #1>.foo() [() /* foo */ ->] EXACT_MATCH\n" +
-					"src/b400905/X.java b400905.Y void b400905.X.main(String[]):<lambda #1>.foo() [(() /* true */->] EXACT_MATCH\n" +
-					"src/b400905/X.java b400905.Y void b400905.X.main(String[]):<lambda #1>.foo() [(() /* false */ ->] EXACT_MATCH\n" +
-					"src/b400905/X.java java.lang.Object void b400905.X.main(String[]):<lambda #1>.foo() [() /* cast */ ->] EXACT_MATCH"
+					"""
+						src/b400905/I.java T b400905.I.foo() [foo] EXACT_MATCH
+						src/b400905/X.java b400905.Y void b400905.X.main(String[]):<lambda #1>.foo() [() /* foo */ ->] EXACT_MATCH
+						src/b400905/X.java b400905.Y void b400905.X.main(String[]):<lambda #1>.foo() [(() /* true */->] EXACT_MATCH
+						src/b400905/X.java b400905.Y void b400905.X.main(String[]):<lambda #1>.foo() [(() /* false */ ->] EXACT_MATCH
+						src/b400905/X.java java.lang.Object void b400905.X.main(String[]):<lambda #1>.foo() [() /* cast */ ->] EXACT_MATCH"""
 	);
 }
 /**
@@ -2403,20 +2559,26 @@ public void testBug400905_0004() throws CoreException {
 public void testBug400905_0005() throws CoreException {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/X.java",
-			"public class X extends Y {\n" +
-			"    public static void main(String [] args) {\n" +
-			"		I<Y> c = () /* foo */ -> () /* bar */ -> {};\n" + // array initialization context
-			"	}\n" +
-			"}\n"
+			"""
+				public class X extends Y {
+				    public static void main(String [] args) {
+						I<Y> c = () /* foo */ -> () /* bar */ -> {};
+					}
+				}
+				"""
 	);
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b400905/I.java",
-			"public interface I<T> {\n" +
-			"    public T foo();\n" +
-			"}\n") ;
+			"""
+				public interface I<T> {
+				    public T foo();
+				}
+				""") ;
 	this.workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b400905/Y.java",
-			"public interface Y {\n" +
-			"    public abstract void bar() { };\n" +
-			"}\n") ;
+			"""
+				public interface Y {
+				    public abstract void bar() { };
+				}
+				""") ;
 
 	IType type = this.workingCopies[2].getType("Y");
 	IMethod method = type.getMethod("bar", new String[] {});
@@ -2440,23 +2602,29 @@ public void testBug400905_0006() throws CoreException {
 		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"    public static void main(String [] args) {\n" +
-			"		Y.goo(()->{});\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+				    public static void main(String [] args) {
+						Y.goo(()->{});
+					}
+				}
+				"""
 		);
 		createFile(
 			"/P/src/Y.java",
-			"public class Y {\n" +
-			"    public static void goo(I i) {};\n" +
-			"}\n"
+			"""
+				public class Y {
+				    public static void goo(I i) {};
+				}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public void foo();\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public void foo();
+				}
+				"""
 		);
 		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IMethod method = getCompilationUnit("/P/src/I.java").getType("I").getMethod("foo", new String[0]);
@@ -2486,23 +2654,29 @@ public void testBug400905_0007() throws CoreException {
 		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/X.java",
-			"public class X  {\n" +
-			"    void foo() {\n" +
-			"        I i = Y::new;\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X  {
+				    void foo() {
+				        I i = Y::new;
+				    }
+				}
+				"""
 		);
 		createFile(
 			"/P/src/Y.java",
-			"public class Y extends X {\n" +
-			"    Y(int x) {};\n" +
-			"}\n"
+			"""
+				public class Y extends X {
+				    Y(int x) {};
+				}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"interface I {\n" +
-			"    X foo(int x);\n" +
-			"}\n"
+			"""
+				interface I {
+				    X foo(int x);
+				}
+				"""
 		);
 		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("Y", new String[] {"I"});
@@ -2519,24 +2693,30 @@ public void testBug400905_0007a() throws CoreException {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
-			"public class X  {\n" +
-			"    void foo() {\n" +
-			"        I i = Y::new;\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X  {
+				    void foo() {
+				        I i = Y::new;
+				    }
+				}
+				"""
 		);
 		createFile(
 			"/P/src/Y.java",
-			"public class Y extends X {\n" +
-			"    Y(int x) {};\n" +
-			"    Y() {};\n" +
-			"}\n"
+			"""
+				public class Y extends X {
+				    Y(int x) {};
+				    Y() {};
+				}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"interface I {\n" +
-			"    X foo();\n" +
-			"}\n"
+			"""
+				interface I {
+				    X foo();
+				}
+				"""
 		);
 		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("Y", new String[] {"I"});
 		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
@@ -2553,23 +2733,29 @@ public void testBug400905_0008() throws CoreException {
 		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"    public static void main(String [] args) {\n" +
-			"		I i = Y::goo;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+				    public static void main(String [] args) {
+						I i = Y::goo;
+					}
+				}
+				"""
 		);
 		createFile(
 			"/P/src/Y.java",
-			"public class Y {\n" +
-			"    public static void goo() {};\n" +
-			"}\n"
+			"""
+				public class Y {
+				    public static void goo() {};
+				}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public void foo();\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public void foo();
+				}
+				"""
 		);
 		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("goo", new String[0]);
@@ -2586,24 +2772,30 @@ public void testBug400905_0009() throws CoreException {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"    public static void main(String [] args) {\n" +
-			"		I i = Y::goo;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+				    public static void main(String [] args) {
+						I i = Y::goo;
+					}
+				}
+				"""
 		);
 		createFile(
 			"/P/src/Y.java",
-			"public class Y {\n" +
-			"    public static void goo() {};\n" +
-			"    public static void goo(int x) {};\n" +
-			"}\n"
+			"""
+				public class Y {
+				    public static void goo() {};
+				    public static void goo(int x) {};
+				}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public void foo();\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public void foo();
+				}
+				"""
 		);
 		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("goo", new String[] {"I"});
 		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
@@ -2620,28 +2812,34 @@ public void testBug400905_0010() throws CoreException {
 		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/J.java",
-			"public interface J {\n" +
-			"    public static void main(String [] args) {\n" +
-			"		I i = Y::goo;\n" +
-			"	}\n" +
-			"    default void foo() {\n" +
-			"       I i = Y::goo;\n" +
-			"       Y.goo(()->{});\n" +
-			"   }\n" +
-			"}\n"
+			"""
+				public interface J {
+				    public static void main(String [] args) {
+						I i = Y::goo;
+					}
+				    default void foo() {
+				       I i = Y::goo;
+				       Y.goo(()->{});
+				   }
+				}
+				"""
 		);
 		createFile(
 			"/P/src/Y.java",
-			"public class Y {\n" +
-			"    public static void goo(I i) {};\n" +
-			"    public static void goo() {};\n" +
-			"}\n"
+			"""
+				public class Y {
+				    public static void goo(I i) {};
+				    public static void goo() {};
+				}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public void foo();\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public void foo();
+				}
+				"""
 		);
 		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("goo", new String[0]);
@@ -2659,28 +2857,34 @@ public void testBug400905_0011() throws CoreException {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/J.java",
-			"public interface J {\n" +
-			"    public static void main(String [] args) {\n" +
-			"		I i = Y::goo;\n" +
-			"	}\n" +
-			"    default void foo() {\n" +
-			"       I i = Y::goo;\n" +
-			"       Y.goo(()->{});\n" +
-			"   }\n" +
-			"}\n"
+			"""
+				public interface J {
+				    public static void main(String [] args) {
+						I i = Y::goo;
+					}
+				    default void foo() {
+				       I i = Y::goo;
+				       Y.goo(()->{});
+				   }
+				}
+				"""
 		);
 		createFile(
 			"/P/src/Y.java",
-			"public class Y {\n" +
-			"    public static void goo(I i) {};\n" +
-			"    public static void goo() {};\n" +
-			"}\n"
+			"""
+				public class Y {
+				    public static void goo(I i) {};
+				    public static void goo() {};
+				}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public void foo();\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public void foo();
+				}
+				"""
 		);
 		IMethod method = getCompilationUnit("/P/src/I.java").getType("I").getMethod("foo", new String[0]);
 		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
@@ -2695,30 +2899,35 @@ public void testBug400905_0012() throws CoreException {
 		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"	static void foo() {}\n" +
-			"	I i = () -> {};\n" +
-			"	I i2 = new I() {\n" +
-			"		public void doit() {\n" +
-			"			\n" +
-			"		}\n" +
-			"	};\n" +
-			"}\n" +
-			" class Y {}\n"
+			"""
+				public class X {
+					static void foo() {}
+					I i = () -> {};
+					I i2 = new I() {
+						public void doit() {
+						\t
+						}
+					};
+				}
+				 class Y {}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public void doit();\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public void doit();
+				}
+				"""
 		);
 
 		IType type = getCompilationUnit("/P/src/I.java").getType("I");
 		IMethod method = type.getMethod("doit", new String[0]);
 		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
-		assertSearchResults("src/I.java void I.doit() [doit] EXACT_MATCH\n" +
-				"src/X.java void X.i:<lambda #1>.doit() [() ->] EXACT_MATCH\n" +
-				"src/X.java void X.i2:<anonymous>#1.doit() [doit] EXACT_MATCH");
+		assertSearchResults("""
+			src/I.java void I.doit() [doit] EXACT_MATCH
+			src/X.java void X.i:<lambda #1>.doit() [() ->] EXACT_MATCH
+			src/X.java void X.i2:<anonymous>#1.doit() [doit] EXACT_MATCH""");
 	}
 	finally {
 		deleteProject("P");
@@ -2729,31 +2938,36 @@ public void testBug400905_0013() throws CoreException {
 		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   void zoo() {\n" +
-			"	    I i = () -> 0;\n" +
-			"	    I i2 = new I() {\n" +
-			"		    public int doit() {\n" +
-			"			    return 0;\n" +
-			"		    }\n" +
-			"	    };\n" +
-			"   }\n" +
-			"}\n" +
-			" class Y {}\n"
+			"""
+				public class X {
+				   void zoo() {
+					    I i = () -> 0;
+					    I i2 = new I() {
+						    public int doit() {
+							    return 0;
+						    }
+					    };
+				   }
+				}
+				 class Y {}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public int doit();\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public int doit();
+				}
+				"""
 		);
 
 		IType type = getCompilationUnit("/P/src/I.java").getType("I");
 		IMethod method = type.getMethod("doit", new String[0]);
 		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
-		assertSearchResults("src/I.java int I.doit() [doit] EXACT_MATCH\n" +
-				"src/X.java int void X.zoo():<lambda #1>.doit() [() ->] EXACT_MATCH\n" +
-				"src/X.java int void X.zoo():<anonymous>#1.doit() [doit] EXACT_MATCH");
+		assertSearchResults("""
+			src/I.java int I.doit() [doit] EXACT_MATCH
+			src/X.java int void X.zoo():<lambda #1>.doit() [() ->] EXACT_MATCH
+			src/X.java int void X.zoo():<anonymous>#1.doit() [doit] EXACT_MATCH""");
 	}
 	finally {
 		deleteProject("P");
@@ -2767,30 +2981,35 @@ public void testBug400905_0013a() throws CoreException {
 		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   void zoo() {\n" +
-			"	    I i = () /*1*/-> {\n" +
-			"                 I i2 = () /*2*/-> 10;\n" +
-			"                 return 0;\n" +
-			"       };\n" +
-			"   }\n" +
-			"}\n" +
-			" class Y {}\n"
+			"""
+				public class X {
+				   void zoo() {
+					    I i = () /*1*/-> {
+				                 I i2 = () /*2*/-> 10;
+				                 return 0;
+				       };
+				   }
+				}
+				 class Y {}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public int doit();\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public int doit();
+				}
+				"""
 		);
 
 		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IType type = getCompilationUnit("/P/src/I.java").getType("I");
 		IMethod method = type.getMethod("doit", new String[0]);
 		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
-		assertSearchResults("src/I.java int I.doit() [doit] EXACT_MATCH\n" +
-				"src/X.java int void X.zoo():<lambda #1>.doit() [() /*1*/->] EXACT_MATCH\n" +
-				"src/X.java int int void X.zoo():<lambda #1>.doit():<lambda #1>.doit() [() /*2*/->] EXACT_MATCH");
+		assertSearchResults("""
+			src/I.java int I.doit() [doit] EXACT_MATCH
+			src/X.java int void X.zoo():<lambda #1>.doit() [() /*1*/->] EXACT_MATCH
+			src/X.java int int void X.zoo():<lambda #1>.doit():<lambda #1>.doit() [() /*2*/->] EXACT_MATCH""");
 	}
 	finally {
 		deleteProject("P");
@@ -2803,21 +3022,25 @@ public void testBug400905_0013b() throws CoreException {
 		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   void zoo() {\n" +
-			"	    I i = (X x2) /*1*/-> {\n" +
-			"                 I i2 = (X x3) /*2*/-> 10;\n" +
-			"                 return 0;\n" +
-			"       };\n" +
-			"   }\n" +
-			"}\n" +
-			" class Y {}\n"
+			"""
+				public class X {
+				   void zoo() {
+					    I i = (X x2) /*1*/-> {
+				                 I i2 = (X x3) /*2*/-> 10;
+				                 return 0;
+				       };
+				   }
+				}
+				 class Y {}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public int doit(X x1);\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public int doit(X x1);
+				}
+				"""
 		);
 
 		IType type = getCompilationUnit("/P/src/X.java").getType("X");
@@ -2835,21 +3058,25 @@ public void testBug400905_0013c() throws CoreException {
 		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   void zoo() {\n" +
-			"	    I i = (X x2) /*1*/-> {\n" +
-			"                 I i2 = (X x3) /*2*/-> 10;\n" +
-			"                 return 0;\n" +
-			"       };\n" +
-			"   }\n" +
-			"}\n" +
-			" class Y {}\n"
+			"""
+				public class X {
+				   void zoo() {
+					    I i = (X x2) /*1*/-> {
+				                 I i2 = (X x3) /*2*/-> 10;
+				                 return 0;
+				       };
+				   }
+				}
+				 class Y {}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public int doit(X x1);\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public int doit(X x1);
+				}
+				"""
 		);
 
 		IType type = getCompilationUnit("/P/src/X.java").getType("X");
@@ -2867,28 +3094,33 @@ public void testBug400905_0013d() throws CoreException {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   void zoo() {\n" +
-			"	    I i = (X x2) /*1*/-> {\n" +
-			"                 I i2 = (X x3) /*2*/-> 10;\n" +
-			"                 return 0;\n" +
-			"       };\n" +
-			"   }\n" +
-			"}\n" +
-			" class Y {}\n"
+			"""
+				public class X {
+				   void zoo() {
+					    I i = (X x2) /*1*/-> {
+				                 I i2 = (X x3) /*2*/-> 10;
+				                 return 0;
+				       };
+				   }
+				}
+				 class Y {}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public int doit(X x1);\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public int doit(X x1);
+				}
+				"""
 		);
 
 		IType type = getCompilationUnit("/P/src/X.java").getType("X");
 		search(type, REFERENCES, SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), this.resultCollector);
-		assertSearchResults("src/I.java int I.doit(X) [X] EXACT_MATCH\n" +
-				"src/X.java int int void X.zoo():<lambda #1>.doit(X):<lambda #1>.doit(X) [X] EXACT_MATCH\n" +
-				"src/X.java int void X.zoo():<lambda #1>.doit(X) [X] EXACT_MATCH");
+		assertSearchResults("""
+			src/I.java int I.doit(X) [X] EXACT_MATCH
+			src/X.java int int void X.zoo():<lambda #1>.doit(X):<lambda #1>.doit(X) [X] EXACT_MATCH
+			src/X.java int void X.zoo():<lambda #1>.doit(X) [X] EXACT_MATCH""");
 	}
 	finally {
 		deleteProject("P");
@@ -2900,32 +3132,37 @@ public void testBug400905_0013e() throws CoreException {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   void zoo() {\n" +
-			"	    I i = (X x2) /*1*/-> {\n" +
-			"                 I i2 = (X x3) /*2*/-> 10;\n" +
-			"                 class Q {\n" +
-			"                     X x;\n" +
-			"                 }\n" +
-			"                 return 0;\n" +
-			"       };\n" +
-			"   }\n" +
-			"}\n" +
-			" class Y {}\n"
+			"""
+				public class X {
+				   void zoo() {
+					    I i = (X x2) /*1*/-> {
+				                 I i2 = (X x3) /*2*/-> 10;
+				                 class Q {
+				                     X x;
+				                 }
+				                 return 0;
+				       };
+				   }
+				}
+				 class Y {}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public int doit(X x1);\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public int doit(X x1);
+				}
+				"""
 		);
 
 		IType type = getCompilationUnit("/P/src/X.java").getType("X");
 		search(type, REFERENCES, SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), this.resultCollector);
-		assertSearchResults("src/I.java int I.doit(X) [X] EXACT_MATCH\n" +
-				"src/X.java int int void X.zoo():<lambda #1>.doit(X):<lambda #1>.doit(X) [X] EXACT_MATCH\n" +
-				"src/X.java int void X.zoo():<lambda #1>.doit(X):Q#1.x [X] EXACT_MATCH\n" +
-				"src/X.java int void X.zoo():<lambda #1>.doit(X) [X] EXACT_MATCH");
+		assertSearchResults("""
+			src/I.java int I.doit(X) [X] EXACT_MATCH
+			src/X.java int int void X.zoo():<lambda #1>.doit(X):<lambda #1>.doit(X) [X] EXACT_MATCH
+			src/X.java int void X.zoo():<lambda #1>.doit(X):Q#1.x [X] EXACT_MATCH
+			src/X.java int void X.zoo():<lambda #1>.doit(X) [X] EXACT_MATCH""");
 	}
 	finally {
 		deleteProject("P");
@@ -2937,34 +3174,39 @@ public void testBug400905_0013f() throws CoreException {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   void zoo() {\n" +
-			"	    I i = (X x2) /*1*/-> {\n" +
-			"                 X x2;\n" +
-			"                 I i2 = (X x3) /*2*/-> 10;\n" +
-			"                 class Q {\n" +
-			"                     X x;\n" +
-			"                 }\n" +
-			"                 return 0;\n" +
-			"       };\n" +
-			"   }\n" +
-			"}\n" +
-			" class Y {}\n"
+			"""
+				public class X {
+				   void zoo() {
+					    I i = (X x2) /*1*/-> {
+				                 X x2;
+				                 I i2 = (X x3) /*2*/-> 10;
+				                 class Q {
+				                     X x;
+				                 }
+				                 return 0;
+				       };
+				   }
+				}
+				 class Y {}
+				"""
 		);
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public int doit(X x1);\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public int doit(X x1);
+				}
+				"""
 		);
 
 		IType type = getCompilationUnit("/P/src/X.java").getType("X");
 		search(type, REFERENCES, SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), this.resultCollector);
-		assertSearchResults("src/I.java int I.doit(X) [X] EXACT_MATCH\n" +
-				"src/X.java int int void X.zoo():<lambda #1>.doit(X):<lambda #1>.doit(X) [X] EXACT_MATCH\n" +
-				"src/X.java int void X.zoo():<lambda #1>.doit(X):Q#1.x [X] EXACT_MATCH\n" +
-				"src/X.java int void X.zoo():<lambda #1>.doit(X) [X] EXACT_MATCH\n" +
-				"src/X.java int void X.zoo():<lambda #1>.doit(X) [X] EXACT_MATCH");
+		assertSearchResults("""
+			src/I.java int I.doit(X) [X] EXACT_MATCH
+			src/X.java int int void X.zoo():<lambda #1>.doit(X):<lambda #1>.doit(X) [X] EXACT_MATCH
+			src/X.java int void X.zoo():<lambda #1>.doit(X):Q#1.x [X] EXACT_MATCH
+			src/X.java int void X.zoo():<lambda #1>.doit(X) [X] EXACT_MATCH
+			src/X.java int void X.zoo():<lambda #1>.doit(X) [X] EXACT_MATCH""");
 	}
 	finally {
 		deleteProject("P");
@@ -2977,22 +3219,28 @@ public void testBug400905_0014() throws CoreException {
 		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   void zoo() {\n" +
-			"	    Y.goo((x) -> -x);\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				public class X {
+				   void zoo() {
+					    Y.goo((x) -> -x);
+				   }
+				}
+				""");
 		createFile(
 				"/P/src/Y.java",
-				"public class Y {\n" +
-				"   static void goo(I i) {}\n" +
-				"}\n");
+				"""
+					public class Y {
+					   static void goo(I i) {}
+					}
+					""");
 
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public int doit(int x);\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public int doit(int x);
+				}
+				"""
 		);
 		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IType type = getCompilationUnit("/P/src/I.java").getType("I");
@@ -3011,28 +3259,36 @@ public void testBug400905_0015() throws CoreException {
 		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   void zoo() {\n" +
-			"	    Y.goo((x) -> -x);\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				public class X {
+				   void zoo() {
+					    Y.goo((x) -> -x);
+				   }
+				}
+				""");
 		createFile(
 				"/P/src/Y.java",
-				"public class Y {\n" +
-				"   static void goo(J j) {}\n" +
-				"}\n");
+				"""
+					public class Y {
+					   static void goo(J j) {}
+					}
+					""");
 
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public int doit(int x);\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public int doit(int x);
+				}
+				"""
 		);
 		createFile(
 				"/P/src/J.java",
-				"public interface J {\n" +
-				"    public int doit(int x);\n" +
-				"}\n"
+				"""
+					public interface J {
+					    public int doit(int x);
+					}
+					"""
 			);
 
 		IType type = getCompilationUnit("/P/src/I.java").getType("I");
@@ -3051,30 +3307,38 @@ public void testBug400905_0016() throws CoreException {
 		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   void zoo() {\n" +
-			"	    Y.goo((x) -> -x);\n" +
-			"	    Y.zoo((x) -> -x);\n" +
-			"   }\n" +
-			"}\n");
+			"""
+				public class X {
+				   void zoo() {
+					    Y.goo((x) -> -x);
+					    Y.zoo((x) -> -x);
+				   }
+				}
+				""");
 		createFile(
 				"/P/src/Y.java",
-				"public class Y {\n" +
-				"   static void goo(J j) {}\n" +
-				"   static void zoo(I i) {}\n" +
-				"}\n");
+				"""
+					public class Y {
+					   static void goo(J j) {}
+					   static void zoo(I i) {}
+					}
+					""");
 
 		createFile(
 			"/P/src/I.java",
-			"public interface I {\n" +
-			"    public int doit(int x);\n" +
-			"}\n"
+			"""
+				public interface I {
+				    public int doit(int x);
+				}
+				"""
 		);
 		createFile(
 				"/P/src/J.java",
-				"public interface J {\n" +
-				"    public int doit(int x);\n" +
-				"}\n"
+				"""
+					public interface J {
+					    public int doit(int x);
+					}
+					"""
 			);
 		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IType type = getCompilationUnit("/P/src/I.java").getType("I");
@@ -3093,18 +3357,22 @@ public void testBug400905_0017() throws CoreException {
 		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/Function.java",
-			"@FunctionalInterface\n" +
-			"public interface Function<T, R> {\n" +
-			"    R apply(T t);\n" +
-			"}\n");
+			"""
+				@FunctionalInterface
+				public interface Function<T, R> {
+				    R apply(T t);
+				}
+				""");
 		createFile(
 				"/P/src/Y.java",
-				"public final class Collectors {\n" +
-				" @SuppressWarnings(\"unchecked\")\n" +
-				"    private static <I, R> Function<I, R> castingIdentity() {\n" +
-				"        return i -> (R) i;\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					public final class Collectors {
+					 @SuppressWarnings("unchecked")
+					    private static <I, R> Function<I, R> castingIdentity() {
+					        return i -> (R) i;
+					    }
+					}
+					""");
 
 		IType type = getCompilationUnit("/P/src/Function.java").getType("Function");
 		IMethod method = type.getMethods()[0];
@@ -3121,18 +3389,22 @@ public void testBug400905_0018() throws CoreException {
 		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/Function.java",
-			"@FunctionalInterface\n" +
-			"public interface Function<T, R> {\n" +
-			"    R apply(T t);\n" +
-			"}\n");
+			"""
+				@FunctionalInterface
+				public interface Function<T, R> {
+				    R apply(T t);
+				}
+				""");
 		createFile(
 				"/P/src/Y.java",
-				"public final class Collectors {\n" +
-				" @SuppressWarnings(\"unchecked\")\n" +
-				"    private static <I, R> Function<String, String> castingIdentity() {\n" +
-				"        return i -> (R) i;\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					public final class Collectors {
+					 @SuppressWarnings("unchecked")
+					    private static <I, R> Function<String, String> castingIdentity() {
+					        return i -> (R) i;
+					    }
+					}
+					""");
 
 		IType type = getCompilationUnit("/P/src/Function.java").getType("Function");
 		IMethod method = type.getMethods()[0];
@@ -3148,18 +3420,22 @@ public void testBug400905_0018() throws CoreException {
 public void testBug400905_0019() throws CoreException { // bad package + bad cast - make sure there is no NPE.
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/Function.java",
-			"@FunctionalInterface\n" +
-			"public interface Function<T, R> {\n" +
-			"    R apply(T t);\n" +
-			"}\n"
+			"""
+				@FunctionalInterface
+				public interface Function<T, R> {
+				    R apply(T t);
+				}
+				"""
 	);
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b400905/Collectors.java",
-			"public final class Collectors {\n" +
-			" @SuppressWarnings(\"unchecked\")\n" +
-			"    private static <I, R> Function<String, String> castingIdentity() {\n" +
-			"        return i -> (R) i;\n" +
-			"    }\n" +
-			"}\n") ;
+			"""
+				public final class Collectors {
+				 @SuppressWarnings("unchecked")
+				    private static <I, R> Function<String, String> castingIdentity() {
+				        return i -> (R) i;
+				    }
+				}
+				""") ;
 	IType type = this.workingCopies[0].getType("Function");
 	IMethod method = type.getMethods()[0];
 	search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
@@ -3169,17 +3445,21 @@ public void testBug400905_0019() throws CoreException { // bad package + bad cas
 public void testBug400905_0020() throws CoreException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Function.java",
-			"@FunctionalInterface\n" +
-			"public interface Function<T, R> {\n" +
-			"    R apply(T t);\n" +
-			"}\n"
+			"""
+				@FunctionalInterface
+				public interface Function<T, R> {
+				    R apply(T t);
+				}
+				"""
 	);
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/Collectors.java",
-			"public final class Collectors {\n" +
-			"    private static <I, R> Function<I, R> castingIdentity() {\n" +
-			"        return i -> (R) i;\n" +
-			"    }\n" +
-			"}\n") ;
+			"""
+				public final class Collectors {
+				    private static <I, R> Function<I, R> castingIdentity() {
+				        return i -> (R) i;
+				    }
+				}
+				""") ;
 	IType type = this.workingCopies[0].getType("Function");
 	IMethod method = type.getMethods()[0];
 	search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
@@ -3189,18 +3469,22 @@ public void testBug400905_0020() throws CoreException {
 public void testBug400905_0021() throws CoreException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p400905/Function.java",
-			"package p400905;\n" +
-			"public interface Function<T, R> {\n" +
-			"    R apply(T t);\n" +
-			"}\n"
+			"""
+				package p400905;
+				public interface Function<T, R> {
+				    R apply(T t);
+				}
+				"""
 	);
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p400905/Collectors.java",
-			"package p400905;\n" +
-			"public final class Collectors {\n" +
-			"    private static <I, R> Function<I, R> castingIdentity() {\n" +
-			"        return i -> (R) i;\n" +
-			"    }\n" +
-			"}\n") ;
+			"""
+				package p400905;
+				public final class Collectors {
+				    private static <I, R> Function<I, R> castingIdentity() {
+				        return i -> (R) i;
+				    }
+				}
+				""") ;
 
 	IPath path = new Path("/JavaSearchBugs/src/p400905");
 	try {
@@ -3221,17 +3505,19 @@ public void testBug400905_0021() throws CoreException {
 public void testBug400905_0022() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-			"interface FunctionalInterface {\n" +
-			"	int thrice(int x);\n" +
-			"}\n" +
-			"interface J {\n" +
-			"	int twice(int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	FunctionalInterface i = (x) -> {return x * 3;}; \n" +
-			"	X x = null;\n" +
-			"	static void goo(FunctionalInterface i) {} \n" +
-			"} \n"
+			"""
+				interface FunctionalInterface {
+					int thrice(int x);
+				}
+				interface J {
+					int twice(int x);
+				}
+				public class X {
+					FunctionalInterface i = (x) -> {return x * 3;};\s
+					X x = null;
+					static void goo(FunctionalInterface i) {}\s
+				}\s
+				"""
 	);
 	search("thrice", METHOD, DECLARATIONS, ERASURE_RULE, getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
@@ -3242,52 +3528,57 @@ public void testBug400905_0022() throws CoreException {
 public void testBug400905_0023() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-			"interface I { \n" +
-			"	int thrice(int x);\n" +
-			"}\n" +
-			"interface J {\n" +
-			"	int twice(int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	I i = (x) /* field */ -> {return x * 3;}; \n" +
-			"	X x = null;\n" +
-			"	static void goo(I i) {} \n" +
-			"	public static void main(String[] args) { \n" +
-			"			goo((x) /*call*/ -> { \n" +
-			"				int y = 3;\n" +
-			"				return x * y; \n" +
-			"			});\n" +
-			"		I i2 = (x) /* local */ -> {\n" +
-			"			int y = 3; \n" +
-			"			return x * y;\n" +
-			"		};\n" +
-			"		J j1 = (x) -> { \n" +
-			"			int y = 2;  \n" +
-			"			return x * y;\n" +
-			"		};  \n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {\s
+					int thrice(int x);
+				}
+				interface J {
+					int twice(int x);
+				}
+				public class X {
+					I i = (x) /* field */ -> {return x * 3;};\s
+					X x = null;
+					static void goo(I i) {}\s
+					public static void main(String[] args) {\s
+							goo((x) /*call*/ -> {\s
+								int y = 3;
+								return x * y;\s
+							});
+						I i2 = (x) /* local */ -> {
+							int y = 3;\s
+							return x * y;
+						};
+						J j1 = (x) -> {\s
+							int y = 2; \s
+							return x * y;
+						}; \s
+					}
+				}
+				"""
 	);
 	search("thrice", METHOD, DECLARATIONS, ERASURE_RULE, getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
-					"src/test/Test.java int test.I.thrice(int) [thrice] EXACT_MATCH\n" +
-					"src/test/Test.java int test.X.i:<lambda #1>.thrice(int) [(x) /* field */ ->] EXACT_MATCH\n" +
-					"src/test/Test.java int void test.X.main(String[]):<lambda #1>.thrice(int) [(x) /*call*/ ->] EXACT_MATCH\n" +
-					"src/test/Test.java int void test.X.main(String[]):<lambda #1>.thrice(int) [(x) /* local */ ->] EXACT_MATCH"
+					"""
+						src/test/Test.java int test.I.thrice(int) [thrice] EXACT_MATCH
+						src/test/Test.java int test.X.i:<lambda #1>.thrice(int) [(x) /* field */ ->] EXACT_MATCH
+						src/test/Test.java int void test.X.main(String[]):<lambda #1>.thrice(int) [(x) /*call*/ ->] EXACT_MATCH
+						src/test/Test.java int void test.X.main(String[]):<lambda #1>.thrice(int) [(x) /* local */ ->] EXACT_MATCH"""
 	);
 }
 public void testBug400905_0024() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-			"interface I { \n" +
-			"	int thrice(int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	static int goo(int x) { return 3 * x; } \n" +
-			"	public static void main(String[] args) { \n" +
-			"		I i = X::goo;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {\s
+					int thrice(int x);
+				}
+				public class X {
+					static int goo(int x) { return 3 * x; }\s
+					public static void main(String[] args) {\s
+						I i = X::goo;
+					}
+				}
+				"""
 	);
 
 	search(this.workingCopies[0].getType("X").getMethod("goo", new String[] { "I" }), THIS_REFERENCE);
@@ -3296,18 +3587,20 @@ public void testBug400905_0024() throws CoreException {
 public void testBug400905_0025() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-			"interface I { \n" +
-			"	int thrice(int p);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	int goo(int x) { return 3 * x; } \n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public void main(String[] args) { \n" +
-			"		I i = this::goo;\n" +
-			"       i = super::goo;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {\s
+					int thrice(int p);
+				}
+				class Y {
+					int goo(int x) { return 3 * x; }\s
+				}
+				public class X extends Y {
+					public void main(String[] args) {\s
+						I i = this::goo;
+				       i = super::goo;
+					}
+				}
+				"""
 	);
 
 	search(this.workingCopies[0].getType("Y").getMethod("goo", new String[] { "I" }), THIS_REFERENCE);
@@ -3316,18 +3609,20 @@ public void testBug400905_0025() throws CoreException {
 public void testBug400905_0026() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-			"interface I { \n" +
-			"	int thrice(int p);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	int goo(int x) { return 3 * x; } \n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public void main(String[] args) { \n" +
-			"		I i = this::goo;\n" +
-			"       i = super::goo;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {\s
+					int thrice(int p);
+				}
+				class Y {
+					int goo(int x) { return 3 * x; }\s
+				}
+				public class X extends Y {
+					public void main(String[] args) {\s
+						I i = this::goo;
+				       i = super::goo;
+					}
+				}
+				"""
 	);
 
 	search(this.workingCopies[0].getType("Y").getMethod("goo", new String[] { "I" }), SUPER_REFERENCE);
@@ -3336,18 +3631,20 @@ public void testBug400905_0026() throws CoreException {
 public void testBug400905_0027() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-			"interface I { \n" +
-			"	int thrice(int p);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	int goo(int x) { return 3 * x; } \n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public void main(String[] args) { \n" +
-			"		I i = this::goo;\n" +
-			"       i = super::goo;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {\s
+					int thrice(int p);
+				}
+				class Y {
+					int goo(int x) { return 3 * x; }\s
+				}
+				public class X extends Y {
+					public void main(String[] args) {\s
+						I i = this::goo;
+				       i = super::goo;
+					}
+				}
+				"""
 	);
 
 	search(this.workingCopies[0].getType("Y").getMethod("goo", new String[] { "I" }), QUALIFIED_REFERENCE);
@@ -3356,20 +3653,22 @@ public void testBug400905_0027() throws CoreException {
 public void testBug400905_0028() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-			"interface I { \n" +
-			"	int thrice(int p);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	static class Z {\n" +
-			"		static int goo(int x) { return 3 * x; }   \n" +
-			"		I i = Z::goo;\n" +
-			"   }\n" +
-			"}\n" +
-			"public class X extends Y.Z {\n" +
-			"	public void main(String[] args) { \n" +
-			"		I i = Y.Z::goo;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {\s
+					int thrice(int p);
+				}
+				class Y {
+					static class Z {
+						static int goo(int x) { return 3 * x; }  \s
+						I i = Z::goo;
+				   }
+				}
+				public class X extends Y.Z {
+					public void main(String[] args) {\s
+						I i = Y.Z::goo;
+					}
+				}
+				"""
 	);
 
 	search(this.workingCopies[0].getType("Y").getType("Z").getMethod("goo", new String[] { "I" }), THIS_REFERENCE | SUPER_REFERENCE | QUALIFIED_REFERENCE);
@@ -3378,20 +3677,22 @@ public void testBug400905_0028() throws CoreException {
 public void testBug400905_0029() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-			"interface I { \n" +
-			"	int thrice(int p);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	static class Z {\n" +
-			"		static int goo(int x) { return 3 * x; }   \n" +
-			"		I i = Z::goo;\n" +
-			"   }\n" +
-			"}\n" +
-			"public class X extends Y.Z {\n" +
-			"	public void main(String[] args) { \n" +
-			"		I i = Y.Z::goo;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {\s
+					int thrice(int p);
+				}
+				class Y {
+					static class Z {
+						static int goo(int x) { return 3 * x; }  \s
+						I i = Z::goo;
+				   }
+				}
+				public class X extends Y.Z {
+					public void main(String[] args) {\s
+						I i = Y.Z::goo;
+					}
+				}
+				"""
 	);
 
 	search(this.workingCopies[0].getType("Y").getType("Z").getMethod("goo", new String[] { "I" }), REFERENCES, EXACT_RULE);
@@ -3401,20 +3702,22 @@ public void testBug400905_0029() throws CoreException {
 public void testBug400905_0030() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-			"interface I { \n" +
-			"	int thrice(int p);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	static class Z {\n" +
-			"		static int goo(int x) { return 3 * x; }   \n" +
-			"		I i = Z::goo;\n" +
-			"   }\n" +
-			"}\n" +
-			"public class X extends Y.Z {\n" +
-			"	public void main(String[] args) { \n" +
-			"		I i = Y.Z::goo;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {\s
+					int thrice(int p);
+				}
+				class Y {
+					static class Z {
+						static int goo(int x) { return 3 * x; }  \s
+						I i = Z::goo;
+				   }
+				}
+				public class X extends Y.Z {
+					public void main(String[] args) {\s
+						I i = Y.Z::goo;
+					}
+				}
+				"""
 	);
 
 	search(this.workingCopies[0].getType("Y").getType("Z").getMethod("goo", new String[] { "I" }), IMPLICIT_THIS_REFERENCE);
@@ -3424,15 +3727,17 @@ public void testBug400905_0030() throws CoreException {
 public void test429738() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/X.java",
-			"@FunctionalInterface\n" +
-			"interface Foo {\n" +
-			"	int foo(int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	// Select 'x' in lambda body and press Ctrl+G.\n" +
-			"	Foo f1= x -> /* here*/ x; //[1]\n" +
-			"	Foo f2= (int x) -> x; //[2]\n" +
-			"}\n"
+			"""
+				@FunctionalInterface
+				interface Foo {
+					int foo(int x);
+				}
+				public class X {
+					// Select 'x' in lambda body and press Ctrl+G.
+					Foo f1= x -> /* here*/ x; //[1]
+					Foo f2= (int x) -> x; //[2]
+				}
+				"""
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -3450,15 +3755,17 @@ public void test429738() throws CoreException {
 public void test429738a() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/X.java",
-			"@FunctionalInterface\n" +
-			"interface Foo {\n" +
-			"	int foo(int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	// Select 'x' in lambda body and press Ctrl+G.\n" +
-			"	Foo f1= x ->  x; //[1]\n" +
-			"	Foo f2= (int x) -> /* here*/ x; //[2]\n" +
-			"}\n"
+			"""
+				@FunctionalInterface
+				interface Foo {
+					int foo(int x);
+				}
+				public class X {
+					// Select 'x' in lambda body and press Ctrl+G.
+					Foo f1= x ->  x; //[1]
+					Foo f2= (int x) -> /* here*/ x; //[2]
+				}
+				"""
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -3475,42 +3782,47 @@ public void test429738a() throws CoreException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429836, [1.8][search] Search implementors in workspace does not show lambda expressions.
 public void testBug429836() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
-	String buffer =	"@FunctionalInterface\n" +
-			"interface I {\n" +
-			"	int foo(int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	I f1= x ->  x;\n" +
-			"	I f2= (int x) -> x; //[2]\n" +
-			"	public static void main(String[] args) {\n" +
-			"		I f1= x -> x;\n" +
-			"		I f2= (int x) -> x;\n" +
-			"	}\n" +
-			"}\n";
+	String buffer =	"""
+		@FunctionalInterface
+		interface I {
+			int foo(int x);
+		}
+		public class X {
+			I f1= x ->  x;
+			I f2= (int x) -> x; //[2]
+			public static void main(String[] args) {
+				I f1= x -> x;
+				I f2= (int x) -> x;
+			}
+		}
+		""";
 
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429836/X.java", buffer);
 	IType type = this.workingCopies[0].getType("I");
 	search(type, IMPLEMENTORS);
 	assertSearchResults(
-		"src/b429836/X.java int b429836.X.f1:<lambda #1>.foo(int) [x ->] EXACT_MATCH\n" +
-		"src/b429836/X.java int b429836.X.f2:<lambda #1>.foo(int) [(int x) ->] EXACT_MATCH\n"+
-		"src/b429836/X.java int void b429836.X.main(String[]):<lambda #1>.foo(int) [x ->] EXACT_MATCH\n"+
-		"src/b429836/X.java int void b429836.X.main(String[]):<lambda #1>.foo(int) [(int x) ->] EXACT_MATCH"
+		"""
+			src/b429836/X.java int b429836.X.f1:<lambda #1>.foo(int) [x ->] EXACT_MATCH
+			src/b429836/X.java int b429836.X.f2:<lambda #1>.foo(int) [(int x) ->] EXACT_MATCH
+			src/b429836/X.java int void b429836.X.main(String[]):<lambda #1>.foo(int) [x ->] EXACT_MATCH
+			src/b429836/X.java int void b429836.X.main(String[]):<lambda #1>.foo(int) [(int x) ->] EXACT_MATCH"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429934, [1.8][search] for references to type of lambda with 'this' parameter throws AIIOBE
 public void test429934() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/X.java",
-			"interface Function<T, R> {\n" +
-			"    R apply(T t);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Function<String, String> f1= (String s, Function this) -> s;\n" +
-			"		Function<String, String> f2= (Function this, String s) -> s;\n" +
-			"	} \n" +
-			"}\n"
+			"""
+				interface Function<T, R> {
+				    R apply(T t);
+				}
+				public class X {
+					public static void main(String[] args) {
+						Function<String, String> f1= (String s, Function this) -> s;
+						Function<String, String> f2= (Function this, String s) -> s;
+					}\s
+				}
+				"""
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -3522,21 +3834,24 @@ public void test429934() throws CoreException {
 	IType type = (IType) elements[0];
 	search(type, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-					"src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH\n" +
-					"src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH\n" +
-					"src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH\n" +
-					"src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH");
+					"""
+						src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH
+						src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH
+						src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH
+						src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430159, [1.8][search] Lambda Expression not found when searching using OrPattern or AndPattern
 public void test430159a() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429498/X.java",
-			"interface I {\n" +
-			"    public void doit(int xyz);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	I i = (int xyz) -> {};\n" +
-			"}\n"
+			"""
+				interface I {
+				    public void doit(int xyz);
+				}
+				public class X {
+					I i = (int xyz) -> {};
+				}
+				"""
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -3569,12 +3884,14 @@ public void test430159a() throws CoreException {
 public void test430159b() throws CoreException {	// this test basically checks that and pattern locator does not a lambda from being found.
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429498/X.java",
-			"interface I {\n" +
-			"    public void doit();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	I i = () -> {};\n" +
-			"}\n"
+			"""
+				interface I {
+				    public void doit();
+				}
+				public class X {
+					I i = () -> {};
+				}
+				"""
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -3607,14 +3924,16 @@ public void test430159b() throws CoreException {	// this test basically checks t
 public void test430159c() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429498/X.java",
-			"interface I {\n" +
-			"	public void doit();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"   static void foo() {}\n" +
-			"   static void foo(int i) {}\n" +
-			"	I i = X :: foo;\n" +
-			"}\n"
+			"""
+				interface I {
+					public void doit();
+				}
+				public class X {
+				   static void foo() {}
+				   static void foo(int i) {}
+					I i = X :: foo;
+				}
+				"""
 	);
 	String str = this.workingCopies[0].getSource();
 	String selection = "foo";
@@ -3638,23 +3957,26 @@ public void test430159c() throws CoreException {
 			this.resultCollector,
 			null);
 	assertSearchResults(
-		"src/b429498/X.java void b429498.I.doit() [doit] EXACT_MATCH\n" +
-		"src/b429498/X.java b429498.X.i [foo] EXACT_MATCH\n" +
-		"src/b429498/X.java void b429498.X.foo() [foo] EXACT_MATCH"
+		"""
+			src/b429498/X.java void b429498.I.doit() [doit] EXACT_MATCH
+			src/b429498/X.java b429498.X.i [foo] EXACT_MATCH
+			src/b429498/X.java void b429498.X.foo() [foo] EXACT_MATCH"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430159, [1.8][search] Lambda Expression not found when searching using OrPattern or AndPattern
 public void test430159d() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429498/X.java",
-			"interface I {\n" +
-			"	public void doit();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"   static void foo() {}\n" +
-			"   static void foo(int i) {}\n" +
-			"	I i = X :: foo;\n" +
-			"}\n"
+			"""
+				interface I {
+					public void doit();
+				}
+				public class X {
+				   static void foo() {}
+				   static void foo(int i) {}
+					I i = X :: foo;
+				}
+				"""
 	);
 	String str = this.workingCopies[0].getSource();
 	String selection = "foo";
@@ -3689,24 +4011,26 @@ public void test430159d() throws CoreException {
 public void testBug429012_0001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"    public static void main(String [] args) {\n" +
-			"		new X().doit();\n" +
-			"		new X().foo(0);\n" +
-			"    }\n" +
-			"    void doit() {\n" +
-			"        I i = super::foo;\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    public void foo(int x) {\n" +
-			"	System.out.println(x);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X extends Y {
+				    public static void main(String [] args) {
+						new X().doit();
+						new X().foo(0);
+				    }
+				    void doit() {
+				        I i = super::foo;
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				    public void foo(int x) {
+					System.out.println(x);
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -3725,24 +4049,26 @@ public void testBug429012_0001() throws CoreException {
 public void testBug429012_0002() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"    public static void main(String [] args) {\n" +
-			"		new X().doit();\n" +
-			"		new X().foo(0);\n" +
-			"    }\n" +
-			"    void doit() {\n" +
-			"        I i = super::<String>foo;\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    public void foo(int x) {\n" +
-			"	System.out.println(x);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X extends Y {
+				    public static void main(String [] args) {
+						new X().doit();
+						new X().foo(0);
+				    }
+				    void doit() {
+				        I i = super::<String>foo;
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				    public void foo(int x) {
+					System.out.println(x);
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -3761,25 +4087,27 @@ public void testBug429012_0002() throws CoreException {
 public void testBug429012_0003() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-			"	public void doit();\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	Y() {}\n" +
-			"	Y(int i) {}\n" +
-			"}\n" +
-			"\n" +
-			"public class X {\n" +
-			"    X(int i) {} \n" +
-			"   static void foo() {}\n" +
-			"   static void foo(int i) {}\n" +
-			"	I i = X :: foo;\n" +
-			"	I j = Y :: new;\n" +
-			"   public static void main() { \n" +
-			"     Y y = new Y(); \n" +
-			"     foo(); \n" +
-			"   }\n" +
-			"}\n"
+			"""
+				interface I {
+					public void doit();
+				}
+				class Y {
+					Y() {}
+					Y(int i) {}
+				}
+				
+				public class X {
+				    X(int i) {}\s
+				   static void foo() {}
+				   static void foo(int i) {}
+					I i = X :: foo;
+					I j = Y :: new;
+				   public static void main() {\s
+				     Y y = new Y();\s
+				     foo();\s
+				   }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("X");
 	IMethod method = type.getMethod("foo", null);
@@ -3798,21 +4126,23 @@ public void testBug429012_0003() throws CoreException {
 public void testBug429012_0004() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y::<String>foo;\n" +
-			"        new Y().foo(0);\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    public static void foo(int x) {\n" +
-			"	System.out.println(x);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = Y::<String>foo;
+				        new Y().foo(0);
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				    public static void foo(int x) {
+					System.out.println(x);
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -3831,23 +4161,25 @@ public void testBug429012_0004() throws CoreException {
 public void testBug429012_0005() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y.Z::foo;\n" +
-			"        Y.Z.foo(0);\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    static class Z {\n" +
-			"        public static void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = Y.Z::foo;
+				        Y.Z.foo(0);
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				    static class Z {
+				        public static void foo(int x) {
+					    System.out.println(x);
+				        }
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y").getType("Z");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -3866,23 +4198,25 @@ public void testBug429012_0005() throws CoreException {
 public void testBug429012_0006() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y.Z::<String>foo;\n" +
-			"        Y.Z.foo(0);\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"    static class Z {\n" +
-			"        public static void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = Y.Z::<String>foo;
+				        Y.Z.foo(0);
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				    static class Z {
+				        public static void foo(int x) {
+					    System.out.println(x);
+				        }
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y").getType("Z");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -3901,21 +4235,23 @@ public void testBug429012_0006() throws CoreException {
 public void testBug429012_0007() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = new Y()::foo;\n" +
-			"        new Y().foo(0);\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"        void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = new Y()::foo;
+				        new Y().foo(0);
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				        void foo(int x) {
+					    System.out.println(x);
+				        }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -3934,21 +4270,23 @@ public void testBug429012_0007() throws CoreException {
 public void testBug429012_0008() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-			"    void foo(int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = new Y()::<String>foo;\n" +
-			"        new Y().foo(0);\n" +
-			"        i.foo(10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"        void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"}\n"
+			"""
+				interface I {
+				    void foo(int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = new Y()::<String>foo;
+				        new Y().foo(0);
+				        i.foo(10);\s
+				    }
+				}
+				class Y {
+				        void foo(int x) {
+					    System.out.println(x);
+				        }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -3967,27 +4305,29 @@ public void testBug429012_0008() throws CoreException {
 public void testBug429012_0009() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-			"  void foo(Y<String> y, int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  public static void main(String[] args) {\n" +
-			"    I i = Y<String>::foo;\n" +
-			"    new Y<String>().foo(0);\n" +
-			"    i.foo(new Y<String>(), 10);\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"  Y() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  void foo(int x) {\n" +
-			"    System.out.println(x);\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				interface I {
+				  void foo(Y<String> y, int x);
+				}
+				public class X {
+				  public X() {
+				    super();
+				  }
+				  public static void main(String[] args) {
+				    I i = Y<String>::foo;
+				    new Y<String>().foo(0);
+				    i.foo(new Y<String>(), 10);
+				  }
+				}
+				class Y<T> {
+				  Y() {
+				    super();
+				  }
+				  void foo(int x) {
+				    System.out.println(x);
+				  }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -4007,27 +4347,29 @@ public void testBug429012_0009() throws CoreException {
 public void testBug429012_0010() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-			"  void foo(Y<String> y, int x);\n" +
-			"}\n" +
-			"public class X {\n" +
-			"  public X() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  public static void main(String[] args) {\n" +
-			"    I i = Y<String>::<String>foo;\n" +
-			"    new Y<String>().foo(0);\n" +
-			"    i.foo(new Y<String>(), 10);\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"  Y() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  void foo(int x) {\n" +
-			"    System.out.println(x);\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				interface I {
+				  void foo(Y<String> y, int x);
+				}
+				public class X {
+				  public X() {
+				    super();
+				  }
+				  public static void main(String[] args) {
+				    I i = Y<String>::<String>foo;
+				    new Y<String>().foo(0);
+				    i.foo(new Y<String>(), 10);
+				  }
+				}
+				class Y<T> {
+				  Y() {
+				    super();
+				  }
+				  void foo(int x) {
+				    System.out.println(x);
+				  }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"I"});
@@ -4046,25 +4388,27 @@ public void testBug429012_0010() throws CoreException {
 public void testBug429012_0011() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-				"    void foo(Y<String>.Z z, int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"    public static void main(String [] args) {\n" +
-			"        new Y<String>().new Z().foo(0);\n" +
-			"        I i = Y<String>.Z::foo;\n" +
-			"        i.foo(new Y<String>().new Z(), 10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"    class Z {\n" +
-			"        void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n" +
-			"\n"
+			"""
+				interface I {
+				    void foo(Y<String>.Z z, int x);
+				}
+				public class X  {
+					@SuppressWarnings("unused")
+				    public static void main(String [] args) {
+				        new Y<String>().new Z().foo(0);
+				        I i = Y<String>.Z::foo;
+				        i.foo(new Y<String>().new Z(), 10);\s
+				    }
+				}
+				class Y<T> {
+				    class Z {
+				        void foo(int x) {
+					    System.out.println(x);
+				        }
+				    }
+				}
+				
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	type = type.getType("Z");
@@ -4084,25 +4428,27 @@ public void testBug429012_0011() throws CoreException {
 public void testBug429012_0012() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-				"    void foo(Y<String>.Z z, int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y<String>.Z::<String>foo;\n" +
-			"        new Y<String>().new Z().foo(0);\n" +
-			"        i.foo(new Y<String>().new Z(), 10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"    class Z {\n" +
-			"        void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n" +
-			"\n"
+			"""
+				interface I {
+				    void foo(Y<String>.Z z, int x);
+				}
+				public class X  {
+					@SuppressWarnings("unused")
+				    public static void main(String [] args) {
+				        I i = Y<String>.Z::<String>foo;
+				        new Y<String>().new Z().foo(0);
+				        i.foo(new Y<String>().new Z(), 10);\s
+				    }
+				}
+				class Y<T> {
+				    class Z {
+				        void foo(int x) {
+					    System.out.println(x);
+				        }
+				    }
+				}
+				
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	type = type.getType("Z");
@@ -4122,24 +4468,26 @@ public void testBug429012_0012() throws CoreException {
 public void testBug429012_0013() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-				"    void foo(Y<String>.Z<String> z, int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y<String>.Z<String>::foo;\n" +
-			"        new Y<String>().new Z<String>().foo(0);\n" +
-			"        i.foo(new Y<String>().new Z<String>(), 10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"    class Z<K> {\n" +
-			"        void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n" +
-			"\n"
+			"""
+				interface I {
+				    void foo(Y<String>.Z<String> z, int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = Y<String>.Z<String>::foo;
+				        new Y<String>().new Z<String>().foo(0);
+				        i.foo(new Y<String>().new Z<String>(), 10);\s
+				    }
+				}
+				class Y<T> {
+				    class Z<K> {
+				        void foo(int x) {
+					    System.out.println(x);
+				        }
+				    }
+				}
+				
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	type = type.getType("Z");
@@ -4159,24 +4507,26 @@ public void testBug429012_0013() throws CoreException {
 public void testBug429012_0014() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-				"    void foo(Y<String>.Z<String> z, int x);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y<String>.Z<String>::<String>foo;\n" +
-			"        new Y<String>().new Z<String>().foo(0);\n" +
-			"        i.foo(new Y<String>().new Z<String>(), 10); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"    class Z<K> {\n" +
-			"        void foo(int x) {\n" +
-			"	    System.out.println(x);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n" +
-			"\n"
+			"""
+				interface I {
+				    void foo(Y<String>.Z<String> z, int x);
+				}
+				public class X  {
+				    public static void main(String [] args) {
+				        I i = Y<String>.Z<String>::<String>foo;
+				        new Y<String>().new Z<String>().foo(0);
+				        i.foo(new Y<String>().new Z<String>(), 10);\s
+				    }
+				}
+				class Y<T> {
+				    class Z<K> {
+				        void foo(int x) {
+					    System.out.println(x);
+				        }
+				    }
+				}
+				
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	type = type.getType("Z");
@@ -4196,23 +4546,25 @@ public void testBug429012_0014() throws CoreException {
 public void testBug429012_0015() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I<T> {\n"+
-			"    T get();\n"+
-			"}\n"+
-			"/**\n"+
-			" * @see Y#Y()\n"+
-			" */\n"+
-			"public class X  {\n"+
-			"    public static void main(String [] args) {\n"+
-			"        I<Y<String>> s = Y<String>::<Integer>new;\n"+
-			"        s.get().equals(new Y<String>()); \n"+
-			"    }\n"+
-			"}\n"+
-			"class Y<E> {\n"+
-			"    <T> Y() {\n"+
-			"        System.out.println(\"Y<E>::<T>new\");\n"+
-			"    }\n"+
-			"}\n"
+			"""
+				interface I<T> {
+				    T get();
+				}
+				/**
+				 * @see Y#Y()
+				 */
+				public class X  {
+				    public static void main(String [] args) {
+				        I<Y<String>> s = Y<String>::<Integer>new;
+				        s.get().equals(new Y<String>());\s
+				    }
+				}
+				class Y<E> {
+				    <T> Y() {
+				        System.out.println("Y<E>::<T>new");
+				    }
+				}
+				"""
 	);
 	IType type = this.workingCopies[0].getType("Y");
 	IMethod method = type.getMethod("Y", new String[] {});
@@ -4224,15 +4576,17 @@ public void testBug429012_0015() throws CoreException {
 public void testBug429012_0016() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429498/X.java",
-			"interface I {\n" +
-			"	public void doit();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"   static void foo() {}\n" +
-			"   static void foo(int i) {}\n" +
-			"	I i = X :: foo;\n" +
-			"   static void bar() {foo();}\n" +
-			"}\n"
+			"""
+				interface I {
+					public void doit();
+				}
+				public class X {
+				   static void foo() {}
+				   static void foo(int i) {}
+					I i = X :: foo;
+				   static void bar() {foo();}
+				}
+				"""
 	);
 	String str = this.workingCopies[0].getSource();
 	String selection = "foo";
@@ -4255,19 +4609,21 @@ public void testBug429012_0016() throws CoreException {
 public void testBug429012_0017() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-			"interface I { \n" +
-			"	int thrice(int p);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	int goo(int x) { return 3 * x; } \n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public void main(String[] args) { \n" +
-			"		I i = this::goo;\n" +
-			"       i = super::goo;\n" +
-			"       new Y().goo(0);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {\s
+					int thrice(int p);
+				}
+				class Y {
+					int goo(int x) { return 3 * x; }\s
+				}
+				public class X extends Y {
+					public void main(String[] args) {\s
+						I i = this::goo;
+				       i = super::goo;
+				       new Y().goo(0);
+					}
+				}
+				"""
 	);
 
 	search(this.workingCopies[0].getType("Y").getMethod("goo", new String[] { "I" }), METHOD_REFERENCE_EXPRESSION);
@@ -4280,21 +4636,23 @@ public void testBug429012_0017() throws CoreException {
 public void testBug429012_0018() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-			"interface I { \n" +
-			"	int thrice(int p);\n" +
-			"}\n" +
-			"class Y {\n" +
-			"	static class Z {\n" +
-			"		static int goo(int x) { return 3 * x; }   \n" +
-			"		I i = Z::goo;\n" +
-			"   }\n" +
-			"}\n" +
-			"public class X extends Y.Z {\n" +
-			"	public void main(String[] args) { \n" +
-			"		I i = Y.Z::goo;\n" +
-			"       Y.Z.goo(0);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface I {\s
+					int thrice(int p);
+				}
+				class Y {
+					static class Z {
+						static int goo(int x) { return 3 * x; }  \s
+						I i = Z::goo;
+				   }
+				}
+				public class X extends Y.Z {
+					public void main(String[] args) {\s
+						I i = Y.Z::goo;
+				       Y.Z.goo(0);
+					}
+				}
+				"""
 	);
 
 	search(this.workingCopies[0].getType("Y").getType("Z").getMethod("goo", new String[] { "I" }), METHOD_REFERENCE_EXPRESSION);
@@ -4307,27 +4665,29 @@ public void testBug429012_0018() throws CoreException {
 public void testBug431716() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"interface ToLongFunction<T> {\n" +
-			"    long applyAsLong(T value);\n" +
-			"}\n" +
-			"interface ToIntFunction<T> {\n" +
-			"    int applyAsInt(T value);\n" +
-			"}\n" +
-			"interface Stream<T>  {\n" +
-			"   int mapToInt(ToIntFunction<? super T> mapper);\n" +
-			"}\n" +
-			"\n" +
-			"public interface X<T> {\n" +
-			"\n" +
-			"	public static <T> ToLongFunction<? super T> toLongFunction() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	default void asIntStream(Stream<T> makerget) {\n" +
-			"		makerget.mapToInt((long l) -> (int) l);\n" +
-			"		// trying to inline this method results causes NPE\n" +
-			"		/* here */toLongFunction();\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface ToLongFunction<T> {
+				    long applyAsLong(T value);
+				}
+				interface ToIntFunction<T> {
+				    int applyAsInt(T value);
+				}
+				interface Stream<T>  {
+				   int mapToInt(ToIntFunction<? super T> mapper);
+				}
+				
+				public interface X<T> {
+				
+					public static <T> ToLongFunction<? super T> toLongFunction() {
+						return null;
+					}
+					default void asIntStream(Stream<T> makerget) {
+						makerget.mapToInt((long l) -> (int) l);
+						// trying to inline this method results causes NPE
+						/* here */toLongFunction();
+					}
+				}
+				"""
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -4351,9 +4711,11 @@ public void testBug431716() throws CoreException {
 public void testBug432541() throws CoreException {
 this.workingCopies = new ICompilationUnit[8];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Constants.java",
-		"final class Constants {\n" +
-		"    static final String BUG_NAME =  \"BUG 432541\";\n" +
-		"}\n"
+		"""
+			final class Constants {
+			    static final String BUG_NAME =  "BUG 432541";
+			}
+			"""
 	);
 this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/Constants.java",
 		"package test;\n" +
@@ -4368,53 +4730,61 @@ this.workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/CoreObjectBuilder.ja
 		"public abstract class CoreObjectBuilder {}\n"
 		);
 this.workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/Descriptor.java",
-		"package test;\n" +
-		"\n" +
-		"public interface Descriptor <UNMARSHAL_RECORD extends UnmarshalRecord, OBJECT_BUILDER extends CoreObjectBuilder> {\n" +
-		"	public default OBJECT_BUILDER getObjectBuilder() { return null; }\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public interface Descriptor <UNMARSHAL_RECORD extends UnmarshalRecord, OBJECT_BUILDER extends CoreObjectBuilder> {
+				public default OBJECT_BUILDER getObjectBuilder() { return null; }
+			}
+			"""
 		);
 this.workingCopies[5] = getWorkingCopy("/JavaSearchBugs/src/Unmarshaller.java",
-		"package test;\n" +
-		"\n" +
-		"public abstract class Unmarshaller<CONTEXT extends Context, DESCRIPTOR extends Descriptor> {\n" +
-		"   public CONTEXT getContext() {\n" +
-		"	   return null;\n" +
-		"   }\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public abstract class Unmarshaller<CONTEXT extends Context, DESCRIPTOR extends Descriptor> {
+			   public CONTEXT getContext() {
+				   return null;
+			   }
+			}
+			"""
 		);
 this.workingCopies[6] = getWorkingCopy("/JavaSearchBugs/src/UnmarshalRecord.java",
-		"package test;\n" +
-		"\n" +
-		"public interface UnmarshalRecord<UNMARSHALLER extends Unmarshaller> {\n" +
-		"    public UNMARSHALLER getUnmarshaller();\n" +
-		"    public default void setAttrs() {}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public interface UnmarshalRecord<UNMARSHALLER extends Unmarshaller> {
+			    public UNMARSHALLER getUnmarshaller();
+			    public default void setAttrs() {}
+			}
+			"""
 		);
 this.workingCopies[7] = getWorkingCopy("/JavaSearchBugs/src/XMLRelationshipMappingNodeValue.java",
-		"package test;\n" +
-		"interface CMap<UNMARSHALLER extends Unmarshaller> {\n" +
-		"    Object convertToValue( UNMARSHALLER unmarshaller);\n" +
-		"}\n" +
-		"public abstract class XMLRelationshipMappingNodeValue {\n" +
-		"	public void processChild(Descriptor xmlDescriptor, UnmarshalRecord unmarshalRecord) {\n" +
-		"		if (Constants.ANY_NAMESPACE_ANY.toCharArray().length > 0) {\n" +
-		"			Descriptor d1 = (Descriptor) xmlDescriptor.getObjectBuilder();\n" +
-		"		}\n" +
-		"	}\n" +
-		"	protected Descriptor findReferenceDescriptor(UnmarshalRecord unmarshalRecord, Descriptor descriptor) {\n" +
-		"		if (Constants.ANY_NAMESPACE_ANY.toCharArray().length > 0) {\n" +
-		"			Context xmlContext = unmarshalRecord.getUnmarshaller().getContext();			\n" +
-		"		}\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"	\n" +
-		"	protected void endElementProcessText(UnmarshalRecord unmarshalRecord, CMap converter) {\n" +
-		"		if (Constants.ANY_NAMESPACE_ANY.toCharArray().length > 0) {\n" +
-		"			converter.convertToValue(unmarshalRecord.getUnmarshaller());\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			interface CMap<UNMARSHALLER extends Unmarshaller> {
+			    Object convertToValue( UNMARSHALLER unmarshaller);
+			}
+			public abstract class XMLRelationshipMappingNodeValue {
+				public void processChild(Descriptor xmlDescriptor, UnmarshalRecord unmarshalRecord) {
+					if (Constants.ANY_NAMESPACE_ANY.toCharArray().length > 0) {
+						Descriptor d1 = (Descriptor) xmlDescriptor.getObjectBuilder();
+					}
+				}
+				protected Descriptor findReferenceDescriptor(UnmarshalRecord unmarshalRecord, Descriptor descriptor) {
+					if (Constants.ANY_NAMESPACE_ANY.toCharArray().length > 0) {
+						Context xmlContext = unmarshalRecord.getUnmarshaller().getContext();		\t
+					}
+					return null;
+				}
+			\t
+				protected void endElementProcessText(UnmarshalRecord unmarshalRecord, CMap converter) {
+					if (Constants.ANY_NAMESPACE_ANY.toCharArray().length > 0) {
+						converter.convertToValue(unmarshalRecord.getUnmarshaller());
+					}
+				}
+			}
+			"""
 		);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Constants",
@@ -4432,12 +4802,13 @@ null);
 public void testBug435480_0001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"import java.lang.annotation.*;\n" +
-					"@Documented\n" +
-					"@Retention(RetentionPolicy.RUNTIME)\n" +
-					"@Target(value={})\n" +
-					"public @interface Ann1 {\n" +
-					"}"
+			"""
+				import java.lang.annotation.*;
+				@Documented
+				@Retention(RetentionPolicy.RUNTIME)
+				@Target(value={})
+				public @interface Ann1 {
+				}"""
 	);
 
 	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern("*", IMPLEMENTORS, IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION, EXACT_RULE );
@@ -4456,12 +4827,14 @@ public void testBug435480_0002() throws CoreException {
 	{
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile("/P/src/X.java",
-				"import java.lang.annotation.*;\n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.RUNTIME)\n" +
-				"@Target(value={})\n" +
-				"public @interface Ann1 {\n" +
-				"}\n");
+				"""
+					import java.lang.annotation.*;
+					@Documented
+					@Retention(RetentionPolicy.RUNTIME)
+					@Target(value={})
+					public @interface Ann1 {
+					}
+					""");
 		MethodPattern pattern = (MethodPattern) SearchPattern.createPattern("*", IMPLEMENTORS, IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION, EXACT_RULE );
 
 		int mask = IJavaSearchScope.SOURCES ;
@@ -4485,29 +4858,31 @@ public void testBug454401() throws CoreException, JavaModelException {
 				new String[] {"JCL_LIB"}, "bin");
 		createFolder("/P/src/com/test");
 		createFile("/P/src/com/test/X.java",
-				"package com.test;\n" +
-						"public class X { \n"+
-						" \n"+
-						"	private class Y { \n"+
-						"		private class P { \n"+
-						"			 \n"+
-						"		} \n"+
-						"		@SuppressWarnings(\"unused\") \n"+
-						"		public void t1(P p) { \n"+
-						"			t2(p); \n"+
-						"		} \n"+
-						"		protected void t2(P p) { \n"+
-						"			 \n"+
-						"		} \n"+
-						"	} \n"+
-						"	public void foo() { \n"+
-						"		Y y = new X().new Y(); \n"+
-						"		y.t2(y.new P()); \n"+
-						"	} \n"+
-						"	public static void main(String[] args) { \n"+
-						"		 \n"+
-						"	} \n"+
-						"}\n" );
+				"""
+					package com.test;
+					public class X {\s
+					\s
+						private class Y {\s
+							private class P {\s
+								\s
+							}\s
+							@SuppressWarnings("unused")\s
+							public void t1(P p) {\s
+								t2(p);\s
+							}\s
+							protected void t2(P p) {\s
+								\s
+							}\s
+						}\s
+						public void foo() {\s
+							Y y = new X().new Y();\s
+							y.t2(y.new P());\s
+						}\s
+						public static void main(String[] args) {\s
+							\s
+						}\s
+					}
+					""" );
 		waitUntilIndexesReady();
 		IType type = getCompilationUnit("/P/src/com/test/X.java").getType("X").getType("Y");
 		IMethod[] methods = type.getMethods();
@@ -4523,36 +4898,38 @@ public void testBug454401() throws CoreException, JavaModelException {
 public void testBug454411_001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	String content =
-			"package com.test;\n" +
-			"interface Function<T, R> { \n"+
-			"    R apply(T t); \n"+
-			"} \n"+
-			"interface I<T> extends Function<T, T> { \n"+
-			"    static <T> I<T> identity() { \n"+
-			"        return t -> t; \n"+
-			"    } \n"+
-			"} \n"+
-			" \n"+
-			"public class X { \n"+
-			"	private static class Multiplier { \n"+
-			"		private final long mMul; \n"+
-			" \n"+
-			"		public Multiplier(long iMul) { \n"+
-			"			this.mMul = iMul; \n"+
-			"		} \n"+
-			"		public <T, V> Long mul(Long iItem) { \n"+
-			"			return iItem * mMul; \n"+
-			"		} \n"+
-			"	} \n"+
-			" \n"+
-			"	private static void test(I<Long> iFn) { \n"+
-			"	} \n"+
-			" \n"+
-			"	public static <T, V> void main(String[] args) { \n"+
-			"		I<Long> mul/* here */ = (new Multiplier(3))::<T, V> mul; \n"+
-			"		X.test((new Multiplier(3))::<T, V> mul); \n"+
-			"	} \n"+
-			"}\n";
+			"""
+		package com.test;
+		interface Function<T, R> {\s
+		    R apply(T t);\s
+		}\s
+		interface I<T> extends Function<T, T> {\s
+		    static <T> I<T> identity() {\s
+		        return t -> t;\s
+		    }\s
+		}\s
+		\s
+		public class X {\s
+			private static class Multiplier {\s
+				private final long mMul;\s
+		\s
+				public Multiplier(long iMul) {\s
+					this.mMul = iMul;\s
+				}\s
+				public <T, V> Long mul(Long iItem) {\s
+					return iItem * mMul;\s
+				}\s
+			}\s
+		\s
+			private static void test(I<Long> iFn) {\s
+			}\s
+		\s
+			public static <T, V> void main(String[] args) {\s
+				I<Long> mul/* here */ = (new Multiplier(3))::<T, V> mul;\s
+				X.test((new Multiplier(3))::<T, V> mul);\s
+			}\s
+		}
+		""";
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b454411/X.java", content);
 	int start = content.indexOf("mul/* here */");
 	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, "mul".length());
@@ -4578,15 +4955,17 @@ public void testBug458614_001() throws CoreException {
 		IJavaProject project = createJavaProject("P1", new String[] {"src"}, new String[] {"bin"}, "bin");
 		createFile(
 			"/P1/src/X.java",
-			"interface Function<T, R> {\n" +
-			"	R apply(T); \n" +
-			"};\n" +
-			"@SuppressWarnings(\"unused\")\n" +
-			"public class X<T> {\n" +
-			"	private void foo() {\n" +
-			"		Function<Integer, int[]> a1 = int[]::new;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface Function<T, R> {
+					R apply(T);\s
+				};
+				@SuppressWarnings("unused")
+				public class X<T> {
+					private void foo() {
+						Function<Integer, int[]> a1 = int[]::new;
+					}
+				}
+				""");
 		waitUntilIndexesReady();
 
 		IndexManager indexManager = JavaModelManager.getIndexManager();
@@ -4615,15 +4994,17 @@ public void testBug458614_002() throws CoreException {
 		IJavaProject project = createJavaProject("P1", new String[] {"src"}, new String[] {"bin"}, "bin");
 		createFile(
 			"/P1/src/X.java",
-			"interface Function<T, R> {\n" +
-			"	R apply(T); \n" +
-			"};\n" +
-			"//@SuppressWarnings(\"unused\")\n" +
-			"public class X<T> {\n" +
-			"	private void foo() {\n" +
-			"		Function<Integer, int[]> a1 = int[]::new;\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				interface Function<T, R> {
+					R apply(T);\s
+				};
+				//@SuppressWarnings("unused")
+				public class X<T> {
+					private void foo() {
+						Function<Integer, int[]> a1 = int[]::new;
+					}
+				}
+				""");
 		waitUntilIndexesReady();
 
 		IndexManager indexManager = JavaModelManager.getIndexManager();
@@ -4649,27 +5030,29 @@ public void testBug458614_002() throws CoreException {
 public void testBug461025_001() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-		"@FunctionalInterface\n" +
-		"interface Y<T> {\n" +
-		"    T get();\n" +
-		"}\n" +
-		"\n" +
-		"public class X {\n" +
-		"	public X() {}\n" +
-		"	public X(int i) {}\n" +
-		"\n" +
-		"	private void m1() {\n" +
-		"		Y<X> s1 = X::new;\n" +
-		"\n" +
-		"		Y<X> s2 = new Y<X>() {\n" +
-		"\n" +
-		"			@Override\n" +
-		"			public X get() {\n" +
-		"				return null;\n" +
-		"			}\n" +
-		"		};\n" +
-		"	}\n" +
-		"}\n");
+		"""
+			@FunctionalInterface
+			interface Y<T> {
+			    T get();
+			}
+			
+			public class X {
+				public X() {}
+				public X(int i) {}
+			
+				private void m1() {
+					Y<X> s1 = X::new;
+			
+					Y<X> s2 = new Y<X>() {
+			
+						@Override
+						public X get() {
+							return null;
+						}
+					};
+				}
+			}
+			""");
 SearchPattern pattern = SearchPattern.createPattern(
 		"*",
 		CONSTRUCTOR,
@@ -4690,14 +5073,16 @@ public void testBug468127_0001() throws CoreException {
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] { "/P/lib468127.jar", "JCL18_LIB" }, "bin", "1.8");
 		createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"	@SuppressWarnings({ \"rawtypes\", \"unchecked\" })\n" +
-			"	public static void main(String[] args) {\n" +
-			"		IY y = s -> foo(0);\n" +
-			"		y.accept(0);\n" +
-			"	}\n" +
-			"	static private void foo(int i) {}\n" +
-			"}\n"
+			"""
+				public class X {
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					public static void main(String[] args) {
+						IY y = s -> foo(0);
+						y.accept(0);
+					}
+					static private void foo(int i) {}
+				}
+				"""
 		);
 		addLibraryEntry(project, "/JavaSearchBugs/lib/b468127.jar", false);
 
@@ -4717,15 +5102,17 @@ public void testBug468127_0001() throws CoreException {
 public void test473343_0001() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {"a-b"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
-		String source = "interface Consumer<T> {\n" +
-				"	void accept(T t);\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"	Consumer<? super Y> action = (i_) -> X.foo(i_);\n" +
-				"	private static void foo(Y tb) {\n" +
-				"	}\n" +
-				"}\n";
+		String source = """
+			interface Consumer<T> {
+				void accept(T t);
+			}
+			
+			public class X {
+				Consumer<? super Y> action = (i_) -> X.foo(i_);
+				private static void foo(Y tb) {
+				}
+			}
+			""";
 		createFile("/P/a-b/X.java", source);
 		createFile("/P/a-b/Y.java", "public class Y{}");
 		waitForAutoBuild();
@@ -4747,16 +5134,18 @@ public void test473343_0001() throws CoreException, IOException {
 }
 public void testBug485805_001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
-	String buffer =	"@FunctionalInterface\n" +
-			"interface I {}\n" +
-			"interface J {\n" +
-			"	int foo(int a, int b);\n" +
-			"}\n" +
-			"public class X implements I{\n" +
-			"	public J bar() {\n" +
-			"	    return (I &  J) (e1, e2) -> {return 0;};\n" +
-			"	}\n" +
-			"}\n";
+	String buffer =	"""
+		@FunctionalInterface
+		interface I {}
+		interface J {
+			int foo(int a, int b);
+		}
+		public class X implements I{
+			public J bar() {
+			    return (I &  J) (e1, e2) -> {return 0;};
+			}
+		}
+		""";
 
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", buffer);
 	IType type = this.workingCopies[0].getType("I");
@@ -4773,26 +5162,28 @@ public void testBug485805_001() throws CoreException {
 public void testBug484367_0001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-		"interface  Bar {\n" +
-		"	public void print();\n" +
-		"}\n" +
-		"\n" +
-		"@FunctionalInterface\n" +
-		"interface Foo {\n" +
-		"	void process(Bar bar);\n" +
-		"}\n" +
-		"class BarImpl implements Bar{\n" +
-		"	@Override\n" +
-		"//call hierarchy on print does not finds invocation in the below TestMethod class  \n" +
-		"	public void print() {}\n" +
-		"}\n" +
-		"\n" +
-		"public class X {\n" +
-		"	public void test(){\n" +
-		"		Foo foo1 = (bar)->bar.print();\n" +
-		"		Foo foo2 = Bar::print;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			interface  Bar {
+				public void print();
+			}
+			
+			@FunctionalInterface
+			interface Foo {
+				void process(Bar bar);
+			}
+			class BarImpl implements Bar{
+				@Override
+			//call hierarchy on print does not finds invocation in the below TestMethod class \s
+				public void print() {}
+			}
+			
+			public class X {
+				public void test(){
+					Foo foo1 = (bar)->bar.print();
+					Foo foo2 = Bar::print;
+				}
+			}
+			"""
 		);
 	IType type = this.workingCopies[0].getType("BarImpl");
 	IMethod method = type.getMethod("print", null);
@@ -4805,33 +5196,35 @@ public void testBug484367_0001() throws CoreException {
 public void testBug484367_0002() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-		"interface  Bar2 {\n" +
-		"	public void print();\n" +
-		"}\n" +
-		"interface Bar1 extends Bar2 {\n" +
-		"	public void print();\n" +
-		"}\n" +
-		"class Bar implements Bar1 {\n" +
-		"\n" +
-		"	@Override\n" +
-		"	public void print() {}\n" +
-		"}\n" +
-		"\n" +
-		"@FunctionalInterface\n" +
-		"interface Foo {\n" +
-		"	void process(Bar bar);\n" +
-		"}\n" +
-		"class BarImpl extends Bar{\n" +
-		"	public void print() {}\n" +
-		"}\n" +
-		"\n" +
-		"public class X {\n" +
-		"	@SuppressWarnings(\"unused\")\n" +
-		"	public void test(){\n" +
-		"		Foo foo1 = (bar)->bar.print();\n" +
-		"		Foo foo2 = Bar::print;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			interface  Bar2 {
+				public void print();
+			}
+			interface Bar1 extends Bar2 {
+				public void print();
+			}
+			class Bar implements Bar1 {
+			
+				@Override
+				public void print() {}
+			}
+			
+			@FunctionalInterface
+			interface Foo {
+				void process(Bar bar);
+			}
+			class BarImpl extends Bar{
+				public void print() {}
+			}
+			
+			public class X {
+				@SuppressWarnings("unused")
+				public void test(){
+					Foo foo1 = (bar)->bar.print();
+					Foo foo2 = Bar::print;
+				}
+			}
+			"""
 		);
 	IType type = this.workingCopies[0].getType("Bar1");
 	IMethod method = type.getMethod("print", null);
@@ -4845,30 +5238,32 @@ public void testBug484367_0002() throws CoreException {
 public void testBug484367_0003() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-		"interface  Bar1 {\n" +
-		"	public void print();\n" +
-		"}\n" +
-		"class Bar implements Bar1 {\n" +
-		"\n" +
-		"	@Override\n" +
-		"	public void print() {}\n" +
-		"}\n" +
-		"\n" +
-		"@FunctionalInterface\n" +
-		"interface Foo {\n" +
-		"	void process(Bar bar);\n" +
-		"}\n" +
-		"class BarImpl extends Bar{\n" +
-		"	public void print() {}\n" +
-		"}\n" +
-		"\n" +
-		"public class X {\n" +
-		"	@SuppressWarnings(\"unused\")\n" +
-		"	public void test(){\n" +
-		"		Foo foo1 = (bar)->bar.print();\n" +
-		"		Foo foo2 = Bar::print;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			interface  Bar1 {
+				public void print();
+			}
+			class Bar implements Bar1 {
+			
+				@Override
+				public void print() {}
+			}
+			
+			@FunctionalInterface
+			interface Foo {
+				void process(Bar bar);
+			}
+			class BarImpl extends Bar{
+				public void print() {}
+			}
+			
+			public class X {
+				@SuppressWarnings("unused")
+				public void test(){
+					Foo foo1 = (bar)->bar.print();
+					Foo foo2 = Bar::print;
+				}
+			}
+			"""
 		);
 	IType type = this.workingCopies[0].getType("Bar");
 	IMethod method = type.getMethod("print", null);
@@ -4883,22 +5278,26 @@ public void testBug531641() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		createFile("/P/src/Consumer.java",
-			"public interface Consumer<T> {\n" +
-			"	void accept(T t);\n" +
-			"}\n");
+			"""
+				public interface Consumer<T> {
+					void accept(T t);
+				}
+				""");
 		createFile("/P/src/C.java",
-			"import java.util.*;\n" +
-			"\n" +
-			"public class C {\n" +
-			"	void test() {\n" +
-			"		Consumer<String> fun =\n" +
-			"			(Map.Entry<String, Collection<String>> it) -> {\n" + // type error here, but shouldn't prevent indexing of the lambda
-			"			  print(it);\n" +
-			"			};\n" +
-			"		print(fun);\n" +
-			"	}\n" +
-			"	void print(Object o) {}\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				
+				public class C {
+					void test() {
+						Consumer<String> fun =
+							(Map.Entry<String, Collection<String>> it) -> {
+							  print(it);
+							};
+						print(fun);
+					}
+					void print(Object o) {}
+				}
+				"""
 			);
 		waitUntilIndexesReady();
 		IType type = project.findType("Consumer");
@@ -4916,19 +5315,20 @@ public void testBug531641() throws CoreException {
 public void testBug493433a() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-		"import java.util.stream.IntStream;\n" +
-		"public class CallerHierarchyExample {\n" +
-		"    interface Interface {\n" +
-		"        void method(int i);\n" +
-		"    }\n" +
-		"    class Implementation implements Interface {\n" +
-		"        public void method(int i) {}\n" +
-		"    }\n" +
-		"    void caller() {\n" +
-		"        Interface pred = new Implementation();\n" +
-		"        IntStream.range(0, 3).forEach(pred::method);\n" +
-		"    }\n" +
-		"}"
+		"""
+			import java.util.stream.IntStream;
+			public class CallerHierarchyExample {
+			    interface Interface {
+			        void method(int i);
+			    }
+			    class Implementation implements Interface {
+			        public void method(int i) {}
+			    }
+			    void caller() {
+			        Interface pred = new Implementation();
+			        IntStream.range(0, 3).forEach(pred::method);
+			    }
+			}"""
 		);
 	IType type = this.workingCopies[0].getType("CallerHierarchyExample");
 	IJavaElement[] children = type.getChildren();
@@ -4958,19 +5358,20 @@ public void testBug493433a() throws CoreException {
 public void testBug493433b() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-		"import java.util.stream.IntStream;\n" +
-		"public class CallerHierarchyExample {\n" +
-		"    interface Interface {\n" +
-		"        void method(int i);\n" +
-		"    }\n" +
-		"    class Implementation implements Interface {\n" +
-		"        public void method(int i) {}\n" +
-		"    }\n" +
-		"    void caller() {\n" +
-		"        Interface pred = new Implementation();\n" +
-		"        IntStream.range(0, 3).forEach(pred::method);\n" +
-		"    }\n" +
-		"}"
+		"""
+			import java.util.stream.IntStream;
+			public class CallerHierarchyExample {
+			    interface Interface {
+			        void method(int i);
+			    }
+			    class Implementation implements Interface {
+			        public void method(int i) {}
+			    }
+			    void caller() {
+			        Interface pred = new Implementation();
+			        IntStream.range(0, 3).forEach(pred::method);
+			    }
+			}"""
 		);
 	IType type = this.workingCopies[0].getType("CallerHierarchyExample");
 	IJavaElement[] children = type.getChildren();
@@ -5000,27 +5401,28 @@ public void testBug493433b() throws CoreException {
 public void testBug574194() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-		"\n" +
-		"public class X {\n" +
-		"	/**\n" +
-		"	 * This is abc in X\n" +
-		"	 */\n" +
-		"	public void abc(int f, char t) {\n" +
-		"		\n" +
-		"	}\n" +
-		"	\n" +
-		"	/**\n" +
-		"	 * @see X#abc (\n" +
-		"	 * int f, char t)\n" +
-		"	 * @see X#abc ( int f, \n" +
-		"	 * char t)\n" +
-		"	 * @see X#abc(int f, char t)\n" +
-		"	 * @see X#abc (int f , char t)\n" +
-		"	 */\n" +
-		"	public void def() {\n" +
-		"		\n" +
-		"	}\n" +
-		"}"
+		"""
+			
+			public class X {
+				/**
+				 * This is abc in X
+				 */
+				public void abc(int f, char t) {
+				\t
+				}
+			\t
+				/**
+				 * @see X#abc (
+				 * int f, char t)
+				 * @see X#abc ( int f,\s
+				 * char t)
+				 * @see X#abc(int f, char t)
+				 * @see X#abc (int f , char t)
+				 */
+				public void def() {
+				\t
+				}
+			}"""
 		);
 	IType type = this.workingCopies[0].getType("X");
 	assertNotNull("type should not be null", type);
@@ -5035,12 +5437,13 @@ public void testBug574194() throws CoreException {
 	assertNotNull("type should not be null", method);
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-		"src/X.java void X.def() [abc (\n" +
-		"	 * int f, char t)] EXACT_MATCH\n" +
-		"src/X.java void X.def() [abc ( int f, \n" +
-		"	 * char t)] EXACT_MATCH\n" +
-		"src/X.java void X.def() [abc(int f, char t)] EXACT_MATCH\n" +
-		"src/X.java void X.def() [abc (int f , char t)] EXACT_MATCH"
+		"""
+			src/X.java void X.def() [abc (
+				 * int f, char t)] EXACT_MATCH
+			src/X.java void X.def() [abc ( int f,\s
+				 * char t)] EXACT_MATCH
+			src/X.java void X.def() [abc(int f, char t)] EXACT_MATCH
+			src/X.java void X.def() [abc (int f , char t)] EXACT_MATCH"""
 	);
 }
 // Add new tests in JavaSearchBugs8Tests

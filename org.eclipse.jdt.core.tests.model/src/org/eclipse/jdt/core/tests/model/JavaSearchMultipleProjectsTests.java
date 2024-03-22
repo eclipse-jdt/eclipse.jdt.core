@@ -66,10 +66,11 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 		createFolder("/P1/p1");
 		createFile(
 			"/P1/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"    public static int FOO;\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				    public static int FOO;
+				}"""
 		);
 
 		// setup project P2
@@ -77,31 +78,34 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 		createFolder("/P2/p2");
 		createFile(
 			"/P2/p2/Y.java",
-			"package p2;\n" +
-			"import p1.X;\n" +
-			"public class Y {\n" +
-			"    int bar() {\n" +
-			"      return X.FOO;\n" +
-			"}"
+			"""
+				package p2;
+				import p1.X;
+				public class Y {
+				    int bar() {
+				      return X.FOO;
+				}"""
 		);
 
 		// create working copies and rename X.FOO to X.BAR in these working copies
 		wc1 = getCompilationUnit("P1/p1/X.java").getWorkingCopy(null);
 		wc1.getBuffer().setContents(
-			"package p1;\n" +
-			"public class X {\n" +
-			"    public static int BAR;\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				    public static int BAR;
+				}"""
 		);
 		wc1.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		wc2 = getCompilationUnit("P2/p2/Y.java").getWorkingCopy(null);
 		wc2.getBuffer().setContents(
-			"package p2;\n" +
-			"import p1.X;\n" +
-			"public class Y {\n" +
-			"    int bar() {\n" +
-			"      return X.BAR;\n" +
-			"}"
+			"""
+				package p2;
+				import p1.X;
+				public class Y {
+				    int bar() {
+				      return X.BAR;
+				}"""
 		);
 
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
@@ -141,23 +145,25 @@ public void testHierarchyScope1() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"	protected void foo() {\n" +
-			"	}\n" +
-			"	void bar() {\n" +
-			"		foo();\n" +
-			"	}\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+					protected void foo() {
+					}
+					void bar() {
+						foo();
+					}
+				}"""
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
 		createFile(
 			"/P2/Y.java",
-			"import p.X;\n" +
-			"public class Y extends X {\n" +
-			"	protected void foo() {\n" +
-			"	}\n" +
-			"}"
+			"""
+				import p.X;
+				public class Y extends X {
+					protected void foo() {
+					}
+				}"""
 		);
 		ICompilationUnit cu = getCompilationUnit("/P2/Y.java");
 		IType type = cu.getType("Y");
@@ -188,30 +194,33 @@ public void testHierarchyScope2() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"	protected void foo() {\n" +
-			"	}\n" +
-			"	void bar() {\n" +
-			"		foo();\n" +
-			"	}\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+					protected void foo() {
+					}
+					void bar() {
+						foo();
+					}
+				}"""
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
 		createFile(
 			"/P2/Y.java",
-			"import p.X;\n" +
-			"public class Y extends X {\n" +
-			"	protected void foo() {\n" +
-			"	}\n" +
-			"}"
+			"""
+				import p.X;
+				public class Y extends X {
+					protected void foo() {
+					}
+				}"""
 		);
 		createFile(
 			"/P2/Z.java",
-			"public class Z extends Y {\n" +
-			"	protected void foo() {\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class Z extends Y {
+					protected void foo() {
+					}
+				}"""
 		);
 
 		ICompilationUnit cu = getCompilationUnit("/P2/Z.java");
@@ -243,23 +252,25 @@ public void testHierarchyScope3() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"	protected void foo() {\n" +
-			"	}\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+					protected void foo() {
+					}
+				}"""
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
 		createFolder("/P2/q");
 		createFile(
 			"/P2/q/Y.java",
-			"package q;\n" +
-			"import p.X;\n" +
-			"public class Y extends X {\n" +
-			"	void bar() {\n" +
-			"		foo();\n" +
-			"	}\n" +
-			"}"
+			"""
+				package q;
+				import p.X;
+				public class Y extends X {
+					void bar() {
+						foo();
+					}
+				}"""
 		);
 
 		ICompilationUnit cu = getCompilationUnit("/P1/p/X.java");
@@ -291,52 +302,56 @@ public void testHierarchyScope4() throws CoreException {
 		createFolder("/P0/p0");
 		createFile(
 			"/P0/p0/X.java",
-			"package p0;\n" +
-			"public class X {\n" +
-			"  public static X TheX;\n" +
-			"	public void foo() {\n" +
-			"	}\n" +
-			"}"
+			"""
+				package p0;
+				public class X {
+				  public static X TheX;
+					public void foo() {
+					}
+				}"""
 		);
 		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0"}, "");
 		createFolder("/P1/p1");
 		createFile(
 			"/P1/p1/T.java",
-			"package p1;\n" +
-			"import p0.X;\n" +
-			"public class T {\n" +
-			"	public X zork() {\n" +
-			"		return X.TheX;\n" +
-			"	}\n" +
-			"}"
+			"""
+				package p1;
+				import p0.X;
+				public class T {
+					public X zork() {
+						return X.TheX;
+					}
+				}"""
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0", "/P1"}, "");
 		createFolder("/P2/p2");
 		createFile(
 			"/P2/p2/Y.java",
-			"package p2;\n" +
-			"import p0.X;\n" +
-			"import p1.T;\n" +
-			"public class Y extends X {\n" +
-			"	public void bar() {\n" +
-			"		new T().zork().foo();\n" +
-			"	}\n" +
-			"}"
+			"""
+				package p2;
+				import p0.X;
+				import p1.T;
+				public class Y extends X {
+					public void bar() {
+						new T().zork().foo();
+					}
+				}"""
 		);
 		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0", "/P2"}, "");
 		createFolder("/P3/p3");
 		createFile(
 			"/P3/p3/Z.java",
-			"package p3;\n" +
-			"import p0.X;\n" +
-			"import p2.Y;\n" +
-			"public class Z extends Y {\n" +
-			"	static {\n" +
-			"		X.TheX = new Z(); // zork() will actually answer an instance of Z\n" +
-			"	}\n" +
-			"	public void foo() {\n" +
-			"	} // refs should find one in Y.bar()\n" +
-			"}"
+			"""
+				package p3;
+				import p0.X;
+				import p2.Y;
+				public class Z extends Y {
+					static {
+						X.TheX = new Z(); // zork() will actually answer an instance of Z
+					}
+					public void foo() {
+					} // refs should find one in Y.bar()
+				}"""
 		);
 
 		ICompilationUnit cu = getCompilationUnit("/P3/p3/Z.java");
@@ -369,18 +384,20 @@ public void testMethodOccurences() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/I.java",
-			"package p;\n" +
-			"public interface I {\n" +
-			"    void method(Object o);\n" +
-			"}"
+			"""
+				package p;
+				public interface I {
+				    void method(Object o);
+				}"""
 		);
 		createFile(
 			"/P1/p/C.java",
-			"package p;\n" +
-			"public class C implements I {\n" +
-			"    void method(Object o) {\n" +
-			"    }\n" +
-			"}"
+			"""
+				package p;
+				public class C implements I {
+				    void method(Object o) {
+				    }
+				}"""
 		);
 
 		// copy to project P2
@@ -417,9 +434,10 @@ public void testPackageDeclaration() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				}"""
 		);
 
 		// copy to project P2
@@ -455,9 +473,10 @@ public void testPackageReference1() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				}"""
 		);
 
 		// setup project P2
@@ -470,26 +489,28 @@ public void testPackageReference1() throws CoreException {
 		createFolder("/P2/p");
 		createFile(
 			"/P2/p/Y.java",
-			"package p;\n" +
-			"public class Y {\n" +
-			"}"
+			"""
+				package p;
+				public class Y {
+				}"""
 		);
 
 		// create package references
 		createFolder("/P2/q");
 		createFile(
 			"/P2/q/Z.java",
-			"package q;\n" +
-			"import p.X;\n" +
-			"import p.Y;\n" +
-			"public class Z {\n" +
-			"  X onlyHereForTheImport = null;\n" +
-			"  Y alsoOnlyHereForTheImport = null;\n" +
-			"  void foo(){\n" +
-			"    p.X x = (p.X)null;\n" +
-			"    p.Y y = (p.Y)null;\n" +
-			"  }\n" +
-			"}"
+			"""
+				package q;
+				import p.X;
+				import p.Y;
+				public class Z {
+				  X onlyHereForTheImport = null;
+				  Y alsoOnlyHereForTheImport = null;
+				  void foo(){
+				    p.X x = (p.X)null;
+				    p.Y y = (p.Y)null;
+				  }
+				}"""
 		);
 
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
@@ -502,9 +523,10 @@ public void testPackageReference1() throws CoreException {
 			resultCollector);
 		assertSearchResults(
 			"Unexpected package references",
-			"q/Z.java [p]\n" +
-			"q/Z.java void q.Z.foo() [p]\n" +
-			"q/Z.java void q.Z.foo() [p]",
+			"""
+				q/Z.java [p]
+				q/Z.java void q.Z.foo() [p]
+				q/Z.java void q.Z.foo() [p]""",
 			resultCollector);
 	} finally {
 		deleteProject("P1");
@@ -533,9 +555,10 @@ public void testPackageReference2() throws CoreException, IOException {
 			resultCollector);
 		assertSearchResults(
 			"Unexpected package references",
-			"src/q/Z.java [p]\n" +
-			"src/q/Z.java void q.Z.foo() [p]\n" +
-			"src/q/Z.java void q.Z.foo() [p]",
+			"""
+				src/q/Z.java [p]
+				src/q/Z.java void q.Z.foo() [p]
+				src/q/Z.java void q.Z.foo() [p]""",
 			resultCollector);
 	} finally {
 		deleteProject("JavaSearchMultipleProjects1");
@@ -555,17 +578,19 @@ public void testReferenceInWorkingCopies() throws CoreException {
 		createFolder("/P1/p1");
 		createFile(
 			"/P1/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				  void foo() {
+				  }
+				}"""
 		);
 		createFile(
 			"/P1/p1/Test.java",
-			"package p1;\n" +
-			"public class Test {\n" +
-			"}"
+			"""
+				package p1;
+				public class Test {
+				}"""
 		);
 
 		// setup project P2
@@ -578,42 +603,46 @@ public void testReferenceInWorkingCopies() throws CoreException {
 		createFolder("/P2/p2");
 		createFile(
 			"/P2/p2/Y.java",
-			"package p2;\n" +
-			"public class Y {\n" +
-			"}"
+			"""
+				package p2;
+				public class Y {
+				}"""
 		);
 		// need a second potential match to see the problem
 		createFile(
 			"/P2/p2/Z.java",
-			"public class Z {\n" +
-			"  void bar(p1.Test test) {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    bar(null);\n" + // potential match
-			"  }\n" +
-			"}"
+			"""
+				public class Z {
+				  void bar(p1.Test test) {
+				  }
+				  void foo() {
+				    bar(null);
+				  }
+				}"""
 		);
 
 		// create working copies
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		workingCopy1 = getCompilationUnit("/P1/p1/X.java").getWorkingCopy(owner, null/*no progress monitor*/);
 		workingCopy1.getBuffer().setContents(
-			"package p1;\n" +
-			"public class X {\n" +
-			"  void bar(Test test) {\n" +
-			"  }\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				  void bar(Test test) {
+				  }
+				}"""
 		);
 		workingCopy1.makeConsistent(null);
 		workingCopy2 = getCompilationUnit("/P2/p2/Y.java").getWorkingCopy(owner, null/*no progress monitor*/);
 		workingCopy2.getBuffer().setContents(
-			"package p2;\n" +
-			"import p1.X;\n" +
-			"public class Y {\n" +
-			"  void fred() {\n" +
-			"    new X().bar(null);\n" +
-			"  }\n" +
-			"}"
+			"""
+				package p2;
+				import p1.X;
+				public class Y {
+				  void fred() {
+				    new X().bar(null);
+				  }
+				}"""
 		);
 		workingCopy2.makeConsistent(null);
 
@@ -691,17 +720,21 @@ public void testBug151189_Workspace() throws CoreException {
 		createFolder("/P1/pack");
 		createFile(
 			"/P1/pack/Declaration.java",
-			"package pack;\n" +
-			"public class Declaration implements Interface {\n" +
-			"	public void doOperation(int val) {}\n" +
-			"}\n"
+			"""
+				package pack;
+				public class Declaration implements Interface {
+					public void doOperation(int val) {}
+				}
+				"""
 		);
 		createFile(
 			"/P1/pack/Interface.java",
-			"package pack;\n" +
-			"public interface Interface {\n" +
-			"	void doOperation(int val);\n" +
-			"}\n"
+			"""
+				package pack;
+				public interface Interface {
+					void doOperation(int val);
+				}
+				"""
 		);
 
 		// setup project P2
@@ -709,11 +742,13 @@ public void testBug151189_Workspace() throws CoreException {
 		createFolder("/P2/test");
 		createFile(
 			"/P2/test/Declaration_bis.java",
-			"package test;\n" +
-			"import pack.Interface;\n" +
-			"public class Declaration_bis implements Interface {\n" +
-			"	public void doOperation(int val) {}\n" +
-			"}\n"
+			"""
+				package test;
+				import pack.Interface;
+				public class Declaration_bis implements Interface {
+					public void doOperation(int val) {}
+				}
+				"""
 		);
 
 		// Get method
@@ -743,9 +778,10 @@ public void testBug151189_Workspace() throws CoreException {
 			resultCollector);
 		assertSearchResults(
 			"Unexpected declarations of method test.Declaration_bis.doOperation(int)",
-			"pack/Declaration.java [in P1] void pack.Declaration.doOperation(int) [doOperation]\n" +
-			"pack/Interface.java [in P1] void pack.Interface.doOperation(int) [doOperation]\n" +
-			"test/Declaration_bis.java [in P2] void test.Declaration_bis.doOperation(int) [doOperation]",
+			"""
+				pack/Declaration.java [in P1] void pack.Declaration.doOperation(int) [doOperation]
+				pack/Interface.java [in P1] void pack.Interface.doOperation(int) [doOperation]
+				test/Declaration_bis.java [in P2] void test.Declaration_bis.doOperation(int) [doOperation]""",
 			resultCollector);
 	} finally {
 		deleteProject("P1");
@@ -759,17 +795,21 @@ public void testBug151189_Project() throws CoreException {
 		createFolder("/P1/pack");
 		createFile(
 			"/P1/pack/Declaration.java",
-			"package pack;\n" +
-			"public class Declaration implements Interface {\n" +
-			"	public void doOperation(int val) {}\n" +
-			"}\n"
+			"""
+				package pack;
+				public class Declaration implements Interface {
+					public void doOperation(int val) {}
+				}
+				"""
 		);
 		createFile(
 			"/P1/pack/Interface.java",
-			"package pack;\n" +
-			"public interface Interface {\n" +
-			"	void doOperation(int val);\n" +
-			"}\n"
+			"""
+				package pack;
+				public interface Interface {
+					void doOperation(int val);
+				}
+				"""
 		);
 
 		// setup project P2
@@ -777,11 +817,13 @@ public void testBug151189_Project() throws CoreException {
 		createFolder("/P2/test");
 		createFile(
 			"/P2/test/Declaration_bis.java",
-			"package test;\n" +
-			"import pack.Interface;\n" +
-			"public class Declaration_bis implements Interface {\n" +
-			"	public void doOperation(int val) {}\n" +
-			"}\n"
+			"""
+				package test;
+				import pack.Interface;
+				public class Declaration_bis implements Interface {
+					public void doOperation(int val) {}
+				}
+				"""
 		);
 
 		// Get method
@@ -798,9 +840,10 @@ public void testBug151189_Project() throws CoreException {
 			resultCollector);
 		assertSearchResults(
 			"Unexpected declarations of method test.Declaration_bis.doOperation(int)",
-			"pack/Declaration.java [in P1] void pack.Declaration.doOperation(int) [doOperation]\n" +
-			"pack/Interface.java [in P1] void pack.Interface.doOperation(int) [doOperation]\n" +
-			"test/Declaration_bis.java [in P2] void test.Declaration_bis.doOperation(int) [doOperation]",
+			"""
+				pack/Declaration.java [in P1] void pack.Declaration.doOperation(int) [doOperation]
+				pack/Interface.java [in P1] void pack.Interface.doOperation(int) [doOperation]
+				test/Declaration_bis.java [in P2] void test.Declaration_bis.doOperation(int) [doOperation]""",
 			resultCollector);
 	} finally {
 		deleteProject("P1");
@@ -820,17 +863,19 @@ public void testBug163072() throws CoreException {
 		createFolder("/P1/test");
 		createFile(
 			"/P1/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"	public Object getType() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	public void foo() {\n" +
-			"		if (getType() == null) {\n" +
-			"			System.out.println(\"null\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package test;
+				public class Test {
+					public Object getType() {
+						return null;
+					}
+					public void foo() {
+						if (getType() == null) {
+							System.out.println("null");
+						}
+					}
+				}
+				"""
 		);
 
 		// setup project P2
@@ -838,26 +883,30 @@ public void testBug163072() throws CoreException {
 		createFolder("/P2/pack");
 		createFile(
 			"/P2/pack/FactoryContainer.java",
-			"package pack;\n" +
-			"public class FactoryContainer {\n" +
-			"	public enum FactoryType { PLUGIN }\n" +
-			"	public FactoryType getType() {\n" +
-			"		return FactoryType.PLUGIN;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package pack;
+				public class FactoryContainer {
+					public enum FactoryType { PLUGIN }
+					public FactoryType getType() {
+						return FactoryType.PLUGIN;
+					}
+				}
+				"""
 		);
 		createFile(
 			"/P2/pack/Reference.java",
-			"package pack;\n" +
-			"public class Reference {\n" +
-			"	private final FactoryContainer _fc;\n" +
-			"	public Reference() {\n" +
-			"		_fc = new FactoryContainer();\n" +
-			"	}\n" +
-			"	boolean foo() {\n" +
-			"		return _fc.getType() == FactoryContainer.FactoryType.PLUGIN;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package pack;
+				public class Reference {
+					private final FactoryContainer _fc;
+					public Reference() {
+						_fc = new FactoryContainer();
+					}
+					boolean foo() {
+						return _fc.getType() == FactoryContainer.FactoryType.PLUGIN;
+					}
+				}
+				"""
 		);
 
 		// Get method
@@ -891,9 +940,11 @@ public void testBug167743() throws CoreException {
 		createFolder("/P/test");
 		createFile(
 			"/P/test/TestClass.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"}\n"
+			"""
+				package test;
+				public class Test {
+				}
+				"""
 		);
 
 		// Search all type names with TypeNameMatchRequestor
@@ -1081,9 +1132,11 @@ public void testBug199392_Jar() throws CoreException {
 		createFolder("/Test.jar/test");
 		createFile(
 			"/Test.jar/test/MyClass.java",
-			"package test;\n" +
-			"public class MyClass {\n" +
-			"}\n"
+			"""
+				package test;
+				public class MyClass {
+				}
+				"""
 		);
 
 		// Search all type names with TypeNameMatchRequestor
@@ -1118,9 +1171,11 @@ public void testBug199392_Jar_SamePartCount() throws CoreException {
 		createFolder("/Test.jar/test");
 		createFile(
 			"/Test.jar/test/MyClass.java",
-			"package test;\n" +
-			"public class MyClass {\n" +
-			"}\n"
+			"""
+				package test;
+				public class MyClass {
+				}
+				"""
 		);
 
 		// Search all type names with TypeNameMatchRequestor
@@ -1155,9 +1210,11 @@ public void testBug199392_Zip() throws CoreException {
 		createFolder("/Test.zip/test");
 		createFile(
 			"/Test.zip/test/MyClass.java",
-			"package test;\n" +
-			"public class MyClass {\n" +
-			"}\n"
+			"""
+				package test;
+				public class MyClass {
+				}
+				"""
 		);
 
 		// Search all type names with TypeNameMatchRequestor
@@ -1192,9 +1249,11 @@ public void testBug199392_Zip_SamePartCount() throws CoreException {
 		createFolder("/Test.zip/test");
 		createFile(
 			"/Test.zip/test/MyClass.java",
-			"package test;\n" +
-			"public class MyClass {\n" +
-			"}\n"
+			"""
+				package test;
+				public class MyClass {
+				}
+				"""
 		);
 
 		// Search all type names with TypeNameMatchRequestor
@@ -1259,11 +1318,13 @@ public void testBug210689() throws CoreException {
 		);
 		createFile(
 			"/P2/p/Ref.java",
-			"package p;\n" +
-			"public class Ref {\n" +
-			"	A a;\n" +
-			"	B b;\n" +
-			"}\n"
+			"""
+				package p;
+				public class Ref {
+					A a;
+					B b;
+				}
+				"""
 		);
 
 		// Create OR pattern
@@ -1306,16 +1367,20 @@ public void testBug229128() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/MyAnnot.java",
-			"package p;\n" +
-			"public @interface MyAnnot {\n" +
-			"}\n"
+			"""
+				package p;
+				public @interface MyAnnot {
+				}
+				"""
 		);
 		copies[0] = getWorkingCopy(
 			"/P1/p/X.java",
-			"package p;\n" +
-			"@MyAnnot\n" +
-			"public class X {\n" +
-			"}\n",
+			"""
+				package p;
+				@MyAnnot
+				public class X {
+				}
+				""",
 			null/*default working copy owner*/
 		);
 
@@ -1324,10 +1389,12 @@ public void testBug229128() throws CoreException {
 		createFolder("/P2/q");
 		copies[1] = getWorkingCopy(
 			"/P2/q/Y.java",
-			"package q;\n" +
-			"@p.MyAnnot\n" +
-			"public class Y {\n" +
-			"}\n",
+			"""
+				package q;
+				@p.MyAnnot
+				public class Y {
+				}
+				""",
 			null/*default working copy owner*/
 		);
 
@@ -1362,23 +1429,25 @@ public void testBug229951a() throws Exception {
 		createFile("/P1/test.jar", "");
 		editFile(
 			"/P1/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" +
-			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P2\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="lib" path="test.jar"/>
+					<classpathentry exported="true" kind="src" path="/P2"/>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 		createJavaProject("P2");
 		createFile("/P2/test.jar", "");
 		editFile(
 			"/P2/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" +
-			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P1\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="lib" path="test.jar"/>
+					<classpathentry exported="true" kind="src" path="/P1"/>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P2"}, "");
 		createFile(
@@ -1409,23 +1478,25 @@ public void testBug229951b() throws Exception {
 		createFile("/P1/test.jar", "");
 		editFile(
 			"/P1/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" +
-			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P2\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="lib" path="test.jar"/>
+					<classpathentry exported="true" kind="src" path="/P2"/>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 		createJavaProject("P2");
 		createFile("/P2/test.jar", "");
 		editFile(
 			"/P2/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" +
-			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P1\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="lib" path="test.jar"/>
+					<classpathentry exported="true" kind="src" path="/P1"/>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 		IJavaProject p3 = createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P2"}, "");
 		createFile(
@@ -1457,10 +1528,12 @@ public void testBug250454() throws CoreException {
 		createFolder("/P0/p");
 		createFile(
 			"/P0/p/Shape.java",
-			"package p;\n" +
-			"public interface Shape {\n" +
-			"	public void f();\n" +
-			"}\n"
+			"""
+				package p;
+				public interface Shape {
+					public void f();
+				}
+				"""
 		);
 
 		// setup project P1
@@ -1468,10 +1541,12 @@ public void testBug250454() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/Square.java",
-			"package p;\n" +
-			"public class Square implements Shape {\n" +
-			"	public void f() {}\n" +
-			"}\n"
+			"""
+				package p;
+				public class Square implements Shape {
+					public void f() {}
+				}
+				"""
 		);
 
 		// setup project P2
@@ -1479,11 +1554,13 @@ public void testBug250454() throws CoreException {
 		createFolder("/P2/p");
 		createFile(
 			"/P2/p/ShapeUser.java",
-			"package p;\n" +
-			"public class ShapeUser {\n" +
-			"	public void useShape(Shape p_shape) {\n" +
-			"		p_shape.f();\n" +
-			"	}\n"
+			"""
+				package p;
+				public class ShapeUser {
+					public void useShape(Shape p_shape) {
+						p_shape.f();
+					}
+				"""
 		);
 
 		// Perform search
@@ -1517,10 +1594,12 @@ public void testBug250454_jars() throws CoreException, IOException {
 		// setup jar
 		String[] pathsAndContents= new String[] {
 			"p/Shape.java",
-			"package p;\n" +
-			"public interface Shape {\n" +
-			"	public void f();\n" +
-			"}\n"
+			"""
+				package p;
+				public interface Shape {
+					public void f();
+				}
+				"""
 		};
 		createJar(pathsAndContents, jarPath);
 
@@ -1529,10 +1608,12 @@ public void testBug250454_jars() throws CoreException, IOException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/Square.java",
-			"package p;\n" +
-			"public class Square implements Shape {\n" +
-			"	public void f() {}\n" +
-			"}\n"
+			"""
+				package p;
+				public class Square implements Shape {
+					public void f() {}
+				}
+				"""
 		);
 
 		// setup project P2
@@ -1540,11 +1621,13 @@ public void testBug250454_jars() throws CoreException, IOException {
 		createFolder("/P2/p");
 		createFile(
 			"/P2/p/ShapeUser.java",
-			"package p;\n" +
-			"public class ShapeUser {\n" +
-			"	public void useShape(Shape p_shape) {\n" +
-			"		p_shape.f();\n" +
-			"	}\n"
+			"""
+				package p;
+				public class ShapeUser {
+					public void useShape(Shape p_shape) {
+						p_shape.f();
+					}
+				"""
 		);
 
 		// Perform search

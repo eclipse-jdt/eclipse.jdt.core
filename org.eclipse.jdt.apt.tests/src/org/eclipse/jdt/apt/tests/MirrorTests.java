@@ -79,14 +79,17 @@ public class MirrorTests extends APTTestBase {
 		IFolder srcFolder = project.getFolder( "src" );
 		IPath srcRoot = srcFolder.getFullPath();
 
-		String a1Code = "package pkg;\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.apitest.Common;\n" +
-			"import java.lang.annotation.Annotation;\n" +
-			"@Common\n" +
-			"public class A1<T> {\n " +
-			"   @Common\n" +
-			"   <A extends Annotation> A get(A a){ return a;}\n" +
-			"}\n";
+		String a1Code = """
+			package pkg;
+			import org.eclipse.jdt.apt.tests.annotations.apitest.Common;
+			import java.lang.annotation.Annotation;
+			@Common
+			public class A1<T> {
+			 \
+			   @Common
+			   <A extends Annotation> A get(A a){ return a;}
+			}
+			""";
 
 		final IPath a1Path = env.addClass( srcRoot, "pkg", "A1", a1Code ); //$NON-NLS-1$ //$NON-NLS-2$
 

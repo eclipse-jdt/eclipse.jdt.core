@@ -872,12 +872,14 @@ public void testClasspathCorruption() throws CoreException {
 		this.createJavaProject("P2", new String[]{""}, new String[]{}, new String[]{}, "");
 		this.createFile("P2/foo.txt", "not a project");
 		String newCPContent =
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n"
-			+"<classpath>	\n"
-			+"	<classpathentry kind=\"src\" path=\"\"/>	\n"
-			+"	<classpathentry kind=\"src\" path=\"/P2/foo.txt\"/>	\n" // corruption here: target isn't a project
-			+"	<classpathentry kind=\"output\" path=\"\"/>	\n"
-			+"</classpath>	\n";
+			"""
+			<?xml version="1.0" encoding="UTF-8"?>\s
+			<classpath>\t
+				<classpathentry kind="src" path=""/>\t
+				<classpathentry kind="src" path="/P2/foo.txt"/>\t
+				<classpathentry kind="output" path=""/>\t
+			</classpath>\t
+			""";
 
 		IFile fileRsc = p1.getProject().getFile(JavaProject.CLASSPATH_FILENAME);
 		fileRsc.setContents(new ByteArrayInputStream(newCPContent.getBytes()), true, false, null);
@@ -913,11 +915,13 @@ public void testClasspathFileRead() throws CoreException {
 	try {
 		final IProject proj = createProject("P1");
 		String newCPContent =
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n"
-			+"<classpath>	\n"
-			+"	<classpathentry kind=\"src\" path=\"src\"/>	\n"
-			+"	<classpathentry kind=\"output\" path=\"bin\"/>	\n"
-			+"</classpath>	\n";
+			"""
+			<?xml version="1.0" encoding="UTF-8"?>\s
+			<classpath>\t
+				<classpathentry kind="src" path="src"/>\t
+				<classpathentry kind="output" path="bin"/>\t
+			</classpath>\t
+			""";
 
 		this.createFile("/P1/"+JavaProject.CLASSPATH_FILENAME, newCPContent);
 		final IJavaProject jproj = JavaCore.create(proj);
@@ -952,11 +956,13 @@ public void testClasspathForceReload() throws CoreException {
 					createFolder("P1/src");
 					createFolder("P1/bin");
 					String newCPContent =
-						"<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n"
-						+"<classpath>	\n"
-						+"	<classpathentry kind=\"src\" path=\"src\"/>	\n"
-						+"	<classpathentry kind=\"output\" path=\"bin\"/>	\n"
-						+"</classpath>	\n";
+						"""
+						<?xml version="1.0" encoding="UTF-8"?>\s
+						<classpath>\t
+							<classpathentry kind="src" path="src"/>\t
+							<classpathentry kind="output" path="bin"/>\t
+						</classpath>\t
+						""";
 
 					IFile fileRsc = p1.getProject().getFile(JavaProject.CLASSPATH_FILENAME);
 					fileRsc.setContents(new ByteArrayInputStream(newCPContent.getBytes()), true, false, null);
@@ -2776,9 +2782,10 @@ public void testDotDotLibraryEntry4() throws Exception {
 		setClasspath(p2, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../P1/internal.jar"), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
-			"P2\n" +
-			"  /P1/internal.jar\n" +
-			"    <default> (...)",
+			"""
+				P2
+				  /P1/internal.jar
+				    <default> (...)""",
 			p2
 		);
 	} finally {
@@ -2836,12 +2843,13 @@ public void testDotDotLibraryEntry7() throws Exception {
 				JavaCore.VERSION_1_4);
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"\"/>\n" +
-			"	<classpathentry kind=\"lib\" path=\"../external.jar\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>");
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path=""/>
+					<classpathentry kind="lib" path="../external.jar"/>
+					<classpathentry kind="output" path=""/>
+				</classpath>""");
 		assertElementDescendants(
 			"Unexpected project content",
 			"P\n" +
@@ -2865,12 +2873,13 @@ public void testDotDotLibraryEntry8() throws Exception {
 		IJavaProject p = createJavaProject("P");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"\"/>\n" +
-			"	<classpathentry kind=\"lib\" path=\"../external.jar\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>");
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path=""/>
+					<classpathentry kind="lib" path="../external.jar"/>
+					<classpathentry kind="output" path=""/>
+				</classpath>""");
 		assertClasspathEquals(
 			p.getRawClasspath(),
 			"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" +
@@ -2940,9 +2949,10 @@ public void testEmptyClasspath() throws CoreException {
 		// ensure the deltas are correct
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
-			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" +
-			"	ResourceDelta(/P/.classpath)[*]"
+			"""
+				P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}
+					<project root>[*]: {REMOVED FROM CLASSPATH}
+					ResourceDelta(/P/.classpath)[*]"""
 		);
 	} finally {
 		stopDeltas();
@@ -2966,11 +2976,13 @@ public void testEncoding1() throws CoreException {
 		String encodedContents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(file, "UTF-8"));
 		encodedContents = Util.convertToIndependantLineDelimiter(encodedContents);
 		assertEquals(
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"src\u3400\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>\n",
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path="src\u3400"/>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>
+				""",
 			encodedContents);
 	} finally {
 		deleteProject("P");
@@ -3016,11 +3028,13 @@ public void testEncodeDecodeEntry01() {
 public void testEncodeDecodeEntry02() {
 	assertEncodeDecodeEntry(
 		"P",
-		"<classpathentry excluding=\"**/X.java\" including=\"**/Y.java\" kind=\"src\" output=\"bin\" path=\"src\">\n" +
-		"	<attributes>\n" +
-		"		<attribute name=\"attrName\" value=\"some value\"/>\n" +
-		"	</attributes>\n" +
-		"</classpathentry>\n",
+		"""
+			<classpathentry excluding="**/X.java" including="**/Y.java" kind="src" output="bin" path="src">
+				<attributes>
+					<attribute name="attrName" value="some value"/>
+				</attributes>
+			</classpathentry>
+			""",
 		JavaCore.newSourceEntry(
 			new Path("/P/src"),
 			new IPath[] {new Path("**/Y.java")},
@@ -3045,14 +3059,16 @@ public void testEncodeDecodeEntry03() {
 public void testEncodeDecodeEntry04() {
 	assertEncodeDecodeEntry(
 		"P",
-		"<classpathentry exported=\"true\" kind=\"lib\" path=\"lib.jar\" rootpath=\"root\" sourcepath=\"src.zip\">\n" +
-		"	<attributes>\n" +
-		"		<attribute name=\"attr1\" value=\"val1\"/>\n" +
-		"	</attributes>\n" +
-		"	<accessrules>\n" +
-		"		<accessrule kind=\"accessible\" pattern=\"**/A*.java\"/>\n" +
-		"	</accessrules>\n" +
-		"</classpathentry>\n",
+		"""
+			<classpathentry exported="true" kind="lib" path="lib.jar" rootpath="root" sourcepath="src.zip">
+				<attributes>
+					<attribute name="attr1" value="val1"/>
+				</attributes>
+				<accessrules>
+					<accessrule kind="accessible" pattern="**/A*.java"/>
+				</accessrules>
+			</classpathentry>
+			""",
 		JavaCore.newLibraryEntry(
 			new Path("/P/lib.jar"),
 			new Path("/P/src.zip"),
@@ -3068,14 +3084,16 @@ public void testEncodeDecodeEntry04() {
 public void testEncodeDecodeEntry05() {
 	assertEncodeDecodeEntry(
 		"P",
-		"<classpathentry exported=\"true\" kind=\"lib\" path=\"lib.jar\" rootpath=\"root\" sourcepath=\"src.zip\">\n" +
-		"	<attributes>\n" +
-		"		<attribute name=\"attr1\" value=\"val1\"/>\n" +
-		"	</attributes>\n" +
-		"	<accessrules>\n" +
-		"		<accessrule ignoreifbetter=\"true\" kind=\"accessible\" pattern=\"**/A*.java\"/>\n" +
-		"	</accessrules>\n" +
-		"</classpathentry>\n",
+		"""
+			<classpathentry exported="true" kind="lib" path="lib.jar" rootpath="root" sourcepath="src.zip">
+				<attributes>
+					<attribute name="attr1" value="val1"/>
+				</attributes>
+				<accessrules>
+					<accessrule ignoreifbetter="true" kind="accessible" pattern="**/A*.java"/>
+				</accessrules>
+			</classpathentry>
+			""",
 		JavaCore.newLibraryEntry(
 			new Path("/P/lib.jar"),
 			new Path("/P/src.zip"),
@@ -3130,11 +3148,12 @@ public void testEmptyInclusionPattern() throws CoreException {
 		project.open(null);
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"  <classpathentry including=\"X.java|\" kind=\"src\" path=\"\"/>\n" +
-			"  <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				  <classpathentry including="X.java|" kind="src" path=""/>
+				  <classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 		project.getProject().close(null);
 		project.getProject().open(null);
@@ -3244,11 +3263,13 @@ public void testExtraAttributes1() throws CoreException {
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
 		assertSourceEquals(
 			"Unexpected content",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>\n",
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path=""/>
+					<classpathentry kind="output" path=""/>
+				</classpath>
+				""",
 			contents);
 	} finally {
 		deleteProject("P");
@@ -3266,15 +3287,17 @@ public void testExtraAttributes2() throws CoreException {
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
 		assertSourceEquals(
 			"Unexpected content",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"\">\n" +
-			"		<attributes>\n" +
-			"			<attribute name=\"foo\" value=\"some value\"/>\n" +
-			"		</attributes>\n" +
-			"	</classpathentry>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>\n",
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path="">
+						<attributes>
+							<attribute name="foo" value="some value"/>
+						</attributes>
+					</classpathentry>
+					<classpathentry kind="output" path=""/>
+				</classpath>
+				""",
 			contents);
 	} finally {
 		deleteProject("P");
@@ -3293,16 +3316,18 @@ public void testExtraAttributes3() throws CoreException {
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
 		assertSourceEquals(
 			"Unexpected content",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"\">\n" +
-			"		<attributes>\n" +
-			"			<attribute name=\"foo\" value=\"some value\"/>\n" +
-			"			<attribute name=\"bar\" value=\"other value\"/>\n" +
-			"		</attributes>\n" +
-			"	</classpathentry>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>\n",
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path="">
+						<attributes>
+							<attribute name="foo" value="some value"/>
+							<attribute name="bar" value="other value"/>
+						</attributes>
+					</classpathentry>
+					<classpathentry kind="output" path=""/>
+				</classpath>
+				""",
 			contents);
 	} finally {
 		deleteProject("P");
@@ -3316,15 +3341,17 @@ public void testExtraAttributes4() throws CoreException {
 		IJavaProject project = createJavaProject("P");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"\">\n" +
-			"		<attributes>\n" +
-			"			<attribute value=\"some value\" name=\"foo\"/>\n" +
-			"		</attributes>\n" +
-			"	</classpathentry>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>\n"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path="">
+						<attributes>
+							<attribute value="some value" name="foo"/>
+						</attributes>
+					</classpathentry>
+					<classpathentry kind="output" path=""/>
+				</classpath>
+				"""
 		);
 		assertClasspathEquals(
 			project.getRawClasspath(),
@@ -3631,9 +3658,10 @@ public void testExtraLibraries11() throws Exception {
 			JavaCore.VERSION_1_4);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" +
-			"	lib1.jar[*]: {CONTENT | ARCHIVE CONTENT CHANGED}\n" +
-			"	lib2.jar[*]: {REMOVED FROM CLASSPATH}"
+			"""
+				P[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}
+					lib1.jar[*]: {CONTENT | ARCHIVE CONTENT CHANGED}
+					lib2.jar[*]: {REMOVED FROM CLASSPATH}"""
 		);
 	} finally {
 		stopDeltas();
@@ -3747,9 +3775,11 @@ public void testExtraLibraries15() throws Exception {
 			new String[0],
 			new String[] {
 				"META-INF/MANIFEST.MF",
-				"Manifest-Version: 1.0\r\n" +
-				"Class-Path: \r\n" +
-				"\r\n",
+				"""
+					Manifest-Version: 1.0\r
+					Class-Path: \r
+					\r
+					""",
 			},
 			getExternalResourcePath("lib1.jar"),
 			JavaCore.VERSION_1_4);
@@ -3926,11 +3956,12 @@ public void testInvalidClasspath1() throws CoreException {
 		System.err.println("ClasspathTests#testInvalidClasspath1() may generate an expected Fatal Error...");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"src\" path=\"src\"/\n" + // missing closing >
-			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				    <classpathentry kind="src" path="src"/
+				    <classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 		assertBuildPathMarkers(
 			"Unexpected markers",
@@ -3948,11 +3979,12 @@ public void testInvalidClasspath2() throws CoreException {
 		IJavaProject javaProject = this.createJavaProject("P", new String[] {"src"}, "bin");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"src1\" path=\"src\"/>\n" + // invalid kind: src1
-			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				    <classpathentry kind="src1" path="src"/>
+				    <classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 		assertBuildPathMarkers(
 			"Unexpected markers",
@@ -4289,11 +4321,12 @@ public void testReadEmptyCustomOutput() throws CoreException {
 		IJavaProject project = this.createJavaProject("P", new String[] {}, "");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"src\" output=\"\" path=\"\"/>\n" +
-			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				    <classpathentry kind="src" output="" path=""/>
+				    <classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 		IClasspathEntry[] classpath = project.getRawClasspath();
 		assertEquals("Unexpected classpath length", 1, classpath.length);
@@ -4351,11 +4384,13 @@ public void testCombineAccessRules1() throws CoreException {
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P2/.classpath")));
 		assertSourceEquals(
 			"Unexpected content",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/P1\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>\n",
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry combineaccessrules="false" kind="src" path="/P1"/>
+					<classpathentry kind="output" path=""/>
+				</classpath>
+				""",
 			contents);
 	} finally {
 		deleteProject("P1");
@@ -4375,11 +4410,13 @@ public void testCombineAccessRules2() throws CoreException {
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P2/.classpath")));
 		assertSourceEquals(
 			"Unexpected content",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"/P1\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>\n",
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path="/P1"/>
+					<classpathentry kind="output" path=""/>
+				</classpath>
+				""",
 			contents);
 	} finally {
 		deleteProject("P1");
@@ -4395,11 +4432,13 @@ public void testCombineAccessRules3() throws CoreException {
 		IJavaProject project = createJavaProject("P2");
 		editFile(
 			"/P2/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" combineaccessrules=\"false\" path=\"/P1\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>\n"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" combineaccessrules="false" path="/P1"/>
+					<classpathentry kind="output" path=""/>
+				</classpath>
+				"""
 		);
 		assertClasspathEquals(
 			project.getRawClasspath(),
@@ -4418,11 +4457,13 @@ public void testCombineAccessRules4() throws CoreException {
 		IJavaProject project = createJavaProject("P2");
 		editFile(
 			"/P2/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"/P1\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"</classpath>\n"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path="/P1"/>
+					<classpathentry kind="output" path=""/>
+				</classpath>
+				"""
 		);
 		assertClasspathEquals(
 			project.getRawClasspath(),
@@ -4441,11 +4482,13 @@ public void testCombineAccessRules5() throws CoreException {
 		IJavaProject project = createJavaProject("P2");
 		editFile(
 			"/P2/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"src\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>\n"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path="src"/>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>
+				"""
 		);
 		assertClasspathEquals(
 			project.getRawClasspath(),
@@ -4830,9 +4873,10 @@ public void testCycleDetection3() throws CoreException {
 		IMarker[] markers = p[0].getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 		// additionally see that we actually have 2 cycles for P0!
 		assertMarkers("Markers of P0",
-				"One or more cycles were detected in the build path of project 'P0'. The paths towards the cycle and cycle are:\n" +
-				"->{P0, P2, P3, P1}\n" +
-				"->{P0, P4, P5, P1}",
+				"""
+					One or more cycles were detected in the build path of project 'P0'. The paths towards the cycle and cycle are:
+					->{P0, P2, P3, P1}
+					->{P0, P4, P5, P1}""",
 				markers);
 		//this.startDeltas();
 
@@ -4931,11 +4975,13 @@ public void testNoResourceChange01() throws CoreException {
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
 		assertSourceEquals(
 			"Unexpected content",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"src1\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>\n",
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path="src1"/>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>
+				""",
 			contents);
 	} finally {
 		deleteProject("P");
@@ -4989,9 +5035,10 @@ public void testNoResourceChange04() throws CoreException {
 		project.setRawClasspath(newClasspath, false/*cannot modify resources*/, null/*no progress*/);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
-			"	src1[*]: {REMOVED FROM CLASSPATH}\n" +
-			"	src2[*]: {ADDED TO CLASSPATH}",
+			"""
+				P[*]: {CHILDREN | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}
+					src1[*]: {REMOVED FROM CLASSPATH}
+					src2[*]: {ADDED TO CLASSPATH}""",
 			false/*don't wait for resource delta*/
 		);
 	} finally {
@@ -5052,12 +5099,13 @@ public void testDuplicateEntries1() throws CoreException {
 		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
-			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
-			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				    <classpathentry kind="src" path="src"/>
+				    <classpathentry kind="src" path="src"/>
+				    <classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 		assertBuildPathMarkers(
 			"Unexpected markers",
@@ -5082,12 +5130,13 @@ public void testDuplicateEntries2() throws CoreException, IOException {
 					JavaCore.VERSION_1_4);
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"var\" path=\"TEST_LIB\"/>\n" +
-			"    <classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
-			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				    <classpathentry kind="var" path="TEST_LIB"/>
+				    <classpathentry kind="con" path="org.eclipse.jdt.core.tests.model.TEST_CONTAINER"/>
+				    <classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 		waitForAutoBuild();
 		assertBuildPathMarkers(
@@ -5112,12 +5161,13 @@ public void testDuplicateEntries3() throws CoreException {
 		createFile("/P/lib.jar", "");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"var\" path=\"TEST_LIB\"/>\n" +
-			"    <classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
-			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				    <classpathentry kind="var" path="TEST_LIB"/>
+				    <classpathentry kind="con" path="org.eclipse.jdt.core.tests.model.TEST_CONTAINER"/>
+				    <classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 		assertClasspathEquals(
 			project.getResolvedClasspath(true),
@@ -5266,32 +5316,34 @@ public void testNestedSourceFolders() throws CoreException, IOException {
 
 		// create .project using java.io API
 		createFile(pro, ".project",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<projectDescription>\n" +
-			"	<name>org.eclipse.jdt.core</name>\n" +
-			"	<comment></comment>\n" +
-			"	<projects>\n" +
-			"	</projects>\n" +
-			"	<buildSpec>\n" +
-			"		<buildCommand>\n" +
-			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
-			"			<arguments>\n" +
-			"			</arguments>\n" +
-			"		</buildCommand>\n" +
-			"	</buildSpec>\n" +
-			"	<natures>\n" +
-			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
-			"	</natures>\n" +
-			"</projectDescription>");
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<projectDescription>
+					<name>org.eclipse.jdt.core</name>
+					<comment></comment>
+					<projects>
+					</projects>
+					<buildSpec>
+						<buildCommand>
+							<name>org.eclipse.jdt.core.javabuilder</name>
+							<arguments>
+							</arguments>
+						</buildCommand>
+					</buildSpec>
+					<natures>
+						<nature>org.eclipse.jdt.core.javanature</nature>
+					</natures>
+				</projectDescription>""");
 
 		// create .classpath using java.io API
 		createFile(pro, ".classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
-			"    <classpathentry kind=\"src\" path=\"src/src2\"/>\n" +
-			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				    <classpathentry kind="src" path="src"/>
+				    <classpathentry kind="src" path="src/src2"/>
+				    <classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 
 		// refresh
@@ -5387,32 +5439,34 @@ public void testOutputFolder1() throws CoreException, IOException {
 
 		// create .project using java.io API
 		createFile(pro, ".project",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<projectDescription>\n" +
-			"	<name>org.eclipse.jdt.core</name>\n" +
-			"	<comment></comment>\n" +
-			"	<projects>\n" +
-			"	</projects>\n" +
-			"	<buildSpec>\n" +
-			"		<buildCommand>\n" +
-			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
-			"			<arguments>\n" +
-			"			</arguments>\n" +
-			"		</buildCommand>\n" +
-			"	</buildSpec>\n" +
-			"	<natures>\n" +
-			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
-			"	</natures>\n" +
-			"</projectDescription>");
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<projectDescription>
+					<name>org.eclipse.jdt.core</name>
+					<comment></comment>
+					<projects>
+					</projects>
+					<buildSpec>
+						<buildCommand>
+							<name>org.eclipse.jdt.core.javabuilder</name>
+							<arguments>
+							</arguments>
+						</buildCommand>
+					</buildSpec>
+					<natures>
+						<nature>org.eclipse.jdt.core.javanature</nature>
+					</natures>
+				</projectDescription>""");
 
 		// create .classpath using java.io API
 		createFile(pro, ".classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"src\" output=\"bin2\" path=\"src1\"/>\n" +
-			"    <classpathentry kind=\"src\" path=\"src2\"/>\n" +
-			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				    <classpathentry kind="src" output="bin2" path="src1"/>
+				    <classpathentry kind="src" path="src2"/>
+				    <classpathentry kind="output" path="bin"/>
+				</classpath>"""
 		);
 
 		// refresh
@@ -5443,11 +5497,12 @@ public void testReplaceProject() throws CoreException {
 					javaProject.getProject().setDescription(descr, monitor);
 					editFile(
 						"/P/.classpath",
-						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-						"<classpath>\n" +
-						"    <classpathentry kind=\"src\" path=\"src2\"/>\n" +
-						"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-						"</classpath>"
+						"""
+							<?xml version="1.0" encoding="UTF-8"?>
+							<classpath>
+							    <classpathentry kind="src" path="src2"/>
+							    <classpathentry kind="output" path="bin"/>
+							</classpath>"""
 					);
 				}
 			},
@@ -5722,12 +5777,14 @@ public void testUnknownAttributes() throws CoreException {
 		IJavaProject project = createJavaProject("P");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry unknown=\"test\" kind=\"src\" path=\"src1\"/>\n" +
-			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>\n"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry unknown="test" kind="src" path="src1"/>
+					<classpathentry kind="src" path="src2"/>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>
+				"""
 		);
 		IClasspathEntry[] classpath = project.getRawClasspath();
 
@@ -5741,12 +5798,14 @@ public void testUnknownAttributes() throws CoreException {
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
 		assertSourceEquals(
 			"Unexpected content",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" +
-			"	<classpathentry kind=\"src\" path=\"src1\" unknown=\"test\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>\n",
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path="src2"/>
+					<classpathentry kind="src" path="src1" unknown="test"/>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>
+				""",
 			contents);
 	} finally {
 		deleteProject("P");
@@ -5762,16 +5821,18 @@ public void testUnknownElements1() throws CoreException {
 		IJavaProject project = createJavaProject("P");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"src1\">\n" +
-			"		<unknown>\n" +
-			"			<test kind=\"\"/>\n" +
-			"		</unknown>\n" +
-			"	</classpathentry>\n" +
-			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>\n"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path="src1">
+						<unknown>
+							<test kind=""/>
+						</unknown>
+					</classpathentry>
+					<classpathentry kind="src" path="src2"/>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>
+				"""
 		);
 		IClasspathEntry[] classpath = project.getRawClasspath();
 
@@ -5785,16 +5846,18 @@ public void testUnknownElements1() throws CoreException {
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
 		assertSourceEquals(
 			"Unexpected content",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" +
-			"	<classpathentry kind=\"src\" path=\"src1\">\n" +
-			"		<unknown>\n" +
-			"			<test kind=\"\"/>\n" +
-			"		</unknown>\n" +
-			"	</classpathentry>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>\n",
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path="src2"/>
+					<classpathentry kind="src" path="src1">
+						<unknown>
+							<test kind=""/>
+						</unknown>
+					</classpathentry>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>
+				""",
 			contents);
 	} finally {
 		deleteProject("P");
@@ -5810,22 +5873,24 @@ public void testUnknownElements2() throws CoreException {
 		IJavaProject project = createJavaProject("P");
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" unknownattribute=\"abcde\" path=\"src1\">\n" +
-			"		<unknown1>\n" +
-			"			<test kind=\"1\"/>\n" +
-			"			<test kind=\"2\"/>\n" +
-			"		</unknown1>\n" +
-			"		<unknown2 attribute2=\"\">\n" +
-			"			<test>\n" +
-			"				<other a=\"b\"/>\n" +
-			"			</test>\n" +
-			"		</unknown2>\n" +
-			"	</classpathentry>\n" +
-			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>\n"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" unknownattribute="abcde" path="src1">
+						<unknown1>
+							<test kind="1"/>
+							<test kind="2"/>
+						</unknown1>
+						<unknown2 attribute2="">
+							<test>
+								<other a="b"/>
+							</test>
+						</unknown2>
+					</classpathentry>
+					<classpathentry kind="src" path="src2"/>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>
+				"""
 		);
 		IClasspathEntry[] classpath = project.getRawClasspath();
 
@@ -5839,22 +5904,24 @@ public void testUnknownElements2() throws CoreException {
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
 		assertSourceEquals(
 			"Unexpected content",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" +
-			"	<classpathentry kind=\"src\" path=\"src1\" unknownattribute=\"abcde\">\n" +
-			"		<unknown1>\n" +
-			"			<test kind=\"1\"/>\n" +
-			"			<test kind=\"2\"/>\n" +
-			"		</unknown1>\n" +
-			"		<unknown2 attribute2=\"\">\n" +
-			"			<test>\n" +
-			"				<other a=\"b\"/>\n" +
-			"			</test>\n" +
-			"		</unknown2>\n" +
-			"	</classpathentry>\n" +
-			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"</classpath>\n",
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path="src2"/>
+					<classpathentry kind="src" path="src1" unknownattribute="abcde">
+						<unknown1>
+							<test kind="1"/>
+							<test kind="2"/>
+						</unknown1>
+						<unknown2 attribute2="">
+							<test>
+								<other a="b"/>
+							</test>
+						</unknown2>
+					</classpathentry>
+					<classpathentry kind="output" path="bin"/>
+				</classpath>
+				""",
 			contents);
 	} finally {
 		deleteProject("P");
@@ -5913,12 +5980,13 @@ public void testBug55992b() throws CoreException {
 			null);
 		editFile(
 			"/P/.classpath",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
-			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-			"    <classpathentry kind=\"var\" path=\"TEST_LIB\" sourcepath=\"TEST_SRC\"/>\n" +
-			"</classpath>"
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+				    <classpathentry kind="src" path="src"/>
+				    <classpathentry kind="output" path="bin"/>
+				    <classpathentry kind="var" path="TEST_LIB" sourcepath="TEST_SRC"/>
+				</classpath>"""
 		);
 		assertBuildPathMarkers(
 			"Unexpected markers",
@@ -6139,30 +6207,29 @@ public void testBug300136() throws Exception {
 				new IPath[] {new Path("/lib/tmp.jar")},
 				null);
 
-		StringBuilder buffer = new StringBuilder(
-				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-				"<classpath>\n" +
-				"   <classpathentry  kind=\"var\" path=\"INVALID_LIB\">\n" +
-				"    	<attributes>\n" +
-				"   	 <attribute name=\"optional\" value=\"true\"/>" +
-				"    	</attributes>\n" +
-				"	</classpathentry>\n" +
-				"   <classpathentry  kind=\"var\" path=\"UNBOUND_VAR\">\n" +
-				"    	<attributes>\n" +
-				"   	 <attribute name=\"optional\" value=\"true\"/>" +
-				"    	</attributes>\n" +
-				"	</classpathentry>\n" +
-				"   <classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\">\n" +
-				"    	<attributes>\n" +
-				"   	 <attribute name=\"optional\" value=\"true\"/>" +
-				"    	</attributes>\n" +
-				"	</classpathentry>\n" +
-				"   <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-				"</classpath>"
-				);
+		String str = """
+			<?xml version="1.0" encoding="UTF-8"?>
+			<classpath>
+			   <classpathentry  kind="var" path="INVALID_LIB">
+			    	<attributes>
+			   	 <attribute name="optional" value="true"/>\
+			    	</attributes>
+				</classpathentry>
+			   <classpathentry  kind="var" path="UNBOUND_VAR">
+			    	<attributes>
+			   	 <attribute name="optional" value="true"/>\
+			    	</attributes>
+				</classpathentry>
+			   <classpathentry kind="con" path="org.eclipse.jdt.core.tests.model.TEST_CONTAINER">
+			    	<attributes>
+			   	 <attribute name="optional" value="true"/>\
+			    	</attributes>
+				</classpathentry>
+			   <classpathentry kind="output" path="bin"/>
+			</classpath>""";
 		editFile(
 			"/P/.classpath",
-			buffer.toString()
+			str
 		);
 		assertBuildPathMarkers(
 				"Unexpected markers",
@@ -6195,19 +6262,18 @@ public void testBug300136a() throws Exception {
 				new IPath[] {libPath},
 				null);
 
-		StringBuilder buffer = new StringBuilder(
-				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-				"<classpath>\n" +
-				"    <classpathentry  kind=\"var\" path=\"INVALID_LIB\" />\n" +
-				"    <classpathentry  kind=\"var\" path=\"UNBOUND_VAR\" />\n" +
-				"    <classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\">\n" +
-				"	</classpathentry>\n" +
-				"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
-				"</classpath>"
-				);
+		String str = """
+			<?xml version="1.0" encoding="UTF-8"?>
+			<classpath>
+			    <classpathentry  kind="var" path="INVALID_LIB" />
+			    <classpathentry  kind="var" path="UNBOUND_VAR" />
+			    <classpathentry kind="con" path="org.eclipse.jdt.core.tests.model.TEST_CONTAINER">
+				</classpathentry>
+			    <classpathentry kind="output" path="bin"/>
+			</classpath>""";
 		editFile(
 			"/P/.classpath",
-			buffer.toString()
+			str
 		);
 		assertBuildPathMarkers(
 				"Unexpected markers",
@@ -6304,9 +6370,10 @@ public void testBug252341a() throws Exception {
 
 		IClasspathEntry[] rawClasspath = p.getRawClasspath();
 		assertClasspathEquals(rawClasspath,
-				"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" +
-				"JCL_LIB[CPE_VARIABLE][K_SOURCE][isExported:false]\n" +
-				"/P/lib1.jar[CPE_LIBRARY][K_BINARY][sourcePath:/P/abc.zip][isExported:true]");
+				"""
+					/P[CPE_SOURCE][K_SOURCE][isExported:false]
+					JCL_LIB[CPE_VARIABLE][K_SOURCE][isExported:false]
+					/P/lib1.jar[CPE_LIBRARY][K_BINARY][sourcePath:/P/abc.zip][isExported:true]""");
 
 		// Test referenced entries for a particular entry appear in the right order and the referencingEntry
 		// attribute has the correct value
@@ -6349,19 +6416,21 @@ public void testBug252341a() throws Exception {
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
 		assertSourceEquals(
 			"Unexpected content",
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<classpath>\n" +
-			"	<classpathentry kind=\"src\" path=\"\"/>\n" +
-			"	<classpathentry kind=\"var\" path=\"JCL_LIB\"/>\n" +
-			"	<classpathentry exported=\"true\" kind=\"lib\" path=\"lib1.jar\" sourcepath=\"abc.zip\"/>\n" +
-			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
-			"	<referencedentry exported=\"true\" kind=\"lib\" path=\"lib2.jar\" rootpath=\"/src2\" sourcepath=\"efg.zip\">\n" +
-			"		<attributes>\n" +
-			"			<attribute name=\"javadoc_location\" value=\"/P/efg.zip\"/>\n" +
-			"		</attributes>\n" +
-			"	</referencedentry>\n" +
-			"	<referencedentry exported=\"true\" kind=\"lib\" path=\"lib3.jar\" rootpath=\"/src3\" sourcepath=\"xyz.zip\"/>\n" +
-			"</classpath>\n",
+			"""
+				<?xml version="1.0" encoding="UTF-8"?>
+				<classpath>
+					<classpathentry kind="src" path=""/>
+					<classpathentry kind="var" path="JCL_LIB"/>
+					<classpathentry exported="true" kind="lib" path="lib1.jar" sourcepath="abc.zip"/>
+					<classpathentry kind="output" path=""/>
+					<referencedentry exported="true" kind="lib" path="lib2.jar" rootpath="/src2" sourcepath="efg.zip">
+						<attributes>
+							<attribute name="javadoc_location" value="/P/efg.zip"/>
+						</attributes>
+					</referencedentry>
+					<referencedentry exported="true" kind="lib" path="lib3.jar" rootpath="/src3" sourcepath="xyz.zip"/>
+				</classpath>
+				""",
 			contents);
 
 		p.close();
@@ -6370,9 +6439,10 @@ public void testBug252341a() throws Exception {
 		resolvedClasspath = p.getResolvedClasspath(true);
 
 		assertClasspathEquals(rawClasspath,
-				"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" +
-				"JCL_LIB[CPE_VARIABLE][K_SOURCE][isExported:false]\n" +
-				"/P/lib1.jar[CPE_LIBRARY][K_BINARY][sourcePath:/P/abc.zip][isExported:true]");
+				"""
+					/P[CPE_SOURCE][K_SOURCE][isExported:false]
+					JCL_LIB[CPE_VARIABLE][K_SOURCE][isExported:false]
+					/P/lib1.jar[CPE_LIBRARY][K_BINARY][sourcePath:/P/abc.zip][isExported:true]""");
 
 		assertClasspathEquals(resolvedClasspath,
 				"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" +
@@ -6423,10 +6493,11 @@ public void testBug252341b() throws Exception {
 		IClasspathEntry[] rawClasspath = p.getRawClasspath();
 		assertClasspathEquals(
 				rawClasspath,
-				"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" +
-				"JCL_LIB[CPE_VARIABLE][K_SOURCE][isExported:false]\n" +
-				"/P/lib1.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" +
-				"/P/lib2.jar[CPE_LIBRARY][K_BINARY][isExported:true]");
+				"""
+					/P[CPE_SOURCE][K_SOURCE][isExported:false]
+					JCL_LIB[CPE_VARIABLE][K_SOURCE][isExported:false]
+					/P/lib1.jar[CPE_LIBRARY][K_BINARY][isExported:true]
+					/P/lib2.jar[CPE_LIBRARY][K_BINARY][isExported:true]""");
 
 		IClasspathEntry[] rawEntries = new IClasspathEntry[2];
 		rawEntries[0] = JavaCore.newLibraryEntry(new Path("/P/lib1.jar"), null, null, true);
@@ -6575,9 +6646,10 @@ public void testBug252341c() throws Exception {
 
 		IClasspathEntry[] storedReferencedEnties = p.getReferencedClasspathEntries();
 		assertClasspathEquals(storedReferencedEnties,
-				"/P/lib3.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" +
-				"/P/lib4.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" +
-				"/P/lib5.jar[CPE_LIBRARY][K_BINARY][isExported:true]");
+				"""
+					/P/lib3.jar[CPE_LIBRARY][K_BINARY][isExported:true]
+					/P/lib4.jar[CPE_LIBRARY][K_BINARY][isExported:true]
+					/P/lib5.jar[CPE_LIBRARY][K_BINARY][isExported:true]""");
 	}
 	finally {
 		deleteProject("P");
@@ -7466,9 +7538,11 @@ public void testBug576735a() throws Exception {
 		Util.createJar(
 				new String[] {
 						"lib576735a1/Missing.java",
-						"package libMissing;\n" +
-						"public class Missing {\n" +
-						"}\n"
+						"""
+							package libMissing;
+							public class Missing {
+							}
+							"""
 				},
 				getDefaultJavaCoreOptions(),
 				projectLocation + File.separator + "libMissing.jar");
@@ -7480,10 +7554,12 @@ public void testBug576735a() throws Exception {
 		Util.createJar(
 				new String[] {
 						"lib576735a/Lib.java",
-						"package lib576735a;\n" +
-						"public class Lib {\n" +
-						"	void m(libMissing.Missing arg) {}\n" +
-						"}\n"
+						"""
+							package lib576735a;
+							public class Lib {
+								void m(libMissing.Missing arg) {}
+							}
+							"""
 				},
 				new String[0],
 				getDefaultJavaCoreOptions(),
@@ -7494,11 +7570,13 @@ public void testBug576735a() throws Exception {
 
 		createFile(
 				"/P1/src/X.java",
-				"/* header comment */\n" + // #1 (locationless): The type libMissing.Missing cannot be resolved. It is indirectly referenced from required type lib576735a.Lib
-				"import libMissing.Missing;\n" + // #2: The import libMissing.Missing cannot be resolved
-				"public class X extends lib576735a.Lib {\n" +
-				"	Missing f;\n" + // #4: Missing cannot be resolved to a type
-				"}\n"
+				"""
+					/* header comment */
+					import libMissing.Missing;
+					public class X extends lib576735a.Lib {
+						Missing f;
+					}
+					"""
 			);
 
 		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);

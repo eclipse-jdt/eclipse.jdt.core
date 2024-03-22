@@ -34,31 +34,37 @@ public class ResourceLeakTests extends AbstractRegressionTest {
 
 // well-known helper classes:
 private static final String GUAVA_CLOSEABLES_JAVA = "com/google/common/io/Closeables.java";
-private static final String GUAVA_CLOSEABLES_CONTENT = "package com.google.common.io;\n" +
-	"public class Closeables {\n" +
-	"    public static void closeQuietly(java.io.Closeable closeable) {}\n" +
-	"    public static void close(java.io.Closeable closeable, boolean flag) {}\n" +
-	"}\n";
+private static final String GUAVA_CLOSEABLES_CONTENT = """
+	package com.google.common.io;
+	public class Closeables {
+	    public static void closeQuietly(java.io.Closeable closeable) {}
+	    public static void close(java.io.Closeable closeable, boolean flag) {}
+	}
+	""";
 private static final String APACHE_DBUTILS_JAVA = "org/apache/commons/dbutils/DbUtils.java";
-private static final String APACHE_DBUTILS_CONTENT = "package org.apache.commons.dbutils;\n" +
-	"import java.sql.*;\n" +
-	"public class DbUtils {\n" +
-	"    public static void close(Connection connection) {}\n" +
-	"    public static void close(ResultSet resultSet) {}\n" +
-	"    public static void close(Statement statement) {}\n" +
-	"    public static void closeQuietly(Connection connection) {}\n" +
-	"    public static void closeQuietly(ResultSet resultSet) {}\n" +
-	"    public static void closeQuietly(Statement statement) {}\n" +
-	"    public static void closeQuietly(Connection conn, Statement stmt, ResultSet rs) {}\n" +
-	"}\n";
+private static final String APACHE_DBUTILS_CONTENT = """
+	package org.apache.commons.dbutils;
+	import java.sql.*;
+	public class DbUtils {
+	    public static void close(Connection connection) {}
+	    public static void close(ResultSet resultSet) {}
+	    public static void close(Statement statement) {}
+	    public static void closeQuietly(Connection connection) {}
+	    public static void closeQuietly(ResultSet resultSet) {}
+	    public static void closeQuietly(Statement statement) {}
+	    public static void closeQuietly(Connection conn, Statement stmt, ResultSet rs) {}
+	}
+	""";
 
 // one.util.streamex.StreamEx stub
 private static final String STREAMEX_JAVA = "one/util/streamex/StreamEx.java";
-private static final String STREAMEX_CONTENT = "package one.util.streamex;\n" +
-	"import java.util.stream.*;\n" +
-	"public abstract class StreamEx<T> implements Stream<T> {\n" +
-	"    public static <T> StreamEx<T> create() { return null; }\n" +
-	"}\n";
+private static final String STREAMEX_CONTENT = """
+	package one.util.streamex;
+	import java.util.stream.*;
+	public abstract class StreamEx<T> implements Stream<T> {
+	    public static <T> StreamEx<T> create() { return null; }
+	}
+	""";
 
 static {
 //	TESTS_NAMES = new String[] { "testBug463320" };
@@ -112,28 +118,29 @@ public void test056() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fileReader = new FileReader(file);\n" +
-// not invoking any methods on FileReader, try to avoid necessary call to superclass() in the compiler
-//			"        char[] in = new char[50];\n" +
-//			"        fileReader.read(in);\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileReader fileReader = new FileReader(file);
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	FileReader fileReader = new FileReader(file);\n" +
-		"	           ^^^^^^^^^^\n" +
-		"Resource leak: 'fileReader' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				FileReader fileReader = new FileReader(file);
+				           ^^^^^^^^^^
+			Resource leak: 'fileReader' is never closed
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -146,25 +153,29 @@ public void test056a() {
 	runTestsExpectingErrorsOnlyIn17(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fileReader = new FileReader(file);\n" +
-			"        char[] in = new char[50];\n" +
-			"        fileReader.read(in);\n" +
-			"		 fileReader.close();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileReader fileReader = new FileReader(file);
+				        char[] in = new char[50];
+				        fileReader.read(in);
+						 fileReader.close();
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	FileReader fileReader = new FileReader(file);\n" +
-		"	           ^^^^^^^^^^\n" +
-		"Resource 'fileReader' should be managed by try-with-resource\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				FileReader fileReader = new FileReader(file);
+				           ^^^^^^^^^^
+			Resource 'fileReader' should be managed by try-with-resource
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -176,28 +187,30 @@ public void test056b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fileReader = new FileReader(file);\n" +
-			"        try {\n" +
-			"            char[] in = new char[50];\n" +
-			"            fileReader.read(in);\n" +
-			"        } finally {\n" +
-			"		     fileReader.close();\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        try {\n" +
-			"            new X().foo();\n" +
-			"        } catch (IOException ioex) {\n" +
-			"            System.out.println(\"caught\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileReader fileReader = new FileReader(file);
+				        try {
+				            char[] in = new char[50];
+				            fileReader.read(in);
+				        } finally {
+						     fileReader.close();
+				        }
+				    }
+				    public static void main(String[] args) {
+				        try {
+				            new X().foo();
+				        } catch (IOException ioex) {
+				            System.out.println("caught");
+				        }
+				    }
+				}
+				"""
 		},
 		"caught", /*output*/
 		null/*classLibs*/,
@@ -216,25 +229,27 @@ public void test056c() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        try (FileReader fileReader = new FileReader(file)) {\n" +
-			"            char[] in = new char[50];\n" +
-			"            fileReader.read(in);\n" +
-			"		 }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        try {\n" +
-			"            new X().foo();\n" +
-			"        } catch (IOException ioex) {\n" +
-			"            System.out.println(\"caught\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        try (FileReader fileReader = new FileReader(file)) {
+				            char[] in = new char[50];
+				            fileReader.read(in);
+						 }
+				    }
+				    public static void main(String[] args) {
+				        try {
+				            new X().foo();
+				        } catch (IOException ioex) {
+				            System.out.println("caught");
+				        }
+				    }
+				}
+				"""
 		},
 		"caught", /*output*/
 		null/*classLibs*/,
@@ -254,41 +269,45 @@ public void test056d() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo(boolean flag1, boolean flag2) throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        char[] in = new char[50];\n" +
-			"        FileReader fileReader1 = new FileReader(file);\n" +
-			"        fileReader1.read(in);\n" +
-			"        FileReader fileReader2 = new FileReader(file);\n" +
-			"        fileReader2.read(in);\n" +
-			"        if (flag1) {\n" +
-			"            fileReader2.close();\n" +
-			"            return;\n" +
-			"        } else if (flag2) {\n" +
-			"            fileReader2.close();\n" +
-			"        }\n" +
-			"        fileReader1.close();\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo(false, true);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo(boolean flag1, boolean flag2) throws IOException {
+				        File file = new File("somefile");
+				        char[] in = new char[50];
+				        FileReader fileReader1 = new FileReader(file);
+				        fileReader1.read(in);
+				        FileReader fileReader2 = new FileReader(file);
+				        fileReader2.read(in);
+				        if (flag1) {
+				            fileReader2.close();
+				            return;
+				        } else if (flag2) {
+				            fileReader2.close();
+				        }
+				        fileReader1.close();
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo(false, true);
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 10)\n" +
-		"	FileReader fileReader2 = new FileReader(file);\n" +
-		"	           ^^^^^^^^^^^\n" +
-		"Potential resource leak: 'fileReader2' may not be closed\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 14)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Resource leak: 'fileReader1' is not closed at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 10)
+				FileReader fileReader2 = new FileReader(file);
+				           ^^^^^^^^^^^
+			Potential resource leak: 'fileReader2' may not be closed
+			----------
+			2. ERROR in X.java (at line 14)
+				return;
+				^^^^^^^
+			Resource leak: 'fileReader1' is not closed at this location
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -305,48 +324,52 @@ public void test056d_suppress() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo(boolean flag1, boolean flag2) throws IOException {\n" +
-			"        @SuppressWarnings(\"resource\") File file = new File(\"somefile\"); // unnecessary suppress\n" +
-			"        char[] in = new char[50];\n" +
-			"        FileReader fileReader1 = new FileReader(file);\n" +
-			"        fileReader1.read(in);\n" +
-			"        @SuppressWarnings(\"resource\") FileReader fileReader2 = new FileReader(file); // useful suppress\n" +
-			"        fileReader2.read(in);\n" +
-			"        if (flag1) {\n" +
-			"            fileReader2.close();\n" +
-			"            return; // not suppressed\n" +
-			"        } else if (flag2) {\n" +
-			"            fileReader2.close();\n" +
-			"        }\n" +
-			"        fileReader1.close();\n" +
-			"    }\n" +
-			"    @SuppressWarnings(\"resource\") // useful suppress\n" +
-			"    void bar() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fileReader = new FileReader(file);\n" +
-			"        char[] in = new char[50];\n" +
-			"        fileReader.read(in);\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo(false, true);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo(boolean flag1, boolean flag2) throws IOException {
+				        @SuppressWarnings("resource") File file = new File("somefile"); // unnecessary suppress
+				        char[] in = new char[50];
+				        FileReader fileReader1 = new FileReader(file);
+				        fileReader1.read(in);
+				        @SuppressWarnings("resource") FileReader fileReader2 = new FileReader(file); // useful suppress
+				        fileReader2.read(in);
+				        if (flag1) {
+				            fileReader2.close();
+				            return; // not suppressed
+				        } else if (flag2) {
+				            fileReader2.close();
+				        }
+				        fileReader1.close();
+				    }
+				    @SuppressWarnings("resource") // useful suppress
+				    void bar() throws IOException {
+				        File file = new File("somefile");
+				        FileReader fileReader = new FileReader(file);
+				        char[] in = new char[50];
+				        fileReader.read(in);
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo(false, true);
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 6)\n" +
-		"	@SuppressWarnings(\"resource\") File file = new File(\"somefile\"); // unnecessary suppress\n" +
-		"	                  ^^^^^^^^^^\n" +
-		"Unnecessary @SuppressWarnings(\"resource\")\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 14)\n" +
-		"	return; // not suppressed\n" +
-		"	^^^^^^^\n" +
-		"Resource leak: 'fileReader1' is not closed at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 6)
+				@SuppressWarnings("resource") File file = new File("somefile"); // unnecessary suppress
+				                  ^^^^^^^^^^
+			Unnecessary @SuppressWarnings("resource")
+			----------
+			2. ERROR in X.java (at line 14)
+				return; // not suppressed
+				^^^^^^^
+			Resource leak: 'fileReader1' is not closed at this location
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -359,35 +382,39 @@ public void test056e() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    FileReader getReader(String filename) throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fileReader = new FileReader(file);\n" +
-			"        return fileReader;\n" + 		// don't complain here, pass responsibility to caller
-			"    }\n" +
-			"    void foo() throws IOException {\n" +
-			"        FileReader reader = getReader(\"somefile\");\n" +
-			"        char[] in = new char[50];\n" +
-			"        reader.read(in);\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    FileReader getReader(String filename) throws IOException {
+				        File file = new File("somefile");
+				        FileReader fileReader = new FileReader(file);
+				        return fileReader;
+				    }
+				    void foo() throws IOException {
+				        FileReader reader = getReader("somefile");
+				        char[] in = new char[50];
+				        reader.read(in);
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
 		getTest056e_log(),
 		options);
 }
 protected String getTest056e_log() {
-	return "----------\n" +
-	"1. ERROR in X.java (at line 11)\n" +
-	"	FileReader reader = getReader(\"somefile\");\n" +
-	"	           ^^^^^^\n" +
-	"Potential resource leak: \'reader\' may not be closed\n" +
-	"----------\n";
+	return """
+		----------
+		1. ERROR in X.java (at line 11)
+			FileReader reader = getReader("somefile");
+			           ^^^^^^
+		Potential resource leak: \'reader\' may not be closed
+		----------
+		""";
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // a method explicitly closes its AutoCloseable rather than using t-w-r
@@ -399,29 +426,33 @@ public void test056f() {
 	runTestsExpectingErrorsOnlyIn17(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fileReader = null;\n" +
-			"        try {\n" +
-			"            fileReader = new FileReader(file);\n" +
-			"            char[] in = new char[50];\n" +
-			"            fileReader.read(in);\n" +
-			"        } finally {\n" +
-			"            fileReader.close();\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileReader fileReader = null;
+				        try {
+				            fileReader = new FileReader(file);
+				            char[] in = new char[50];
+				            fileReader.read(in);
+				        } finally {
+				            fileReader.close();
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	FileReader fileReader = null;\n" +
-		"	           ^^^^^^^^^^\n" +
-		"Resource 'fileReader' should be managed by try-with-resource\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				FileReader fileReader = null;
+				           ^^^^^^^^^^
+			Resource 'fileReader' should be managed by try-with-resource
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -434,31 +465,35 @@ public void test056g() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fileReader = new FileReader(file);\n" +
-			"        char[] in = new char[50];\n" +
-			"        fileReader.read(in);\n" +
-			"        fileReader = new FileReader(file);\n" +
-			"        fileReader.read(in);\n" +
-			"        fileReader.close();\n" +
-			"        fileReader = null;\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileReader fileReader = new FileReader(file);
+				        char[] in = new char[50];
+				        fileReader.read(in);
+				        fileReader = new FileReader(file);
+				        fileReader.read(in);
+				        fileReader.close();
+				        fileReader = null;
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	fileReader = new FileReader(file);\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: 'fileReader' is not closed at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				fileReader = new FileReader(file);
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: 'fileReader' is not closed at this location
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -471,31 +506,35 @@ public void test056g2() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fileReader = new FileReader(file);\n" +
-			"        char[] in = new char[50];\n" +
-			"        fileReader.read(in);\n" +
-			"        fileReader = null;\n" +
-			"        fileReader = new FileReader(file);\n" + // don't complain again, fileReader is null, so nothing can leak here
-			"        fileReader.read(in);\n" +
-			"        fileReader.close();\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileReader fileReader = new FileReader(file);
+				        char[] in = new char[50];
+				        fileReader.read(in);
+				        fileReader = null;
+				        fileReader = new FileReader(file);
+				        fileReader.read(in);
+				        fileReader.close();
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	fileReader = null;\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: 'fileReader' is not closed at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				fileReader = null;
+				^^^^^^^^^^^^^^^^^
+			Resource leak: 'fileReader' is not closed at this location
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -508,39 +547,43 @@ public void test056h() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        final File file = new File(\"somefile\");\n" +
-			"        final FileReader fileReader = new FileReader(file);\n" +
-			"        char[] in = new char[50];\n" +
-			"        fileReader.read(in);\n" +
-			"        new Runnable() {\n" +
-			"          public void run() {\n" +
-			"            try {\n" +
-			"                fileReader.close();\n" +
-			"                FileReader localReader = new FileReader(file);\n" +
-			"            } catch (IOException ex) { /* nop */ }\n" +
-			"        }}.run();\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        final File file = new File("somefile");
+				        final FileReader fileReader = new FileReader(file);
+				        char[] in = new char[50];
+				        fileReader.read(in);
+				        new Runnable() {
+				          public void run() {
+				            try {
+				                fileReader.close();
+				                FileReader localReader = new FileReader(file);
+				            } catch (IOException ex) { /* nop */ }
+				        }}.run();
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 7)\n" +
-		"	final FileReader fileReader = new FileReader(file);\n" +
-		"	                 ^^^^^^^^^^\n" +
-		"Potential resource leak: 'fileReader' may not be closed\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 14)\n" +
-		"	FileReader localReader = new FileReader(file);\n" +
-		"	           ^^^^^^^^^^^\n" +
-		"Resource leak: 'localReader' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 7)
+				final FileReader fileReader = new FileReader(file);
+				                 ^^^^^^^^^^
+			Potential resource leak: 'fileReader' may not be closed
+			----------
+			2. ERROR in X.java (at line 14)
+				FileReader localReader = new FileReader(file);
+				           ^^^^^^^^^^^
+			Resource leak: 'localReader' is never closed
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -553,43 +596,47 @@ public void test056i() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo(boolean f1, boolean f2) throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        if (f1) {\n" +
-			"            FileReader fileReader = new FileReader(file); // err: not closed\n" +
-			"            char[] in = new char[50];\n" +
-			"            fileReader.read(in);\n" +
-			"            while (true) {\n" +
-			"                 FileReader loopReader = new FileReader(file); // don't warn, properly closed\n" +
-			"                 loopReader.close();" +
-			"                 break;\n" +
-			"            }\n" +
-			"        } else {\n" +
-			"            FileReader fileReader = new FileReader(file); // warn: not closed on all paths\n" +
-			"            if (f2)\n" +
-			"                fileReader.close();\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo(true, true);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo(boolean f1, boolean f2) throws IOException {
+				        File file = new File("somefile");
+				        if (f1) {
+				            FileReader fileReader = new FileReader(file); // err: not closed
+				            char[] in = new char[50];
+				            fileReader.read(in);
+				            while (true) {
+				                 FileReader loopReader = new FileReader(file); // don't warn, properly closed
+				                 loopReader.close();\
+				                 break;
+				            }
+				        } else {
+				            FileReader fileReader = new FileReader(file); // warn: not closed on all paths
+				            if (f2)
+				                fileReader.close();
+				        }
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo(true, true);
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	FileReader fileReader = new FileReader(file); // err: not closed\n" +
-		"	           ^^^^^^^^^^\n" +
-		"Resource leak: 'fileReader' is never closed\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 16)\n" +
-		"	FileReader fileReader = new FileReader(file); // warn: not closed on all paths\n" +
-		"	           ^^^^^^^^^^\n" +
-		"Potential resource leak: 'fileReader' may not be closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				FileReader fileReader = new FileReader(file); // err: not closed
+				           ^^^^^^^^^^
+			Resource leak: 'fileReader' is never closed
+			----------
+			2. WARNING in X.java (at line 16)
+				FileReader fileReader = new FileReader(file); // warn: not closed on all paths
+				           ^^^^^^^^^^
+			Potential resource leak: 'fileReader' may not be closed
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -602,28 +649,30 @@ public void test056i_ignore() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo(boolean f1, boolean f2) throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        if (f1) {\n" +
-			"            FileReader fileReader = new FileReader(file); // err: not closed\n" +
-			"            char[] in = new char[50];\n" +
-			"            fileReader.read(in);\n" +
-			"            while (true) {\n" +
-			"                 FileReader loopReader = new FileReader(file); // don't warn, properly closed\n" +
-			"                 loopReader.close();" +
-			"                 break;\n" +
-			"            }\n" +
-			"        } else {\n" +
-			"            FileReader fileReader = new FileReader(file); // warn: not closed on all paths\n" +
-			"            if (f2)\n" +
-			"                fileReader.close();\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo(boolean f1, boolean f2) throws IOException {
+				        File file = new File("somefile");
+				        if (f1) {
+				            FileReader fileReader = new FileReader(file); // err: not closed
+				            char[] in = new char[50];
+				            fileReader.read(in);
+				            while (true) {
+				                 FileReader loopReader = new FileReader(file); // don't warn, properly closed
+				                 loopReader.close();\
+				                 break;
+				            }
+				        } else {
+				            FileReader fileReader = new FileReader(file); // warn: not closed on all paths
+				            if (f2)
+				                fileReader.close();
+				        }
+				    }
+				}
+				"""
 		},
 		"",
 		null,
@@ -642,39 +691,43 @@ public void test056i2() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo(boolean f1, boolean f2) throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        if (f1) {\n" +
-			"            FileReader fileReader = new FileReader(file); // properly closed\n" +
-			"            char[] in = new char[50];\n" +
-			"            fileReader.read(in);\n" +
-			"            while (true) {\n" +
-			"                  fileReader.close();\n" +
-			"                  FileReader loopReader = new FileReader(file); // don't warn, properly closed\n" +
-			"                  loopReader.close();\n" +
-			"                  break;\n" +
-			"            }\n" +
-			"        } else {\n" +
-			"            FileReader fileReader = new FileReader(file); // warn: not closed on all paths\n" +
-			"            if (f2)\n" +
-			"                fileReader.close();\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo(true, true);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo(boolean f1, boolean f2) throws IOException {
+				        File file = new File("somefile");
+				        if (f1) {
+				            FileReader fileReader = new FileReader(file); // properly closed
+				            char[] in = new char[50];
+				            fileReader.read(in);
+				            while (true) {
+				                  fileReader.close();
+				                  FileReader loopReader = new FileReader(file); // don't warn, properly closed
+				                  loopReader.close();
+				                  break;
+				            }
+				        } else {
+				            FileReader fileReader = new FileReader(file); // warn: not closed on all paths
+				            if (f2)
+				                fileReader.close();
+				        }
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo(true, true);
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 18)\n" +
-		"	FileReader fileReader = new FileReader(file); // warn: not closed on all paths\n" +
-		"	           ^^^^^^^^^^\n" +
-		"Potential resource leak: 'fileReader' may not be closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 18)
+				FileReader fileReader = new FileReader(file); // warn: not closed on all paths
+				           ^^^^^^^^^^
+			Potential resource leak: 'fileReader' may not be closed
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -686,20 +739,22 @@ public void test056j() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fileReader = new FileReader(file);\n" +
-			"        read(fileReader);\n" +
-			"    }\n" +
-			"    void read(FileReader reader) { }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileReader fileReader = new FileReader(file);
+				        read(fileReader);
+				    }
+				    void read(FileReader reader) { }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
@@ -718,22 +773,24 @@ public void test056jconditional() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo(boolean b) throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fileReader = new FileReader(file);\n" +
-			"        synchronized (b ? this : new X()) {\n" +
-			"            new ReadDelegator(fileReader);\n" +
-			"        }\n" +
-			"    }\n" +
-			"    class ReadDelegator { ReadDelegator(FileReader reader) { } }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo(true);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo(boolean b) throws IOException {
+				        File file = new File("somefile");
+				        FileReader fileReader = new FileReader(file);
+				        synchronized (b ? this : new X()) {
+				            new ReadDelegator(fileReader);
+				        }
+				    }
+				    class ReadDelegator { ReadDelegator(FileReader reader) { } }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo(true);
+				    }
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
@@ -753,93 +810,99 @@ public void test056k() {
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
 	String expectedProblems = this.complianceLevel < ClassFileConstants.JDK1_7 ?
-				"----------\n" +
-				"1. ERROR in X.java (at line 15)\n" +
-				"	ra2 = new FileReader(file);\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Resource leak: \'ra2\' is never closed\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 28)\n" +
-				"	rb2 = new FileReader(file);\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Resource leak: \'rb2\' is never closed\n" +
-				"----------\n"
+				"""
+					----------
+					1. ERROR in X.java (at line 15)
+						ra2 = new FileReader(file);
+						^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Resource leak: \'ra2\' is never closed
+					----------
+					2. ERROR in X.java (at line 28)
+						rb2 = new FileReader(file);
+						^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Resource leak: \'rb2\' is never closed
+					----------
+					"""
 			:
-				"----------\n" +
-				"1. ERROR in X.java (at line 12)\n" +
-				"	FileReader ra1 = null, ra2 = null;\n" +
-				"	           ^^^\n" +
-				"Resource 'ra1' should be managed by try-with-resource\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 15)\n" +
-				"	ra2 = new FileReader(file);\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Resource leak: 'ra2' is never closed\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 16)\n" +
-				"	FileReader ra3 = new FileReader(file);\n" +
-				"	           ^^^\n" +
-				"Resource 'ra3' should be managed by try-with-resource\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 25)\n" +
-				"	FileReader rb1 = null, rb2 = null;\n" +
-				"	           ^^^\n" +
-				"Resource 'rb1' should be managed by try-with-resource\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 28)\n" +
-				"	rb2 = new FileReader(file);\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Resource leak: 'rb2' is never closed\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 29)\n" +
-				"	FileReader rb3 = new FileReader(file);\n" +
-				"	           ^^^\n" +
-				"Resource 'rb3' should be managed by try-with-resource\n" +
-				"----------\n";
+				"""
+					----------
+					1. ERROR in X.java (at line 12)
+						FileReader ra1 = null, ra2 = null;
+						           ^^^
+					Resource 'ra1' should be managed by try-with-resource
+					----------
+					2. ERROR in X.java (at line 15)
+						ra2 = new FileReader(file);
+						^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Resource leak: 'ra2' is never closed
+					----------
+					3. ERROR in X.java (at line 16)
+						FileReader ra3 = new FileReader(file);
+						           ^^^
+					Resource 'ra3' should be managed by try-with-resource
+					----------
+					4. ERROR in X.java (at line 25)
+						FileReader rb1 = null, rb2 = null;
+						           ^^^
+					Resource 'rb1' should be managed by try-with-resource
+					----------
+					5. ERROR in X.java (at line 28)
+						rb2 = new FileReader(file);
+						^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Resource leak: 'rb2' is never closed
+					----------
+					6. ERROR in X.java (at line 29)
+						FileReader rb3 = new FileReader(file);
+						           ^^^
+					Resource 'rb3' should be managed by try-with-resource
+					----------
+					""";
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        int i01, i02, i03, i04, i05, i06, i07, i08, i09,\n" +
-			"            i11, i12, i13, i14, i15, i16, i17, i18, i19,\n" +
-			"            i21, i22, i23, i24, i25, i26, i27, i28, i29,\n" +
-			"            i31, i32, i33, i34, i35, i36, i37, i38, i39,\n" +
-			"            i41, i42, i43, i44, i45, i46, i47, i48, i49;\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader ra1 = null, ra2 = null;\n" +
-			"        try {\n" +
-			"            ra1 = new FileReader(file);\n" +
-			"            ra2 = new FileReader(file);\n" +
-			"            FileReader ra3 = new FileReader(file);\n" +
-			"            char[] in = new char[50];\n" +
-			"            ra1.read(in);\n" +
-			"            ra2.read(in);\n" +
-			"            ra3.close();\n" +
-			"        } finally {\n" +
-			"            ra1.close();\n" +
-			"        }\n" +
-			"        int i51, i52, i53, i54, i55, i56, i57, i58, i59, i60;\n" + // beyond this point locals are analyzed using extraBits
-			"        FileReader rb1 = null, rb2 = null;\n" +
-			"        try {\n" +
-			"            rb1 = new FileReader(file);\n" +
-			"            rb2 = new FileReader(file);\n" +
-			"            FileReader rb3 = new FileReader(file);\n" +
-			"            char[] in = new char[50];\n" +
-			"            rb1.read(in);\n" +
-			"            rb2.read(in);\n" +
-			"            rb3.close();\n" +
-			"        } finally {\n" +
-			"            rb1.close();\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        int i01, i02, i03, i04, i05, i06, i07, i08, i09,
+				            i11, i12, i13, i14, i15, i16, i17, i18, i19,
+				            i21, i22, i23, i24, i25, i26, i27, i28, i29,
+				            i31, i32, i33, i34, i35, i36, i37, i38, i39,
+				            i41, i42, i43, i44, i45, i46, i47, i48, i49;
+				        File file = new File("somefile");
+				        FileReader ra1 = null, ra2 = null;
+				        try {
+				            ra1 = new FileReader(file);
+				            ra2 = new FileReader(file);
+				            FileReader ra3 = new FileReader(file);
+				            char[] in = new char[50];
+				            ra1.read(in);
+				            ra2.read(in);
+				            ra3.close();
+				        } finally {
+				            ra1.close();
+				        }
+				        int i51, i52, i53, i54, i55, i56, i57, i58, i59, i60;
+				        FileReader rb1 = null, rb2 = null;
+				        try {
+				            rb1 = new FileReader(file);
+				            rb2 = new FileReader(file);
+				            FileReader rb3 = new FileReader(file);
+				            char[] in = new char[50];
+				            rb1.read(in);
+				            rb2.read(in);
+				            rb3.close();
+				        } finally {
+				            rb1.close();
+				        }
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
 		expectedProblems,
 		options);
@@ -874,47 +937,51 @@ public void test056l() {
 				potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 				"----------\n"
 			:
-				"----------\n" +
-				"1. ERROR in X.java (at line 24)\n" +
-				"	FileReader r2 = new FileReader(new File(\"inexist\")); // only potential problem: ctor X below might close r2\n" +
-				"	           ^^\n" +
-				"Potential resource leak: 'r2' may not be closed\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 25)\n" +
-				"	new X(r2).foo(new FileReader(new File(\"notthere\"))); // potential problem: foo may/may not close the new FileReader\n" +
-				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
-				"----------\n";
+				"""
+					----------
+					1. ERROR in X.java (at line 24)
+						FileReader r2 = new FileReader(new File("inexist")); // only potential problem: ctor X below might close r2
+						           ^^
+					Potential resource leak: 'r2' may not be closed
+					----------
+					2. ERROR in X.java (at line 25)
+						new X(r2).foo(new FileReader(new File("notthere"))); // potential problem: foo may/may not close the new FileReader
+						              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					Potential resource leak: \'<unassigned Closeable value>\' may not be closed
+					----------
+					""";
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    X(FileReader r0) {}\n" + // don't complain against argument
-			"    FileReader getReader() { return null; }\n" +
-			"    void foo(FileReader r1) throws IOException {\n" +
-			"        FileReader fileReader = getReader();\n" +
-			"        if (fileReader == null)\n" +
-			"            return;\n" + // don't complain, resource is actually null
-			"        FileReader r3 = getReader();\n" +
-			"        if (r3 == null)\n" +
-			"            r3 = new FileReader(new File(\"absent\"));\n" + // don't complain, previous resource is actually null
-			"        try {\n" +
-			"            char[] in = new char[50];\n" +
-			"            fileReader.read(in);\n" +
-			"            r1.read(in);\n" +
-			"        } finally {\n" +
-			"            fileReader.close();\n" +
-			"            r3.close();\n" +  // the effect of this close() call might be spoiled by exception in fileReader.close() above, but we ignore exception exits in the analysis
-			"        }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        FileReader r2 = new FileReader(new File(\"inexist\")); // only potential problem: ctor X below might close r2\n" +
-			"        new X(r2).foo(new FileReader(new File(\"notthere\"))); // potential problem: foo may/may not close the new FileReader\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    X(FileReader r0) {}
+				    FileReader getReader() { return null; }
+				    void foo(FileReader r1) throws IOException {
+				        FileReader fileReader = getReader();
+				        if (fileReader == null)
+				            return;
+				        FileReader r3 = getReader();
+				        if (r3 == null)
+				            r3 = new FileReader(new File("absent"));
+				        try {
+				            char[] in = new char[50];
+				            fileReader.read(in);
+				            r1.read(in);
+				        } finally {
+				            fileReader.close();
+				            r3.close();
+				        }
+				    }
+				    public static void main(String[] args) throws IOException {
+				        FileReader r2 = new FileReader(new File("inexist")); // only potential problem: ctor X below might close r2
+				        new X(r2).foo(new FileReader(new File("notthere"))); // potential problem: foo may/may not close the new FileReader
+				    }
+				}
+				"""
 		},
 		expectedProblems,
 		options);
@@ -928,29 +995,31 @@ public void test056m() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() {\n" +
-			"        File file = new File(\"somefile\");" +
-			"        try {\n" +
-			"            FileReader fileReader = new FileReader(file);\n" +
-			"            try {\n" +
-			"                char[] in = new char[50];\n" +
-			"                if (fileReader.read(in)==0)\n" +
-			"                    return;\n" +
-			"            } finally {\n" +
-			"		         fileReader.close();\n" +
-			"            }\n" +
-			"        } catch (IOException e) {\n" +
-			"            System.out.println(\"caught\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() {
+				        File file = new File("somefile");\
+				        try {
+				            FileReader fileReader = new FileReader(file);
+				            try {
+				                char[] in = new char[50];
+				                if (fileReader.read(in)==0)
+				                    return;
+				            } finally {
+						         fileReader.close();
+				            }
+				        } catch (IOException e) {
+				            System.out.println("caught");
+				        }
+				    }
+				    public static void main(String[] args) {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
 		"caught", /*output*/
 		null/*classLibs*/,
@@ -968,35 +1037,37 @@ public void test056n() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.FileNotFoundException;\n" +
-			"public class X {\n" +
-			"    void foo(File someFile, char[] buf) throws IOException {\n" +
-			"		FileReader fr1 = new FileReader(someFile);\n" +
-			"		try {\n" +
-			"			fr1.read(buf);\n" +
-			"		} finally {\n" +
-			"			fr1.close();\n" +
-			"		}\n" +
-			"		try {\n" +
-			"			FileReader fr3 = new FileReader(someFile);\n" +
-			"			try {\n" +
-			"			} finally {\n" +
-			"				fr3.close();\n" +
-			"			}\n" +
-			"		} catch (IOException e) {\n" +
-			"		}\n" +
-			"	 }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        try {\n" +
-			"            new X().foo(new File(\"missing\"), new char[100]);\n" +
-			"        } catch (FileNotFoundException e) {\n" +
-			"            System.out.println(\"caught\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				import java.io.FileNotFoundException;
+				public class X {
+				    void foo(File someFile, char[] buf) throws IOException {
+						FileReader fr1 = new FileReader(someFile);
+						try {
+							fr1.read(buf);
+						} finally {
+							fr1.close();
+						}
+						try {
+							FileReader fr3 = new FileReader(someFile);
+							try {
+							} finally {
+								fr3.close();
+							}
+						} catch (IOException e) {
+						}
+					 }
+				    public static void main(String[] args) throws IOException {
+				        try {
+				            new X().foo(new File("missing"), new char[100]);
+				        } catch (FileNotFoundException e) {
+				            System.out.println("caught");
+				        }
+				    }
+				}
+				"""
 		},
 		"caught", /*output*/
 		null/*classLibs*/,
@@ -1014,31 +1085,33 @@ public void test056o() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.FileNotFoundException;\n" +
-			"public class X {\n" +
-			"    void foo(File someFile, char[] buf) throws IOException {\n" +
-			"		FileReader fr1 = null;\n" +
-			"		try {\n" +
-			"           fr1 = new FileReader(someFile);" +
-			"			fr1.read(buf);\n" +
-			"		} finally {\n" +
-			"			if (fr1 != null)\n" +
-			"               try {\n" +
-			"                   fr1.close();\n" +
-			"               } catch (IOException e) { /*do nothing*/ }\n" +
-			"		}\n" +
-			"	 }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        try {\n" +
-			"            new X().foo(new File(\"missing\"), new char[100]);\n" +
-			"        } catch (FileNotFoundException e) {\n" +
-			"            System.out.println(\"caught\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				import java.io.FileNotFoundException;
+				public class X {
+				    void foo(File someFile, char[] buf) throws IOException {
+						FileReader fr1 = null;
+						try {
+				           fr1 = new FileReader(someFile);\
+							fr1.read(buf);
+						} finally {
+							if (fr1 != null)
+				               try {
+				                   fr1.close();
+				               } catch (IOException e) { /*do nothing*/ }
+						}
+					 }
+				    public static void main(String[] args) throws IOException {
+				        try {
+				            new X().foo(new File("missing"), new char[100]);
+				        } catch (FileNotFoundException e) {
+				            System.out.println("caught");
+				        }
+				    }
+				}
+				"""
 		},
 		"caught", /*output*/
 		null/*classLibs*/,
@@ -1058,24 +1131,26 @@ public void test056p() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.Reader;\n" +
-			"import java.io.IOException;\n" +
-			"public abstract class X <T extends Reader> {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        T fileReader = newReader(file);\n" +
-			"        char[] in = new char[50];\n" +
-			"        fileReader.read(in);\n" +
-			"    }\n" +
-			"    abstract T newReader(File file) throws IOException;\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X<FileReader>() {\n" +
-			"            FileReader newReader(File f) throws IOException { return new FileReader(f); }\n" +
-			"        }.foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.Reader;
+				import java.io.IOException;
+				public abstract class X <T extends Reader> {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        T fileReader = newReader(file);
+				        char[] in = new char[50];
+				        fileReader.read(in);
+				    }
+				    abstract T newReader(File file) throws IOException;
+				    public static void main(String[] args) throws IOException {
+				        new X<FileReader>() {
+				            FileReader newReader(File f) throws IOException { return new FileReader(f); }
+				        }.foo();
+				    }
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 8)\n" +
@@ -1095,40 +1170,44 @@ public void test056q() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fileReader = new FileReader(file);\n" +
-			"        char[] in = new char[50];\n" +
-			"        fileReader.read(in);\n" +
-			"        if (2*2 == 4)\n" +
-			"        	return;\n" +
-			"        fileReader.close();\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileReader fileReader = new FileReader(file);
+				        char[] in = new char[50];
+				        fileReader.read(in);
+				        if (2*2 == 4)
+				        	return;
+				        fileReader.close();
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	FileReader fileReader = new FileReader(file);\n" +
-		"	           ^^^^^^^^^^\n" +
-		"Resource leak: 'fileReader' is never closed\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 10)\n" +
-		"	if (2*2 == 4)\n" +
-		"	    ^^^^^^^^\n" +
-		"Comparing identical expressions\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 12)\n" +
-		"	fileReader.close();\n" +
-		"	^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				FileReader fileReader = new FileReader(file);
+				           ^^^^^^^^^^
+			Resource leak: 'fileReader' is never closed
+			----------
+			2. WARNING in X.java (at line 10)
+				if (2*2 == 4)
+				    ^^^^^^^^
+			Comparing identical expressions
+			----------
+			3. WARNING in X.java (at line 12)
+				fileReader.close();
+				^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -1142,44 +1221,48 @@ public void test056r() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fr = new FileReader(file);\n" +
-			"  		 Object b = null;\n" +
-			"        fr.close();\n" +
-			"        if (b != null) {\n" +
-			"            fr = new FileReader(file);\n" +
-			"            return;\n" +
-			"        } else {\n" +
-			"            System.out.print(42);\n" +
-			"        }\n" +
-			"        return;     // Should not complain about fr\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileReader fr = new FileReader(file);
+				  		 Object b = null;
+				        fr.close();
+				        if (b != null) {
+				            fr = new FileReader(file);
+				            return;
+				        } else {
+				            System.out.print(42);
+				        }
+				        return;     // Should not complain about fr
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	if (b != null) {\n" +
-		"            fr = new FileReader(file);\n" +
-		"            return;\n" +
-		"        } else {\n" +
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 13)\n" +
-		"	} else {\n" +
-		"            System.out.print(42);\n" +
-		"        }\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				if (b != null) {
+			            fr = new FileReader(file);
+			            return;
+			        } else {
+				               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			2. WARNING in X.java (at line 13)
+				} else {
+			            System.out.print(42);
+			        }
+				       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -1193,30 +1276,34 @@ public void test056s() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        try (FileReader fileReader = new FileReader(file);) {\n" +
-			"            char[] in = new char[50];\n" +
-			"            fileReader.read(in);\n" +
-			"            fileReader = new FileReader(file);  // debug here\n" +
-			"            fileReader.read(in);\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        try (FileReader fileReader = new FileReader(file);) {
+				            char[] in = new char[50];
+				            fileReader.read(in);
+				            fileReader = new FileReader(file);  // debug here
+				            fileReader.read(in);
+				        }
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	fileReader = new FileReader(file);  // debug here\n" +
-		"	^^^^^^^^^^\n" +
-		"The resource fileReader of a try-with-resources statement cannot be assigned\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				fileReader = new FileReader(file);  // debug here
+				^^^^^^^^^^
+			The resource fileReader of a try-with-resources statement cannot be assigned
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -1231,30 +1318,34 @@ public void test056t() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo31() throws IOException {\n" +
-			"        FileReader reader = new FileReader(\"file\"); //warning\n" +
-			"        if (reader != null) {\n" +
-			"            reader.close();\n" +
-			"        } else {\n" +
-			"            // nop\n" +
-			"        }\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo31();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo31() throws IOException {
+				        FileReader reader = new FileReader("file"); //warning
+				        if (reader != null) {
+				            reader.close();
+				        } else {
+				            // nop
+				        }
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo31();
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	} else {\n" +
-		"            // nop\n" +
-		"        }\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				} else {
+			            // nop
+			        }
+				       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -1269,46 +1360,50 @@ public void test056u() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"    void foo() throws Exception {\n" +
-			"        FileReader reader1 = new FileReader(\"file1\");\n" +
-			"        FileReader reader2 = new FileReader(\"file2\");\n" +
-			"        reader2 = reader1;// this disconnects reader 2\n" +
-			"        try (FileReader reader3 = new FileReader(\"file3\")) {\n" +
-			"            int ch;\n" +
-			"            while ((ch = reader2.read()) != -1) {\n" +
-			"                System.out.println(ch);\n" +
-			"                reader1.read();\n" +
-			"            }\n" +
-			"            reader2 = reader1; // warning 1 regarding original reader1\n" + // this warning was missing
-			"            reader2 = reader1; // warning 2 regarding original reader1\n" +
-			"        } finally {\n" +
-			"            if (reader2 != null) {\n" +
-			"                reader2.close();\n" +
-			"            } else {\n" +
-			"                System.out.println();\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    void foo() throws Exception {
+				        FileReader reader1 = new FileReader("file1");
+				        FileReader reader2 = new FileReader("file2");
+				        reader2 = reader1;// this disconnects reader 2
+				        try (FileReader reader3 = new FileReader("file3")) {
+				            int ch;
+				            while ((ch = reader2.read()) != -1) {
+				                System.out.println(ch);
+				                reader1.read();
+				            }
+				            reader2 = reader1; // warning 1 regarding original reader1
+				            reader2 = reader1; // warning 2 regarding original reader1
+				        } finally {
+				            if (reader2 != null) {
+				                reader2.close();
+				            } else {
+				                System.out.println();
+				            }
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	FileReader reader2 = new FileReader(\"file2\");\n" +
-		"	           ^^^^^^^\n" +
-		"Resource leak: 'reader2' is never closed\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 13)\n" +
-		"	reader2 = reader1; // warning 1 regarding original reader1\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: 'reader1' is not closed at this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 14)\n" +
-		"	reader2 = reader1; // warning 2 regarding original reader1\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: 'reader1' is not closed at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				FileReader reader2 = new FileReader("file2");
+				           ^^^^^^^
+			Resource leak: 'reader2' is never closed
+			----------
+			2. ERROR in X.java (at line 13)
+				reader2 = reader1; // warning 1 regarding original reader1
+				^^^^^^^^^^^^^^^^^
+			Resource leak: 'reader1' is not closed at this location
+			----------
+			3. ERROR in X.java (at line 14)
+				reader2 = reader1; // warning 2 regarding original reader1
+				^^^^^^^^^^^^^^^^^
+			Resource leak: 'reader1' is not closed at this location
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -1320,85 +1415,91 @@ public void test056v() {
 	options.put(JavaCore.COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE, CompilerOptions.WARNING);
 	options.put(JavaCore.COMPILER_PB_DEAD_CODE, CompilerOptions.ERROR);
 	String expectedProblems = this.complianceLevel >= ClassFileConstants.JDK1_7 ?
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	FileReader reader = new FileReader(\"file\");\n" +
-				"	           ^^^^^^\n" +
-				"Resource leak: 'reader' is never closed\n" +
-				"----------\n" +
-				"2. WARNING in X.java (at line 19)\n" +
-				"	FileReader reader111 = new FileReader(\"file2\");\n" +
-				"	           ^^^^^^^^^\n" +
-				"Resource 'reader111' should be managed by try-with-resource\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 42)\n" +
-				"	return;\n" +
-				"	^^^^^^^\n" +
-				"Resource leak: 'reader2' is not closed at this location\n" +
-				"----------\n"
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						FileReader reader = new FileReader("file");
+						           ^^^^^^
+					Resource leak: 'reader' is never closed
+					----------
+					2. WARNING in X.java (at line 19)
+						FileReader reader111 = new FileReader("file2");
+						           ^^^^^^^^^
+					Resource 'reader111' should be managed by try-with-resource
+					----------
+					3. ERROR in X.java (at line 42)
+						return;
+						^^^^^^^
+					Resource leak: 'reader2' is not closed at this location
+					----------
+					"""
 			:
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	FileReader reader = new FileReader(\"file\");\n" +
-				"	           ^^^^^^\n" +
-				"Resource leak: 'reader' is never closed\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 42)\n" +
-				"	return;\n" +
-				"	^^^^^^^\n" +
-				"Resource leak: 'reader2' is not closed at this location\n" +
-				"----------\n";
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						FileReader reader = new FileReader("file");
+						           ^^^^^^
+					Resource leak: 'reader' is never closed
+					----------
+					2. ERROR in X.java (at line 42)
+						return;
+						^^^^^^^
+					Resource leak: 'reader2' is not closed at this location
+					----------
+					""";
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"    boolean foo1() throws Exception {\n" +
-			"        FileReader reader = new FileReader(\"file\");\n" +
-			"        try {\n" +
-			"            int ch;\n" +
-			"            while ((ch = reader.read()) != -1) {\n" +
-			"                System.out.println(ch);\n" +
-			"                reader.read();\n" +
-			"            }\n" +
-			"            if (ch > 10) {\n" +
-			"                return true;\n" +
-			"            }\n" +
-			"            return false;\n" + // return while resource from enclosing scope remains unclosed
-			"        } finally {\n" +
-			"        }\n" +
-			"    }\n" +
-			"    void foo111() throws Exception {\n" +
-			"        FileReader reader111 = new FileReader(\"file2\");\n" +
-			"        try {\n" +
-			"            int ch;\n" +
-			"            while ((ch = reader111.read()) != -1) {\n" +
-			"                System.out.println(ch);\n" +
-			"                reader111.read();\n" +
-			"            }\n" +
-			"            return;\n" + // this shouldn't spoil the warning "should be managed with t-w-r"
-			"        } finally {\n" +
-			"            if (reader111 != null) {\n" +
-			"                reader111.close();\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"    void foo2() throws Exception {\n" +
-			"        FileReader reader2 = new FileReader(\"file\");\n" +
-			"        try {\n" +
-			"            int ch;\n" +
-			"            while ((ch = reader2.read()) != -1) {\n" +
-			"                System.out.println(ch);\n" +
-			"                reader2.read();\n" +
-			"            }\n" +
-			"            if (ch > 10) {\n" +
-			"                return;\n" + // potential leak
-			"            }\n" +
-			"        } finally {\n" +
-			"        }\n" +
-			"        reader2.close();\n" + // due to this close we don't say "never closed"
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    boolean foo1() throws Exception {
+				        FileReader reader = new FileReader("file");
+				        try {
+				            int ch;
+				            while ((ch = reader.read()) != -1) {
+				                System.out.println(ch);
+				                reader.read();
+				            }
+				            if (ch > 10) {
+				                return true;
+				            }
+				            return false;
+				        } finally {
+				        }
+				    }
+				    void foo111() throws Exception {
+				        FileReader reader111 = new FileReader("file2");
+				        try {
+				            int ch;
+				            while ((ch = reader111.read()) != -1) {
+				                System.out.println(ch);
+				                reader111.read();
+				            }
+				            return;
+				        } finally {
+				            if (reader111 != null) {
+				                reader111.close();
+				            }
+				        }
+				    }
+				    void foo2() throws Exception {
+				        FileReader reader2 = new FileReader("file");
+				        try {
+				            int ch;
+				            while ((ch = reader2.read()) != -1) {
+				                System.out.println(ch);
+				                reader2.read();
+				            }
+				            if (ch > 10) {
+				                return;
+				            }
+				        } finally {
+				        }
+				        reader2.close();
+				    }
+				}
+				"""
 		},
 		expectedProblems,
 		options);
@@ -1413,32 +1514,36 @@ public void test056w() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"    boolean foo1() throws Exception {\n" +
-			"        FileReader reader = new FileReader(\"file\");\n" +
-			"        try {\n" +
-			"            int ch;\n" +
-			"            while ((ch = reader.read()) != -1) {\n" +
-			"                System.out.println(ch);\n" +
-			"                reader.read();\n" +
-			"            }\n" +
-			"            if (ch > 10) {\n" +
-			"				 reader.close();\n" +
-			"                return true;\n" +
-			"            }\n" +
-			"            return false;\n" +
-			"        } finally {\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    boolean foo1() throws Exception {
+				        FileReader reader = new FileReader("file");
+				        try {
+				            int ch;
+				            while ((ch = reader.read()) != -1) {
+				                System.out.println(ch);
+				                reader.read();
+				            }
+				            if (ch > 10) {
+								 reader.close();
+				                return true;
+				            }
+				            return false;
+				        } finally {
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" +
-		"	return false;\n" +
-		"	^^^^^^^^^^^^^\n" +
-		"Resource leak: 'reader' is not closed at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 15)
+				return false;
+				^^^^^^^^^^^^^
+			Resource leak: 'reader' is not closed at this location
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -1451,33 +1556,37 @@ public void test056x() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"    void foo31(boolean b) throws Exception {\n" +
-			"        FileReader reader = new FileReader(\"file\");\n" +
-			"        if (b) {\n" +
-			"            reader.close();\n" +
-			"        } else {\n" +
-			"            return; // warning\n" +
-			"        }\n" +
-			"    }\n" +
-			"    void foo32(boolean b) throws Exception {\n" +
-			"        FileReader reader = new FileReader(\"file\"); // warn here\n" +
-			"        return;\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    void foo31(boolean b) throws Exception {
+				        FileReader reader = new FileReader("file");
+				        if (b) {
+				            reader.close();
+				        } else {
+				            return; // warning
+				        }
+				    }
+				    void foo32(boolean b) throws Exception {
+				        FileReader reader = new FileReader("file"); // warn here
+				        return;
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	return; // warning\n" +
-		"	^^^^^^^\n" +
-		"Resource leak: 'reader' is not closed at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 12)\n" +
-		"	FileReader reader = new FileReader(\"file\"); // warn here\n" +
-		"	           ^^^^^^\n" +
-		"Resource leak: 'reader' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				return; // warning
+				^^^^^^^
+			Resource leak: 'reader' is not closed at this location
+			----------
+			2. ERROR in X.java (at line 12)
+				FileReader reader = new FileReader("file"); // warn here
+				           ^^^^^^
+			Resource leak: 'reader' is never closed
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -1490,32 +1599,34 @@ public void test056y() {
 	runLeakWarningTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"    void foo31(boolean b) throws Exception {\n" +
-			"        final FileReader reader31 = new FileReader(\"file\");\n" +
-			"        new Runnable() {\n" +
-			"            public void run() {\n" +
-			"                foo18(reader31);\n" +
-			"            }\n" +
-			"        }.run();\n" +
-			"    }\n" +
-			"    void foo18(FileReader r18) {\n" +
-			"        // could theoretically close r18;\n" +
-			"    }\n" +
-			"    abstract class ResourceProvider {\n" +
-			"        abstract FileReader provide();" +
-			"    }\n" +
-			"    ResourceProvider provider;" +
-			"    void foo23() throws Exception {\n" +
-			"        final FileReader reader23 = new FileReader(\"file\");\n" +
-			"        provider = new ResourceProvider() {\n" +
-			"            public FileReader provide() {\n" +
-			"                return reader23;\n" + // responsibility now lies at the caller of this method
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    void foo31(boolean b) throws Exception {
+				        final FileReader reader31 = new FileReader("file");
+				        new Runnable() {
+				            public void run() {
+				                foo18(reader31);
+				            }
+				        }.run();
+				    }
+				    void foo18(FileReader r18) {
+				        // could theoretically close r18;
+				    }
+				    abstract class ResourceProvider {
+				        abstract FileReader provide();\
+				    }
+				    ResourceProvider provider;\
+				    void foo23() throws Exception {
+				        final FileReader reader23 = new FileReader("file");
+				        provider = new ResourceProvider() {
+				            public FileReader provide() {
+				                return reader23;
+				            }
+				        };
+				    }
+				}
+				"""
 		},
 		getTest056y_log(),
 		options);
@@ -1540,21 +1651,23 @@ public void test056z() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"    void foo17() throws Exception {\n" +
-			"        FileReader reader17 = new FileReader(\"file\");\n" +
-			"        final FileReader readerCopy = reader17;\n" +
-			"        readerCopy.close();\n" +
-			"    }\n" +
-			"    void foo17a() throws Exception {\n" +
-			"        FileReader reader17a = new FileReader(\"file\");\n" +
-			"        FileReader readerCopya;" +
-			"		 readerCopya = reader17a;\n" +
-			"        bar(readerCopya);\n" + // potentially closes
-			"    }\n" +
-			"    void bar(FileReader r) {}\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    void foo17() throws Exception {
+				        FileReader reader17 = new FileReader("file");
+				        final FileReader readerCopy = reader17;
+				        readerCopy.close();
+				    }
+				    void foo17a() throws Exception {
+				        FileReader reader17a = new FileReader("file");
+				        FileReader readerCopya;\
+						 readerCopya = reader17a;
+				        bar(readerCopya);
+				    }
+				    void bar(FileReader r) {}
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 9)\n" +
@@ -1575,29 +1688,35 @@ public void test056zz() {
 	runTestsExpectingErrorsOnlyIn17(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"    void foo16() throws Exception {\n" +
-			"        FileReader reader16 = new FileReader(\"file\");\n" +
-			"        try {\n" +
-			"            reader16.close();\n " +
-			"            return;\n" +
-			"        } catch (RuntimeException re) {\n" +
-			"            return;\n" +
-			"        } catch (Error e) {\n" +
-			"            return;\n" +
-			"        } finally {\n" +
-			"            reader16.close();\n " +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    void foo16() throws Exception {
+				        FileReader reader16 = new FileReader("file");
+				        try {
+				            reader16.close();
+				 \
+				            return;
+				        } catch (RuntimeException re) {
+				            return;
+				        } catch (Error e) {
+				            return;
+				        } finally {
+				            reader16.close();
+				 \
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	FileReader reader16 = new FileReader(\"file\");\n" +
-		"	           ^^^^^^^^\n" +
-		"Resource 'reader16' should be managed by try-with-resource\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				FileReader reader16 = new FileReader("file");
+				           ^^^^^^^^
+			Resource 'reader16' should be managed by try-with-resource
+			----------
+			""",
 		options);
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -1611,28 +1730,33 @@ public void test056zzz() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"    void foo16() throws Exception {\n" +
-			"        FileReader reader16 = new FileReader(\"file\");\n" +
-			"        try {\n" +
-			"            return;\n" +
-			"        } catch (RuntimeException re) {\n" +
-			"            return;\n" +
-			"        } catch (Error e) {\n" +
-			"            return;\n" +
-			"        } finally {\n" +
-			"            System.out.println();\n " +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    void foo16() throws Exception {
+				        FileReader reader16 = new FileReader("file");
+				        try {
+				            return;
+				        } catch (RuntimeException re) {
+				            return;
+				        } catch (Error e) {
+				            return;
+				        } finally {
+				            System.out.println();
+				 \
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	FileReader reader16 = new FileReader(\"file\");\n" +
-		"	           ^^^^^^^^\n" +
-		"Resource leak: 'reader16' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				FileReader reader16 = new FileReader("file");
+				           ^^^^^^^^
+			Resource leak: 'reader16' is never closed
+			----------
+			""",
 		options);
 }
 // Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
@@ -1646,31 +1770,35 @@ public void test056throw1() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"    void foo2(boolean a, boolean b, boolean c) throws Exception {\n" +
-			"        FileReader reader = new FileReader(\"file\");\n" +
-			"        if(a)\n" +
-			"            throw new Exception();    //warning 1\n" +
-			"        else if (b)\n" +
-			"            reader.close();\n" +
-			"        else if(c)\n" +
-			"            throw new Exception();    //warning 2\n" +
-			"        reader.close();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    void foo2(boolean a, boolean b, boolean c) throws Exception {
+				        FileReader reader = new FileReader("file");
+				        if(a)
+				            throw new Exception();    //warning 1
+				        else if (b)
+				            reader.close();
+				        else if(c)
+				            throw new Exception();    //warning 2
+				        reader.close();
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	throw new Exception();    //warning 1\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: 'reader' is not closed at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
-		"	throw new Exception();    //warning 2\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: 'reader' is not closed at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				throw new Exception();    //warning 1
+				^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: 'reader' is not closed at this location
+			----------
+			2. ERROR in X.java (at line 10)
+				throw new Exception();    //warning 2
+				^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: 'reader' is not closed at this location
+			----------
+			""",
 		options);
 }
 // Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
@@ -1684,59 +1812,63 @@ public void test056throw2() {
 	runTestsExpectingErrorsOnlyIn17(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-					"public class X {\n" +
-					"    void foo1() throws Exception {\n" +
-					"        FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
-					"        try {\n" +
-					"            reader.read();\n" +
-					"            return;\n" +
-					"        } catch (Exception e) {\n" +
-					"            throw new Exception();\n" +
-					"        } finally {\n" +
-					"            reader.close();\n" +
-					"        }\n" +
-					"    }\n" +
-					"\n" +
-					"    void foo2() throws Exception {\n" +
-					"        FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
-					"        try {\n" +
-					"            reader.read();\n" +
-					"            throw new Exception(); // should not warn here\n" +
-					"        } catch (Exception e) {\n" +
-					"            throw new Exception();\n" +
-					"        } finally {\n" +
-					"            reader.close();\n" +
-					"        }\n" +
-					"    }\n" +
-					"\n" +
-					"    void foo3() throws Exception {\n" +
-					"        FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
-					"        try {\n" +
-					"            reader.read();\n" +
-					"            throw new Exception();\n" +
-					"        } finally {\n" +
-					"            reader.close();\n" +
-					"        }\n" +
-					"    }\n" +
-					"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    void foo1() throws Exception {
+				        FileReader reader = new FileReader("file"); // propose t-w-r
+				        try {
+				            reader.read();
+				            return;
+				        } catch (Exception e) {
+				            throw new Exception();
+				        } finally {
+				            reader.close();
+				        }
+				    }
+				
+				    void foo2() throws Exception {
+				        FileReader reader = new FileReader("file"); // propose t-w-r
+				        try {
+				            reader.read();
+				            throw new Exception(); // should not warn here
+				        } catch (Exception e) {
+				            throw new Exception();
+				        } finally {
+				            reader.close();
+				        }
+				    }
+				
+				    void foo3() throws Exception {
+				        FileReader reader = new FileReader("file"); // propose t-w-r
+				        try {
+				            reader.read();
+				            throw new Exception();
+				        } finally {
+				            reader.close();
+				        }
+				    }
+				}
+				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
-			"	           ^^^^^^\n" +
-			"Resource 'reader' should be managed by try-with-resource\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 16)\n" +
-			"	FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
-			"	           ^^^^^^\n" +
-			"Resource 'reader' should be managed by try-with-resource\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 28)\n" +
-			"	FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
-			"	           ^^^^^^\n" +
-			"Resource 'reader' should be managed by try-with-resource\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					FileReader reader = new FileReader("file"); // propose t-w-r
+					           ^^^^^^
+				Resource 'reader' should be managed by try-with-resource
+				----------
+				2. ERROR in X.java (at line 16)
+					FileReader reader = new FileReader("file"); // propose t-w-r
+					           ^^^^^^
+				Resource 'reader' should be managed by try-with-resource
+				----------
+				3. ERROR in X.java (at line 28)
+					FileReader reader = new FileReader("file"); // propose t-w-r
+					           ^^^^^^
+				Resource 'reader' should be managed by try-with-resource
+				----------
+				""",
 			options);
 }
 // Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
@@ -1750,30 +1882,34 @@ public void test056throw3() {
 	runTestsExpectingErrorsOnlyIn17(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"    void foo2x() throws Exception {\n" +
-			"        FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
-			"        try {\n" +
-			"            reader.read();\n" +
-			"            throw new Exception(); // should not warn here\n" +
-			"        } catch (Exception e) {\n" +
-			"            throw new Exception();\n" +
-			"        } finally {\n" +
-			"            if (reader != null)\n" +
-			"                 try {\n" +
-			"                     reader.close();\n" +
-			"                 } catch (java.io.IOException io) {}\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    void foo2x() throws Exception {
+				        FileReader reader = new FileReader("file"); // propose t-w-r
+				        try {
+				            reader.read();
+				            throw new Exception(); // should not warn here
+				        } catch (Exception e) {
+				            throw new Exception();
+				        } finally {
+				            if (reader != null)
+				                 try {
+				                     reader.close();
+				                 } catch (java.io.IOException io) {}
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
-		"	           ^^^^^^\n" +
-		"Resource 'reader' should be managed by try-with-resource\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				FileReader reader = new FileReader("file"); // propose t-w-r
+				           ^^^^^^
+			Resource 'reader' should be managed by try-with-resource
+			----------
+			""",
 		options);
 }
 // Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
@@ -1787,35 +1923,39 @@ public void test056throw4() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"    void foo2x(boolean b) throws Exception {\n" +
-			"        FileReader reader = new FileReader(\"file\");\n" +
-			"        try {\n" +
-			"            reader.read();\n" +
-			"            throw new Exception(); // should warn here\n" +
-			"        } catch (Exception e) {\n" +
-			"            throw new Exception(); // should warn here\n" +
-			"        } finally {\n" +
-			"            if (reader != null && b)\n" + // this condition is too strong to protect reader
-			"                 try {\n" +
-			"                     reader.close();\n" +
-			"                 } catch (java.io.IOException io) {}\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    void foo2x(boolean b) throws Exception {
+				        FileReader reader = new FileReader("file");
+				        try {
+				            reader.read();
+				            throw new Exception(); // should warn here
+				        } catch (Exception e) {
+				            throw new Exception(); // should warn here
+				        } finally {
+				            if (reader != null && b)
+				                 try {
+				                     reader.close();
+				                 } catch (java.io.IOException io) {}
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	throw new Exception(); // should warn here\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: 'reader' may not be closed at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
-		"	throw new Exception(); // should warn here\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: 'reader' may not be closed at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				throw new Exception(); // should warn here
+				^^^^^^^^^^^^^^^^^^^^^^
+			Potential resource leak: 'reader' may not be closed at this location
+			----------
+			2. ERROR in X.java (at line 9)
+				throw new Exception(); // should warn here
+				^^^^^^^^^^^^^^^^^^^^^^
+			Potential resource leak: 'reader' may not be closed at this location
+			----------
+			""",
 		options);
 }
 // Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
@@ -1829,21 +1969,23 @@ public void test056throw5() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileReader;\n" +
-			"public class X {\n" +
-			"    void foo2x() throws Exception {\n" +
-			"        FileReader reader = new FileReader(\"file\");\n" +
-			"        try {\n" +
-			"            reader.read();\n" +
-			"            throw new Exception(); // should warn 'may not' here\n" +
-			"        } catch (Exception e) {\n" +
-			"            throw new Exception(); // should warn 'may not' here\n" +
-			"        } finally {\n" +
-			"            doClose(reader);\n" +
-			"        }\n" +
-			"    }\n" +
-			"    void doClose(FileReader r) { try { r.close(); } catch (java.io.IOException ex) {}}\n" +
-			"}\n"
+			"""
+				import java.io.FileReader;
+				public class X {
+				    void foo2x() throws Exception {
+				        FileReader reader = new FileReader("file");
+				        try {
+				            reader.read();
+				            throw new Exception(); // should warn 'may not' here
+				        } catch (Exception e) {
+				            throw new Exception(); // should warn 'may not' here
+				        } finally {
+				            doClose(reader);
+				        }
+				    }
+				    void doClose(FileReader r) { try { r.close(); } catch (java.io.IOException ex) {}}
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
@@ -1868,34 +2010,36 @@ public void test061a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileInputStream fileStream  = new FileInputStream(file);\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(fileStream);\n" +
-			"        BufferedInputStream doubleWrap = new BufferedInputStream(bis);\n" +
-			"        System.out.println(bis.available());\n" +
-			"        fileStream.close();\n" +
-			"    }\n" +
-			"    void inline() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileInputStream fileStream;\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(fileStream = new FileInputStream(file));\n" +
-			"        System.out.println(bis.available());\n" +
-			"        fileStream.close();\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        try {\n" +
-			"            new X().foo();\n" +
-			"        } catch (IOException ex) {" +
-			"            System.out.println(\"Got IO Exception\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.BufferedInputStream;
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileInputStream fileStream  = new FileInputStream(file);
+				        BufferedInputStream bis = new BufferedInputStream(fileStream);
+				        BufferedInputStream doubleWrap = new BufferedInputStream(bis);
+				        System.out.println(bis.available());
+				        fileStream.close();
+				    }
+				    void inline() throws IOException {
+				        File file = new File("somefile");
+				        FileInputStream fileStream;
+				        BufferedInputStream bis = new BufferedInputStream(fileStream = new FileInputStream(file));
+				        System.out.println(bis.available());
+				        fileStream.close();
+				    }
+				    public static void main(String[] args) throws IOException {
+				        try {
+				            new X().foo();
+				        } catch (IOException ex) {\
+				            System.out.println("Got IO Exception");
+				        }
+				    }
+				}
+				"""
 		},
 		"Got IO Exception",
 		null,
@@ -1913,17 +2057,19 @@ public void test061b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.StringReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        StringReader string  = new StringReader(\"content\");\n" +
-			"        System.out.println(string.read());\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.StringReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        StringReader string  = new StringReader("content");
+				        System.out.println(string.read());
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
 		"99", // character 'c'
 		null,
@@ -1941,24 +2087,26 @@ public void test061c() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.BufferedReader;\n" +
-			"import java.io.StringReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        StringReader input = new StringReader(\"content\");\n" +
-			"        BufferedReader br = new BufferedReader(input);\n" +
-			"        BufferedReader doubleWrap = new BufferedReader(br);\n" +
-			"        System.out.println(br.read());\n" +
-			"    }\n" +
-			"    void inline() throws IOException {\n" +
-			"        BufferedReader br = new BufferedReader(new StringReader(\"content\"));\n" +
-			"        System.out.println(br.read());\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        new X().foo();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.BufferedReader;
+				import java.io.StringReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        StringReader input = new StringReader("content");
+				        BufferedReader br = new BufferedReader(input);
+				        BufferedReader doubleWrap = new BufferedReader(br);
+				        System.out.println(br.read());
+				    }
+				    void inline() throws IOException {
+				        BufferedReader br = new BufferedReader(new StringReader("content"));
+				        System.out.println(br.read());
+				    }
+				    public static void main(String[] args) throws IOException {
+				        new X().foo();
+				    }
+				}
+				"""
 		},
 		"99",
 		null,
@@ -1976,43 +2124,47 @@ public void test061d() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileInputStream fileStream  = new FileInputStream(file);\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(fileStream);\n" +
-			"        BufferedInputStream doubleWrap = new BufferedInputStream(bis);\n" +
-			"        System.out.println(bis.available());\n" +
-			"    }\n" +
-			"    void inline() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        BufferedInputStream bis2 = new BufferedInputStream(new FileInputStream(file));\n" +
-			"        System.out.println(bis2.available());\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        try {\n" +
-			"            new X().foo();\n" +
-			"        } catch (IOException ex) {" +
-			"            System.out.println(\"Got IO Exception\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.BufferedInputStream;
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileInputStream fileStream  = new FileInputStream(file);
+				        BufferedInputStream bis = new BufferedInputStream(fileStream);
+				        BufferedInputStream doubleWrap = new BufferedInputStream(bis);
+				        System.out.println(bis.available());
+				    }
+				    void inline() throws IOException {
+				        File file = new File("somefile");
+				        BufferedInputStream bis2 = new BufferedInputStream(new FileInputStream(file));
+				        System.out.println(bis2.available());
+				    }
+				    public static void main(String[] args) throws IOException {
+				        try {
+				            new X().foo();
+				        } catch (IOException ex) {\
+				            System.out.println("Got IO Exception");
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	BufferedInputStream doubleWrap = new BufferedInputStream(bis);\n" +
-		"	                    ^^^^^^^^^^\n" +
-		"Resource leak: \'doubleWrap\' is never closed\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 15)\n" +
-		"	BufferedInputStream bis2 = new BufferedInputStream(new FileInputStream(file));\n" +
-		"	                    ^^^^\n" +
-		"Resource leak: \'bis2\' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				BufferedInputStream doubleWrap = new BufferedInputStream(bis);
+				                    ^^^^^^^^^^
+			Resource leak: \'doubleWrap\' is never closed
+			----------
+			2. ERROR in X.java (at line 15)
+				BufferedInputStream bis2 = new BufferedInputStream(new FileInputStream(file));
+				                    ^^^^
+			Resource leak: \'bis2\' is never closed
+			----------
+			""",
 		options);
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
@@ -2025,38 +2177,40 @@ public void test061e() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    FileInputStream fis;" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileInputStream fileStream  = new FileInputStream(file);\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(fileStream);\n" +
-			"        BufferedInputStream doubleWrap = new BufferedInputStream(bis);\n" +
-			"        System.out.println(bis.available());\n" +
-			"        bis.close();\n" +
-			"    }\n" +
-			"    void inline() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        BufferedInputStream bis2 = new BufferedInputStream(fis = new FileInputStream(file));\n" + // field assignment
-			"        System.out.println(bis2.available());\n" +
-			"        bis2.close();\n" +
-			"        FileInputStream fileStream  = null;\n" +
-			"        BufferedInputStream bis3 = new BufferedInputStream(fileStream = new FileInputStream(file));\n" +
-			"        System.out.println(bis3.available());\n" +
-			"        bis3.close();\n" +
-			"    }\n" +
-			"    public static void main(String[] args) throws IOException {\n" +
-			"        try {\n" +
-			"            new X().foo();\n" +
-			"        } catch (IOException ex) {" +
-			"            System.out.println(\"Got IO Exception\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.BufferedInputStream;
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				public class X {
+				    FileInputStream fis;\
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileInputStream fileStream  = new FileInputStream(file);
+				        BufferedInputStream bis = new BufferedInputStream(fileStream);
+				        BufferedInputStream doubleWrap = new BufferedInputStream(bis);
+				        System.out.println(bis.available());
+				        bis.close();
+				    }
+				    void inline() throws IOException {
+				        File file = new File("somefile");
+				        BufferedInputStream bis2 = new BufferedInputStream(fis = new FileInputStream(file));
+				        System.out.println(bis2.available());
+				        bis2.close();
+				        FileInputStream fileStream  = null;
+				        BufferedInputStream bis3 = new BufferedInputStream(fileStream = new FileInputStream(file));
+				        System.out.println(bis3.available());
+				        bis3.close();
+				    }
+				    public static void main(String[] args) throws IOException {
+				        try {
+				            new X().foo();
+				        } catch (IOException ex) {\
+				            System.out.println("Got IO Exception");
+				        }
+				    }
+				}
+				"""
 		},
 		"Got IO Exception",
 		null,
@@ -2124,26 +2278,28 @@ public void test061f2() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.OutputStream;\n" +
-			"import java.io.FileOutputStream;\n" +
-			"import java.io.BufferedOutputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void zork() throws IOException {\n" +
-			"		try {\n" +
-			"			OutputStream os = null;\n" +
-			"			try {\n" +
-			"				os = new BufferedOutputStream(new FileOutputStream(\"somefile\"));\n" +
-			"				String externalForm = \"externalPath\";\n" +
-			"			} finally {\n" +
-			"				if (os != null)\n" +
-			"					os.close();\n" +
-			"			}\n" +
-			"		} catch (IOException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"		}\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.OutputStream;
+				import java.io.FileOutputStream;
+				import java.io.BufferedOutputStream;
+				import java.io.IOException;
+				public class X {
+				    void zork() throws IOException {
+						try {
+							OutputStream os = null;
+							try {
+								os = new BufferedOutputStream(new FileOutputStream("somefile"));
+								String externalForm = "externalPath";
+							} finally {
+								if (os != null)
+									os.close();
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+				    }
+				}
+				"""
 		},
 		"",
 		null,
@@ -2162,25 +2318,27 @@ public void test061f3() throws IOException {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.FileNotFoundException;\n" +
-			"import java.io.InputStream;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"public class X {\n" +
-			"    String loadProfile(File profileFile) {\n" +
-			"		try {\n" +
-			"			InputStream stream = new BufferedInputStream(new FileInputStream(profileFile));\n" +
-			"			return loadProfile(stream);\n" +
-			"		} catch (FileNotFoundException e) {\n" +
-			"			//null\n" +
-			"		}\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	private String loadProfile(InputStream stream) {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.FileNotFoundException;
+				import java.io.InputStream;
+				import java.io.BufferedInputStream;
+				public class X {
+				    String loadProfile(File profileFile) {
+						try {
+							InputStream stream = new BufferedInputStream(new FileInputStream(profileFile));
+							return loadProfile(stream);
+						} catch (FileNotFoundException e) {
+							//null
+						}
+						return null;
+					}
+					private String loadProfile(InputStream stream) {
+						return null;
+					}
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 10)\n" +
@@ -2200,42 +2358,46 @@ public void test061g() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void closeMiddle() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileInputStream fileStream  = new FileInputStream(file);\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(fileStream);\n" +
-			"        BufferedInputStream doubleWrap = new BufferedInputStream(bis);\n" +
-			"        System.out.println(bis.available());\n" +
-			"        bis.close();\n" +
-			"    }\n" +
-			"    void closeOuter() throws IOException {\n" +
-			"        File file2 = new File(\"somefile\");\n" +
-			"        FileInputStream fileStream2  = new FileInputStream(file2);\n" +
-			"        BufferedInputStream bis2 = new BufferedInputStream(fileStream2);\n" +
-			"        BufferedInputStream doubleWrap2 = new BufferedInputStream(bis2);\n" +
-			"        System.out.println(bis2.available());\n" +
-			"        doubleWrap2.close();\n" +
-			"    }\n" +
-			"    void neverClosed() throws IOException {\n" +
-			"        File file3 = new File(\"somefile\");\n" +
-			"        FileInputStream fileStream3  = new FileInputStream(file3);\n" +
-			"        BufferedInputStream bis3 = new BufferedInputStream(fileStream3);\n" +
-			"        BufferedInputStream doubleWrap3 = new BufferedInputStream(bis3);\n" +
-			"        System.out.println(doubleWrap3.available());\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.BufferedInputStream;
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				public class X {
+				    void closeMiddle() throws IOException {
+				        File file = new File("somefile");
+				        FileInputStream fileStream  = new FileInputStream(file);
+				        BufferedInputStream bis = new BufferedInputStream(fileStream);
+				        BufferedInputStream doubleWrap = new BufferedInputStream(bis);
+				        System.out.println(bis.available());
+				        bis.close();
+				    }
+				    void closeOuter() throws IOException {
+				        File file2 = new File("somefile");
+				        FileInputStream fileStream2  = new FileInputStream(file2);
+				        BufferedInputStream bis2 = new BufferedInputStream(fileStream2);
+				        BufferedInputStream doubleWrap2 = new BufferedInputStream(bis2);
+				        System.out.println(bis2.available());
+				        doubleWrap2.close();
+				    }
+				    void neverClosed() throws IOException {
+				        File file3 = new File("somefile");
+				        FileInputStream fileStream3  = new FileInputStream(file3);
+				        BufferedInputStream bis3 = new BufferedInputStream(fileStream3);
+				        BufferedInputStream doubleWrap3 = new BufferedInputStream(bis3);
+				        System.out.println(doubleWrap3.available());
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 26)\n" +
-		"	BufferedInputStream doubleWrap3 = new BufferedInputStream(bis3);\n" +
-		"	                    ^^^^^^^^^^^\n" +
-		"Resource leak: \'doubleWrap3\' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 26)
+				BufferedInputStream doubleWrap3 = new BufferedInputStream(bis3);
+				                    ^^^^^^^^^^^
+			Resource leak: \'doubleWrap3\' is never closed
+			----------
+			""",
 		options);
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
@@ -2248,52 +2410,56 @@ public void test061h() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void closeMiddle(boolean b) throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileInputStream fileStream  = new FileInputStream(file);\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(fileStream);\n" +
-			"        BufferedInputStream doubleWrap = new BufferedInputStream(bis);\n" +
-			"        System.out.println(bis.available());\n" +
-			"        if (b)\n" +
-			"            bis.close();\n" +
-			"    }\n" +
-			"    void closeOuter(boolean b) throws IOException {\n" +
-			"        File file2 = new File(\"somefile\");\n" +
-			"        FileInputStream fileStream2  = new FileInputStream(file2);\n" +
-			"        BufferedInputStream dummy;\n" +
-			"        BufferedInputStream bis2 = (dummy = new BufferedInputStream(fileStream2));\n" +
-			"        BufferedInputStream doubleWrap2 = new BufferedInputStream(bis2);\n" +
-			"        System.out.println(bis2.available());\n" +
-			"        if (b)\n" +
-			"            doubleWrap2.close();\n" +
-			"    }\n" +
-			"    void potAndDef(boolean b) throws IOException {\n" +
-			"        File file3 = new File(\"somefile\");\n" +
-			"        FileInputStream fileStream3  = new FileInputStream(file3);\n" +
-			"        BufferedInputStream bis3 = new BufferedInputStream(fileStream3);\n" +
-			"        BufferedInputStream doubleWrap3 = new BufferedInputStream(bis3);\n" +
-			"        System.out.println(doubleWrap3.available());\n" +
-			"        if (b) bis3.close();\n" +
-			"        fileStream3.close();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.BufferedInputStream;
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				public class X {
+				    void closeMiddle(boolean b) throws IOException {
+				        File file = new File("somefile");
+				        FileInputStream fileStream  = new FileInputStream(file);
+				        BufferedInputStream bis = new BufferedInputStream(fileStream);
+				        BufferedInputStream doubleWrap = new BufferedInputStream(bis);
+				        System.out.println(bis.available());
+				        if (b)
+				            bis.close();
+				    }
+				    void closeOuter(boolean b) throws IOException {
+				        File file2 = new File("somefile");
+				        FileInputStream fileStream2  = new FileInputStream(file2);
+				        BufferedInputStream dummy;
+				        BufferedInputStream bis2 = (dummy = new BufferedInputStream(fileStream2));
+				        BufferedInputStream doubleWrap2 = new BufferedInputStream(bis2);
+				        System.out.println(bis2.available());
+				        if (b)
+				            doubleWrap2.close();
+				    }
+				    void potAndDef(boolean b) throws IOException {
+				        File file3 = new File("somefile");
+				        FileInputStream fileStream3  = new FileInputStream(file3);
+				        BufferedInputStream bis3 = new BufferedInputStream(fileStream3);
+				        BufferedInputStream doubleWrap3 = new BufferedInputStream(bis3);
+				        System.out.println(doubleWrap3.available());
+				        if (b) bis3.close();
+				        fileStream3.close();
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	BufferedInputStream doubleWrap = new BufferedInputStream(bis);\n" +
-		"	                    ^^^^^^^^^^\n" +
-		"Potential resource leak: \'doubleWrap\' may not be closed\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 20)\n" +
-		"	BufferedInputStream doubleWrap2 = new BufferedInputStream(bis2);\n" +
-		"	                    ^^^^^^^^^^^\n" +
-		"Potential resource leak: \'doubleWrap2\' may not be closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				BufferedInputStream doubleWrap = new BufferedInputStream(bis);
+				                    ^^^^^^^^^^
+			Potential resource leak: \'doubleWrap\' may not be closed
+			----------
+			2. ERROR in X.java (at line 20)
+				BufferedInputStream doubleWrap2 = new BufferedInputStream(bis2);
+				                    ^^^^^^^^^^^
+			Potential resource leak: \'doubleWrap2\' may not be closed
+			----------
+			""",
 		options);
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
@@ -2305,44 +2471,48 @@ public void test061i() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.InputStream;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void closeMiddle() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        InputStream stream  = new FileInputStream(file);\n" +
-			"        stream = new BufferedInputStream(stream);\n" +
-			"        InputStream middle;\n" +
-			"        stream = new BufferedInputStream(middle = stream);\n" +
-			"        System.out.println(stream.available());\n" +
-			"        middle.close();\n" +
-			"    }\n" +
-			"    void closeOuter() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        InputStream stream2  = new FileInputStream(file);\n" +
-			"        stream2 = new BufferedInputStream(stream2);\n" +
-			"        stream2 = new BufferedInputStream(stream2);\n" +
-			"        System.out.println(stream2.available());\n" +
-			"        stream2.close();\n" +
-			"    }\n" +
-			"    void neverClosed() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        InputStream stream3  = new FileInputStream(file);\n" +
-			"        stream3 = new BufferedInputStream(stream3);\n" +
-			"        stream3 = new BufferedInputStream(stream3);\n" +
-			"        System.out.println(stream3.available());\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.InputStream;
+				import java.io.BufferedInputStream;
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				public class X {
+				    void closeMiddle() throws IOException {
+				        File file = new File("somefile");
+				        InputStream stream  = new FileInputStream(file);
+				        stream = new BufferedInputStream(stream);
+				        InputStream middle;
+				        stream = new BufferedInputStream(middle = stream);
+				        System.out.println(stream.available());
+				        middle.close();
+				    }
+				    void closeOuter() throws IOException {
+				        File file = new File("somefile");
+				        InputStream stream2  = new FileInputStream(file);
+				        stream2 = new BufferedInputStream(stream2);
+				        stream2 = new BufferedInputStream(stream2);
+				        System.out.println(stream2.available());
+				        stream2.close();
+				    }
+				    void neverClosed() throws IOException {
+				        File file = new File("somefile");
+				        InputStream stream3  = new FileInputStream(file);
+				        stream3 = new BufferedInputStream(stream3);
+				        stream3 = new BufferedInputStream(stream3);
+				        System.out.println(stream3.available());
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 26)\n" +
-		"	InputStream stream3  = new FileInputStream(file);\n" +
-		"	            ^^^^^^^\n" +
-		"Resource leak: \'stream3\' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 26)
+				InputStream stream3  = new FileInputStream(file);
+				            ^^^^^^^
+			Resource leak: \'stream3\' is never closed
+			----------
+			""",
 		options);
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
@@ -2354,20 +2524,22 @@ public void test061j() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.InputStream;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo(InputStream stream) throws IOException {\n" +
-			"        stream = new BufferedInputStream(stream);\n" +
-			"        System.out.println(stream.available());\n" +
-			"        stream.close();\n" +
-			"    }\n" +
-			"    void boo(InputStream stream2) throws IOException {\n" +
-			"        stream2 = new BufferedInputStream(stream2);\n" +
-			"        System.out.println(stream2.available());\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.InputStream;
+				import java.io.BufferedInputStream;
+				import java.io.IOException;
+				public class X {
+				    void foo(InputStream stream) throws IOException {
+				        stream = new BufferedInputStream(stream);
+				        System.out.println(stream.available());
+				        stream.close();
+				    }
+				    void boo(InputStream stream2) throws IOException {
+				        stream2 = new BufferedInputStream(stream2);
+				        System.out.println(stream2.available());
+				    }
+				}
+				"""
 		},
 		"",
 		null,
@@ -2385,16 +2557,18 @@ public void test061k() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    BufferedInputStream getReader(File file) throws IOException {\n" +
-			"        FileInputStream stream = new FileInputStream(file);\n" +
-			"        return new BufferedInputStream(stream);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.BufferedInputStream;
+				import java.io.IOException;
+				public class X {
+				    BufferedInputStream getReader(File file) throws IOException {
+				        FileInputStream stream = new FileInputStream(file);
+				        return new BufferedInputStream(stream);
+				    }
+				}
+				"""
 		},
 		"",
 		null,
@@ -2412,17 +2586,19 @@ public void test061l() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    BufferedInputStream stream;\n" +
-			"    void foo(File file) throws IOException {\n" +
-			"        FileInputStream s = new FileInputStream(file);\n" +
-			"        stream = new BufferedInputStream(s);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.BufferedInputStream;
+				import java.io.IOException;
+				public class X {
+				    BufferedInputStream stream;
+				    void foo(File file) throws IOException {
+				        FileInputStream s = new FileInputStream(file);
+				        stream = new BufferedInputStream(s);
+				    }
+				}
+				"""
 		},
 		"",
 		null,
@@ -2440,53 +2616,57 @@ public void test061l2() throws IOException {
 	runLeakTest(
 		new String[] {
 			"xy/Leaks.java",
-			"package xy;\n" +
-			"\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"\n" +
-			"public class Leaks {\n" +
-			"    private FileInputStream fInput;\n" +
-			"\n" +
-			"    Leaks(String name) throws IOException {\n" +
-			"        FileInputStream fileInputStream= new FileInputStream(name);\n" +
-			"        fInput= fileInputStream;\n" + // warning silenced by field assignment
-			"        Objects.hashCode(fInput);\n" +
-			"        \n" +
-			"        init(name);\n" +
-			"    }\n" +
-			"    \n" +
-			"    Leaks() throws IOException {\n" +
-			"        this(new FileInputStream(\"default\")); // potential problem\n" +
-			"    }\n" +
-			"    \n" +
-			"    Leaks(FileInputStream fis) throws IOException {\n" +
-			"        fInput= fis;\n" +
-			"    }\n" +
-			"    void init(String name) throws IOException {\n" +
-			"        FileInputStream fileInputStream= new FileInputStream(name);\n" +
-			"        fInput= fileInputStream;\n" + // warning silenced by field assignment
-			"        Objects.hashCode(fInput);\n" +
-			"    }\n" +
-			"    \n" +
-			"    public void dispose() throws IOException {\n" +
-			"        fInput.close();\n" +
-			"    }\n" +
-			"}\n" +
-			"class Objects {\n" + // mock java.util.Objects (@since 1.7).
-			"    static int hashCode(Object o) { return 13; }\n" +
-			"}\n"
+			"""
+				package xy;
+				
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				
+				public class Leaks {
+				    private FileInputStream fInput;
+				
+				    Leaks(String name) throws IOException {
+				        FileInputStream fileInputStream= new FileInputStream(name);
+				        fInput= fileInputStream;
+				        Objects.hashCode(fInput);
+				       \s
+				        init(name);
+				    }
+				   \s
+				    Leaks() throws IOException {
+				        this(new FileInputStream("default")); // potential problem
+				    }
+				   \s
+				    Leaks(FileInputStream fis) throws IOException {
+				        fInput= fis;
+				    }
+				    void init(String name) throws IOException {
+				        FileInputStream fileInputStream= new FileInputStream(name);
+				        fInput= fileInputStream;
+				        Objects.hashCode(fInput);
+				    }
+				   \s
+				    public void dispose() throws IOException {
+				        fInput.close();
+				    }
+				}
+				class Objects {
+				    static int hashCode(Object o) { return 13; }
+				}
+				"""
 		},
 		getTest061l2_log(),
 		options);
 }
 protected String getTest061l2_log() {
-	return "----------\n" +
-	"1. ERROR in xy\\Leaks.java (at line 18)\n" +
-	"	this(new FileInputStream(\"default\")); // potential problem\n" +
-	"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-	"Potential resource leak: '<unassigned Closeable value>' may not be closed\n" +
-	"----------\n";
+	return """
+		----------
+		1. ERROR in xy\\Leaks.java (at line 18)
+			this(new FileInputStream("default")); // potential problem
+			     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Potential resource leak: '<unassigned Closeable value>' may not be closed
+		----------
+		""";
 }
 
 // Bug 361407 - Resource leak warning when resource is assigned to a field outside of constructor
@@ -2498,27 +2678,29 @@ public void test061l3() throws IOException {
 	runLeakTest(
 		new String[] {
 			"xy/Leaks.java",
-			"package xy;\n" +
-			"\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"\n" +
-			"public class Leaks {\n" +
-			"\n" +
-			"    Leaks(String name) throws IOException {\n" +
-			"        FileInputStream fileInputStream= new FileInputStream(name);\n" +
-			"        Objects.hashCode(fileInputStream);\n" +
-			"        \n" +
-			"        init(name);\n" +
-			"    }\n" +
-			"    void init(String name) throws IOException {\n" +
-			"        FileInputStream fileInputStream= new FileInputStream(name);\n" +
-			"        Objects.hashCode(fileInputStream);\n" +
-			"    }\n" +
-			"}\n" +
-			"class Objects {\n" + // mock java.util.Objects (@since 1.7).
-			"    static int hashCode(Object o) { return 13; }\n" +
-			"}\n"
+			"""
+				package xy;
+				
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				
+				public class Leaks {
+				
+				    Leaks(String name) throws IOException {
+				        FileInputStream fileInputStream= new FileInputStream(name);
+				        Objects.hashCode(fileInputStream);
+				       \s
+				        init(name);
+				    }
+				    void init(String name) throws IOException {
+				        FileInputStream fileInputStream= new FileInputStream(name);
+				        Objects.hashCode(fileInputStream);
+				    }
+				}
+				class Objects {
+				    static int hashCode(Object o) { return 13; }
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in xy\\Leaks.java (at line 9)\n" +
@@ -2543,27 +2725,29 @@ public void test061m() throws IOException {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.InputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    BufferedInputStream stream;\n" +
-			"    BufferedInputStream foo(File file) throws IOException {\n" +
-			"        FileInputStream s = new FileInputStream(file);\n" +
-			"        return check(new BufferedInputStream(s));\n" +
-			"    }\n" +
-			"    BufferedInputStream foo2(FileInputStream s, File file) throws IOException {\n" +
-			"        s = new FileInputStream(file);\n" +
-			"        return check(s);\n" +
-			"    }\n" +
-			"    BufferedInputStream foo3(InputStream s) throws IOException {\n" +
-			"        s = check(s);\n" +
-			"        return check(s);\n" +
-			"    }\n" +
-			"    BufferedInputStream check(InputStream s) { return null; }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.BufferedInputStream;
+				import java.io.InputStream;
+				import java.io.IOException;
+				public class X {
+				    BufferedInputStream stream;
+				    BufferedInputStream foo(File file) throws IOException {
+				        FileInputStream s = new FileInputStream(file);
+				        return check(new BufferedInputStream(s));
+				    }
+				    BufferedInputStream foo2(FileInputStream s, File file) throws IOException {
+				        s = new FileInputStream(file);
+				        return check(s);
+				    }
+				    BufferedInputStream foo3(InputStream s) throws IOException {
+				        s = check(s);
+				        return check(s);
+				    }
+				    BufferedInputStream check(InputStream s) { return null; }
+				}
+				"""
 		},
 		// TODO: also these warnings *might* be avoidable by detecting check(s) as a wrapper creation??
 		"----------\n" +
@@ -2593,21 +2777,25 @@ public void test061n() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.PrintWriter;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        PrintWriter writer = new PrintWriter(\"filename\");\n" +
-			"        writer.write(1);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.PrintWriter;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        PrintWriter writer = new PrintWriter("filename");
+				        writer.write(1);
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	PrintWriter writer = new PrintWriter(\"filename\");\n" +
-		"	            ^^^^^^\n" +
-		"Resource leak: \'writer\' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				PrintWriter writer = new PrintWriter("filename");
+				            ^^^^^^
+			Resource leak: \'writer\' is never closed
+			----------
+			""",
 		options);
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
@@ -2619,28 +2807,32 @@ public void test061o() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo(boolean bar) throws IOException {\n" +
-			"        File file = new File(\"somefil\");\n" +
-			"        FileInputStream fileStream  = new FileInputStream(file);\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(fileStream);   \n" +
-			"        if (bar) {\n" +
-			"            BufferedInputStream doubleWrap = new BufferedInputStream(bis);\n" +
-			"            doubleWrap.close();\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.BufferedInputStream;
+				import java.io.IOException;
+				public class X {
+				    void foo(boolean bar) throws IOException {
+				        File file = new File("somefil");
+				        FileInputStream fileStream  = new FileInputStream(file);
+				        BufferedInputStream bis = new BufferedInputStream(fileStream);  \s
+				        if (bar) {
+				            BufferedInputStream doubleWrap = new BufferedInputStream(bis);
+				            doubleWrap.close();
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	BufferedInputStream bis = new BufferedInputStream(fileStream);   \n" +
-		"	                    ^^^\n" +
-		"Potential resource leak: \'bis\' may not be closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				BufferedInputStream bis = new BufferedInputStream(fileStream);  \s
+				                    ^^^
+			Potential resource leak: \'bis\' may not be closed
+			----------
+			""",
 		options);
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
@@ -2652,27 +2844,31 @@ public void test061f4() throws IOException {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.FileNotFoundException;\n" +
-			"import java.io.InputStream;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"public class X {\n" +
-			"    	void foo(File location, String adviceFilePath) throws FileNotFoundException {\n" +
-			"		InputStream stream = null;\n" +
-			"		if (location.isDirectory()) {\n" +
-			"			File adviceFile = new File(location, adviceFilePath);\n" +
-			"			stream = new BufferedInputStream(new FileInputStream(adviceFile));\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.FileNotFoundException;
+				import java.io.InputStream;
+				import java.io.BufferedInputStream;
+				public class X {
+				    	void foo(File location, String adviceFilePath) throws FileNotFoundException {
+						InputStream stream = null;
+						if (location.isDirectory()) {
+							File adviceFile = new File(location, adviceFilePath);
+							stream = new BufferedInputStream(new FileInputStream(adviceFile));
+						}
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	stream = new BufferedInputStream(new FileInputStream(adviceFile));\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'stream\' may not be closed\n" + // message could be stronger, but the enclosing if blurs the picture
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 11)
+				stream = new BufferedInputStream(new FileInputStream(adviceFile));
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Potential resource leak: \'stream\' may not be closed
+			----------
+			""",
 		options);
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
@@ -2685,17 +2881,19 @@ public void test061p() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.PrintWriter;\n" +
-			"import java.io.BufferedWriter;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        PrintWriter writer = new PrintWriter(\"filename\");\n" +
-			"        try (BufferedWriter bw = new BufferedWriter(writer)) {\n" +
-			"            bw.write(1);\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.PrintWriter;
+				import java.io.BufferedWriter;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        PrintWriter writer = new PrintWriter("filename");
+				        try (BufferedWriter bw = new BufferedWriter(writer)) {
+				            bw.write(1);
+				        }
+				    }
+				}
+				"""
 		},
 		"",
 		null,
@@ -2715,25 +2913,29 @@ public void _test061q() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.PrintWriter;\n" +
-			"import java.io.BufferedWriter;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo(boolean b) throws IOException {\n" +
-			"        PrintWriter writer = new PrintWriter(\"filename\");\n" +
-			"        if (b)\n" +
-			"            try (BufferedWriter bw = new BufferedWriter(writer)) {\n" +
-			"                bw.write(1);\n" +
-			"            }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.PrintWriter;
+				import java.io.BufferedWriter;
+				import java.io.IOException;
+				public class X {
+				    void foo(boolean b) throws IOException {
+				        PrintWriter writer = new PrintWriter("filename");
+				        if (b)
+				            try (BufferedWriter bw = new BufferedWriter(writer)) {
+				                bw.write(1);
+				            }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	PrintWriter writer = new PrintWriter(\\\"filename\\\");\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'writer\' may not be closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				PrintWriter writer = new PrintWriter(\\"filename\\");
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Potential resource leak: \'writer\' may not be closed
+			----------
+			""",
 		options);
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
@@ -2745,18 +2947,20 @@ public void test061r() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileInputStream;\n" +
-			"import java.io.File;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    FileInputStream foo() throws IOException {\n" +
-			"        File file = new File(\"somefil\");\n" +
-			"        FileInputStream fileStream  = new FileInputStream(file);\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(fileStream);   \n" +
-			"        return fileStream;\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileInputStream;
+				import java.io.File;
+				import java.io.BufferedInputStream;
+				import java.io.IOException;
+				public class X {
+				    FileInputStream foo() throws IOException {
+				        File file = new File("somefil");
+				        FileInputStream fileStream  = new FileInputStream(file);
+				        BufferedInputStream bis = new BufferedInputStream(fileStream);  \s
+				        return fileStream;
+				    }
+				}
+				"""
 		},
 		"",
 		null,
@@ -2774,19 +2978,21 @@ public void test061s() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileInputStream;\n" +
-			"import java.io.File;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefil\");\n" +
-			"        FileInputStream fileStream  = new FileInputStream(file);\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(fileStream);\n" +
-			"        bis = null;\n" +
-			"        fileStream.close();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileInputStream;
+				import java.io.File;
+				import java.io.BufferedInputStream;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefil");
+				        FileInputStream fileStream  = new FileInputStream(file);
+				        BufferedInputStream bis = new BufferedInputStream(fileStream);
+				        bis = null;
+				        fileStream.close();
+				    }
+				}
+				"""
 		},
 		"",
 		null,
@@ -2804,21 +3010,25 @@ public void test062a() throws IOException {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileOutputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        new FileOutputStream(new File(\"C:\\temp\\foo.txt\")).write(1);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileOutputStream;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        new FileOutputStream(new File("C:\\temp\\foo.txt")).write(1);
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	new FileOutputStream(new File(\"C:\\temp\\foo.txt\")).write(1);\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				new FileOutputStream(new File("C:\\temp\\foo.txt")).write(1);
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			""",
 		options);
 }
 // Bug 362331 - Resource leak not detected when closeable not assigned to variable
@@ -2830,14 +3040,16 @@ public void test062b() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileOutputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        new FileOutputStream(new File(\"C:\\temp\\foo.txt\")).close();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileOutputStream;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        new FileOutputStream(new File("C:\\temp\\foo.txt")).close();
+				    }
+				}
+				"""
 		},
 		"",
 		null,
@@ -2855,18 +3067,20 @@ public void test062c() throws IOException {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileOutputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        writeIt(new FileOutputStream(new File(\"C:\\temp\\foo.txt\")));\n" +
-			"    }\n" +
-			"    void writeIt(FileOutputStream fos) throws IOException {\n" +
-			"        fos.write(1);\n" +
-			"        fos.close();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileOutputStream;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        writeIt(new FileOutputStream(new File("C:\\temp\\foo.txt")));
+				    }
+				    void writeIt(FileOutputStream fos) throws IOException {
+				        fos.write(1);
+				        fos.close();
+				    }
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 6)\n" +
@@ -2885,21 +3099,25 @@ public void test062d() throws IOException {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileOutputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        new FileOutputStream(new File(\"C:\\temp\\foo.txt\"));\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileOutputStream;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        new FileOutputStream(new File("C:\\temp\\foo.txt"));
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	new FileOutputStream(new File(\"C:\\temp\\foo.txt\"));\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				new FileOutputStream(new File("C:\\temp\\foo.txt"));
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			""",
 		options);
 }
 // Bug 362332 - Only report potential leak when closeable not created in the local scope
@@ -2911,22 +3129,24 @@ public void test063a() throws IOException {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void read(File file) throws IOException {\n" +
-			"        FileInputStream stream = new FileInputStream(file);\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(stream); // never since reassigned\n" +
-			"        FileInputStream stream2 = new FileInputStream(file); // unsure since passed to method\n" +
-			"        bis = getReader(stream2); // unsure since obtained from method\n" +
-			"        bis.available();\n" +
-			"    }\n" +
-			"    BufferedInputStream getReader(FileInputStream stream) throws IOException {\n" +
-			"        return new BufferedInputStream(stream);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.BufferedInputStream;
+				import java.io.IOException;
+				public class X {
+				    void read(File file) throws IOException {
+				        FileInputStream stream = new FileInputStream(file);
+				        BufferedInputStream bis = new BufferedInputStream(stream); // never since reassigned
+				        FileInputStream stream2 = new FileInputStream(file); // unsure since passed to method
+				        bis = getReader(stream2); // unsure since obtained from method
+				        bis.available();
+				    }
+				    BufferedInputStream getReader(FileInputStream stream) throws IOException {
+				        return new BufferedInputStream(stream);
+				    }
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
@@ -2955,17 +3175,19 @@ public void test063b() throws IOException {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileInputStream;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    FileInputStream stream;\n" +
-			"    void read() throws IOException {\n" +
-			"        FileInputStream s = this.stream;\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(s); // don't complain since s is obtained from a field\n" +
-			"        bis.available();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileInputStream;
+				import java.io.BufferedInputStream;
+				import java.io.IOException;
+				public class X {
+				    FileInputStream stream;
+				    void read() throws IOException {
+				        FileInputStream s = this.stream;
+				        BufferedInputStream bis = new BufferedInputStream(s); // don't complain since s is obtained from a field
+				        bis.available();
+				    }
+				}
+				"""
 		},
 		"",
 		null,
@@ -2983,17 +3205,19 @@ public void test063c() throws IOException {
 	this.runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileInputStream;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    BufferedInputStream stream;\n" +
-			"    void read() throws IOException {\n" +
-			"        FileInputStream s = new FileInputStream(\"somefile\");\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(s);\n" +
-			"        this.stream = bis;\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileInputStream;
+				import java.io.BufferedInputStream;
+				import java.io.IOException;
+				public class X {
+				    BufferedInputStream stream;
+				    void read() throws IOException {
+				        FileInputStream s = new FileInputStream("somefile");
+				        BufferedInputStream bis = new BufferedInputStream(s);
+				        this.stream = bis;
+				    }
+				}
+				"""
 		},
 		getTest063c_log(),
 		options);
@@ -3011,36 +3235,40 @@ public void test063d() throws IOException {
 	runTestsExpectingErrorsOnlyIn17(
 		new String[] {
 			"X.java",
-			"import java.io.FileInputStream;\n" +
-			"import java.io.BufferedInputStream;\n" +
-			"import java.io.InputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo( InputStream input) throws IOException {\n" +
-			"        FileInputStream input1  = (FileInputStream)input;\n" +
-			"        System.out.println(input1.read());\n" +
-			"        input.close();\n" + // don't propose t-w-r for argument
-			"    }\n" +
-			"    void foo() throws IOException {\n" +
-			"        InputStream input = new FileInputStream(\"somefile\");\n" +
-			"        FileInputStream input1  = (FileInputStream)input;\n" +
-			"        System.out.println(input1.read());\n" +
-			"        input.close();\n" + // do propose t-w-r, not from a method argument
-			"    }\n" +
-			"    void foo3( InputStream input, InputStream input2) throws IOException {\n" +
-			"        FileInputStream input1  = (FileInputStream)input;\n" + // still don't claim because obtained from outside
-			"        System.out.println(input1.read());\n" +
-			"        BufferedInputStream bis = new BufferedInputStream(input2);\n" +
-			"        System.out.println(bis.read());\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileInputStream;
+				import java.io.BufferedInputStream;
+				import java.io.InputStream;
+				import java.io.IOException;
+				public class X {
+				    void foo( InputStream input) throws IOException {
+				        FileInputStream input1  = (FileInputStream)input;
+				        System.out.println(input1.read());
+				        input.close();
+				    }
+				    void foo() throws IOException {
+				        InputStream input = new FileInputStream("somefile");
+				        FileInputStream input1  = (FileInputStream)input;
+				        System.out.println(input1.read());
+				        input.close();
+				    }
+				    void foo3( InputStream input, InputStream input2) throws IOException {
+				        FileInputStream input1  = (FileInputStream)input;
+				        System.out.println(input1.read());
+				        BufferedInputStream bis = new BufferedInputStream(input2);
+				        System.out.println(bis.read());
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	InputStream input = new FileInputStream(\"somefile\");\n" +
-		"	            ^^^^^\n" +
-		"Resource \'input\' should be managed by try-with-resource\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 12)
+				InputStream input = new FileInputStream("somefile");
+				            ^^^^^
+			Resource \'input\' should be managed by try-with-resource
+			----------
+			""",
 		options);
 }
 // Bug 362332 - Only report potential leak when closeable not created in the local scope
@@ -3052,16 +3280,18 @@ public void test063e() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    FileInputStream input1;\n" +
-			"    public void foo() throws IOException {\n" +
-			"        FileInputStream input = input1;\n" +
-			"        input = new FileInputStream(\"adfafd\");\n" +
-			"        input.close();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				public class X {
+				    FileInputStream input1;
+				    public void foo() throws IOException {
+				        FileInputStream input = input1;
+				        input = new FileInputStream("adfafd");
+				        input.close();
+				    }
+				}
+				"""
 		},
 		"",
 		null,
@@ -3080,48 +3310,49 @@ public void testBug368709a() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.*;\n" +
-			"import java.util.zip.*;\n" +
-			"public class X {\n" +
-			"  Object db, pack;\n" + // mock
-			"  int objectOffset, headerLength, type, size;\n" +
-			"  public ObjectStream openStream() throws MissingObjectException, IOException {\n" +
-			"    WindowCursor wc = new WindowCursor(db);\n" +
-			"    InputStream in;\n" +
-			"    try\n" +
-			"      {\n" +
-			"        in = new PackInputStream(pack, (objectOffset + headerLength), wc);\n" +
-			"      }\n" +
-			"    catch (IOException packGone)\n" +
-			"      {\n" +
-			"        return wc.open(getObjectId(), type).openStream();\n" +
-			"      }\n" +
-			"    in = new BufferedInputStream(new InflaterInputStream(in, wc.inflater(), 8192), 8192);\n" +
-			"    return new ObjectStream.Filter(type, size, in);\n" +
-			"  }\n" +
-			"  String getObjectId() { return \"\"; }\n" + // mock
-			"}\n" +
-			// mock:
-			"class WindowCursor {\n" +
-			"    WindowCursor(Object db) {}\n" +
-			"    ObjectStream open(String id, int type) { return null; }\n" +
-			"    Inflater inflater() { return null; }\n" +
-			"}\n" +
-			"class MissingObjectException extends Exception {\n" +
-			"    public static final long serialVersionUID = 13L;\n" +
-			"    MissingObjectException() { super();}\n" +
-			"}\n" +
-			"class PackInputStream extends InputStream {\n" +
-			"    PackInputStream(Object pack, int offset, WindowCursor wc) throws IOException {}\n" +
-			"    public int read() { return 0; }\n" +
-			"}\n" +
-			"class ObjectStream extends InputStream {\n" +
-			"    static class Filter extends ObjectStream {\n" +
-			"        Filter(int type, int size, InputStream in) { }\n" +
-			"    }\n" +
-			"    ObjectStream openStream() { return this; }\n" +
-			"    public int read() { return 0; }\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				import java.util.zip.*;
+				public class X {
+				  Object db, pack;
+				  int objectOffset, headerLength, type, size;
+				  public ObjectStream openStream() throws MissingObjectException, IOException {
+				    WindowCursor wc = new WindowCursor(db);
+				    InputStream in;
+				    try
+				      {
+				        in = new PackInputStream(pack, (objectOffset + headerLength), wc);
+				      }
+				    catch (IOException packGone)
+				      {
+				        return wc.open(getObjectId(), type).openStream();
+				      }
+				    in = new BufferedInputStream(new InflaterInputStream(in, wc.inflater(), 8192), 8192);
+				    return new ObjectStream.Filter(type, size, in);
+				  }
+				  String getObjectId() { return ""; }
+				}
+				class WindowCursor {
+				    WindowCursor(Object db) {}
+				    ObjectStream open(String id, int type) { return null; }
+				    Inflater inflater() { return null; }
+				}
+				class MissingObjectException extends Exception {
+				    public static final long serialVersionUID = 13L;
+				    MissingObjectException() { super();}
+				}
+				class PackInputStream extends InputStream {
+				    PackInputStream(Object pack, int offset, WindowCursor wc) throws IOException {}
+				    public int read() { return 0; }
+				}
+				class ObjectStream extends InputStream {
+				    static class Filter extends ObjectStream {
+				        Filter(int type, int size, InputStream in) { }
+				    }
+				    ObjectStream openStream() { return this; }
+				    public int read() { return 0; }
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 15)\n" +
@@ -3146,17 +3377,19 @@ public void testBug368709b() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.*;\n" +
-			"import java.util.zip.*;\n" +
-			"public class X {\n" +
-			"  void doit() throws IOException {\n" +
-			"    InputStream in = new FileInputStream(\"somefile\");\n" +
-			"    in = new BufferedInputStream(new InflaterInputStream(in, inflater(), 8192), 8192);\n" +
-			"    process(in);\n" +
-			"  }\n" +
-			"  Inflater inflater() { return null; }\n" +
-			"  void process(InputStream is) { }\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				import java.util.zip.*;
+				public class X {
+				  void doit() throws IOException {
+				    InputStream in = new FileInputStream("somefile");
+				    in = new BufferedInputStream(new InflaterInputStream(in, inflater(), 8192), 8192);
+				    process(in);
+				  }
+				  Inflater inflater() { return null; }
+				  void process(InputStream is) { }
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 5)\n" +
@@ -3175,28 +3408,32 @@ public void test064() {
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	runLeakTest(new String[] {
 		"Test064.java",
-		"import java.io.*;\n" +
-		"public class Test064 {\n" +
-		"    void foo(File outfile) {\n" +
-		"        OutputStream out= System.out;\n" +
-		"        if (outfile != null) {\n" +
-		"            try {\n" +
-		"                out = new FileOutputStream(outfile);\n" +
-		"            } catch (java.io.IOException e) {\n" +
-		"                throw new RuntimeException(e);\n" +
-		"            }\n" +
-		"        }\n" +
-		"        setOutput(out);\n" +
-		"    }\n" +
-		"    private void setOutput(OutputStream out) { }\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			public class Test064 {
+			    void foo(File outfile) {
+			        OutputStream out= System.out;
+			        if (outfile != null) {
+			            try {
+			                out = new FileOutputStream(outfile);
+			            } catch (java.io.IOException e) {
+			                throw new RuntimeException(e);
+			            }
+			        }
+			        setOutput(out);
+			    }
+			    private void setOutput(OutputStream out) { }
+			}
+			"""
 	},
-	"----------\n" +
-	"1. ERROR in Test064.java (at line 7)\n" +
-	"	out = new FileOutputStream(outfile);\n" +
-	"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-	"Potential resource leak: \'out\' may not be closed\n" +
-	"----------\n",
+	"""
+		----------
+		1. ERROR in Test064.java (at line 7)
+			out = new FileOutputStream(outfile);
+			^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Potential resource leak: \'out\' may not be closed
+		----------
+		""",
 	options);
 }
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
@@ -3210,28 +3447,30 @@ public void _test065() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	this.runConformTest(new String[] {
 		"Test065.java",
-		"import java.io.*;\n" +
-		"class MyException extends Exception{}\n" +
-		"public class Test065 {\n" +
-		"	void foo(String fileName) throws IOException, MyException {\n" +
-		"		FileReader       fileRead   = new FileReader(fileName);\n" +
-		"		BufferedReader   bufRead    = new BufferedReader(fileRead);\n" +
-		"		LineNumberReader lineReader = new LineNumberReader(bufRead);\n" +
-		"		try {\n" +
-		"		while (lineReader.readLine() != null) {\n" +
-		"			bufRead.close();\n" +
-		"			callSome();  // only this can throw MyException\n" +
-		"		}\n" +
-		"		} catch (MyException e) {\n" +
-		"			throw e;  // Pot. leak reported here\n" +
-		"		}\n" +
-		"		bufRead.close(); \n" +
-		"	}\n" +
-		"	private void callSome() throws MyException\n" +
-		"	{\n" +
-		"		\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			class MyException extends Exception{}
+			public class Test065 {
+				void foo(String fileName) throws IOException, MyException {
+					FileReader       fileRead   = new FileReader(fileName);
+					BufferedReader   bufRead    = new BufferedReader(fileRead);
+					LineNumberReader lineReader = new LineNumberReader(bufRead);
+					try {
+					while (lineReader.readLine() != null) {
+						bufRead.close();
+						callSome();  // only this can throw MyException
+					}
+					} catch (MyException e) {
+						throw e;  // Pot. leak reported here
+					}
+					bufRead.close();\s
+				}
+				private void callSome() throws MyException
+				{
+				\t
+				}
+			}
+			"""
 	},
 	"",
 	null,
@@ -3250,28 +3489,32 @@ public void test066() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	runLeakTest(new String[] {
 		"Test066.java",
-		"import java.io.*;\n" +
-		"class MyException extends Exception{}\n" +
-		"public class Test066 {\n" +
-		"    void countFileLines(String fileName) throws IOException {\n" +
-		"		FileReader       fileRead   = new FileReader(fileName);\n" +
-		"		BufferedReader   bufRead    = new BufferedReader(fileRead);\n" +
-		"		LineNumberReader lineReader = new LineNumberReader(bufRead);\n" +
-		"		while (lineReader.readLine() != null) {\n" +
-		"			if (lineReader.markSupported())\n" +
-		"               throw new IOException();\n" +
-		"			bufRead.close();\n" +
-		"		}\n" +
-		"		bufRead.close();\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			class MyException extends Exception{}
+			public class Test066 {
+			    void countFileLines(String fileName) throws IOException {
+					FileReader       fileRead   = new FileReader(fileName);
+					BufferedReader   bufRead    = new BufferedReader(fileRead);
+					LineNumberReader lineReader = new LineNumberReader(bufRead);
+					while (lineReader.readLine() != null) {
+						if (lineReader.markSupported())
+			               throw new IOException();
+						bufRead.close();
+					}
+					bufRead.close();
+				}
+			}
+			"""
 	},
-	"----------\n" +
-	"1. ERROR in Test066.java (at line 10)\n" +
-	"	throw new IOException();\n" +
-	"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-	"Potential resource leak: \'lineReader\' may not be closed at this location\n" +
-	"----------\n",
+	"""
+		----------
+		1. ERROR in Test066.java (at line 10)
+			throw new IOException();
+			^^^^^^^^^^^^^^^^^^^^^^^^
+		Potential resource leak: \'lineReader\' may not be closed at this location
+		----------
+		""",
 	options);
 }
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
@@ -3283,28 +3526,32 @@ public void test066b() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	runLeakTest(new String[] {
 		"Test066.java",
-		"import java.io.*;\n" +
-		"class MyException extends Exception{}\n" +
-		"public class Test066 {\n" +
-		"    void countFileLines(String fileName) throws IOException {\n" +
-		"		FileReader       fileRead   = new FileReader(fileName);\n" +
-		"		BufferedReader   bufRead    = new BufferedReader(fileRead);\n" +
-		"		LineNumberReader lineReader = new LineNumberReader(bufRead);\n" +
-		"		while (lineReader.readLine() != null) {\n" +
-		"			if (lineReader.markSupported())\n" +
-		"               throw new IOException();\n" +
-		"			lineReader.close();\n" +
-		"		}\n" +
-		"		lineReader.close();\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			class MyException extends Exception{}
+			public class Test066 {
+			    void countFileLines(String fileName) throws IOException {
+					FileReader       fileRead   = new FileReader(fileName);
+					BufferedReader   bufRead    = new BufferedReader(fileRead);
+					LineNumberReader lineReader = new LineNumberReader(bufRead);
+					while (lineReader.readLine() != null) {
+						if (lineReader.markSupported())
+			               throw new IOException();
+						lineReader.close();
+					}
+					lineReader.close();
+				}
+			}
+			"""
 	},
-	"----------\n" +
-	"1. ERROR in Test066.java (at line 10)\n" +
-	"	throw new IOException();\n" +
-	"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-	"Potential resource leak: \'lineReader\' may not be closed at this location\n" +
-	"----------\n",
+	"""
+		----------
+		1. ERROR in Test066.java (at line 10)
+			throw new IOException();
+			^^^^^^^^^^^^^^^^^^^^^^^^
+		Potential resource leak: \'lineReader\' may not be closed at this location
+		----------
+		""",
 	options);
 }
 
@@ -3319,16 +3566,18 @@ public void _test067() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	this.runConformTest(new String[] {
 		"Test067.java",
-		"import java.io.*;\n" +
-		"public class Test067 {\n" +
-		"	public void comment12() throws IOException {\n" +
-		"    	LineNumberReader o = null;\n" +
-		"    	try {\n" +
-		"    		o = new LineNumberReader(null);    		\n" +
-		"    	} catch (NumberFormatException e) {    		\n" +
-		"    	}\n" +
-		"    }\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			public class Test067 {
+				public void comment12() throws IOException {
+			    	LineNumberReader o = null;
+			    	try {
+			    		o = new LineNumberReader(null);    	\t
+			    	} catch (NumberFormatException e) {    	\t
+			    	}
+			    }
+			}
+			"""
 	},
 	"",
 	null,
@@ -3347,16 +3596,18 @@ public void test067b() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	this.runConformTest(new String[] {
 		"Test067.java",
-		"import java.io.*;\n" +
-		"public class Test067 {\n" +
-		"	public void comment12b() throws IOException {\n" +
-		"		LineNumberReader o = new LineNumberReader(null);\n" +
-		"    	try {\n" +
-		"    		o.close();\n" +
-		"    	} catch (NumberFormatException e) {\n" +
-		"    	}\n" +
-		"    }\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			public class Test067 {
+				public void comment12b() throws IOException {
+					LineNumberReader o = new LineNumberReader(null);
+			    	try {
+			    		o.close();
+			    	} catch (NumberFormatException e) {
+			    	}
+			    }
+			}
+			"""
 	},
 	"",
 	null,
@@ -3375,24 +3626,26 @@ public void test068() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	this.runConformTest(new String[] {
 		"Test068.java",
-		"import java.io.*;\n" +
-		"public class Test068 {\n" +
-		"	class ProcessingStep extends OutputStream {\n" +
-		"		public void write(int b) throws IOException {}\n" +
-		"		public OutputStream getDestination() { return null; }\n" +
-		"	}\n" +
-		"	class ArtifactOutputStream  extends OutputStream {\n" +
-		"		public void write(int b) throws IOException {}\n" +
-		"	}" +
-		"	ArtifactOutputStream comment13(OutputStream stream) {\n" +
-		"		OutputStream current = stream;\n" +
-		"		while (current instanceof ProcessingStep)\n" +
-		"			current = ((ProcessingStep) current).getDestination();\n" +  // we previously saw a bogus warning here.
-		"		if (current instanceof ArtifactOutputStream)\n" +
-		"			return (ArtifactOutputStream) current;\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			public class Test068 {
+				class ProcessingStep extends OutputStream {
+					public void write(int b) throws IOException {}
+					public OutputStream getDestination() { return null; }
+				}
+				class ArtifactOutputStream  extends OutputStream {
+					public void write(int b) throws IOException {}
+				}\
+				ArtifactOutputStream comment13(OutputStream stream) {
+					OutputStream current = stream;
+					while (current instanceof ProcessingStep)
+						current = ((ProcessingStep) current).getDestination();
+					if (current instanceof ArtifactOutputStream)
+						return (ArtifactOutputStream) current;
+					return null;
+				}
+			}
+			"""
 	},
 	"",
 	null,
@@ -3412,27 +3665,29 @@ public void test069() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	this.runConformTest(new String[] {
 		"Test069.java",
-		"import java.io.*;\n" +
-		"import java.util.Collection;\n" +
-		"public class Test069 {\n" +
-		"	class Profile {}\n" +
-		"	class CoreException extends Exception {}\n" +
-		"	void writeProfilesToStream(Collection<Profile> p, OutputStream s, String enc) {}\n" +
-		"	CoreException createException(IOException ioex, String message) { return new CoreException(); }\n" +
-		"	public void comment16(Collection<Profile> profiles, File file, String encoding) throws CoreException {\n" +
-		"		final OutputStream stream;\n" +
-		"		try {\n" +
-		"			stream= new FileOutputStream(file);\n" +
-		"			try {\n" +
-		"				writeProfilesToStream(profiles, stream, encoding);\n" +
-		"			} finally {\n" +
-		"				try { stream.close(); } catch (IOException e) { /* ignore */ }\n" +
-		"			}\n" +
-		"		} catch (IOException e) {\n" +
-		"			throw createException(e, \"message\"); // should not shout here\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			import java.util.Collection;
+			public class Test069 {
+				class Profile {}
+				class CoreException extends Exception {}
+				void writeProfilesToStream(Collection<Profile> p, OutputStream s, String enc) {}
+				CoreException createException(IOException ioex, String message) { return new CoreException(); }
+				public void comment16(Collection<Profile> profiles, File file, String encoding) throws CoreException {
+					final OutputStream stream;
+					try {
+						stream= new FileOutputStream(file);
+						try {
+							writeProfilesToStream(profiles, stream, encoding);
+						} finally {
+							try { stream.close(); } catch (IOException e) { /* ignore */ }
+						}
+					} catch (IOException e) {
+						throw createException(e, "message"); // should not shout here
+					}
+				}
+			}
+			"""
 	},
 	"",
 	null,
@@ -3451,21 +3706,25 @@ public void test070() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	runLeakTest(new String[] {
 		"Test070.java",
-		"import java.io.*;\n" +
-		"public class Test070 {\n" +
-		"    void storeInArray(String fileName) throws IOException {\n" +
-		"		FileReader       fileRead   = new FileReader(fileName);\n" +
-		"		closeThemAll(new FileReader[] { fileRead });\n" +
-		"	}\n" +
-		"   void closeThemAll(FileReader[] readers) { }\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			public class Test070 {
+			    void storeInArray(String fileName) throws IOException {
+					FileReader       fileRead   = new FileReader(fileName);
+					closeThemAll(new FileReader[] { fileRead });
+				}
+			   void closeThemAll(FileReader[] readers) { }
+			}
+			"""
 	},
-	"----------\n" +
-	"1. ERROR in Test070.java (at line 4)\n" +
-	"	FileReader       fileRead   = new FileReader(fileName);\n" +
-	"	                 ^^^^^^^^\n" +
-	"Potential resource leak: \'fileRead\' may not be closed\n" +
-	"----------\n",
+	"""
+		----------
+		1. ERROR in Test070.java (at line 4)
+			FileReader       fileRead   = new FileReader(fileName);
+			                 ^^^^^^^^
+		Potential resource leak: \'fileRead\' may not be closed
+		----------
+		""",
 	options);
 }
 
@@ -3478,37 +3737,41 @@ public void test071() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	runLeakTest(new String[] {
 		"Test071.java",
-		"import java.io.*;\n" +
-		"public class Test071 {\n" +
-		"    class ReaderHolder {\n" +
-		"		FileReader reader;\n" +
-		"	}\n" +
-		"	private FileReader getReader() {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"	void invokeCompiler(ReaderHolder readerHolder, boolean flag) throws FileNotFoundException {\n" +
-		"		FileReader reader = readerHolder.reader;\n" +
-		"		if (reader == null)\n" +
-		"			reader = getReader();\n" +
-		"		try {\n" +
-		"			return;\n" +
-		"		} finally {\n" +
-		"			try {\n" +
-		"				if (flag)\n" +
-		"					reader.close();\n" +
-		"			} catch (IOException e) {\n" +
-		"				// nop\n" +
-		"			}\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			public class Test071 {
+			    class ReaderHolder {
+					FileReader reader;
+				}
+				private FileReader getReader() {
+					return null;
+				}
+				void invokeCompiler(ReaderHolder readerHolder, boolean flag) throws FileNotFoundException {
+					FileReader reader = readerHolder.reader;
+					if (reader == null)
+						reader = getReader();
+					try {
+						return;
+					} finally {
+						try {
+							if (flag)
+								reader.close();
+						} catch (IOException e) {
+							// nop
+						}
+					}
+				}
+			}
+			"""
 	},
-	"----------\n" +
-	"1. ERROR in Test071.java (at line 14)\n" +
-	"	return;\n" +
-	"	^^^^^^^\n" +
-	"Potential resource leak: \'reader\' may not be closed at this location\n" +
-	"----------\n",
+	"""
+		----------
+		1. ERROR in Test071.java (at line 14)
+			return;
+			^^^^^^^
+		Potential resource leak: \'reader\' may not be closed at this location
+		----------
+		""",
 	options);
 }
 
@@ -3523,36 +3786,40 @@ public void _test071b() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	runLeakTest(new String[] {
 		"Test071b.java",
-		"import java.io.*;\n" +
-		"public class Test071b {\n" +
-		"   private FileReader getReader() {\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"	void invokeCompiler(boolean flag) throws FileNotFoundException {\n" +
-		"		FileReader reader = null;\n" +
-		"		if (flag)\n" +
-		"			reader = new FileReader(\"file\");\n" +
-		"		if (reader == null)\n" +
-		"			reader = getReader();\n" +
-		"		try {\n" +
-		"			return;\n" +
-		"		} finally {\n" +
-		"			try {\n" +
-		"				if (flag)\n" +
-		"					reader.close();\n" +
-		"			} catch (IOException e) {\n" +
-		"				// nop\n" +
-		"			}\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			public class Test071b {
+			   private FileReader getReader() {
+					return null;
+				}
+				void invokeCompiler(boolean flag) throws FileNotFoundException {
+					FileReader reader = null;
+					if (flag)
+						reader = new FileReader("file");
+					if (reader == null)
+						reader = getReader();
+					try {
+						return;
+					} finally {
+						try {
+							if (flag)
+								reader.close();
+						} catch (IOException e) {
+							// nop
+						}
+					}
+				}
+			}
+			"""
 	},
-	"----------\n" +
-	"1. ERROR in Test071b.java (at line 13)\n" +
-	"	return;\n" +
-	"	^^^^^^^\n" +
-	"Potential resource leak: \'reader\' may not be closed at this location\n" +
-	"----------\n",
+	"""
+		----------
+		1. ERROR in Test071b.java (at line 13)
+			return;
+			^^^^^^^
+		Potential resource leak: \'reader\' may not be closed at this location
+		----------
+		""",
 	options);
 }
 
@@ -3565,27 +3832,29 @@ public void test072() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	this.runConformTest(new String[] {
 		"Test072.java",
-		"import java.io.*;\n" +
-		"public class Test072 {\n" +
-		"   void readState(File file) {\n" +
-		"		DataInputStream in = null;\n" +
-		"		try {\n" +
-		"			in= new DataInputStream(new BufferedInputStream(new FileInputStream(file)));\n" +
-		"			int sizeOfFlags = in.readInt();\n" +
-		"			for (int i = 0; i < sizeOfFlags; ++i) {\n" +
-		"				String childPath = in.readUTF();\n" +
-		"				if (childPath.length() == 0)\n" +
-		"					throw new IOException();\n" +
-		"			}\n" +
-		"		}\n" +
-		"		catch (IOException ioe) { /* nop */ }\n" +
-		"		finally {\n" +
-		"			if (in != null) {\n" +
-		"				try {in.close();} catch (IOException ioe) {}\n" +
-		"			}\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			public class Test072 {
+			   void readState(File file) {
+					DataInputStream in = null;
+					try {
+						in= new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+						int sizeOfFlags = in.readInt();
+						for (int i = 0; i < sizeOfFlags; ++i) {
+							String childPath = in.readUTF();
+							if (childPath.length() == 0)
+								throw new IOException();
+						}
+					}
+					catch (IOException ioe) { /* nop */ }
+					finally {
+						if (in != null) {
+							try {in.close();} catch (IOException ioe) {}
+						}
+					}
+				}
+			}
+			"""
 	},
 	"",
 	null,
@@ -3604,16 +3873,18 @@ public void test073() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	this.runConformTest(new String[] {
 		"Test073.java",
-		"import java.io.*;\n" +
-		"public class Test073 {\n" +
-		"   String getEncoding(Object reader) {\n" +
-		"		if (reader instanceof FileReader) {\n" +
-		"			final FileReader fr = (FileReader) reader;\n" +
-		"			return fr.getEncoding();\n" +
-		"		}\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			public class Test073 {
+			   String getEncoding(Object reader) {
+					if (reader instanceof FileReader) {
+						final FileReader fr = (FileReader) reader;
+						return fr.getEncoding();
+					}
+					return null;
+				}
+			}
+			"""
 	},
 	"",
 	null,
@@ -3632,30 +3903,34 @@ public void test074() {
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 	runLeakTest(new String[] {
 		"Test074.java",
-		"import java.io.*;\n" +
-		"public class Test074 {\n" +
-		"   void foo() throws FileNotFoundException {\n" +
-		"		FileOutputStream out = null;\n" +
-		"		try {\n" +
-		"			out = new FileOutputStream(\"outfile\");\n" +
-		"		} finally {\n" +
-		"			try {\n" +
-		"				out.flush();\n" +
-		"				out.close();\n" +
-		"			} catch (IOException e) {\n" +
-		"				e.printStackTrace();\n" +
-		"			}\n" +
-		"			out = null;\n" + // unclosed if exception occurred on flush()
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.io.*;
+			public class Test074 {
+			   void foo() throws FileNotFoundException {
+					FileOutputStream out = null;
+					try {
+						out = new FileOutputStream("outfile");
+					} finally {
+						try {
+							out.flush();
+							out.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						out = null;
+					}
+				}
+			}
+			"""
 	},
-	"----------\n" +
-	"1. ERROR in Test074.java (at line 14)\n" +
-	"	out = null;\n" +
-	"	^^^^^^^^^^\n" +
-	"Potential resource leak: \'out\' may not be closed at this location\n" +
-	"----------\n",
+	"""
+		----------
+		1. ERROR in Test074.java (at line 14)
+			out = null;
+			^^^^^^^^^^
+		Potential resource leak: \'out\' may not be closed at this location
+		----------
+		""",
 	options);
 }
 // Bug 370639 - [compiler][resource] restore the default for resource leak warnings
@@ -3664,22 +3939,26 @@ public void test075() {
 	runLeakWarningTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    void foo() throws IOException {\n" +
-			"        File file = new File(\"somefile\");\n" +
-			"        FileReader fileReader = new FileReader(file);\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileReader;
+				import java.io.IOException;
+				public class X {
+				    void foo() throws IOException {
+				        File file = new File("somefile");
+				        FileReader fileReader = new FileReader(file);
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 7)\n" +
-		"	FileReader fileReader = new FileReader(file);\n" +
-		"	           ^^^^^^^^^^\n" +
-		"Resource leak: 'fileReader' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 7)
+				FileReader fileReader = new FileReader(file);
+				           ^^^^^^^^^^
+			Resource leak: 'fileReader' is never closed
+			----------
+			""",
 		getCompilerOptions());
 }
 // Bug 385415 - Incorrect resource leak detection
@@ -3689,18 +3968,20 @@ public void testBug385415() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.*;\n" +
-			"public class X {\n" +
-			"    void foo() throws FileNotFoundException {\n" +
-			"        FileReader fileReader = new FileReader(\"somefile\");\n" +
-			"        try {\n" +
-			"            fileReader.close();\n" +
-			"        } catch (Exception e) {\n" +
-			"            e.printStackTrace();\n" +
-			"            return;\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				public class X {
+				    void foo() throws FileNotFoundException {
+				        FileReader fileReader = new FileReader("somefile");
+				        try {
+				            fileReader.close();
+				        } catch (Exception e) {
+				            e.printStackTrace();
+				            return;
+				        }
+				    }
+				}
+				"""
 		},
 		"",
 		null,
@@ -3719,27 +4000,28 @@ public void testBug361073c7() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.*;\n" +
-			"public class X {\n" +
-			"  public void test() {\n" +
-			"    BufferedReader br = null;\n" +
-			"    try {\n" +
-			"        br = new BufferedReader(new FileReader(\"blah\"));\n" +
-			"        String line = null;\n" +
-			"        while ( (line = br.readLine()) != null ) {\n" +
-			"            if ( line.startsWith(\"error\") )\n" +
-			"                throw new Exception(\"error\"); //Resource leak: 'br' is not closed at this location\n" +
-			"        }\n" +
-			"    } catch (Throwable t) {\n" +
-			"        t.printStackTrace();\n" +
-			"    } finally {\n" +
-			"        if ( br != null ) {\n" +
-			"            try { br.close(); }\n" +
-			"            catch (Throwable e) { br = null; }\n" +
-			"        }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.io.*;
+				public class X {
+				  public void test() {
+				    BufferedReader br = null;
+				    try {
+				        br = new BufferedReader(new FileReader("blah"));
+				        String line = null;
+				        while ( (line = br.readLine()) != null ) {
+				            if ( line.startsWith("error") )
+				                throw new Exception("error"); //Resource leak: 'br' is not closed at this location
+				        }
+				    } catch (Throwable t) {
+				        t.printStackTrace();
+				    } finally {
+				        if ( br != null ) {
+				            try { br.close(); }
+				            catch (Throwable e) { br = null; }
+				        }
+				    }
+				  }
+				}"""
 		},
 		"",
 		null,
@@ -3757,43 +4039,45 @@ public void _testBug386534() {
 	runConformTest(
 		new String[] {
 			"Bug.java",
-			"import java.io.FileNotFoundException;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.OutputStream;\n" +
-			"\n" +
-			"public class Bug {\n" +
-			"	private static final String DETAILS_FILE_NAME = null;\n" +
-			"	private static final String LOG_TAG = null;\n" +
-			"	private static Context sContext;\n" +
-			"	static void saveDetails(byte[] detailsData) {\n" +
-			"		OutputStream os = null;\n" +
-			"		try {\n" +
-			"			os = sContext.openFileOutput(DETAILS_FILE_NAME,\n" +
-			"					Context.MODE_PRIVATE);\n" +
-			"			os.write(detailsData);\n" +
-			"		} catch (IOException e) {\n" +
-			"			Log.w(LOG_TAG, \"Unable to save details\", e);\n" +
-			"		} finally {\n" +
-			"			if (os != null) {\n" +
-			"				try {\n" +
-			"					os.close();\n" +
-			"				} catch (IOException ignored) {\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	static class Context {\n" +
-			"		public static final String MODE_PRIVATE = null;\n" +
-			"		public OutputStream openFileOutput(String detailsFileName,\n" +
-			"				String modePrivate) throws FileNotFoundException{\n" +
-			"			return null;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	static class Log {\n" +
-			"		public static void w(String logTag, String string, IOException e) {\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.FileNotFoundException;
+				import java.io.IOException;
+				import java.io.OutputStream;
+				
+				public class Bug {
+					private static final String DETAILS_FILE_NAME = null;
+					private static final String LOG_TAG = null;
+					private static Context sContext;
+					static void saveDetails(byte[] detailsData) {
+						OutputStream os = null;
+						try {
+							os = sContext.openFileOutput(DETAILS_FILE_NAME,
+									Context.MODE_PRIVATE);
+							os.write(detailsData);
+						} catch (IOException e) {
+							Log.w(LOG_TAG, "Unable to save details", e);
+						} finally {
+							if (os != null) {
+								try {
+									os.close();
+								} catch (IOException ignored) {
+								}
+							}
+						}
+					}
+					static class Context {
+						public static final String MODE_PRIVATE = null;
+						public OutputStream openFileOutput(String detailsFileName,
+								String modePrivate) throws FileNotFoundException{
+							return null;
+						}
+					}
+					static class Log {
+						public static void w(String logTag, String string, IOException e) {
+						}
+					}
+				}
+				"""
 		},
 		"",
 		null,
@@ -3810,32 +4094,33 @@ public void testBug388996() {
 	runConformTest(
 		new String[] {
 			"Bug.java",
-			"import java.io.*;\n" +
-			"public class Bug {\n" +
-			"	public void processRequest(ResponseContext responseContext) throws IOException {\n" +
-			"		OutputStream bao = null;\n" +
-			"\n" +
-			"		try {\n" +
-			"			HttpServletResponse response = responseContext.getResponse();\n" +
-			"\n" +
-			"			bao = response.getOutputStream(); // <<<<\n" +
-			"		} finally {\n" +
-			"			if(bao != null) {\n" +
-			"				bao.close();\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}" +
-			"}\n" +
-			"class ResponseContext {\n" +
-			"	public HttpServletResponse getResponse() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n" +
-			"class HttpServletResponse {\n" +
-			"	public OutputStream getOutputStream() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.io.*;
+				public class Bug {
+					public void processRequest(ResponseContext responseContext) throws IOException {
+						OutputStream bao = null;
+				
+						try {
+							HttpServletResponse response = responseContext.getResponse();
+				
+							bao = response.getOutputStream(); // <<<<
+						} finally {
+							if(bao != null) {
+								bao.close();
+							}
+						}
+					}\
+				}
+				class ResponseContext {
+					public HttpServletResponse getResponse() {
+						return null;
+					}
+				}
+				class HttpServletResponse {
+					public OutputStream getOutputStream() {
+						return null;
+					}
+				}"""
 		},
 		"",
 		null,
@@ -3852,43 +4137,45 @@ public void testBug386534() {
 	runConformTest(
 		new String[] {
 			"Bug386534.java",
-			"import java.io.FileNotFoundException;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.OutputStream;\n" +
-			"\n" +
-			"public class Bug386534 {\n" +
-			"	private static final String DETAILS_FILE_NAME = null;\n" +
-			"	private static final String LOG_TAG = null;\n" +
-			"	private static Context sContext;\n" +
-			"	static void saveDetails(byte[] detailsData) {\n" +
-			"		OutputStream os = null;\n" +
-			"		try {\n" +
-			"			os = sContext.openFileOutput(DETAILS_FILE_NAME,\n" +
-			"					Context.MODE_PRIVATE);\n" +
-			"			os.write(detailsData);\n" +
-			"		} catch (IOException e) {\n" +
-			"			Log.w(LOG_TAG, \"Unable to save details\", e);\n" +
-			"		} finally {\n" +
-			"			if (os != null) {\n" +
-			"				try {\n" +
-			"					os.close();\n" +
-			"				} catch (IOException ignored) {\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	static class Context {\n" +
-			"		public static final String MODE_PRIVATE = null;\n" +
-			"		public OutputStream openFileOutput(String detailsFileName,\n" +
-			"				String modePrivate) throws FileNotFoundException{\n" +
-			"			return null;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	static class Log {\n" +
-			"		public static void w(String logTag, String string, IOException e) {\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.FileNotFoundException;
+				import java.io.IOException;
+				import java.io.OutputStream;
+				
+				public class Bug386534 {
+					private static final String DETAILS_FILE_NAME = null;
+					private static final String LOG_TAG = null;
+					private static Context sContext;
+					static void saveDetails(byte[] detailsData) {
+						OutputStream os = null;
+						try {
+							os = sContext.openFileOutput(DETAILS_FILE_NAME,
+									Context.MODE_PRIVATE);
+							os.write(detailsData);
+						} catch (IOException e) {
+							Log.w(LOG_TAG, "Unable to save details", e);
+						} finally {
+							if (os != null) {
+								try {
+									os.close();
+								} catch (IOException ignored) {
+								}
+							}
+						}
+					}
+					static class Context {
+						public static final String MODE_PRIVATE = null;
+						public OutputStream openFileOutput(String detailsFileName,
+								String modePrivate) throws FileNotFoundException{
+							return null;
+						}
+					}
+					static class Log {
+						public static void w(String logTag, String string, IOException e) {
+						}
+					}
+				}
+				"""
 		},
 		"",
 		null,
@@ -3906,31 +4193,33 @@ public void testBug394768() {
 	runConformTest(
 		new String[] {
 			"Bug394768.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.InputStream;\n" +
-			"\n" +
-			"public class Bug394768 {\n" +
-			"	public void readFile(String path) throws Exception {\n" +
-			"		InputStream stream = null;\n" +
-			"		File file = new File(path);\n" +
-			"\n" +
-			"		if (file.exists())\n" +
-			"			stream = new FileInputStream(path);\n" +
-			"		else\n" +
-			"			stream = getClass().getClassLoader().getResourceAsStream(path);\n" +
-			"\n" +
-			"		if (stream == null)\n" +
-			"			return;\n" +
-			"\n" +
-			"		try {\n" +
-			"			// Use the opened stream here\n" +
-			"			stream.read();\n" +
-			"		} finally {\n" +
-			"			stream.close();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.InputStream;
+				
+				public class Bug394768 {
+					public void readFile(String path) throws Exception {
+						InputStream stream = null;
+						File file = new File(path);
+				
+						if (file.exists())
+							stream = new FileInputStream(path);
+						else
+							stream = getClass().getClassLoader().getResourceAsStream(path);
+				
+						if (stream == null)
+							return;
+				
+						try {
+							// Use the opened stream here
+							stream.read();
+						} finally {
+							stream.close();
+						}
+					}
+				}
+				"""
 		},
 		"",
 		null,
@@ -3949,34 +4238,36 @@ public void testBug394768_1() {
 	runConformTest(
 		new String[] {
 			"Bug394768.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.InputStream;\n" +
-			"\n" +
-			"public class Bug394768 {\n" +
-			"	public void readFile(String path) throws Exception {\n" +
-			"		InputStream stream = null;\n" +
-			"		File file = new File(path);\n" +
-			"\n" +
-			"		if (file.exists()) {\n" +
-			"			stream = new FileInputStream(path);\n" +
-			"		} else {\n" +
-			"			stream = getClass().getClassLoader().getResourceAsStream(path);" +
-			"           stream.close();\n" +
-			"           stream = null;\n" +
-			"       }\n" +
-			"\n" +
-			"		if (stream == null)\n" +
-			"			return;\n" +
-			"\n" +
-			"		try {\n" +
-			"			// Use the opened stream here\n" +
-			"			stream.read();\n" +
-			"		} finally {\n" +
-			"			stream.close();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.InputStream;
+				
+				public class Bug394768 {
+					public void readFile(String path) throws Exception {
+						InputStream stream = null;
+						File file = new File(path);
+				
+						if (file.exists()) {
+							stream = new FileInputStream(path);
+						} else {
+							stream = getClass().getClassLoader().getResourceAsStream(path);\
+				           stream.close();
+				           stream = null;
+				       }
+				
+						if (stream == null)
+							return;
+				
+						try {
+							// Use the opened stream here
+							stream.read();
+						} finally {
+							stream.close();
+						}
+					}
+				}
+				"""
 		},
 		"",
 		null,
@@ -3997,39 +4288,43 @@ public void testBug381445_1() {
 			GUAVA_CLOSEABLES_JAVA,
 			GUAVA_CLOSEABLES_CONTENT,
 			"org/apache/commons/io/IOUtils.java",
-			"package org.apache.commons.io;\n" +
-			"public class IOUtils {\n" +
-			"    public static void closeQuietly(java.io.Closeable closeable) {}\n" +
-			"}\n",
+			"""
+				package org.apache.commons.io;
+				public class IOUtils {
+				    public static void closeQuietly(java.io.Closeable closeable) {}
+				}
+				""",
 			"Bug381445.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.InputStream;\n" +
-			"\n" +
-			"public class Bug381445 {\n" +
-			"	public void readFile(String path) throws Exception {\n" +
-			"		File file = new File(path);\n" +
-			"		InputStream stream1 = new FileInputStream(path);\n" +
-			"		InputStream stream2 = new FileInputStream(path);\n" +
-			"		InputStream stream3 = new FileInputStream(path);\n" +
-			"		InputStream stream4 = new FileInputStream(path);\n" +
-			"		try {\n" +
-			"			// Use the opened streams here\n" +
-			"			stream1.read();\n" +
-			"			stream2.read();\n" +
-			"			stream3.read();\n" +
-			"			stream4.read();\n" +
-			"		} finally {\n" +
-			"			com.google.common.io.Closeables.closeQuietly(stream1);\n" +
-			"			com.google.common.io.Closeables.close(stream2, false);\n" +
-			"			org.apache.commons.io.IOUtils.closeQuietly(stream3);\n" +
-			"			Closeables.closeQuietly(stream4);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n" +
-			"class Closeables {\n" + // fake, should not be recognized
-			"	public static void closeQuietly(java.io.Closeable closeable) {}\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.InputStream;
+				
+				public class Bug381445 {
+					public void readFile(String path) throws Exception {
+						File file = new File(path);
+						InputStream stream1 = new FileInputStream(path);
+						InputStream stream2 = new FileInputStream(path);
+						InputStream stream3 = new FileInputStream(path);
+						InputStream stream4 = new FileInputStream(path);
+						try {
+							// Use the opened streams here
+							stream1.read();
+							stream2.read();
+							stream3.read();
+							stream4.read();
+						} finally {
+							com.google.common.io.Closeables.closeQuietly(stream1);
+							com.google.common.io.Closeables.close(stream2, false);
+							org.apache.commons.io.IOUtils.closeQuietly(stream3);
+							Closeables.closeQuietly(stream4);
+						}
+					}
+				}
+				class Closeables {
+					public static void closeQuietly(java.io.Closeable closeable) {}
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in Bug381445.java (at line 11)\n" +
@@ -4052,37 +4347,39 @@ public void testBug381445_1b() {
 			APACHE_DBUTILS_JAVA,
 			APACHE_DBUTILS_CONTENT,
 			"Bug381445.java",
-			"import java.sql.*;\n" +
-			"\n" +
-			"public class Bug381445 {\n" +
-			"	public void performQuery1(String url, String q1, String q2) throws Exception {\n" +
-			"		Connection conn = DriverManager.getConnection(url);\n" +
-			"		Statement stat = conn.createStatement();\n" +
-			"		ResultSet rset = stat.executeQuery(q1);\n" +
-			"		ResultSet rset2 = stat.executeQuery(q2);\n" +
-			"		try {\n" +
-			"			// empty\n" +
-			"		} finally {\n" +
-			"			org.apache.commons.dbutils.DbUtils.closeQuietly(conn);\n" +
-			"			org.apache.commons.dbutils.DbUtils.close(stat);\n" +
-			"			org.apache.commons.dbutils.DbUtils.closeQuietly(rset);\n" +
-			"			Closeables.closeQuietly(rset2);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public void performQuery2(String url, String q1, String q2) throws Exception {\n" +
-			"		Connection conn = DriverManager.getConnection(url);\n" +
-			"		Statement stat = conn.createStatement();\n" +
-			"		ResultSet rset = stat.executeQuery(q1);\n" +
-			"		try {\n" +
-			"			// empty\n" +
-			"		} finally {\n" +
-			"			org.apache.commons.dbutils.DbUtils.closeQuietly(conn, stat, rset);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n" +
-			"class Closeables {\n" + // fake, should not be recognized
-			"	public static void closeQuietly(java.lang.AutoCloseable closeable) {}\n" +
-			"}\n"
+			"""
+				import java.sql.*;
+				
+				public class Bug381445 {
+					public void performQuery1(String url, String q1, String q2) throws Exception {
+						Connection conn = DriverManager.getConnection(url);
+						Statement stat = conn.createStatement();
+						ResultSet rset = stat.executeQuery(q1);
+						ResultSet rset2 = stat.executeQuery(q2);
+						try {
+							// empty
+						} finally {
+							org.apache.commons.dbutils.DbUtils.closeQuietly(conn);
+							org.apache.commons.dbutils.DbUtils.close(stat);
+							org.apache.commons.dbutils.DbUtils.closeQuietly(rset);
+							Closeables.closeQuietly(rset2);
+						}
+					}
+					public void performQuery2(String url, String q1, String q2) throws Exception {
+						Connection conn = DriverManager.getConnection(url);
+						Statement stat = conn.createStatement();
+						ResultSet rset = stat.executeQuery(q1);
+						try {
+							// empty
+						} finally {
+							org.apache.commons.dbutils.DbUtils.closeQuietly(conn, stat, rset);
+						}
+					}
+				}
+				class Closeables {
+					public static void closeQuietly(java.lang.AutoCloseable closeable) {}
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in Bug381445.java (at line 8)\n" +
@@ -4104,37 +4401,41 @@ public void testBug381445_2() {
 			GUAVA_CLOSEABLES_JAVA,
 			GUAVA_CLOSEABLES_CONTENT,
 			"Bug381445.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.InputStream;\n" +
-			"import com.google.common.io.Closeables;\n" +
-			"\n" +
-			"public class Bug381445 {\n" +
-			"	public void readFile(String path) throws Exception {\n" +
-			"		File file = new File(path);\n" +
-			"		InputStream stream1 = new FileInputStream(path);\n" +
-			"		InputStream stream2 = new FileInputStream(path);\n" +
-			"		InputStream stream3 = new FileInputStream(path);\n" +
-			"		try {\n" +
-			"			// Use the opened streams here\n" +
-			"			stream1.read();\n" +
-			"			Closeables.closeQuietly(stream1);\n" +
-			"			stream2.read();\n" +
-			"			if (path.length() > 2)\n" +
-			"				Closeables.closeQuietly(stream2);\n" + // close inside if is too weak
-			"			stream3.read();\n" +
-			"		} finally {\n" +
-			"		}\n" +
-			"		Closeables.closeQuietly(stream3);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.InputStream;
+				import com.google.common.io.Closeables;
+				
+				public class Bug381445 {
+					public void readFile(String path) throws Exception {
+						File file = new File(path);
+						InputStream stream1 = new FileInputStream(path);
+						InputStream stream2 = new FileInputStream(path);
+						InputStream stream3 = new FileInputStream(path);
+						try {
+							// Use the opened streams here
+							stream1.read();
+							Closeables.closeQuietly(stream1);
+							stream2.read();
+							if (path.length() > 2)
+								Closeables.closeQuietly(stream2);
+							stream3.read();
+						} finally {
+						}
+						Closeables.closeQuietly(stream3);
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in Bug381445.java (at line 10)\n" +
-		"	InputStream stream2 = new FileInputStream(path);\n" +
-		"	            ^^^^^^^\n" +
-		"Potential resource leak: \'stream2\' may not be closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in Bug381445.java (at line 10)
+				InputStream stream2 = new FileInputStream(path);
+				            ^^^^^^^
+			Potential resource leak: \'stream2\' may not be closed
+			----------
+			""",
 		options);
 }
 
@@ -4150,41 +4451,45 @@ public void testBug381445_3() {
 			GUAVA_CLOSEABLES_JAVA,
 			GUAVA_CLOSEABLES_CONTENT,
 			"Bug381445a.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.InputStream;\n" +
-			"import static com.google.common.io.Closeables.closeQuietly;\n" +
-			"\n" +
-			"public class Bug381445a {\n" +
-			"	public void readFile(String path) throws Exception {\n" +
-			"		File file = new File(path);\n" +
-			"		InputStream stream = new FileInputStream(path);\n" +
-			"		try {\n" +
-			"			// Use the opened stream here\n" +
-			"			stream.read();\n" +
-			"		} finally {\n" +
-			"			closeQuietly(stream);\n" + // via static import
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.InputStream;
+				import static com.google.common.io.Closeables.closeQuietly;
+				
+				public class Bug381445a {
+					public void readFile(String path) throws Exception {
+						File file = new File(path);
+						InputStream stream = new FileInputStream(path);
+						try {
+							// Use the opened stream here
+							stream.read();
+						} finally {
+							closeQuietly(stream);
+						}
+					}
+				}
+				""",
 			"Bug381445b.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.InputStream;\n" +
-			"import com.google.common.io.Closeables;\n" +
-			"\n" +
-			"public class Bug381445b extends Closeables {\n" +
-			"	public void readFile(String path) throws Exception {\n" +
-			"		File file = new File(path);\n" +
-			"		InputStream stream = new FileInputStream(path);\n" +
-			"		try {\n" +
-			"			// Use the opened streams here\n" +
-			"			stream.read();\n" +
-			"		} finally {\n" +
-			"			closeQuietly(stream);\n" + // via super class
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.InputStream;
+				import com.google.common.io.Closeables;
+				
+				public class Bug381445b extends Closeables {
+					public void readFile(String path) throws Exception {
+						File file = new File(path);
+						InputStream stream = new FileInputStream(path);
+						try {
+							// Use the opened streams here
+							stream.read();
+						} finally {
+							closeQuietly(stream);
+						}
+					}
+				}
+				""",
 		},
 		"",
 		null,
@@ -4203,50 +4508,51 @@ public void testBug395977() {
 	runConformTest(
 		new String[] {
 			"WriterTest.java",
-			"import java.io.*;\n" +
-			"\n" +
-			"public class WriterTest implements Runnable\n" +
-			"{\n" +
-			"   private BufferedWriter m_Writer;\n" +
-			"   \n" +
-			"   public void run()\n" +
-			"   {\n" +
-			"      try\n" +
-			"      {\n" +
-			"         initializeWriter();\n" +
-			"         \n" +
-			"         m_Writer.write(\"string\");\n" +
-			"         m_Writer.newLine();\n" +
-			"         \n" +
-			"         closeWriter();\n" +
-			"      }\n" +
-			"      catch (IOException ioe)\n" +
-			"      {\n" +
-			"         ioe.printStackTrace();\n" +
-			"      }\n" +
-			"   }\n" +
-			"   \n" +
-			"   private void initializeWriter()\n" +
-			"      throws UnsupportedEncodingException, FileNotFoundException\n" +
-			"   {\n" +
-			"      m_Writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"))\n" +
-			"      {\n" +
-			"         /**\n" +
-			"          * Writes an LF character on all platforms, to avoid constantly flipping the line terminator style.\n" +
-			"          */\n" +
-			"         public void newLine() throws IOException\n" +
-			"         {\n" +
-			"            write('\\n');\n" +
-			"         }\n" +
-			"      };\n" +
-			"   }\n" +
-			"   \n" +
-			"   private void closeWriter()\n" +
-			"      throws IOException\n" +
-			"   {\n" +
-			"      m_Writer.close();\n" +
-			"   }\n" +
-			"}"
+			"""
+				import java.io.*;
+				
+				public class WriterTest implements Runnable
+				{
+				   private BufferedWriter m_Writer;
+				  \s
+				   public void run()
+				   {
+				      try
+				      {
+				         initializeWriter();
+				        \s
+				         m_Writer.write("string");
+				         m_Writer.newLine();
+				        \s
+				         closeWriter();
+				      }
+				      catch (IOException ioe)
+				      {
+				         ioe.printStackTrace();
+				      }
+				   }
+				  \s
+				   private void initializeWriter()
+				      throws UnsupportedEncodingException, FileNotFoundException
+				   {
+				      m_Writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("file"), "UTF-8"))
+				      {
+				         /**
+				          * Writes an LF character on all platforms, to avoid constantly flipping the line terminator style.
+				          */
+				         public void newLine() throws IOException
+				         {
+				            write('\\n');
+				         }
+				      };
+				   }
+				  \s
+				   private void closeWriter()
+				      throws IOException
+				   {
+				      m_Writer.close();
+				   }
+				}"""
 		},
 		"",
 		null,
@@ -4265,52 +4571,53 @@ public void testBug395977_1() {
 	runConformTest(
 		new String[] {
 			"WriterTest.java",
-			"import java.io.*;\n" +
-			"\n" +
-			"public class WriterTest implements Runnable\n" +
-			"{\n" +
-			"   private BufferedWriter m_Writer;\n" +
-			"   \n" +
-			"   public void run()\n" +
-			"   {\n" +
-			"      try\n" +
-			"      {\n" +
-			"         initializeWriter();\n" +
-			"         \n" +
-			"         m_Writer.write(\"string\");\n" +
-			"         m_Writer.newLine();\n" +
-			"         \n" +
-			"         closeWriter();\n" +
-			"      }\n" +
-			"      catch (IOException ioe)\n" +
-			"      {\n" +
-			"         ioe.printStackTrace();\n" +
-			"      }\n" +
-			"   }\n" +
-			"   \n" +
-			"   private void initializeWriter()\n" +
-			"      throws UnsupportedEncodingException, FileNotFoundException\n" +
-			"   {\n" +
-			"      class MyBufferedWriter extends BufferedWriter\n" +
-			"      {\n" +
-			"         MyBufferedWriter(OutputStreamWriter writer) { super(writer); }\n" +
-			"         /**\n" +
-			"          * Writes an LF character on all platforms, to avoid constantly flipping the line terminator style.\n" +
-			"          */\n" +
-			"         public void newLine() throws IOException\n" +
-			"         {\n" +
-			"            write('\\n');\n" +
-			"         }\n" +
-			"      };" +
-			"      m_Writer = new MyBufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"));\n" +
-			"   }\n" +
-			"   \n" +
-			"   private void closeWriter()\n" +
-			"      throws IOException\n" +
-			"   {\n" +
-			"      m_Writer.close();\n" +
-			"   }\n" +
-			"}"
+			"""
+				import java.io.*;
+				
+				public class WriterTest implements Runnable
+				{
+				   private BufferedWriter m_Writer;
+				  \s
+				   public void run()
+				   {
+				      try
+				      {
+				         initializeWriter();
+				        \s
+				         m_Writer.write("string");
+				         m_Writer.newLine();
+				        \s
+				         closeWriter();
+				      }
+				      catch (IOException ioe)
+				      {
+				         ioe.printStackTrace();
+				      }
+				   }
+				  \s
+				   private void initializeWriter()
+				      throws UnsupportedEncodingException, FileNotFoundException
+				   {
+				      class MyBufferedWriter extends BufferedWriter
+				      {
+				         MyBufferedWriter(OutputStreamWriter writer) { super(writer); }
+				         /**
+				          * Writes an LF character on all platforms, to avoid constantly flipping the line terminator style.
+				          */
+				         public void newLine() throws IOException
+				         {
+				            write('\\n');
+				         }
+				      };\
+				      m_Writer = new MyBufferedWriter(new OutputStreamWriter(new FileOutputStream("file"), "UTF-8"));
+				   }
+				  \s
+				   private void closeWriter()
+				      throws IOException
+				   {
+				      m_Writer.close();
+				   }
+				}"""
 		},
 		"",
 		options);
@@ -4324,53 +4631,54 @@ public void testBug395977_1a() {
 	runLeakTest(
 		new String[] {
 			"WriterTest.java",
-			"import java.io.*;\n" +
-			"\n" +
-			"public class WriterTest implements Runnable\n" +
-			"{\n" +
-			"   private BufferedWriter m_Writer;\n" +
-			"   \n" +
-			"   public void run()\n" +
-			"   {\n" +
-			"      try\n" +
-			"      {\n" +
-			"         initializeWriter();\n" +
-			"         \n" +
-			"         m_Writer.write(\"string\");\n" +
-			"         m_Writer.newLine();\n" +
-			"         \n" +
-			"         closeWriter();\n" +
-			"      }\n" +
-			"      catch (IOException ioe)\n" +
-			"      {\n" +
-			"         ioe.printStackTrace();\n" +
-			"      }\n" +
-			"   }\n" +
-			"   \n" +
-			"   private void initializeWriter()\n" +
-			"      throws UnsupportedEncodingException, FileNotFoundException\n" +
-			"   {\n" +
-			"      class MyBufferedWriter extends BufferedWriter\n" +
-			"      {\n" +
-			"         MyBufferedWriter(OutputStreamWriter writer) { super(writer); }\n" +
-			"         /**\n" +
-			"          * Writes an LF character on all platforms, to avoid constantly flipping the line terminator style.\n" +
-			"          */\n" +
-			"         public void newLine() throws IOException\n" +
-			"         {\n" +
-			"            write('\\n');\n" +
-			"         }\n" +
-			"         public void close() {}\n" +
-			"      };" +
-			"      m_Writer = new MyBufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"));\n" +
-			"   }\n" +
-			"   \n" +
-			"   private void closeWriter()\n" +
-			"      throws IOException\n" +
-			"   {\n" +
-			"      m_Writer.close();\n" +
-			"   }\n" +
-			"}"
+			"""
+				import java.io.*;
+				
+				public class WriterTest implements Runnable
+				{
+				   private BufferedWriter m_Writer;
+				  \s
+				   public void run()
+				   {
+				      try
+				      {
+				         initializeWriter();
+				        \s
+				         m_Writer.write("string");
+				         m_Writer.newLine();
+				        \s
+				         closeWriter();
+				      }
+				      catch (IOException ioe)
+				      {
+				         ioe.printStackTrace();
+				      }
+				   }
+				  \s
+				   private void initializeWriter()
+				      throws UnsupportedEncodingException, FileNotFoundException
+				   {
+				      class MyBufferedWriter extends BufferedWriter
+				      {
+				         MyBufferedWriter(OutputStreamWriter writer) { super(writer); }
+				         /**
+				          * Writes an LF character on all platforms, to avoid constantly flipping the line terminator style.
+				          */
+				         public void newLine() throws IOException
+				         {
+				            write('\\n');
+				         }
+				         public void close() {}
+				      };\
+				      m_Writer = new MyBufferedWriter(new OutputStreamWriter(new FileOutputStream("file"), "UTF-8"));
+				   }
+				  \s
+				   private void closeWriter()
+				      throws IOException
+				   {
+				      m_Writer.close();
+				   }
+				}"""
 		},
 		"----------\n" +
 		"1. ERROR in WriterTest.java (at line 38)\n" +
@@ -4390,44 +4698,45 @@ public void testBug395977_2() {
 	runLeakTest(
 		new String[] {
 			"WriterTest.java",
-			"import java.io.*;\n" +
-			"\n" +
-			"public class WriterTest implements Runnable\n" +
-			"{\n" +
-			"   private BufferedWriter m_Writer;\n" +
-			"   \n" +
-			"   public void run()\n" +
-			"   {\n" +
-			"      try\n" +
-			"      {\n" +
-			"         initializeWriter();\n" +
-			"         \n" +
-			"         m_Writer.write(\"string\");\n" +
-			"         m_Writer.newLine();\n" +
-			"         \n" +
-			"         closeWriter();\n" +
-			"      }\n" +
-			"      catch (IOException ioe)\n" +
-			"      {\n" +
-			"         ioe.printStackTrace();\n" +
-			"      }\n" +
-			"   }\n" +
-			"   \n" +
-			"   private void initializeWriter()\n" +
-			"      throws UnsupportedEncodingException, FileNotFoundException\n" +
-			"   {\n" +
-			"      m_Writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"))\n" +
-			"      {\n" +
-			"         public void close() { /* nop */}\n" +
-			"      };\n" +
-			"   }\n" +
-			"   \n" +
-			"   private void closeWriter()\n" +
-			"      throws IOException\n" +
-			"   {\n" +
-			"      m_Writer.close();\n" +
-			"   }\n" +
-			"}"
+			"""
+				import java.io.*;
+				
+				public class WriterTest implements Runnable
+				{
+				   private BufferedWriter m_Writer;
+				  \s
+				   public void run()
+				   {
+				      try
+				      {
+				         initializeWriter();
+				        \s
+				         m_Writer.write("string");
+				         m_Writer.newLine();
+				        \s
+				         closeWriter();
+				      }
+				      catch (IOException ioe)
+				      {
+				         ioe.printStackTrace();
+				      }
+				   }
+				  \s
+				   private void initializeWriter()
+				      throws UnsupportedEncodingException, FileNotFoundException
+				   {
+				      m_Writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("file"), "UTF-8"))
+				      {
+				         public void close() { /* nop */}
+				      };
+				   }
+				  \s
+				   private void closeWriter()
+				      throws IOException
+				   {
+				      m_Writer.close();
+				   }
+				}"""
 		},
 		"----------\n" +
 		"1. ERROR in WriterTest.java (at line 27)\n" +
@@ -4449,22 +4758,23 @@ public void testBug376053() {
 	runLeakTest(
 		new String[] {
 			"Try.java",
-			"package xy;\n" +
-			"\n" +
-			"import java.io.FileNotFoundException;\n" +
-			"import java.io.PrintStream;\n" +
-			"\n" +
-			"public class Try {\n" +
-			"    public static void main(String[] args) throws FileNotFoundException {\n" +
-			"        System.setOut(new PrintStream(\"log.txt\"));\n" +
-			"        \n" +
-			"        if (Math.random() > .5) {\n" +
-			"            return;\n" +
-			"        }\n" +
-			"        System.out.println(\"Hello World\");\n" +
-			"        return;\n" +
-			"    }\n" +
-			"}"
+			"""
+				package xy;
+				
+				import java.io.FileNotFoundException;
+				import java.io.PrintStream;
+				
+				public class Try {
+				    public static void main(String[] args) throws FileNotFoundException {
+				        System.setOut(new PrintStream("log.txt"));
+				       \s
+				        if (Math.random() > .5) {
+				            return;
+				        }
+				        System.out.println("Hello World");
+				        return;
+				    }
+				}"""
 		},
 		"----------\n" +
 		"1. ERROR in Try.java (at line 8)\n" +
@@ -4484,13 +4794,14 @@ public void testBug411098_test1() {
 	runConformTest(
 		new String[] {
 			"A.java",
-			"import java.io.*;\n" +
-			"\n" +
-			"class A {\n" +
-			"  void a(boolean b) throws Exception {\n" +
-			"    try(FileInputStream in = b ? new FileInputStream(\"a\") : null){}\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.io.*;
+				
+				class A {
+				  void a(boolean b) throws Exception {
+				    try(FileInputStream in = b ? new FileInputStream("a") : null){}
+				  }
+				}"""
 		},
 		options
 		);
@@ -4505,15 +4816,16 @@ public void testBug411098_test2() {
 	runLeakTest(
 		new String[] {
 			"A.java",
-			"import java.io.*;\n"+
-			"class A {\n" +
-			"  void a(boolean b) throws Exception {\n" +
-			"    try(FileInputStream in = create(new FileInputStream(\"a\"))){}\n" +
-			"  }\n" +
-			"  FileInputStream create(FileInputStream ignored) throws IOException {\n" +
-			"    return new FileInputStream(\"b\"); \n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.io.*;
+				class A {
+				  void a(boolean b) throws Exception {
+				    try(FileInputStream in = create(new FileInputStream("a"))){}
+				  }
+				  FileInputStream create(FileInputStream ignored) throws IOException {
+				    return new FileInputStream("b");\s
+				  }
+				}"""
 		},
 		"----------\n" +
 		"1. ERROR in A.java (at line 4)\n" +
@@ -4534,23 +4846,26 @@ public void testBug411098_test3() {
 	runLeakTest(
 		new String[] {
 			"A.java",
-			"import java.io.*;\n" +
-			"class A {\n" +
-			"	void m() throws IOException {\n" +
-			"		try (FileInputStream a = new FileInputStream(\"A\") {{\n" +
-			"				FileInputStream b = new FileInputStream(\"B\");\n" +
-			"				b.hashCode();\n" +
-			"			}}){\n" +
-			"		}\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.io.*;
+				class A {
+					void m() throws IOException {
+						try (FileInputStream a = new FileInputStream("A") {{
+								FileInputStream b = new FileInputStream("B");
+								b.hashCode();
+							}}){
+						}
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in A.java (at line 5)\n" +
-		"	FileInputStream b = new FileInputStream(\"B\");\n" +
-		"	                ^\n" +
-		"Resource leak: 'b' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in A.java (at line 5)
+				FileInputStream b = new FileInputStream("B");
+				                ^
+			Resource leak: 'b' is never closed
+			----------
+			""",
 		options
 		);
 }
@@ -4564,17 +4879,18 @@ public void testBug411098_test4() {
 	runConformTest(
 		new String[] {
 			"A.java",
-			"import java.io.FileInputStream;\n" +
-			"class A {\n" +
-			"	void testB(boolean b) throws Exception {\n" +
-			"		FileInputStream in = null;\n" +
-			"		try {\n" +
-			"			in = b ? new FileInputStream(\"a\") : null;\n" +
-			"		} finally {\n" +
-			"		in.close();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.io.FileInputStream;
+				class A {
+					void testB(boolean b) throws Exception {
+						FileInputStream in = null;
+						try {
+							in = b ? new FileInputStream("a") : null;
+						} finally {
+						in.close();
+						}
+					}
+				}"""
 		},
 		options
 		);
@@ -4589,13 +4905,14 @@ public void testBug411098_test5() {
 	runConformTest(
 		new String[] {
 			"A.java",
-			"import java.io.FileInputStream;\n" +
-			"class A {\n" +
-			"  void testA(boolean b) throws Exception {\n" +
-			"    FileInputStream in = b ? new FileInputStream(\"a\") : null;\n" +
-			"    in.close();\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.io.FileInputStream;
+				class A {
+				  void testA(boolean b) throws Exception {
+				    FileInputStream in = b ? new FileInputStream("a") : null;
+				    in.close();
+				  }
+				}"""
 		},
 		options
 		);
@@ -4610,13 +4927,14 @@ public void testBug411098_test6() {
 	runConformTest(
 		new String[] {
 			"A.java",
-			"import java.io.FileInputStream;\n" +
-			"class A {\n" +
-			"  void testA(boolean b) throws Exception {\n" +
-			"    FileInputStream in = b ? new FileInputStream(\"a\") : new FileInputStream(\"b\");\n" +
-			"    in.close();\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.io.FileInputStream;
+				class A {
+				  void testA(boolean b) throws Exception {
+				    FileInputStream in = b ? new FileInputStream("a") : new FileInputStream("b");
+				    in.close();
+				  }
+				}"""
 		},
 		options
 		);
@@ -4632,13 +4950,14 @@ public void testBug411098_test7() {
 	runConformTest(
 		new String[] {
 			"A.java",
-			"import java.io.*;\n" +
-			"class A {\n" +
-			"  void testA(boolean b) throws Exception {\n" +
-			"    BufferedReader in = b ? new BufferedReader(new FileReader(\"a\")) : new BufferedReader(new FileReader(\"b\"));\n" +
-			"    in.close();\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.io.*;
+				class A {
+				  void testA(boolean b) throws Exception {
+				    BufferedReader in = b ? new BufferedReader(new FileReader("a")) : new BufferedReader(new FileReader("b"));
+				    in.close();
+				  }
+				}"""
 		},
 		options
 		);
@@ -4653,14 +4972,15 @@ public void testBug411098_comment19() {
 	runConformTest(
 		new String[] {
 			"A.java",
-			"import java.io.PrintWriter;\n" +
-			"public class A {\n" +
-			"	PrintWriter fWriter;\n" +
-			"	void bug(boolean useField) {\n" +
-			"		PrintWriter bug= useField ? fWriter : null;\n" +
-			"		System.out.println(bug);\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.io.PrintWriter;
+				public class A {
+					PrintWriter fWriter;
+					void bug(boolean useField) {
+						PrintWriter bug= useField ? fWriter : null;
+						System.out.println(bug);
+					}
+				}"""
 		},
 		"",
 		options
@@ -4676,14 +4996,15 @@ public void testStream1() {
 	runConformTest(
 		new String[] {
 			"A.java",
-			"import java.util.*;\n" +
-			"import java.util.stream.Stream;\n" +
-			"class A {\n" +
-			"  long test(List<String> ss) {\n" +
-			"    Stream<String> stream = ss.stream();\n" +
-			"    return stream.count();\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.*;
+				import java.util.stream.Stream;
+				class A {
+				  long test(List<String> ss) {
+				    Stream<String> stream = ss.stream();
+				    return stream.count();
+				  }
+				}"""
 		},
 		options
 		);
@@ -4698,15 +5019,16 @@ public void testStream1_Int() {
 	runConformTest(
 		new String[] {
 			"A.java",
-			"import java.util.stream.*;\n" +
-			"class A {\n" +
-			"    public void f(Stream<Object> s) {\n" +
-			"        IntStream n = s.mapToInt(Object::hashCode);\n" +
-			"        IntStream n2 = IntStream.range(23, 42);\n" +
-			"        n.forEach(i -> System.out.println(i));\n" +
-			"        n2.forEach(i -> System.out.println(i));\n" +
-			"    }\n" +
-			"}"
+			"""
+				import java.util.stream.*;
+				class A {
+				    public void f(Stream<Object> s) {
+				        IntStream n = s.mapToInt(Object::hashCode);
+				        IntStream n2 = IntStream.range(23, 42);
+				        n.forEach(i -> System.out.println(i));
+				        n2.forEach(i -> System.out.println(i));
+				    }
+				}"""
 		},
 		options
 		);
@@ -4721,15 +5043,16 @@ public void testStream1_Double_Long() {
 	runConformTest(
 		new String[] {
 			"A.java",
-			"import java.util.stream.*;\n" +
-			"class A {\n" +
-			"    public void f(Stream<Object> s) {\n" +
-			"        DoubleStream n = s.mapToDouble(o -> 0.2);\n" +
-			"        LongStream n2 = LongStream.range(23, 42);\n" +
-			"        n.forEach(i -> System.out.println(i));\n" +
-			"        n2.forEach(i -> System.out.println(i));\n" +
-			"    }\n" +
-			"}"
+			"""
+				import java.util.stream.*;
+				class A {
+				    public void f(Stream<Object> s) {
+				        DoubleStream n = s.mapToDouble(o -> 0.2);
+				        LongStream n2 = LongStream.range(23, 42);
+				        n.forEach(i -> System.out.println(i));
+				        n2.forEach(i -> System.out.println(i));
+				    }
+				}"""
 		},
 		options
 		);
@@ -4746,13 +5069,15 @@ public void testStreamEx_572707() {
 			STREAMEX_JAVA,
 			STREAMEX_CONTENT,
 			"Bug572707.java",
-			"import one.util.streamex.*;\n" +
-			"\n" +
-			"public class Bug572707 {\n" +
-			"	public void m() {\n" +
-			"		System.out.println(StreamEx.create());\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import one.util.streamex.*;
+				
+				public class Bug572707 {
+					public void m() {
+						System.out.println(StreamEx.create());
+					}
+				}
+				"""
 		},
 		options);
 }
@@ -4766,21 +5091,24 @@ public void testStream2() {
 	runLeakTest(
 		new String[] {
 			"A.java",
-			"import java.util.stream.Stream;\n" +
-			"import java.nio.file.*;\n" +
-			"class A {\n" +
-			"  long test(Path start, FileVisitOption... options) throws java.io.IOException {\n" +
-			"    Stream<Path> stream = Files.walk(start, options);\n" +
-			"    return stream.count();\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.stream.Stream;
+				import java.nio.file.*;
+				class A {
+				  long test(Path start, FileVisitOption... options) throws java.io.IOException {
+				    Stream<Path> stream = Files.walk(start, options);
+				    return stream.count();
+				  }
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in A.java (at line 5)\n" +
-		"	Stream<Path> stream = Files.walk(start, options);\n" +
-		"	             ^^^^^^\n" +
-		"Resource leak: \'stream\' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in A.java (at line 5)
+				Stream<Path> stream = Files.walk(start, options);
+				             ^^^^^^
+			Resource leak: \'stream\' is never closed
+			----------
+			""",
 		options
 		);
 }
@@ -4794,22 +5122,25 @@ public void testStream3() {
 	runLeakTest(
 		new String[] {
 			"A.java",
-			"import java.util.stream.Stream;\n" +
-			"import java.nio.file.*;\n" +
-			"class A {\n" +
-			"  void test(Path file) throws java.io.IOException {\n" +
-			"    Stream<String> lines = Files.lines(file);\n" +
-			"    if (lines.count() > 0)" +
-			"    	lines.close();\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.stream.Stream;
+				import java.nio.file.*;
+				class A {
+				  void test(Path file) throws java.io.IOException {
+				    Stream<String> lines = Files.lines(file);
+				    if (lines.count() > 0)\
+				    	lines.close();
+				  }
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in A.java (at line 5)\n" +
-		"	Stream<String> lines = Files.lines(file);\n" +
-		"	               ^^^^^\n" +
-		"Potential resource leak: \'lines\' may not be closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in A.java (at line 5)
+				Stream<String> lines = Files.lines(file);
+				               ^^^^^
+			Potential resource leak: \'lines\' may not be closed
+			----------
+			""",
 		options
 		);
 }
@@ -4823,15 +5154,16 @@ public void testStream4() {
 	runConformTest(
 		new String[] {
 			"A.java",
-			"import java.util.stream.Stream;\n" +
-			"import java.nio.file.*;\n" +
-			"class A {\n" +
-			"  void test(Path dir) throws java.io.IOException {\n" +
-			"    try (Stream<Path> list = Files.list(dir)) {\n" +
-			"    	list.forEach(child -> System.out.println(child));\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"
+			"""
+				import java.util.stream.Stream;
+				import java.nio.file.*;
+				class A {
+				  void test(Path dir) throws java.io.IOException {
+				    try (Stream<Path> list = Files.list(dir)) {
+				    	list.forEach(child -> System.out.println(child));
+				    }
+				  }
+				}"""
 		},
 		options
 		);
@@ -4904,41 +5236,43 @@ public void testBug371614_comment0() {
 	runLeakTest(
 		new String[] {
 			"C.java",
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.InputStream;\n" +
-			"\n" +
-			"public class C {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		FileInputStream fileInputStream= null;\n" +
-			"		try {\n" +
-			"			fileInputStream = new FileInputStream(args[0]);\n" +
-			"			while (true) {\n" +
-			"				if (fileInputStream.read() == -1) {\n" +
-			"					System.out.println(\"done\");\n" +
-			"// Resource leak: 'fileInputStream' is not closed at this location\n" +
-			"					return;\n" +
-			"				}\n" +
-			"			}\n" +
-			"		} catch (IOException e) {\n" +
-			"			e.printStackTrace();\n" +
-			"			return;\n" +
-			"		} finally {\n" +
-			"			closeStream(fileInputStream);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	\n" +
-			"	private static void closeStream(InputStream stream) {\n" +
-			"		if (stream != null) {\n" +
-			"			try {\n" +
-			"				stream.close();\n" +
-			"			} catch (IOException e) {\n" +
-			"				e.printStackTrace();\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n" +
-			"\n"
+			"""
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				import java.io.InputStream;
+				
+				public class C {
+					public static void main(String[] args) {
+						FileInputStream fileInputStream= null;
+						try {
+							fileInputStream = new FileInputStream(args[0]);
+							while (true) {
+								if (fileInputStream.read() == -1) {
+									System.out.println("done");
+				// Resource leak: 'fileInputStream' is not closed at this location
+									return;
+								}
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+							return;
+						} finally {
+							closeStream(fileInputStream);
+						}
+					}
+				\t
+					private static void closeStream(InputStream stream) {
+						if (stream != null) {
+							try {
+								stream.close();
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+				
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in C.java (at line 14)\n" +
@@ -4956,40 +5290,42 @@ public void testBug371614_comment2() {
 	runConformTest(
 		new String[] {
 			"ResourceLeak.java",
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.InputStreamReader;\n" +
-			"import java.io.Reader;\n" +
-			"\n" +
-			"public class ResourceLeak {\n" +
-			"\n" +
-			"  boolean check(final Reader r) throws IOException {\n" +
-			"    final int i = r.read();\n" +
-			"    return (i != -1);\n" +
-			"  }\n" +
-			"\n" +
-			"  public void test1() throws IOException {\n" +
-			"    try (Reader r = new InputStreamReader(System.in);) {\n" +
-			"      while (check(r)) {\n" +
-			"        if (check(r))\n" +
-			"          throw new IOException(\"fail\");\n" +
-			"        if (!check(r))\n" +
-			"          throw new IOException(\"fail\");\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"  public void test2() throws IOException {\n" +
-			"    try (Reader r = new InputStreamReader(new FileInputStream(\"test.txt\"));) {\n" +
-			"      while (check(r)) {\n" +
-			"        if (check(r))\n" +
-			"          throw new IOException(\"fail\");\n" +
-			"        if (!check(r))\n" +
-			"          throw new IOException(\"fail\");\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				import java.io.InputStreamReader;
+				import java.io.Reader;
+				
+				public class ResourceLeak {
+				
+				  boolean check(final Reader r) throws IOException {
+				    final int i = r.read();
+				    return (i != -1);
+				  }
+				
+				  public void test1() throws IOException {
+				    try (Reader r = new InputStreamReader(System.in);) {
+				      while (check(r)) {
+				        if (check(r))
+				          throw new IOException("fail");
+				        if (!check(r))
+				          throw new IOException("fail");
+				      }
+				    }
+				  }
+				
+				  public void test2() throws IOException {
+				    try (Reader r = new InputStreamReader(new FileInputStream("test.txt"));) {
+				      while (check(r)) {
+				        if (check(r))
+				          throw new IOException("fail");
+				        if (!check(r))
+				          throw new IOException("fail");
+				      }
+				    }
+				  }
+				}
+				"""
 		},
 		options);
 }
@@ -5001,20 +5337,22 @@ public void testBug371614_comment8() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.*;\n" +
-			"import java.net.*;\n" +
-			"public class X {\n" +
-			"	Socket fSocket;\n" +
-			"	void test() {\n" +
-			"    try (InputStreamReader socketIn = new InputStreamReader(fSocket.getInputStream())) {\n" +
-			"         while (true) {\n" +
-			"             if (socketIn.read(new char[1024]) < 0)\n" +
-			"                 throw new IOException(\"Error\");\n" +
-			"         }           \n" +
-			"     } catch (IOException e) {\n" +
-			"     }" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				import java.net.*;
+				public class X {
+					Socket fSocket;
+					void test() {
+				    try (InputStreamReader socketIn = new InputStreamReader(fSocket.getInputStream())) {
+				         while (true) {
+				             if (socketIn.read(new char[1024]) < 0)
+				                 throw new IOException("Error");
+				         }          \s
+				     } catch (IOException e) {
+				     }\
+					}
+				}
+				"""
 		},
 		options);
 }
@@ -5026,37 +5364,39 @@ public void testBug462371_orig() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.*;\n" +
-			"interface IFile {\n" +
-			"	InputStream getContents();\n" +
-			"	boolean exists();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static String getAnnotatedSignature(String typeName, IFile file, String selector, String originalSignature) {\n" +
-			"		if (file.exists()) {\n" +
-			"			try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getContents()))) {\n" +
-			"				reader.readLine();\n" +
-			"				while (true) {\n" +
-			"					String line = reader.readLine(); \n" +
-			"					// selector:\n" +
-			"					if (selector.equals(line)) {\n" +
-			"						// original signature:\n" +
-			"						line = reader.readLine();\n" +
-			"						if (originalSignature.equals(\"\")) {\n" +
-			"							// annotated signature:\n" +
-			"							return reader.readLine();\n" +
-			"						}\n" +
-			"					}\n" +
-			"					if (line == null)\n" +
-			"						break;\n" +
-			"				}\n" +
-			"			} catch (IOException e) {\n" +
-			"				return null;\n" +
-			"			}\n" +
-			"		}\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				interface IFile {
+					InputStream getContents();
+					boolean exists();
+				}
+				public class X {
+					public static String getAnnotatedSignature(String typeName, IFile file, String selector, String originalSignature) {
+						if (file.exists()) {
+							try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getContents()))) {
+								reader.readLine();
+								while (true) {
+									String line = reader.readLine();\s
+									// selector:
+									if (selector.equals(line)) {
+										// original signature:
+										line = reader.readLine();
+										if (originalSignature.equals("")) {
+											// annotated signature:
+											return reader.readLine();
+										}
+									}
+									if (line == null)
+										break;
+								}
+							} catch (IOException e) {
+								return null;
+							}
+						}
+						return null;
+					}
+				}
+				"""
 		},
 		options);
 }
@@ -5067,45 +5407,49 @@ public void _testBug462371_shouldWarn() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.*;\n" +
-			"interface IFile {\n" +
-			"	InputStream getContents();\n" +
-			"	boolean exists();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static String getAnnotatedSignature(String typeName, IFile file, String selector, String originalSignature) {\n" +
-			"		if (file.exists()) {\n" +
-			"			try  {\n" +
-			"				BufferedReader reader = new BufferedReader(new InputStreamReader(file.getContents())); \n" +
-			"				reader.readLine();\n" +
-			"				while (true) {\n" +
-			"					String line = reader.readLine(); \n" +
-			"					// selector:\n" +
-			"					if (selector.equals(line)) {\n" +
-			"						// original signature:\n" +
-			"						line = reader.readLine();\n" +
-			"						if (originalSignature.equals(\"\")) {\n" +
-			"							// annotated signature:\n" +
-			"							return reader.readLine();\n" +
-			"						}\n" +
-			"					}\n" +
-			"					if (line == null)\n" +
-			"						break;\n" +
-			"				}\n" +
-			"			} catch (IOException e) {\n" +
-			"				return null;\n" +
-			"			}\n" +
-			"		}\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				interface IFile {
+					InputStream getContents();
+					boolean exists();
+				}
+				public class X {
+					public static String getAnnotatedSignature(String typeName, IFile file, String selector, String originalSignature) {
+						if (file.exists()) {
+							try  {
+								BufferedReader reader = new BufferedReader(new InputStreamReader(file.getContents()));\s
+								reader.readLine();
+								while (true) {
+									String line = reader.readLine();\s
+									// selector:
+									if (selector.equals(line)) {
+										// original signature:
+										line = reader.readLine();
+										if (originalSignature.equals("")) {
+											// annotated signature:
+											return reader.readLine();
+										}
+									}
+									if (line == null)
+										break;
+								}
+							} catch (IOException e) {
+								return null;
+							}
+						}
+						return null;
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in C.java (at line 14)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Potential resource leak: \'fileInputStream\' may not be closed at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in C.java (at line 14)
+				return;
+				^^^^^^^
+			Potential resource leak: \'fileInputStream\' may not be closed at this location
+			----------
+			""",
 		options);
 }
 public void testBug421035() {
@@ -5115,22 +5459,24 @@ public void testBug421035() {
 	runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.io.BufferedReader;\n" +
-			"import java.io.FileNotFoundException;\n" +
-			"import java.io.FileReader;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.Reader;\n" +
-			"\n" +
-			"public class Test {\n" +
-			"  void test() throws FileNotFoundException {\n" +
-			"    Reader a = (Reader)new BufferedReader(new FileReader(\"a\"));\n" +
-			"    try {\n" +
-			"		a.close();\n" +
-			"	} catch (IOException e) {\n" +
-			"		e.printStackTrace();\n" +
-			"	}\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.BufferedReader;
+				import java.io.FileNotFoundException;
+				import java.io.FileReader;
+				import java.io.IOException;
+				import java.io.Reader;
+				
+				public class Test {
+				  void test() throws FileNotFoundException {
+				    Reader a = (Reader)new BufferedReader(new FileReader("a"));
+				    try {
+						a.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				  }
+				}
+				"""
 		},
 		options);
 }
@@ -5142,27 +5488,29 @@ public void testBug444964() {
 	runConformTest(
 		new String[] {
 			"Bug444964.java",
-			"import java.io.*;\n" +
-			"\n" +
-			"public class Bug444964 {\n" +
-			"  void wrong() {\n" +
-			"    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {\n" +
-			"      for (;;) {\n" +
-			"        return;\n" +
-			"      }\n" +
-			"    } catch (Exception e) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void right() {\n" +
-			"    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {\n" +
-			"      while (true) {\n" +
-			"        return;\n" +
-			"      }\n" +
-			"    } catch (Exception e) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				
+				public class Bug444964 {
+				  void wrong() {
+				    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+				      for (;;) {
+				        return;
+				      }
+				    } catch (Exception e) {
+				    }
+				  }
+				  void right() {
+				    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+				      while (true) {
+				        return;
+				      }
+				    } catch (Exception e) {
+				    }
+				  }
+				
+				}
+				"""
 		},
 		options);
 }
@@ -5174,56 +5522,58 @@ public void testBug397204() {
 	runConformTest(
 		new String[] {
 			"HostIdTest.java",
-			"import java.io.*;\n" +
-			"import java.net.InetAddress;\n" +
-			"import java.net.NetworkInterface;\n" +
-			"import java.util.Enumeration;\n" +
-			"import java.util.Formatter;\n" +
-			"import java.util.Locale;\n" +
-			"\n" +
-			"\n" +
-			"public class HostIdTest {\n" +
-			"\n" +
-			"    public final void primaryNetworkInterface() throws IOException {\n" +
-			"        System.out.println(InetAddress.getLocalHost());\n" +
-			"        System.out.println(InetAddress.getLocalHost().getHostName());\n" +
-			"        System.out.println(hostId());\n" +
-			"    }\n" +
-			"\n" +
-			"    String hostId() throws IOException {\n" +
-			"        try (StringWriter s = new StringWriter(); PrintWriter p = new PrintWriter(s)) {\n" +
-			"            p.print(InetAddress.getLocalHost().getHostName());\n" +
-			"            p.print('/');\n" +
-			"            Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();\n" +
-			"            while (e.hasMoreElements()) {\n" +
-			"                NetworkInterface i = e.nextElement();\n" +
-			"                System.out.println(i);\n" +
-			"                if (i.getHardwareAddress() == null || i.getHardwareAddress().length == 0)\n" +
-			"                    continue;\n" +
-			"                for (byte b : i.getHardwareAddress())\n" +
-			"                    p.printf(\"%02x\", b);\n" +
-			"                return s.toString();\n" +
-			"            }\n" +
-			"            throw new RuntimeException(\"Unable to determine Host ID\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"\n" +
-			"    public void otherHostId() throws Exception {\n" +
-			"        InetAddress addr = InetAddress.getLocalHost();\n" +
-			"        byte[] ipaddr = addr.getAddress();\n" +
-			"        if (ipaddr.length == 4) {\n" +
-			"            int hostid = ipaddr[1] << 24 | ipaddr[0] << 16 | ipaddr[3] << 8 | ipaddr[2];\n" +
-			"            StringBuilder sb = new StringBuilder();\n" +
-			"            try (Formatter formatter = new Formatter(sb, Locale.US)) {\n" +
-			"                formatter.format(\"%08x\", hostid);\n" +
-			"                System.out.println(sb.toString());\n" +
-			"            }\n" +
-			"        } else {\n" +
-			"            throw new Exception(\"hostid for IPv6 addresses not implemented yet\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"    \n" +
-			"}\n"
+			"""
+				import java.io.*;
+				import java.net.InetAddress;
+				import java.net.NetworkInterface;
+				import java.util.Enumeration;
+				import java.util.Formatter;
+				import java.util.Locale;
+				
+				
+				public class HostIdTest {
+				
+				    public final void primaryNetworkInterface() throws IOException {
+				        System.out.println(InetAddress.getLocalHost());
+				        System.out.println(InetAddress.getLocalHost().getHostName());
+				        System.out.println(hostId());
+				    }
+				
+				    String hostId() throws IOException {
+				        try (StringWriter s = new StringWriter(); PrintWriter p = new PrintWriter(s)) {
+				            p.print(InetAddress.getLocalHost().getHostName());
+				            p.print('/');
+				            Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
+				            while (e.hasMoreElements()) {
+				                NetworkInterface i = e.nextElement();
+				                System.out.println(i);
+				                if (i.getHardwareAddress() == null || i.getHardwareAddress().length == 0)
+				                    continue;
+				                for (byte b : i.getHardwareAddress())
+				                    p.printf("%02x", b);
+				                return s.toString();
+				            }
+				            throw new RuntimeException("Unable to determine Host ID");
+				        }
+				    }
+				
+				    public void otherHostId() throws Exception {
+				        InetAddress addr = InetAddress.getLocalHost();
+				        byte[] ipaddr = addr.getAddress();
+				        if (ipaddr.length == 4) {
+				            int hostid = ipaddr[1] << 24 | ipaddr[0] << 16 | ipaddr[3] << 8 | ipaddr[2];
+				            StringBuilder sb = new StringBuilder();
+				            try (Formatter formatter = new Formatter(sb, Locale.US)) {
+				                formatter.format("%08x", hostid);
+				                System.out.println(sb.toString());
+				            }
+				        } else {
+				            throw new Exception("hostid for IPv6 addresses not implemented yet");
+				        }
+				    }
+				   \s
+				}
+				"""
 		},
 		options);
 }
@@ -5235,18 +5585,20 @@ public void testBug397204_comment4() {
 	runConformTest(
 		new String[] {
 			"HostIdTest.java",
-			"import java.io.*;\n" +
-			"\n" +
-			"public class HostIdTest {\n" +
-			"\n" +
-			"  void simple() throws Exception {\n" +
-			"    try (InputStream x = new ByteArrayInputStream(null)) {\n" +
-			"      while (Math.abs(1) == 1)\n" +
-			"        if (Math.abs(1) == 1)\n" +
-			"            return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				
+				public class HostIdTest {
+				
+				  void simple() throws Exception {
+				    try (InputStream x = new ByteArrayInputStream(null)) {
+				      while (Math.abs(1) == 1)
+				        if (Math.abs(1) == 1)
+				            return;
+				    }
+				  }
+				}
+				"""
 		},
 		options);
 }
@@ -5258,20 +5610,22 @@ public void testBug433510() {
 	runConformTest(
 		new String[] {
 			"Bug433510.java",
-			"import java.io.*;\n" +
-			"\n" +
-			"public class Bug433510 {\n" +
-			"\n" +
-			"	void test() throws Exception {\n" +
-			"		try (Reader r = new StringReader(\"Hello World!\")) {\n" +
-			"			int c;\n" +
-			"			while ((c = r.read()) != -1) {\n" +
-			"				if (c == ' ')\n" +
-			"					throw new IOException(\"Unexpected space\");\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				
+				public class Bug433510 {
+				
+					void test() throws Exception {
+						try (Reader r = new StringReader("Hello World!")) {
+							int c;
+							while ((c = r.read()) != -1) {
+								if (c == ' ')
+									throw new IOException("Unexpected space");
+							}
+						}
+					}
+				}
+				"""
 		},
 		options);
 }
@@ -5282,87 +5636,91 @@ public void testBug440282() {
 	runLeakTest(
 		new String[] {
 			"ResourceLeakFalseNegative.java",
-			"import java.io.FileInputStream;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.InputStreamReader;\n" +
-			"\n" +
-			"public final class ResourceLeakFalseNegative {\n" +
-			"\n" +
-			"  private static final class Foo implements AutoCloseable {\n" +
-			"    final InputStreamReader reader;\n" +
-			"\n" +
-			"    Foo(final InputStreamReader reader) {\n" +
-			"      this.reader = reader;\n" +
-			"    }\n" +
-			"    \n" +
-			"    public int read() throws IOException {\n" +
-			"      return reader.read();\n" +
-			"    }\n" +
-			"\n" +
-			"    public void close() throws IOException {\n" +
-			"      reader.close();\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"  private static final class Bar {\n" +
-			"    final int read;\n" +
-			"\n" +
-			"    Bar(final InputStreamReader reader) throws IOException {\n" +
-			"      read = reader.read();\n" +
-			"    }\n" +
-			"    \n" +
-			"    public int read() {\n" +
-			"      return read;\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"  public final static int foo() throws IOException {\n" +
-			"    final FileInputStream in = new FileInputStream(\"/dev/null\");\n" +
-			"    final InputStreamReader reader = new InputStreamReader(in);\n" +
-			"    try {\n" +
-			"      return new Foo(reader).read();\n" +
-			"    } finally {\n" +
-			"      // even though Foo is not closed, no potential resource leak is reported.\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"  public final static int bar() throws IOException {\n" +
-			"    final FileInputStream in = new FileInputStream(\"/dev/null\");\n" +
-			"    final InputStreamReader reader = new InputStreamReader(in);\n" +
-			"    try {\n" +
-			"      final Bar bar = new Bar(reader);\n" +
-			"      return bar.read();\n" +
-			"    } finally {\n" +
-			"      // Removing the close correctly reports potential resource leak as a warning,\n" +
-			"      // because Bar does not implement AutoCloseable.\n" +
-			"      reader.close();\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"  public static void main(String[] args) throws IOException {\n" +
-			"    for (;;) {\n" +
-			"      foo();\n" +
-			"      bar();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.FileInputStream;
+				import java.io.IOException;
+				import java.io.InputStreamReader;
+				
+				public final class ResourceLeakFalseNegative {
+				
+				  private static final class Foo implements AutoCloseable {
+				    final InputStreamReader reader;
+				
+				    Foo(final InputStreamReader reader) {
+				      this.reader = reader;
+				    }
+				   \s
+				    public int read() throws IOException {
+				      return reader.read();
+				    }
+				
+				    public void close() throws IOException {
+				      reader.close();
+				    }
+				  }
+				
+				  private static final class Bar {
+				    final int read;
+				
+				    Bar(final InputStreamReader reader) throws IOException {
+				      read = reader.read();
+				    }
+				   \s
+				    public int read() {
+				      return read;
+				    }
+				  }
+				
+				  public final static int foo() throws IOException {
+				    final FileInputStream in = new FileInputStream("/dev/null");
+				    final InputStreamReader reader = new InputStreamReader(in);
+				    try {
+				      return new Foo(reader).read();
+				    } finally {
+				      // even though Foo is not closed, no potential resource leak is reported.
+				    }
+				  }
+				
+				  public final static int bar() throws IOException {
+				    final FileInputStream in = new FileInputStream("/dev/null");
+				    final InputStreamReader reader = new InputStreamReader(in);
+				    try {
+				      final Bar bar = new Bar(reader);
+				      return bar.read();
+				    } finally {
+				      // Removing the close correctly reports potential resource leak as a warning,
+				      // because Bar does not implement AutoCloseable.
+				      reader.close();
+				    }
+				  }
+				
+				  public static void main(String[] args) throws IOException {
+				    for (;;) {
+				      foo();
+				      bar();
+				    }
+				  }
+				}
+				"""
 		},
 		getTestBug440282_log(),
 		options);
 }
 protected String getTestBug440282_log() {
 	return
-		"----------\n" +
-		"1. ERROR in ResourceLeakFalseNegative.java (at line 39)\n" +
-		"	return new Foo(reader).read();\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: 'reader' may not be closed at this location\n" +
-		"----------\n" +
-		"2. ERROR in ResourceLeakFalseNegative.java (at line 39)\n" +
-		"	return new Foo(reader).read();\n" +
-		"	       ^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n";
+		"""
+		----------
+		1. ERROR in ResourceLeakFalseNegative.java (at line 39)
+			return new Foo(reader).read();
+			^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Potential resource leak: 'reader' may not be closed at this location
+		----------
+		2. ERROR in ResourceLeakFalseNegative.java (at line 39)
+			return new Foo(reader).read();
+			       ^^^^^^^^^^^^^^^
+		Resource leak: \'<unassigned Closeable value>\' is never closed
+		----------
+		""";
 }
 public void testBug390064() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // generics used
@@ -5373,51 +5731,55 @@ public void testBug390064() {
 	runLeakTest(
 		new String[] {
 			"Redundant.java",
-			"public class Redundant\n" +
-			"{\n" +
-			"   private static class A<T> implements AutoCloseable\n" +
-			"   {\n" +
-			"      public void close()\n" +
-			"      {\n" +
-			"      }\n" +
-			"   }\n" +
-			"\n" +
-			"   private static class B extends A<Object>\n" +
-			"   {\n" +
-			"      \n" +
-			"   }\n" +
-			"   \n" +
-			"   private static class C implements AutoCloseable\n" +
-			"   {\n" +
-			"      public void close()\n" +
-			"      {\n" +
-			"      }\n" +
-			"   }\n" +
-			"   \n" +
-			"   private static class D extends C\n" +
-			"   {\n" +
-			"      \n" +
-			"   }\n" +
-			"   \n" +
-			"   public static void main(String[] args)\n" +
-			"   {\n" +
-			"      new B();\n" +
-			"      \n" +
-			"      new D();\n" +
-			"   }\n" +
-			"}\n"
+			"""
+				public class Redundant
+				{
+				   private static class A<T> implements AutoCloseable
+				   {
+				      public void close()
+				      {
+				      }
+				   }
+				
+				   private static class B extends A<Object>
+				   {
+				     \s
+				   }
+				  \s
+				   private static class C implements AutoCloseable
+				   {
+				      public void close()
+				      {
+				      }
+				   }
+				  \s
+				   private static class D extends C
+				   {
+				     \s
+				   }
+				  \s
+				   public static void main(String[] args)
+				   {
+				      new B();
+				     \s
+				      new D();
+				   }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in Redundant.java (at line 29)\n" +
-		"	new B();\n" +
-		"	^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n" +
-		"2. ERROR in Redundant.java (at line 31)\n" +
-		"	new D();\n" +
-		"	^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in Redundant.java (at line 29)
+				new B();
+				^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			2. ERROR in Redundant.java (at line 31)
+				new D();
+				^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			""",
 		options);
 }
 public void testBug396575() {
@@ -5428,55 +5790,59 @@ public void testBug396575() {
 	runLeakTest(
 		new String[] {
 			"Bug396575.java",
-			"import java.io.*;\n" +
-			"\n" +
-			"public class Bug396575 {\n" +
-			"  void test1(File myFile) {\n" +
-			"   OutputStream out = null;\n" +
-			"   BufferedWriter bw = null;\n" +
-			"   try {\n" +
-			"       // code...\n" +
-			"       out = new FileOutputStream(myFile);\n" +
-			"       OutputStreamWriter writer = new OutputStreamWriter(out);\n" +
-			"       bw = new BufferedWriter(writer);\n" +
-			"       // more code...\n" +
-			"   } catch (Exception e) {\n" +
-			"       try {\n" +
-			"           bw.close(); // WARN: potential null pointer access\n" +
-			"       } catch (Exception ignored) {}\n" +
-			"       return;  // WARN: resource leak - bw may not be closed\n" +
-			"   }\n" +
-			"  }\n" +
-			"  \n" +
-			"  void test2(File myFile) {\n" +
-			"       BufferedWriter bw = null;\n" +
-			"   try {\n" +
-			"       // code...\n" +
-			"                                                       // declare \"out\" here inside try-catch as a temp variable\n" +
-			"       OutputStream out = new FileOutputStream(myFile); // WARN: out is never closed.\n" +
-			"       OutputStreamWriter writer = new OutputStreamWriter(out);\n" +
-			"       bw = new BufferedWriter(writer);\n" +
-			"       // more code...\n" +
-			"   } catch (Exception e) {\n" +
-			"       try {\n" +
-			"           bw.close(); // WARN: potential null pointer access\n" +
-			"       } catch (Exception ignored) {}\n" +
-			"       return;  // WARN: resource leak - bw may not be closed\n" +
-			"   }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				
+				public class Bug396575 {
+				  void test1(File myFile) {
+				   OutputStream out = null;
+				   BufferedWriter bw = null;
+				   try {
+				       // code...
+				       out = new FileOutputStream(myFile);
+				       OutputStreamWriter writer = new OutputStreamWriter(out);
+				       bw = new BufferedWriter(writer);
+				       // more code...
+				   } catch (Exception e) {
+				       try {
+				           bw.close(); // WARN: potential null pointer access
+				       } catch (Exception ignored) {}
+				       return;  // WARN: resource leak - bw may not be closed
+				   }
+				  }
+				 \s
+				  void test2(File myFile) {
+				       BufferedWriter bw = null;
+				   try {
+				       // code...
+				                                                       // declare "out" here inside try-catch as a temp variable
+				       OutputStream out = new FileOutputStream(myFile); // WARN: out is never closed.
+				       OutputStreamWriter writer = new OutputStreamWriter(out);
+				       bw = new BufferedWriter(writer);
+				       // more code...
+				   } catch (Exception e) {
+				       try {
+				           bw.close(); // WARN: potential null pointer access
+				       } catch (Exception ignored) {}
+				       return;  // WARN: resource leak - bw may not be closed
+				   }
+				  }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in Bug396575.java (at line 11)\n" +
-		"	bw = new BufferedWriter(writer);\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'bw\' is never closed\n" +
-		"----------\n" +
-		"2. ERROR in Bug396575.java (at line 28)\n" +
-		"	bw = new BufferedWriter(writer);\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'bw\' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in Bug396575.java (at line 11)
+				bw = new BufferedWriter(writer);
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'bw\' is never closed
+			----------
+			2. ERROR in Bug396575.java (at line 28)
+				bw = new BufferedWriter(writer);
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'bw\' is never closed
+			----------
+			""",
 		options);
 }
 public void testBug473317() {
@@ -5487,80 +5853,84 @@ public void testBug473317() {
 	runner.testFiles =
 		new String[] {
 			"AutoCloseableEnhancedForTest.java",
-			"import java.util.Iterator;\n" +
-			"\n" +
-			"public class AutoCloseableEnhancedForTest\n" +
-			"{\n" +
-			"   private static class MyIterator<T> implements Iterator<T>\n" +
-			"   {\n" +
-			"      private T value;\n" +
-			"      \n" +
-			"      public MyIterator(T value)\n" +
-			"      {\n" +
-			"         this.value = value;\n" +
-			"      }\n" +
-			"      \n" +
-			"      @Override\n" +
-			"      public boolean hasNext()\n" +
-			"      {\n" +
-			"         return false;\n" +
-			"      }\n" +
-			"\n" +
-			"      @Override\n" +
-			"      public T next()\n" +
-			"      {\n" +
-			"         return value;\n" +
-			"      }\n" +
-			"   }\n" +
-			"   \n" +
-			"   private static class MyIterable<T> implements Iterable<T>, AutoCloseable\n" +
-			"   {\n" +
-			"      @Override\n" +
-			"      public Iterator<T> iterator()\n" +
-			"      {\n" +
-			"         return new MyIterator<>(null);\n" +
-			"      }\n" +
-			"      \n" +
-			"      @Override\n" +
-			"      public void close() throws Exception\n" +
-			"      {\n" +
-			"      }\n" +
-			"   }\n" +
-			"   \n" +
-			"   public static void main(String[] args)\n" +
-			"   {\n" +
-			"      // Not flagged as \"never closed.\"\n" +
-			"      for (Object value : new MyIterable<>())\n" +
-			"      {\n" +
-			"         System.out.println(String.valueOf(value));\n" +
-			"         \n" +
-			"         break;\n" +
-			"      }\n" +
-			"      \n" +
-			"      // Flagged as \"never closed.\"\n" +
-			"      MyIterable<Object> iterable = new MyIterable<>();\n" +
-			"      \n" +
-			"      for (Object value : iterable)\n" +
-			"      {\n" +
-			"         System.out.println(String.valueOf(value));\n" +
-			"         \n" +
-			"         break;\n" +
-			"      }\n" +
-			"   }\n" +
-			"}\n"
+			"""
+				import java.util.Iterator;
+				
+				public class AutoCloseableEnhancedForTest
+				{
+				   private static class MyIterator<T> implements Iterator<T>
+				   {
+				      private T value;
+				     \s
+				      public MyIterator(T value)
+				      {
+				         this.value = value;
+				      }
+				     \s
+				      @Override
+				      public boolean hasNext()
+				      {
+				         return false;
+				      }
+				
+				      @Override
+				      public T next()
+				      {
+				         return value;
+				      }
+				   }
+				  \s
+				   private static class MyIterable<T> implements Iterable<T>, AutoCloseable
+				   {
+				      @Override
+				      public Iterator<T> iterator()
+				      {
+				         return new MyIterator<>(null);
+				      }
+				     \s
+				      @Override
+				      public void close() throws Exception
+				      {
+				      }
+				   }
+				  \s
+				   public static void main(String[] args)
+				   {
+				      // Not flagged as "never closed."
+				      for (Object value : new MyIterable<>())
+				      {
+				         System.out.println(String.valueOf(value));
+				        \s
+				         break;
+				      }
+				     \s
+				      // Flagged as "never closed."
+				      MyIterable<Object> iterable = new MyIterable<>();
+				     \s
+				      for (Object value : iterable)
+				      {
+				         System.out.println(String.valueOf(value));
+				        \s
+				         break;
+				      }
+				   }
+				}
+				"""
 		};
 	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. WARNING in AutoCloseableEnhancedForTest.java (at line 44)\n" +
-		"	for (Object value : new MyIterable<>())\n" +
-		"	                    ^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n" +
-		"2. WARNING in AutoCloseableEnhancedForTest.java (at line 52)\n" +
-		"	MyIterable<Object> iterable = new MyIterable<>();\n" +
-		"	                   ^^^^^^^^\n" +
-		"Resource leak: \'iterable\' is never closed\n" +
-		"----------\n";
+		"""
+			----------
+			1. WARNING in AutoCloseableEnhancedForTest.java (at line 44)
+				for (Object value : new MyIterable<>())
+				                    ^^^^^^^^^^^^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			2. WARNING in AutoCloseableEnhancedForTest.java (at line 52)
+				MyIterable<Object> iterable = new MyIterable<>();
+				                   ^^^^^^^^
+			Resource leak: \'iterable\' is never closed
+			----------
+			""";
 	runner.customOptions = compilerOptions;
 	runner.runWarningTest(); // javac warns about exception thrown from close() method
 }
@@ -5571,26 +5941,28 @@ public void testBug541705() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
 	runner.testFiles = new String[] {
 		"Test.java",
-		"import java.util.*;\n" +
-		"import java.util.zip.*;\n" +
-		"import java.io.*;\n" +
-		"public class Test {\n" +
-		"	private static HashMap<String, ZipFile> fgZipFileCache = new HashMap<>(5);\n" +
-		"	public static void closeArchives() {\n" +
-		"		synchronized (fgZipFileCache) {\n" +
-		"			for (ZipFile file : fgZipFileCache.values()) {\n" +
-		"				synchronized (file) {\n" +
-		"					try {\n" +
-		"						file.close();\n" +
-		"					} catch (IOException e) {\n" +
-		"						System.out.println(e);\n" +
-		"					}\n" +
-		"				}\n" +
-		"			}\n" +
-		"			fgZipFileCache.clear();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.util.*;
+			import java.util.zip.*;
+			import java.io.*;
+			public class Test {
+				private static HashMap<String, ZipFile> fgZipFileCache = new HashMap<>(5);
+				public static void closeArchives() {
+					synchronized (fgZipFileCache) {
+						for (ZipFile file : fgZipFileCache.values()) {
+							synchronized (file) {
+								try {
+									file.close();
+								} catch (IOException e) {
+									System.out.println(e);
+								}
+							}
+						}
+						fgZipFileCache.clear();
+					}
+				}
+			}
+			"""
 	};
 	runner.runConformTest();
 }
@@ -5601,25 +5973,27 @@ public void testBug541705b() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
 	runner.testFiles = new String[] {
 		"Test.java",
-		"import java.util.*;\n" +
-		"import java.util.zip.*;\n" +
-		"import java.io.*;\n" +
-		"public class Test {\n" +
-		"	private static HashMap<String, ZipFile> fgZipFileCache = new HashMap<>(5);\n" +
-		"	public static void closeArchives() {\n" +
-		"		synchronized (fgZipFileCache) {\n" +
-		"			for (ZipFile file : fgZipFileCache.values()) {\n" +
-		"				synchronized (file) {\n" +
-		"					try (file) {\n" +
-		"					} catch (IOException e) {\n" +
-		"						System.out.println(e);\n" +
-		"					}\n" +
-		"				}\n" +
-		"			}\n" +
-		"			fgZipFileCache.clear();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			import java.util.*;
+			import java.util.zip.*;
+			import java.io.*;
+			public class Test {
+				private static HashMap<String, ZipFile> fgZipFileCache = new HashMap<>(5);
+				public static void closeArchives() {
+					synchronized (fgZipFileCache) {
+						for (ZipFile file : fgZipFileCache.values()) {
+							synchronized (file) {
+								try (file) {
+								} catch (IOException e) {
+									System.out.println(e);
+								}
+							}
+						}
+						fgZipFileCache.clear();
+					}
+				}
+			}
+			"""
 	};
 	runner.runConformTest();
 }
@@ -5633,46 +6007,50 @@ public void testBug542707_001() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.Closeable;\n"+
-			"import java.io.IOException;\n"+
-			"\n"+
-			"public class X implements Closeable{\n"+
-			"	public static int foo(int i) throws IOException {\n"+
-			"		int k = 0;\n"+
-			"		X x = null;\n"+
-			"		try {\n"+
-			"			x = new X();\n"+
-			"			x  = switch (i) { \n"+
-			"			  case 1  ->   {\n"+
-			"				 yield x;\n"+
-			"			  }\n"+
-			"			  default -> x;\n"+
-			"			};\n"+
-			"		} finally {\n"+
-			"			x.close();\n"+
-			"		}\n"+
-			"		return k ;\n"+
-			"	}\n"+
-			"\n"+
-			"	public static void main(String[] args) {\n"+
-			"		try {\n"+
-			"			System.out.println(foo(3));\n"+
-			"		} catch (IOException e) {\n"+
-			"			// do nothing\n"+
-			"		}\n"+
-			"	}\n"+
-			"	@Override\n"+
-			"	public void close() throws IOException {\n"+
-			"		Zork();\n"+
-			"	}\n"+
-			"}\n"
+			"""
+				import java.io.Closeable;
+				import java.io.IOException;
+				
+				public class X implements Closeable{
+					public static int foo(int i) throws IOException {
+						int k = 0;
+						X x = null;
+						try {
+							x = new X();
+							x  = switch (i) {\s
+							  case 1  ->   {
+								 yield x;
+							  }
+							  default -> x;
+							};
+						} finally {
+							x.close();
+						}
+						return k ;
+					}
+				
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							// do nothing
+						}
+					}
+					@Override
+					public void close() throws IOException {
+						Zork();
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 31)\n" +
-		"	Zork();\n" +
-		"	^^^^\n" +
-		"The method Zork() is undefined for the type X\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 31)
+				Zork();
+				^^^^
+			The method Zork() is undefined for the type X
+			----------
+			""",
 		options);
 }
 public void testBug542707_002() {
@@ -5684,63 +6062,67 @@ public void testBug542707_002() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.Closeable;\n"+
-			"import java.io.IOException;\n"+
-			"\n"+
-			"public class X implements Closeable{\n"+
-			"	public static int foo(int i) throws IOException {\n"+
-			"		int k = 0;\n"+
-			"		X x = null;\n"+
-			"		try {\n"+
-			"			x = new X();\n"+
-			"			x  = switch (i) { \n"+
-			"			  case 1  ->   {\n"+
-			"				 x = new X();\n"+
-			"				 yield x;\n"+
-			"			  }\n"+
-			"			  default -> x;\n"+
-			"			};\n"+
-			"		} finally {\n"+
-			"			x.close();\n"+
-			"		}\n"+
-			"		return k ;\n"+
-			"	}\n"+
-			"\n"+
-			"	public static void main(String[] args) {\n"+
-			"		try {\n"+
-			"			System.out.println(foo(3));\n"+
-			"		} catch (IOException e) {\n"+
-			"			// do nothing\n"+
-			"		}\n"+
-			"	}\n"+
-			"	@Override\n"+
-			"	public void close() throws IOException {\n"+
-			"		Zork();\n"+
-			"	}\n"+
-			"}\n"
+			"""
+				import java.io.Closeable;
+				import java.io.IOException;
+				
+				public class X implements Closeable{
+					public static int foo(int i) throws IOException {
+						int k = 0;
+						X x = null;
+						try {
+							x = new X();
+							x  = switch (i) {\s
+							  case 1  ->   {
+								 x = new X();
+								 yield x;
+							  }
+							  default -> x;
+							};
+						} finally {
+							x.close();
+						}
+						return k ;
+					}
+				
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							// do nothing
+						}
+					}
+					@Override
+					public void close() throws IOException {
+						Zork();
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	x  = switch (i) { \n" +
-		"			  case 1  ->   {\n" +
-		"				 x = new X();\n" +
-		"				 yield x;\n" +
-		"			  }\n" +
-		"			  default -> x;\n" +
-		"			};\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'x\' is not closed at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 12)\n" +
-		"	x = new X();\n" +
-		"	^^^^^^^^^^^\n" +
-		"Resource leak: \'x\' is not closed at this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 32)\n" +
-		"	Zork();\n" +
-		"	^^^^\n" +
-		"The method Zork() is undefined for the type X\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				x  = switch (i) {\s
+						  case 1  ->   {
+							 x = new X();
+							 yield x;
+						  }
+						  default -> x;
+						};
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'x\' is not closed at this location
+			----------
+			2. ERROR in X.java (at line 12)
+				x = new X();
+				^^^^^^^^^^^
+			Resource leak: \'x\' is not closed at this location
+			----------
+			3. ERROR in X.java (at line 32)
+				Zork();
+				^^^^
+			The method Zork() is undefined for the type X
+			----------
+			""",
 		options);
 }
 public void testBug542707_003() {
@@ -5753,56 +6135,60 @@ public void testBug542707_003() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.Closeable;\n"+
-			"import java.io.IOException;\n"+
-			"\n"+
-			"public class X implements Closeable{\n"+
-			"	public static int foo(int i) throws IOException {\n"+
-			"		int k = 0;\n"+
-			"		X x = null;\n"+
-			"		try {\n"+
-			"			x = new X();\n"+
-			"			x  = switch (i) { \n"+
-			"			  case 1  ->   {\n"+
-			"				 yield new X();\n"+
-			"			  }\n"+
-			"			  default -> x;\n"+
-			"			};\n"+
-			"		} finally {\n"+
-			"			x.close();\n"+
-			"		}\n"+
-			"		return k ;\n"+
-			"	}\n"+
-			"\n"+
-			"	public static void main(String[] args) {\n"+
-			"		try {\n"+
-			"			System.out.println(foo(3));\n"+
-			"		} catch (IOException e) {\n"+
-			"			// do nothing\n"+
-			"		}\n"+
-			"	}\n"+
-			"	@Override\n"+
-			"	public void close() throws IOException {\n"+
-			"		Zork();\n"+
-			"	}\n"+
-			"}\n"
+			"""
+				import java.io.Closeable;
+				import java.io.IOException;
+				
+				public class X implements Closeable{
+					public static int foo(int i) throws IOException {
+						int k = 0;
+						X x = null;
+						try {
+							x = new X();
+							x  = switch (i) {\s
+							  case 1  ->   {
+								 yield new X();
+							  }
+							  default -> x;
+							};
+						} finally {
+							x.close();
+						}
+						return k ;
+					}
+				
+					public static void main(String[] args) {
+						try {
+							System.out.println(foo(3));
+						} catch (IOException e) {
+							// do nothing
+						}
+					}
+					@Override
+					public void close() throws IOException {
+						Zork();
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	x  = switch (i) { \n" +
-		"			  case 1  ->   {\n" +
-		"				 yield new X();\n" +
-		"			  }\n" +
-		"			  default -> x;\n" +
-		"			};\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'x\' is not closed at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 31)\n" +
-		"	Zork();\n" +
-		"	^^^^\n" +
-		"The method Zork() is undefined for the type X\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				x  = switch (i) {\s
+						  case 1  ->   {
+							 yield new X();
+						  }
+						  default -> x;
+						};
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'x\' is not closed at this location
+			----------
+			2. ERROR in X.java (at line 31)
+				Zork();
+				^^^^
+			The method Zork() is undefined for the type X
+			----------
+			""",
 		options);
 }
 public void testBug486506() {
@@ -5813,31 +6199,35 @@ public void testBug486506() {
 	runLeakTest(
 		new String[] {
 			"LogMessage.java",
-			"import java.util.stream.*;\n" +
-			"import java.io.*;\n" +
-			"import java.nio.file.*;\n" +
-			"import java.nio.charset.*;\n" +
-			"class LogMessage {\n" +
-			"  LogMessage(Path path, String message) {}\n" +
-			"  public static Stream<LogMessage> streamSingleLineLogMessages(Path path) {\n" +
-			"    try {\n" +
-			"        Stream<String> lineStream = Files.lines(path, StandardCharsets.ISO_8859_1);\n" +
-			"        Stream<LogMessage> logMessageStream =\n" +
-			"                lineStream.map(message -> new LogMessage(path, message));\n" +
-			"        logMessageStream.onClose(lineStream::close);\n" +
-			"        return logMessageStream;\n" +
-			"    } catch (IOException e) {\n" +
-			"        throw new RuntimeException(e);\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.stream.*;
+				import java.io.*;
+				import java.nio.file.*;
+				import java.nio.charset.*;
+				class LogMessage {
+				  LogMessage(Path path, String message) {}
+				  public static Stream<LogMessage> streamSingleLineLogMessages(Path path) {
+				    try {
+				        Stream<String> lineStream = Files.lines(path, StandardCharsets.ISO_8859_1);
+				        Stream<LogMessage> logMessageStream =
+				                lineStream.map(message -> new LogMessage(path, message));
+				        logMessageStream.onClose(lineStream::close);
+				        return logMessageStream;
+				    } catch (IOException e) {
+				        throw new RuntimeException(e);
+				    }
+				  }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in LogMessage.java (at line 13)\n" +
-		"	return logMessageStream;\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'lineStream\' may not be closed at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in LogMessage.java (at line 13)
+				return logMessageStream;
+				^^^^^^^^^^^^^^^^^^^^^^^^
+			Potential resource leak: \'lineStream\' may not be closed at this location
+			----------
+			""",
 		options);
 }
 public void testBug463320() {
@@ -5847,27 +6237,28 @@ public void testBug463320() {
 	runLeakTest(
 		new String[] {
 			"Try17.java",
-			"import java.util.zip.*;\n" +
-			"import java.io.*;\n" +
-			"public class Try17 {\n" +
-			"    void potential() throws IOException {\n" +
-			"        String name= getZipFile().getName();\n" +
-			"        System.out.println(name);\n" +
-			"    }\n" +
-			"    void definite() throws IOException {\n" +
-			"        String name= new ZipFile(\"bla.jar\").getName();\n" +
-			"        System.out.println(name);\n" +
-			"    }\n" +
-			"	 void withLocal() throws IOException {\n" +
-			"		 ZipFile zipFile = getZipFile();\n" +
-			"        String name= zipFile.getName();\n" +
-			"        System.out.println(name);\n" +
-			"	 }\n" +
-			"\n" +
-			"    ZipFile getZipFile() throws IOException {\n" +
-			"        return new ZipFile(\"bla.jar\");\n" +
-			"    }\n" +
-			"}"
+			"""
+				import java.util.zip.*;
+				import java.io.*;
+				public class Try17 {
+				    void potential() throws IOException {
+				        String name= getZipFile().getName();
+				        System.out.println(name);
+				    }
+				    void definite() throws IOException {
+				        String name= new ZipFile("bla.jar").getName();
+				        System.out.println(name);
+				    }
+					 void withLocal() throws IOException {
+						 ZipFile zipFile = getZipFile();
+				        String name= zipFile.getName();
+				        System.out.println(name);
+					 }
+				
+				    ZipFile getZipFile() throws IOException {
+				        return new ZipFile("bla.jar");
+				    }
+				}"""
 		},
 		"----------\n" +
 		"1. ERROR in Try17.java (at line 5)\n" +
@@ -5895,24 +6286,25 @@ public void testBug463320_comment8() {
 	runLeakTest(
 		new String[] {
 			"Try17.java",
-			"import java.io.*;\n" +
-			"import java.nio.file.*;\n" +
-			"import java.net.*;\n" +
-			"public class Try17 {\n" +
-			"   public InputStream openInputStream(URI uri) {\n" +
-			"		try {\n" +
-			"			System.out.println(FileSystems.getFileSystem(uri));\n" +
-			"			return Files.newInputStream(Paths.get(uri));\n" +
-			"		} catch (FileSystemNotFoundException e) {\n" +
-			"			throw new IllegalArgumentException(e);\n" +
-			"		} catch (IOException e) {\n" +
-			"			throw new IllegalStateException(e);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public InputStream delegateGet(URI uri) {\n" +
-			"		return openInputStream(uri);\n" + // no problem here!
-			"	}\n" +
-			"}"
+			"""
+				import java.io.*;
+				import java.nio.file.*;
+				import java.net.*;
+				public class Try17 {
+				   public InputStream openInputStream(URI uri) {
+						try {
+							System.out.println(FileSystems.getFileSystem(uri));
+							return Files.newInputStream(Paths.get(uri));
+						} catch (FileSystemNotFoundException e) {
+							throw new IllegalArgumentException(e);
+						} catch (IOException e) {
+							throw new IllegalStateException(e);
+						}
+					}
+					public InputStream delegateGet(URI uri) {
+						return openInputStream(uri);
+					}
+				}"""
 		},
 		"----------\n" +
 		"1. ERROR in Try17.java (at line 7)\n" +
@@ -5932,25 +6324,27 @@ public void testBug558574() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.*;\n" +
-			"public class X {\n" +
-			"	void m1() throws FileNotFoundException {\n" +
-			"		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(\"/tmp/out\")));\n" +
-			"		pw.printf(\"%d\", 42).close();\n" +
-			"	}\n" +
-			"	void m2(PrintWriter pw) throws FileNotFoundException {\n" +
-			"		pw.printf(\"%d\", 42).append(\"end\").close();\n" +
-			"	}\n" +
-			"	void m3() throws FileNotFoundException {\n" +
-			"		new PrintWriter(new OutputStreamWriter(new FileOutputStream(\"/tmp/out\")))\n" +
-			"			.format(\"%d\", 42)\n" +
-			"			.append(\"end\")\n" +
-			"			.close();\n" +
-			"	}\n" +
-			"	void m4(PrintWriter pw) throws FileNotFoundException {\n" +
-			"		pw.printf(\"%d\", 42).append(\"end\");\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				public class X {
+					void m1() throws FileNotFoundException {
+						PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("/tmp/out")));
+						pw.printf("%d", 42).close();
+					}
+					void m2(PrintWriter pw) throws FileNotFoundException {
+						pw.printf("%d", 42).append("end").close();
+					}
+					void m3() throws FileNotFoundException {
+						new PrintWriter(new OutputStreamWriter(new FileOutputStream("/tmp/out")))
+							.format("%d", 42)
+							.append("end")
+							.close();
+					}
+					void m4(PrintWriter pw) throws FileNotFoundException {
+						pw.printf("%d", 42).append("end");
+					}
+				}
+				"""
 		},
 		"",
 		options);
@@ -5963,12 +6357,14 @@ public void testBug560460() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"public class X {\n" +
-			"	Scanner m(String source) {\n" +
-			"		return new Scanner(source).useDelimiter(\"foobar\");\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				public class X {
+					Scanner m(String source) {
+						return new Scanner(source).useDelimiter("foobar");
+					}
+				}
+				"""
 		},
 		options);
 }
@@ -5980,21 +6376,22 @@ public void testBug463320_comment19() {
 	runConformTest(
 		new String[] {
 			"Try17.java",
-			"import java.util.zip.*;\n" +
-			"import java.io.*;\n" +
-			"public class Try17 {\n" +
-			"	void withLocal() throws IOException {\n" +
-			"		ZipFile zipFile = null;\n" +
-			"		if (zipFile != null)" +
-			"			zipFile = getZipFile();\n" + // not reachable
-			"		String name= zipFile.getName();\n" +
-			"		System.out.println(name);\n" +
-			"	 }\n" +
-			"\n" +
-			"    ZipFile getZipFile() throws IOException {\n" +
-			"        return new ZipFile(\"bla.jar\");\n" +
-			"    }\n" +
-			"}"
+			"""
+				import java.util.zip.*;
+				import java.io.*;
+				public class Try17 {
+					void withLocal() throws IOException {
+						ZipFile zipFile = null;
+						if (zipFile != null)\
+							zipFile = getZipFile();
+						String name= zipFile.getName();
+						System.out.println(name);
+					 }
+				
+				    ZipFile getZipFile() throws IOException {
+				        return new ZipFile("bla.jar");
+				    }
+				}"""
 		},
 		options);
 }
@@ -6007,151 +6404,155 @@ public void testBug552521() {
 	runLeakTest(
 		new String[] {
 			"EclipseBug552521getChannel.java",
-			"import java.io.File;\n" +
-			"import java.io.FileInputStream;\n" +
-			"import java.io.FileOutputStream;\n" +
-			"import java.nio.channels.FileChannel;\n" +
-			"\n" +
-			"public class EclipseBug552521getChannel {\n" +
-			"\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"	public void copyFile(final File srcFile, final File dstFile) throws Exception {\n" +
-			"		/*\n" +
-			"		 * TODO Eclipse Setting: Window/Preferences/Java/Compiler/Errors-Warnings/\n" +
-			"		 * Resource not managed via try-with-resource = Ignore (default)\n" +
-			"		 */\n" +
-			"        try (\n" +
-			"        		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" +
-			"        		final FileChannel     srcChannel =                      srcStream.getChannel();\n" +
-			"				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 17
-			"        		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok\n" +
-			"        		)\n" +
-			"        {\n" +
-			"    		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" +
-			"        }\n" +
-			"\n" +
-			"        if (srcFile.isFile()) { // \"if\" (resolved at runtime) -> Warning suppressed\n" +
-			"            try (\n" +
-			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" +
-			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" +
-			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 28
-			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!\n" +
-			"            		)\n" +
-			"            {\n" +
-			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" +
-			"            }\n" +
-			"        } else { // \"else\" (resolved at runtime) -> Warning suppressed\n" +
-			"            try (\n" +
-			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" +
-			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" +
-			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 38
-			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!\n" +
-			"            		)\n" +
-			"            {\n" +
-			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" +
-			"            }\n" +
-			"        }\n" +
-			"\n" +
-			"        if (true) { // Dummy \"if\" (= constant true) -> Warning\n" +
-			"            try (\n" +
-			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" +
-			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" +
-			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 50
-			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok\n" +
-			"            		)\n" +
-			"            {\n" +
-			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" +
-			"            }\n" +
-			"        } else { // Dummy \"else\" (= constant false) -> Warning suppressed\n" +
-			"            try (\n" +
-			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" +
-			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" +
-			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 60
-			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!\n" +
-			"            		)\n" +
-			"            {\n" +
-			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" +
-			"            }\n" +
-			"        }\n" +
-			"\n" +
-			"        if (false) { // Dummy \"if\" (= constant false) -> Warning suppressed\n" +
-			"            try (\n" +
-			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" +
-			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" +
-			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 72
-			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!\n" +
-			"            		)\n" +
-			"            {\n" +
-			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" +
-			"            }\n" +
-			"        } else { // Dummy \"else\" (= constant true) -> Warning\n" +
-			"            try (\n" +
-			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" +
-			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" +
-			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 82
-			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok\n" +
-			"            		)\n" +
-			"            {\n" +
-			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" +
-			"            }\n" +
-			"        }\n" +
-			"        /*\n" +
-			"         * Following test-case differs from all the above as follows:\n" +
-			"         * FileInputStream is unassigned, instead of FileOutputStream\n" +
-			"         */\n" +
-			"        try (\n" +
-			"        		final FileChannel      srcChannel = new FileInputStream (srcFile) .getChannel();\n" + // line 94
-			"        		//                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok\n" +
-			"        		final FileOutputStream dstStream  = new FileOutputStream(srcFile);\n" +
-			"				final FileChannel      dstChannel =                      dstStream.getChannel();\n" +
-			"        		)\n" +
-			"        {\n" +
-			"    		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" +
-			"        }\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.FileInputStream;
+				import java.io.FileOutputStream;
+				import java.nio.channels.FileChannel;
+				
+				public class EclipseBug552521getChannel {
+				
+					@SuppressWarnings("unused")
+					public void copyFile(final File srcFile, final File dstFile) throws Exception {
+						/*
+						 * TODO Eclipse Setting: Window/Preferences/Java/Compiler/Errors-Warnings/
+						 * Resource not managed via try-with-resource = Ignore (default)
+						 */
+				        try (
+				        		final FileInputStream srcStream  = new FileInputStream (srcFile);
+				        		final FileChannel     srcChannel =                      srcStream.getChannel();
+								final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				        		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok
+				        		)
+				        {
+				    		srcChannel.transferTo(0, srcChannel.size(), dstChannel);
+				        }
+				
+				        if (srcFile.isFile()) { // "if" (resolved at runtime) -> Warning suppressed
+				            try (
+				            		final FileInputStream srcStream  = new FileInputStream (srcFile);
+				            		final FileChannel     srcChannel =                      srcStream.getChannel();
+				    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!
+				            		)
+				            {
+				        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);
+				            }
+				        } else { // "else" (resolved at runtime) -> Warning suppressed
+				            try (
+				            		final FileInputStream srcStream  = new FileInputStream (srcFile);
+				            		final FileChannel     srcChannel =                      srcStream.getChannel();
+				    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!
+				            		)
+				            {
+				        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);
+				            }
+				        }
+				
+				        if (true) { // Dummy "if" (= constant true) -> Warning
+				            try (
+				            		final FileInputStream srcStream  = new FileInputStream (srcFile);
+				            		final FileChannel     srcChannel =                      srcStream.getChannel();
+				    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok
+				            		)
+				            {
+				        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);
+				            }
+				        } else { // Dummy "else" (= constant false) -> Warning suppressed
+				            try (
+				            		final FileInputStream srcStream  = new FileInputStream (srcFile);
+				            		final FileChannel     srcChannel =                      srcStream.getChannel();
+				    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!
+				            		)
+				            {
+				        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);
+				            }
+				        }
+				
+				        if (false) { // Dummy "if" (= constant false) -> Warning suppressed
+				            try (
+				            		final FileInputStream srcStream  = new FileInputStream (srcFile);
+				            		final FileChannel     srcChannel =                      srcStream.getChannel();
+				    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!
+				            		)
+				            {
+				        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);
+				            }
+				        } else { // Dummy "else" (= constant true) -> Warning
+				            try (
+				            		final FileInputStream srcStream  = new FileInputStream (srcFile);
+				            		final FileChannel     srcChannel =                      srcStream.getChannel();
+				    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok
+				            		)
+				            {
+				        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);
+				            }
+				        }
+				        /*
+				         * Following test-case differs from all the above as follows:
+				         * FileInputStream is unassigned, instead of FileOutputStream
+				         */
+				        try (
+				        		final FileChannel      srcChannel = new FileInputStream (srcFile) .getChannel();
+				        		//                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok
+				        		final FileOutputStream dstStream  = new FileOutputStream(srcFile);
+								final FileChannel      dstChannel =                      dstStream.getChannel();
+				        		)
+				        {
+				    		srcChannel.transferTo(0, srcChannel.size(), dstChannel);
+				        }
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in EclipseBug552521getChannel.java (at line 17)\n" +
-		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" +
-		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n" +
-		"2. ERROR in EclipseBug552521getChannel.java (at line 28)\n" +
-		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" +
-		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n" +
-		"3. ERROR in EclipseBug552521getChannel.java (at line 38)\n" +
-		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" +
-		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n" +
-		"4. ERROR in EclipseBug552521getChannel.java (at line 50)\n" +
-		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" +
-		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n" +
-		"5. ERROR in EclipseBug552521getChannel.java (at line 60)\n" +
-		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" +
-		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n" +
-		"6. ERROR in EclipseBug552521getChannel.java (at line 72)\n" +
-		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" +
-		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n" +
-		"7. ERROR in EclipseBug552521getChannel.java (at line 82)\n" +
-		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" +
-		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n" +
-		"8. ERROR in EclipseBug552521getChannel.java (at line 94)\n" +
-		"	final FileChannel      srcChannel = new FileInputStream (srcFile) .getChannel();\n" +
-		"	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in EclipseBug552521getChannel.java (at line 17)
+				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			2. ERROR in EclipseBug552521getChannel.java (at line 28)
+				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			3. ERROR in EclipseBug552521getChannel.java (at line 38)
+				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			4. ERROR in EclipseBug552521getChannel.java (at line 50)
+				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			5. ERROR in EclipseBug552521getChannel.java (at line 60)
+				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			6. ERROR in EclipseBug552521getChannel.java (at line 72)
+				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			7. ERROR in EclipseBug552521getChannel.java (at line 82)
+				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();
+				                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			8. ERROR in EclipseBug552521getChannel.java (at line 94)
+				final FileChannel      srcChannel = new FileInputStream (srcFile) .getChannel();
+				                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: \'<unassigned Closeable value>\' is never closed
+			----------
+			""",
 		options);
 }
 public void testBug552521_comment14() {
@@ -6163,23 +6564,25 @@ public void testBug552521_comment14() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.*;\n" +
-			"import java.util.*;\n" +
-			"public class X {\n" +
-			"	List<String> process(InputStream is) throws IOException {\n" +
-			"		is.close();\n" +
-			"		return Collections.emptyList();\n" +
-			"	}\n" +
-			"	void test(String fileName) throws IOException {\n" +
-			"		for (String string : process(new FileInputStream(fileName))) {\n" +
-			"			System.out.println(string);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void test2(String fileName) throws IOException {\n" +
-			"		for (String string : process(new FileInputStream(fileName)))\n" +
-			"			System.out.println(string);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				import java.util.*;
+				public class X {
+					List<String> process(InputStream is) throws IOException {
+						is.close();
+						return Collections.emptyList();
+					}
+					void test(String fileName) throws IOException {
+						for (String string : process(new FileInputStream(fileName))) {
+							System.out.println(string);
+						}
+					}
+					void test2(String fileName) throws IOException {
+						for (String string : process(new FileInputStream(fileName)))
+							System.out.println(string);
+					}
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 9)\n" +
@@ -6203,26 +6606,28 @@ public void testBug552521_comment14b() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.*;\n" +
-			"public class X {\n" +
-			"	boolean check(InputStream is) throws IOException {\n" +
-			"		is.close();\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"	void test1(String fileName) throws IOException {\n" +
-			"		while (check(new FileInputStream(fileName)))\n" +
-			"			System.out.println(\"while\");\n" +
-			"	}\n" +
-			"	void test2(String fileName) throws IOException {\n" +
-			"		do {\n" +
-			"			System.out.println(\"while\");\n" +
-			"		} while (check(new FileInputStream(fileName)));\n" +
-			"	}\n" +
-			"	void test3(String fileName) throws IOException {\n" +
-			"		for (int i=0;check(new FileInputStream(fileName));i++)\n" +
-			"			System.out.println(i);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				public class X {
+					boolean check(InputStream is) throws IOException {
+						is.close();
+						return true;
+					}
+					void test1(String fileName) throws IOException {
+						while (check(new FileInputStream(fileName)))
+							System.out.println("while");
+					}
+					void test2(String fileName) throws IOException {
+						do {
+							System.out.println("while");
+						} while (check(new FileInputStream(fileName)));
+					}
+					void test3(String fileName) throws IOException {
+						for (int i=0;check(new FileInputStream(fileName));i++)
+							System.out.println(i);
+					}
+				}
+				"""
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 8)\n" +
@@ -6251,15 +6656,17 @@ public void testBug519740() {
 	runConformTest(
 		new String[] {
 			"Snippet.java",
-			"class Snippet {\n" +
-			"  static void foo() throws Exception {\n" +
-			"    try (java.util.Scanner scanner = new java.util.Scanner(new java.io.FileInputStream(\"abc\"))) {\n" +
-			"      while (scanner.hasNext()) \n" +
-			"        if (scanner.hasNextInt())\n" +
-			"          throw new RuntimeException();  /* Potential resource leak: 'scanner' may not be closed at this location */\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				class Snippet {
+				  static void foo() throws Exception {
+				    try (java.util.Scanner scanner = new java.util.Scanner(new java.io.FileInputStream("abc"))) {
+				      while (scanner.hasNext())\s
+				        if (scanner.hasNextInt())
+				          throw new RuntimeException();  /* Potential resource leak: 'scanner' may not be closed at this location */
+				    }
+				  }
+				}
+				"""
 		},
 		options);
 }
@@ -6273,58 +6680,60 @@ public void testBug552441() {
 	runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.io.BufferedOutputStream;\n" +
-			"import java.io.FileOutputStream;\n" +
-			"import java.io.IOException;\n" +
-			"import java.io.OutputStream;\n" +
-			"import java.util.concurrent.atomic.AtomicLong;\n" +
-			"\n" +
-			"public class Test {\n" +
-			"    public static class CountingBufferedOutputStream extends BufferedOutputStream {\n" +
-			"        private final AtomicLong bytesWritten;\n" +
-			"\n" +
-			"        public CountingBufferedOutputStream(OutputStream out, AtomicLong bytesWritten) throws IOException {\n" +
-			"            super(out);\n" +
-			"            this.bytesWritten = bytesWritten;\n" +
-			"        }\n" +
-			"\n" +
-			"        @Override\n" +
-			"        public void write(byte[] b) throws IOException {\n" +
-			"            super.write(b);\n" +
-			"            bytesWritten.addAndGet(b.length);\n" +
-			"        }\n" +
-			"\n" +
-			"        @Override\n" +
-			"        public void write(byte[] b, int off, int len) throws IOException {\n" +
-			"            super.write(b, off, len);\n" +
-			"            bytesWritten.addAndGet(len);\n" +
-			"        }\n" +
-			"\n" +
-			"        @Override\n" +
-			"        public synchronized void write(int b) throws IOException {\n" +
-			"            super.write(b);\n" +
-			"            bytesWritten.incrementAndGet();\n" +
-			"        }\n" +
-			"    }\n" +
-			"\n" +
-			"    public static void test(String[] args) throws IOException {\n" +
-			"        AtomicLong uncompressedBytesOut = new AtomicLong();\n" +
-			"        int val = 0;\n" +
-			"        try (CountingBufferedOutputStream out = new CountingBufferedOutputStream(\n" +
-			"                new FileOutputStream(\"outputfile\"), uncompressedBytesOut)) {\n" +
-			"\n" +
-			"            for (int i = 0; i < 1; i++) {\n" +
-			"                if (val > 2) {\n" +
-			"                    throw new RuntimeException(\"X\");\n" +
-			"                }\n" +
-			"            }\n" +
-			"            if (val > 2) {\n" +
-			"                throw new RuntimeException(\"Y\");\n" +
-			"            }\n" +
-			"            throw new RuntimeException(\"Z\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.BufferedOutputStream;
+				import java.io.FileOutputStream;
+				import java.io.IOException;
+				import java.io.OutputStream;
+				import java.util.concurrent.atomic.AtomicLong;
+				
+				public class Test {
+				    public static class CountingBufferedOutputStream extends BufferedOutputStream {
+				        private final AtomicLong bytesWritten;
+				
+				        public CountingBufferedOutputStream(OutputStream out, AtomicLong bytesWritten) throws IOException {
+				            super(out);
+				            this.bytesWritten = bytesWritten;
+				        }
+				
+				        @Override
+				        public void write(byte[] b) throws IOException {
+				            super.write(b);
+				            bytesWritten.addAndGet(b.length);
+				        }
+				
+				        @Override
+				        public void write(byte[] b, int off, int len) throws IOException {
+				            super.write(b, off, len);
+				            bytesWritten.addAndGet(len);
+				        }
+				
+				        @Override
+				        public synchronized void write(int b) throws IOException {
+				            super.write(b);
+				            bytesWritten.incrementAndGet();
+				        }
+				    }
+				
+				    public static void test(String[] args) throws IOException {
+				        AtomicLong uncompressedBytesOut = new AtomicLong();
+				        int val = 0;
+				        try (CountingBufferedOutputStream out = new CountingBufferedOutputStream(
+				                new FileOutputStream("outputfile"), uncompressedBytesOut)) {
+				
+				            for (int i = 0; i < 1; i++) {
+				                if (val > 2) {
+				                    throw new RuntimeException("X");
+				                }
+				            }
+				            if (val > 2) {
+				                throw new RuntimeException("Y");
+				            }
+				            throw new RuntimeException("Z");
+				        }
+				    }
+				}
+				"""
 		},
 		options);
 }
@@ -6336,47 +6745,49 @@ public void testBug400523() {
 	runConformTest(
 		new String[] {
 			"LeakWarning.java",
-			"import java.sql.Connection;\n" +
-			"import java.sql.PreparedStatement;\n" +
-			"import java.sql.ResultSet;\n" +
-			"import java.sql.SQLException;\n" +
-			"\n" +
-			"public class LeakWarning {\n" +
-			"	String value = null;\n" +
-			"	\n" +
-			"    public void setValue(Connection conn)\n" +
-			"	{        \n" +
-			"        PreparedStatement stmt = null;\n" +
-			"        ResultSet rs = null;\n" +
-			"        try {            \n" +
-			"            stmt = conn.prepareStatement(\"SELECT 'value'\");  /* marked as potential resource leak */\n" +
-			"            rs = stmt.executeQuery();                        /* marked as potential resource leak */\n" +
-			"            if (rs.next()) value = rs.getString(1);\n" +
-			"        } catch(SQLException e) {\n" +
-			"        }\n" +
-			"        finally {\n" +
-			"        	if (null != rs)   try { rs.close();   } catch (SQLException e) {} finally { rs = null;   }\n" +
-			"        	if (null != stmt) try { stmt.close(); } catch (SQLException e) {} finally { stmt = null; }\n" +
-			"        }\n" +
-			"    }\n" +
-			"    \n" +
-			"    public void setValueReturn(Connection conn)\n" +
-			"	{        \n" +
-			"        PreparedStatement stmt = null;\n" +
-			"        ResultSet rs = null;\n" +
-			"        try {            \n" +
-			"            stmt = conn.prepareStatement(\"SELECT 'value'\");\n" +
-			"            rs = stmt.executeQuery();\n" +
-			"            if (rs.next()) value = rs.getString(1);\n" +
-			"        } catch(SQLException e) {\n" +
-			"        }\n" +
-			"        finally {\n" +
-			"        	if (null != rs)   try { rs.close();   } catch (SQLException e) {} finally { rs = null;   }\n" +
-			"        	if (null != stmt) try { stmt.close(); } catch (SQLException e) {} finally { stmt = null; }\n" +
-			"        }\n" +
-			"        return; /* no warning now */\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.sql.Connection;
+				import java.sql.PreparedStatement;
+				import java.sql.ResultSet;
+				import java.sql.SQLException;
+				
+				public class LeakWarning {
+					String value = null;
+				\t
+				    public void setValue(Connection conn)
+					{       \s
+				        PreparedStatement stmt = null;
+				        ResultSet rs = null;
+				        try {           \s
+				            stmt = conn.prepareStatement("SELECT 'value'");  /* marked as potential resource leak */
+				            rs = stmt.executeQuery();                        /* marked as potential resource leak */
+				            if (rs.next()) value = rs.getString(1);
+				        } catch(SQLException e) {
+				        }
+				        finally {
+				        	if (null != rs)   try { rs.close();   } catch (SQLException e) {} finally { rs = null;   }
+				        	if (null != stmt) try { stmt.close(); } catch (SQLException e) {} finally { stmt = null; }
+				        }
+				    }
+				   \s
+				    public void setValueReturn(Connection conn)
+					{       \s
+				        PreparedStatement stmt = null;
+				        ResultSet rs = null;
+				        try {           \s
+				            stmt = conn.prepareStatement("SELECT 'value'");
+				            rs = stmt.executeQuery();
+				            if (rs.next()) value = rs.getString(1);
+				        } catch(SQLException e) {
+				        }
+				        finally {
+				        	if (null != rs)   try { rs.close();   } catch (SQLException e) {} finally { rs = null;   }
+				        	if (null != stmt) try { stmt.close(); } catch (SQLException e) {} finally { stmt = null; }
+				        }
+				        return; /* no warning now */
+				    }
+				}
+				"""
 		},
 		options);
 }
@@ -6387,14 +6798,16 @@ public void testBug527761() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"class BAOSWrapper extends java.io.ByteArrayOutputStream {}\n" +
-			"public class X {\n" +
-			"	public static void warningCauser() {\n" +
-			"		BAOSWrapper baos = new BAOSWrapper();\n" +
-			"		//WARNING HAS BEEN CAUSED\n" +
-			"		baos.write(0);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				class BAOSWrapper extends java.io.ByteArrayOutputStream {}
+				public class X {
+					public static void warningCauser() {
+						BAOSWrapper baos = new BAOSWrapper();
+						//WARNING HAS BEEN CAUSED
+						baos.write(0);
+					}
+				}
+				"""
 		},
 		options);
 }
@@ -6404,19 +6817,23 @@ public void testBug527761_otherClose() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	String xSource =
-			"public class X {\n" +
-			"	public static void warningCauser() {\n" +
-			"		BAOSWrapper<String> baos = new BAOSWrapper<String>();\n" +
-			"		//WARNING HAS BEEN CAUSED\n" +
-			"		baos.write(0);\n" +
-			"	}\n" +
-			"}\n";
+			"""
+		public class X {
+			public static void warningCauser() {
+				BAOSWrapper<String> baos = new BAOSWrapper<String>();
+				//WARNING HAS BEEN CAUSED
+				baos.write(0);
+			}
+		}
+		""";
 	runConformTest(
 		new String[] {
 			"BAOSWrapper.java",
-			"class BAOSWrapper<T> extends java.io.ByteArrayOutputStream {\n" +
-			"	public void close(java.util.List<?> l) {}\n" + // not relevant, param challenges treatment of unresolved types
-			"}\n",
+			"""
+				class BAOSWrapper<T> extends java.io.ByteArrayOutputStream {
+					public void close(java.util.List<?> l) {}
+				}
+				""",
 			"X.java",
 			xSource
 		},
@@ -6433,23 +6850,27 @@ public void testBug527761_neg() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"class BAOSWrapper extends java.io.ByteArrayOutputStream {\n" +
-			"	public void close() {}\n" + // indicates that resource could be relevant
-			"}\n" +
-			"public class X {\n" +
-			"	public static void warningCauser() {\n" +
-			"		BAOSWrapper baos = new BAOSWrapper();\n" +
-			"		//WARNING HAS BEEN CAUSED\n" +
-			"		baos.write(0);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				class BAOSWrapper extends java.io.ByteArrayOutputStream {
+					public void close() {}
+				}
+				public class X {
+					public static void warningCauser() {
+						BAOSWrapper baos = new BAOSWrapper();
+						//WARNING HAS BEEN CAUSED
+						baos.write(0);
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	BAOSWrapper baos = new BAOSWrapper();\n" +
-		"	            ^^^^\n" +
-		"Resource leak: \'baos\' is never closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				BAOSWrapper baos = new BAOSWrapper();
+				            ^^^^
+			Resource leak: \'baos\' is never closed
+			----------
+			""",
 		options);
 }
 // regression caused by Bug 527761
@@ -6459,25 +6880,33 @@ public void testBug558759() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	String ySource =
-		"public class Y {\n" +
-		"	class YInner extends X<I> {}\n" +
-		"}\n";
+		"""
+		public class Y {
+			class YInner extends X<I> {}
+		}
+		""";
 	runConformTest(
 		new String[] {
 			"I.java",
-			"import java.io.Closeable;\n" +
-			"public interface I extends Closeable {\n" +
-			"	interface Location {}\n" +
-			"	void m(Location l);\n" +
-			"}\n",
+			"""
+				import java.io.Closeable;
+				public interface I extends Closeable {
+					interface Location {}
+					void m(Location l);
+				}
+				""",
 			"X0.java",
-			"public abstract class X0<T extends I> implements I {\n" +
-			"	public void close() {}\n" +
-			"}\n",
+			"""
+				public abstract class X0<T extends I> implements I {
+					public void close() {}
+				}
+				""",
 			"X.java",
-			"public class X<T extends I> extends X0<T> implements I {\n" +
-			"	public void m(Location l) {}\n" +
-			"}\n",
+			"""
+				public class X<T extends I> extends X0<T> implements I {
+					public void m(Location l) {}
+				}
+				""",
 			"Y.java",
 			ySource
 		},
@@ -6494,22 +6923,26 @@ public void testBug559119() {
 	runLeakWarningTest(
 		new String[] {
 			"Sequencer.java",
-			"interface Sequencer extends AutoCloseable {\n" +
-			"	void close(); // no exception\n" +
-			"}\n",
+			"""
+				interface Sequencer extends AutoCloseable {
+					void close(); // no exception
+				}
+				""",
 			"SequencerControl.java",
-			"public abstract class SequencerControl {\n" +
-			"	public abstract Sequencer getSequencer();\n" +
-			"	@Override\n" +
-			"	public boolean equals(Object obj) {\n" +
-			"		if (obj != null) {\n" +
-			"			if (getClass().equals(obj.getClass())) {\n" +
-			"				return ((SequencerControl)obj).getSequencer().equals(getSequencer());\n" +
-			"			}\n" +
-			"		}\n" +
-			"		return false;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public abstract class SequencerControl {
+					public abstract Sequencer getSequencer();
+					@Override
+					public boolean equals(Object obj) {
+						if (obj != null) {
+							if (getClass().equals(obj.getClass())) {
+								return ((SequencerControl)obj).getSequencer().equals(getSequencer());
+							}
+						}
+						return false;
+					}
+				}
+				"""
 		},
 		"----------\n" +
 		"1. WARNING in SequencerControl.java (at line 7)\n" +
@@ -6532,10 +6965,12 @@ public void testBug560610() {
 	runConformTest(
 		new String[] {
 			"A.java",
-			"import java.util.EnumSet;\n" +
-			"public abstract class A<T> extends B<T> implements C<D> {\n" +
-			"	void m(EnumSet<EN> en) {}\n" + // unResolvedMethods() when a is seen as a PTB causes bogus resolving of this method
-			"}\n",
+			"""
+				import java.util.EnumSet;
+				public abstract class A<T> extends B<T> implements C<D> {
+					void m(EnumSet<EN> en) {}
+				}
+				""",
 			"B.java",
 			"public abstract class B<U> implements AutoCloseable {}\n", // this causes A to be seen as a resource requiring closer inspection
 			"C.java",
@@ -6543,9 +6978,11 @@ public void testBug560610() {
 			"D.java",
 			"public abstract class D extends A<String> {}\n", // extends A causes searching A for a close method, A seen as a PTB
 			"EN.java",
-			"public enum EN {\n" + // when we find this via ahead-of-time resolveTypesFor("m()") we don't yet have a superclass
-			"	One, Two;\n" +
-			"}\n"
+			"""
+				public enum EN {
+					One, Two;
+				}
+				"""
 		},
 		"",
 		options);
@@ -6558,14 +6995,16 @@ public void testBug560671() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.Scanner;\n" +
-			"public class X {\n" +
-			"	void m(String source) {\n" +
-			"		try (Scanner s = new Scanner(source).useDelimiter(\"foobar\")) {\n" +
-			"			System.out.println(s.next());\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.Scanner;
+				public class X {
+					void m(String source) {
+						try (Scanner s = new Scanner(source).useDelimiter("foobar")) {
+							System.out.println(s.next());
+						}
+					}
+				}
+				"""
 		},
 		options);
 }
@@ -6576,18 +7015,20 @@ public void testBug560671b() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.Scanner;\n" +
-			"public class X {\n" +
-			"	void m(String source) throws java.io.IOException {\n" +
-			"		Scanner s = null;" +
-			"		try {\n" +
-			"			s = new Scanner(source).useDelimiter(\"foobar\");\n" +
-			"			System.out.println(s.next());\n" +
-			"		} finally {\n" +
-			"			if (s != null) s.close();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.Scanner;
+				public class X {
+					void m(String source) throws java.io.IOException {
+						Scanner s = null;\
+						try {
+							s = new Scanner(source).useDelimiter("foobar");
+							System.out.println(s.next());
+						} finally {
+							if (s != null) s.close();
+						}
+					}
+				}
+				"""
 		},
 		options);
 }
@@ -6598,22 +7039,24 @@ public void testBug561259() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.*;\n" +
-			"public class X {\n" +
-			"	  protected String m(String charset) throws IOException\n" +
-			"	  {\n" +
-			"		InputStream contents = new FileInputStream(\"/tmp/f\");\n" +
-			"	    BufferedReader reader = new BufferedReader(new InputStreamReader(contents, charset));\n" +
-			"	    CharArrayWriter writer = new CharArrayWriter();\n" +
-			"	    int c;\n" +
-			"	    while ((c = reader.read()) != -1)\n" +
-			"	    {\n" +
-			"	      writer.write(c);\n" +
-			"	    }\n" +
-			"	    contents.close();\n" +
-			"	    return writer.toString();\n" +
-			"	  }\n" +
-			"}\n"
+			"""
+				import java.io.*;
+				public class X {
+					  protected String m(String charset) throws IOException
+					  {
+						InputStream contents = new FileInputStream("/tmp/f");
+					    BufferedReader reader = new BufferedReader(new InputStreamReader(contents, charset));
+					    CharArrayWriter writer = new CharArrayWriter();
+					    int c;
+					    while ((c = reader.read()) != -1)
+					    {
+					      writer.write(c);
+					    }
+					    contents.close();
+					    return writer.toString();
+					  }
+				}
+				"""
 		},
 		options);
 }
@@ -6621,41 +7064,45 @@ public void testBug560076() {
 	runNegativeTest(
 		new String[] {
 			"org/sqlite/database/sqlite/SQLiteOpenHelper.java",
-			"package org.sqlite.database.sqlite;\n" +
-			"\n" +
-			"public abstract class SQLiteOpenHelper {\n" +
-			"    private void getDatabaseLocked(String name, SQLiteDatabase mDatabase) {\n" +
-			"        SQLiteDatabase sQLiteDatabase4 = mDatabase;\n" +
-			"        try {\n" +
-			"            sQLiteDatabase4 = name == null ? null : openDatabase();\n" +
-			"        } catch (Throwable e) {\n" +
-			"            sQLiteDatabase4 = openDatabase();\n" +
-			"        }\n" +
-			"    }\n" +
-			"\n" +
-			"    public static SQLiteDatabase openDatabase() {\n" +
-			"    }\n" +
-			"}\n" +
-			"\n" +
-			"final class SQLiteDatabase implements java.io.Closeable {\n" +
-			"}\n"
+			"""
+				package org.sqlite.database.sqlite;
+				
+				public abstract class SQLiteOpenHelper {
+				    private void getDatabaseLocked(String name, SQLiteDatabase mDatabase) {
+				        SQLiteDatabase sQLiteDatabase4 = mDatabase;
+				        try {
+				            sQLiteDatabase4 = name == null ? null : openDatabase();
+				        } catch (Throwable e) {
+				            sQLiteDatabase4 = openDatabase();
+				        }
+				    }
+				
+				    public static SQLiteDatabase openDatabase() {
+				    }
+				}
+				
+				final class SQLiteDatabase implements java.io.Closeable {
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in org\\sqlite\\database\\sqlite\\SQLiteOpenHelper.java (at line 4)\n" +
-		"	private void getDatabaseLocked(String name, SQLiteDatabase mDatabase) {\n" +
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The method getDatabaseLocked(String, SQLiteDatabase) from the type SQLiteOpenHelper is never used locally\n" +
-		"----------\n" +
-		"2. ERROR in org\\sqlite\\database\\sqlite\\SQLiteOpenHelper.java (at line 13)\n" +
-		"	public static SQLiteDatabase openDatabase() {\n" +
-		"	                             ^^^^^^^^^^^^^^\n" +
-		"This method must return a result of type SQLiteDatabase\n" +
-		"----------\n" +
-		"3. ERROR in org\\sqlite\\database\\sqlite\\SQLiteOpenHelper.java (at line 17)\n" +
-		"	final class SQLiteDatabase implements java.io.Closeable {\n" +
-		"	            ^^^^^^^^^^^^^^\n" +
-		"The type SQLiteDatabase must implement the inherited abstract method Closeable.close()\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in org\\sqlite\\database\\sqlite\\SQLiteOpenHelper.java (at line 4)
+				private void getDatabaseLocked(String name, SQLiteDatabase mDatabase) {
+				             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			The method getDatabaseLocked(String, SQLiteDatabase) from the type SQLiteOpenHelper is never used locally
+			----------
+			2. ERROR in org\\sqlite\\database\\sqlite\\SQLiteOpenHelper.java (at line 13)
+				public static SQLiteDatabase openDatabase() {
+				                             ^^^^^^^^^^^^^^
+			This method must return a result of type SQLiteDatabase
+			----------
+			3. ERROR in org\\sqlite\\database\\sqlite\\SQLiteOpenHelper.java (at line 17)
+				final class SQLiteDatabase implements java.io.Closeable {
+				            ^^^^^^^^^^^^^^
+			The type SQLiteDatabase must implement the inherited abstract method Closeable.close()
+			----------
+			""");
 }
 public void testBug499037_001_since_9() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) return;
@@ -6667,27 +7114,29 @@ public void testBug499037_001_since_9() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.Closeable;\n" +
-			"import java.io.IOException;\n" +
-			"\n" +
-			"class Y implements Closeable {\n" +
-			"        @Override\n" +
-			"        public void close() throws IOException {\n" +
-			"                // nothing\n" +
-			"        }\n" +
-			"}\n" +
-			"public class X {\n" +
-			"\n" +
-			"        public void foo() throws IOException {\n" +
-			"             final Y y1 = new Y();\n" +
-			"             try (y1) { \n" +
-			"            	 //\n" +
-			"             }\n" +
-			"        } \n" +
-			"        public static void main(String[] args) {\n" +
-			"			System.out.println(\"Done\");\n" +
-			"		}\n" +
-			"} \n"
+			"""
+				import java.io.Closeable;
+				import java.io.IOException;
+				
+				class Y implements Closeable {
+				        @Override
+				        public void close() throws IOException {
+				                // nothing
+				        }
+				}
+				public class X {
+				
+				        public void foo() throws IOException {
+				             final Y y1 = new Y();
+				             try (y1) {\s
+				            	 //
+				             }
+				        }\s
+				        public static void main(String[] args) {
+							System.out.println("Done");
+						}
+				}\s
+				"""
 		},
 		"",
 		options);
@@ -6702,27 +7151,29 @@ public void testBug499037_002_since_9() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.Closeable;\n" +
-			"import java.io.IOException;\n" +
-			"\n" +
-			"class Y implements Closeable {\n" +
-			"        @Override\n" +
-			"        public void close() throws IOException {\n" +
-			"                // nothing\n" +
-			"        }\n" +
-			"}\n" +
-			"public class X {\n" +
-			"\n" +
-			"        public void foo() throws IOException {\n" +
-			"             Y y1 = new Y();\n" +
-			"             try (y1; final Y y2 = new Y()) { \n" +
-			"            	 //\n" +
-			"             }\n" +
-			"        } \n" +
-			"        public static void main(String[] args) {\n" +
-			"			System.out.println(\"Done\");\n" +
-			"		}\n" +
-			"} \n"
+			"""
+				import java.io.Closeable;
+				import java.io.IOException;
+				
+				class Y implements Closeable {
+				        @Override
+				        public void close() throws IOException {
+				                // nothing
+				        }
+				}
+				public class X {
+				
+				        public void foo() throws IOException {
+				             Y y1 = new Y();
+				             try (y1; final Y y2 = new Y()) {\s
+				            	 //
+				             }
+				        }\s
+				        public static void main(String[] args) {
+							System.out.println("Done");
+						}
+				}\s
+				"""
 		},
 		"",
 		options);
@@ -6736,25 +7187,26 @@ public void testBug499037_003_since_9() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.Closeable;\n" +
-			"import java.io.IOException;\n" +
-			"\n" +
-			"public class X { \n" +
-			"    public void foo() throws IOException {\n" +
-			"         Y y1 = new Y();\n" +
-			"         try(y1) { \n" +
-			"             return;\n" +
-			"         }\n" +
-			"    } \n" +
-			"}  \n" +
-			"\n" +
-			"class Y implements Closeable {\n" +
-			"		final int x = 10;\n" +
-			"        @Override\n" +
-			"        public void close() throws IOException {\n" +
-			"                // nothing\n" +
-			"        }\n" +
-			"}"
+			"""
+				import java.io.Closeable;
+				import java.io.IOException;
+				
+				public class X {\s
+				    public void foo() throws IOException {
+				         Y y1 = new Y();
+				         try(y1) {\s
+				             return;
+				         }
+				    }\s
+				} \s
+				
+				class Y implements Closeable {
+						final int x = 10;
+				        @Override
+				        public void close() throws IOException {
+				                // nothing
+				        }
+				}"""
 		},
 		"",
 		options);
@@ -6769,32 +7221,34 @@ public void testBug499037_004_since_9() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"\n" +
-			"class Z {\n" +
-			"	final Y yz = new Y();\n" +
-			"}\n" +
-			"public class X extends Z {\n" +
-			"	final Y y2 = new Y();\n" +
-			"	\n" +
-			"	public void foo() {\n" +
-			"		try (super.yz; y2)  {\n" +
-			"			System.out.println(\"In Try\");\n" +
-			"		} catch (IOException e) {\n" +
-			"			\n" +
-			"		}finally { \n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new X().foo();\n" +
-			"	}\n" +
-			"}\n" +
-			"class Y implements AutoCloseable {\n" +
-			"	@Override\n" +
-			"	public void close() throws IOException {\n" +
-			"		System.out.println(\"Closed\");\n" +
-			"	} \n" +
-			"}  \n"
+			"""
+				import java.io.IOException;
+				
+				class Z {
+					final Y yz = new Y();
+				}
+				public class X extends Z {
+					final Y y2 = new Y();
+				\t
+					public void foo() {
+						try (super.yz; y2)  {
+							System.out.println("In Try");
+						} catch (IOException e) {
+						\t
+						}finally {\s
+						}
+					}
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}
+				class Y implements AutoCloseable {
+					@Override
+					public void close() throws IOException {
+						System.out.println("Closed");
+					}\s
+				} \s
+				"""
 		},
 		"",
 		options);
@@ -6809,29 +7263,33 @@ public void testBug499037_005_since_9() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void test(boolean b) throws IOException {\n"+
-			"		Y y = new Y();\n"+
-			"		if (b) {\n"+
-			"			try (y) {}\n"+
-			"		}\n"+
-			"	}\n"+
-			"}\n"+
-			"\n"+
-			"class Y implements AutoCloseable {\n"+
-			"	@Override\n"+
-			"	public void close() throws IOException {\n"+
-			"	}\n"+
-			"}\n"
+			"""
+				import java.io.IOException;
+				
+				public class X {
+					void test(boolean b) throws IOException {
+						Y y = new Y();
+						if (b) {
+							try (y) {}
+						}
+					}
+				}
+				
+				class Y implements AutoCloseable {
+					@Override
+					public void close() throws IOException {
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	Y y = new Y();\n" +
-		"	  ^\n" +
-		"Potential resource leak: \'y\' may not be closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				Y y = new Y();
+				  ^
+			Potential resource leak: \'y\' may not be closed
+			----------
+			""",
 		options);
 }
 // non-empty finally block - takes a different route
@@ -6845,32 +7303,36 @@ public void testBug499037_006_since_9() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void test(boolean b) throws IOException {\n"+
-			"		Y y = new Y();\n"+
-			"		if (b) {\n"+
-			"			try (y;Y y2 = new Y();) { \n"+
-			"			} finally {\n"+
-			"			  System.out.println(\"hello\");\n"+
-			"			}\n"+
-			"		}\n"+
-			"	}\n"+
-			"}\n"+
-			"\n"+
-			"class Y implements AutoCloseable {\n"+
-			"	@Override\n"+
-			"	public void close() throws IOException {\n"+
-			"	}\n"+
-			"}\n"
+			"""
+				import java.io.IOException;
+				
+				public class X {
+					void test(boolean b) throws IOException {
+						Y y = new Y();
+						if (b) {
+							try (y;Y y2 = new Y();) {\s
+							} finally {
+							  System.out.println("hello");
+							}
+						}
+					}
+				}
+				
+				class Y implements AutoCloseable {
+					@Override
+					public void close() throws IOException {
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	Y y = new Y();\n" +
-		"	  ^\n" +
-		"Potential resource leak: \'y\' may not be closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				Y y = new Y();
+				  ^
+			Potential resource leak: \'y\' may not be closed
+			----------
+			""",
 		options);
 }
 public void testBug499037_007_since_9() {
@@ -6883,27 +7345,29 @@ public void testBug499037_007_since_9() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void test(boolean b) throws IOException {\n"+
-			"		Y y = new Y();\n"+
-			"		if (b) {\n"+
-			"			try (y) { \n"+
-			"			    // nothing \n"+
-			"			}\n"+
-			"		}\n"+
-			"		else {\n"+
-			"			y.close();\n"+
-			"		}\n"+
-			"	}\n"+
-			"}\n"+
-			"\n"+
-			"class Y implements AutoCloseable {\n"+
-			"	@Override\n"+
-			"	public void close() throws IOException {\n"+
-			"	}\n"+
-			"}\n"
+			"""
+				import java.io.IOException;
+				
+				public class X {
+					void test(boolean b) throws IOException {
+						Y y = new Y();
+						if (b) {
+							try (y) {\s
+							    // nothing\s
+							}
+						}
+						else {
+							y.close();
+						}
+					}
+				}
+				
+				class Y implements AutoCloseable {
+					@Override
+					public void close() throws IOException {
+					}
+				}
+				"""
 		},
 		"",
 		options);
@@ -6918,33 +7382,37 @@ public void testBug499037_008_since_9() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void test(boolean b, Y yDash) throws IOException {\n"+
-			"		Y y = new Y();\n"+
-			"		if (b) {\n"+
-			"			try (y; yDash) { \n"+
-			"			    // nothing \n"+
-			"			}\n"+
-			"		}\n"+
-			"		else {\n"+
-			"		}\n"+
-			"	}\n"+
-			"}\n"+
-			"\n"+
-			"class Y implements AutoCloseable {\n"+
-			"	@Override\n"+
-			"	public void close() throws IOException {\n"+
-			"	}\n"+
-			"}\n"
+			"""
+				import java.io.IOException;
+				
+				public class X {
+					void test(boolean b, Y yDash) throws IOException {
+						Y y = new Y();
+						if (b) {
+							try (y; yDash) {\s
+							    // nothing\s
+							}
+						}
+						else {
+						}
+					}
+				}
+				
+				class Y implements AutoCloseable {
+					@Override
+					public void close() throws IOException {
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	Y y = new Y();\n" +
-		"	  ^\n" +
-		"Potential resource leak: \'y\' may not be closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				Y y = new Y();
+				  ^
+			Potential resource leak: \'y\' may not be closed
+			----------
+			""",
 		options);
 }
 public void testBug499037_009_since_9() {
@@ -6957,35 +7425,39 @@ public void testBug499037_009_since_9() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n"+
-			"\n"+
-			"public class X {\n"+
-			"private void foo(Y y) {}\n" +
-			"	void test(boolean b) throws IOException {\n"+
-			"		Y y = new Y();\n"+
-			"		if (b) {\n"+
-			"			try (y) { \n"+
-			"			    // nothing \n"+
-			"			}\n"+
-			"		}\n"+
-			"		else {\n"+
-			"			foo(y);\n"+
-			"		}\n"+
-			"	}\n"+
-			"}\n"+
-			"\n"+
-			"class Y implements AutoCloseable {\n"+
-			"	@Override\n"+
-			"	public void close() throws IOException {\n"+
-			"	}\n"+
-			"}\n"
+			"""
+				import java.io.IOException;
+				
+				public class X {
+				private void foo(Y y) {}
+					void test(boolean b) throws IOException {
+						Y y = new Y();
+						if (b) {
+							try (y) {\s
+							    // nothing\s
+							}
+						}
+						else {
+							foo(y);
+						}
+					}
+				}
+				
+				class Y implements AutoCloseable {
+					@Override
+					public void close() throws IOException {
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	Y y = new Y();\n" +
-		"	  ^\n" +
-		"Potential resource leak: \'y\' may not be closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				Y y = new Y();
+				  ^
+			Potential resource leak: \'y\' may not be closed
+			----------
+			""",
 		options);
 }
 public void testBug499037_010_since_9() {
@@ -6998,41 +7470,45 @@ public void testBug499037_010_since_9() {
 	runLeakTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n"+
-			"\n"+
-			"public class X {\n"+
-			"private Y foo(Y y) {return y;}\n" +
-			"	void test(boolean b) throws IOException {\n"+
-			"		Y y = new Y();\n"+
-			"		Y yy = foo(y);\n"+
-			"		if (b) {\n"+
-			"			try (y;yy) { \n"+
-			"			    // do nothing \n"+
-			"			}\n"+
-			"		}\n"+
-			"		else {\n"+
-			"			// do nothing\n"+
-			"		}\n"+
-			"	}\n"+
-			"}\n"+
-			"\n"+
-			"class Y implements AutoCloseable {\n"+
-			"	@Override\n"+
-			"	public void close() throws IOException {\n"+
-			"	}\n"+
-			"}\n"
+			"""
+				import java.io.IOException;
+				
+				public class X {
+				private Y foo(Y y) {return y;}
+					void test(boolean b) throws IOException {
+						Y y = new Y();
+						Y yy = foo(y);
+						if (b) {
+							try (y;yy) {\s
+							    // do nothing\s
+							}
+						}
+						else {
+							// do nothing
+						}
+					}
+				}
+				
+				class Y implements AutoCloseable {
+					@Override
+					public void close() throws IOException {
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	Y y = new Y();\n" +
-		"	  ^\n" +
-		"Potential resource leak: \'y\' may not be closed\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	Y yy = foo(y);\n" +
-		"	  ^^\n" +
-		"Potential resource leak: \'yy\' may not be closed\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				Y y = new Y();
+				  ^
+			Potential resource leak: \'y\' may not be closed
+			----------
+			2. ERROR in X.java (at line 7)
+				Y yy = foo(y);
+				  ^^
+			Potential resource leak: \'yy\' may not be closed
+			----------
+			""",
 		options);
 }
 public void testGH1762() {

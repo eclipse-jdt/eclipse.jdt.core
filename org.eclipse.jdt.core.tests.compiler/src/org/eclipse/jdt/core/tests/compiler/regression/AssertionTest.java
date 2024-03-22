@@ -44,28 +44,32 @@ public class AssertionTest extends AbstractRegressionTest {
 				"assert.java",
 				"public class assert {}\n",
 			},
-			"----------\n" +
-			"1. ERROR in assert.java (at line 1)\n" +
-			"	public class assert {}\n" +
-			"	             ^^^^^^\n" +
-			"Syntax error on token \"assert\", Identifier expected\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in assert.java (at line 1)
+					public class assert {}
+					             ^^^^^^
+				Syntax error on token "assert", Identifier expected
+				----------
+				""");
 	}
 
 	public void test002() {
 		this.runConformTest(new String[] {
 			"A4.java",
-			"public class A4 { \n"
-			+ "	public static void main(String[] args) {\n"
-			+ "   try {	\n"
-			+ "    int i = 4;\n"
-			+ "    assert i != 4;\n"
-			+ "	   System.out.println(i);\n"
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.print(\"SUCCESS\");	\n"
-			+ "	  } \n"
-			+ "	} \n"
-			+ "} \n" },
+			"""
+				public class A4 {\s
+					public static void main(String[] args) {
+				   try {\t
+				    int i = 4;
+				    assert i != 4;
+					   System.out.println(i);
+					  } catch(AssertionError e){\t
+						System.out.print("SUCCESS");\t
+					  }\s
+					}\s
+				}\s
+				""" },
 		"SUCCESS", //expected display
 		null, // use default class-path
 		true, // flush previous output dir content
@@ -75,13 +79,15 @@ public class AssertionTest extends AbstractRegressionTest {
 	public void test003() {
 		this.runConformTest(new String[] {
 			"A4.java",
-			"public class A4 { \n"
-			+ "	public static void main(String[] args) {\n"
-			+ "    int i = 4;\n"
-			+ "    assert i != 4;\n"
-			+ "	   System.out.println(i);\n"
-			+ "	} \n"
-			+ "} \n" },
+			"""
+				public class A4 {\s
+					public static void main(String[] args) {
+				    int i = 4;
+				    assert i != 4;
+					   System.out.println(i);
+					}\s
+				}\s
+				""" },
 		"4",
 		null, // use default class-path
 		true, // flush previous output dir content
@@ -90,20 +96,22 @@ public class AssertionTest extends AbstractRegressionTest {
 	public void test004() {
 		this.runConformTest(new String[] {
 			"A4.java",
-			"public class A4 { \n"
-			+ "	public static void main(String[] args) {\n"
-			+ "   try {	\n"
-			+ "		assert false : \"SUC\";	\n"
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.print(e.getMessage());	\n"
-			+ "	  }	\n"
-			+ "	  try {	\n"
-			+ "		assert false : new Object(){ public String toString(){ return \"CESS\";}};	\n"
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.println(e.getMessage());	\n"
-			+ "	  }	\n"
-			+ "  }	\n"
-			+ "} \n" },
+			"""
+				public class A4 {\s
+					public static void main(String[] args) {
+				   try {\t
+						assert false : "SUC";\t
+					  } catch(AssertionError e){\t
+						System.out.print(e.getMessage());\t
+					  }\t
+					  try {\t
+						assert false : new Object(){ public String toString(){ return "CESS";}};\t
+					  } catch(AssertionError e){\t
+						System.out.println(e.getMessage());\t
+					  }\t
+				  }\t
+				}\s
+				""" },
 		"SUCCESS", //expected display
 		null, // use default class-path
 		true, // flush previous output dir content
@@ -112,21 +120,23 @@ public class AssertionTest extends AbstractRegressionTest {
 	public void test005() {
 		this.runConformTest(new String[] {
 			"A4.java",
-			"public class A4 { \n"
-			+ "	public static void main(String[] args) {\n"
-			+ "   try {	\n"
-			+ "		assert false : 1;	\n"
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.print(e.getMessage());	\n"
-			+ "	  }	\n"
-			+ "	  try {	\n"
-			+ "		int i = 2;	\n"
-			+ "		assert false : i;	\n"
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.println(e.getMessage());	\n"
-			+ "	  }	\n"
-			+ "  }	\n"
-			+ "} \n" },
+			"""
+				public class A4 {\s
+					public static void main(String[] args) {
+				   try {\t
+						assert false : 1;\t
+					  } catch(AssertionError e){\t
+						System.out.print(e.getMessage());\t
+					  }\t
+					  try {\t
+						int i = 2;\t
+						assert false : i;\t
+					  } catch(AssertionError e){\t
+						System.out.println(e.getMessage());\t
+					  }\t
+				  }\t
+				}\s
+				""" },
 		"12", //expected display
 		null, // use default class-path
 		true, // flush previous output dir content
@@ -135,45 +145,51 @@ public class AssertionTest extends AbstractRegressionTest {
 	public void test006() {
 		this.runNegativeTest(new String[] {
 			"A4.java",
-			"public class A4 { \n"
-			+ "	public static void main(String[] args) {\n"
-			+ "	  try {	\n"
-			+ "		assert false : unbound;	\n"
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.println(e.getMessage());	\n"
-			+ "	  }	\n"
-			+ "  }	\n"
-			+ "} \n" },
-		"----------\n" +
-		"1. ERROR in A4.java (at line 4)\n" +
-		"	assert false : unbound;	\n" +
-		"	               ^^^^^^^\n" +
-		"unbound cannot be resolved to a variable\n" +
-		"----------\n");
+			"""
+				public class A4 {\s
+					public static void main(String[] args) {
+					  try {\t
+						assert false : unbound;\t
+					  } catch(AssertionError e){\t
+						System.out.println(e.getMessage());\t
+					  }\t
+				  }\t
+				}\s
+				""" },
+		"""
+			----------
+			1. ERROR in A4.java (at line 4)
+				assert false : unbound;\t
+				               ^^^^^^^
+			unbound cannot be resolved to a variable
+			----------
+			""");
 	}
 	public void test007() {
 		this.runConformTest(new String[] {
 			"A4.java",
-			"public class A4 { \n"
-			+ "	public static void main(String[] args) {\n"
-			+ "   try {	\n"
-			+ "		assert false : 1L;	\n"
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.print(e.getMessage());	\n"
-			+ "	  }	\n"
-			+ "   try {	\n"
-			+ "		assert false : 0L;	\n" // 0L isn't 0
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.print(e.getMessage());	\n"
-			+ "	  }	\n"
-			+ "	  try {	\n"
-			+ "		long l = 2L;	\n"
-			+ "		assert false : l;	\n"
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.println(e.getMessage());	\n"
-			+ "	  }	\n"
-			+ "  }	\n"
-			+ "} \n" },
+			"""
+				public class A4 {\s
+					public static void main(String[] args) {
+				   try {\t
+						assert false : 1L;\t
+					  } catch(AssertionError e){\t
+						System.out.print(e.getMessage());\t
+					  }\t
+				   try {\t
+						assert false : 0L;\t
+					  } catch(AssertionError e){\t
+						System.out.print(e.getMessage());\t
+					  }\t
+					  try {\t
+						long l = 2L;\t
+						assert false : l;\t
+					  } catch(AssertionError e){\t
+						System.out.println(e.getMessage());\t
+					  }\t
+				  }\t
+				}\s
+				""" },
 		"102", //expected display
 		null, // use default class-path
 		true, // flush previous output dir content
@@ -182,21 +198,23 @@ public class AssertionTest extends AbstractRegressionTest {
 	public void test008() {
 		this.runConformTest(new String[] {
 			"A4.java",
-			"public class A4 { \n"
-			+ "	public static void main(String[] args) {\n"
-			+ "   try {	\n"
-			+ "		assert false : 1.0f;	\n"
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.print(e.getMessage());	\n"
-			+ "	  }	\n"
-			+ "	  try {	\n"
-			+ "		float f = 2.0f;	\n"
-			+ "		assert false : f;	\n"
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.println(e.getMessage());	\n"
-			+ "	  }	\n"
-			+ "  }	\n"
-			+ "} \n" },
+			"""
+				public class A4 {\s
+					public static void main(String[] args) {
+				   try {\t
+						assert false : 1.0f;\t
+					  } catch(AssertionError e){\t
+						System.out.print(e.getMessage());\t
+					  }\t
+					  try {\t
+						float f = 2.0f;\t
+						assert false : f;\t
+					  } catch(AssertionError e){\t
+						System.out.println(e.getMessage());\t
+					  }\t
+				  }\t
+				}\s
+				""" },
 		"1.02.0", //expected display
 		null, // use default class-path
 		true, // do not flush previous output dir content
@@ -205,21 +223,23 @@ public class AssertionTest extends AbstractRegressionTest {
 	public void test009() {
 		this.runConformTest(new String[] {
 			"A4.java",
-			"public class A4 { \n"
-			+ "	public static void main(String[] args) {\n"
-			+ "   try {	\n"
-			+ "		assert false : 1.0;	\n"
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.print(e.getMessage());	\n"
-			+ "	  }	\n"
-			+ "	  try {	\n"
-			+ "		double d = 2.0;	\n"
-			+ "		assert false : d;	\n"
-			+ "	  } catch(AssertionError e){	\n"
-			+ "		System.out.println(e.getMessage());	\n"
-			+ "	  }	\n"
-			+ "  }	\n"
-			+ "} \n" },
+			"""
+				public class A4 {\s
+					public static void main(String[] args) {
+				   try {\t
+						assert false : 1.0;\t
+					  } catch(AssertionError e){\t
+						System.out.print(e.getMessage());\t
+					  }\t
+					  try {\t
+						double d = 2.0;\t
+						assert false : d;\t
+					  } catch(AssertionError e){\t
+						System.out.println(e.getMessage());\t
+					  }\t
+				  }\t
+				}\s
+				""" },
 		"1.02.0", //expected display
 		null, // use default class-path
 		true, // flush previous output dir content
@@ -229,24 +249,26 @@ public class AssertionTest extends AbstractRegressionTest {
 	public void test010() {
 		this.runConformTest(new String[] {
 			"X.java",
-			"public class X { \n" +
-			"	public static void main(String[] args) { \n" +
-			"		I.Inner inner = new I.Inner(); \n" +
-			"		try { \n" +
-			"			inner.test(); \n" +
-			"			System.out.println(\"FAILED\"); \n" +
-			"		} catch(AssertionError e){ \n" +
-			"			System.out.println(\"SUCCESS\"); \n" +
-			"		} \n" +
-			"	} \n" +
-			"} \n" +
-			"interface I { \n" +
-			"  public static class Inner { \n" +
-			"    public void test() { \n" +
-			"      assert false; \n" +
-			"    } \n" +
-			"  } \n" +
-			"} \n" },
+			"""
+				public class X {\s
+					public static void main(String[] args) {\s
+						I.Inner inner = new I.Inner();\s
+						try {\s
+							inner.test();\s
+							System.out.println("FAILED");\s
+						} catch(AssertionError e){\s
+							System.out.println("SUCCESS");\s
+						}\s
+					}\s
+				}\s
+				interface I {\s
+				  public static class Inner {\s
+				    public void test() {\s
+				      assert false;\s
+				    }\s
+				  }\s
+				}\s
+				""" },
 		"SUCCESS",
 		null, // use default classpath
 		true, // flush previous output dir content
@@ -260,18 +282,19 @@ public class AssertionTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"AssertTest.java",
-				"public class AssertTest {\n" +
-				"   public AssertTest() {}\n" +
-				"   public class InnerClass {\n" +
-				"      InnerClass() {\n" +
-				"        assert(false);\n" +
-				"      }\n" +
-				"   }\n" +
-				"   \n" +
-				"   public static void main(String[] args) {	\n" +
-				"        System.out.print(\"SUCCESS\");	\n" +
-				"	}	\n" +
-				"}"
+				"""
+					public class AssertTest {
+					   public AssertTest() {}
+					   public class InnerClass {
+					      InnerClass() {
+					        assert(false);
+					      }
+					   }
+					  \s
+					   public static void main(String[] args) {\t
+					        System.out.print("SUCCESS");\t
+						}\t
+					}"""
 			},
 			"SUCCESS"); // expected output
 	}
@@ -282,17 +305,19 @@ public class AssertionTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main( String[] args ) {\n" +
-				"        try {\n" +
-				"            throw new Throwable( \"This is a test\");\n" +
-				"        }\n" +
-				"        catch( Throwable ioe ) {\n" +
-				"            assert false : ioe;\n" +
-				"        }\n" +
-				"        System.out.print(\"SUCCESS\");	\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main( String[] args ) {
+					        try {
+					            throw new Throwable( "This is a test");
+					        }
+					        catch( Throwable ioe ) {
+					            assert false : ioe;
+					        }
+					        System.out.print("SUCCESS");\t
+					    }
+					}
+					"""
 			},
 			"SUCCESS"); // expected output
 	}
@@ -304,20 +329,21 @@ public class AssertionTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"        static class Y {\n" +
-				"                public static void test() {\n" +
-				"                        assert false;\n" +
-				"                        System.out.println(\"SUCCESS\");\n" +
-				"                }\n" +
-				"        }\n" +
-				"        public static void main(String[] args) {\n" +
-				"                ClassLoader classLoader = new X().getClass().getClassLoader();\n" +
-				"                // enable assertion for X.Y\n" +
-				"                classLoader.setClassAssertionStatus(\"X$Y\", true);\n" +
-				"                X.Y.test();\n" +
-				"        }\n" +
-				"}"
+				"""
+					public class X {
+					        static class Y {
+					                public static void test() {
+					                        assert false;
+					                        System.out.println("SUCCESS");
+					                }
+					        }
+					        public static void main(String[] args) {
+					                ClassLoader classLoader = new X().getClass().getClassLoader();
+					                // enable assertion for X.Y
+					                classLoader.setClassAssertionStatus("X$Y", true);
+					                X.Y.test();
+					        }
+					}"""
 			},
 			"SUCCESS"); // expected output
 	}
@@ -329,33 +355,35 @@ public class AssertionTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static class Foo {\n" +
-				"		public void myMethod(boolean trash) {\n" +
-				"			System.out.println(\"Expecting class Foo\");\n" +
-				"			Class c = Foo.class;\n" +
-				"			System.out.println(\"Got the class \" + c);\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public static class Bar {\n" +
-				"		public void myMethod(boolean doAssert) {\n" +
-				"			System.out.println(\"Expecting class Bar\");\n" +
-				"			Class c = Bar.class;\n" +
-				"			System.out.println(\"Got the class \" + c);\n" +
-				"			assert c.getName().endsWith(\"Bar\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new Foo().myMethod(false);\n" +
-				"		new Bar().myMethod(false);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+					
+						public static class Foo {
+							public void myMethod(boolean trash) {
+								System.out.println("Expecting class Foo");
+								Class c = Foo.class;
+								System.out.println("Got the class " + c);
+							}
+						}
+						public static class Bar {
+							public void myMethod(boolean doAssert) {
+								System.out.println("Expecting class Bar");
+								Class c = Bar.class;
+								System.out.println("Got the class " + c);
+								assert c.getName().endsWith("Bar");
+							}
+						}
+						public static void main(String[] args) {
+							new Foo().myMethod(false);
+							new Bar().myMethod(false);
+						}
+					}"""
 			},
-			"Expecting class Foo\n" +
-			"Got the class class X$Foo\n" +
-			"Expecting class Bar\n" +
-			"Got the class class X$Bar"); // expected output
+			"""
+				Expecting class Foo
+				Got the class class X$Foo
+				Expecting class Bar
+				Got the class class X$Bar"""); // expected output
 	}
 
 	/**
@@ -365,38 +393,40 @@ public class AssertionTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static class Foo {\n" +
-				"		public void myMethod(boolean trash) {\n" +
-				"			System.out.println(\"Expecting class Foo\");\n" +
-				"			Class c = Foo.class;\n" +
-				"			System.out.println(\"Got the class \" + c);\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public static class Bar {\n" +
-				"		public void myMethod(boolean doAssert) {\n" +
-				"			System.out.println(\"Expecting class Bar\");\n" +
-				"			Class c = Bar.class;\n" +
-				"			try {\n" +
-				"				assert c.getName().endsWith(\"Bar2\");\n" +
-				"			} catch(AssertionError e) {\n" +
-				"				System.out.println(\"SUCCESS\");\n" +
-				"			}\n" +
-				"			System.out.println(\"Got the class \" + c);\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new Foo().myMethod(false);\n" +
-				"		new Bar().myMethod(false);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+					
+						public static class Foo {
+							public void myMethod(boolean trash) {
+								System.out.println("Expecting class Foo");
+								Class c = Foo.class;
+								System.out.println("Got the class " + c);
+							}
+						}
+						public static class Bar {
+							public void myMethod(boolean doAssert) {
+								System.out.println("Expecting class Bar");
+								Class c = Bar.class;
+								try {
+									assert c.getName().endsWith("Bar2");
+								} catch(AssertionError e) {
+									System.out.println("SUCCESS");
+								}
+								System.out.println("Got the class " + c);
+							}
+						}
+						public static void main(String[] args) {
+							new Foo().myMethod(false);
+							new Bar().myMethod(false);
+						}
+					}"""
 			},
-			"Expecting class Foo\n" +
-			"Got the class class X$Foo\n" +
-			"Expecting class Bar\n" +
-			"SUCCESS\n" +
-			"Got the class class X$Bar",
+			"""
+				Expecting class Foo
+				Got the class class X$Foo
+				Expecting class Bar
+				SUCCESS
+				Got the class class X$Bar""",
 			null, // use default classpath
 			true, // flush previous output dir content
 			new String[] {"-ea"});
@@ -409,39 +439,41 @@ public class AssertionTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	public static class Foo {\n" +
-				"		public void myMethod(boolean trash) {\n" +
-				"			System.out.println(\"Expecting class Foo\");\n" +
-				"			Class c = Foo.class;\n" +
-				"			System.out.println(\"Got the class \" + c);\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public static class Bar {\n" +
-				"		public void myMethod(boolean doAssert) {\n" +
-				"			System.out.println(\"Expecting class Bar\");\n" +
-				"			Class c = Bar.class;\n" +
-				"			try {\n" +
-				"				assert c.getName().endsWith(\"Bar2\");\n" +
-				"				System.out.println(\"SUCCESS\");\n" +
-				"			} catch(AssertionError e) {\n" +
-				"				System.out.println(\"FAILED\");\n" +
-				"			}\n" +
-				"			System.out.println(\"Got the class \" + c);\n" +
-				"		}\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new Foo().myMethod(false);\n" +
-				"		new Bar().myMethod(false);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+					
+						public static class Foo {
+							public void myMethod(boolean trash) {
+								System.out.println("Expecting class Foo");
+								Class c = Foo.class;
+								System.out.println("Got the class " + c);
+							}
+						}
+						public static class Bar {
+							public void myMethod(boolean doAssert) {
+								System.out.println("Expecting class Bar");
+								Class c = Bar.class;
+								try {
+									assert c.getName().endsWith("Bar2");
+									System.out.println("SUCCESS");
+								} catch(AssertionError e) {
+									System.out.println("FAILED");
+								}
+								System.out.println("Got the class " + c);
+							}
+						}
+						public static void main(String[] args) {
+							new Foo().myMethod(false);
+							new Bar().myMethod(false);
+						}
+					}"""
 			},
-			"Expecting class Foo\n" +
-			"Got the class class X$Foo\n" +
-			"Expecting class Bar\n" +
-			"SUCCESS\n" +
-			"Got the class class X$Bar",
+			"""
+				Expecting class Foo
+				Got the class class X$Foo
+				Expecting class Bar
+				SUCCESS
+				Got the class class X$Bar""",
 			null, // use default classpath
 			true, // flush previous output dir content
 			new String[] {"-da"});
@@ -451,104 +483,112 @@ public class AssertionTest extends AbstractRegressionTest {
 		runNegativeTest(
 			new String[] { /* test files */
 				"X.java",
-				"public class X {\n" +
-				"	protected void transform1(boolean srcPts) {\n" +
-				"		final float error1;\n" +
-				"		assert !(srcPts && (error1 = maxError()) > 0) : error1;\n" +
-				"	}\n" +
-				"	float foo1(boolean srcPts) {\n" +
-				"		final float error2;\n" +
-				"		if (!(srcPts && (error2 = maxError()) > 0)) {\n" +
-				"		} else {\n" +
-				"			return error2;\n" +
-				"		}\n" +
-				"		return 0;\n" +
-				"	}\n" +
-				"	float bar1(boolean srcPts) {\n" +
-				"		final float error3;\n" +
-				"		if ((srcPts && (error3 = maxError()) > 0)) {\n" +
-				"			return error3;\n" +
-				"		}\n" +
-				"		return 0;\n" +
-				"	}	\n" +
-				"	protected void transform2(boolean srcPts) {\n" +
-				"		final float error4;\n" +
-				"		assert (srcPts && (error4 = maxError()) > 0) : error4;\n" +
-				"	}\n" +
-				"	float foo2(boolean srcPts) {\n" +
-				"		final float error5;\n" +
-				"		if (srcPts && (error5 = maxError()) > 0) {\n" +
-				"		} else {\n" +
-				"			return error5;\n" +
-				"		}\n" +
-				"		return 0;\n" +
-				"	}\n" +
-				"	float bar2(boolean srcPts) {\n" +
-				"		final float error6;\n" +
-				"		if (!(srcPts && (error6 = maxError()) > 0)) {\n" +
-				"			return error6;\n" +
-				"		}\n" +
-				"		return 0;\n" +
-				"	}\n" +
-				"	private float maxError() {\n" +
-				"		return 0;\n" +
-				"	}\n" +
-				"\n" +
-				"}\n"
+				"""
+					public class X {
+						protected void transform1(boolean srcPts) {
+							final float error1;
+							assert !(srcPts && (error1 = maxError()) > 0) : error1;
+						}
+						float foo1(boolean srcPts) {
+							final float error2;
+							if (!(srcPts && (error2 = maxError()) > 0)) {
+							} else {
+								return error2;
+							}
+							return 0;
+						}
+						float bar1(boolean srcPts) {
+							final float error3;
+							if ((srcPts && (error3 = maxError()) > 0)) {
+								return error3;
+							}
+							return 0;
+						}\t
+						protected void transform2(boolean srcPts) {
+							final float error4;
+							assert (srcPts && (error4 = maxError()) > 0) : error4;
+						}
+						float foo2(boolean srcPts) {
+							final float error5;
+							if (srcPts && (error5 = maxError()) > 0) {
+							} else {
+								return error5;
+							}
+							return 0;
+						}
+						float bar2(boolean srcPts) {
+							final float error6;
+							if (!(srcPts && (error6 = maxError()) > 0)) {
+								return error6;
+							}
+							return 0;
+						}
+						private float maxError() {
+							return 0;
+						}
+					
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 23)\n" +
-			"	assert (srcPts && (error4 = maxError()) > 0) : error4;\n" +
-			"	                                               ^^^^^^\n" +
-			"The local variable error4 may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 29)\n" +
-			"	return error5;\n" +
-			"	       ^^^^^^\n" +
-			"The local variable error5 may not have been initialized\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 36)\n" +
-			"	return error6;\n" +
-			"	       ^^^^^^\n" +
-			"The local variable error6 may not have been initialized\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 23)
+					assert (srcPts && (error4 = maxError()) > 0) : error4;
+					                                               ^^^^^^
+				The local variable error4 may not have been initialized
+				----------
+				2. ERROR in X.java (at line 29)
+					return error5;
+					       ^^^^^^
+				The local variable error5 may not have been initialized
+				----------
+				3. ERROR in X.java (at line 36)
+					return error6;
+					       ^^^^^^
+				The local variable error6 may not have been initialized
+				----------
+				""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
 	public void test018() {
 		this.runNegativeTest(new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    static final int i;\n" +
-			"    static {\n" +
-			"        assert (i = 0) == 0;\n" +
-			"        System.out.println(i);\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    static final int i;
+				    static {
+				        assert (i = 0) == 0;
+				        System.out.println(i);
+				    }
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	static final int i;\n" +
-		"	                 ^\n" +
-		"The blank final field i may not have been initialized\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	System.out.println(i);\n" +
-		"	                   ^\n" +
-		"The blank final field i may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				static final int i;
+				                 ^
+			The blank final field i may not have been initialized
+			----------
+			2. ERROR in X.java (at line 5)
+				System.out.println(i);
+				                   ^
+			The blank final field i may not have been initialized
+			----------
+			""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
 	public void test019() {
 		this.runConformTest(new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    static final int i;\n" +
-			"    static {\n" +
-			"        i = 0;\n" +
-			"        assert i == 0;\n" +
-			"        System.out.println(i);\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    static final int i;
+				    static {
+				        i = 0;
+				        assert i == 0;
+				        System.out.println(i);
+				    }
+				}"""
 		},
 		"");
 	}
@@ -557,87 +597,101 @@ public class AssertionTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" +
-						"    void method1() {\n" +
-						"		 int i;" +
-						"        assert (i = 0) == 0;\n" +
-						"        System.out.println(i);\n" +
-						"    }\n" +
-						"}\n"
+					"""
+						public class X {
+						    void method1() {
+								 int i;\
+						        assert (i = 0) == 0;
+						        System.out.println(i);
+						    }
+						}
+						"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	System.out.println(i);\n" +
-			"	                   ^\n" +
-			"The local variable i may not have been initialized\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					System.out.println(i);
+					                   ^
+				The local variable i may not have been initialized
+				----------
+				""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
 	public void test021() throws Exception {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-					"	public int bar() {\n" +
-					"		return 1;\n" +
-					"	}\n" +
-					"    void method1() {\n" +
-						"		 int i;" +
-						"        assert (i = this.bar()) == 0;\n" +
-						"        System.out.println(i);\n" +
-						"    }\n" +
-						"}\n"
+				"""
+					public class X {
+						public int bar() {
+							return 1;
+						}
+					    void method1() {
+							 int i;\
+					        assert (i = this.bar()) == 0;
+					        System.out.println(i);
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	System.out.println(i);\n" +
-			"	                   ^\n" +
-			"The local variable i may not have been initialized\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					System.out.println(i);
+					                   ^
+				The local variable i may not have been initialized
+				----------
+				""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
 	public void test022() throws Exception {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-					"	public int bar() {\n" +
-					"		return 1;\n" +
-					"	}\n" +
-					"    void method1() {\n" +
-						"		 int i;\n" +
-						"        assert i++ == 0;\n" +
-						"        System.out.println(i);\n" +
-						"    }\n" +
-						"}\n"
+				"""
+					public class X {
+						public int bar() {
+							return 1;
+						}
+					    void method1() {
+							 int i;
+					        assert i++ == 0;
+					        System.out.println(i);
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	assert i++ == 0;\n" +
-			"	       ^\n" +
-			"The local variable i may not have been initialized\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
-			"	System.out.println(i);\n" +
-			"	                   ^\n" +
-			"The local variable i may not have been initialized\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					assert i++ == 0;
+					       ^
+				The local variable i may not have been initialized
+				----------
+				2. ERROR in X.java (at line 8)
+					System.out.println(i);
+					                   ^
+				The local variable i may not have been initialized
+				----------
+				""");
 	}
 	public void test023() {
 		if (this.complianceLevel < ClassFileConstants.JDK1_8)
 			return;
 		this.runConformTest(new String[] {"X.java",
-				"interface Foo {\n" +
-				"  default Object test(Object a) {\n" +
-				"    assert a != null; // triggers creation of bogus synthetic field\n" +
-				"    return a;\n" +
-				"  }\n" +
-				"}\n" +
-				"public class X implements Foo {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new X().test(\"\");\n" +
-				"		System.out.println(\"Hello\");\n" +
-				"	}\n" +
-				"}\n"}, "Hello");
+				"""
+					interface Foo {
+					  default Object test(Object a) {
+					    assert a != null; // triggers creation of bogus synthetic field
+					    return a;
+					  }
+					}
+					public class X implements Foo {
+						public static void main(String[] args) {
+							new X().test("");
+							System.out.println("Hello");
+						}
+					}
+					"""}, "Hello");
 	}
 }

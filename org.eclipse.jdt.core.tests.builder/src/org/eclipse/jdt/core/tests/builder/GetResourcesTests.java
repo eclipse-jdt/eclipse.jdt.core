@@ -78,13 +78,15 @@ public class GetResourcesTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class Hello {\n"+ //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(\"Hello world\");\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
+					"""
+			package p1;
+			public class Hello {
+			   public static void main(String args[]) {
+			      System.out.println("Hello world");
+			   }
+			}
+			""" //$NON-NLS-1$
+				);
 
 		incrementalBuild(projectPath);
 
@@ -115,16 +117,18 @@ public class GetResourcesTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class Hello {\n"+ //$NON-NLS-1$
-			"	Object foo() {\n" + //$NON-NLS-1$
-			"		return new Object() {};\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(\"Hello world\");\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class Hello {
+				Object foo() {
+					return new Object() {};
+				}
+			   public static void main(String args[]) {
+			      System.out.println("Hello world");
+			   }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(projectPath);
 
@@ -229,9 +233,11 @@ public class GetResourcesTests extends BuilderTests {
 		Arrays.sort(resources, COMPARATOR);
 		String actualOutput = getResourceOuput(resources);
 		String expectedOutput =
-			"/Project/bin/p1/Hello.class\n" +
-			"/Project/bin/p1/Hello$1.class\n" +
-			"/Project/bin/p1/Hello$2.class\n";
+			"""
+			/Project/bin/p1/Hello.class
+			/Project/bin/p1/Hello$1.class
+			/Project/bin/p1/Hello$2.class
+			""";
 		assertEquals("Wrong names", Util.convertToIndependantLineDelimiter(expectedOutput), actualOutput);
 		env.removeProject(projectPath);
 	}
@@ -249,119 +255,120 @@ public class GetResourcesTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "a", "Anon", //$NON-NLS-1$ //$NON-NLS-2$
-			"package a;\n" +
-			"\n" +
-			"public class Anon {\n" +
-			"\n" +
-			"    Anon() {\n" +
-			"        Object o1 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"1\"; // a/Anon$3 in 1.5,  a/Anon$11 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"        Object o2 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"2\"; // a/Anon$4 in 1.5,  a/Anon$12 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"\n" +
-			"    void hello() {\n" +
-			"        Object o3 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"3\"; // a/Anon$5 in 1.5,  a/Anon$13 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"        Object o4 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"4\"; // a/Anon$6 in 1.5,  a/Anon$14 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"\n" +
-			"    static void hello2() {\n" +
-			"        Object o5 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"5\"; // a/Anon$7 in 1.5,  a/Anon$15 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"        Object o6 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"6\"; // a/Anon$8 in 1.5,  a/Anon$16 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"\n" +
-			"    static {\n" +
-			"        Object o7 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"7\"; // a/Anon$1 in 1.5,  a/Anon$1 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"\n" +
-			"        Object o8 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"8\"; // a/Anon$2 in 1.5,  a/Anon$2 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"\n" +
-			"    static class Anon2 {\n" +
-			"        // it\'s an object init block which has different prio as constructor!\n" +
-			"        {\n" +
-			"            Object o1 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"1\"; // a/Anon$Anon2$1 in 1.5,  a/Anon$3 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"            Object o2 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"2\"; // a/Anon$Anon2$2 in 1.5,  a/Anon$4 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"        }\n" +
-			"\n" +
-			"        void hello() {\n" +
-			"            Object o3 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"3\"; // a/Anon$Anon2$5 in 1.5,  a/Anon$7 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"            Object o4 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"4\"; // a/Anon$Anon2$6 in 1.5,  a/Anon$8 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"        }\n" +
-			"\n" +
-			"        static void hello2() {\n" +
-			"            Object o5 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"5\"; // a/Anon$Anon2$7 in 1.5,  a/Anon$9 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"            Object o6 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"6\"; //  a/Anon$Anon2$8 in 1.5,  a/Anon$10 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"        }\n" +
-			"\n" +
-			"        static {\n" +
-			"            Object o7 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"7\"; // a/Anon$Anon2$3 in 1.5,  a/Anon$5 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"\n" +
-			"            Object o8 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"8\"; // a/Anon$Anon2$4 in 1.5,  a/Anon$6 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"        }\n" +
-			"    }\n" +
-			"}");
+			"""
+				package a;
+				
+				public class Anon {
+				
+				    Anon() {
+				        Object o1 = new Object() {
+				            public String toString() {
+				                return "1"; // a/Anon$3 in 1.5,  a/Anon$11 in 1.4
+				            }
+				        };
+				        Object o2 = new Object() {
+				            public String toString() {
+				                return "2"; // a/Anon$4 in 1.5,  a/Anon$12 in 1.4
+				            }
+				        };
+				    }
+				
+				    void hello() {
+				        Object o3 = new Object() {
+				            public String toString() {
+				                return "3"; // a/Anon$5 in 1.5,  a/Anon$13 in 1.4
+				            }
+				        };
+				        Object o4 = new Object() {
+				            public String toString() {
+				                return "4"; // a/Anon$6 in 1.5,  a/Anon$14 in 1.4
+				            }
+				        };
+				    }
+				
+				    static void hello2() {
+				        Object o5 = new Object() {
+				            public String toString() {
+				                return "5"; // a/Anon$7 in 1.5,  a/Anon$15 in 1.4
+				            }
+				        };
+				        Object o6 = new Object() {
+				            public String toString() {
+				                return "6"; // a/Anon$8 in 1.5,  a/Anon$16 in 1.4
+				            }
+				        };
+				    }
+				
+				    static {
+				        Object o7 = new Object() {
+				            public String toString() {
+				                return "7"; // a/Anon$1 in 1.5,  a/Anon$1 in 1.4
+				            }
+				        };
+				
+				        Object o8 = new Object() {
+				            public String toString() {
+				                return "8"; // a/Anon$2 in 1.5,  a/Anon$2 in 1.4
+				            }
+				        };
+				    }
+				
+				    static class Anon2 {
+				        // it\'s an object init block which has different prio as constructor!
+				        {
+				            Object o1 = new Object() {
+				                public String toString() {
+				                    return "1"; // a/Anon$Anon2$1 in 1.5,  a/Anon$3 in 1.4
+				                }
+				            };
+				            Object o2 = new Object() {
+				                public String toString() {
+				                    return "2"; // a/Anon$Anon2$2 in 1.5,  a/Anon$4 in 1.4
+				                }
+				            };
+				        }
+				
+				        void hello() {
+				            Object o3 = new Object() {
+				                public String toString() {
+				                    return "3"; // a/Anon$Anon2$5 in 1.5,  a/Anon$7 in 1.4
+				                }
+				            };
+				            Object o4 = new Object() {
+				                public String toString() {
+				                    return "4"; // a/Anon$Anon2$6 in 1.5,  a/Anon$8 in 1.4
+				                }
+				            };
+				        }
+				
+				        static void hello2() {
+				            Object o5 = new Object() {
+				                public String toString() {
+				                    return "5"; // a/Anon$Anon2$7 in 1.5,  a/Anon$9 in 1.4
+				                }
+				            };
+				            Object o6 = new Object() {
+				                public String toString() {
+				                    return "6"; //  a/Anon$Anon2$8 in 1.5,  a/Anon$10 in 1.4
+				                }
+				            };
+				        }
+				
+				        static {
+				            Object o7 = new Object() {
+				                public String toString() {
+				                    return "7"; // a/Anon$Anon2$3 in 1.5,  a/Anon$5 in 1.4
+				                }
+				            };
+				
+				            Object o8 = new Object() {
+				                public String toString() {
+				                    return "8"; // a/Anon$Anon2$4 in 1.5,  a/Anon$6 in 1.4
+				                }
+				            };
+				        }
+				    }
+				}""");
 
 		incrementalBuild(projectPath);
 
@@ -376,24 +383,26 @@ public class GetResourcesTests extends BuilderTests {
 		Arrays.sort(resources, COMPARATOR);
 		String actualOutput = getResourceOuput(resources);
 		String expectedOutput =
-			"/Project/bin/a/Anon.class\n" +
-			"/Project/bin/a/Anon$1.class\n" +
-			"/Project/bin/a/Anon$2.class\n" +
-			"/Project/bin/a/Anon$3.class\n" +
-			"/Project/bin/a/Anon$4.class\n" +
-			"/Project/bin/a/Anon$5.class\n" +
-			"/Project/bin/a/Anon$6.class\n" +
-    		"/Project/bin/a/Anon$7.class\n" +
-    		"/Project/bin/a/Anon$8.class\n" +
-    		"/Project/bin/a/Anon$9.class\n" +
-    		"/Project/bin/a/Anon$10.class\n" +
-			"/Project/bin/a/Anon$11.class\n" +
-			"/Project/bin/a/Anon$12.class\n" +
-			"/Project/bin/a/Anon$13.class\n" +
-			"/Project/bin/a/Anon$14.class\n" +
-			"/Project/bin/a/Anon$15.class\n" +
-			"/Project/bin/a/Anon$16.class\n" +
-			"/Project/bin/a/Anon$Anon2.class\n";
+			"""
+			/Project/bin/a/Anon.class
+			/Project/bin/a/Anon$1.class
+			/Project/bin/a/Anon$2.class
+			/Project/bin/a/Anon$3.class
+			/Project/bin/a/Anon$4.class
+			/Project/bin/a/Anon$5.class
+			/Project/bin/a/Anon$6.class
+			/Project/bin/a/Anon$7.class
+			/Project/bin/a/Anon$8.class
+			/Project/bin/a/Anon$9.class
+			/Project/bin/a/Anon$10.class
+			/Project/bin/a/Anon$11.class
+			/Project/bin/a/Anon$12.class
+			/Project/bin/a/Anon$13.class
+			/Project/bin/a/Anon$14.class
+			/Project/bin/a/Anon$15.class
+			/Project/bin/a/Anon$16.class
+			/Project/bin/a/Anon$Anon2.class
+			""";
 		assertEquals("Wrong names", Util.convertToIndependantLineDelimiter(expectedOutput), actualOutput);
 		env.removeProject(projectPath);
 	}
@@ -417,119 +426,120 @@ public class GetResourcesTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "a", "Anon", //$NON-NLS-1$ //$NON-NLS-2$
-			"package a;\n" +
-			"\n" +
-			"public class Anon {\n" +
-			"\n" +
-			"    Anon() {\n" +
-			"        Object o1 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"1\"; // a/Anon$3 in 1.5,  a/Anon$11 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"        Object o2 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"2\"; // a/Anon$4 in 1.5,  a/Anon$12 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"\n" +
-			"    void hello() {\n" +
-			"        Object o3 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"3\"; // a/Anon$5 in 1.5,  a/Anon$13 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"        Object o4 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"4\"; // a/Anon$6 in 1.5,  a/Anon$14 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"\n" +
-			"    static void hello2() {\n" +
-			"        Object o5 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"5\"; // a/Anon$7 in 1.5,  a/Anon$15 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"        Object o6 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"6\"; // a/Anon$8 in 1.5,  a/Anon$16 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"\n" +
-			"    static {\n" +
-			"        Object o7 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"7\"; // a/Anon$1 in 1.5,  a/Anon$1 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"\n" +
-			"        Object o8 = new Object() {\n" +
-			"            public String toString() {\n" +
-			"                return \"8\"; // a/Anon$2 in 1.5,  a/Anon$2 in 1.4\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"\n" +
-			"    static class Anon2 {\n" +
-			"        // it\'s an object init block which has different prio as constructor!\n" +
-			"        {\n" +
-			"            Object o1 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"1\"; // a/Anon$Anon2$1 in 1.5,  a/Anon$3 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"            Object o2 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"2\"; // a/Anon$Anon2$2 in 1.5,  a/Anon$4 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"        }\n" +
-			"\n" +
-			"        void hello() {\n" +
-			"            Object o3 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"3\"; // a/Anon$Anon2$5 in 1.5,  a/Anon$7 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"            Object o4 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"4\"; // a/Anon$Anon2$6 in 1.5,  a/Anon$8 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"        }\n" +
-			"\n" +
-			"        static void hello2() {\n" +
-			"            Object o5 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"5\"; // a/Anon$Anon2$7 in 1.5,  a/Anon$9 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"            Object o6 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"6\"; //  a/Anon$Anon2$8 in 1.5,  a/Anon$10 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"        }\n" +
-			"\n" +
-			"        static {\n" +
-			"            Object o7 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"7\"; // a/Anon$Anon2$3 in 1.5,  a/Anon$5 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"\n" +
-			"            Object o8 = new Object() {\n" +
-			"                public String toString() {\n" +
-			"                    return \"8\"; // a/Anon$Anon2$4 in 1.5,  a/Anon$6 in 1.4\n" +
-			"                }\n" +
-			"            };\n" +
-			"        }\n" +
-			"    }\n" +
-			"}");
+			"""
+				package a;
+				
+				public class Anon {
+				
+				    Anon() {
+				        Object o1 = new Object() {
+				            public String toString() {
+				                return "1"; // a/Anon$3 in 1.5,  a/Anon$11 in 1.4
+				            }
+				        };
+				        Object o2 = new Object() {
+				            public String toString() {
+				                return "2"; // a/Anon$4 in 1.5,  a/Anon$12 in 1.4
+				            }
+				        };
+				    }
+				
+				    void hello() {
+				        Object o3 = new Object() {
+				            public String toString() {
+				                return "3"; // a/Anon$5 in 1.5,  a/Anon$13 in 1.4
+				            }
+				        };
+				        Object o4 = new Object() {
+				            public String toString() {
+				                return "4"; // a/Anon$6 in 1.5,  a/Anon$14 in 1.4
+				            }
+				        };
+				    }
+				
+				    static void hello2() {
+				        Object o5 = new Object() {
+				            public String toString() {
+				                return "5"; // a/Anon$7 in 1.5,  a/Anon$15 in 1.4
+				            }
+				        };
+				        Object o6 = new Object() {
+				            public String toString() {
+				                return "6"; // a/Anon$8 in 1.5,  a/Anon$16 in 1.4
+				            }
+				        };
+				    }
+				
+				    static {
+				        Object o7 = new Object() {
+				            public String toString() {
+				                return "7"; // a/Anon$1 in 1.5,  a/Anon$1 in 1.4
+				            }
+				        };
+				
+				        Object o8 = new Object() {
+				            public String toString() {
+				                return "8"; // a/Anon$2 in 1.5,  a/Anon$2 in 1.4
+				            }
+				        };
+				    }
+				
+				    static class Anon2 {
+				        // it\'s an object init block which has different prio as constructor!
+				        {
+				            Object o1 = new Object() {
+				                public String toString() {
+				                    return "1"; // a/Anon$Anon2$1 in 1.5,  a/Anon$3 in 1.4
+				                }
+				            };
+				            Object o2 = new Object() {
+				                public String toString() {
+				                    return "2"; // a/Anon$Anon2$2 in 1.5,  a/Anon$4 in 1.4
+				                }
+				            };
+				        }
+				
+				        void hello() {
+				            Object o3 = new Object() {
+				                public String toString() {
+				                    return "3"; // a/Anon$Anon2$5 in 1.5,  a/Anon$7 in 1.4
+				                }
+				            };
+				            Object o4 = new Object() {
+				                public String toString() {
+				                    return "4"; // a/Anon$Anon2$6 in 1.5,  a/Anon$8 in 1.4
+				                }
+				            };
+				        }
+				
+				        static void hello2() {
+				            Object o5 = new Object() {
+				                public String toString() {
+				                    return "5"; // a/Anon$Anon2$7 in 1.5,  a/Anon$9 in 1.4
+				                }
+				            };
+				            Object o6 = new Object() {
+				                public String toString() {
+				                    return "6"; //  a/Anon$Anon2$8 in 1.5,  a/Anon$10 in 1.4
+				                }
+				            };
+				        }
+				
+				        static {
+				            Object o7 = new Object() {
+				                public String toString() {
+				                    return "7"; // a/Anon$Anon2$3 in 1.5,  a/Anon$5 in 1.4
+				                }
+				            };
+				
+				            Object o8 = new Object() {
+				                public String toString() {
+				                    return "8"; // a/Anon$Anon2$4 in 1.5,  a/Anon$6 in 1.4
+				                }
+				            };
+				        }
+				    }
+				}""");
 
 		incrementalBuild(projectPath);
 
@@ -544,24 +554,26 @@ public class GetResourcesTests extends BuilderTests {
 		Arrays.sort(resources, COMPARATOR);
 		String actualOutput = getResourceOuput(resources);
 		String expectedOutput =
-			"/Project/bin/a/Anon.class\n" +
-			"/Project/bin/a/Anon$1.class\n" +
-			"/Project/bin/a/Anon$2.class\n" +
-			"/Project/bin/a/Anon$3.class\n" +
-			"/Project/bin/a/Anon$4.class\n" +
-			"/Project/bin/a/Anon$5.class\n" +
-			"/Project/bin/a/Anon$6.class\n" +
-			"/Project/bin/a/Anon$7.class\n" +
-			"/Project/bin/a/Anon$8.class\n" +
-			"/Project/bin/a/Anon$Anon2.class\n" +
-			"/Project/bin/a/Anon$Anon2$1.class\n" +
-			"/Project/bin/a/Anon$Anon2$2.class\n" +
-			"/Project/bin/a/Anon$Anon2$3.class\n" +
-			"/Project/bin/a/Anon$Anon2$4.class\n" +
-			"/Project/bin/a/Anon$Anon2$5.class\n" +
-			"/Project/bin/a/Anon$Anon2$6.class\n" +
-			"/Project/bin/a/Anon$Anon2$7.class\n" +
-			"/Project/bin/a/Anon$Anon2$8.class\n";
+			"""
+			/Project/bin/a/Anon.class
+			/Project/bin/a/Anon$1.class
+			/Project/bin/a/Anon$2.class
+			/Project/bin/a/Anon$3.class
+			/Project/bin/a/Anon$4.class
+			/Project/bin/a/Anon$5.class
+			/Project/bin/a/Anon$6.class
+			/Project/bin/a/Anon$7.class
+			/Project/bin/a/Anon$8.class
+			/Project/bin/a/Anon$Anon2.class
+			/Project/bin/a/Anon$Anon2$1.class
+			/Project/bin/a/Anon$Anon2$2.class
+			/Project/bin/a/Anon$Anon2$3.class
+			/Project/bin/a/Anon$Anon2$4.class
+			/Project/bin/a/Anon$Anon2$5.class
+			/Project/bin/a/Anon$Anon2$6.class
+			/Project/bin/a/Anon$Anon2$7.class
+			/Project/bin/a/Anon$Anon2$8.class
+			""";
 		assertEquals("Wrong names", Util.convertToIndependantLineDelimiter(expectedOutput), actualOutput);
 		env.removeProject(projectPath);
 	}
@@ -590,15 +602,17 @@ public class GetResourcesTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class Hello {\n"+ //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(\"Hello world\");\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" + //$NON-NLS-1$
-			"class Foo {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class Hello {
+			   public static void main(String args[]) {
+			      System.out.println("Hello world");
+			   }
+			}
+			class Foo {
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(projectPath);
 
@@ -662,13 +676,15 @@ public class GetResourcesTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(projectPath, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class Hello {\n"+ //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(\"Hello world\");\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
+					"""
+			package p1;
+			public class Hello {
+			   public static void main(String args[]) {
+			      System.out.println("Hello world");
+			   }
+			}
+			""" //$NON-NLS-1$
+				);
 
 		incrementalBuild(projectPath);
 
@@ -731,9 +747,11 @@ public class GetResourcesTests extends BuilderTests {
 		Arrays.sort(resources, COMPARATOR);
 		actualOutput = getResourceOuput(resources);
 		expectedOutput =
-			"/Project/bin/p1/Test.txt\n" +
-			"/Project/bin/p1/Hello.class\n" +
-			"/Project/bin/p1/Hello$Z.class\n";
+			"""
+				/Project/bin/p1/Test.txt
+				/Project/bin/p1/Hello.class
+				/Project/bin/p1/Hello$Z.class
+				""";
 		assertEquals("Wrong names", Util.convertToIndependantLineDelimiter(expectedOutput), actualOutput);
 
 		env.removeProject(projectPath);
@@ -785,9 +803,11 @@ public class GetResourcesTests extends BuilderTests {
 		Arrays.sort(resources, COMPARATOR);
 		actualOutput = getResourceOuput(resources);
 		expectedOutput =
-			"/Project/bin/p1/Test.txt\n" +
-			"/Project/bin/p1/Hello.class\n" +
-			"/Project/bin/p1/Hello$Z.class\n";
+			"""
+				/Project/bin/p1/Test.txt
+				/Project/bin/p1/Hello.class
+				/Project/bin/p1/Hello$Z.class
+				""";
 		assertEquals("Wrong names", Util.convertToIndependantLineDelimiter(expectedOutput), actualOutput);
 
 		env.removeProject(projectPath);
@@ -945,9 +965,11 @@ public class GetResourcesTests extends BuilderTests {
 		Arrays.sort(resources, COMPARATOR);
 		actualOutput = getResourceOuput(resources);
 		expectedOutput =
-			"/Project/bin/p1/Test.log\n" +
-			"/Project/bin/p1/Hello.class\n" +
-			"/Project/bin/p1/Hello$Z.class\n";
+			"""
+				/Project/bin/p1/Test.log
+				/Project/bin/p1/Hello.class
+				/Project/bin/p1/Hello$Z.class
+				""";
 		assertEquals("Wrong names", Util.convertToIndependantLineDelimiter(expectedOutput), actualOutput);
 
 		env.removeProject(projectPath);
@@ -998,9 +1020,11 @@ public class GetResourcesTests extends BuilderTests {
 		Arrays.sort(resources, COMPARATOR);
 		actualOutput = getResourceOuput(resources);
 		expectedOutput =
-			"/Project/bin/p1/Test.log\n" +
-			"/Project/bin/p1/Hello.class\n" +
-			"/Project/bin/p1/Hello$Z.class\n";
+			"""
+				/Project/bin/p1/Test.log
+				/Project/bin/p1/Hello.class
+				/Project/bin/p1/Hello$Z.class
+				""";
 		assertEquals("Wrong names", Util.convertToIndependantLineDelimiter(expectedOutput), actualOutput);
 
 		env.removeProject(projectPath);

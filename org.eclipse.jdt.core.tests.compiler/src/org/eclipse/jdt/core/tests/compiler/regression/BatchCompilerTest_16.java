@@ -51,20 +51,23 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
                         this.runNegativeTest(
                                         new String[] {
                                                         "src/X.java",
-                                                        "public class X {\n"+
-                                                        "    public static void main(String argv[]) {\n"+
-                                                        "        R rec = new R(3);\n"+
-                                                        "               if (rec.x() == 3) {\n" +
-                                                        "                       // do nothing\n" +
-                                                        "               }\n" +
-                                                        "    }\n"+
-                                                        "}\n",
+                                                        """
+															public class X {
+															    public static void main(String argv[]) {
+															        R rec = new R(3);
+															               if (rec.x() == 3) {
+															                       // do nothing
+															               }
+															    }
+															}
+															""",
                                                         "src/R.java",
-                                                        "record R(int x) {\n"+
-                                                        "       R {\n"+
-                                                        "               super();\n"+
-                                                        "       }\n"+
-                                                        "}",
+                                                        """
+															record R(int x) {
+															       R {
+															               super();
+															       }
+															}""",
                                                 },
                                     "\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
                                     + " \"" + OUTPUT_DIR +  File.separator + "src/R.java\""
@@ -73,13 +76,15 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
                                 + " -proceedOnError -referenceInfo"
                                 + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
                                 "",
-                                "----------\n" +
-                                "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/R.java (at line 3)\n" +
-                                "	super();\n" +
-                                "	^^^^^^^^\n" +
-                                "The body of a compact constructor must not contain an explicit constructor call\n" +
-                                "----------\n"
-                                + "1 problem (1 error)\n",
+                                """
+									----------
+									1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/R.java (at line 3)
+										super();
+										^^^^^^^^
+									The body of a compact constructor must not contain an explicit constructor call
+									----------
+									1 problem (1 error)
+									""",
                                 true);
                         } finally {
                         }
@@ -89,18 +94,21 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
         	this.runConformTest(
         		new String[] {
                     "src/X.java",
-                    "public class X {\n"+
-                    "    public static void main(String argv[]) {\n"+
-                    "       new R(3);\n"+
-                    "       new R();\n"+
-                    "    }\n"+
-                    "}\n",
+                    """
+						public class X {
+						    public static void main(String argv[]) {
+						       new R(3);
+						       new R();
+						    }
+						}
+						""",
                     "src/R.java",
-                    "record R(int x) {\n"+
-                    "       R() {\n"+
-                    "       this(0);\n"+
-                    "       }\n"+
-                    "}",
+                    """
+						record R(int x) {
+						       R() {
+						       this(0);
+						       }
+						}""",
                 },
                 "\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
                 + " \"" + OUTPUT_DIR +  File.separator + "src/R.java\""

@@ -57,17 +57,19 @@ public class IncrementalTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin");
 
 		env.addClass(root, "p", "C",
-			"package p;	\n"+
-			"public class C {}	\n"+
-			"class CC {}");
+			"""
+				package p;\t
+				public class C {}\t
+				class CC {}""");
 
 		fullBuild(projectPath);
 		expectingNoProblems();
 
 		IPath pathToD = env.addClass(root, "p", "D",
-			"package p;	\n"+
-			"public class D {}	\n"+
-			"class CC {}");
+			"""
+				package p;\t
+				public class D {}\t
+				class CC {}""");
 
 		incrementalBuild(projectPath);
 		expectingProblemsFor(
@@ -136,10 +138,12 @@ public class IncrementalTests extends BuilderTests {
 		//           Step 2
 		//----------------------------
 		env.addClass(root, "java.lang", "Object", //$NON-NLS-1$ //$NON-NLS-2$
-			"package java.lang;\n" + //$NON-NLS-1$
-			"public class Object {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package java.lang;
+			public class Object {
+			}
+			""" //$NON-NLS-1$
+					);
 
 
 		incrementalBuild();
@@ -149,10 +153,12 @@ public class IncrementalTests extends BuilderTests {
 		//           Step 3
 		//----------------------------
 		env.addClass(root, "java.lang", "Throwable", //$NON-NLS-1$ //$NON-NLS-2$
-			"package java.lang;\n" + //$NON-NLS-1$
-			"public class Throwable {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package java.lang;
+			public class Throwable {
+			}
+			""" //$NON-NLS-1$
+					);
 
 
 		incrementalBuild();
@@ -203,9 +209,10 @@ public class IncrementalTests extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingProblemsFor(
 			new IPath[]{ pathToA, pathToB, pathToC },
-			"Problem : A cannot be resolved to a type [ resource : </Project/src/p/B.java> range : <35,36> category : <40> severity : <2>]\n" +
-			"Problem : The hierarchy of the type C is inconsistent [ resource : </Project/src/p/C.java> range : <25,26> category : <40> severity : <2>]\n" +
-			"Problem : The public type _A must be defined in its own file [ resource : </Project/src/p/A.java> range : <25,27> category : <40> severity : <2>]"
+			"""
+				Problem : A cannot be resolved to a type [ resource : </Project/src/p/B.java> range : <35,36> category : <40> severity : <2>]
+				Problem : The hierarchy of the type C is inconsistent [ resource : </Project/src/p/C.java> range : <25,26> category : <40> severity : <2>]
+				Problem : The public type _A must be defined in its own file [ resource : </Project/src/p/A.java> range : <25,27> category : <40> severity : <2>]"""
 		);
 		expectingSpecificProblemFor(pathToA, new Problem("_A", "The public type _A must be defined in its own file", pathToA, 25, 27, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(pathToB, new Problem("B", "A cannot be resolved to a type", pathToB, 35, 36, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -236,27 +243,30 @@ public class IncrementalTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;	\n"+ //$NON-NLS-1$
-			"public class AA {}	\n"+ //$NON-NLS-1$
-			"class AZ {}"); //$NON-NLS-1$
+					"""
+			package p;\t
+			public class AA {}\t
+			class AZ {}"""); //$NON-NLS-1$
 
 		IPath pathToAB = env.addClass(root, "p", "AB", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;	\n"+ //$NON-NLS-1$
 			"public class AB extends AZ {}"); //$NON-NLS-1$
 
 		env.addClass(root, "p", "BB", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;	\n"+ //$NON-NLS-1$
-			"public class BB {	\n"+ //$NON-NLS-1$
-			"	void foo(){	\n" + //$NON-NLS-1$
-			"		System.out.println(new AB());	\n" + //$NON-NLS-1$
-			"		System.out.println(new ZA());	\n" + //$NON-NLS-1$
-			"	}	\n" + //$NON-NLS-1$
-			"}"); //$NON-NLS-1$
+					"""
+			package p;\t
+			public class BB {\t
+				void foo(){\t
+					System.out.println(new AB());\t
+					System.out.println(new ZA());\t
+				}\t
+			}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "ZZ", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;	\n"+ //$NON-NLS-1$
-			"public class ZZ {}	\n"+ //$NON-NLS-1$
-			"class ZA {}"); //$NON-NLS-1$
+					"""
+			package p;\t
+			public class ZZ {}\t
+			class ZA {}"""); //$NON-NLS-1$
 
 		fullBuild(projectPath);
 		expectingNoProblems();
@@ -267,13 +277,14 @@ public class IncrementalTests extends BuilderTests {
 			"public class AA {}"); //$NON-NLS-1$
 
 		env.addClass(root, "p", "BB", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;	\n"+ //$NON-NLS-1$
-			"public class BB {	\n"+ //$NON-NLS-1$
-			"	void foo() {	\n" + //$NON-NLS-1$
-			"		System.out.println(new AB());	\n" + //$NON-NLS-1$
-			"		System.out.println(new ZA());	\n" + //$NON-NLS-1$
-			"	}	\n" + //$NON-NLS-1$
-			"}"); //$NON-NLS-1$
+					"""
+			package p;\t
+			public class BB {\t
+				void foo() {\t
+					System.out.println(new AB());\t
+					System.out.println(new ZA());\t
+				}\t
+			}"""); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
 		expectingProblemsFor(
@@ -283,9 +294,10 @@ public class IncrementalTests extends BuilderTests {
 		expectingSpecificProblemFor(pathToAB, new Problem("AB", "AZ cannot be resolved to a type", pathToAB, 36, 38, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;	\n"+ //$NON-NLS-1$
-			"public class AA {}	\n"+ //$NON-NLS-1$
-			"class AZ {}"); //$NON-NLS-1$
+					"""
+			package p;\t
+			public class AA {}\t
+			class AZ {}"""); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
@@ -307,27 +319,30 @@ public class IncrementalTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;	\n"+ //$NON-NLS-1$
-			"public class AA {}	\n"+ //$NON-NLS-1$
-			"class AZ {}"); //$NON-NLS-1$
+					"""
+			package p;\t
+			public class AA {}\t
+			class AZ {}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "AB", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;	\n"+ //$NON-NLS-1$
 			"public class AB extends AZ {}"); //$NON-NLS-1$
 
 		IPath pathToBB = env.addClass(root, "p", "BB", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;	\n"+ //$NON-NLS-1$
-			"public class BB {	\n"+ //$NON-NLS-1$
-			"	void foo(){	\n" + //$NON-NLS-1$
-			"		System.out.println(new AB());	\n" + //$NON-NLS-1$
-			"		System.out.println(new ZA());	\n" + //$NON-NLS-1$
-			"	}	\n" + //$NON-NLS-1$
-			"}"); //$NON-NLS-1$
+					"""
+			package p;\t
+			public class BB {\t
+				void foo(){\t
+					System.out.println(new AB());\t
+					System.out.println(new ZA());\t
+				}\t
+			}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "ZZ", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;	\n"+ //$NON-NLS-1$
-			"public class ZZ {}	\n"+ //$NON-NLS-1$
-			"class ZA {}"); //$NON-NLS-1$
+					"""
+			package p;\t
+			public class ZZ {}\t
+			class ZA {}"""); //$NON-NLS-1$
 
 		fullBuild(projectPath);
 		expectingNoProblems();
@@ -338,13 +353,14 @@ public class IncrementalTests extends BuilderTests {
 			"public class ZZ {}"); //$NON-NLS-1$
 
 		pathToBB = env.addClass(root, "p", "BB", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;	\n"+ //$NON-NLS-1$
-			"public class BB {	\n"+ //$NON-NLS-1$
-			"	void foo() {	\n" + //$NON-NLS-1$
-			"		System.out.println(new AB());	\n" + //$NON-NLS-1$
-			"		System.out.println(new ZA());	\n" + //$NON-NLS-1$
-			"	}	\n" + //$NON-NLS-1$
-			"}"); //$NON-NLS-1$
+					"""
+			package p;\t
+			public class BB {\t
+				void foo() {\t
+					System.out.println(new AB());\t
+					System.out.println(new ZA());\t
+				}\t
+			}"""); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
 		expectingProblemsFor(
@@ -354,9 +370,10 @@ public class IncrementalTests extends BuilderTests {
 		expectingSpecificProblemFor(pathToBB, new Problem("BB.foo()", "ZA cannot be resolved to a type", pathToBB, 104, 106, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p", "ZZ", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;	\n"+ //$NON-NLS-1$
-			"public class ZZ {}	\n"+ //$NON-NLS-1$
-			"class ZA {}"); //$NON-NLS-1$
+					"""
+			package p;\t
+			public class ZZ {}\t
+			class ZA {}"""); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
@@ -374,9 +391,10 @@ public class IncrementalTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class AA {} \n"+ //$NON-NLS-1$
-			"class AZ {}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class AA {}\s
+			class AZ {}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "AB", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p; \n"+ //$NON-NLS-1$
@@ -395,18 +413,20 @@ public class IncrementalTests extends BuilderTests {
 			"public class AA {}"); //$NON-NLS-1$
 
 		env.addClass(root, "p", "ZZ", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class ZZ {} \n"+ //$NON-NLS-1$
-			"class AZ {}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class ZZ {}\s
+			class AZ {}"""); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
 
 		/* Move AZ from ZZ to AA */
 		env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class AA {} \n"+ //$NON-NLS-1$
-			"class AZ {}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class AA {}\s
+			class AZ {}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "ZZ", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p; \n"+ //$NON-NLS-1$
@@ -428,20 +448,23 @@ public class IncrementalTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class AA {} \n"+ //$NON-NLS-1$
-			"class AZ {static class M{}}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class AA {}\s
+			class AZ {static class M{}}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "AB", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"import p.AZ.*; \n"+ //$NON-NLS-1$
-			"import p.ZA.*; \n"+ //$NON-NLS-1$
-			"public class AB extends M {}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			import p.AZ.*;\s
+			import p.ZA.*;\s
+			public class AB extends M {}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "ZZ", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class ZZ {} \n"+ //$NON-NLS-1$
-			"class ZA {}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class ZZ {}\s
+			class ZA {}"""); //$NON-NLS-1$
 
 		fullBuild(projectPath);
 		expectingOnlySpecificProblemsFor(
@@ -452,14 +475,16 @@ public class IncrementalTests extends BuilderTests {
 
 		/* Move M from AA to ZZ */
 		env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class AA {} \n"+ //$NON-NLS-1$
-			"class AZ {}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class AA {}\s
+			class AZ {}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "ZZ", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class ZZ {} \n"+ //$NON-NLS-1$
-			"class ZA {static class M{}}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class ZZ {}\s
+			class ZA {static class M{}}"""); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
 		expectingOnlySpecificProblemsFor(
@@ -470,14 +495,16 @@ public class IncrementalTests extends BuilderTests {
 
 		/* Move M from ZZ to AA */
 		env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class AA {} \n"+ //$NON-NLS-1$
-			"class AZ {static class M{}}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class AA {}\s
+			class AZ {static class M{}}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "ZZ", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class ZZ {} \n"+ //$NON-NLS-1$
-			"class ZA {}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class ZZ {}\s
+			class ZA {}"""); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
 		expectingOnlySpecificProblemsFor(
@@ -567,14 +594,16 @@ public class IncrementalTests extends BuilderTests {
 			"public class A extends Z {M[] m;}"); //$NON-NLS-1$
 
 		env.addClass(root, "p", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class B {A a; E e; \n"+ //$NON-NLS-1$
-			"void foo() { System.out.println(a.m); }}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class B {A a; E e;\s
+			void foo() { System.out.println(a.m); }}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "E", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class E extends Z { \n"+ //$NON-NLS-1$
-			"void foo() { System.out.println(new M()); }}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class E extends Z {\s
+			void foo() { System.out.println(new M()); }}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p; \n"+ //$NON-NLS-1$
@@ -584,14 +613,16 @@ public class IncrementalTests extends BuilderTests {
 		expectingNoProblems();
 
 		env.addClass(root, "p", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class B {A a; E e; \n"+ //$NON-NLS-1$
-			"void foo( ) { System.out.println(a.m); }}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class B {A a; E e;\s
+			void foo( ) { System.out.println(a.m); }}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "E", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"public class E extends Z { \n"+ //$NON-NLS-1$
-			"void foo( ) { System.out.println(new M()); }}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			public class E extends Z {\s
+			void foo( ) { System.out.println(new M()); }}"""); //$NON-NLS-1$
 
 		env.addClass(root, "p", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p; \n"+ //$NON-NLS-1$
@@ -629,30 +660,36 @@ public class IncrementalTests extends BuilderTests {
 		env.addRequiredProject(projectPath2, projectPath1);
 
 		env.addClass(root1, "pB", "BaseClass", //$NON-NLS-1$ //$NON-NLS-2$
-			"package pB; \n"+ //$NON-NLS-1$
-			"public class BaseClass {\n" + //$NON-NLS-1$
-			"  public static class Builder <T> {\n"+ //$NON-NLS-1$
-			"    public Builder(T t) {\n" + //$NON-NLS-1$
-			"    }\n" + //$NON-NLS-1$
-			"  }\n" + //$NON-NLS-1$
-			"}\n");//$NON-NLS-1$
+					"""
+			package pB;\s
+			public class BaseClass {
+			  public static class Builder <T> {
+			    public Builder(T t) {
+			    }
+			  }
+			}
+			""");//$NON-NLS-1$
 
 		env.addClass(root1, "pR", "ReferencingClass", //$NON-NLS-1$ //$NON-NLS-2$
-				"package pR; \n"+ //$NON-NLS-1$
-				"import pD.DerivedClass.Builder;\n"+ //$NON-NLS-1$
-				"public class ReferencingClass {\n" + //$NON-NLS-1$
-				"   Builder<String> builder = new Builder<String>(null);\n" + //$NON-NLS-1$
-				"}\n"); //$NON-NLS-1$
+						"""
+			package pR;\s
+			import pD.DerivedClass.Builder;
+			public class ReferencingClass {
+			   Builder<String> builder = new Builder<String>(null);
+			}
+			"""); //$NON-NLS-1$
 
 		env.addClass(root2, "pD", "DerivedClass", //$NON-NLS-1$ //$NON-NLS-2$
-				"package pD; \n"+ //$NON-NLS-1$
-				"public class DerivedClass extends pB.BaseClass {\n" + //$NON-NLS-1$
-				"  public static class Builder<T> extends pB.BaseClass.Builder <T> {\n"+ //$NON-NLS-1$
-				"    public Builder(T t) {\n" + //$NON-NLS-1$
-				"		super(t);\n" + //$NON-NLS-1$
-				"    }\n" + //$NON-NLS-1$
-				"  }\n" + //$NON-NLS-1$
-				"}\n"); //$NON-NLS-1$
+						"""
+			package pD;\s
+			public class DerivedClass extends pB.BaseClass {
+			  public static class Builder<T> extends pB.BaseClass.Builder <T> {
+			    public Builder(T t) {
+					super(t);
+			    }
+			  }
+			}
+			"""); //$NON-NLS-1$
 
 		int previous = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
 		fullBuild();
@@ -690,26 +727,32 @@ public class IncrementalTests extends BuilderTests {
 		env.addRequiredProject(projectPath2, projectPath1);
 
 		env.addClass(root1, "pB", "Builder$a", //$NON-NLS-1$ //$NON-NLS-2$
-			"package pB; \n"+ //$NON-NLS-1$
-			"public class Builder$a<T> {\n" + //$NON-NLS-1$
-			"    public Builder$a(T t) {\n" + //$NON-NLS-1$
-			"    }\n" + //$NON-NLS-1$
-			"}\n");//$NON-NLS-1$
+					"""
+			package pB;\s
+			public class Builder$a<T> {
+			    public Builder$a(T t) {
+			    }
+			}
+			""");//$NON-NLS-1$
 
 		env.addClass(root1, "pR", "ReferencingClass", //$NON-NLS-1$ //$NON-NLS-2$
-				"package pR; \n"+ //$NON-NLS-1$
-				"import pD.DerivedClass$a;\n"+ //$NON-NLS-1$
-				"public class ReferencingClass {\n" + //$NON-NLS-1$
-				"   DerivedClass$a<String> builder = new DerivedClass$a<String>(null);\n" + //$NON-NLS-1$
-				"}\n"); //$NON-NLS-1$
+						"""
+			package pR;\s
+			import pD.DerivedClass$a;
+			public class ReferencingClass {
+			   DerivedClass$a<String> builder = new DerivedClass$a<String>(null);
+			}
+			"""); //$NON-NLS-1$
 
 		env.addClass(root2, "pD", "DerivedClass$a", //$NON-NLS-1$ //$NON-NLS-2$
-				"package pD; \n"+ //$NON-NLS-1$
-				"public class DerivedClass$a<T> extends pB.Builder$a<T> {\n" + //$NON-NLS-1$
-				"    public DerivedClass$a(T t) {\n" + //$NON-NLS-1$
-				"		super(t);\n" + //$NON-NLS-1$
-				"    }\n" + //$NON-NLS-1$
-				"}\n"); //$NON-NLS-1$
+						"""
+			package pD;\s
+			public class DerivedClass$a<T> extends pB.Builder$a<T> {
+			    public DerivedClass$a(T t) {
+					super(t);
+			    }
+			}
+			"""); //$NON-NLS-1$
 
 		int previous = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
 		fullBuild();
@@ -736,9 +779,11 @@ public class IncrementalTests extends BuilderTests {
 			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 			env.addClass(root, "java.lang", "Object", //$NON-NLS-1$ //$NON-NLS-2$
-				"package java.lang; \n"+ //$NON-NLS-1$
-				"public class Object implements I {} \n"+ //$NON-NLS-1$
-				"interface I {}	\n");	//$NON-NLS-1$
+							"""
+				package java.lang;\s
+				public class Object implements I {}\s
+				interface I {}\t
+				""");	//$NON-NLS-1$
 
 			fullBuild(projectPath);
 
@@ -806,10 +851,12 @@ public class IncrementalTests extends BuilderTests {
 		//           Step 2
 		//----------------------------
 		env.addClass(root, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild();
 		expectingProblemsFor(x, "???");
@@ -831,17 +878,20 @@ public class IncrementalTests extends BuilderTests {
 			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 			env.addClass(root, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
-				"public class A {\n"+ //$NON-NLS-1$
-				"	Object foo(B b) { return b.i; }\n" + //$NON-NLS-1$
-				"}");	//$NON-NLS-1$
+							"""
+				public class A {
+					Object foo(B b) { return b.i; }
+				}""");	//$NON-NLS-1$
 			env.addClass(root, "", "B", //$NON-NLS-1$ //$NON-NLS-2$
-				"public class B {\n"+ //$NON-NLS-1$
-				"	I.InnerType i;\n" + //$NON-NLS-1$
-				"}");	//$NON-NLS-1$
+							"""
+				public class B {
+					I.InnerType i;
+				}""");	//$NON-NLS-1$
 			env.addClass(root, "", "I", //$NON-NLS-1$ //$NON-NLS-2$
-				"public interface I {\n"+ //$NON-NLS-1$
-				"	interface InnerType {}\n" + //$NON-NLS-1$
-				"}");	//$NON-NLS-1$
+							"""
+				public interface I {
+					interface InnerType {}
+				}""");	//$NON-NLS-1$
 
 			fullBuild(projectPath);
 			expectingNoProblems();
@@ -849,13 +899,15 @@ public class IncrementalTests extends BuilderTests {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 1;
 
 			env.addClass(root, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
-				"public class A {\n"+ //$NON-NLS-1$
-				"	Object foo(B b) { return b.i; }\n" + //$NON-NLS-1$
-				"}");	//$NON-NLS-1$
+							"""
+				public class A {
+					Object foo(B b) { return b.i; }
+				}""");	//$NON-NLS-1$
 			env.addClass(root, "", "I", //$NON-NLS-1$ //$NON-NLS-2$
-				"public interface I {\n"+ //$NON-NLS-1$
-				"	interface InnerType {}\n" + //$NON-NLS-1$
-				"}");	//$NON-NLS-1$
+							"""
+				public interface I {
+					interface InnerType {}
+				}""");	//$NON-NLS-1$
 
 			incrementalBuild(projectPath);
 			expectingNoProblems();
@@ -1014,29 +1066,35 @@ public class IncrementalTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		IPath xPath = env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo(p2.Y y) {	\n" + //$NON-NLS-1$
-			"		y.bar(null);" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	void X() {}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo(p2.Y y) {\t
+					y.bar(null);\
+				}
+				void X() {}
+			}
+			""" //$NON-NLS-1$
+					);
 		IPath yPath = env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"public class Y {\n"+ //$NON-NLS-1$
-			"	public void bar(Z z) {}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			public class Y {
+				public void bar(Z z) {}
+			}
+			""" //$NON-NLS-1$
+					);
 		fullBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(yPath, new Problem("Y", "Z cannot be resolved to a type", yPath, 46, 47, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p2", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"public class Z {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			public class Z {
+			}
+			""" //$NON-NLS-1$
+					);
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 		env.removeProject(projectPath);
@@ -1056,32 +1114,38 @@ public class IncrementalTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		IPath yPath = env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-				"package p2;\n"+ //$NON-NLS-1$
-				"public class Y {\n"+ //$NON-NLS-1$
-				"	public void bar(Z z) {}\n" + //$NON-NLS-1$
-				"}\n" //$NON-NLS-1$
-				);
+						"""
+			package p2;
+			public class Y {
+				public void bar(Z z) {}
+			}
+			""" //$NON-NLS-1$
+						);
 		fullBuild(projectPath);
 		expectingSpecificProblemFor(yPath, new Problem("Y", "Z cannot be resolved to a type", yPath, 46, 47, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		IPath xPath = env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo(p2.Y y) {	\n" + //$NON-NLS-1$
-			"		y.bar(null);" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	void X() {}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo(p2.Y y) {\t
+					y.bar(null);\
+				}
+				void X() {}
+			}
+			""" //$NON-NLS-1$
+					);
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(yPath, new Problem("Y", "Z cannot be resolved to a type", yPath, 46, 47, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p2", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"public class Z {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			public class Z {
+			}
+			""" //$NON-NLS-1$
+					);
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 		env.removeProject(projectPath);
@@ -1101,32 +1165,38 @@ public class IncrementalTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		IPath yPath = env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-				"package p2;\n"+ //$NON-NLS-1$
-				"public class Y {\n"+ //$NON-NLS-1$
-				"	public void bar(p1.Z z) {}\n" + //$NON-NLS-1$
-				"}\n" //$NON-NLS-1$
-				);
+						"""
+			package p2;
+			public class Y {
+				public void bar(p1.Z z) {}
+			}
+			""" //$NON-NLS-1$
+						);
 		fullBuild(projectPath);
 		expectingSpecificProblemFor(yPath, new Problem("Y", "p1 cannot be resolved to a type", yPath, 46, 48, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		IPath xPath = env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo(p2.Y y) {	\n" + //$NON-NLS-1$
-			"		y.bar(null);" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	void X() {}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo(p2.Y y) {\t
+					y.bar(null);\
+				}
+				void X() {}
+			}
+			""" //$NON-NLS-1$
+					);
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(yPath, new Problem("Y", "p1.Z cannot be resolved to a type", yPath, 46, 50, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class Z {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class Z {
+			}
+			""" //$NON-NLS-1$
+					);
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 		env.removeProject(projectPath);
@@ -1153,44 +1223,50 @@ public class IncrementalTests extends BuilderTests {
 			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 			env.addClass(root, "", "Upper",
-				"public abstract class Upper<T>  {\n" +
-				"    public static enum Mode {IN,OUT;}\n" +
-				"}\n");
+				"""
+					public abstract class Upper<T>  {
+					    public static enum Mode {IN,OUT;}
+					}
+					""");
 			env.addClass(root, "", "Lower",
 				"public class Lower extends Upper<Lower> {};\n");
 			env.addClass(root, "", "Bug",
-					"public class Bug {\n" +
-					"    Upper.Mode m1;\n" +
-					"    void usage(){\n" +
-					"        Lower.Mode m3;\n" +
-					"        if (m1 == null){\n" +
-					"            m3 = Lower.Mode.IN;\n" +
-					"        } else {\n" +
-					"            m3 = m1;\n" +
-					"        }\n" +
-					"        Lower.Mode m2 = (m1 == null ?  Lower.Mode.IN : m1);\n" +
-					"        System.out.println(m2);\n" +
-					"        System.out.println(m3);\n" +
-					"    }\n" +
-					"}\n");
+					"""
+						public class Bug {
+						    Upper.Mode m1;
+						    void usage(){
+						        Lower.Mode m3;
+						        if (m1 == null){
+						            m3 = Lower.Mode.IN;
+						        } else {
+						            m3 = m1;
+						        }
+						        Lower.Mode m2 = (m1 == null ?  Lower.Mode.IN : m1);
+						        System.out.println(m2);
+						        System.out.println(m3);
+						    }
+						}
+						""");
 
 			fullBuild(projectPath);
 			expectingNoProblems();
 			env.addClass(root, "", "Bug",
-					"public class Bug {\n" +
-					"    Upper.Mode m1;\n" +
-					"    void usage(){\n" +
-					"        Lower.Mode m3;\n" +
-					"        if (m1 == null){\n" +
-					"            m3 = Lower.Mode.IN;\n" +
-					"        } else {\n" +
-					"            m3 = m1;\n" +
-					"        }\n" +
-					"        Lower.Mode m2 = (m1 == null ?  Lower.Mode.IN : m1);\n" +
-					"        System.out.println(m2);\n" +
-					"        System.out.println(m3);\n" +
-					"    }\n" +
-					"}\n");
+					"""
+						public class Bug {
+						    Upper.Mode m1;
+						    void usage(){
+						        Lower.Mode m3;
+						        if (m1 == null){
+						            m3 = Lower.Mode.IN;
+						        } else {
+						            m3 = m1;
+						        }
+						        Lower.Mode m2 = (m1 == null ?  Lower.Mode.IN : m1);
+						        System.out.println(m2);
+						        System.out.println(m3);
+						    }
+						}
+						""");
 
 			incrementalBuild(projectPath);
 			expectingNoProblems();
@@ -1352,9 +1428,11 @@ public class IncrementalTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin");
 
 		env.addClass(root, "", "O",
-				"public class O {\n" +
-			    "    public static record R(int x, int y) {}\n" +
-				"}\n");
+				"""
+					public class O {
+					    public static record R(int x, int y) {}
+					}
+					""");
 
 		fullBuild(projectPath);
 		expectingNoProblems();
@@ -1379,10 +1457,12 @@ public class IncrementalTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin");
 
 		env.addClass(root, "", "O",
-				"public class O {\n" +
-		        "    interface I<T> {}\n" +
-		        "    public static record R(int x, int y) implements I<String> {}\n" +
-				"}\n");
+				"""
+					public class O {
+					    interface I<T> {}
+					    public static record R(int x, int y) implements I<String> {}
+					}
+					""");
 
 		fullBuild(projectPath);
 		expectingNoProblems();

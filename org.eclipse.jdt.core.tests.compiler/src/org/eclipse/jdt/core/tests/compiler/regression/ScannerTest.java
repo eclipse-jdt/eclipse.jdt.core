@@ -121,9 +121,8 @@ public class ScannerTest extends AbstractRegressionTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43437
 	 */
 	public void test005() {
-		StringBuilder buf = new StringBuilder();
-		buf.append("\"Hello\"");
-		String str = buf.toString();
+		String str = """
+			"Hello\"""";
 		IScanner scanner = ToolFactory.createScanner(true, false, false, false);
 		scanner.setSource(str.toCharArray());
 		scanner.resetTo(0, str.length() - 1);
@@ -541,9 +540,10 @@ public class ScannerTest extends AbstractRegressionTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
 	public void test027() {
-		char[] source = ("class Test {\n" +
-				"  char  C = \"\\u005Cn\";\n" +
-				"}").toCharArray();
+		char[] source = ("""
+			class Test {
+			  char  C = "\\u005Cn";
+			}""").toCharArray();
 		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_4, null, null, false);
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
@@ -570,9 +570,10 @@ public class ScannerTest extends AbstractRegressionTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
 	public void test028() {
-		char[] source = ("class Test {\n" +
-				"  char  C = \'\\u005Cn\';\n" +
-				"}").toCharArray();
+		char[] source = ("""
+			class Test {
+			  char  C = \'\\u005Cn\';
+			}""").toCharArray();
 		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_4, null, null, false);
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
@@ -602,9 +603,10 @@ public class ScannerTest extends AbstractRegressionTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90414
 	public void test029() {
-		char[] source = ("class Test {\n" +
-				"  char  C = \"\\n\";\n" +
-				"}").toCharArray();
+		char[] source = ("""
+			class Test {
+			  char  C = "\\n";
+			}""").toCharArray();
 		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_4, null, null, false);
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
@@ -635,14 +637,15 @@ public class ScannerTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 					"Test.java",
-					"public class Test {\n" +
-					"  static String C = \"\\n\";\n" +
-					"  \n" +
-					"  public static void main(String[] args) {\n" +
-					"  	System.out.print(C.length());\n" +
-					"  	System.out.print(C.charAt(0) == \'\\n\');\n" +
-					"  }\n" +
-					"}"
+					"""
+						public class Test {
+						  static String C = "\\n";
+						 \s
+						  public static void main(String[] args) {
+						  	System.out.print(C.length());
+						  	System.out.print(C.charAt(0) == \'\\n\');
+						  }
+						}"""
 				},
 				"1true");
 	}
@@ -652,14 +655,15 @@ public class ScannerTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"  static String C = \"\\u005Cn\";\n" +
-				"  \n" +
-				"  public static void main(String[] args) {\n" +
-				"  	System.out.print(C.length());\n" +
-				"  	System.out.print(C.charAt(0) == \'\\n\');\n" +
-				"  }\n" +
-				"}"
+				"""
+					public class Test {
+					  static String C = "\\u005Cn";
+					 \s
+					  public static void main(String[] args) {
+					  	System.out.print(C.length());
+					  	System.out.print(C.charAt(0) == \'\\n\');
+					  }
+					}"""
 			},
 			"1true");
 	}
@@ -669,13 +673,14 @@ public class ScannerTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 					"Test.java",
-					"public class Test {\n" +
-					"  static char C = \'\\u005Cn\';\n" +
-					"  \n" +
-					"  public static void main(String[] args) {\n" +
-					"  	System.out.print(C == \'\\n\');\n" +
-					"  }\n" +
-					"}"
+					"""
+						public class Test {
+						  static char C = \'\\u005Cn\';
+						 \s
+						  public static void main(String[] args) {
+						  	System.out.print(C == \'\\n\');
+						  }
+						}"""
 				},
 				"true");
 	}
@@ -685,13 +690,14 @@ public class ScannerTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 					"Test.java",
-					"public class Test {\n" +
-					"  static char C = \\u0027\\u005Cn\\u0027;\n" +
-					"  \n" +
-					"  public static void main(String[] args) {\n" +
-					"  	System.out.print(C == \'\\n\');\n" +
-					"  }\n" +
-					"}"
+					"""
+						public class Test {
+						  static char C = \\u0027\\u005Cn\\u0027;
+						 \s
+						  public static void main(String[] args) {
+						  	System.out.print(C == \'\\n\');
+						  }
+						}"""
 				},
 				"true");
 	}
@@ -701,14 +707,15 @@ public class ScannerTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 					"Test.java",
-					"public class Test {\n" +
-					"  static String C = \"\u0043\\n\\u0043\";\n" +
-					"  \n" +
-					"  public static void main(String[] args) {\n" +
-					"  	System.out.print(C.length());\n" +
-					"  	System.out.print(C.charAt(1) == \'\\n\');\n" +
-					"  }\n" +
-					"}"
+					"""
+						public class Test {
+						  static String C = "\u0043\\n\\u0043";
+						 \s
+						  public static void main(String[] args) {
+						  	System.out.print(C.length());
+						  	System.out.print(C.charAt(1) == \'\\n\');
+						  }
+						}"""
 				},
 				"3true");
 	}
@@ -729,14 +736,15 @@ public class ScannerTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 					"Test.java",
-					"\\u0070\\u0075\\u0062\\u006c\\u0069\\u0063\\u0020\\u0063\\u006c\\u0061\\u0073\\u0073\\u0020\\u0054\\u0065\\u0073\\u0074\\u0020\\u007b\\u000A\n" +
-					"\\u0020\\u0020\\u0073\\u0074\\u0061\\u0074\\u0069\\u0063\\u0020\\u0053\\u0074\\u0072\\u0069\\u006e\\u0067\\u0020\\u0043\\u0020\\u003d\\u0020\\u0022\\u005c\\u006e\\u0022\\u003b\\u000A\n" +
-					"\\u0020\\u0020\\u000A\n" +
-					"\\u0020\\u0020\\u0070\\u0075\\u0062\\u006c\\u0069\\u0063\\u0020\\u0073\\u0074\\u0061\\u0074\\u0069\\u0063\\u0020\\u0076\\u006f\\u0069\\u0064\\u0020\\u006d\\u0061\\u0069\\u006e\\u0028\\u0053\\u0074\\u0072\\u0069\\u006e\\u0067\\u005b\\u005d\\u0020\\u0061\\u0072\\u0067\\u0073\\u0029\\u0020\\u007b\\u000A\n" +
-					"\\u0020\\u0020\\u0009\\u0053\\u0079\\u0073\\u0074\\u0065\\u006d\\u002e\\u006f\\u0075\\u0074\\u002e\\u0070\\u0072\\u0069\\u006e\\u0074\\u0028\\u0043\\u002e\\u006c\\u0065\\u006e\\u0067\\u0074\\u0068\\u0028\\u0029\\u0029\\u003b\\u000A\n" +
-					"\\u0020\\u0020\\u0009\\u0053\\u0079\\u0073\\u0074\\u0065\\u006d\\u002e\\u006f\\u0075\\u0074\\u002e\\u0070\\u0072\\u0069\\u006e\\u0074\\u0028\\u0043\\u002e\\u0063\\u0068\\u0061\\u0072\\u0041\\u0074\\u0028\\u0030\\u0029\\u0020\\u003d\\u003d\\u0020\\u0027\\u005c\\u006e\\u0027\\u0029\\u003b\\u000A\n" +
-					"\\u0020\\u0020\\u007d\\u0020\\u0009\\u000A\n" +
-					"\\u007d"
+					"""
+						\\u0070\\u0075\\u0062\\u006c\\u0069\\u0063\\u0020\\u0063\\u006c\\u0061\\u0073\\u0073\\u0020\\u0054\\u0065\\u0073\\u0074\\u0020\\u007b\\u000A
+						\\u0020\\u0020\\u0073\\u0074\\u0061\\u0074\\u0069\\u0063\\u0020\\u0053\\u0074\\u0072\\u0069\\u006e\\u0067\\u0020\\u0043\\u0020\\u003d\\u0020\\u0022\\u005c\\u006e\\u0022\\u003b\\u000A
+						\\u0020\\u0020\\u000A
+						\\u0020\\u0020\\u0070\\u0075\\u0062\\u006c\\u0069\\u0063\\u0020\\u0073\\u0074\\u0061\\u0074\\u0069\\u0063\\u0020\\u0076\\u006f\\u0069\\u0064\\u0020\\u006d\\u0061\\u0069\\u006e\\u0028\\u0053\\u0074\\u0072\\u0069\\u006e\\u0067\\u005b\\u005d\\u0020\\u0061\\u0072\\u0067\\u0073\\u0029\\u0020\\u007b\\u000A
+						\\u0020\\u0020\\u0009\\u0053\\u0079\\u0073\\u0074\\u0065\\u006d\\u002e\\u006f\\u0075\\u0074\\u002e\\u0070\\u0072\\u0069\\u006e\\u0074\\u0028\\u0043\\u002e\\u006c\\u0065\\u006e\\u0067\\u0074\\u0068\\u0028\\u0029\\u0029\\u003b\\u000A
+						\\u0020\\u0020\\u0009\\u0053\\u0079\\u0073\\u0074\\u0065\\u006d\\u002e\\u006f\\u0075\\u0074\\u002e\\u0070\\u0072\\u0069\\u006e\\u0074\\u0028\\u0043\\u002e\\u0063\\u0068\\u0061\\u0072\\u0041\\u0074\\u0028\\u0030\\u0029\\u0020\\u003d\\u003d\\u0020\\u0027\\u005c\\u006e\\u0027\\u0029\\u003b\\u000A
+						\\u0020\\u0020\\u007d\\u0020\\u0009\\u000A
+						\\u007d"""
 				},
 				"1true");
 	}
@@ -960,36 +968,37 @@ public class ScannerTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 					"_X.java",
-					"import java.lang.reflect.Field;\n" +
-					"public class _X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		String i\\u0000;\n" +
-					"		String i\\u0001;\n" +
-					"		String i\\u0002;\n" +
-					"		String i\\u0003;\n" +
-					"		String i\\u0004;\n" +
-					"		String i\\u0005;\n" +
-					"		String i\\u0006;\n" +
-					"		String i\\u0007;\n" +
-					"		String i\\u0008;\n" +
-					"		String i\\u000e;\n" +
-					"		String i\\u000f;\n" +
-					"		String i\\u0010;\n" +
-					"		String i\\u0011;\n" +
-					"		String i\\u0012;\n" +
-					"		String i\\u0013;\n" +
-					"		String i\\u0014;\n" +
-					"		String i\\u0015;\n" +
-					"		String i\\u0016;\n" +
-					"		String i\\u0017;\n" +
-					"		String i\\u0018;\n" +
-					"		String i\\u0019;\n" +
-					"		String i\\u001a;\n" +
-					"		String i\\u001b;\n" +
-					"		String i\\u007f;\n" +
-					"		System.out.print(\"SUCCESS\");\n" +
-					"	}\n" +
-					"}"
+					"""
+						import java.lang.reflect.Field;
+						public class _X {
+							public static void main(String[] args) {
+								String i\\u0000;
+								String i\\u0001;
+								String i\\u0002;
+								String i\\u0003;
+								String i\\u0004;
+								String i\\u0005;
+								String i\\u0006;
+								String i\\u0007;
+								String i\\u0008;
+								String i\\u000e;
+								String i\\u000f;
+								String i\\u0010;
+								String i\\u0011;
+								String i\\u0012;
+								String i\\u0013;
+								String i\\u0014;
+								String i\\u0015;
+								String i\\u0016;
+								String i\\u0017;
+								String i\\u0018;
+								String i\\u0019;
+								String i\\u001a;
+								String i\\u001b;
+								String i\\u007f;
+								System.out.print("SUCCESS");
+							}
+						}"""
 				},
 				"SUCCESS");
 	}
@@ -1146,12 +1155,13 @@ public class ScannerTest extends AbstractRegressionTest {
 	public void test054() {
 		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_6, JavaCore.VERSION_1_6);
 		char[] source =
-				("class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		String \ud804\udc09 = \"Brahmi\";\n" +
-				"		System.out.println(\ud804\udc09);\n" +
-				"	}\n" +
-				"}").toCharArray();
+				("""
+					class X {
+						public static void main(String[] args) {
+							String \ud804\udc09 = "Brahmi";
+							System.out.println(\ud804\udc09);
+						}
+					}""").toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
@@ -1171,12 +1181,13 @@ public class ScannerTest extends AbstractRegressionTest {
 	public void test055() {
 		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7);
 		char[] source =
-				("class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		String \ud804\udc09 = \"Brahmi\";\n" +
-				"		System.out.println(\ud804\udc09);\n" +
-				"	}\n" +
-				"}").toCharArray();
+				("""
+					class X {
+						public static void main(String[] args) {
+							String \ud804\udc09 = "Brahmi";
+							System.out.println(\ud804\udc09);
+						}
+					}""").toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
@@ -1194,12 +1205,13 @@ public class ScannerTest extends AbstractRegressionTest {
 	public void test056() {
 		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_6, JavaCore.VERSION_1_6);
 		char[] source =
-				("class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		String \u20B9 = \"Rupee symbol\";\n" +
-				"		System.out.println(\u20B9);\n" +
-				"	}\n" +
-				"}").toCharArray();
+				("""
+					class X {
+						public static void main(String[] args) {
+							String \u20B9 = "Rupee symbol";
+							System.out.println(\u20B9);
+						}
+					}""").toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
@@ -1219,12 +1231,13 @@ public class ScannerTest extends AbstractRegressionTest {
 	public void test057() {
 		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7);
 		char[] source =
-				("class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		String \u20B9 = \"Rupee symbol\";\n" +
-				"		System.out.println(\u20B9);\n" +
-				"	}\n" +
-				"}").toCharArray();
+				("""
+					class X {
+						public static void main(String[] args) {
+							String \u20B9 = "Rupee symbol";
+							System.out.println(\u20B9);
+						}
+					}""").toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
@@ -1239,11 +1252,12 @@ public class ScannerTest extends AbstractRegressionTest {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352014
 	public void test058() {
 		String source =
-				"public class X {\n" +
-				"	void foo() {\n" +
-				"		int a\\u1369b;\n" +
-				"	}\n" +
-				"}";
+				"""
+			public class X {
+				void foo() {
+					int a\\u1369b;
+				}
+			}""";
 		if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
 			this.runConformTest(
 				new String[] {
@@ -1257,22 +1271,25 @@ public class ScannerTest extends AbstractRegressionTest {
 					"X.java",
 					source
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	int a\\u1369b;\n" +
-				"	     ^^^^^^\n" +
-				"Syntax error on token \"Invalid Character\", = expected\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						int a\\u1369b;
+						     ^^^^^^
+					Syntax error on token "Invalid Character", = expected
+					----------
+					""");
 		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352553
 	public void test059() {
 		String source =
-				"public class X {\n" +
-				"	void foo() {\n" +
-				"		int a\\u200B;\n" +
-				"	}\n" +
-				"}";
+				"""
+			public class X {
+				void foo() {
+					int a\\u200B;
+				}
+			}""";
 		if (this.complianceLevel > ClassFileConstants.JDK1_6) {
 			this.runConformTest(
 				new String[] {
@@ -1286,12 +1303,14 @@ public class ScannerTest extends AbstractRegressionTest {
 					"X.java",
 					source
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	int a\\u200B;\n" +
-				"	     ^^^^^^\n" +
-				"Syntax error on token \"Invalid Character\", delete this token\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						int a\\u200B;
+						     ^^^^^^
+					Syntax error on token "Invalid Character", delete this token
+					----------
+					""");
 		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352553
@@ -1299,16 +1318,19 @@ public class ScannerTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static final String ERROR = \"\\u000Ⅻ\";\n" +
-				"}"
+				"""
+					public class X {
+						public static final String ERROR = "\\u000Ⅻ";
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public static final String ERROR = \"\\u000Ⅻ\";\n" +
-			"	                                    ^^^^^^\n" +
-			"Invalid unicode\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					public static final String ERROR = "\\u000Ⅻ";
+					                                    ^^^^^^
+				Invalid unicode
+				----------
+				""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=387146
 	@SuppressWarnings("deprecation") // concerns ITerminalSymbols.TokenNameIdentifier
@@ -1377,95 +1399,108 @@ public class ScannerTest extends AbstractRegressionTest {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=443854
 	public void test064() {
 		String source =
-				"public enum X {\n" +
-				"	Hello\\u205fworld;\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(Hello\\u205fworld);\n" +
-				"		System.out.println(Character.isJavaIdentifierPart('\\u205f')); // false\n" +
-				"	}\n" +
-				"}";
+				"""
+			public enum X {
+				Hello\\u205fworld;
+				public static void main(String[] args) {
+					System.out.println(Hello\\u205fworld);
+					System.out.println(Character.isJavaIdentifierPart('\\u205f')); // false
+				}
+			}""";
 		if (this.complianceLevel > ClassFileConstants.JDK1_5) {
 			this.runNegativeTest(
 				new String[] {
 					"X.java",
 					source
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 2)\n" +
-				"	Hello\\u205fworld;\n" +
-				"	     ^^^^^^\n" +
-				"Syntax error on token \"Invalid Character\", , expected\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	System.out.println(Hello\\u205fworld);\n" +
-				"	                        ^^^^^^\n" +
-				"Syntax error on token \"Invalid Character\", invalid AssignmentOperator\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 2)
+						Hello\\u205fworld;
+						     ^^^^^^
+					Syntax error on token "Invalid Character", , expected
+					----------
+					2. ERROR in X.java (at line 4)
+						System.out.println(Hello\\u205fworld);
+						                        ^^^^^^
+					Syntax error on token "Invalid Character", invalid AssignmentOperator
+					----------
+					""");
 		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=458795
 	public void test065() {
 		String source =
-				"public class X {\n" +
-				"	double d = 0XP00;\n" +
-				"}";
+				"""
+			public class X {
+				double d = 0XP00;
+			}""";
 		if (this.complianceLevel > ClassFileConstants.JDK1_4) {
 			this.runNegativeTest(
 					new String[] {
 							"X.java",
 							source
 					},
-					"----------\n" +
-							"1. ERROR in X.java (at line 2)\n" +
-							"	double d = 0XP00;\n" +
-							"	           ^^^\n" +
-							"Invalid hex literal number\n" +
-					"----------\n");
+					"""
+						----------
+						1. ERROR in X.java (at line 2)
+							double d = 0XP00;
+							           ^^^
+						Invalid hex literal number
+						----------
+						""");
 		}
 	}
 	public void test066() {
 		String source =
-				"public class X {\n" +
-				"	double d = 0X.p02d;\n" +
-				"}";
+				"""
+			public class X {
+				double d = 0X.p02d;
+			}""";
 		if (this.complianceLevel > ClassFileConstants.JDK1_4) {
 			this.runNegativeTest(
 					new String[] {
 							"X.java",
 							source
 					},
-					"----------\n" +
-							"1. ERROR in X.java (at line 2)\n" +
-							"	double d = 0X.p02d;\n" +
-							"	           ^^^\n" +
-							"Invalid hex literal number\n" +
-					"----------\n");
+					"""
+						----------
+						1. ERROR in X.java (at line 2)
+							double d = 0X.p02d;
+							           ^^^
+						Invalid hex literal number
+						----------
+						""");
 		}
 	}
 	public void test067() {
 		String source =
-				"public class X {\n" +
-				"	float f = 0Xp02f;\n" +
-				"}";
+				"""
+			public class X {
+				float f = 0Xp02f;
+			}""";
 		if (this.complianceLevel > ClassFileConstants.JDK1_4) {
 			this.runNegativeTest(
 					new String[] {
 							"X.java",
 							source
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 2)\n" +
-					"	float f = 0Xp02f;\n" +
-					"	          ^^^\n" +
-					"Invalid hex literal number\n" +
-					"----------\n");
+					"""
+						----------
+						1. ERROR in X.java (at line 2)
+							float f = 0Xp02f;
+							          ^^^
+						Invalid hex literal number
+						----------
+						""");
 		}
 	}
 	public void test068() {
 		String source =
-				"public class X {\n" +
-				"	float f = 0X0p02f;\n" +
-				"}";
+				"""
+			public class X {
+				float f = 0X0p02f;
+			}""";
 		if (this.complianceLevel > ClassFileConstants.JDK1_4) {
 			this.runConformTest(
 					new String[] {
@@ -1475,9 +1510,10 @@ public class ScannerTest extends AbstractRegressionTest {
 		}
 	}
 	public void testBug531716_001_since_13() {
-		char[] source = ("class X {\n" +
-				"  String  s = \"\"\"This is the new String\"\"\";\n" +
-				"}").toCharArray();
+		char[] source = ("""
+			class X {
+			  String  s = \"""This is the new String\""";
+			}""").toCharArray();
 		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.getLatestJDKLevel(), null, null, false);
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
@@ -1507,9 +1543,11 @@ public class ScannerTest extends AbstractRegressionTest {
 		}
 	}
 	public void testBug531716_001_since_13_1() {
-		char[] source = ("class X {\n" +
-				"  String  s = \"\"\"\nThis is the new String\"\"\";\n" +
-				"}").toCharArray();
+		char[] source = ("""
+			class X {
+			  String  s = \"""
+			This is the new String\""";
+			}""").toCharArray();
 		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.getLatestJDKLevel(), null, null, false);
 		scanner.previewEnabled = true;
 		scanner.setSource(source);
@@ -1651,11 +1689,13 @@ public class ScannerTest extends AbstractRegressionTest {
 
 	@SuppressWarnings("deprecation")
 	public void testRestrictedIdentifierYield() {
-		char[] source = ("class X {\n" +
-				"	int m(int i) {\n" +
-				"		return switch (i) { case 0 -> { yield 13; } default -> 0 }\n" +
-				"	}\n" +
-				"}\n").toCharArray();
+		char[] source = ("""
+			class X {
+				int m(int i) {
+					return switch (i) { case 0 -> { yield 13; } default -> 0 }
+				}
+			}
+			""").toCharArray();
 		IScanner scanner = ToolFactory.createScanner(false, true, false, "17", "17", false);
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
@@ -1690,11 +1730,13 @@ public class ScannerTest extends AbstractRegressionTest {
 
 	@SuppressWarnings("deprecation")
 	public void testYieldNOK() { // insufficient context
-		String source = "class X {\n" +
-				"	int m(int i) {\n" +
-				"		return switch (i) { case 0 -> { yield 13; } default -> 0 }\n" +
-				"	}\n" +
-				"}\n";
+		String source = """
+			class X {
+				int m(int i) {
+					return switch (i) { case 0 -> { yield 13; } default -> 0 }
+				}
+			}
+			""";
 		IScanner scanner = ToolFactory.createScanner(false, true, false, "15", "15", false);
 		scanner.setSource(source.toCharArray());
 		scanner.resetTo(source.indexOf("yield")-1, source.length() - 1); // start directly at "yield"
@@ -1763,11 +1805,13 @@ public class ScannerTest extends AbstractRegressionTest {
 	@SuppressWarnings("deprecation")
 	public void testModule() { // insufficient context, all module words are identifiers
 		String source =
-				"open module m1 {\n" +
-				"	requires p1.m2;\n" +
-				"	requires transitive p1.m3;\n" +
-				"	exports p2;\n" +
-				"}\n";
+				"""
+			open module m1 {
+				requires p1.m2;
+				requires transitive p1.m3;
+				exports p2;
+			}
+			""";
 		IScanner scanner = ToolFactory.createScanner(false, true, false, "9", "9", false);
 		scanner.setSource(source.toCharArray());
 		scanner.resetTo(0, source.length() - 1);
@@ -1817,11 +1861,12 @@ public class ScannerTest extends AbstractRegressionTest {
 
 	public void testWhenAsIdentifier() {
 		String source =
-				"public void when(Object when) {\n" +
-				"	Predicate<Object> condition = o -> when(o);\n" +
-				"	SomeClass.when(condition).when();\n" +
-				"	SomeClass./*comment*/when(condition,/*comment*/when(false)). when(true);\n" +
-				"}";
+				"""
+			public void when(Object when) {
+				Predicate<Object> condition = o -> when(o);
+				SomeClass.when(condition).when();
+				SomeClass./*comment*/when(condition,/*comment*/when(false)). when(true);
+			}""";
 		IScanner scanner = ToolFactory.createScanner(true, true, true, "19", "19", true);
 		scanner.setSource(source.toCharArray());
 		try {

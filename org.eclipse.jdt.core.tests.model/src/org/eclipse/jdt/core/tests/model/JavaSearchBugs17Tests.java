@@ -150,19 +150,21 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_001() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String /*here*/s     -> System.out.println(\"String:\" + s + s);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i     -> System.out.println("Integer:" + i);
+						case String /*here*/s     -> System.out.println("String:" + s + s);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -187,20 +189,22 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_002() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static  int /*here*/field \n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + field);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  int /*here*/field\s
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i   -> System.out.println("Integer:" + i);
+						case String s     -> System.out.println("String:" + s + field);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -224,20 +228,22 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_003() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static  int /*here*/field \n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + field);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  int /*here*/field\s
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i   -> System.out.println("Integer:" + i);
+						case String s     -> System.out.println("String:" + s + field);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -263,21 +269,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_004() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static  int /*here*/field \n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" int /*here*/local=0" +
-						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + local);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  int /*here*/field\s
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 int /*here*/local=0\
+					 switch (o) {
+						case Integer i   -> System.out.println("Integer:" + i);
+						case String s     -> System.out.println("String:" + s + local);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -301,21 +309,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_005() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static  int /*here*/field \n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" int /*here*/local=0" +
-						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i +local);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + local);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  int /*here*/field\s
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 int /*here*/local=0\
+					 switch (o) {
+						case Integer i   -> System.out.println("Integer:" + i +local);
+						case String s     -> System.out.println("String:" + s + local);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -330,9 +340,10 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
 			ILocalVariable field = (ILocalVariable) elements[0];
 			search(field, ALL_OCCURRENCES, EXACT_RULE);
-			assertSearchResults("src/X.java void X.foo(Object).local [local] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(Object) [local] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(Object) [local] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java void X.foo(Object).local [local] EXACT_MATCH
+				src/X.java void X.foo(Object) [local] EXACT_MATCH
+				src/X.java void X.foo(Object) [local] EXACT_MATCH""");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -341,20 +352,22 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_006() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static  int /*here*/field \n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i when field > 0  -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + field);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  int /*here*/field\s
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i when field > 0  -> System.out.println("Integer:" + i);
+						case String s     -> System.out.println("String:" + s + field);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -369,9 +382,10 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
 			SourceField field = (SourceField) elements[0];
 			search(field, ALL_OCCURRENCES, EXACT_RULE);
-			assertSearchResults("src/X.java X.field [field] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(Object) [field] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(Object) [field] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java X.field [field] EXACT_MATCH
+				src/X.java void X.foo(Object) [field] EXACT_MATCH
+				src/X.java void X.foo(Object) [field] EXACT_MATCH""");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -380,21 +394,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_007() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static  int /*here*/field \n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" int /*here*/local=0" +
-						" switch (o) {\n" +
-						"	case Integer i when local >9  -> System.out.println(\"Integer:\" + i +local);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + local);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  int /*here*/field\s
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 int /*here*/local=0\
+					 switch (o) {
+						case Integer i when local >9  -> System.out.println("Integer:" + i +local);
+						case String s     -> System.out.println("String:" + s + local);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -409,10 +425,11 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
 			ILocalVariable field = (ILocalVariable) elements[0];
 			search(field, ALL_OCCURRENCES, EXACT_RULE);
-			assertSearchResults("src/X.java void X.foo(Object).local [local] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(Object) [local] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(Object) [local] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(Object) [local] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java void X.foo(Object).local [local] EXACT_MATCH
+				src/X.java void X.foo(Object) [local] EXACT_MATCH
+				src/X.java void X.foo(Object) [local] EXACT_MATCH
+				src/X.java void X.foo(Object) [local] EXACT_MATCH""");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -421,19 +438,21 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_008() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String /*here*/s when s.hashCode()>0    -> System.out.println(\"String:\" );\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i     -> System.out.println("Integer:" + i);
+						case String /*here*/s when s.hashCode()>0    -> System.out.println("String:" );
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -458,21 +477,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_009() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"sealed interface I permits A, B {}\n" +
-						"final class A implements S {}\n" +
-						"final class B implements S {}\n" +
-						"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(new A());\n" +
-						"}\n" +
-						"private static void foo(S o) {\n" +
-						" switch (o) {\n" +
-						"	case A /*here*/a :     System.out.println(\"A:\" + a +a); break;\n" +
-						"	case B b :     System.out.println(\"B:\" + b);\n" +
-						"	default  : System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					sealed interface I permits A, B {}
+					final class A implements S {}
+					final class B implements S {}
+					public class X {
+					public static void main(String[] args) {
+					foo(new A());
+					}
+					private static void foo(S o) {
+					 switch (o) {
+						case A /*here*/a :     System.out.println("A:" + a +a); break;
+						case B b :     System.out.println("B:" + b);
+						default  : System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -497,21 +518,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_010() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"sealed interface I permits A, B {}\n" +
-						"final class A implements S {}\n" +
-						"final class B implements S {}\n" +
-						"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(new A());\n" +
-						"}\n" +
-						"private static void foo(S o) {\n" +
-						" switch (o) {\n" +
-						"	case A /*here*/a when a.hashCode()> 0 :     System.out.println(\"A:\" + a +a); break;\n" +
-						"	case B b :     System.out.println(\"B:\" + b);\n" +
-						"	default  :     System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					sealed interface I permits A, B {}
+					final class A implements S {}
+					final class B implements S {}
+					public class X {
+					public static void main(String[] args) {
+					foo(new A());
+					}
+					private static void foo(S o) {
+					 switch (o) {
+						case A /*here*/a when a.hashCode()> 0 :     System.out.println("A:" + a +a); break;
+						case B b :     System.out.println("B:" + b);
+						default  :     System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -526,9 +549,10 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
 			ILocalVariable local = (ILocalVariable) elements[0];
 			search(local, REFERENCES, EXACT_RULE);
-			assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java void X.foo(S) [a] EXACT_MATCH
+				src/X.java void X.foo(S) [a] EXACT_MATCH
+				src/X.java void X.foo(S) [a] EXACT_MATCH""");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -537,21 +561,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_011() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"sealed interface I permits A, B {}\n" +
-						"record A (int i) implements S {}\n" +
-						"record B (int i) implements S {}\n" +
-						"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(new A());\n" +
-						"}\n" +
-						"private static void foo(S o) {\n" +
-						" switch (o) {\n" +
-						"	case A /*here*/a :     System.out.println(\"A:\" + a +a); break;\n" +
-						"	case B b :     System.out.println(\"B:\" + b);break;\n" +
-						"	default   :    System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					sealed interface I permits A, B {}
+					record A (int i) implements S {}
+					record B (int i) implements S {}
+					public class X {
+					public static void main(String[] args) {
+					foo(new A());
+					}
+					private static void foo(S o) {
+					 switch (o) {
+						case A /*here*/a :     System.out.println("A:" + a +a); break;
+						case B b :     System.out.println("B:" + b);break;
+						default   :    System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -576,21 +602,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_012() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"sealed interface I permits A, B {}\n" +
-						"record A (int i) implements S {}\n" +
-						"record B (int i) implements S {}\n" +
-						"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(new A());\n" +
-						"}\n" +
-						"private static void foo(S o) {\n" +
-						" switch (o) {\n" +
-						"	case A /*here*/a when a.hashCode() :     System.out.println(\"A:\" + a +a); break;\n" +
-						"	case B b :     System.out.println(\"B:\" + b);\n" +
-						"	default  :     System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					sealed interface I permits A, B {}
+					record A (int i) implements S {}
+					record B (int i) implements S {}
+					public class X {
+					public static void main(String[] args) {
+					foo(new A());
+					}
+					private static void foo(S o) {
+					 switch (o) {
+						case A /*here*/a when a.hashCode() :     System.out.println("A:" + a +a); break;
+						case B b :     System.out.println("B:" + b);
+						default  :     System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -605,9 +633,10 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
 			ILocalVariable local = (ILocalVariable) elements[0];
 			search(local, REFERENCES, EXACT_RULE);
-			assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java void X.foo(S) [a] EXACT_MATCH
+				src/X.java void X.foo(S) [a] EXACT_MATCH
+				src/X.java void X.foo(S) [a] EXACT_MATCH""");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -616,21 +645,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_013() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"sealed interface I permits A, B {}\n" +
-						"final class A implements S {}\n" +
-						"final class B implements S {}\n" +
-						"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(new A());\n" +
-						"}\n" +
-						"private static int foo(S o) {\n" +
-						" switch (o) {\n" +
-						"	case A /*here*/a when a.hashCode()> 0 -> 1;\n" +
-						"	case B b ->2;\n" +
-						"	default  -> 3;\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					sealed interface I permits A, B {}
+					final class A implements S {}
+					final class B implements S {}
+					public class X {
+					public static void main(String[] args) {
+					foo(new A());
+					}
+					private static int foo(S o) {
+					 switch (o) {
+						case A /*here*/a when a.hashCode()> 0 -> 1;
+						case B b ->2;
+						default  -> 3;
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -654,19 +685,21 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_014() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i     : System.out.println(\"Integer:\" + i);break;\n" +
-						"	case String /*here*/s     : System.out.println(\"String:\" + s + s);break;\n" +
-						"	default       : System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i     : System.out.println("Integer:" + i);break;
+						case String /*here*/s     : System.out.println("String:" + s + s);break;
+						default       : System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -692,19 +725,21 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_015() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i     : System.out.println(\"Integer:\" + i);break;\n" +
-						"	case String /*here*/s when s.hashCode()>0    : System.out.println(\"String:\" );break;\n" +
-						"	default       : System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i     : System.out.println("Integer:" + i);break;
+						case String /*here*/s when s.hashCode()>0    : System.out.println("String:" );break;
+						default       : System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -729,21 +764,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_016() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"sealed interface I permits A, B {}\n" +
-						"final class A implements S {}\n" +
-						"final class B implements S {}\n" +
-						"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(new A());\n" +
-						"}\n" +
-						"private static void foo(S o) {\n" +
-						" switch (o) {\n" +
-						"	case A /*here*/a ->     System.out.println(\"A:\" + a +a); \n" +
-						"	case B b ->    System.out.println(\"B:\" + b);\n" +
-						"	default  -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					sealed interface I permits A, B {}
+					final class A implements S {}
+					final class B implements S {}
+					public class X {
+					public static void main(String[] args) {
+					foo(new A());
+					}
+					private static void foo(S o) {
+					 switch (o) {
+						case A /*here*/a ->     System.out.println("A:" + a +a);\s
+						case B b ->    System.out.println("B:" + b);
+						default  -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -769,21 +806,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_017() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"sealed interface I permits A, B {}\n" +
-						"final class A implements S {}\n" +
-						"final class B implements S {}\n" +
-						"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(new A());\n" +
-						"}\n" +
-						"private static void foo(S o) {\n" +
-						" switch (o) {\n" +
-						"	case A /*here*/a when a.toString().length()>2 ->     System.out.println(\"A:\" + a +a); \n" +
-						"	case B b ->    System.out.println(\"B:\" + b);\n" +
-						"	default  -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					sealed interface I permits A, B {}
+					final class A implements S {}
+					final class B implements S {}
+					public class X {
+					public static void main(String[] args) {
+					foo(new A());
+					}
+					private static void foo(S o) {
+					 switch (o) {
+						case A /*here*/a when a.toString().length()>2 ->     System.out.println("A:" + a +a);\s
+						case B b ->    System.out.println("B:" + b);
+						default  -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -798,9 +837,10 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
 			ILocalVariable local = (ILocalVariable) elements[0];
 			search(local, REFERENCES, EXACT_RULE);
-			assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-					+"src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java void X.foo(S) [a] EXACT_MATCH
+				src/X.java void X.foo(S) [a] EXACT_MATCH
+				src/X.java void X.foo(S) [a] EXACT_MATCH""");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -809,19 +849,21 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_018() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + /*here*/s + s);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i     -> System.out.println("Integer:" + i);
+						case String s     -> System.out.println("String:" + /*here*/s + s);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -844,19 +886,21 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_019() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + /*here*/s + s);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i     -> System.out.println("Integer:" + i);
+						case String s     -> System.out.println("String:" + /*here*/s + s);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -881,20 +925,22 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_020() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" final int a=0; \n" +
-						" switch (o) {\n" +
-						"	case Integer i  when a > 5  -> System.out.println(\"Integer:\" + /*here*/i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + s);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 final int a=0;\s
+					 switch (o) {
+						case Integer i  when a > 5  -> System.out.println("Integer:" + /*here*/i);
+						case String s     -> System.out.println("String:" + s + s);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -918,20 +964,22 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_021() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" final int a=0; \n" +
-						" switch (o) {\n" +
-						"	case Integer i  when a > 5  -> System.out.println(\"Integer:\" + /*here*/i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + s);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 final int a=0;\s
+					 switch (o) {
+						case Integer i  when a > 5  -> System.out.println("Integer:" + /*here*/i);
+						case String s     -> System.out.println("String:" + s + s);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -960,24 +1008,28 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			project.open(null);
 			createFolder("/first/src/p1");
 			createFile("/first/src/p1/BClass.java",
-					"package p1;\n" +
-							"public class BClass {\n" +
-							"}\n"
+					"""
+						package p1;
+						public class BClass {
+						}
+						"""
 					);
 			createFile("/first/src/p1/X.java",
-					"package p1;\n" +
-							"public class X {\n" +
-							"public static void main(String[] args) {\n" +
-							"foo(Integer.valueOf(5));\n" +
-							"foo(new Object());\n" +
-							"}\n" +
-							"private static void foo(Object o) {\n" +
-							" switch (o) {\n" +
-							"	case BClass i   -> System.out.println(\"Integer:\" + i);\n" +
-							"	default       -> System.out.println(\"Object\" + o);\n" +
-							" 	}\n" +
-							"}\n" +
-							"}\n"
+					"""
+						package p1;
+						public class X {
+						public static void main(String[] args) {
+						foo(Integer.valueOf(5));
+						foo(new Object());
+						}
+						private static void foo(Object o) {
+						 switch (o) {
+							case BClass i   -> System.out.println("Integer:" + i);
+							default       -> System.out.println("Object" + o);
+						 	}
+						}
+						}
+						"""
 					);
 			project.close();
 			project.open(null);
@@ -1000,20 +1052,22 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_023() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static  int /*here*/fieldj17 \n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + fieldj17 +fieldj17);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  int /*here*/fieldj17\s
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i   -> System.out.println("Integer:" + i);
+						case String s     -> System.out.println("String:" + s + fieldj17 +fieldj17);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -1032,20 +1086,22 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_024() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static  int /*here*/fieldj17 \n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + fieldj17 +fieldj17);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static  int /*here*/fieldj17\s
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i   -> System.out.println("Integer:" + i);
+						case String s     -> System.out.println("String:" + s + fieldj17 +fieldj17);
+						default       -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -1054,9 +1110,10 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 
 			search("fieldj17", FIELD, ALL_OCCURRENCES);
-			assertSearchResults("src/X.java X.fieldj17 [fieldj17] EXACT_MATCH\n"+
-					"src/X.java void X.foo(Object) [fieldj17] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(Object) [fieldj17] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java X.fieldj17 [fieldj17] EXACT_MATCH
+				src/X.java void X.foo(Object) [fieldj17] EXACT_MATCH
+				src/X.java void X.foo(Object) [fieldj17] EXACT_MATCH""");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -1065,21 +1122,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_026() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"sealed interface I permits A17, B {}\n" +
-						"final class AJ17 implements S {}\n" +
-						"final class B implements S {}\n" +
-						"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(new A());\n" +
-						"}\n" +
-						"private static void foo(S o) {\n" +
-						" switch (o) {\n" +
-						"	case AJ17 /*here*/a :     System.out.println(); break;\n" +
-						"	case B b :     System.out.println(\"B:\" + b);\n" +
-						"	default  : System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					sealed interface I permits A17, B {}
+					final class AJ17 implements S {}
+					final class B implements S {}
+					public class X {
+					public static void main(String[] args) {
+					foo(new A());
+					}
+					private static void foo(S o) {
+					 switch (o) {
+						case AJ17 /*here*/a :     System.out.println(); break;
+						case B b :     System.out.println("B:" + b);
+						default  : System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -1097,21 +1156,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_027() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"sealed interface I permits A17, B {}\n" +
-						"final class AJ17 implements S {}\n" +
-						"final class B implements S {}\n" +
-						"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(new A());\n" +
-						"}\n" +
-						"private static void foo(S o) {\n" +
-						" switch (o) {\n" +
-						"	case AJ17 /*here*/a :     System.out.println(); break;\n" +
-						"	case B b :     System.out.println(\"B:\" + b);\n" +
-						"	default  : System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					sealed interface I permits A17, B {}
+					final class AJ17 implements S {}
+					final class B implements S {}
+					public class X {
+					public static void main(String[] args) {
+					foo(new A());
+					}
+					private static void foo(S o) {
+					 switch (o) {
+						case AJ17 /*here*/a :     System.out.println(); break;
+						case B b :     System.out.println("B:" + b);
+						default  : System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -1128,21 +1189,23 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_028() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"sealed interface I permits A17, B {}\n" +
-						"final class AJ17 implements S {}\n" +
-						"final class B implements S {}\n" +
-						"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(new A());\n" +
-						"}\n" +
-						"private static void foo(S o) {\n" +
-						" switch (o) {\n" +
-						"	case AJ17 /*here*/a ->     System.out.println(); \n" +
-						"	case B b ->     System.out.println(\"B:\" + b);\n" +
-						"	default  -> System.out.println(\"Object\" + o);\n" +
-						" 	}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					sealed interface I permits A17, B {}
+					final class AJ17 implements S {}
+					final class B implements S {}
+					public class X {
+					public static void main(String[] args) {
+					foo(new A());
+					}
+					private static void foo(S o) {
+					 switch (o) {
+						case AJ17 /*here*/a ->     System.out.println();\s
+						case B b ->     System.out.println("B:" + b);
+						default  -> System.out.println("Object" + o);
+					 	}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -1163,25 +1226,29 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			project.open(null);
 			createFolder("/first/src/p1");
 			createFile("/first/src/p1/BClass.java",
-					"package p1;\n" +
-							"public class BClass {\n" +
-							"}\n"
+					"""
+						package p1;
+						public class BClass {
+						}
+						"""
 					);
 			createFile("/first/src/p1/X.java",
-					"package p1;\n" +
-							"public class X {\n" +
-							" public int field_j17; "+
-							"public static void main(String[] args) {\n" +
-							"foo(Integer.valueOf(5));\n" +
-							"foo(new Object());\n" +
-							"}\n" +
-							"private static void foo(Object o) {\n" +
-							" switch (o) {\n" +
-							"	case BClass i when field_j17>0  -> System.out.println(\"Integer:\" + i);\n" +
-							"	default -> System.out.println(\"Object\" + o);\n" +
-							" 	}\n" +
-							"}\n" +
-							"}\n"
+					"""
+						package p1;
+						public class X {
+						 public int field_j17; \
+						public static void main(String[] args) {
+						foo(Integer.valueOf(5));
+						foo(new Object());
+						}
+						private static void foo(Object o) {
+						 switch (o) {
+							case BClass i when field_j17>0  -> System.out.println("Integer:" + i);
+							default -> System.out.println("Object" + o);
+						 	}
+						}
+						}
+						"""
 					);
 			project.close();
 			project.open(null);
@@ -1209,25 +1276,29 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			project.open(null);
 			createFolder("/first/src/p1");
 			createFile("/first/src/p1/BClass.java",
-					"package p1;\n" +
-							"public class BClass {\n" +
-							"}\n"
+					"""
+						package p1;
+						public class BClass {
+						}
+						"""
 					);
 			createFile("/first/src/p1/X.java",
-					"package p1;\n" +
-							"public class X {\n" +
-							" public int field_j17;\n"+
-							"public static void main(String[] args) {\n" +
-							"foo(Integer.valueOf(5));\n" +
-							"foo(new Object());\n" +
-							"}\n" +
-							"private static void foo(Object o) {\n" +
-							" switch (o) {\n" +
-							"	case BClass i when field_j17 > 0  -> System.out.println(\"Integer:\" + i);\n" +
-							"	default -> System.out.println(\"Object\" + o);\n" +
-							" 	}\n" +
-							"}\n" +
-							"}\n"
+					"""
+						package p1;
+						public class X {
+						 public int field_j17;
+						public static void main(String[] args) {
+						foo(Integer.valueOf(5));
+						foo(new Object());
+						}
+						private static void foo(Object o) {
+						 switch (o) {
+							case BClass i when field_j17 > 0  -> System.out.println("Integer:" + i);
+							default -> System.out.println("Object" + o);
+						 	}
+						}
+						}
+						"""
 					);
 			project.close();
 			project.open(null);
@@ -1249,19 +1320,21 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_031() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" switch (o) {\n" +
-						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s when /*here*/s.hashCode()>0    -> System.out.println(\"String:\" );\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
-						" 	}}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 switch (o) {
+						case Integer i     -> System.out.println("Integer:" + i);
+						case String s when /*here*/s.hashCode()>0    -> System.out.println("String:" );
+						default       -> System.out.println("Object" + o);
+					 	}}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -1284,22 +1357,24 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_032() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" String myVar= new String();" +
-						" switch (o) {\n" +
-						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s1 when s1 != myVar && 0 < /*here*/s1.length()   -> System.out.println(s1 );\n" +
-						"	default       -> {\n" +
-						"	String s1 =  new String();\n" +
-						"	System.out.println(s1);\n" +
-						" 	}}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 String myVar= new String();\
+					 switch (o) {
+						case Integer i     -> System.out.println("Integer:" + i);
+						case String s1 when s1 != myVar && 0 < /*here*/s1.length()   -> System.out.println(s1 );
+						default       -> {
+						String s1 =  new String();
+						System.out.println(s1);
+					 	}}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -1314,9 +1389,10 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			assertEquals("incorrect no of elements", 1, elements.length);
 			assertTrue(elements[0] instanceof ILocalVariable);
 			search(elements[0], REFERENCES, EXACT_RULE);
-			assertSearchResults("src/X.java void X.foo(Object) [s1] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(Object) [s1] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(Object) [s1] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java void X.foo(Object) [s1] EXACT_MATCH
+				src/X.java void X.foo(Object) [s1] EXACT_MATCH
+				src/X.java void X.foo(Object) [s1] EXACT_MATCH""");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -1325,22 +1401,24 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_033() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" String myVar= new String();" +
-						" switch (o) {\n" +
-						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s1 when /*here*/s1 != myVar && 0 < s1.length()   -> System.out.println(s1 );\n" +
-						"	default       -> {\n" +
-						"	String s1 =  new String();\n" +
-						"	System.out.println(s1);\n" +
-						" 	}}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 String myVar= new String();\
+					 switch (o) {
+						case Integer i     -> System.out.println("Integer:" + i);
+						case String s1 when /*here*/s1 != myVar && 0 < s1.length()   -> System.out.println(s1 );
+						default       -> {
+						String s1 =  new String();
+						System.out.println(s1);
+					 	}}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -1355,9 +1433,10 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			assertEquals("incorrect no of elements", 1, elements.length);
 			assertTrue(elements[0] instanceof ILocalVariable);
 			search(elements[0], REFERENCES, EXACT_RULE);
-			assertSearchResults("src/X.java void X.foo(Object) [s1] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(Object) [s1] EXACT_MATCH\n"
-					+ "src/X.java void X.foo(Object) [s1] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java void X.foo(Object) [s1] EXACT_MATCH
+				src/X.java void X.foo(Object) [s1] EXACT_MATCH
+				src/X.java void X.foo(Object) [s1] EXACT_MATCH""");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -1366,22 +1445,24 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug573943_034() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static void foo(Object o) {\n" +
-						" String myVar= new String();" +
-						" switch (o) {\n" +
-						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s1 when s1 != myVar && 0 < s1.length()   -> System.out.println(s1 );\n" +
-						"	default       -> {\n" +
-						"	String s1 =  new String();\n" +
-						"	System.out.println(/*here*/s1);\n" +
-						" 	}}\n" +
-						"}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static void foo(Object o) {
+					 String myVar= new String();\
+					 switch (o) {
+						case Integer i     -> System.out.println("Integer:" + i);
+						case String s1 when s1 != myVar && 0 < s1.length()   -> System.out.println(s1 );
+						default       -> {
+						String s1 =  new String();
+						System.out.println(/*here*/s1);
+					 	}}
+					}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -1406,18 +1487,20 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug575718_035() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static int  foo(Object o) {\n" +
-						" return switch (o) {\n" +
-						"	case String strGP when (o instanceof String c3 when c3.length() > 0) -> 0;\n" +
-						"	default       -> 0;\n" +
-						" 	};\n" +
-						" 	}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static int  foo(Object o) {
+					 return switch (o) {
+						case String strGP when (o instanceof String c3 when c3.length() > 0) -> 0;
+						default       -> 0;
+					 	};
+					 	}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -1442,18 +1525,20 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	public void testBug575718_036() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n" +
-						"public static void main(String[] args) {\n" +
-						"foo(Integer.valueOf(5));\n" +
-						"foo(new Object());\n" +
-						"}\n" +
-						"private static int  foo(Object o) {\n" +
-						" return switch (o) {\n" +
-						"	case String strGP when (o instanceof String c3 && c3.length() > 0) && strGP.length() > 0 -> 0;\n" +
-						"	default       -> 0;\n" +
-						" 	};\n" +
-						" 	}\n" +
-						"}\n"
+				"""
+					public class X {
+					public static void main(String[] args) {
+					foo(Integer.valueOf(5));
+					foo(new Object());
+					}
+					private static int  foo(Object o) {
+					 return switch (o) {
+						case String strGP when (o instanceof String c3 && c3.length() > 0) && strGP.length() > 0 -> 0;
+						default       -> 0;
+					 	};
+					 	}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -1480,18 +1565,20 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 		public void testBug575718_037() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"public class X {\n" +
-							"public static void main(String[] args) {\n" +
-							"foo(Integer.valueOf(5));\n" +
-							"foo(new Object());\n" +
-							"}\n" +
-							"private static int  foo(Object o) {\n" +
-							" return switch (o) {\n" +
-							"	case String strGP when (o instanceof String c3 && c3.length() > 0) && strGP.length() > 0 -> 0;\n" +
-							"	default       -> 0;\n" +
-							" 	};\n" +
-							" 	}\n" +
-							"}\n"
+					"""
+						public class X {
+						public static void main(String[] args) {
+						foo(Integer.valueOf(5));
+						foo(new Object());
+						}
+						private static int  foo(Object o) {
+						 return switch (o) {
+							case String strGP when (o instanceof String c3 && c3.length() > 0) && strGP.length() > 0 -> 0;
+							default       -> 0;
+						 	};
+						 	}
+						}
+						"""
 					);
 			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 			// working copies
@@ -1523,61 +1610,63 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 				IJavaProject project = createJavaProject("p", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "17");
 				project.open(null);
 				createFile("/p/src/TestEcl.java",
-						"import java.lang.StackWalker.Option;\n" +
-						"\n" +
-						"public class TestEcl {\n" +
-						"\n" +
-						"	@FunctionalInterface\n" +
-						"	public interface Callable<V> {\n" +
-						"	    /**\n" +
-						"	     * Computes a result, or throws an exception if unable to do so.\n" +
-						"	     *\n" +
-						"	     * @return computed result\n" +
-						"	     * @throws Exception if unable to compute a result\n" +
-						"	     */\n" +
-						"	    V call() throws Exception;\n" +
-						"	}\n" +
-						"	\n" +
-						"	@FunctionalInterface\n" +
-						"	public interface Function<T, R> {\n" +
-						"\n" +
-						"	    /**\n" +
-						"	     * Applies this function to the given argument.\n" +
-						"	     *\n" +
-						"	     * @param t the function argument\n" +
-						"	     * @return the function result\n" +
-						"	     */\n" +
-						"	    R apply(T t);\n" +
-						"	}\n" +
-						"	\n" +
-						"	public static final Callable<Void> test = new Callable<>() {\n" +
-						"		@Override\n" +
-						"		public Void call() throws Exception {\n" +
-						"			Option opt = Option.RETAIN_CLASS_REFERENCE;\n" +
-						"			\n" +
-						"			boolean a = switch (/*here*/opt) {\n" +
-						"				case RETAIN_CLASS_REFERENCE -> true;\n" +
-						"				// Enabling this line breaks eclipse\n" +
-						"				// CTRL+SHIFT+G Will throw exception Code resolve error 'java.lang.NegativeArraySizeException: -1'\n" +
-						"				case SHOW_HIDDEN_FRAMES -> true; \n" +
-						"				default -> throw new IllegalArgumentException(\"Unexpected value\");\n" +
-						"			};\n" +
-						"	\n" +
-						"			boolean b = switch (opt) {\n" +
-						"				case RETAIN_CLASS_REFERENCE -> true;\n" +
-						"				default -> throw new IllegalArgumentException(\"Unexpected value\");\n" +
-						"			};\n" +
-						"			return null;\n" +
-						"		}\n" +
-						"	};\n" +
-						"	\n" +
-						"	public static final Function<Object, Object> test2 = new Function<>() {\n" +
-						"		@Override\n" +
-						"		public Object apply(Object t) {\n" +
-						"			return null;\n" +
-						"		}\n" +
-						"	};\n" +
-						"}\n");
+						"""
+							import java.lang.StackWalker.Option;
+							
+							public class TestEcl {
+							
+								@FunctionalInterface
+								public interface Callable<V> {
+								    /**
+								     * Computes a result, or throws an exception if unable to do so.
+								     *
+								     * @return computed result
+								     * @throws Exception if unable to compute a result
+								     */
+								    V call() throws Exception;
+								}
+							\t
+								@FunctionalInterface
+								public interface Function<T, R> {
+							
+								    /**
+								     * Applies this function to the given argument.
+								     *
+								     * @param t the function argument
+								     * @return the function result
+								     */
+								    R apply(T t);
+								}
+							\t
+								public static final Callable<Void> test = new Callable<>() {
+									@Override
+									public Void call() throws Exception {
+										Option opt = Option.RETAIN_CLASS_REFERENCE;
+									\t
+										boolean a = switch (/*here*/opt) {
+											case RETAIN_CLASS_REFERENCE -> true;
+											// Enabling this line breaks eclipse
+											// CTRL+SHIFT+G Will throw exception Code resolve error 'java.lang.NegativeArraySizeException: -1'
+											case SHOW_HIDDEN_FRAMES -> true;\s
+											default -> throw new IllegalArgumentException("Unexpected value");
+										};
+							\t
+										boolean b = switch (opt) {
+											case RETAIN_CLASS_REFERENCE -> true;
+											default -> throw new IllegalArgumentException("Unexpected value");
+										};
+										return null;
+									}
+								};
+							\t
+								public static final Function<Object, Object> test2 = new Function<>() {
+									@Override
+									public Object apply(Object t) {
+										return null;
+									}
+								};
+							}
+							""");
 				project.close();
 				project.open(null);
 				waitUntilIndexesReady();
@@ -1599,40 +1688,42 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			try {
 				this.workingCopies = new ICompilationUnit[1];
 				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/OptionActions.java",
-						"public class OptionActions {\n" +
-						"\n" +
-						"	public enum TestEnum {\n" +
-						"		X\n" +
-						"	}\n" +
-						"	\n" +
-						"	@FunctionalInterface\n" +
-						"	public interface Callable<V> {\n" +
-						"	    /**\n" +
-						"	     * Computes a result, or throws an exception if unable to do so.\n" +
-						"	     *\n" +
-						"	     * @return computed result\n" +
-						"	     * @throws Exception if unable to compute a result\n" +
-						"	     */\n" +
-						"	    V call() throws Exception;\n" +
-						"	}\n" +
-						"	public final record TestDraft<T >() {}\n" +
-						"	public final record TestDraft2<T, U >() {}\n" +
-						"	\n" +
-						"	public static final /*here*/Callable<Void> test = new Callable<>() {\n" +
-						"		@Override\n" +
-						"		public Void call() throws Exception {\n" +
-						"			TestEnum p = TestEnum.X;\n" +
-						"			\n" +
-						"			Object v = switch (p) {\n" +
-						"				case X -> null;\n" +
-						"			};\n" +
-						"	\n" +
-						"			/*here*/TestDraft<Integer> draft = new TestDraft(); // This line is fine\n" +
-						"			TestDraft2<Integer, Integer> draft2 = new TestDraft2(); \n" +
-						"			return null;\n" +
-						"		}\n" +
-						"	};\n" +
-						"}\n");
+						"""
+							public class OptionActions {
+							
+								public enum TestEnum {
+									X
+								}
+							\t
+								@FunctionalInterface
+								public interface Callable<V> {
+								    /**
+								     * Computes a result, or throws an exception if unable to do so.
+								     *
+								     * @return computed result
+								     * @throws Exception if unable to compute a result
+								     */
+								    V call() throws Exception;
+								}
+								public final record TestDraft<T >() {}
+								public final record TestDraft2<T, U >() {}
+							\t
+								public static final /*here*/Callable<Void> test = new Callable<>() {
+									@Override
+									public Void call() throws Exception {
+										TestEnum p = TestEnum.X;
+									\t
+										Object v = switch (p) {
+											case X -> null;
+										};
+							\t
+										/*here*/TestDraft<Integer> draft = new TestDraft(); // This line is fine
+										TestDraft2<Integer, Integer> draft2 = new TestDraft2();\s
+										return null;
+									}
+								};
+							}
+							""");
 
 				String str = this.workingCopies[0].getSource();
 				String selection = "/*here*/Callable";
@@ -1654,61 +1745,63 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 		public void testGH968_3() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/TestEcl.java",
-					"import java.lang.StackWalker.Option;\n" +
-					"\n" +
-					"public class TestEcl {\n" +
-					"\n" +
-					"	@FunctionalInterface\n" +
-					"	public interface Callable {\n" +
-					"	    /**\n" +
-					"	     * Computes a result, or throws an exception if unable to do so.\n" +
-					"	     *\n" +
-					"	     * @return computed result\n" +
-					"	     * @throws Exception if unable to compute a result\n" +
-					"	     */\n" +
-					"	    void call() throws Exception;\n" +
-					"	}\n" +
-					"	\n" +
-					"	@FunctionalInterface\n" +
-					"	public interface Function<T, R> {\n" +
-					"\n" +
-					"	    /**\n" +
-					"	     * Applies this function to the given argument.\n" +
-					"	     *\n" +
-					"	     * @param t the function argument\n" +
-					"	     * @return the function result\n" +
-					"	     */\n" +
-					"	    R apply(T t);\n" +
-					"	}\n" +
-					"	\n" +
-					"	public static final Callable test = new Callable() {\n" +
-					"		@Override\n" +
-					"		public Void call() throws Exception {\n" +
-					"			Option opt = Option.RETAIN_CLASS_REFERENCE;\n" +
-					"			\n" +
-					"			boolean a = switch (/*here*/opt) {\n" +
-					"				case RETAIN_CLASS_REFERENCE -> true;\n" +
-					"				// Enabling this line breaks eclipse\n" +
-					"				// CTRL+SHIFT+G Will throw exception Code resolve error 'java.lang.NegativeArraySizeException: -1'\n" +
-					"				case SHOW_HIDDEN_FRAMES -> true; \n" +
-					"				default -> throw new IllegalArgumentException(\"Unexpected value\");\n" +
-					"			};\n" +
-					"	\n" +
-					"			boolean b = switch (opt) {\n" +
-					"				case RETAIN_CLASS_REFERENCE -> true;\n" +
-					"				default -> throw new IllegalArgumentException(\"Unexpected value\");\n" +
-					"			};\n" +
-					"			return;\n" +
-					"		}\n" +
-					"	};\n" +
-					"	\n" +
-					"	public static final Function<Object, Object> test2 = new Function<>() {\n" +
-					"		@Override\n" +
-					"		public Object apply(Object t) {\n" +
-					"			return null;\n" +
-					"		}\n" +
-					"	};\n" +
-					"}\n");
+					"""
+						import java.lang.StackWalker.Option;
+						
+						public class TestEcl {
+						
+							@FunctionalInterface
+							public interface Callable {
+							    /**
+							     * Computes a result, or throws an exception if unable to do so.
+							     *
+							     * @return computed result
+							     * @throws Exception if unable to compute a result
+							     */
+							    void call() throws Exception;
+							}
+						\t
+							@FunctionalInterface
+							public interface Function<T, R> {
+						
+							    /**
+							     * Applies this function to the given argument.
+							     *
+							     * @param t the function argument
+							     * @return the function result
+							     */
+							    R apply(T t);
+							}
+						\t
+							public static final Callable test = new Callable() {
+								@Override
+								public Void call() throws Exception {
+									Option opt = Option.RETAIN_CLASS_REFERENCE;
+								\t
+									boolean a = switch (/*here*/opt) {
+										case RETAIN_CLASS_REFERENCE -> true;
+										// Enabling this line breaks eclipse
+										// CTRL+SHIFT+G Will throw exception Code resolve error 'java.lang.NegativeArraySizeException: -1'
+										case SHOW_HIDDEN_FRAMES -> true;\s
+										default -> throw new IllegalArgumentException("Unexpected value");
+									};
+						\t
+									boolean b = switch (opt) {
+										case RETAIN_CLASS_REFERENCE -> true;
+										default -> throw new IllegalArgumentException("Unexpected value");
+									};
+									return;
+								}
+							};
+						\t
+							public static final Function<Object, Object> test2 = new Function<>() {
+								@Override
+								public Object apply(Object t) {
+									return null;
+								}
+							};
+						}
+						""");
 
 			String str = this.workingCopies[0].getSource();
 			String selection =  "/*here*/opt";

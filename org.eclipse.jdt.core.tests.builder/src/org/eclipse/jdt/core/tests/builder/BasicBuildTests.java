@@ -60,13 +60,15 @@ public class BasicBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class Hello {\n"+ //$NON-NLS-1$
-			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(\"Hello world\");\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class Hello {
+			   public static void main(String args[]) {
+			      System.out.println("Hello world");
+			   }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(projectPath);
 	}
@@ -92,10 +94,11 @@ public class BasicBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		IPath pathToA = env.addClass(root, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"//todo nothing\n"+ //$NON-NLS-1$
-			"public class A {\n"+ //$NON-NLS-1$
-			"}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			//todo nothing
+			public class A {
+			}"""); //$NON-NLS-1$
 
 		fullBuild(projectPath);
 		expectingOnlySpecificProblemFor(pathToA, new Problem("A", "todo nothing", pathToA, 14, 26, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -124,16 +127,17 @@ public class BasicBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		IPath pathToA = env.addClass(root, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p; \n"+ //$NON-NLS-1$
-			"//TODO normal\n"+ //$NON-NLS-1$
-			"public class A {\n"+ //$NON-NLS-1$
-			"	public void foo() {\n"+ //$NON-NLS-1$
-			"		//FIXME high\n"+ //$NON-NLS-1$
-			"	}\n"+ //$NON-NLS-1$
-			"	public void foo2() {\n"+ //$NON-NLS-1$
-			"		//XXX low\n"+ //$NON-NLS-1$
-			"	}\n"+ //$NON-NLS-1$
-			"}"); //$NON-NLS-1$
+					"""
+			package p;\s
+			//TODO normal
+			public class A {
+				public void foo() {
+					//FIXME high
+				}
+				public void foo2() {
+					//XXX low
+				}
+			}"""); //$NON-NLS-1$
 
 		fullBuild(projectPath);
 		IMarker[] markers = env.getTaskMarkersFor(pathToA);
@@ -327,22 +331,24 @@ public class BasicBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "util", "MyException", //$NON-NLS-1$ //$NON-NLS-2$
-			"package util;\n" +
-			"public class MyException extends Exception {\n" +
-			"	private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				package util;
+				public class MyException extends Exception {
+					private static final long serialVersionUID = 1L;
+				}"""
 		);
 
 		env.addClass(root, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;\n" +
-			"import util.MyException;\n" +
-			"public class Test {\n" +
-			"	/**\n" +
-			"	 * @throws MyException\n" +
-			"	 */\n" +
-			"	public void bar() {\n" +
-			"	}\n" +
-			"}"
+			"""
+				package p;
+				import util.MyException;
+				public class Test {
+					/**
+					 * @throws MyException
+					 */
+					public void bar() {
+					}
+				}"""
 		);
 
 		fullBuild(projectPath);
@@ -365,11 +371,12 @@ public class BasicBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "Aaa$Bbb$Ccc", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"\n" +  //$NON-NLS-1$
-			"public class Aaa$Bbb$Ccc {\n" + //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-		);
+					"""
+			package p1;
+			
+			public class Aaa$Bbb$Ccc {
+			}""" //$NON-NLS-1$
+				);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
@@ -406,17 +413,19 @@ public class BasicBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "util", "MyException", //$NON-NLS-1$ //$NON-NLS-2$
-			"package util;\n" +
-			"public class MyException extends Exception {\n" +
-			"	private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				package util;
+				public class MyException extends Exception {
+					private static final long serialVersionUID = 1L;
+				}"""
 		);
 
 		IPath cuPath = env.addClass(root, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;\n" +
-			"import util.MyException;\n" +
-			"public class Test {\n" +
-			"}"
+			"""
+				package p;
+				import util.MyException;
+				public class Test {
+				}"""
 		);
 
 		fullBuild(projectPath);
@@ -441,17 +450,19 @@ public class BasicBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "util", "MyException", //$NON-NLS-1$ //$NON-NLS-2$
-			"package util;\n" +
-			"public class MyException extends Exception {\n" +
-			"	private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				package util;
+				public class MyException extends Exception {
+					private static final long serialVersionUID = 1L;
+				}"""
 		);
 
 		IPath cuPath = env.addClass(root, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;\n" +
-			"import util.MyException;\n" +
-			"public class Test {\n" +
-			"}"
+			"""
+				package p;
+				import util.MyException;
+				public class Test {
+				}"""
 		);
 
 		fullBuild();
@@ -545,10 +556,12 @@ public class BasicBuildTests extends BuilderTests {
 			);
 
 			env.addClass(root, "pack", "Main",
-				"package pack;\n" +
-				"public class Main {\n" +
-				"	Main$Sub sub;\n" + // indirectly pull in Main$Sub
-				"}\n"
+				"""
+					package pack;
+					public class Main {
+						Main$Sub sub;
+					}
+					"""
 			);
 
 			env.addClass(root, "pack", "Main$Sub",
@@ -590,9 +603,10 @@ public class BasicBuildTests extends BuilderTests {
 			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 			env.addClass(root, "p", "AB", //$NON-NLS-1$ //$NON-NLS-2$
-				"package p;	\n"+ //$NON-NLS-1$
-				"public class AB {}	\n"+ //$NON-NLS-1$
-				"class AZ {}"); //$NON-NLS-1$
+							"""
+				package p;\t
+				public class AB {}\t
+				class AZ {}"""); //$NON-NLS-1$
 
 			IPath pathToAA = env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p;	\n"+ //$NON-NLS-1$
@@ -624,12 +638,13 @@ public class BasicBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		IPath path = env.addClass(root, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"class X {\n" +
-			"  void test() {\n" +
-			"	int x = 0;\n" +
-			"	int y = 0 >= 0 ? x : \"\"; \n" +
-			"  }\n" +
-			"}");
+			"""
+				class X {
+				  void test() {
+					int x = 0;
+					int y = 0 >= 0 ? x : "";\s
+				  }
+				}""");
 
 		fullBuild(projectPath);
 		expectingProblemsFor(
@@ -651,32 +666,35 @@ public class BasicBuildTests extends BuilderTests {
 
 			env.addClass(root, "test",
 				"ARequiresNested",
-				"package test;\n" +
-				"\n" +
-				"public class ARequiresNested {\n" +
-				"	Nested n;\n" +
-				"}"
+				"""
+					package test;
+					
+					public class ARequiresNested {
+						Nested n;
+					}"""
 			);
 
 			env.addClass(root, "test",
 					"BRequiresToplevel",
-					"package test;\n" +
-					"\n" +
-					"public class BRequiresToplevel {\n" +
-					"	TopLevel t;\n" +
-					"}"
+					"""
+						package test;
+						
+						public class BRequiresToplevel {
+							TopLevel t;
+						}"""
 				);
 
 			env.addClass(root, "test",
 					"TopLevel",
-					"package test;\n" +
-					"\n" +
-					"public class TopLevel {\n" +
-					"\n" +
-					"}\n" +
-					"\n" +
-					"class Nested extends TopLevel {\n" +
-					"}"
+					"""
+						package test;
+						
+						public class TopLevel {
+						
+						}
+						
+						class Nested extends TopLevel {
+						}"""
 				);
 
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 2;

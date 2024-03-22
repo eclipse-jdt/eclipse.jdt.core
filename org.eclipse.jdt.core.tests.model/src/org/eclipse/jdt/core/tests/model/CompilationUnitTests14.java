@@ -36,61 +36,65 @@ public void setUpSuite() throws Exception {
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/X.java",
-		"\n\n" + 	// package now includes comment (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=93880)
-						// => need some empty line at beginning to be able to have cu without any other element (see testGetElementAt())
-		"/* some comment */" +
-		"package p;\n" +
-		"import p2.*;\n" +
-		"import p3.Z;\n" +
-		"public class X implements Runnable {\n" +
-		"  public int f1;\n" +
-		"  /** @deprecated\n */" +
-		"  protected Object f2;\n" +
-		"  private X f3;\n" +
-		"  java.lang.String f4;\n" +
-		"  int f5, f6, f7;\n" +
-		"  @Deprecated\n" +
-		"  int f8;\n" +
-		"  public class Inner {\n" +
-		"    class InnerInner {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public void foo(Y y) throws IOException {\n" +
-		"  }\n" +
-		"  protected static Object bar() {\n" +
-		"  }\n" +
-		"  /** @deprecated\n */" +
-		"  private int fred() {\n" +
-		"  }\n" +
-		"  @Deprecated\n" +
-		"  private void fred2() {\n" +
-		"  }\n" +
-		"  void testIsVarArgs(String s, Object ... args) {\n" +
-		"  }\n" +
-		"  X(String... s) {\n" +
-		"  }\n" +
-		"  native void foo2();\n" +
-		"  volatile void foo3() {}\n" +
-		"  strictfp void foo4() {}\n" +
-		"}\n" +
-		"/** @deprecated\n */" +
-		"interface I {\n" +
-		"  int run();\n" +
-		"}\n" +
-		"interface I2<E> {\n" +
-		"}\n" +
-		"@Deprecated\n" +
-		"interface I3 {\n" +
-		"}\n" +
-		"class Y<E> implements I2<E> {\n" +
-		"}\n" +
-		"enum Colors {\n" +
-		"  BLUE, WHITE, RED;\n" +
-		"}\n" +
-		"@interface /*c*/ Annot {\n" +
-		"  String field();\n" +
-		"}\n" +
-		"record Record() {}"
+		"""
+			
+			
+			/* some comment */\
+			package p;
+			import p2.*;
+			import p3.Z;
+			public class X implements Runnable {
+			  public int f1;
+			  /** @deprecated
+			 */\
+			  protected Object f2;
+			  private X f3;
+			  java.lang.String f4;
+			  int f5, f6, f7;
+			  @Deprecated
+			  int f8;
+			  public class Inner {
+			    class InnerInner {
+			    }
+			  }
+			  public void foo(Y y) throws IOException {
+			  }
+			  protected static Object bar() {
+			  }
+			  /** @deprecated
+			 */\
+			  private int fred() {
+			  }
+			  @Deprecated
+			  private void fred2() {
+			  }
+			  void testIsVarArgs(String s, Object ... args) {
+			  }
+			  X(String... s) {
+			  }
+			  native void foo2();
+			  volatile void foo3() {}
+			  strictfp void foo4() {}
+			}
+			/** @deprecated
+			 */\
+			interface I {
+			  int run();
+			}
+			interface I2<E> {
+			}
+			@Deprecated
+			interface I3 {
+			}
+			class Y<E> implements I2<E> {
+			}
+			enum Colors {
+			  BLUE, WHITE, RED;
+			}
+			@interface /*c*/ Annot {
+			  String field();
+			}
+			record Record() {}"""
 	);
 	this.testProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	this.cu = getCompilationUnit("/P/src/p/X.java");
