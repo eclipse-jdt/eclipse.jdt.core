@@ -20,7 +20,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.HashMap;
-import java.util.function.Consumer;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -83,26 +82,11 @@ public class TypeSystem {
 					if (type instanceof UnresolvedReferenceBinding)
 						((UnresolvedReferenceBinding) type).addWrapper(this, environment);
 					if (arguments != null) {
-						for (int i = 0; i < arguments.length; i++) {
-							TypeBinding argument = arguments[i];
+						for (TypeBinding argument : arguments) {
 							if (argument instanceof UnresolvedReferenceBinding)
 								((UnresolvedReferenceBinding) argument).addWrapper(this, environment);
 							if (argument.hasNullTypeAnnotations())
 								this.tagBits |= TagBits.HasNullTypeAnnotation;
-							if (argument.getClass() == TypeVariableBinding.class) {
-								final int idx = i;
-								TypeVariableBinding typeVariableBinding = (TypeVariableBinding) argument;
-								Consumer<TypeVariableBinding> previousConsumer = typeVariableBinding.updateWhenSettingTypeAnnotations;
-								typeVariableBinding.updateWhenSettingTypeAnnotations = (newTvb) -> {
-									// update the TVB argument and simulate a re-hash:
-									ParameterizedTypeBinding[] value = HashedParameterizedTypes.this.hashedParameterizedTypes.get(this);
-									arguments[idx] = newTvb;
-									HashedParameterizedTypes.this.hashedParameterizedTypes.put(this, value);
-									// for the unlikely case of multiple PTBKeys referring to this TVB chain to the next consumer:
-									if (previousConsumer != null)
-										previousConsumer.accept(newTvb);
-								};
-							}
 						}
 					}
 				}
@@ -240,6 +224,18 @@ public class TypeSystem {
 				type = resolvedType;
 			}
 		}
+		if (type.getClass() == TypeVariableBinding.class) {
+			// register the type as normal ...
+			if (type.id == TypeIds.NoId) {
+				int typesLength = this.types.length;
+				if (this.typeid == typesLength)
+					System.arraycopy(this.types, 0, this.types = new TypeBinding[typesLength * 2][], 0, typesLength);
+				this.types[type.id = this.typeid++] = new TypeBinding[4];
+				this.types[type.id][0] = type;
+			}
+			// ... but rely on prototype() for getting the "original" type as per the type parameter declaration
+			return type.prototype();
+		}
 		try {
 			if (type.id == TypeIds.NoId) {
 				if (type.hasTypeAnnotations())
@@ -269,16 +265,13 @@ public class TypeSystem {
 	 * If it itself is already registered as the key unannotated type of its family,
 	 * create a clone to play that role from now on and swap types in the types cache.
 	 */
-	public void forceRegisterAsDerived(TypeVariableBinding derived) {
+	public void forceRegisterAsDerived(TypeBinding derived) {
 		int id = derived.id;
 		if (id != TypeIds.NoId && this.types[id] != null) {
 			TypeBinding unannotated = this.types[id][0];
 			if (unannotated == derived) { //$IDENTITY-COMPARISON$
 				// was previously registered as unannotated, replace by a fresh clone to remain unannotated:
 				this.types[id][0] = unannotated = derived.clone(null);
-				if (derived.updateWhenSettingTypeAnnotations != null) {
-					derived.updateWhenSettingTypeAnnotations.accept((TypeVariableBinding) unannotated);
-				}
 			}
 			// proceed as normal:
 			cacheDerivedType(unannotated, derived);

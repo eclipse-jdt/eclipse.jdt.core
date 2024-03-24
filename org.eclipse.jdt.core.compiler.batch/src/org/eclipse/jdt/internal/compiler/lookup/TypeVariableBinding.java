@@ -44,7 +44,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Arrays;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -78,13 +77,10 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public char[] genericTypeSignature;
 	LookupEnvironment environment;
 
-	/*
-	 * In one particular situation a TVB will be cloned and the clone will be used as the 'naked' type
-	 * within TypeSystem. This may require some updating inside TypeSystem's hash structure.
-	 */
-	Consumer<TypeVariableBinding> updateWhenSettingTypeAnnotations;
+	private ReferenceBinding prototype;
 
 	public TypeVariableBinding(char[] sourceName, Binding declaringElement, int rank, LookupEnvironment environment) {
+		this.prototype = this;
 		this.sourceName = sourceName;
 		this.declaringElement = declaringElement;
 		this.rank = rank;
@@ -97,6 +93,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 
 	// for subclass CaptureBinding
 	protected TypeVariableBinding(char[] sourceName, LookupEnvironment environment) {
+		this.prototype = this;
 		this.sourceName = sourceName;
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
 		this.tagBits |= TagBits.HasTypeVariable;
@@ -122,8 +119,13 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.environment = prototype.environment;
 		prototype.tagBits |= TagBits.HasAnnotatedVariants;
 		this.tagBits &= ~TagBits.HasAnnotatedVariants;
+		this.prototype = prototype.prototype;
 	}
 
+	@Override
+	public TypeBinding prototype() {
+		return this.prototype;
+	}
 	/**
 	 * Returns true if the argument type satisfies all bounds of the type parameter
 	 * @param location if non-null this may be used for reporting errors relating to null type annotations (if enabled)
