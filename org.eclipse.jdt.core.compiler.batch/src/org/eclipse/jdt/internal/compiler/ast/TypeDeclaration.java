@@ -98,6 +98,9 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	// 15 Sealed Type preview support
 	public TypeReference[] permittedTypes;
 
+	// TEST ONLY: disable one fix here to challenge another related fix (in TypeSystem):
+	public static boolean TESTING_GH_2158 = false;
+
 	static {
 		disallowedComponentNames = new HashSet<>(6);
 		disallowedComponentNames.add("clone"); //$NON-NLS-1$
@@ -1924,6 +1927,15 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 protected ReferenceBinding updateWithAnnotations(TypeReference typeRef, ReferenceBinding previousType,
 		Map<ReferenceBinding, ReferenceBinding> outerUpdates, Map<ReferenceBinding, ReferenceBinding> updates)
 {
+	if (!TESTING_GH_2158
+			&& previousType instanceof ParameterizedTypeBinding previousPTB
+			&& previousPTB.original() instanceof SourceTypeBinding previousOriginal
+			&& previousOriginal.supertypeAnnotationsUpdated) {
+		// re-initialized parameterized type with updated annotations from the original:
+		typeRef.resolvedType = this.scope.environment().createParameterizedType(previousOriginal,		// <- has been updated
+				previousPTB.arguments, previousType.enclosingType(), previousType.getAnnotations());	// <- no changes here
+	}
+
 	typeRef.updateWithAnnotations(this.scope, 0);
 	ReferenceBinding updatedType = (ReferenceBinding) typeRef.resolvedType;
 	if (updatedType instanceof ParameterizedTypeBinding) {
@@ -1937,8 +1949,10 @@ protected ReferenceBinding updateWithAnnotations(TypeReference typeRef, Referenc
 	if (previousType != null) {
 		if (previousType.id == TypeIds.T_JavaLangObject && ((this.binding.tagBits & TagBits.HierarchyHasProblems) != 0))
 			return previousType; // keep this cycle breaker
-		if (previousType != updatedType) //$IDENTITY-COMPARISON$
+		if (previousType != updatedType) { //$IDENTITY-COMPARISON$
 			updates.put(previousType, updatedType);
+			this.binding.supertypeAnnotationsUpdated = true;
+		}
 	}
 	return updatedType;
 }
