@@ -3278,11 +3278,11 @@ public class ASTMatcher {
 	 * @param other the other object
 	 * @since 3.38
 	 */
-	public boolean match(UnnamedClass node, Object other) {
-		if (!(other instanceof UnnamedClass)) {
+	public boolean match(ImplicitTypeDeclaration node, Object other) {
+		if (!(other instanceof ImplicitTypeDeclaration)) {
 			return false;
 		}
-		UnnamedClass o = (UnnamedClass) other;
+		ImplicitTypeDeclaration o = (ImplicitTypeDeclaration) other;
 		return (safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
 				&& safeSubtreeListMatch(node.bodyDeclarations(), o.bodyDeclarations()));
 	}

@@ -223,13 +223,13 @@ class ASTConverter {
 	}
 
 	protected void buildBodyDeclarations(
-			org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration unnamedClass,
-			UnnamedClass newUnnamedClass,
+			org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration implicitTypeDeclaration,
+			ImplicitTypeDeclaration newImplicitTypeDeclaration,
 			boolean isInterface) {
 		// add body declaration in the lexical order
-		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = unnamedClass.memberTypes;
-		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = unnamedClass.fields;
-		org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration[] methods = unnamedClass.methods;
+		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = implicitTypeDeclaration.memberTypes;
+		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = implicitTypeDeclaration.fields;
+		org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration[] methods = implicitTypeDeclaration.methods;
 
 		int fieldsLength = fields == null? 0 : fields.length;
 		int methodsLength = methods == null? 0 : methods.length;
@@ -271,30 +271,30 @@ class ASTConverter {
 			switch (nextDeclarationType) {
 				case 0 :
 					if (nextFieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
-						newUnnamedClass.bodyDeclarations().add(convert(nextFieldDeclaration));
+						newImplicitTypeDeclaration.bodyDeclarations().add(convert(nextFieldDeclaration));
 					} else {
-						checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, newUnnamedClass.bodyDeclarations());
+						checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, newImplicitTypeDeclaration.bodyDeclarations());
 					}
 					fieldsIndex++;
 					break;
 				case 1 :
 					methodsIndex++;
 					if (!nextMethodDeclaration.isDefaultConstructor() && !nextMethodDeclaration.isClinit()) {
-						newUnnamedClass.bodyDeclarations().add(convert(isInterface, nextMethodDeclaration));
+						newImplicitTypeDeclaration.bodyDeclarations().add(convert(isInterface, nextMethodDeclaration));
 					}
 					break;
 				case 2 :
 					membersIndex++;
 					ASTNode node = convert(nextMemberDeclaration);
 					if (node == null) {
-						newUnnamedClass.setFlags(newUnnamedClass.getFlags() | ASTNode.MALFORMED);
+						newImplicitTypeDeclaration.setFlags(newImplicitTypeDeclaration.getFlags() | ASTNode.MALFORMED);
 					} else {
-						newUnnamedClass.bodyDeclarations().add(node);
+						newImplicitTypeDeclaration.bodyDeclarations().add(node);
 					}
 			}
 		}
 		// Convert javadoc
-		convert(unnamedClass.javadoc, newUnnamedClass);
+		convert(implicitTypeDeclaration.javadoc, newImplicitTypeDeclaration);
 	}
 
 	protected void buildBodyDeclarations(
@@ -3493,8 +3493,8 @@ class ASTConverter {
 				return null;
 			}
 			return convertToRecordDeclaration(typeDeclaration);
-		} else if (typeDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration unnamedClass) {
-			return convertToUnnamedClass(unnamedClass);
+		} else if (typeDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration implicitTypeDeclaration) {
+			return convertToImplicitTypeDeclaration(implicitTypeDeclaration);
 		}
 		checkCanceled();
 		TypeDeclaration typeDecl = new TypeDeclaration(this.ast);
@@ -3574,15 +3574,15 @@ class ASTConverter {
 		return typeDecl;
 	}
 
-	private ASTNode convertToUnnamedClass(org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration unnamedClass) {
-		UnnamedClass typeDecl = new UnnamedClass(this.ast);
+	private ASTNode convertToImplicitTypeDeclaration(org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration implicitTypeDeclaration) {
+		ImplicitTypeDeclaration typeDecl = new ImplicitTypeDeclaration(this.ast);
 		ASTNode oldReferenceContext = this.referenceContext;
 		this.referenceContext = typeDecl;
-		typeDecl.setSourceRange(unnamedClass.declarationSourceStart, unnamedClass.bodyEnd - unnamedClass.declarationSourceStart + 1);
+		typeDecl.setSourceRange(implicitTypeDeclaration.declarationSourceStart, implicitTypeDeclaration.bodyEnd - implicitTypeDeclaration.declarationSourceStart + 1);
 
-		buildBodyDeclarations(unnamedClass, typeDecl, false);
+		buildBodyDeclarations(implicitTypeDeclaration, typeDecl, false);
 		if (this.resolveBindings) {
-			recordNodes(typeDecl, unnamedClass);
+			recordNodes(typeDecl, implicitTypeDeclaration);
 		}
 		this.referenceContext = oldReferenceContext;
 		return typeDecl;
