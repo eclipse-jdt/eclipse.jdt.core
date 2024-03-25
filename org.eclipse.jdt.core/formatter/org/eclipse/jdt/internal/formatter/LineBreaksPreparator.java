@@ -73,7 +73,7 @@ import org.eclipse.jdt.core.dom.TextBlock;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.UnnamedClass;
+import org.eclipse.jdt.core.dom.ImplicitTypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
@@ -183,7 +183,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 		}
 		if (previous != null) {
 			ASTNode parent = previous.getParent();
-			if (!(parent instanceof TypeDeclaration && this.tm.isFake((TypeDeclaration) parent) || parent instanceof UnnamedClass)) {
+			if (!(parent instanceof TypeDeclaration && this.tm.isFake((TypeDeclaration) parent) || parent instanceof ImplicitTypeDeclaration)) {
 				Token lastToken = this.tm.lastTokenIn(parent, -1);
 				putBlankLinesBefore(lastToken, this.options.blank_lines_after_last_class_body_declaration);
 			}
@@ -778,7 +778,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(UnnamedClass node) {
+	public boolean visit(ImplicitTypeDeclaration node) {
 		handleBodyDeclarations(node.bodyDeclarations());
 		return true;
 	}

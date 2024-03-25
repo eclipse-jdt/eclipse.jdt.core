@@ -2174,13 +2174,13 @@ public abstract class ASTVisitor {
 	 * Subclasses may reimplement.
 	 * </p>
 	 *
-	 * @param unnamedClass the unnamedClass to visit
+	 * @param implicitTypeDeclaration the ImplicitTypeDeclaration to visit
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
 	 * @since 3.38
 	 */
-	public boolean visit(UnnamedClass unnamedClass) {
+	public boolean visit(ImplicitTypeDeclaration implicitTypeDeclaration) {
 		return true;
 	}
 
@@ -3661,7 +3661,7 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 * @since 3.38
 	 */
-	public void endVisit(UnnamedClass node) {
+	public void endVisit(ImplicitTypeDeclaration node) {
 		// default implementation: do nothing
 	}
 
