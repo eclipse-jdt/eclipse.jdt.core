@@ -6,20 +6,20 @@ import java.util.List;
 /**
  * @since 3.38
  */
-public class UnnamedClass extends AbstractUnnamedTypeDeclaration {
+public class ImplicitTypeDeclaration extends AbstractUnnamedTypeDeclaration {
 
 	@Deprecated
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY =
-			internalModifiersPropertyFactory(UnnamedClass.class);
+			internalModifiersPropertyFactory(ImplicitTypeDeclaration.class);
 
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY =
-			internalModifiers2PropertyFactory(UnnamedClass.class);
+			internalModifiers2PropertyFactory(ImplicitTypeDeclaration.class);
 
 	public static final ChildPropertyDescriptor JAVADOC_PROPERTY =
-			internalJavadocPropertyFactory(UnnamedClass.class);
+			internalJavadocPropertyFactory(ImplicitTypeDeclaration.class);
 
 	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY =
-			internalBodyDeclarationPropertyFactory(UnnamedClass.class);
+			internalBodyDeclarationPropertyFactory(ImplicitTypeDeclaration.class);
 
 	/**
 	 * A list of property descriptors (element type:
@@ -39,21 +39,21 @@ public class UnnamedClass extends AbstractUnnamedTypeDeclaration {
 
 	static {
 		List<Object> propertyList = new ArrayList<>(8);
-		createPropertyList(UnnamedClass.class, propertyList);
+		createPropertyList(ImplicitTypeDeclaration.class, propertyList);
 		addProperty(BODY_DECLARATIONS_PROPERTY, propertyList);
 		addProperty(JAVADOC_PROPERTY, propertyList);
 		addProperty(MODIFIERS_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(propertyList);
 
 		propertyList = new ArrayList<>(8);
-		createPropertyList(UnnamedClass.class, propertyList);
+		createPropertyList(ImplicitTypeDeclaration.class, propertyList);
 		addProperty(BODY_DECLARATIONS_PROPERTY, propertyList);
 		addProperty(JAVADOC_PROPERTY, propertyList);
 		addProperty(MODIFIERS2_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(propertyList);
 	}
 
-	UnnamedClass(AST ast) {
+	ImplicitTypeDeclaration(AST ast) {
 		super(ast);
 	}
 
@@ -92,7 +92,7 @@ public class UnnamedClass extends AbstractUnnamedTypeDeclaration {
 
 	@Override
 	ASTNode clone0(AST target) {
-		UnnamedClass result = new UnnamedClass(target);
+		ImplicitTypeDeclaration result = new ImplicitTypeDeclaration(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));

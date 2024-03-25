@@ -720,7 +720,7 @@ protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boo
 					? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated
 					: currentModifiers & ExtraCompilerModifiers.AccJustFlag;
 			typeInfo.modifiers |= currentModifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed);
-			typeInfo.modifiers |= typeDeclaration instanceof ImplicitTypeDeclaration ? ExtraCompilerModifiers.AccUnnamed : 0;
+			typeInfo.modifiers |= typeDeclaration instanceof ImplicitTypeDeclaration ? ExtraCompilerModifiers.AccImplicitlyDeclared : 0;
 			typeInfo.name = typeDeclaration.name;
 			typeInfo.nameSourceStart = isEnumInit ? typeDeclaration.allocation.enumConstant.sourceStart : typeDeclaration.sourceStart;
 			typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);

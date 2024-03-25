@@ -2600,7 +2600,7 @@ public void test079() {
 		1. ERROR in Hello.java (at line 1)
 			void ___eval() {
 			^
-		The preview feature Unnamed Classes and Instance Main Methods is only available with source level 21 and above
+		The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 21 and above
 		----------
 		2. ERROR in Hello.java (at line 4)
 			return blah;

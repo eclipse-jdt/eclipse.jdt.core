@@ -70,7 +70,7 @@ public enum JavaFeature {
 			new char[][] {},
 			false),
 	IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS(ClassFileConstants.JDK22,
-			Messages.bind(Messages.unnamed_classes_and_instance_main_methods),
+			Messages.bind(Messages.implicit_classes_and_instance_main_methods),
 			new char[][] {},
 			true),
 	STRING_TEMPLATES(ClassFileConstants.JDK22,
