@@ -250,6 +250,11 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 
 	// task tags cannot be ignored
 	public void test005() throws CoreException {
+		if (org.eclipse.jdt.internal.core.CompilationUnit.DOM_BASED_OPERATIONS) {
+			// Not supported because of
+			// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2277
+			return;
+		}
 		ICompilationUnit unit = null;
 		try {
 			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL18_LIB" }, "bin");

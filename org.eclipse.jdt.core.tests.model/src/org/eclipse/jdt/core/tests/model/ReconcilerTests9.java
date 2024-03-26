@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.CompilationUnit;
 
 public class ReconcilerTests9 extends ModifyingResourceTests {
 
@@ -805,6 +806,11 @@ public void testBug546315() throws Exception {
 	}
 }
 public void testBug544306() throws Exception {
+	if (CompilationUnit.DOM_BASED_OPERATIONS) {
+		// Skipped because of
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2301
+		return;
+	}
 	if (!isJRE9)
 		return;
 	IJavaProject p1 = createJava9Project("p1");

@@ -1076,6 +1076,11 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 		assertEquals(0, annotations.length);
 	}
 	public void testBug479389() throws CoreException, IOException {
+		if (org.eclipse.jdt.internal.core.CompilationUnit.DOM_BASED_OPERATIONS) {
+			// skip because of
+			// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2303
+			return;
+		}
 		IJavaProject project = null;
 		try {
 			project = createJavaProject("Bug479389", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");

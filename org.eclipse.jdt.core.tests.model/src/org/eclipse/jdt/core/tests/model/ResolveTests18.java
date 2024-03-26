@@ -2382,6 +2382,11 @@ public void test429948() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429934, [1.8][search] for references to type of lambda with 'this' parameter throws AIIOBE
 public void test429934() throws CoreException {
+	if (org.eclipse.jdt.internal.core.CompilationUnit.DOM_BASED_OPERATIONS) {
+		// skip because of
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2269
+		return;
+	}
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Resolve/src/X.java",
 			"interface Function<T, R> {\n" +

@@ -262,6 +262,12 @@ public void test400905() throws CoreException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905
 // Fix for 228845 does not seem to work for anonymous/local/functional types.
 public void test400905a() throws CoreException {
+	if (org.eclipse.jdt.internal.core.CompilationUnit.DOM_BASED_OPERATIONS) {
+		// This test requires a better recovery (the one from SelectionParser)
+		// which is not implemented when using ASTParser/CommentRecorderParser
+		// so let's skip it until the CommentRecordParser can recover better
+		return;
+	}
 	String newContents =
 		"package x.y;\n" +
 		"public class A {\n" +

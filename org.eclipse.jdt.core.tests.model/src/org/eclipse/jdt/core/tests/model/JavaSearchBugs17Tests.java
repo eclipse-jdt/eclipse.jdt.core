@@ -273,9 +273,9 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"private static void foo(Object o) {\n" +
 						" int /*here*/local=0" +
 						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + local);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
+						"	case Integer i   : System.out.println(\"Integer:\" + i);\n" +
+						"	case String s     : System.out.println(\"String:\" + s + local);\n" +
+						"	default       : System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
 						"}\n" +
 						"}\n"
@@ -311,9 +311,9 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"private static void foo(Object o) {\n" +
 						" int /*here*/local=0" +
 						" switch (o) {\n" +
-						"	case Integer i   -> System.out.println(\"Integer:\" + i +local);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + local);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
+						"	case Integer i   : System.out.println(\"Integer:\" + i +local);\n" +
+						"	case String s     : System.out.println(\"String:\" + s + local);\n" +
+						"	default       : System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
 						"}\n" +
 						"}\n"
@@ -390,9 +390,9 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"private static void foo(Object o) {\n" +
 						" int /*here*/local=0" +
 						" switch (o) {\n" +
-						"	case Integer i when local >9  -> System.out.println(\"Integer:\" + i +local);\n" +
-						"	case String s     -> System.out.println(\"String:\" + s + local);\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
+						"	case Integer i when local >9  : System.out.println(\"Integer:\" + i +local);\n" +
+						"	case String s     : System.out.println(\"String:\" + s + local);\n" +
+						"	default       : System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
 						"}\n" +
 						"}\n"
@@ -1257,9 +1257,9 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"}\n" +
 						"private static void foo(Object o) {\n" +
 						" switch (o) {\n" +
-						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s when /*here*/s.hashCode()>0    -> System.out.println(\"String:\" );\n" +
-						"	default       -> System.out.println(\"Object\" + o);\n" +
+						"	case Integer i     : System.out.println(\"Integer:\" + i);\n" +
+						"	case String s when /*here*/s.hashCode()>0    : System.out.println(\"String:\" );\n" +
+						"	default       : System.out.println(\"Object\" + o);\n" +
 						" 	}}\n" +
 						"}\n" +
 						"}\n"
