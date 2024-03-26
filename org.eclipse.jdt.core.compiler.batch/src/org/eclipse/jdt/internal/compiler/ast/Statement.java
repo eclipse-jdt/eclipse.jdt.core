@@ -500,13 +500,7 @@ public void resolveWithBindings(LocalVariableBinding[] bindings, BlockScope scop
 		scope.exclude(bindings);
 	}
 }
-/**
- * Returns the resolved expression if any associated to this statement - used
- * parameter statement has to be either a SwitchStatement or a SwitchExpression
- */
-public TypeBinding resolveExpressionType(BlockScope scope) {
-	return null;
-}
+
 
 public boolean containsPatternVariable() {
 	return containsPatternVariable(false);

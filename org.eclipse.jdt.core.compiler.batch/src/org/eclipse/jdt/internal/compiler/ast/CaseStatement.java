@@ -114,73 +114,6 @@ private FlowInfo analyseConstantExpression(
 	return e.analyseCode(currentScope, flowContext, flowInfo);
 }
 
-@Override
-public StringBuilder printStatement(int tab, StringBuilder output) {
-	printIndent(tab, output);
-	if (this.constantExpressions == Expression.NO_EXPRESSIONS) {
-		output.append("default "); //$NON-NLS-1$
-		output.append(this.isExpr ? "->" : ":"); //$NON-NLS-1$ //$NON-NLS-2$
-	} else {
-		output.append("case "); //$NON-NLS-1$
-		for (int i = 0, l = this.constantExpressions.length; i < l; ++i) {
-			this.constantExpressions[i].printExpression(0, output);
-			if (i < l -1) output.append(',');
-		}
-		output.append(this.isExpr ? " ->" : " :"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	return output;
-}
-
-/**
- * Case code generation
- */
-@Override
-public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-	if ((this.bits & ASTNode.IsReachable) == 0) {
-		return;
-	}
-	int pc = codeStream.position;
-	if (this.targetLabels != null) {
-		for (BranchLabel label : this.targetLabels) {
-			label.place();
-		}
-	}
-	if (this.targetLabel != null)
-		this.targetLabel.place();
-
-	if (containsPatternVariable(true)) {
-
-		BranchLabel patternMatchLabel = new BranchLabel(codeStream);
-		BranchLabel matchFailLabel = new BranchLabel(codeStream);
-
-		Pattern pattern = (Pattern) this.constantExpressions[0];
-		codeStream.load(this.swich.dispatchPatternCopy);
-		pattern.generateCode(currentScope, codeStream, patternMatchLabel, matchFailLabel);
-		codeStream.goto_(patternMatchLabel);
-		matchFailLabel.place();
-
-		if (pattern.matchFailurePossible()) {
-			/* We are generating a "thunk"/"trampoline" of sorts now, that flow analysis has no clue about.
-			   We need to manage the live variables manually. Pattern bindings are not definitely
-			   assigned here as we are in the else region.
-		    */
-			final LocalVariableBinding[] bindingsWhenTrue = pattern.bindingsWhenTrue();
-			Stream.of(bindingsWhenTrue).forEach(v->v.recordInitializationEndPC(codeStream.position));
-			int caseIndex = this.typeSwitchIndex + pattern.getAlternatives().length;
-			codeStream.loadInt(this.swich.nullProcessed ? caseIndex - 1 : caseIndex);
-			codeStream.store(this.swich.restartIndexLocal, false);
-			codeStream.goto_(this.swich.switchPatternRestartTarget);
-			Stream.of(bindingsWhenTrue).forEach(v->v.recordInitializationStartPC(codeStream.position));
-		}
-		patternMatchLabel.place();
-	} else {
-		if (this.swich.containsNull) {
-			this.swich.nullProcessed |= true;
-		}
-	}
-	codeStream.recordPositionsFrom(pc, this.sourceStart);
-}
-
 /**
  * No-op : should use resolveCase(...) instead.
  */
@@ -232,60 +165,7 @@ public static class ResolvedCase {
 		return builder.toString();
 	}
 }
-private Expression getFirstValidExpression(BlockScope scope, SwitchStatement switchStatement) {
-	assert this.constantExpressions != null;
-	Expression ret = null;
-	int nullCaseLabelCount = 0;
 
-	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(scope.compilerOptions());
-	if (patternSwitchAllowed) {
-		int exprCount = 0;
-		for (Expression e : this.constantExpressions) {
-			++exprCount;
-			 if (e instanceof FakeDefaultLiteral) {
-				 scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
-							e.sourceStart, e.sourceEnd);
-				 flagDuplicateDefault(scope, switchStatement,
-						 this.constantExpressions.length > 1 ? e : this);
-				 if (exprCount != 2 || nullCaseLabelCount < 1) {
-					 scope.problemReporter().patternSwitchCaseDefaultOnlyAsSecond(e);
-				 }
-				 continue;
-			}
-			if (e instanceof Pattern) {
-				scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
-						e.sourceStart, e.sourceEnd);
-			} else if (e instanceof NullLiteral) {
-				scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
-						e.sourceStart, e.sourceEnd);
-				if (switchStatement.nullCase == null) {
-					switchStatement.nullCase = this;
-				}
-
-				nullCaseLabelCount++;
-				// note: case null or case null, default are the only constructs allowed with null
-				//  second condition added since duplicate case label will anyway be flagged
-				if (exprCount > 1 && nullCaseLabelCount < 2) {
-					scope.problemReporter().patternSwitchNullOnlyOrFirstWithDefault(e);
-					return e; // Return and avoid secondary errors
-				}
-			}
-			if (ret == null) ret = e;
-		}
-	} else {
-		for (Expression e : this.constantExpressions) {
-			if (e instanceof Pattern
-					|| e instanceof NullLiteral
-					|| e instanceof FakeDefaultLiteral) {
-				scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
-						e.sourceStart, e.sourceEnd);
-				continue;
-			}
-			if (ret == null) ret = e;
-		}
-	}
-	return ret;
-}
 /**
  * Returns the constant intValue or ordinal for enum constants. If constant is NotAConstant, then answers Float.MIN_VALUE
  */
@@ -296,14 +176,32 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 		flagDuplicateDefault(scope, switchStatement, this);
 		return ResolvedCase.UnresolvedCase;
 	}
-	if (getFirstValidExpression(scope, switchStatement) == null) {
-		return ResolvedCase.UnresolvedCase;
-	}
 
 	switchStatement.cases[switchStatement.caseCount++] = this;
 
 	List<ResolvedCase> cases = new ArrayList<>();
+	int count = 0;
+	int nullCaseCount = 0;
+	boolean hasResolveErrors = false;
 	for (Expression e : this.constantExpressions) {
+		count++;
+		if (e instanceof FakeDefaultLiteral) {
+			 flagDuplicateDefault(scope, switchStatement, this.constantExpressions.length > 1 ? e : this);
+			 if (count != 2 || nullCaseCount < 1) {
+				 scope.problemReporter().patternSwitchCaseDefaultOnlyAsSecond(e);
+			 }
+			 continue;
+		}
+		if (e instanceof NullLiteral) {
+			if (switchStatement.nullCase == null) {
+				switchStatement.nullCase = this;
+			}
+			nullCaseCount++;
+			if (count > 1 && nullCaseCount < 2) {
+				scope.problemReporter().patternSwitchNullOnlyOrFirstWithDefault(e);
+			}
+		}
+
 		// tag constant name with enum type for privileged access to its members
 		if (switchExpressionType != null && switchExpressionType.isEnum() && (e instanceof SingleNameReference)) {
 			((SingleNameReference) e).setActualReceiverType((ReferenceBinding)switchExpressionType);
@@ -315,8 +213,11 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 
 		TypeBinding	caseType = e.resolveType(scope);
 
-		if (caseType == null || switchExpressionType == null)
-			return ResolvedCase.UnresolvedCase;
+		if (caseType == null || switchExpressionType == null) {
+			hasResolveErrors = true;
+			continue;
+		}
+
 
 		if (caseType.isValidBinding()) {
 			if (e instanceof Pattern) {
@@ -337,7 +238,7 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 			}
 		}
 	}
-	return cases.toArray(new ResolvedCase[cases.size()]);
+	return hasResolveErrors ? ResolvedCase.UnresolvedCase : cases.toArray(new ResolvedCase[cases.size()]);
 }
 
 private void flagDuplicateDefault(BlockScope scope, SwitchStatement switchStatement, ASTNode node) {
@@ -486,6 +387,70 @@ private Constant resolveConstantExpression(BlockScope scope,
 		}
 	}
  	return constant;
+}
+
+@Override
+public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+	if ((this.bits & ASTNode.IsReachable) == 0) {
+		return;
+	}
+	int pc = codeStream.position;
+	if (this.targetLabels != null) {
+		for (BranchLabel label : this.targetLabels) {
+			label.place();
+		}
+	}
+	if (this.targetLabel != null)
+		this.targetLabel.place();
+
+	if (containsPatternVariable(true)) {
+
+		BranchLabel patternMatchLabel = new BranchLabel(codeStream);
+		BranchLabel matchFailLabel = new BranchLabel(codeStream);
+
+		Pattern pattern = (Pattern) this.constantExpressions[0];
+		codeStream.load(this.swich.dispatchPatternCopy);
+		pattern.generateCode(currentScope, codeStream, patternMatchLabel, matchFailLabel);
+		codeStream.goto_(patternMatchLabel);
+		matchFailLabel.place();
+
+		if (pattern.matchFailurePossible()) {
+			/* We are generating a "thunk"/"trampoline" of sorts now, that flow analysis has no clue about.
+			   We need to manage the live variables manually. Pattern bindings are not definitely
+			   assigned here as we are in the else region.
+		    */
+			final LocalVariableBinding[] bindingsWhenTrue = pattern.bindingsWhenTrue();
+			Stream.of(bindingsWhenTrue).forEach(v->v.recordInitializationEndPC(codeStream.position));
+			int caseIndex = this.typeSwitchIndex + pattern.getAlternatives().length;
+			codeStream.loadInt(this.swich.nullProcessed ? caseIndex - 1 : caseIndex);
+			codeStream.store(this.swich.restartIndexLocal, false);
+			codeStream.goto_(this.swich.switchPatternRestartTarget);
+			Stream.of(bindingsWhenTrue).forEach(v->v.recordInitializationStartPC(codeStream.position));
+		}
+		patternMatchLabel.place();
+	} else {
+		if (this.swich.containsNull) {
+			this.swich.nullProcessed |= true;
+		}
+	}
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
+}
+
+@Override
+public StringBuilder printStatement(int tab, StringBuilder output) {
+	printIndent(tab, output);
+	if (this.constantExpressions == Expression.NO_EXPRESSIONS) {
+		output.append("default "); //$NON-NLS-1$
+		output.append(this.isExpr ? "->" : ":"); //$NON-NLS-1$ //$NON-NLS-2$
+	} else {
+		output.append("case "); //$NON-NLS-1$
+		for (int i = 0, l = this.constantExpressions.length; i < l; ++i) {
+			this.constantExpressions[i].printExpression(0, output);
+			if (i < l -1) output.append(',');
+		}
+		output.append(this.isExpr ? " ->" : " :"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	return output;
 }
 
 @Override

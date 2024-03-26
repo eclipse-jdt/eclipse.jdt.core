@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.compiler.regression.InstanceofPrimaryPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.PatternMatching16Test;
 import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternTest;
@@ -57,6 +58,7 @@ public class RunVariousSwitchTests extends TestCase {
 				JavaSearchBugs14SwitchExpressionTests.class,
 				ASTRewritingSwitchExpressionsTest.class,
 				ASTRewritingSwitchPatternTest.class,
+				ComplianceDiagnoseTest.class,
 
 		};
 	}
