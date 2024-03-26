@@ -25,20 +25,19 @@ public class YieldStatement extends BranchStatement {
 	public Expression expression;
 	public SwitchExpression switchExpression;
 	public TryStatement tryStatement;
-	/**
-	 * @noreference This field is not intended to be referenced by clients.
-	 */
+
 	public boolean isImplicit;
 	static final char[] SECRET_YIELD_RESULT_VALUE_NAME = " secretYieldValue".toCharArray(); //$NON-NLS-1$
 	private LocalVariableBinding secretYieldResultValue = null;
 
-public YieldStatement(Expression exp, int sourceStart, int sourceEnd) {
+public YieldStatement(Expression expression, int sourceStart, int sourceEnd) {
 	super(null, sourceStart, sourceEnd);
-	this.expression = exp;
+	this.expression = expression;
 }
+
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	// this.switchExpression != null && this.expression != null true here.
+	// this.switchExpression != null true here.
 
 	// here requires to generate a sequence of finally blocks invocations depending corresponding
 	// to each of the traversed try statements, so that execution will terminate properly.
@@ -98,10 +97,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	return FlowInfo.DEAD_END;
 }
+
 @Override
 protected void setSubroutineSwitchExpression(SubRoutineStatement sub) {
 	sub.setSwitchExpression(this.switchExpression);
 }
+
 protected void addSecretYieldResultValue(BlockScope scope) {
 	SwitchExpression se = this.switchExpression;
 	if (se == null || !se.containsTry)
@@ -125,67 +126,30 @@ protected void addSecretYieldResultValue(BlockScope scope) {
 protected void restartExceptionLabels(CodeStream codeStream) {
 	SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, -1, codeStream);
 }
-protected void generateExpressionResultCodeExpanded(BlockScope currentScope, CodeStream codeStream) {
-	SwitchExpression se = this.switchExpression;
-	addSecretYieldResultValue(currentScope);
-	assert this.secretYieldResultValue != null;
-	codeStream.record(this.secretYieldResultValue);
-	SingleNameReference lhs = new SingleNameReference(this.secretYieldResultValue.name, 0);
-	lhs.binding = this.secretYieldResultValue;
-	lhs.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
-	lhs.bits |= Binding.LOCAL;
-	lhs.bits |= ASTNode.IsSecretYieldValueUsage;
-	((LocalVariableBinding) lhs.binding).markReferenced(); // TODO : Can be skipped?
-	Assignment assignment = new Assignment(lhs, this.expression, 0);
-	assignment.generateCode(currentScope, codeStream);
 
-	int pc = codeStream.position;
-	// generation of code responsible for invoking the finally
-	// blocks in sequence
-	if (this.subroutines != null){
-		for (int i = 0, max = this.subroutines.length; i < max; i++){
-			SubRoutineStatement sub = this.subroutines[i];
-			SwitchExpression se1 = sub.getSwitchExpression();
-			setSubroutineSwitchExpression(sub);
-			boolean didEscape = sub.generateSubRoutineInvocation(currentScope, codeStream, this.targetLabel, this.initStateIndex, null);
-			sub.setSwitchExpression(se1);
-			if (didEscape) {
-				codeStream.removeVariable(this.secretYieldResultValue);
-					codeStream.recordPositionsFrom(pc, this.sourceStart);
-					SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, i, codeStream);
-					if (this.initStateIndex != -1) {
-						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
-						codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
-					}
-					restartExceptionLabels(codeStream);
-					return;
-			}
-		}
-	}
-	se.loadStoredTypesAndKeep(codeStream);
-	codeStream.load(this.secretYieldResultValue);
-	codeStream.removeVariable(this.secretYieldResultValue);
-
-	codeStream.goto_(this.targetLabel);
-	codeStream.recordPositionsFrom(pc, this.sourceStart);
-	SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, -1, codeStream);
-	if (this.initStateIndex != -1) {
-		codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
-		codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
-	}
-}
 @Override
 public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if ((this.bits & ASTNode.IsReachable) == 0) {
 		return;
 	}
+	boolean generateExpressionResultCodeExpanded = false;
 	if (this.switchExpression != null && this.switchExpression.containsTry && this.switchExpression.resolvedType != null ) {
-		generateExpressionResultCodeExpanded(currentScope, codeStream);
-		return;
+		generateExpressionResultCodeExpanded = true;
+		addSecretYieldResultValue(currentScope);
+		assert this.secretYieldResultValue != null;
+		codeStream.record(this.secretYieldResultValue);
+		SingleNameReference lhs = new SingleNameReference(this.secretYieldResultValue.name, 0);
+		lhs.binding = this.secretYieldResultValue;
+		lhs.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
+		lhs.bits |= Binding.LOCAL;
+		lhs.bits |= ASTNode.IsSecretYieldValueUsage;
+		((LocalVariableBinding) lhs.binding).markReferenced(); // TODO : Can be skipped?
+		Assignment assignment = new Assignment(lhs, this.expression, 0);
+		assignment.generateCode(currentScope, codeStream);
+	} else {
+		this.expression.generateCode(currentScope, codeStream, this.switchExpression != null);
 	}
-	this.expression.generateCode(currentScope, codeStream, this.switchExpression != null);
 	int pc = codeStream.position;
-
 	// generation of code responsible for invoking the finally
 	// blocks in sequence
 	if (this.subroutines != null){
@@ -196,6 +160,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			boolean didEscape = sub.generateSubRoutineInvocation(currentScope, codeStream, this.targetLabel, this.initStateIndex, null);
 			sub.setSwitchExpression(se);
 			if (didEscape) {
+					if (generateExpressionResultCodeExpanded) {
+						codeStream.removeVariable(this.secretYieldResultValue);
+					}
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
 					SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, i, codeStream);
 					if (this.initStateIndex != -1) {
@@ -207,6 +174,11 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			}
 		}
 	}
+	if (generateExpressionResultCodeExpanded) {
+		this.switchExpression.loadStoredTypesAndKeep(codeStream);
+		codeStream.load(this.secretYieldResultValue);
+		codeStream.removeVariable(this.secretYieldResultValue);
+	}
 	codeStream.goto_(this.targetLabel);
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 	SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, -1, codeStream);
@@ -215,13 +187,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
 	}
 }
+
 @Override
 public void resolve(BlockScope scope) {
-	super.resolve(scope);
-	if (this.expression == null) {
-		return;
 
-	}
 	if (this.switchExpression != null || this.isImplicit) {
 		if (this.switchExpression == null && this.isImplicit && !this.expression.statementExpression()) {
 			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
@@ -243,21 +212,14 @@ public void resolve(BlockScope scope) {
 }
 
 @Override
-public TypeBinding resolveExpressionType(BlockScope scope1) {
-	return this.expression != null ? this.expression.resolveType(scope1) : null;
-}
-
-@Override
 public StringBuilder printStatement(int tab, StringBuilder output) {
 	if (!this.isImplicit)
 		printIndent(tab, output).append("yield"); //$NON-NLS-1$
-	if (this.expression != null) {
-		if (this.isImplicit) {
-			this.expression.print(tab, output);
-		} else {
-			output.append(' ');
-			this.expression.printExpression(tab, output);
-		}
+	if (this.isImplicit) {
+		this.expression.print(tab, output);
+	} else {
+		output.append(' ');
+		this.expression.printExpression(tab, output);
 	}
 	return output.append(';');
 }
@@ -265,11 +227,11 @@ public StringBuilder printStatement(int tab, StringBuilder output) {
 @Override
 public void traverse(ASTVisitor visitor, BlockScope blockscope) {
 	if (visitor.visit(this, blockscope)) {
-		if (this.expression != null)
-			this.expression.traverse(visitor, blockscope);
+		this.expression.traverse(visitor, blockscope);
 	}
 	visitor.endVisit(this, blockscope);
 }
+
 @Override
 public boolean doesNotCompleteNormally() {
 	return true;
@@ -279,5 +241,4 @@ public boolean doesNotCompleteNormally() {
 public boolean canCompleteNormally() {
 	return false;
 }
-
 }
