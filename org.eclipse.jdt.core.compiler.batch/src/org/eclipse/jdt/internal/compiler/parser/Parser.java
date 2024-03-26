@@ -57,6 +57,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.StringTemplate;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -160,8 +161,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	}
 
 	protected enum CaseLabelKind {
-		CASE_EXPRESSION,
-		CASE_NULL,
+		CASE_EXPRESSION,  // case null is subsumed by CASE_EXPRESSION
 		CASE_DEFAULT,
 		CASE_PATTERN
 	}
@@ -9672,23 +9672,29 @@ protected void consumeConstantExpression() {
 	// do nothing for now.
 }
 protected void consumeCaseLabelElement(CaseLabelKind kind) {
+	Expression pattern = null;
 	switch (kind) {
-		case CASE_PATTERN:
-			this.astLengthPtr--;
-			Pattern pattern = (Pattern) this.astStack[this.astPtr--];
-			pushOnExpressionStack(pattern);
-			this.recordPatternSwitches.put(this.switchNestingLevel, Boolean.TRUE);
-			break;
-		case CASE_EXPRESSION:
-			if (this.expressionPtr >= 0 && this.expressionStack[this.expressionPtr] instanceof NullLiteral)
-				this.recordNullSwitches.put(this.switchNestingLevel, Boolean.TRUE);
-			break;
-		case CASE_DEFAULT:
-			int end = this.intStack[this.intPtr--];
-			int start = this.intStack[this.intPtr--];
-			pushOnExpressionStack(new FakeDefaultLiteral(start, end));
-			break;
-		default : break;
+		case CASE_PATTERN -> {
+				this.astLengthPtr--;
+				pattern = (Pattern) this.astStack[this.astPtr--];
+				pushOnExpressionStack(pattern);
+				this.recordPatternSwitches.put(this.switchNestingLevel, Boolean.TRUE);
+			}
+		case CASE_EXPRESSION -> {
+				if ((pattern = this.expressionStack[this.expressionPtr]) instanceof NullLiteral) {
+					this.recordNullSwitches.put(this.switchNestingLevel, Boolean.TRUE);
+				} else {
+					pattern = null;
+				}
+			}
+		case CASE_DEFAULT -> {
+				int end = this.intStack[this.intPtr--];
+				int start = this.intStack[this.intPtr--];
+				pushOnExpressionStack(pattern = new FakeDefaultLiteral(start, end));
+			}
+	}
+	if (pattern != null) {
+		problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH, pattern.sourceStart, pattern.sourceEnd);
 	}
 	this.scanner.multiCaseLabelComma = this.currentToken == TerminalTokens.TokenNameCOMMA;
 }

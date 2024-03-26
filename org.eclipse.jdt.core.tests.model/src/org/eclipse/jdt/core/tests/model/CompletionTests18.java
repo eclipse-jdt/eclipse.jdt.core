@@ -2504,9 +2504,9 @@ public void testBug459189_002() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
 			"	Integer bar(Integer x) { return null;}\n"+
-			"public class X {\n"+
+			"public class Y {\n"+
 			"	Integer foo(){\n"+
-			"		I <Integer, X> i2 = (x) -> {/* HERE */ret /* type ctrl-space after ret */};\n"+
+			"		I <Integer, Y> i2 = (x) -> {/* HERE */ret /* type ctrl-space after ret */};\n"+
 			"		return 0;\n"+
 			"	}\n"+
 			"}\n"+
