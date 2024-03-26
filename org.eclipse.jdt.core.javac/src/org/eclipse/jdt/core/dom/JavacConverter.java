@@ -144,6 +144,7 @@ class JavacConverter {
 		javacCompilationUnit.getImports().stream().map(jc -> convert(jc)).forEach(res.imports()::add);
 		javacCompilationUnit.getTypeDecls().stream()
 			.map(n -> convertBodyDeclaration(n, res))
+			.filter(Objects::nonNull)
 			.forEach(res.types()::add);
 		res.accept(new FixPositions());
 	}
@@ -418,6 +419,9 @@ class JavacConverter {
 			commonSettings(res, tree);
 			res.setBody(convertBlock(block));
 			return res;
+		}
+		if (tree instanceof JCErroneous) {
+			return null;
 		}
 		throw new UnsupportedOperationException("Unsupported " + tree + " of type" + tree.getClass());
 	}
