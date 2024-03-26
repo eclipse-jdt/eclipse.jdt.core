@@ -13,18 +13,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
-import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -60,6 +58,8 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.osgi.framework.Bundle;
+
+import junit.framework.Test;
 
 @SuppressWarnings("rawtypes")
 public class NullAnnotationModelTests extends ReconcilerTests {
@@ -1106,6 +1106,11 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 		assertEquals(0, annotations.length);
 	}
 	public void testBug479389() throws CoreException, IOException {
+		if (org.eclipse.jdt.internal.core.CompilationUnit.DOM_BASED_OPERATIONS) {
+			// skip because of
+			// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2303
+			return;
+		}
 		IJavaProject project = null;
 		try {
 			project = createJavaProject("Bug479389", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
