@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac.dom;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.StreamSupport;
 
@@ -33,28 +34,38 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
 import com.sun.tools.javac.code.Types.FunctionDescriptorLookupError;
 import com.sun.tools.javac.code.Types;
+import com.sun.tools.javac.code.Kinds;
 
 public class JavacTypeBinding implements ITypeBinding {
+
+	private static final ITypeBinding[] NO_TYPE_ARGUMENTS = new ITypeBinding[0];
 
 	final JavacBindingResolver resolver;
 	public final TypeSymbol typeSymbol;
 	private final Types types;
+	private final List<TypeSymbol> typeArguments;
 
-	public JavacTypeBinding(final TypeSymbol classSymbol, final JavacBindingResolver resolver) {
+	/**
+	 *
+	 * @param classSymbol
+	 * @param resolver
+	 * @param typeArguments the type arguments (NOT the type parameters) or null if this is not a parameterized type
+	 */
+	public JavacTypeBinding(final TypeSymbol classSymbol, final JavacBindingResolver resolver, final List<TypeSymbol> typeArguments) {
 		this.typeSymbol = classSymbol;
 		this.resolver = resolver;
 		this.types = Types.instance(this.resolver.context);
+		this.typeArguments = typeArguments;
 	}
 
-	public JavacTypeBinding(final Type type, final JavacBindingResolver resolver) {
-		this(type.tsym, resolver);
+	public JavacTypeBinding(final Type type, final JavacBindingResolver resolver, final List<TypeSymbol> typeArguments) {
+		this(type.tsym, resolver, typeArguments);
 	}
 
 	@Override
@@ -76,8 +87,7 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isRecovered() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isRecovered'");
+		return this.typeSymbol.kind == Kinds.Kind.ERR;
 	}
 
 	@Override
@@ -99,7 +109,34 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String getKey() {
-		// TODO Auto-generated method stub
+		StringBuilder builder = new StringBuilder();
+		getKey(builder, this.typeSymbol.type, false);
+		return builder.toString();
+	}
+
+	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf) {
+		if (typeToBuild instanceof ArrayType arrayType) {
+			builder.append('[');
+			getKey(builder, arrayType.elemtype, isLeaf);
+			return;
+		}
+		if (typeToBuild.isReference()) {
+			if (!isLeaf) {
+				builder.append('L');
+			}
+			builder.append(typeToBuild.asElement().getQualifiedName().toString().replace('.', '/'));
+			if (typeToBuild.isParameterized()) {
+				builder.append('<');
+				for (var typeArgument : typeToBuild.getTypeArguments()) {
+					getKey(builder, typeArgument, false);
+				}
+				builder.append('>');
+			}
+			if (!isLeaf) {
+				builder.append(';');
+			}
+			return;
+		}
 		throw new UnsupportedOperationException("Unimplemented method 'getKey'");
 	}
 
@@ -116,25 +153,36 @@ public class JavacTypeBinding implements ITypeBinding {
 		for (int i = 0; i < dimension; i++) {
 			type = this.types.makeArrayType(type);
 		}
-		return new JavacTypeBinding(type, this.resolver);
+		return new JavacTypeBinding(type, this.resolver, this.typeArguments);
 	}
 
 	@Override
 	public String getBinaryName() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getBinaryName'");
+		return this.typeSymbol.flatName().toString();
 	}
 
 	@Override
 	public ITypeBinding getBound() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getBound'");
+		if (!this.isWildcardType()) {
+			return null;
+		}
+		ITypeBinding[] boundsArray = this.getTypeBounds();
+		if (boundsArray.length == 1) {
+			return boundsArray[0];
+		}
+		return null;
 	}
 
 	@Override
 	public ITypeBinding getGenericTypeOfWildcardType() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getGenericTypeOfWildcardType'");
+		if (!this.isWildcardType()) {
+			return null;
+		}
+		if (this.typeSymbol.type instanceof WildcardType wildcardType) {
+			// TODO: probably wrong, we might need to pass in the parent node from the AST
+			return (ITypeBinding)this.resolver.getBinding(wildcardType.type.tsym, null);
+		}
+		throw new IllegalStateException("Binding is a wildcard, but type cast failed");
 	}
 
 	@Override
@@ -147,8 +195,10 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getComponentType() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getComponentType'");
+		if (this.typeSymbol.type instanceof ArrayType arrayType) {
+			return new JavacTypeBinding(arrayType.elemtype.tsym, this.resolver, null);
+		}
+		return null;
 	}
 
 	@Override
@@ -165,7 +215,7 @@ public class JavacTypeBinding implements ITypeBinding {
 		return StreamSupport.stream(this.typeSymbol.members().getSymbols().spliterator(), false)
 			.filter(MethodSymbol.class::isInstance)
 			.map(MethodSymbol.class::cast)
-			.map(sym -> new JavacMethodBinding(sym, this.resolver))
+			.map(sym -> new JavacMethodBinding(sym, this.resolver, null))
 			.toArray(IMethodBinding[]::new);
 	}
 
@@ -181,7 +231,7 @@ public class JavacTypeBinding implements ITypeBinding {
 		return StreamSupport.stream(this.typeSymbol.members().getSymbols().spliterator(), false)
 			.filter(TypeSymbol.class::isInstance)
 			.map(TypeSymbol.class::cast)
-			.map(sym -> new JavacTypeBinding(sym, this.resolver))
+			.map(sym -> new JavacTypeBinding(sym, this.resolver, null))
 			.toArray(ITypeBinding[]::new);
 	}
 
@@ -190,7 +240,7 @@ public class JavacTypeBinding implements ITypeBinding {
 		Symbol parentSymbol = this.typeSymbol.owner;
 		do {
 			if (parentSymbol instanceof final ClassSymbol clazz) {
-				return new JavacTypeBinding(clazz, this.resolver);
+				return new JavacTypeBinding(clazz, this.resolver, null);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
@@ -202,7 +252,7 @@ public class JavacTypeBinding implements ITypeBinding {
 		Symbol parentSymbol = this.typeSymbol.owner;
 		do {
 			if (parentSymbol instanceof final MethodSymbol method) {
-				return new JavacMethodBinding(method, this.resolver);
+				return new JavacMethodBinding(method, this.resolver, null);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
@@ -211,23 +261,10 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IBinding getDeclaringMember() {
-//		Symbol enclosingSymbol = typeSymbol.owner;
-//		//TODO Shooting from the hip here
-//		while (enclosingSymbol != null) {
-//			if (enclosingSymbol instanceof ClassSymbol classSymbol) {
-//				return new JavacTypeBinding(classSymbol, resolver);
-//			} else if (enclosingSymbol instanceof PackageSymbol packageSymbol) {
-//				return new JavacPackageBinding(packageSymbol, resolver);
-//			} else if (enclosingSymbol instanceof MethodSymbol methodSymbol) {
-//				return new JavacMethodBinding(methodSymbol, resolver);
-//			} else if (enclosingSymbol instanceof VarSymbol varSymbol) {
-//				return new JavacVariableBinding(varSymbol, resolver);
-//			}
-//			enclosingSymbol = enclosingSymbol.owner;
-//		}
-//		return null;
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getDeclaringMember'");
+		if (!this.isLocal()) {
+			return null;
+		}
+		return this.resolver.getBinding(this.typeSymbol.owner, null);
 	}
 
 	@Override
@@ -237,12 +274,12 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getElementType() {
-		return new JavacTypeBinding(this.types.elemtype(this.typeSymbol.type), this.resolver);
+		return new JavacTypeBinding(this.types.elemtype(this.typeSymbol.type), this.resolver, null);
 	}
 
 	@Override
 	public ITypeBinding getErasure() {
-		return new JavacTypeBinding(this.types.erasure(this.typeSymbol.type), this.resolver);
+		return new JavacTypeBinding(this.types.erasure(this.typeSymbol.type), this.resolver, null);
 	}
 
 	@Override
@@ -250,7 +287,7 @@ public class JavacTypeBinding implements ITypeBinding {
 		try {
 			Symbol symbol = types.findDescriptorSymbol(this.typeSymbol);
 			if (symbol instanceof MethodSymbol methodSymbol) {
-				return new JavacMethodBinding(methodSymbol, resolver);
+				return new JavacMethodBinding(methodSymbol, resolver, null);
 			}
 		} catch (FunctionDescriptorLookupError ignore) {
 		}
@@ -260,7 +297,7 @@ public class JavacTypeBinding implements ITypeBinding {
 	@Override
 	public ITypeBinding[] getInterfaces() {
 		return this.typeSymbol instanceof final ClassSymbol classSymbol && classSymbol.getInterfaces() != null ?
-			classSymbol.getInterfaces().map(t -> new JavacTypeBinding(t, this.resolver)).toArray(ITypeBinding[]::new) :
+			classSymbol.getInterfaces().map(t -> new JavacTypeBinding(t, this.resolver, null)).toArray(ITypeBinding[]::new) :
 			null;
 	}
 
@@ -289,27 +326,35 @@ public class JavacTypeBinding implements ITypeBinding {
 	@Override
 	public ITypeBinding getSuperclass() {
 		if (this.typeSymbol instanceof final ClassSymbol classSymbol && classSymbol.getSuperclass() != null && classSymbol.getSuperclass().tsym != null) {
-			return new JavacTypeBinding(classSymbol.getSuperclass().tsym, this.resolver);
+			return new JavacTypeBinding(classSymbol.getSuperclass().tsym, this.resolver, null);
 		}
 		return null;
 	}
 
 	@Override
 	public IAnnotationBinding[] getTypeAnnotations() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTypeAnnotations'");
+		return this.typeSymbol.getAnnotationMirrors().stream() //
+				.map(annotation -> new JavacAnnotationBinding(annotation, this.resolver)) //
+				.toArray(IAnnotationBinding[]::new);
 	}
 
 	@Override
 	public ITypeBinding[] getTypeArguments() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTypeArguments'");
+		if (this.typeArguments == null) {
+			return NO_TYPE_ARGUMENTS;
+		}
+		return this.typeArguments.stream()
+			.map(typeArgument -> this.resolver.getBinding(typeArgument, null))
+			.toArray(ITypeBinding[]::new);
 	}
 
 	@Override
 	public ITypeBinding[] getTypeBounds() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTypeBounds'");
+		Type upperBound = this.typeSymbol.type.getUpperBound();
+		if (upperBound == null) {
+			return new ITypeBinding[0];
+		}
+		return new ITypeBinding[] { new JavacTypeBinding(upperBound.tsym, this.resolver, null) };
 	}
 
 	@Override
@@ -320,7 +365,7 @@ public class JavacTypeBinding implements ITypeBinding {
 	@Override
 	public ITypeBinding[] getTypeParameters() {
 		return this.typeSymbol.getTypeParameters().stream()
-			.map(symbol -> new JavacTypeBinding(symbol, this.resolver))
+			.map(symbol -> new JavacTypeBinding(symbol, this.resolver, null))
 			.toArray(ITypeBinding[]::new);
 	}
 
@@ -330,11 +375,11 @@ public class JavacTypeBinding implements ITypeBinding {
 		if (typeSymbol.type instanceof WildcardType wildcardType) {
 			Type extendsBound = wildcardType.getExtendsBound();
 			if (extendsBound != null) {
-				return new JavacTypeBinding(extendsBound, resolver);
+				return new JavacTypeBinding(extendsBound, resolver, null);
 			}
 			Type superBound = wildcardType.getSuperBound();
 			if (superBound != null) {
-				return new JavacTypeBinding(superBound, resolver);
+				return new JavacTypeBinding(superBound, resolver, null);
 			}
 		}
 		return null;
@@ -399,8 +444,7 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isGenericType() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isGenericType'");
+		return this.typeArguments == null && !this.typeSymbol.getTypeParameters().isEmpty();
 	}
 
 	@Override
@@ -436,7 +480,7 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isParameterizedType() {
-		return !this.typeSymbol.getTypeParameters().isEmpty();
+		return this.typeArguments != null;
 	}
 
 	@Override
@@ -449,7 +493,7 @@ public class JavacTypeBinding implements ITypeBinding {
 		return this.typeSymbol.type.isRaw();
 	}
 
-	@Override	
+	@Override
 	public boolean isSubTypeCompatible(final ITypeBinding type) {
 		if (this == type) {
 			return true;
