@@ -142,6 +142,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		});
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject);
 		JavaCompiler javac = JavaCompiler.instance(context);
+		javac.keepComments = true;
 		String rawText = null;
 		try {
 			rawText = fileObject.getCharContent(true).toString();
@@ -264,15 +265,23 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		FindNextJavadocableSibling finder = new FindNextJavadocableSibling(javadoc.getStartPosition() + javadoc.getLength());
 		unit.accept(finder);
 		if (finder.nextNode != null) {
-			if (finder.nextNode instanceof AbstractTypeDeclaration typeDecl) {
-				typeDecl.setJavadoc(javadoc);
-			} else if (finder.nextNode instanceof FieldDeclaration fieldDecl) {
-				fieldDecl.setJavadoc(javadoc);
-			} else if (finder.nextNode instanceof BodyDeclaration methodDecl) {
-				methodDecl.setJavadoc(javadoc);
-			}
 			int endOffset = finder.nextNode.getStartPosition() + finder.nextNode.getLength();
-			finder.nextNode.setSourceRange(javadoc.getStartPosition(), endOffset - javadoc.getStartPosition());
+			if (finder.nextNode instanceof AbstractTypeDeclaration typeDecl) {
+				if( typeDecl.getJavadoc() == null ) {
+					typeDecl.setJavadoc(javadoc);
+					finder.nextNode.setSourceRange(javadoc.getStartPosition(), endOffset - javadoc.getStartPosition());
+				}
+			} else if (finder.nextNode instanceof FieldDeclaration fieldDecl) {
+				if( fieldDecl.getJavadoc() == null ) {
+					fieldDecl.setJavadoc(javadoc);
+					finder.nextNode.setSourceRange(javadoc.getStartPosition(), endOffset - javadoc.getStartPosition());
+				}
+			} else if (finder.nextNode instanceof BodyDeclaration methodDecl) {
+				if( methodDecl.getJavadoc() == null ) {
+					methodDecl.setJavadoc(javadoc);
+					finder.nextNode.setSourceRange(javadoc.getStartPosition(), endOffset - javadoc.getStartPosition());
+				}
+			}
 		}
 	}
 
