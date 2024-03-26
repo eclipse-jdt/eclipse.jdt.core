@@ -28,6 +28,7 @@ import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.comp.Modules;
@@ -250,6 +251,10 @@ public class JavacBindingResolver extends BindingResolver {
 		return this.converter.domToJavac.get(expr) instanceof JCExpression jcExpr ?
 			new JavacTypeBinding(jcExpr.type, this) :
 			null;
+	}
+
+	public Types getTypes() {
+		return Types.instance(this.context);
 	}
 
 }
