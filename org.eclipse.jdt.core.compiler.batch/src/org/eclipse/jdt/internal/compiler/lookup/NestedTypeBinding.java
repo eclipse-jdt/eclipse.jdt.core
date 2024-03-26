@@ -22,9 +22,9 @@ public abstract class NestedTypeBinding extends SourceTypeBinding {
 
 	public SourceTypeBinding enclosingType;
 
-	public SyntheticArgumentBinding[] enclosingInstances;
+	public SyntheticArgumentBinding[] enclosingInstances = NO_SYNTHETIC_ARGUMENTS;
 	private ReferenceBinding[] enclosingTypes = Binding.UNINITIALIZED_REFERENCE_TYPES;
-	public SyntheticArgumentBinding[] outerLocalVariables;
+	public SyntheticArgumentBinding[] outerLocalVariables = NO_SYNTHETIC_ARGUMENTS;
 	private int outerLocalVariablesSlotSize = -1; // amount of slots used by synthetic outer local variables
 
 public NestedTypeBinding(char[][] typeName, ClassScope scope, SourceTypeBinding enclosingType) {
@@ -51,24 +51,20 @@ public SyntheticArgumentBinding addSyntheticArgument(LocalVariableBinding actual
 
 	SyntheticArgumentBinding synthLocal = null;
 
-	if (this.outerLocalVariables == null) {
-		synthLocal = new SyntheticArgumentBinding(actualOuterLocalVariable);
-		this.outerLocalVariables = new SyntheticArgumentBinding[] {synthLocal};
-	} else {
-		int size = this.outerLocalVariables.length;
-		int newArgIndex = size;
-		for (int i = size; --i >= 0;) {		// must search backwards
-			if (this.outerLocalVariables[i].actualOuterLocalVariable == actualOuterLocalVariable)
-				return this.outerLocalVariables[i];	// already exists
-			if (this.outerLocalVariables[i].id > actualOuterLocalVariable.id)
-				newArgIndex = i;
-		}
-		SyntheticArgumentBinding[] synthLocals = new SyntheticArgumentBinding[size + 1];
-		System.arraycopy(this.outerLocalVariables, 0, synthLocals, 0, newArgIndex);
-		synthLocals[newArgIndex] = synthLocal = new SyntheticArgumentBinding(actualOuterLocalVariable);
-		System.arraycopy(this.outerLocalVariables, newArgIndex, synthLocals, newArgIndex + 1, size - newArgIndex);
-		this.outerLocalVariables = synthLocals;
+	int size = this.outerLocalVariables.length;
+	int newArgIndex = size;
+	for (int i = size; --i >= 0;) {		// must search backwards
+		if (this.outerLocalVariables[i].actualOuterLocalVariable == actualOuterLocalVariable)
+			return this.outerLocalVariables[i];	// already exists
+		if (this.outerLocalVariables[i].id > actualOuterLocalVariable.id)
+			newArgIndex = i;
 	}
+	SyntheticArgumentBinding[] synthLocals = new SyntheticArgumentBinding[size + 1];
+	System.arraycopy(this.outerLocalVariables, 0, synthLocals, 0, newArgIndex);
+	synthLocals[newArgIndex] = synthLocal = new SyntheticArgumentBinding(actualOuterLocalVariable);
+	System.arraycopy(this.outerLocalVariables, newArgIndex, synthLocals, newArgIndex + 1, size - newArgIndex);
+	this.outerLocalVariables = synthLocals;
+
 	//System.out.println("Adding synth arg for local var: " + new String(actualOuterLocalVariable.name) + " to: " + new String(this.readableName()));
 	if (this.scope.referenceCompilationUnit().isPropagatingInnerClassEmulation)
 		updateInnerEmulationDependents();
@@ -87,19 +83,16 @@ public SyntheticArgumentBinding addSyntheticArgument(ReferenceBinding targetEncl
 		return null;
 	}
 	SyntheticArgumentBinding synthLocal = null;
-	if (this.enclosingInstances == null) {
-		synthLocal = new SyntheticArgumentBinding(targetEnclosingType);
-		this.enclosingInstances = new SyntheticArgumentBinding[] {synthLocal};
-	} else {
-		int size = this.enclosingInstances.length;
-		int newArgIndex = size;
-		if (TypeBinding.equalsEquals(enclosingType(), targetEnclosingType))
-			newArgIndex = 0;
-		SyntheticArgumentBinding[] newInstances = new SyntheticArgumentBinding[size + 1];
-		System.arraycopy(this.enclosingInstances, 0, newInstances, newArgIndex == 0 ? 1 : 0, size);
-		newInstances[newArgIndex] = synthLocal = new SyntheticArgumentBinding(targetEnclosingType);
-		this.enclosingInstances = newInstances;
-	}
+
+	int size = this.enclosingInstances.length;
+	int newArgIndex = size;
+	if (TypeBinding.equalsEquals(enclosingType(), targetEnclosingType))
+		newArgIndex = 0;
+	SyntheticArgumentBinding[] newInstances = new SyntheticArgumentBinding[size + 1];
+	System.arraycopy(this.enclosingInstances, 0, newInstances, newArgIndex == 0 ? 1 : 0, size);
+	newInstances[newArgIndex] = synthLocal = new SyntheticArgumentBinding(targetEnclosingType);
+	this.enclosingInstances = newInstances;
+
 	//System.out.println("Adding synth arg for enclosing type: " + new String(enclosingType.readableName()) + " to: " + new String(this.readableName()));
 	if (this.scope.referenceCompilationUnit().isPropagatingInnerClassEmulation)
 		updateInnerEmulationDependents();
@@ -227,9 +220,10 @@ public SyntheticArgumentBinding getSyntheticArgument(ReferenceBinding targetEncl
 	return null;
 }
 
+@Override
 public SyntheticArgumentBinding[] syntheticEnclosingInstances() {
 	if (!isPrototype()) throw new IllegalStateException();
-	return this.enclosingInstances;		// is null if no enclosing instances are required
+	return this.enclosingInstances;
 }
 
 @Override
@@ -252,7 +246,7 @@ public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 @Override
 public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 	if (!isPrototype()) throw new IllegalStateException();
-	return this.outerLocalVariables;		// is null if no outer locals are required
+	return this.outerLocalVariables;
 }
 
 /*

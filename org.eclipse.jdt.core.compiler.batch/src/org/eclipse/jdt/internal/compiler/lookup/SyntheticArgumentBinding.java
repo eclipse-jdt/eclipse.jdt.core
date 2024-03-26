@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+
+
 /**
  * Specific local variable location used to:
  * - either provide emulation for outer local variables used from within innerclass constructs,
@@ -58,5 +60,26 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 			enclosingType,
 			ClassFileConstants.AccFinal,
 			true);
+	}
+
+	public static SyntheticArgumentBinding [] merge (SyntheticArgumentBinding[] left, SyntheticArgumentBinding [] right) {
+		if (left == null || left == Binding.NO_SYNTHETIC_ARGUMENTS) {
+			return right == null ? Binding.NO_SYNTHETIC_ARGUMENTS : right;
+		}
+		if (right == null || right == Binding.NO_SYNTHETIC_ARGUMENTS) {
+			return left;
+		}
+		int leftCount = left.length;
+		System.arraycopy(left,
+				            0,
+				         left = new SyntheticArgumentBinding[leftCount + right.length],
+				            0,
+				         leftCount);
+		System.arraycopy(right,
+                             0,
+                          left,
+                     leftCount,
+                  right.length);
+		return left;
 	}
 }
