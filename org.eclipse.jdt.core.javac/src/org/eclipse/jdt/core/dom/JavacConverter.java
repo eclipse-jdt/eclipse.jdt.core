@@ -84,6 +84,7 @@ import com.sun.tools.javac.tree.JCTree.JCParens;
 import com.sun.tools.javac.tree.JCTree.JCPattern;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCReturn;
+import com.sun.tools.javac.tree.JCTree.JCSkip;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.tree.JCTree.JCSwitch;
 import com.sun.tools.javac.tree.JCTree.JCSynchronized;
@@ -99,7 +100,6 @@ import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
-import com.sun.tools.javac.tree.JCTree.JCSkip;
 import com.sun.tools.javac.tree.JCTree.Tag;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Names;
@@ -193,7 +193,9 @@ class JavacConverter {
 			res.setSourceRange(javac.getStartPosition(), Math.max(0, length));
 		}
 		this.domToJavac.put(res, javac);
+		setJavadocForNode(javac, res);
 	}
+
 
 	private Name toName(JCTree expression) {
 		if (expression instanceof JCIdent ident) {
@@ -282,11 +284,21 @@ class JavacConverter {
 			}
 			if (javacClassDecl.getMembers() != null) {
 				List<JCTree> members = javacClassDecl.getMembers();
+				ASTNode previous = null;
 				for( int i = 0; i < members.size(); i++ ) {
 					ASTNode decl = convertBodyDeclaration(members.get(i), res);
 					if( decl != null ) {
 						typeDeclaration.bodyDeclarations().add(decl);
+						if( previous != null ) {
+							int istart = decl.getStartPosition();
+							int siblingEnds = previous.getStartPosition() + previous.getLength();
+							if( siblingEnds > istart ) {
+								previous.setSourceRange(previous.getStartPosition(), istart - previous.getStartPosition()-1);
+								int z = 0; // help
+							}
+						}
 					}
+					previous = decl;
 				}
 			}
 //
@@ -478,29 +490,43 @@ class JavacConverter {
 		String javacName = javac.getName().toString();
 		String methodDeclName = getMethodDeclName(javac, parent);
 		boolean methodDeclNameMatchesInit = Objects.equals(methodDeclName, Names.instance(this.context).init.toString());
-		boolean javacNameMatchesInitAndMethodNameMatchesTypeName = javacName.equals("<init>") && methodDeclName.equals(getNodeName(parent));
+		boolean javacNameMatchesInit = javacName.equals("<init>");
+		boolean javacNameMatchesInitAndMethodNameMatchesTypeName = javacNameMatchesInit && methodDeclName.equals(getNodeName(parent));
 		boolean isConstructor = methodDeclNameMatchesInit || javacNameMatchesInitAndMethodNameMatchesTypeName;
-
 		res.setConstructor(isConstructor);
 		boolean malformed = false;
 		if(isConstructor && !javacNameMatchesInitAndMethodNameMatchesTypeName) {
 			malformed = true;
 		}
-		if( malformed ) {
-			res.setFlags(res.getFlags() | ASTNode.MALFORMED);
+		if( javacNameMatchesInit && !isConstructor ) {
+			malformed = true;
 		}
+		
 		res.setName(this.ast.newSimpleName(methodDeclName));
-		if (javac.getReturnType() != null) {
+		JCTree retTypeTree = javac.getReturnType();
+		Type retType = null;
+		if( retTypeTree == null ) {
+			retType = this.ast.newPrimitiveType(convert(TypeKind.VOID));
+			retType.setSourceRange(javac.mods.pos + getJLS2ModifiersFlagsAsStringLength(javac.mods.flags), 0); // TODO need to find the right range
+		} else {
+			retType = convertToType(retTypeTree);
+		}
+		
+		if (retType != null) {
 			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
-				res.setReturnType2(convertToType(javac.getReturnType()));
+				res.setReturnType2(retType);
 			} else {
-				res.internalSetReturnType(convertToType(javac.getReturnType()));
+				res.internalSetReturnType(retType);
 			}
 		}
 
 		javac.getParameters().stream().map(this::convertVariableDeclaration).forEach(res.parameters()::add);
 		if (javac.getBody() != null) {
-			res.setBody(convertBlock(javac.getBody()));
+			Block b = convertBlock(javac.getBody());
+			res.setBody(b);
+			if( (b.getFlags() & ASTNode.MALFORMED) > 0 ) {
+				malformed = true;
+			}
 		}
 
 		List throwing = javac.getThrows();
@@ -513,6 +539,9 @@ class JavacConverter {
 				JCIdent id = (JCIdent)i.next();
 				res.thrownExceptionTypes().add(convertToType(id));
 			}
+		}
+		if( malformed ) {
+			res.setFlags(res.getFlags() | ASTNode.MALFORMED);
 		}
 		return res;
 	}
@@ -581,6 +610,24 @@ class JavacConverter {
 		return flags;
 	}
 
+	private int getJLS2ModifiersFlagsAsStringLength(long flags) {
+		int len = 0;
+		if( (flags & Flags.PUBLIC) > 0) len += 5 + 1;
+		if( (flags & Flags.PRIVATE) > 0) len += 7 + 1;
+		if( (flags & Flags.PROTECTED) > 0) len += 9 + 1;
+		if( (flags & Flags.STATIC) > 0) len += 5 + 1;
+		if( (flags & Flags.FINAL) > 0) len += 5 + 1;
+		if( (flags & Flags.SYNCHRONIZED) > 0) len += 12 + 1;
+		if( (flags & Flags.VOLATILE) > 0) len += 8 + 1;
+		if( (flags & Flags.TRANSIENT) > 0) len += 9 + 1;
+		if( (flags & Flags.NATIVE) > 0) len += 6 + 1;
+		if( (flags & Flags.INTERFACE) > 0) len += 9 + 1;
+		if( (flags & Flags.ABSTRACT) > 0) len += 8 + 1;
+		if( (flags & Flags.STRICTFP) > 0) len += 8 + 1;
+		return len;
+	}
+
+	
 	private FieldDeclaration convertFieldDeclaration(JCVariableDecl javac) {
 		return convertFieldDeclaration(javac, null);
 	}
@@ -628,6 +675,91 @@ class JavacConverter {
 			res.setType(convertToType(javac.getType()));
 			return res;
 		}
+	}
+	
+
+	private void setJavadocForNode(JCTree javac, ASTNode node) {
+		Comment c = this.javacCompilationUnit.docComments.getComment(javac);
+		if( c != null && c.getStyle() == Comment.CommentStyle.JAVADOC) {
+			String textVal = c.getText(); // initialize
+			int start = c.getSourcePos(0);
+			String prefix = new StringBuilder(this.rawText.substring(0, start)).reverse().toString();
+			int ind = prefix.indexOf("**/");
+			if( ind != -1 ) {
+				start -= (ind + 3);
+				int len = this.rawText.substring(start).indexOf("*/");
+				if( len != -1 ) {
+					len += 2;
+					Javadoc jd = (Javadoc)convert(c, start, start + len);
+					String jdString = this.rawText.substring(start, start + len);
+					if( this.ast.apiLevel == AST.JLS2_INTERNAL) {
+						jd.setComment(jdString);
+					}
+					int nodeStartPosition = Math.min(jd.getStartPosition(), node.getStartPosition());
+					int nodeEndPosition = Math.max(jd.getStartPosition() + jd.getLength(), node.getStartPosition() + node.getLength());
+					int nodeFinalLength = nodeEndPosition - nodeStartPosition;
+					node.setSourceRange(nodeStartPosition, nodeFinalLength);
+					
+					if( node instanceof BodyDeclaration bd) {
+						bd.setJavadoc(jd);
+						int contentsStart = nodeStartPosition + 3;
+						int contentsEnd = jd.getStartPosition() + jd.getLength() - 2;
+						int contentsLength = contentsEnd - contentsStart;
+						String jdStringContents = this.rawText.substring(contentsStart, contentsStart + contentsLength);
+						String stripLeading = jdStringContents.stripLeading();
+						int leadingStripped = jdStringContents.length() - stripLeading.length();
+						contentsStart += leadingStripped;
+						contentsLength = contentsEnd - contentsStart;
+						jdStringContents = this.rawText.substring(contentsStart, contentsStart + contentsLength);
+								
+						String[] split = jdStringContents.split("\n");
+						int runningTally = 0;
+						TagElement previousTag = null;
+						// TODO Now split by line? TODO there's much more to do here
+						for( int i = 0; i < split.length; i++ ) {
+							String line = split[i];
+							int leadingTrimmedFromLine = line.length() - trimLeadingWhiteAndStars(line).length();
+							int trailingTrimmedFromLine = line.length() - trimLeadingWhiteAndStars(new StringBuffer(line).reverse().toString()).length();
+							int lineStart = contentsStart + runningTally;
+							int lineTrimmedStart = contentsStart + leadingTrimmedFromLine + runningTally;
+							int lineTrimmedEnd = lineStart + line.length() - trailingTrimmedFromLine;
+							int lineTrimmedLength = lineTrimmedEnd - lineTrimmedStart;
+							if( lineTrimmedLength > 0 ) {
+								String lineTrimmedContent = this.rawText.substring(lineTrimmedStart, lineTrimmedEnd);
+								if( lineTrimmedContent.startsWith("@")) {
+									previousTag = null;
+								}
+								TextElement text = this.ast.newTextElement();
+								text.setText(lineTrimmedContent);
+								text.setSourceRange(lineTrimmedStart, lineTrimmedLength);
+								
+								if( previousTag == null ) {
+									previousTag = this.ast.newTagElement();
+									previousTag.setSourceRange(lineTrimmedStart, lineTrimmedEnd - lineTrimmedStart);
+									jd.tags().add(previousTag);
+								} else {
+									previousTag.setSourceRange(previousTag.getStartPosition(), lineTrimmedEnd - previousTag.getStartPosition());
+								}
+								previousTag.fragments().add(text);
+							} else {
+								previousTag = null;
+							}
+							runningTally += line.length() + 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private String trimLeadingWhiteAndStars(String line) {
+		int length = line.length();
+		for( int i = 0; i < length; i++ ) {
+			if( !Character.isWhitespace(line.charAt(i)) && line.charAt(i) != '*') {
+				return line.substring(i);
+			}
+		}
+		return "";
 	}
 
 	private Expression convertExpression(JCExpression javac) {
@@ -1038,11 +1170,14 @@ class JavacConverter {
 				if (jcError.getErrorTrees().size() == 1) {
 					JCTree tree = jcError.getErrorTrees().get(0);
 					if (tree instanceof JCStatement nestedStmt) {
-						return convertStatement(nestedStmt, parent);
+						Statement stmt = convertStatement(nestedStmt, parent);
+						stmt.setFlags(stmt.getFlags() | ASTNode.RECOVERED);
+						return stmt;
 					}
 				} else {
 					Block substitute = this.ast.newBlock();
 					commonSettings(substitute, jcError);
+					parent.setFlags(parent.getFlags() | ASTNode.MALFORMED);
 					return substitute;
 				}
 			}
@@ -1329,7 +1464,7 @@ class JavacConverter {
 
 	private Code convert(TypeKind javac) {
 		return switch(javac) {
-			case BOOLEAN -> PrimitiveType.INT;
+			case BOOLEAN -> PrimitiveType.BOOLEAN;
 			case BYTE -> PrimitiveType.BYTE;
 			case SHORT -> PrimitiveType.SHORT;
 			case INT -> PrimitiveType.INT;
