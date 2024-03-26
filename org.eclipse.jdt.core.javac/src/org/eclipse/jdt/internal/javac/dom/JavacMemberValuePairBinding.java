@@ -28,7 +28,7 @@ public class JavacMemberValuePairBinding implements IMemberValuePairBinding {
 	public final Attribute value;
 
 	public JavacMemberValuePairBinding(MethodSymbol key, Attribute value, JavacBindingResolver resolver) {
-		this.method = new JavacMethodBinding(key, resolver);
+		this.method = new JavacMethodBinding(key, resolver, null);
 		this.value = value;
 	}
 

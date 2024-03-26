@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.internal.javac.dom.JavacAnnotationBinding;
@@ -134,14 +135,15 @@ public class JavacBindingResolver extends BindingResolver {
 	ITypeBinding resolveType(Type type) {
 		resolve();
 		JCTree jcTree = this.converter.domToJavac.get(type);
+		final java.util.List<TypeSymbol> typeArguments = getTypeArguments(type);
 		if (jcTree instanceof JCIdent ident && ident.sym instanceof TypeSymbol typeSymbol) {
-			return new JavacTypeBinding(typeSymbol, this);
+			return new JavacTypeBinding(typeSymbol, this, typeArguments);
 		}
 		if (jcTree instanceof JCFieldAccess access && access.sym instanceof TypeSymbol typeSymbol) {
-			return new JavacTypeBinding(typeSymbol, this);
+			return new JavacTypeBinding(typeSymbol, this, typeArguments);
 		}
 		if (jcTree instanceof JCPrimitiveTypeTree primitive) {
-			return new JavacTypeBinding(primitive.type, this);
+			return new JavacTypeBinding(primitive.type, this, typeArguments);
 		}
 //			return this.flowResult.stream().map(env -> env.enclClass)
 //				.filter(Objects::nonNull)
@@ -163,18 +165,18 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(type);
 		if (javacNode instanceof JCClassDecl jcClassDecl) {
-			return new JavacTypeBinding(jcClassDecl.sym, this);
+			return new JavacTypeBinding(jcClassDecl.sym, this, null);
 		}
 		return null;
 	}
 
-	public IBinding getBinding(final Symbol owner) {
+	public IBinding getBinding(final Symbol owner, final java.util.List<TypeSymbol> typeArguments) {
 		if (owner instanceof final PackageSymbol other) {
 			return new JavacPackageBinding(other, this);
 		} else if (owner instanceof final TypeSymbol other) {
-			return new JavacTypeBinding(other, this);
+			return new JavacTypeBinding(other, this, typeArguments);
 		} else if (owner instanceof final MethodSymbol other) {
-			return new JavacMethodBinding(other, this);
+			return new JavacMethodBinding(other, this, typeArguments);
 		} else if (owner instanceof final VarSymbol other) {
 			return new JavacVariableBinding(other, this);
 		}
@@ -195,14 +197,15 @@ public class JavacBindingResolver extends BindingResolver {
 	IMethodBinding resolveMethod(MethodInvocation method) {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(method);
+		final java.util.List<TypeSymbol> typeArguments = getTypeArguments(method);
 		if (javacElement instanceof JCMethodInvocation javacMethodInvocation) {
 			javacElement = javacMethodInvocation.getMethodSelect();
 		}
 		if (javacElement instanceof JCIdent ident && ident.sym instanceof MethodSymbol methodSymbol) {
-			return new JavacMethodBinding(methodSymbol, this);
+			return new JavacMethodBinding(methodSymbol, this, typeArguments);
 		}
 		if (javacElement instanceof JCFieldAccess fieldAccess && fieldAccess.sym instanceof MethodSymbol methodSymbol) {
-			return new JavacMethodBinding(methodSymbol, this);
+			return new JavacMethodBinding(methodSymbol, this, typeArguments);
 		}
 		return null;
 	}
@@ -212,7 +215,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(method);
 		if (javacElement instanceof JCMethodDecl methodDecl) {
-			return new JavacMethodBinding(methodDecl.sym, this);
+			return new JavacMethodBinding(methodDecl.sym, this, null);
 		}
 		return null;
 	}
@@ -224,10 +227,13 @@ public class JavacBindingResolver extends BindingResolver {
 		if (tree == null) {
 			tree = this.converter.domToJavac.get(name.getParent());
 		}
+		final java.util.List<TypeSymbol> typeArguments = getTypeArguments(name);
 		if (tree instanceof JCIdent ident && ident.sym != null) {
-			return getBinding(ident.sym);
+			return getBinding(ident.sym, typeArguments);
 		} else if (tree instanceof JCFieldAccess fieldAccess && fieldAccess.sym != null) {
-			return getBinding(fieldAccess.sym);
+			return getBinding(fieldAccess.sym, typeArguments);
+		} else if (tree instanceof JCClassDecl classDecl && classDecl.sym != null) {
+			return getBinding(classDecl.sym, typeArguments);
 		}
 		return null;
 	}
@@ -249,12 +255,73 @@ public class JavacBindingResolver extends BindingResolver {
 	public ITypeBinding resolveExpressionType(Expression expr) {
 		resolve();
 		return this.converter.domToJavac.get(expr) instanceof JCExpression jcExpr ?
-			new JavacTypeBinding(jcExpr.type, this) :
+			new JavacTypeBinding(jcExpr.type, this, null) :
 			null;
 	}
 
 	public Types getTypes() {
 		return Types.instance(this.context);
+	}
+
+	private java.util.List<TypeSymbol> getTypeArguments(final Name name) {
+		if (name.getParent() instanceof SimpleType simpleType) {
+			return getTypeArguments(simpleType);
+		}
+		if (name.getParent() instanceof MethodInvocation methodInvocation && name == methodInvocation.getName()) {
+			return getTypeArguments(methodInvocation);
+		}
+		return null;
+	}
+
+	private java.util.List<TypeSymbol> getTypeArguments(final Type type) {
+		if (type instanceof SimpleType simpleType
+				&& simpleType.getParent() instanceof ParameterizedType paramType
+				&& paramType.getType() == simpleType) {
+			java.util.List<org.eclipse.jdt.core.dom.Type> typeArguments = paramType.typeArguments();
+
+			if (typeArguments == null) {
+				return null;
+			}
+			return typeArguments.stream() //
+				.map(a -> {
+					JCTree tree = this.converter.domToJavac.get(a);
+					if (tree == null) {
+						return null;
+					}
+					if (tree instanceof JCIdent ident && ident.sym instanceof TypeSymbol typeSymbol) {
+						return typeSymbol;
+					}
+					if (tree instanceof JCFieldAccess access && access.sym instanceof TypeSymbol typeSymbol) {
+						return typeSymbol;
+					}
+					return null;
+				}) //
+				.collect(Collectors.toList());
+
+		}
+		return null;
+	}
+
+	private java.util.List<TypeSymbol> getTypeArguments(final MethodInvocation methodInvocation) {
+		java.util.List<org.eclipse.jdt.core.dom.Type> typeArguments = methodInvocation.typeArguments();
+		if (typeArguments == null) {
+			return null;
+		}
+		return typeArguments.stream() //
+			.map(a -> {
+				JCTree tree = this.converter.domToJavac.get(a);
+				if (tree == null) {
+					return null;
+				}
+				if (tree instanceof JCIdent ident && ident.sym instanceof TypeSymbol typeSymbol) {
+					return typeSymbol;
+				}
+				if (tree instanceof JCFieldAccess access && access.sym instanceof TypeSymbol typeSymbol) {
+					return typeSymbol;
+				}
+				return null;
+			}) //
+			.collect(Collectors.toList());
 	}
 
 }

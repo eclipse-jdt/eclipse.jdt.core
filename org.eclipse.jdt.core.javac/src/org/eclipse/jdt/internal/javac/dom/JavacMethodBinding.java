@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.javac.dom;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
@@ -27,20 +28,25 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Type;
 
+import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
+import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 
 public class JavacMethodBinding implements IMethodBinding {
 
 	public final MethodSymbol methodSymbol;
 	final JavacBindingResolver resolver;
+	private final List<TypeSymbol> typeArguments;
 
-	public JavacMethodBinding(MethodSymbol sym, JavacBindingResolver resolver) {
+	public JavacMethodBinding(MethodSymbol sym, JavacBindingResolver resolver, List<TypeSymbol> typeArguments) {
 		this.methodSymbol = sym;
 		this.resolver = resolver;
+		this.typeArguments = typeArguments;
 	}
 
 	@Override
@@ -93,8 +99,7 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isRecovered() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isRecovered'");
+		return this.methodSymbol.kind == Kinds.Kind.ERR;
 	}
 
 	@Override
@@ -104,7 +109,7 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public IJavaElement getJavaElement() {
-		IJavaElement parent = this.resolver.getBinding(this.methodSymbol.owner).getJavaElement();
+		IJavaElement parent = this.resolver.getBinding(this.methodSymbol.owner, null).getJavaElement();
 		if (parent instanceof IType type) {
 			return type.getMethod(this.methodSymbol.getSimpleName().toString(),
 				this.methodSymbol.params().stream()
@@ -117,8 +122,32 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public String getKey() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getKey'");
+		StringBuilder builder = new StringBuilder();
+		getKey(builder, this.methodSymbol);
+		return builder.toString();
+	}
+
+	static void getKey(StringBuilder builder, MethodSymbol methodSymbol) {
+		Symbol ownerSymbol = methodSymbol.owner;
+		while (ownerSymbol != null && !(ownerSymbol instanceof TypeSymbol)) {
+			ownerSymbol = ownerSymbol.owner;
+		}
+		if (ownerSymbol instanceof TypeSymbol ownerTypeSymbol) {
+			builder.append(ownerTypeSymbol.name);
+		} else {
+			throw new IllegalArgumentException("Method has no owning class");
+		}
+		builder.append('.');
+		// TODO: what is a selector? why is it added?
+		for (var typeParam : methodSymbol.getTypeParameters()) {
+			builder.append(typeParam.getQualifiedName());
+		}
+		for (var param : methodSymbol.getParameters()) {
+			builder.append(param.getQualifiedName());
+		}
+		for (var thrownException : methodSymbol.getThrownTypes()) {
+			builder.append(thrownException.tsym.getQualifiedName());
+		}
 	}
 
 	@Override
@@ -135,20 +164,18 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isCompactConstructor() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isCompactConstructor'");
+		return (this.methodSymbol.flags() & Flags.COMPACT_RECORD_CONSTRUCTOR) != 0;
 	}
 
 	@Override
 	public boolean isCanonicalConstructor() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isCanonicalConstructor'");
+		// see com.sun.tools.javac.code.Flags.RECORD
+		return (this.methodSymbol.flags() & Flags.RECORD) != 0;
 	}
 
 	@Override
 	public boolean isDefaultConstructor() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isDefaultConstructor'");
+		return (this.methodSymbol.flags() & Flags.GENERATEDCONSTR) != 0;
 	}
 
 	@Override
@@ -161,7 +188,7 @@ public class JavacMethodBinding implements IMethodBinding {
 		Symbol parentSymbol = this.methodSymbol.owner;
 		do {
 			if (parentSymbol instanceof ClassSymbol clazz) {
-				return new JavacTypeBinding(clazz, this.resolver);
+				return new JavacTypeBinding(clazz, this.resolver, null);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
@@ -170,38 +197,67 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public IBinding getDeclaringMember() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getDeclaringMember'");
+		if (!this.methodSymbol.isLambdaMethod()) {
+			return null;
+		}
+		if (this.methodSymbol.owner instanceof MethodSymbol methodSymbol) {
+			return new JavacMethodBinding(methodSymbol, resolver, null);
+		} else if (this.methodSymbol.owner instanceof VarSymbol variableSymbol) {
+			return new JavacVariableBinding(variableSymbol, resolver);
+		}
+		throw new IllegalArgumentException("Unexpected owner type: " + this.methodSymbol.owner.getClass().getCanonicalName());
 	}
 
 	@Override
 	public Object getDefaultValue() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getDefaultValue'");
+		Attribute attribute = this.methodSymbol.defaultValue;
+		if (attribute instanceof Attribute.Constant constant) {
+			return constant.value;
+		} else if (attribute instanceof Attribute.Class clazz) {
+			return new JavacTypeBinding(clazz.classType.tsym, this.resolver, null);
+		} else if (attribute instanceof Attribute.Enum enumm) {
+			return new JavacVariableBinding(enumm.value, this.resolver);
+		} else if (attribute instanceof Attribute.Array array) {
+			return Stream.of(array.values) //
+					.map(nestedAttr -> {
+						if (attribute instanceof Attribute.Constant constant) {
+							return constant.value;
+						} else if (attribute instanceof Attribute.Class clazz) {
+							return new JavacTypeBinding(clazz.classType.tsym, this.resolver, null);
+						} else if (attribute instanceof Attribute.Enum enumerable) {
+							return new JavacVariableBinding(enumerable.value, this.resolver);
+						}
+						throw new IllegalArgumentException("Unexpected attribute type: " + nestedAttr.getClass().getCanonicalName());
+					}) //
+					.toArray(Object[]::new);
+		}
+		throw new IllegalArgumentException("Unexpected attribute type: " + attribute.getClass().getCanonicalName());
 	}
 
 	@Override
 	public IAnnotationBinding[] getParameterAnnotations(int paramIndex) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getParameterAnnotations'");
+		VarSymbol parameter = this.methodSymbol.params.get(paramIndex);
+		return parameter.getAnnotationMirrors().stream() //
+				.map(annotation -> new JavacAnnotationBinding(annotation, this.resolver)) //
+				.toArray(IAnnotationBinding[]::new);
 	}
 
 	@Override
 	public ITypeBinding[] getParameterTypes() {
 		return this.methodSymbol.params().stream()
 			.map(param -> param.type)
-			.map(type -> new JavacTypeBinding(type, this.resolver))
+			.map(type -> new JavacTypeBinding(type, this.resolver,  /* TODO */ null))
 			.toArray(ITypeBinding[]::new);
 	}
 
 	@Override
 	public ITypeBinding getDeclaredReceiverType() {
-		return new JavacTypeBinding(this.methodSymbol.getReceiverType(), this.resolver);
+		return new JavacTypeBinding(this.methodSymbol.getReceiverType(), this.resolver, /* TODO */ null);
 	}
 
 	@Override
 	public ITypeBinding getReturnType() {
-		return new JavacTypeBinding(this.methodSymbol.getReturnType(), this.resolver);
+		return new JavacTypeBinding(this.methodSymbol.getReturnType(), this.resolver, /* TODO */ null);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -218,32 +274,31 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public ITypeBinding[] getTypeParameters() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTypeParameters'");
+		return this.methodSymbol.getTypeParameters().stream()
+				.map(symbol -> new JavacTypeBinding(symbol, this.resolver, null))
+				.toArray(ITypeBinding[]::new);
 	}
 
 	@Override
 	public boolean isAnnotationMember() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isAnnotationMember'");
+		return getDeclaringClass().isAnnotation();
 	}
 
 	@Override
 	public boolean isGenericMethod() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isGenericMethod'");
+		return this.typeArguments == null && !this.methodSymbol.getTypeParameters().isEmpty();
 	}
 
 	@Override
 	public boolean isParameterizedMethod() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isParameterizedMethod'");
+		return this.typeArguments != null;
 	}
 
 	@Override
 	public ITypeBinding[] getTypeArguments() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTypeArguments'");
+		return this.typeArguments.stream()
+				.map(symbol -> new JavacTypeBinding(symbol, this.resolver, null))
+				.toArray(ITypeBinding[]::new);
 	}
 
 	@Override
@@ -253,8 +308,7 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isRawMethod() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isRawMethod'");
+		return this.methodSymbol.type.isRaw();
 	}
 
 	@Override
@@ -267,20 +321,25 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isVarargs() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isVarargs'");
+		return this.methodSymbol.isVarArgs();
 	}
 
 	@Override
 	public boolean overrides(IMethodBinding method) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'overrides'");
+		if (method instanceof JavacMethodBinding javacMethod) {
+			return this.methodSymbol.overrides(((JavacMethodBinding)method).methodSymbol, javacMethod.methodSymbol.enclClass(), this.resolver.getTypes(), true);
+		}
+		return false;
 	}
 
 	@Override
 	public IVariableBinding[] getSyntheticOuterLocals() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getSyntheticOuterLocals'");
+		if (!this.methodSymbol.isLambdaMethod()) {
+			return new IVariableBinding[0];
+		}
+		return this.methodSymbol.capturedLocals.stream() //
+				.map(capturedLocal -> new JavacVariableBinding(capturedLocal, this.resolver)) //
+				.toArray(IVariableBinding[]::new);
 	}
 
 	@Override
