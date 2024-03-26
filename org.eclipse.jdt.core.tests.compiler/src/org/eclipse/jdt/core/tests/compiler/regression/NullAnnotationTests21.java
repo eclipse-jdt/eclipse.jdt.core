@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -999,6 +1000,8 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 	}
 
 	public void testGH1964_since_22() {
+		if (this.complianceLevel < ClassFileConstants.JDK22)
+			return;
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
 		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);

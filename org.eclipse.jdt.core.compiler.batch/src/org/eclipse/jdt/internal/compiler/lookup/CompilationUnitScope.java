@@ -589,7 +589,7 @@ void faultInImports() {
 	this.typeOrPackageCache = new HashtableOfObject(length);
 	for (int i = 0; i < length; i++) {
 		ImportBinding binding = this.imports[i];
-		if (!binding.onDemand && binding.resolvedImport instanceof ReferenceBinding || binding instanceof ImportConflictBinding)
+		if (!binding.onDemand && binding.getResolvedBindingKind() == Binding.TYPE || binding instanceof ImportConflictBinding)
 			this.typeOrPackageCache.put(binding.getSimpleName(), binding);
 	}
 	this.skipCachingImports = this.environment.suppressImportErrors && unresolvedFound;
@@ -768,24 +768,34 @@ ImportBinding[] getDefaultImports() {
 		BinaryTypeBinding missingObject = this.environment.createMissingType(null, TypeConstants.JAVA_LANG_OBJECT);
 		importBinding = missingObject.fPackage;
 	}
-	ReferenceBinding templateSTR;
 	ImportBinding[] allImports = null;
 	if (this.environment.globalOptions.complianceLevel >= ClassFileConstants.JDK21) {
-		boolean old = this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;
-		this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled = false;
-		templateSTR = (ReferenceBinding) ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG_STRING_TEMPLATE_STR[2], module(), false);
-		if (templateSTR != null) {
-			FieldBinding str = templateSTR.getField("STR".toCharArray(), true); //$NON-NLS-1$
-			ImportBinding ibinding = new ImportBinding(TypeConstants.JAVA_LANG_STRING_TEMPLATE_STR, false, str, null) {
-				@Override
-				public boolean isStatic() {
-					return true;
+		ImportBinding ibinding = new ImportBinding(TypeConstants.JAVA_LANG_STRING_TEMPLATE_STR, false, importBinding, null) {
+			@Override
+			public boolean isStatic() {
+				return true;
+			}
+			@Override
+			public int getResolvedBindingKind() {
+				return Binding.FIELD; // avoid resolving during faultInImports()
+			}
+			@Override
+			public Binding getResolvedImport() {
+				// resolve lazily:
+				Binding resolvedImport = super.getResolvedImport();
+				if (resolvedImport instanceof PackageBinding) { // package was past into the constructor, need to dig deeper now:
+					ReferenceBinding templateSTR = (ReferenceBinding) ((PackageBinding) resolvedImport).getTypeOrPackage(TypeConstants.JAVA_LANG_STRING_TEMPLATE_STR[2], module(), false);
+					if (templateSTR != null) {
+						FieldBinding fieldBinding = templateSTR.getField("STR".toCharArray(), true); //$NON-NLS-1$
+						if (fieldBinding != null)
+							return setResolvedImport(fieldBinding);
+					}
 				}
-			};
-			allImports = new ImportBinding[] {
-					new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null), ibinding};
-		}
-		this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled = old;
+				return resolvedImport;
+			}
+		};
+		allImports = new ImportBinding[] {
+				new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null), ibinding};
 	}
 	if (allImports == null){
 		allImports = new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
@@ -936,11 +946,14 @@ void recordTypeReferences(TypeBinding[] types) {
 	}
 }
 Binding resolveSingleImport(ImportBinding importBinding, int mask) {
-	if (importBinding.resolvedImport == null) {
-		importBinding.resolvedImport = findSingleImport(importBinding.compoundName, mask, importBinding.isStatic());
-		if (!importBinding.resolvedImport.isValidBinding() || importBinding.resolvedImport instanceof PackageBinding) {
-			if (importBinding.resolvedImport.problemId() == ProblemReasons.Ambiguous)
-				return importBinding.resolvedImport;
+	Binding resolvedBinding = importBinding.getResolvedImport();
+	if (resolvedBinding != null) {
+		return resolvedBinding;
+	} else {
+		resolvedBinding = importBinding.setResolvedImport(findSingleImport(importBinding.compoundName, mask, importBinding.isStatic()));
+		if (!resolvedBinding.isValidBinding() || resolvedBinding instanceof PackageBinding) {
+			if (resolvedBinding.problemId() == ProblemReasons.Ambiguous)
+				return resolvedBinding;
 			if (this.imports != null) {
 				ImportBinding[] newImports = new ImportBinding[this.imports.length - 1];
 				for (int i = 0, n = 0, max = this.imports.length; i < max; i++)
@@ -950,8 +963,8 @@ Binding resolveSingleImport(ImportBinding importBinding, int mask) {
 			}
 			return null;
 		}
+		return resolvedBinding;
 	}
-	return importBinding.resolvedImport;
 }
 public void storeDependencyInfo() {
 	// add the type hierarchy of each referenced supertype
@@ -1109,7 +1122,7 @@ private int checkAndRecordImportBinding(
 								recordImportBinding(new ImportBinding(compoundName, false, importBinding, importReference));
 							}
 						}
-					} else if (resolved.resolvedImport == referenceBinding) {
+					} else if (resolved.getResolvedImport() == referenceBinding) {
 						if (importReference.isStatic() != resolved.isStatic()) {
 							recordImportBinding(new ImportBinding(compoundName, false, importBinding, importReference));
 						}
@@ -1128,10 +1141,12 @@ private int checkAndRecordImportBinding(
 				// 7.5.3 says nothing about collision of single static imports and JDK8 tolerates them, though use is flagged.
 				for (int j = 0; j < this.importPtr; j++) {
 					ImportBinding resolved = this.tempImports[j];
-					if (resolved.isStatic() && resolved.resolvedImport instanceof ReferenceBinding && importBinding != resolved.resolvedImport) {
+					Binding resolvedImport = resolved.getResolvedImport();
+					if (resolved.isStatic()
+							&& resolvedImport instanceof ReferenceBinding type
+							&& importBinding != resolvedImport) {
 						if (CharOperation.equals(compoundName[compoundName.length - 1], resolved.compoundName[resolved.compoundName.length - 1])) {
-							ReferenceBinding type = (ReferenceBinding) resolved.resolvedImport;
-							resolved.resolvedImport = new ProblemReferenceBinding(new char[][] { name }, type, ProblemReasons.Ambiguous);
+							resolved.setResolvedImport(new ProblemReferenceBinding(new char[][] { name }, type, ProblemReasons.Ambiguous));
 							return -1;
 						}
 					}
@@ -1145,12 +1160,14 @@ private int checkAndRecordImportBinding(
 		for (int j = 0; j < this.importPtr; j++) {
 			ImportBinding resolved = this.tempImports[j];
 			// find other static fields with the same name
-			if (resolved.isStatic() && resolved.resolvedImport instanceof FieldBinding && importBinding != resolved.resolvedImport) {
+			Binding resolvedImport = resolved.getResolvedImport();
+			if (resolved.isStatic()
+					&& resolvedImport instanceof FieldBinding field
+					&& importBinding != resolvedImport) {
 				if (CharOperation.equals(name, resolved.compoundName[resolved.compoundName.length - 1])) {
 					if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
 						// 7.5.3 says nothing about collision of single static imports and JDK8 tolerates them, though use is flagged.
-						FieldBinding field = (FieldBinding) resolved.resolvedImport;
-						resolved.resolvedImport = new ProblemFieldBinding(field, field.declaringClass, name, ProblemReasons.Ambiguous);
+						resolved.setResolvedImport(new ProblemFieldBinding(field, field.declaringClass, name, ProblemReasons.Ambiguous));
 						return -1;
 					} else {
 						problemReporter().duplicateImport(importReference);

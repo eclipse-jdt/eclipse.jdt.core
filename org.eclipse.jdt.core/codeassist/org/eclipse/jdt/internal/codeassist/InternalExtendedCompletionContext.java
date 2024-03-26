@@ -852,7 +852,7 @@ public class InternalExtendedCompletionContext {
 		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
 		for (ImportBinding importBinding : importBindings) {
 			if(importBinding.isValidBinding() && importBinding.isStatic()) {
-				Binding binding = importBinding.resolvedImport;
+				Binding binding = importBinding.getResolvedImport();
 				if(binding != null && binding.isValidBinding()) {
 					if(importBinding.onDemand) {
 						if((binding.kind() & Binding.TYPE) != 0) {

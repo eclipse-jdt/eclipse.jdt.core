@@ -3713,18 +3713,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		} else if ("21".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL_21_LIB") == null) {
-				setupExternalJCL("jclMin17");
+				setupExternalJCL("jclMin21");
 				JavaCore.setClasspathVariables(
-					new String[] {"JCL_17_LIB", "JCL_17_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath("17"), getExternalJCLSourcePath("17"), getExternalJCLRootSourcePath()},
+					new String[] {"JCL_21_LIB", "JCL_21_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("21"), getExternalJCLSourcePath("21"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else if ("22".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL_22_LIB") == null) {
-				setupExternalJCL("jclMin17");
+				setupExternalJCL("jclMin21");
 				JavaCore.setClasspathVariables(
-					new String[] {"JCL_17_LIB", "JCL_17_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath("17"), getExternalJCLSourcePath("17"), getExternalJCLRootSourcePath()},
+					new String[] {"JCL_21_LIB", "JCL_21_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("21"), getExternalJCLSourcePath("21"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {
