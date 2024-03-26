@@ -271,13 +271,13 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	private void processTypesBindingsOnStack(CodeStream codeStream) {
 		int count = 0;
 		int nextResolvedPosition = this.scope.offset;
-		if (!codeStream.switchSaveTypeBindings.empty()) {
+		if (!codeStream.operandStack.empty()) {
 			this.typesOnStack = new ArrayList<>();
 			int index = 0;
 			Stack<TypeBinding> typeStack = new Stack<>();
-			int sz = codeStream.switchSaveTypeBindings.size();
+			int sz = codeStream.operandStack.size();
 			for (int i = codeStream.lastSwitchCumulativeSyntheticVars; i < sz; ++i) {
-				typeStack.add(codeStream.switchSaveTypeBindings.get(i));
+				typeStack.add(codeStream.operandStack.get(i));
 			}
 			while (!typeStack.empty()) {
 				TypeBinding type = typeStack.pop();
@@ -302,7 +302,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	public void loadStoredTypesAndKeep(CodeStream codeStream) {
 		List<LocalVariableBinding> tos = this.typesOnStack;
 		int sz = tos != null ? tos.size() : 0;
-		codeStream.clearTypeBindingStack();
+		codeStream.operandStack.clear();
 		int index = sz - 1;
 		while (index >= 0) {
 			LocalVariableBinding lvb = tos.get(index--);
