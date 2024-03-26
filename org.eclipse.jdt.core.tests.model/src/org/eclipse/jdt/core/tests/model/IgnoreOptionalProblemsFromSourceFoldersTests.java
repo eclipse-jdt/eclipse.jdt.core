@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
@@ -29,6 +27,8 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+
+import junit.framework.Test;
 
 public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResourceTests {
 	private static final IClasspathAttribute ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE = JavaCore.newClasspathAttribute(IClasspathAttribute.IGNORE_OPTIONAL_PROBLEMS, "true");
@@ -258,6 +258,11 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 
 	// task tags cannot be ignored
 	public void test005() throws CoreException {
+		if (org.eclipse.jdt.internal.core.CompilationUnit.DOM_BASED_OPERATIONS) {
+			// Not supported because of
+			// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2277
+			return;
+		}
 		ICompilationUnit unit = null;
 		try {
 			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL_LIB" }, "bin");
