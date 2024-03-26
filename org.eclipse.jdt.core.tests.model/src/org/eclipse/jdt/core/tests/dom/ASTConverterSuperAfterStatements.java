@@ -198,7 +198,7 @@ public class ASTConverterSuperAfterStatements extends ConverterTestSetup {
 
 	}
 
-	public void _test004() throws JavaModelException {
+	public void test004() throws JavaModelException {
 		if (!isJRE22) {
 			printJREError();
 			return;
