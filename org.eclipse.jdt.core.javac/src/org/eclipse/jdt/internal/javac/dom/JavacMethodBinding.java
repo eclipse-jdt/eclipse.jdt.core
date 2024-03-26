@@ -259,8 +259,10 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isSubsignature(IMethodBinding otherMethod) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isSubsignature'");
+		if (otherMethod instanceof JavacMethodBinding otherJavacMethod) {
+			return resolver.getTypes().isSubSignature(this.methodSymbol.asType(), otherJavacMethod.methodSymbol.asType());
+		}
+		return false;
 	}
 
 	@Override
@@ -283,8 +285,9 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isSyntheticRecordMethod() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isSyntheticRecordMethod'");
+		return !this.methodSymbol.isStatic()
+				&& (this.methodSymbol.flags() & Flags.SYNTHETIC) != 0
+				&& (this.methodSymbol.type.tsym.flags() & Flags.RECORD) != 0;
 	}
 
 	@Override
