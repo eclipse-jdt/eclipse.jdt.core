@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023, Red Hat, Inc. and others.
+ * Copyright (c) 2023, 2024 Red Hat, Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -128,7 +128,7 @@ class JavacConverter {
 	CompilationUnit convertCompilationUnit() {
 		return convertCompilationUnit(this.javacCompilationUnit);
 	}
-
+	
 	CompilationUnit convertCompilationUnit(JCCompilationUnit javacCompilationUnit) {
 		CompilationUnit res = this.ast.newCompilationUnit();
 		populateCompilationUnit(res, javacCompilationUnit);
@@ -436,7 +436,7 @@ class JavacConverter {
 		}
 		return res;
 	}
-
+	
 	private String getNodeName(ASTNode node) {
 		if( node instanceof AbstractTypeDeclaration atd) {
 			return atd.getName().toString();
