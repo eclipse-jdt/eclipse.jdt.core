@@ -456,13 +456,13 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		// generate statements
 		if (this.statements != null) {
 			for (Statement statement : this.statements) {
-				codeStream.stmtInPreConContext = true;
+				codeStream.stmtInPreConContext = statement.inPreConstructorContext;
 				statement.generateCode(this.scope, codeStream);
+				codeStream.stmtInPreConContext = false;
 				if (!this.compilationResult.hasErrors() && codeStream.stackDepth != 0) {
 					this.scope.problemReporter().operandStackSizeInappropriate(this);
 				}
 			}
-			codeStream.stmtInPreConContext = false;
 		}
 		// if a problem got reported during code gen, then trigger problem method creation
 		if (this.ignoreFurtherInvestigation) {
