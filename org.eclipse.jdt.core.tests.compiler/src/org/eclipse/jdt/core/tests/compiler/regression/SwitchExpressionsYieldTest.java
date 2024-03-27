@@ -6798,4 +6798,68 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Switcher :0\n"
 				+ "Switcher :1");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2231
+	// [Switch-Expression] Assertion failure compiling array access + switch expressions with try blocks
+	public void testIssue2231() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void foo(String... ss) {
+						System.out.println("Entry = " + switch(ss) {
+															case null -> "None";
+															case String [] s when s.length == 0 -> "none";
+															default ->  {
+																try {
+																	yield ss[0];
+																} finally {
+
+																}
+															}
+						});
+					}
+
+					public static void main(String[] args) {
+						foo("Hello");
+					}
+				}
+				"""
+				},
+				"Entry = Hello");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2231
+	// [Switch-Expression] Assertion failure compiling array access + switch expressions with try blocks
+	public void testIssue2231_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void foo(String [] ss) {
+						System.out.println("Entry = " + switch(ss) {
+															case null -> "None";
+															case String [] s when s.length == 0 -> "none";
+															default ->  {
+																try {
+																	yield ss[0];
+																} finally {
+
+																}
+															}
+						});
+					}
+
+					public static void main(String[] args) {
+						foo(new String [] { "Hello" });
+					}
+				}
+				"""
+				},
+				"Entry = Hello");
+	}
 }

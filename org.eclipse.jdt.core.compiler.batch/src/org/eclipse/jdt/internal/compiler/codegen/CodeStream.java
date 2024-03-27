@@ -225,7 +225,6 @@ private static final void swap(int a[], int i, int j, int result[]) {
 public void aaload() {
 	this.countLabels = 0;
 	this.stackDepth--;
-	popTypeBinding();
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
@@ -7747,10 +7746,8 @@ private void pushTypeBinding(int resolvedPosition) {
 private void pushTypeBindingArray() {
 	if (!isSwitchStackTrackingActive())
 		return;
-	assert this.switchSaveTypeBindings.size() >= 2; // atleast arrayref and index in the typebinding stack
-	TypeBinding[] arrayref_t = {popTypeBinding()/* index */, popTypeBinding()/* arrayref */};
-	TypeBinding type = arrayref_t[1]; // arrayref
-	assert type instanceof ArrayBinding;
+	popTypeBinding(); // index
+	TypeBinding type = popTypeBinding(); // arrayref
 	pushTypeBinding(((ArrayBinding) type).leafComponentType);
 }
 private TypeBinding getPopularBinding(char[] typeName) {
