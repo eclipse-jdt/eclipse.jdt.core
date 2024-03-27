@@ -1516,7 +1516,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    this.superclass = (ReferenceBinding) Scope.substitute(this, genericSuperclass);
 			this.typeBits |= (this.superclass.typeBits & TypeIds.InheritableBits);
 			if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
-				this.typeBits |= applyCloseableClassWhitelists(this.environment.globalOptions);
+				this.typeBits |= applyCloseableWhitelists(this.environment.globalOptions);
 	    }
 		return this.superclass;
 	}
@@ -1534,7 +1534,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	    		for (int i = this.superInterfaces.length; --i >= 0;) {
 	    			this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
 	    			if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
-	    				this.typeBits |= applyCloseableInterfaceWhitelists(this.environment.globalOptions);
+	    				this.typeBits |= applyCloseableWhitelists(this.environment.globalOptions);
 	    		}
     		}
 	    }

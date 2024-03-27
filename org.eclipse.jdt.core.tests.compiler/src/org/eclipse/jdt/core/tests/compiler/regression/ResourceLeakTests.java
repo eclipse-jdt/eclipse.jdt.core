@@ -54,11 +54,28 @@ private static final String APACHE_DBUTILS_CONTENT = "package org.apache.commons
 
 // one.util.streamex.StreamEx stub
 private static final String STREAMEX_JAVA = "one/util/streamex/StreamEx.java";
-private static final String STREAMEX_CONTENT = "package one.util.streamex;\n" +
-	"import java.util.stream.*;\n" +
-	"public abstract class StreamEx<T> implements Stream<T> {\n" +
-	"    public static <T> StreamEx<T> create() { return null; }\n" +
-	"}\n";
+private static final String STREAMEX_CONTENT =
+	"""
+	package one.util.streamex;
+	import java.util.Spliterator;
+	import java.util.stream.*;
+	import java.util.function.*;
+	public abstract class StreamEx<T> extends AbstractStreamEx<T, StreamEx<T>> {
+	    public static <T> StreamEx<T> create() { return null; }
+	    public static <T> StreamEx<T> of(T element) { return null; }
+	    @Override public <R> StreamEx<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper) { return null; }
+	}
+	abstract class AbstractStreamEx<T, S extends AbstractStreamEx<T, S>> extends
+			BaseStreamEx<T, Stream<T>, Spliterator<T>, S> implements Stream<T>, Iterable<T> {
+		@Override
+		public Spliterator<T> spliterator() {
+			return null;
+		}
+	}
+	abstract class BaseStreamEx<T, S extends BaseStream<T, S>, SPLTR extends Spliterator<T>, B extends BaseStreamEx<T, S, SPLTR, B>>
+			implements BaseStream<T, S> {
+	}
+	""";
 
 static {
 //	TESTS_NAMES = new String[] { "testBug463320" };
@@ -4751,6 +4768,27 @@ public void testStreamEx_572707() {
 			"public class Bug572707 {\n" +
 			"	public void m() {\n" +
 			"		System.out.println(StreamEx.create());\n" +
+			"	}\n" +
+			"}\n"
+		},
+		options);
+}
+public void testStreamEx_GH2919() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // uses JRE 8 API
+
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			STREAMEX_JAVA,
+			STREAMEX_CONTENT,
+			"GH2919.java",
+			"import one.util.streamex.*;\n" +
+			"\n" +
+			"public class GH2919 {\n" +
+			"	public void m() {\n" +
+			"		StreamEx<Object> streamEx = StreamEx.of(new Object()).flatMap(obj->StreamEx.of(obj));\n" +
 			"	}\n" +
 			"}\n"
 		},

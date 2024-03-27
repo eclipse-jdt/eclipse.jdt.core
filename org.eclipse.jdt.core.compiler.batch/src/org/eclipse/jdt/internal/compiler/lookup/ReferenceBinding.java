@@ -2167,6 +2167,16 @@ protected int applyCloseableClassWhitelists(CompilerOptions options) {
 					}
 				}
 			}
+			for (int i=0; i<3; i++) {
+				if (!CharOperation.equals(this.compoundName[i], TypeConstants.ONE_UTIL_STREAMEX[i])) {
+					return 0;
+				}
+			}
+			for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_STREAMEX) {
+				if (CharOperation.equals(this.compoundName[3], streamName)) {
+					return TypeIds.BitResourceFreeCloseable;
+				}
+			}
 			break;
 	}
 	int l = TypeConstants.OTHER_WRAPPER_CLOSEABLES.length;
@@ -2199,7 +2209,11 @@ protected boolean hasMethodWithNumArgs(char[] selector, int numArgs) {
 	}
 	return false;
 }
-
+protected int applyCloseableWhitelists(CompilerOptions options) {
+	return isInterface()
+			? applyCloseableInterfaceWhitelists(options)
+			: applyCloseableClassWhitelists(options);
+}
 /*
  * If a type - known to be a Closeable - is mentioned in one of our white lists
  * answer the typeBit for the white list (BitWrapperCloseable or BitResourceFreeCloseable).
@@ -2214,17 +2228,6 @@ protected int applyCloseableInterfaceWhitelists(CompilerOptions options) {
 					}
 				}
 				for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_J_U_STREAMS) {
-					if (CharOperation.equals(this.compoundName[3], streamName)) {
-						return TypeIds.BitResourceFreeCloseable;
-					}
-				}
-			} else {
-				for (int i=0; i<3; i++) {
-					if (!CharOperation.equals(this.compoundName[i], TypeConstants.ONE_UTIL_STREAMEX[i])) {
-						return 0;
-					}
-				}
-				for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_STREAMEX) {
 					if (CharOperation.equals(this.compoundName[3], streamName)) {
 						return TypeIds.BitResourceFreeCloseable;
 					}
