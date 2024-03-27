@@ -38,7 +38,9 @@
 	<bundle id="org.eclipse.jdt.core.compiler.batch.source" version="0.0.0">
 		<category name="org.eclipse.jdt.core.bundles.source"/>
 	</bundle>
-
+	<bundle id="org.eclipse.jdt.core.javac" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles"/>
+	</bundle>
 	<bundle id="org.eclipse.jdt.core.formatterapp" version="0.0.0">
 		<category name="org.eclipse.jdt.core.bundles"/>
 	</bundle>
