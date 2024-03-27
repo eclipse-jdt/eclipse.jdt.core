@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2310,7 +2310,23 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		} else {
 			startPos= getPosAfterLeftBrace(node.getStartPosition());
 		}
-		int startIndent= getIndent(node.getStartPosition()) + 1;
+		// for a try-with-resources body, the start of the block may be on the line of the
+		// last resource statement which means it could already be indented and so we
+		// must use the base indent of the try statement to indent the body correctly
+		boolean needParentIndent= false;
+		if (node.getLocationInParent() == TryStatement.BODY_PROPERTY) {
+			TryStatement parent= (TryStatement)node.getParent();
+			if (!parent.resources().isEmpty()) {
+				List<Expression> resources= parent.resources();
+				int lastResourcePos= resources.get(resources.size() - 1).getStartPosition();
+				int lastResourceLine= getLineInformation().getLineOfOffset(lastResourcePos);
+				int blockLine= getLineInformation().getLineOfOffset(node.getStartPosition());
+				if (blockLine == lastResourceLine) {
+					needParentIndent= true;
+				}
+			}
+		}
+		int startIndent= needParentIndent ? (getIndent(node.getParent().getStartPosition()) + 1) : getIndent(node.getStartPosition()) + 1;
 		rewriteParagraphList(node, Block.STATEMENTS_PROPERTY, startPos, startIndent, 0, 1);
 		return false;
 	}
@@ -4024,7 +4040,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				pos= doVisit(node, desc, pos);
 			}
 		}
-
 		pos= rewriteRequiredNode(node, TryStatement.BODY_PROPERTY);
 
 		if (isChanged(node, TryStatement.CATCH_CLAUSES_PROPERTY)) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1175,6 +1175,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			StructuralPropertyDescriptor desc = level < JLS9_INTERNAL ? INTERNAL_TRY_STATEMENT_RESOURCES_PROPERTY : TryStatement.RESOURCES2_PROPERTY;
 			visitList(node, desc, String.valueOf(';'), String.valueOf('('), String.valueOf(')'));
 		}
+		this.result.append(' ');
 		getChildNode(node, TryStatement.BODY_PROPERTY).accept(this);
 		this.result.append(' ');
 		visitList(node, TryStatement.CATCH_CLAUSES_PROPERTY, null);
