@@ -360,6 +360,8 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 	if (this.extraSyntheticArguments != null) {
 		for (SyntheticArgumentBinding extraSyntheticArgument : this.extraSyntheticArguments) {
 			SyntheticArgumentBinding argument = extraSyntheticArgument;
+			codeStream.record(argument);
+			argument.recordInitializationStartPC(0);
 			argument.resolvedPosition = this.offset;
 			if ((TypeBinding.equalsEquals(argument.type, TypeBinding.LONG)) || (TypeBinding.equalsEquals(argument.type, TypeBinding.DOUBLE))){
 				this.offset += 2;

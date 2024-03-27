@@ -1756,7 +1756,10 @@ public RecordComponentBinding[] components() {
 	return Binding.NO_COMPONENTS;
 }
 public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
-	return null;		// is null if no enclosing instances are required
+	return NO_SYNTHETIC_ARGUMENTS;
+}
+public SyntheticArgumentBinding[] syntheticEnclosingInstances() {
+	return NO_SYNTHETIC_ARGUMENTS;
 }
 /**
  * Call this before descending into type details to prevent infinite recursion.
