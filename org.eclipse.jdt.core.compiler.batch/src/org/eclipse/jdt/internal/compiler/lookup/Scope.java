@@ -2233,8 +2233,10 @@ public abstract class Scope {
 						for (ImportBinding importBinding : imports) {
 							if (importBinding.isStatic() && !importBinding.onDemand) {
 								if (CharOperation.equals(importBinding.getSimpleName(), name)) {
-									if (unitScope.resolveSingleImport(importBinding, Binding.TYPE | Binding.FIELD | Binding.METHOD) != null && importBinding.resolvedImport instanceof FieldBinding) {
-										foundField = (FieldBinding) importBinding.resolvedImport;
+									if (unitScope.resolveSingleImport(importBinding, Binding.TYPE | Binding.FIELD | Binding.METHOD) != null
+											&& importBinding.getResolvedImport() instanceof FieldBinding resolvedField)
+									{
+										foundField = resolvedField;
 										ImportReference importReference = importBinding.reference;
 										if (importReference != null && needResolve) {
 											importReference.bits |= ASTNode.Used;
@@ -2259,7 +2261,7 @@ public abstract class Scope {
 						ReferenceBinding sourceCodeReceiver = null;
 						for (ImportBinding importBinding : imports) {
 							if (importBinding.isStatic() && importBinding.onDemand) {
-								Binding resolvedImport = importBinding.resolvedImport;
+								Binding resolvedImport = importBinding.getResolvedImport();
 								if (resolvedImport instanceof ReferenceBinding) {
 									ReferenceBinding importedReferenceBinding = (ReferenceBinding) resolvedImport;
 									FieldBinding temp = findField(importedReferenceBinding, name, invocationSite, needResolve);
@@ -2745,7 +2747,7 @@ public abstract class Scope {
 				boolean skipOnDemand = false; // set to true when matched static import of method name so stop looking for on demand methods
 				for (ImportBinding importBinding : imports) {
 					if (importBinding.isStatic()) {
-						Binding resolvedImport = importBinding.resolvedImport;
+						Binding resolvedImport = importBinding.getResolvedImport();
 						MethodBinding possible = null;
 						if (importBinding.onDemand) {
 							if (!skipOnDemand && resolvedImport instanceof ReferenceBinding) {
@@ -3519,13 +3521,14 @@ public abstract class Scope {
 				if (cachedBinding instanceof ImportBinding) { // single type import cached in faultInImports(), replace it in the cache with the type
 					ImportBinding importBinding = (ImportBinding) cachedBinding;
 					ImportReference importReference = importBinding.reference;
-					if (importReference != null && !isUnnecessarySamePackageImport(importBinding.resolvedImport, unitScope)) {
+					Binding resolvedImport = importBinding.getResolvedImport();
+					if (importReference != null && !isUnnecessarySamePackageImport(resolvedImport, unitScope)) {
 						importReference.bits |= ASTNode.Used;
 					}
 					if (cachedBinding instanceof ImportConflictBinding)
 						typeOrPackageCache.put(name, cachedBinding = ((ImportConflictBinding) cachedBinding).conflictingTypeBinding); // already know its visible
 					else
-						typeOrPackageCache.put(name, cachedBinding = importBinding.resolvedImport); // already know its visible
+						typeOrPackageCache.put(name, cachedBinding = resolvedImport); // already know its visible
 				}
 				if ((mask & Binding.TYPE) != 0) {
 					if (foundType != null && foundType.problemId() != ProblemReasons.NotVisible && cachedBinding.problemId() != ProblemReasons.Ambiguous)
@@ -3549,7 +3552,7 @@ public abstract class Scope {
 							if (resolvedImport == null) continue nextImport;
 							if (resolvedImport instanceof TypeBinding) {
 								ImportReference importReference = importBinding.reference;
-								if (importReference != null && !isUnnecessarySamePackageImport(importBinding.resolvedImport, unitScope))
+								if (importReference != null && !isUnnecessarySamePackageImport(importBinding.getResolvedImport(), unitScope))
 									importReference.bits |= ASTNode.Used;
 								return resolvedImport; // already know its visible
 							}
@@ -3581,7 +3584,7 @@ public abstract class Scope {
 				ReferenceBinding type = null;
 				for (ImportBinding someImport : imports) {
 					if (someImport.onDemand) {
-						Binding resolvedImport = someImport.resolvedImport;
+						Binding resolvedImport = someImport.getResolvedImport();
 						ReferenceBinding temp = null;
 						if (resolvedImport instanceof PackageBinding) {
 							temp = findType(name, (PackageBinding) resolvedImport, currentPackage);

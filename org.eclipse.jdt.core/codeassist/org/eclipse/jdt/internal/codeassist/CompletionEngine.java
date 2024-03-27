@@ -8099,9 +8099,9 @@ public final class CompletionEngine
 
 		if (favoriteBindings != null && favoriteBindings.length > 0) {
 			for (ImportBinding favoriteBinding : favoriteBindings) {
-				switch (favoriteBinding.resolvedImport.kind()) {
+				switch (favoriteBinding.getResolvedBindingKind()) {
 					case Binding.FIELD:
-						FieldBinding fieldBinding = (FieldBinding) favoriteBinding.resolvedImport;
+						FieldBinding fieldBinding = (FieldBinding) favoriteBinding.getResolvedImport();
 						findFieldsFromFavorites(
 								token,
 								new FieldBinding[]{fieldBinding},
@@ -8113,7 +8113,7 @@ public final class CompletionEngine
 								invocationScope);
 						break;
 					case Binding.METHOD:
-						MethodBinding methodBinding = (MethodBinding) favoriteBinding.resolvedImport;
+						MethodBinding methodBinding = (MethodBinding) favoriteBinding.getResolvedImport();
 						MethodBinding[] methods = methodBinding.declaringClass.availableMethods();
 						long range;
 						if ((range = ReferenceBinding.binarySearch(methodBinding.selector, methods)) >= 0) {
@@ -8134,7 +8134,7 @@ public final class CompletionEngine
 								invocationScope);
 						break;
 					case Binding.TYPE:
-						ReferenceBinding referenceBinding = (ReferenceBinding) favoriteBinding.resolvedImport;
+						ReferenceBinding referenceBinding = (ReferenceBinding) favoriteBinding.getResolvedImport();
 						if(favoriteBinding.onDemand) {
 							findFieldsFromFavorites(
 									token,
@@ -8342,7 +8342,7 @@ public final class CompletionEngine
 		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
 		for (ImportBinding importBinding : importBindings) {
 			if(importBinding.isValidBinding() && importBinding.isStatic()) {
-				Binding binding = importBinding.resolvedImport;
+				Binding binding = importBinding.getResolvedImport();
 				if(binding != null && binding.isValidBinding()) {
 					if(importBinding.onDemand) {
 						if((binding.kind() & Binding.TYPE) != 0) {
@@ -12462,7 +12462,7 @@ public final class CompletionEngine
 		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
 		next : for (ImportBinding importBinding : importBindings) {
 			if(importBinding.isValidBinding()) {
-				Binding binding = importBinding.resolvedImport;
+				Binding binding = importBinding.getResolvedImport();
 				if(binding != null && binding.isValidBinding()) {
 					if(importBinding.onDemand) {
 						if (importBinding.isStatic()) {
@@ -12588,7 +12588,7 @@ public final class CompletionEngine
 		if (importBindings == null) return;
 		for (ImportBinding importBinding : importBindings) {
 			if(importBinding.isValidBinding() && importBinding.isStatic()) {
-				Binding binding = importBinding.resolvedImport;
+				Binding binding = importBinding.getResolvedImport();
 				if(binding != null && binding.isValidBinding()) {
 					if(importBinding.onDemand) {
 						if((binding.kind() & Binding.TYPE) != 0) {
