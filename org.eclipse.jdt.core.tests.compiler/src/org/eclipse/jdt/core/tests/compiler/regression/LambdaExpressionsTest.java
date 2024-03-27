@@ -7972,8 +7972,8 @@ public void testGH1060() {
 			);
 }
 
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=546161
-//LambdaConversionException due to invalid instantiated method type argument to LambdaMetafactory::metafactory
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=546161
+// LambdaConversionException due to invalid instantiated method type argument to LambdaMetafactory::metafactory
 public void testBug546161() {
 	this.runConformTest(
 			new String[] {
@@ -7994,9 +7994,77 @@ public void testBug546161() {
 			""
 			);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=547231
+// Logging inside lambda fails with error
+public void testBug547231() {
+	this.runConformTest(
+			new String[] {
+				"Problematic.java",
+				"import java.io.IOException;\n" +
+				"import java.nio.file.Path;\n" +
+				"import java.util.Collections;\n" +
+				"import java.util.Set;\n" +
+				"import java.util.function.Consumer;\n" +
+				"import java.util.logging.Level;\n" +
+				"import java.util.logging.Logger;\n" +
+				"\n" +
+				"public class Problematic {\n" +
+				"\n" +
+				"        Logger LOGGER = Logger.getLogger(Problematic.class.getName());\n" +
+				"\n" +
+				"        @FunctionalInterface\n" +
+				"        private interface ThrowingConsumer<T, E extends Throwable> {\n" +
+				"                void accept(T t) throws E;\n" +
+				"        }\n" +
+				"\n" +
+				"        private class FileAsset {\n" +
+				"                public FileAsset move(String path) throws IOException {\n" +
+				"                        System.out.println(path);\n" +
+				"                        return null;\n" +
+				"                }\n" +
+				"\n" +
+				"                public Path getPath() {\n" +
+				"                        return null;\n" +
+				"                }\n" +
+				"        }\n" +
+				"\n" +
+				"        static <T, E extends Exception> void process(Consumer<Consumer<T>> code, ThrowingConsumer<T, E> throwingConsumer)\n" +
+				"                        throws E {\n" +
+				"                code.accept(t -> {\n" +
+				"                        try {\n" +
+				"                                throwingConsumer.accept(t);\n" +
+				"                        } catch (Exception e) {\n" +
+				"                                e.printStackTrace();\n" +
+				"                        }\n" +
+				"                });\n" +
+				"        }\n" +
+				"\n" +
+				"        public void execute(String path) throws IOException {\n" +
+				"                Set<FileAsset> set = Collections.singleton(new FileAsset());\n" +
+				"                process(set::forEach, (a) -> {\n" +
+				"                        process(set::forEach, (b) -> {\n" +
+				"                                process(set::forEach, (c) -> {\n" +
+				"                                        c.move(path);\n" +
+				"\n" +
+				"                                        // produces error: Unhandled exception type IOException\n" +
+				"                                        LOGGER.log(Level.FINE, () -> \"Moved \" + c.getPath() + \" to \" + a);\n" +
+				"\n" +
+				"                                        // no error\n" +
+				"                                         LOGGER.log(Level.FINE, \"Moved \" + c.getPath() + \" to \" + a);\n" +
+				"                                });\n" +
+				"                        });\n" +
+				"                });\n" +
+				"        }\n" +
+				"        public static void main(String [] args) {\n" +
+				"            System.out.println(\"OK\");\n" +
+				"        }\n" +
+				"}\n"},
+			"OK"
+			);
+}
 
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=546161
-//LambdaConversionException due to invalid instantiated method type argument to LambdaMetafactory::metafactory
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=546161
+// LambdaConversionException due to invalid instantiated method type argument to LambdaMetafactory::metafactory
 public void testBug546161_2() {
 	this.runConformTest(
 			new String[] {
@@ -8016,8 +8084,8 @@ public void testBug546161_2() {
 			);
 }
 
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=574269
-//java.lang.invoke.LambdaConversionException: Invalid receiver type class java.lang.Object
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=574269
+// java.lang.invoke.LambdaConversionException: Invalid receiver type class java.lang.Object
 public void testBug574269() {
 	this.runConformTest(
 			new String[] {
@@ -8087,8 +8155,8 @@ public void testBug574269() {
 			);
 }
 
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=574269
-//java.lang.invoke.LambdaConversionException: Invalid receiver type class java.lang.Object
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=574269
+// java.lang.invoke.LambdaConversionException: Invalid receiver type class java.lang.Object
 public void testBug574269_2() {
 	this.runConformTest(
 			new String[] {
@@ -8134,8 +8202,8 @@ public void testBug574269_2() {
 			);
 }
 
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=570511
-//java.lang.BootstrapMethodError in Eclipse compiled code that doesn't happen with javac
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=570511
+// java.lang.BootstrapMethodError in Eclipse compiled code that doesn't happen with javac
 public void testBug570511() {
 	this.runConformTest(
 			new String[] {
@@ -8390,6 +8458,82 @@ public void testBug576252() {
 				"}\n"},
 			"class LambdaTest");
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2065
+// Eclipse compiler incorrectly reports unhandled exceptions on lamba code
+public void testIssue2065() {
+
+	if (this.complianceLevel < ClassFileConstants.JDK10)
+		return;
+
+	this.runConformTest(
+			new String[] {
+				"Foobar.java",
+				"""
+				import java.nio.file.*;
+				import java.util.*;
+				import java.util.function.Function;
+				import java.util.stream.Collectors;
+
+				public class Foobar {
+					@FunctionalInterface
+					public interface FailableSupplier<T, E extends Throwable> {
+						T get() throws E;
+					}
+
+					public static <T, E extends Throwable> T get(final FailableSupplier<T, E> supplier) {
+						try {
+							return supplier.get();
+						} catch (final Throwable t) {
+							throw new RuntimeException(t);
+						}
+					}
+
+					@FunctionalInterface
+					public interface FailableFunction<T, R, E extends Throwable> {
+						R apply(T input) throws E;
+					}
+
+					public static <T, R, E extends Throwable> R apply(final FailableFunction<T, R, E> function, final T input) {
+						return get(() -> function.apply(input));
+					}
+
+					public static <T, R> Function<T, R> asFunction(final FailableFunction<T, R, ?> function) {
+						return input -> apply(function, input);
+					}
+
+					public static Set<Class<?>> getFoobarClasses(final String packageName, final ClassLoader classLoader) {
+						return get(() -> {
+							final var resourcePath = packageName.replace('.', '/');
+							var resource = classLoader.getResource(resourcePath).toURI();
+							FileSystem fileSystem = null;
+							try {
+								if ("jar".equals(resource.getScheme())) {
+									fileSystem = FileSystems.newFileSystem(resource, Collections.emptyMap());
+								}
+								final var localPath = Paths.get(resource);
+								return Files.list(localPath)
+									.map(file -> file.getFileName().toString())
+									.filter(filename -> filename.endsWith(".class"))
+									.filter(filename -> !filename.contains("Foobar"))
+									.map(asFunction(fileName -> {
+										final var qualifiedClassName = packageName + '.' + fileName.substring(0, fileName.lastIndexOf(".class")).replace('/', '.');
+										return (Class<?>) Class.forName(qualifiedClassName, false, classLoader);
+									}))
+									.collect(Collectors.toUnmodifiableSet());
+							} finally {
+								if (fileSystem != null) {
+									fileSystem.close();
+								}
+							}
+						});
+					}
+				}
+				"""},
+			"");
+}
+
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

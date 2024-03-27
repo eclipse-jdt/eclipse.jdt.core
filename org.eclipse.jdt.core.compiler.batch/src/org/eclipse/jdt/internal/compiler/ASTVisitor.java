@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1019,7 +1019,7 @@ public abstract class ASTVisitor {
 	public  boolean visit(RecordComponent recordComponent, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(StringTemplate expr, BlockScope scope1) {
+	public boolean visit(org.eclipse.jdt.internal.compiler.ast.StringTemplate expr, BlockScope scope1) {
 		// TODO Auto-generated method stub
 		return false;
 	}

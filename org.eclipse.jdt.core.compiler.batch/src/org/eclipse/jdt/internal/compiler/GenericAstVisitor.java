@@ -445,7 +445,7 @@ public abstract class GenericAstVisitor extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(StringTemplate expr, BlockScope scope1) {
+	public boolean visit(org.eclipse.jdt.internal.compiler.ast.StringTemplate expr, BlockScope scope1) {
 		return visitNode(expr);
 	}
 	@Override

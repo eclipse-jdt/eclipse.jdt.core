@@ -1118,10 +1118,6 @@ public void resolve(BlockScope scope) {
 	this.resolveType(scope);
 	return;
 }
-@Override
-public TypeBinding resolveExpressionType(BlockScope scope) {
-	return resolveType(scope);
-}
 
 public TypeBinding resolveTypeWithBindings(LocalVariableBinding[] bindings, BlockScope scope) {
 	scope.include(bindings);

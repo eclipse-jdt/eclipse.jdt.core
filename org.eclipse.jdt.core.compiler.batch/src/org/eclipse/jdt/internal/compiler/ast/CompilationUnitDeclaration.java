@@ -778,11 +778,6 @@ public void tagAsHavingErrors() {
 	this.ignoreFurtherInvestigation = true;
 }
 
-@Override
-public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
-	// Nothing to do for this context;
-}
-
 public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
 	traverse(visitor, unitScope, true);
 }

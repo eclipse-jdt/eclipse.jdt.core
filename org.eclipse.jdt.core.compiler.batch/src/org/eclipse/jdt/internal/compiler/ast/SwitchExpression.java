@@ -59,8 +59,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	public List<Expression> resultExpressions;
 	public boolean resolveAll;
 	/* package */ List<Integer> resultExpressionNullStatus;
-	LocalVariableBinding hiddenYield;
-	/* package */ int hiddenYieldResolvedPosition = -1;
 	public boolean containsTry = false;
 	private static Map<TypeBinding, TypeBinding[]> type_map;
 	static final char[] SECRET_YIELD_VALUE_NAME = " yieldValue".toCharArray(); //$NON-NLS-1$
@@ -387,10 +385,12 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	}
 
 	@Override
-	public TypeBinding resolveType(BlockScope upperScope) {
-		return resolveTypeInternal(upperScope);
+	public void resolve(BlockScope upperScope) {
+		resolveType(upperScope);
 	}
-	public TypeBinding resolveTypeInternal(BlockScope upperScope) {
+
+	@Override
+	public TypeBinding resolveType(BlockScope upperScope) {
 		try {
 			int resultExpressionsCount;
 			if (this.constant != Constant.NotAConstant) {
@@ -409,7 +409,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 
 				if (this.originalTypeMap == null)
 					this.originalTypeMap = new HashMap<>();
-				resolve(upperScope);
+				super.resolve(upperScope);
 
 				if (this.statements == null || this.statements.length == 0) {
 					//	Report Error JLS 13 15.28.1  The switch block must not be empty.
@@ -632,21 +632,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		computeNullStatus(flowInfo, flowContext);
 		return flowInfo;
 	}
-	@Override
-	protected void addSecretTryResultVariable() {
-		if (this.containsTry) {
-			this.hiddenYield =
-					new LocalVariableBinding(
-						SwitchExpression.SECRET_YIELD_VALUE_NAME,
-						null,
-						ClassFileConstants.AccDefault,
-						false);
-			this.hiddenYield.setConstant(Constant.NotAConstant);
-			this.hiddenYield.useFlag = LocalVariableBinding.USED;
-			this.scope.addLocalVariable(this.hiddenYield);
-			this.hiddenYield.declaration = new LocalDeclaration(SECRET_YIELD_VALUE_NAME, 0, 0);
-		}
-	}
+
 	private TypeBinding check_csb(Set<TypeBinding> typeSet, TypeBinding candidate) {
 		if (!typeSet.contains(candidate))
 			return null;

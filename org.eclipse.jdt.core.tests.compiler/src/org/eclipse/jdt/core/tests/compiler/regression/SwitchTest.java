@@ -3365,6 +3365,36 @@ public void testGHI1782() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2190
+// [Enhanced switch] Case null disallowed when switching on arrays
+public void testIssue2190() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return;
+
+	this.runConformTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			public static void main(String[] args) {
+				int[] aa = {1};
+				switch (aa) {
+				    case null -> System.out.println("AA");
+				    default -> System.out.println("BB");
+				}
+
+				int[] cc = null;
+				switch (cc) {
+				    case null -> System.out.println("AA");
+				    default -> System.out.println("BB");
+				}
+			}
+		}
+		""",
+	},
+	"BB\n"
+	+ "AA");
+}
+
 public static Class testClass() {
 	return SwitchTest.class;
 }

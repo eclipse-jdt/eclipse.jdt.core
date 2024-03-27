@@ -1658,6 +1658,114 @@ s
 				"Hello Changed Changed!"
 		);
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2125
+	// [String Templates] Compilation error when Template Processor used in unconditional for loop
+	public void testIssue2125() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					import java.lang.StringTemplate.Processor;
+
+					public class X implements Processor<String, RuntimeException> {
+					  public static void main(String [] args) {
+					    for(;;) {
+					      System.out.println(new X()."SELECT * FROM");
+					      break;
+					    }
+					  }
+
+					  @Override
+					  public String process(StringTemplate stringTemplate) throws RuntimeException {
+					    return STR.process(stringTemplate);
+					  }
+					}
+					"""
+				},
+				"SELECT * FROM"
+		);
+	}
+	public void testIssue2125_2() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					import java.lang.StringTemplate.Processor;
+
+					public class X implements Processor<String, RuntimeException> {
+					  public static void main(String [] args) {
+					    for (int i = 0; i < 3; i++) {
+					      System.out.println(new X()."SELECT * FROM");
+					    }
+					  }
+
+					  @Override
+					  public String process(StringTemplate stringTemplate) throws RuntimeException {
+					    return STR.process(stringTemplate);
+					  }
+					}
+					"""
+				},
+				"SELECT * FROM\n"
+				+ "SELECT * FROM\n"
+				+ "SELECT * FROM"
+		);
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2125
+	// [String Templates] Compilation error when Template Processor used in unconditional for loop
+	public void testIssue2125_3() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					import java.lang.StringTemplate.Processor;
+
+					public class X implements Processor<String, RuntimeException> {
+					  public static void main(String [] args) {
+					    for(;;) {
+					      System.out.println(STR."SELECT * FROM");
+					      break;
+					    }
+					  }
+
+					  @Override
+					  public String process(StringTemplate stringTemplate) throws RuntimeException {
+					    return STR.process(stringTemplate);
+					  }
+					}
+					"""
+				},
+				"SELECT * FROM"
+		);
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2125
+	// [String Templates] Compilation error when Template Processor used in unconditional for loop
+	public void testIssue2125_4() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					import java.lang.StringTemplate.Processor;
+
+					public class X implements Processor<String, RuntimeException> {
+					  public static void main(String [] args) {
+					    for (int i = 0; i < 3; i++) {
+					      System.out.println(STR."SELECT * FROM");
+					    }
+					  }
+
+					  @Override
+					  public String process(StringTemplate stringTemplate) throws RuntimeException {
+					    return STR.process(stringTemplate);
+					  }
+					}
+					"""
+				},
+				"SELECT * FROM\n"
+				+ "SELECT * FROM\n"
+				+ "SELECT * FROM"
+		);
+	}
 	// Test with read of the outer string literal inside the template expression
 	public void test0060() {
 		runNegativeTest(

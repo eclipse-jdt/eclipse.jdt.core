@@ -944,6 +944,16 @@ public interface IType extends IMember, IAnnotatable {
 	boolean isSealed() throws JavaModelException;
 
 	/**
+	 * Returns whether this type is implicitly declared.
+	 *
+	 * @return true if this type is implicitly declared and false otherwise
+	 * @throws JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
+	 * @since 3.38
+	 */
+	boolean isImplicitlyDeclared() throws JavaModelException;
+
+	/**
 	 * Returns the record components declared by this record class, or an empty
 	 * array if this is not a record.
 	 *

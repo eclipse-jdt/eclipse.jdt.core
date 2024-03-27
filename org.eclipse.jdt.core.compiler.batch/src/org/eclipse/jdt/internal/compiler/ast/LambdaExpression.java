@@ -56,7 +56,6 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -128,7 +127,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	public boolean hasOuterClassMemberReference = false;
 	private int outerLocalVariablesSlotSize = 0;
 	private boolean assistNode = false;
-	private boolean hasIgnoredMandatoryErrors = false;
 	private ReferenceBinding classType;
 	private Set thrownExceptions;
 	private static final SyntheticArgumentBinding [] NO_SYNTHETIC_ARGUMENTS = new SyntheticArgumentBinding[0];
@@ -808,17 +806,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		return this.scope;
 	}
 
-	private boolean enclosingScopesHaveErrors() {
-		Scope skope = this.enclosingScope;
-		while (skope != null) {
-			ReferenceContext context = skope.referenceContext();
-			if (context != null && context.hasErrors())
-				return true;
-			skope = skope.parent;
-		}
-		return false;
-	}
-
 	private void analyzeShape() { // Simple minded analysis for code assist & potential compatibility.
 		class ShapeComputer extends ASTVisitor {
 			@Override
@@ -1022,8 +1009,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			if (!requireExceptionAnalysis)
 				return copy;
 			if (copy.thrownExceptions == null)
-				if (!copy.hasIgnoredMandatoryErrors && !enclosingScopesHaveErrors())
-					copy.analyzeExceptions();
+				copy.analyzeExceptions();
 			return copy;
 		} finally {
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
@@ -1228,42 +1214,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					parent = parent.parent;
 					break;
 			}
-		}
-	}
-
-	@Override
-	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
-		switch (problemId) {
-			// 15.27.3 requires exception throw related errors to not influence congruence. Other errors should. Also don't abort shape analysis.
-			case IProblem.UnhandledExceptionOnAutoClose:
-			case IProblem.UnhandledExceptionInDefaultConstructor:
-			case IProblem.UnhandledException:
-				return;
-			/* The following structural problems can occur only because of target type imposition. Filter, so we can distinguish inherent errors
-			   in explicit lambdas. This is to help decide whether to proceed with data/control flow analysis to discover shape. In case of inherent
-			   errors, we will not call analyze code as it is not prepared to analyze broken programs.
-			*/
-			case IProblem.VoidMethodReturnsValue:
-			case IProblem.ShouldReturnValueHintMissingDefault:
-			case IProblem.ShouldReturnValue:
-			case IProblem.ReturnTypeMismatch:
-			case IProblem.IncompatibleLambdaParameterType:
-			case IProblem.lambdaParameterTypeMismatched:
-			case IProblem.lambdaSignatureMismatched:
-			case IProblem.LambdaDescriptorMentionsUnmentionable:
-			case IProblem.TargetTypeNotAFunctionalInterface:
-			case IProblem.illFormedParameterizationOfFunctionalInterface:
-			case IProblem.NoGenericLambda:
-				return;
-			default:
-				this.hasIgnoredMandatoryErrors = true;
-				MethodScope enclosingLambdaScope = this.scope == null ? null : this.scope.enclosingLambdaScope();
-				while (enclosingLambdaScope != null) {
-					LambdaExpression enclosingLambda = (LambdaExpression) enclosingLambdaScope.referenceContext;
-					enclosingLambda.hasIgnoredMandatoryErrors = true;
-					enclosingLambdaScope = enclosingLambdaScope.enclosingLambdaScope();
-				}
-				return;
 		}
 	}
 

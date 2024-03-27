@@ -1202,9 +1202,6 @@ public class ClassScope extends Scope {
 				// only want to reach here when no errors are reported
 				sourceType.setSuperClass(superclass);
 				sourceType.typeBits |= (superclass.typeBits & TypeIds.InheritableBits);
-				// further analysis against white lists for the unlikely case we are compiling java.io.*:
-				if ((sourceType.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0)
-					sourceType.typeBits |= sourceType.applyCloseableClassWhitelists(this.compilerOptions());
 				return true;
 			}
 		}
@@ -1458,9 +1455,6 @@ public class ClassScope extends Scope {
 			}
 			// only want to reach here when no errors are reported
 			sourceType.typeBits |= (superInterface.typeBits & TypeIds.InheritableBits);
-			// further analysis against white lists for the unlikely case we are compiling java.util.stream.Stream:
-			if ((sourceType.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0)
-				sourceType.typeBits |= sourceType.applyCloseableInterfaceWhitelists(compilerOptions());
 			interfaceBindings[count++] = superInterface;
 		}
 		// hold onto all correctly resolved superinterfaces
@@ -1479,6 +1473,9 @@ public class ClassScope extends Scope {
 			environment().typesBeingConnected.add(sourceType);
 			boolean noProblems = connectSuperclass();
 			noProblems &= connectSuperInterfaces();
+			if ((sourceType.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) {
+				sourceType.typeBits |= sourceType.applyCloseableWhitelists(compilerOptions());
+			}
 			environment().typesBeingConnected.remove(sourceType);
 			sourceType.tagBits |= TagBits.EndHierarchyCheck;
 //			connectPermittedTypes();

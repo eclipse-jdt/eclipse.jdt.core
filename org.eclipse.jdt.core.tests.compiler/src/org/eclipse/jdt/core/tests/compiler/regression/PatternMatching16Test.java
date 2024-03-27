@@ -90,7 +90,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"1. ERROR in X1.java (at line 3)\n" +
 				"	if (obj instanceof String s) {\n" +
 				"	                   ^^^^^^^^\n" +
-				"The Java feature 'Pattern Matching in instanceof Expressions' is only available with source level 16 and above\n" +
+				"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
 				"----------\n",
 				null,
 				true,

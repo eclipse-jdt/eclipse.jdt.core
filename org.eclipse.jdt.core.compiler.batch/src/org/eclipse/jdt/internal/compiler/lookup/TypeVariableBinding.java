@@ -44,6 +44,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -76,6 +77,12 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public ReferenceBinding[] superInterfaces; // MUST NOT be modified directly, use setter !
 	public char[] genericTypeSignature;
 	LookupEnvironment environment;
+
+	/*
+	 * In one particular situation a TVB will be cloned and the clone will be used as the 'naked' type
+	 * within TypeSystem. This may require some updating inside TypeSystem's hash structure.
+	 */
+	Consumer<TypeVariableBinding> updateWhenSettingTypeAnnotations;
 
 	public TypeVariableBinding(char[] sourceName, Binding declaringElement, int rank, LookupEnvironment environment) {
 		this.sourceName = sourceName;

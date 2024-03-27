@@ -127,6 +127,7 @@ public class CodeStream {
 
 	public Map<BlockScope, List<ExceptionLabel>> patternAccessorMap = new HashMap<>();
 	public Stack<BlockScope> accessorExceptionTrapScopes = new Stack<>();
+	public boolean stmtInPreConContext = false;
 
 public CodeStream(ClassFile givenClassFile) {
 	this.targetLevel = givenClassFile.targetJDK;
@@ -224,6 +225,7 @@ private static final void swap(int a[], int i, int j, int result[]) {
 public void aaload() {
 	this.countLabels = 0;
 	this.stackDepth--;
+	popTypeBinding();
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
@@ -4777,7 +4779,7 @@ public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declari
 		case Opcodes.OPC_invokespecial :
 			receiverAndArgsSize = 1; // receiver
 			if (methodBinding.isConstructor()) {
-				if (declaringClass.isNestedType()) {
+				if (declaringClass.isNestedType() && !this.stmtInPreConContext) {
 					ReferenceBinding nestedType = (ReferenceBinding) declaringClass;
 					// enclosing instances
 					receiverAndArgsSize += nestedType.getEnclosingInstancesSlotSize();
@@ -7776,6 +7778,7 @@ private void pushTypeBinding(int nPop, TypeBinding typeBinding) {
 	pushTypeBinding(typeBinding);
 }
 private TypeBinding popTypeBinding() {
+//	debugStackDepth(this.stackDepth);
 	return isSwitchStackTrackingActive() ? this.switchSaveTypeBindings.pop() : null;
 }
 private void popTypeBinding(int nPop) {
@@ -7831,5 +7834,9 @@ public void handleRecordAccessorExceptions(BlockScope scope) {
 	swap();                      // [MatchException, MatchException, String, Throwable]
 	invokeJavaLangMatchExceptionConstructor(); // [MatchException]
 	athrow();
+}
+void debugStackDepth(int stackDepth1) throws IllegalArgumentException{
+	if (stackDepth1 < 0)
+		throw new IllegalArgumentException();
 }
 }

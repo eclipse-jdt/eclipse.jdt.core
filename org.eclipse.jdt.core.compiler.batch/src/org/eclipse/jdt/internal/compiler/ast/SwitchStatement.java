@@ -466,7 +466,7 @@ public class SwitchStatement extends Expression {
 						complaintLevel = initialComplaintLevel; // reset complaint
 						fallThroughState = this.containsPatterns ? FALLTHROUGH : CASE;
 					} else {
-						if (!(this instanceof SwitchExpression) &&
+						if (!isTrulyExpression() &&
 							compilerOptions.complianceLevel >= ClassFileConstants.JDK14 &&
 							statement instanceof YieldStatement &&
 							((YieldStatement) statement).isImplicit) {
@@ -1058,10 +1058,8 @@ public class SwitchStatement extends Expression {
 		}
 		return n;
 	}
-	protected void addSecretTryResultVariable() {
-		// do nothing
-	}
-	/* package */ boolean isAllowedType(TypeBinding type) {
+
+	boolean isAllowedType(TypeBinding type) {
 		if (type == null)
 			return false;
 		switch (type.id) {
