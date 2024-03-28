@@ -2323,7 +2323,17 @@ public void addResolutionListener(IQualifiedTypeResolutionListener resolutionLis
 
 
 public TypeBinding getUnannotatedType(TypeBinding typeBinding) {
-	return this.typeSystem.getUnannotatedType(typeBinding);
+	TypeBinding unannotatedType = this.typeSystem.getUnannotatedType(typeBinding);
+	if (typeBinding.getClass() == TypeVariableBinding.class && unannotatedType.hasTypeAnnotations()) {
+		for (TypeBinding derived : this.typeSystem.getAnnotatedTypes(unannotatedType)) {
+			if (!derived.hasTypeAnnotations())
+				return derived;
+		}
+		TypeBinding clone = ((TypeVariableBinding) unannotatedType).clone(null);
+		this.typeSystem.cacheDerivedType(unannotatedType, unannotatedType, clone);
+		return clone;
+	}
+	return unannotatedType;
 }
 
 // Given a type, return all its variously annotated versions.
