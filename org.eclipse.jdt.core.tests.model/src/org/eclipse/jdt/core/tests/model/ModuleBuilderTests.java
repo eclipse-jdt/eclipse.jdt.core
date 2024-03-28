@@ -3409,7 +3409,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable<String, String> newOptions=new Hashtable<>(javaCoreOptions);
-			newOptions.put(CompilerOptions.OPTION_JdtDebugCompileMode, JavaCore.ENABLED);
+			newOptions.put(CompilerOptions.OPTION_IgnoreUnnamedModuleForSplitPackage, JavaCore.ENABLED);
 			JavaCore.setOptions(newOptions);
 			String[] sources = new String[] {
 					"src/java/util/Map___.java",
@@ -3427,16 +3427,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p1= setupModuleProject("debugger_project", sources, new IClasspathEntry[]{dep});
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
-
-			assertNull("Option should not be stored", JavaCore.getOption(CompilerOptions.OPTION_JdtDebugCompileMode));
 		} finally {
 			deleteProject("debugger_project");
 			JavaCore.setOptions(javaCoreOptions);
 		}
 	}
-
-	// test that the special OPTION_JdtDebugCompileMode cannot be persisted on a project
-	public void test_no_conflicting_packages_for_debugger_project() throws CoreException {
+	// copy from test_no_conflicting_packages_for_debugger_global but using default semantics
+	public void test_conflicting_packages_for_debugger_global_no_tweak() throws CoreException {
 		try {
 			String[] sources = new String[] {
 					"src/java/util/Map___.java",
@@ -3452,12 +3449,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			IJavaProject p1= setupModuleProject("debugger_project", sources, new IClasspathEntry[]{dep});
-			p1.setOption(CompilerOptions.OPTION_JdtDebugCompileMode, JavaCore.ENABLED);
-			assertNull("Option should not be stored", p1.getOption(CompilerOptions.OPTION_JdtDebugCompileMode, false));
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
-			assertMarkers("Unexpected markers",
+			assertMarkers("unexpected markers",
 					"The package java.util conflicts with a package accessible from another module: java.base\n" +
 					"The package java.util is accessible from more than one module: <unnamed>, java.base\n" +
 					"The method entrySet() is undefined for the type Map___",

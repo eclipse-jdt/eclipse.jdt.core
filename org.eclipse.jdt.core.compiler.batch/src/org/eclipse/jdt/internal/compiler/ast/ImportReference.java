@@ -18,7 +18,6 @@ import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ImportReference extends ASTNode {
@@ -65,17 +64,17 @@ public class ImportReference extends ASTNode {
 		ModuleBinding module = scope.module();
 		PackageBinding visiblePackage = module.getVisiblePackage(this.tokens);
 		if (visiblePackage instanceof SplitPackageBinding) {
+			// attempt normalization (filter out packages w/o compilation units, optionally ignore named<->unnamed conflict):
+			visiblePackage = visiblePackage.getVisibleFor(module, false);
+		}
+		if (visiblePackage instanceof SplitPackageBinding) {
 			Set<ModuleBinding> declaringMods = new HashSet<>();
 			for (PackageBinding incarnation : ((SplitPackageBinding) visiblePackage).incarnations) {
 				if (incarnation.enclosingModule != module && module.canAccess(incarnation))
 					declaringMods.add(incarnation.enclosingModule);
 			}
 			if (!declaringMods.isEmpty()) {
-				CompilerOptions compilerOptions = scope.compilerOptions();
-				boolean inJdtDebugCompileMode = compilerOptions.enableJdtDebugCompileMode;
-				if (!inJdtDebugCompileMode) {
-					scope.problemReporter().conflictingPackagesFromOtherModules(this, declaringMods);
-				}
+				scope.problemReporter().conflictingPackagesFromOtherModules(this, declaringMods);
 			}
 		}
 	}
