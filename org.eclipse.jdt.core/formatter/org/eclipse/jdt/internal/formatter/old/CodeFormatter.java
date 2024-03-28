@@ -30,6 +30,7 @@ import org.eclipse.text.edits.TextEdit;
  * @deprecated
 */
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Deprecated(forRemoval = true, since = "2024-03")
 public class CodeFormatter implements TerminalTokens, org.eclipse.jdt.core.ICodeFormatter {
 
 	private Map options;
