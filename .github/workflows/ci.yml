@@ -35,6 +35,7 @@ jobs:
           JavaSE-1.8
           JavaSE-17
           JavaSE-20
+          JavaSE-21
         distribution: 'temurin'
     - name: Set up Maven
       uses: stCarolas/setup-maven@07fbbe97d97ef44336b7382563d66743297e442f # v4.5
@@ -43,7 +44,7 @@ jobs:
     - name: Build with Maven 🏗️
       run: |
         mvn clean install --batch-mode -f org.eclipse.jdt.core.compiler.batch -DlocalEcjVersion=99.99
-        mvn -U clean verify --batch-mode --fail-at-end -Ptest-on-javase-20 -Pbree-libs -Papi-check -Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 -Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,20 -Djdt.performance.asserts=disabled" -Dcbi-ecj-version=99.99
+        mvn -U clean verify --batch-mode --fail-at-end -Ptest-on-javase-21 -Pbree-libs -Papi-check -Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 -Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,21 -Djdt.performance.asserts=disabled" -Dcbi-ecj-version=99.99
     - name: Upload Test Results for Linux
       if: always()
       uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3

@@ -1055,6 +1055,11 @@ public class CompilationUnit extends ASTNode {
 		this.lineEndTable = lineEndTable;
 	}
 
+	// FOR TESTING ONLY, DELETE ME
+	int[] getLineEndTable() {
+		return this.lineEndTable;
+	}
+
 	/**
 	 * Sets or clears the module declaration of this compilation unit
 	 * node to the given module declaration node.

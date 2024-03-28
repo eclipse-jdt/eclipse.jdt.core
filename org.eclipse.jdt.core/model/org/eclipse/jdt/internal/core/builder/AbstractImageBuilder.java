@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -38,6 +39,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -573,12 +575,38 @@ protected Compiler newCompiler() {
 	CompilerOptions compilerOptions = new CompilerOptions(projectOptions);
 	compilerOptions.performMethodsFullRecovery = true;
 	compilerOptions.performStatementsRecovery = true;
-	Compiler newCompiler = new Compiler(
-		this.nameEnvironment,
-		DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-		compilerOptions,
-		this,
-		ProblemFactory.getProblemFactory(Locale.getDefault()));
+	Compiler newCompiler = null;
+	String compilerClassName = System.getProperty(AbstractImageBuilder.class.getSimpleName() + ".compiler"); //$NON-NLS-1$
+	if (compilerClassName != null) {
+		try {
+			Class<? extends Compiler> compilerClass = (Class<? extends Compiler>) Class.forName(compilerClassName);
+			Constructor<? extends Compiler> constructor = compilerClass.getDeclaredConstructor(
+				INameEnvironment.class,
+				IErrorHandlingPolicy.class,
+				CompilerOptions.class,
+				ICompilerRequestor.class,
+				IProblemFactory.class);
+			newCompiler = constructor.newInstance(this.nameEnvironment,
+				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+				compilerOptions,
+				this,
+				ProblemFactory.getProblemFactory(Locale.getDefault()));
+		} catch (ClassNotFoundException e) {
+			ILog.get().error("Could not load class " + compilerClassName, e); //$NON-NLS-1$
+		} catch (NoSuchMethodException e) {
+			ILog.get().error("Couldn't find compatible constructor " + compilerClassName); //$NON-NLS-1$
+		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | InvocationTargetException e) {
+			ILog.get().error("Failed invoking constructor " + compilerClassName); //$NON-NLS-1$
+		}
+	}
+	if (newCompiler == null) {
+		newCompiler = new Compiler(
+			this.nameEnvironment,
+			DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+			compilerOptions,
+			this,
+			ProblemFactory.getProblemFactory(Locale.getDefault()));
+	}
 	CompilerOptions options = newCompiler.options;
 	// temporary code to allow the compiler to revert to a single thread
 	String setting = System.getProperty("jdt.compiler.useSingleThread"); //$NON-NLS-1$

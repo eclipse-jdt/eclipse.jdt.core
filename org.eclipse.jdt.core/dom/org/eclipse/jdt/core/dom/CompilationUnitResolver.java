@@ -82,6 +82,101 @@ import org.eclipse.jdt.internal.core.util.DOMFinder;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 class CompilationUnitResolver extends Compiler {
+
+	private static final class ECJCompilationUnitResolver implements ICompilationUnitResolver {
+
+		@Override
+		public void resolve(String[] sourceFilePaths, String[] encodings, String[] bindingKeys,
+				FileASTRequestor requestor, int apiLevel, Map<String, String> compilerOptions, List<Classpath> classpath,
+				int flags, IProgressMonitor monitor) {
+			CompilationUnitResolver.resolve(sourceFilePaths, encodings, bindingKeys, requestor, apiLevel, compilerOptions, classpath, flags, monitor);
+		}
+
+		@Override
+		public void parse(ICompilationUnit[] compilationUnits, ASTRequestor requestor, int apiLevel,
+				Map<String, String> compilerOptions, int flags, IProgressMonitor monitor) {
+			CompilationUnitResolver.parse(compilationUnits, requestor, apiLevel, compilerOptions, flags, monitor);
+		}
+
+		@Override
+		public void parse(String[] sourceFilePaths, String[] encodings, FileASTRequestor requestor, int apiLevel,
+				Map<String, String> compilerOptions, int flags, IProgressMonitor monitor) {
+			CompilationUnitResolver.parse(sourceFilePaths, encodings, requestor, apiLevel, compilerOptions, flags, monitor);
+		}
+
+		@Override
+		public void resolve(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor requestor,
+				int apiLevel, Map<String, String> compilerOptions, IJavaProject project,
+				WorkingCopyOwner workingCopyOwner, int flags, IProgressMonitor monitor) {
+			CompilationUnitResolver.resolve(compilationUnits, bindingKeys, requestor, apiLevel, compilerOptions, project, workingCopyOwner, flags, monitor);
+		}
+
+		@Override
+		public IBinding[] resolve(IJavaElement[] elements, int apiLevel, Map<String, String> compilerOptions,
+				IJavaProject project, WorkingCopyOwner workingCopyOwner, int flags, IProgressMonitor monitor) {
+			return CompilationUnitResolver.resolve(elements, apiLevel, compilerOptions, project, workingCopyOwner, flags, monitor);
+		}
+
+		@Override
+		public CompilationUnit toCompilationUnit(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, final boolean initialNeedsToResolveBinding, IJavaProject project, List<Classpath> classpaths, NodeSearcher nodeSearcher,
+			int apiLevel, Map<String, String> compilerOptions, WorkingCopyOwner parsedUnitWorkingCopyOwner, WorkingCopyOwner typeRootWorkingCopyOwner, int flags, IProgressMonitor monitor) {
+			// this -> astParser, pass as args
+			CompilationUnitDeclaration compilationUnitDeclaration = null;
+			boolean needsToResolveBindingsState = initialNeedsToResolveBinding;
+			try {
+				if (initialNeedsToResolveBinding) {
+					try {
+						// parse and resolve
+						compilationUnitDeclaration =
+							CompilationUnitResolver.resolve(
+								sourceUnit,
+								project,
+								classpaths,
+								nodeSearcher,
+								compilerOptions,
+								parsedUnitWorkingCopyOwner,
+								flags,
+								monitor);
+					} catch (JavaModelException e) {
+						flags &= ~ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+						compilationUnitDeclaration = CompilationUnitResolver.parse(
+								sourceUnit,
+								nodeSearcher,
+								compilerOptions,
+								flags);
+						needsToResolveBindingsState = false;
+					}
+				} else {
+					compilationUnitDeclaration = CompilationUnitResolver.parse(
+							sourceUnit,
+							nodeSearcher,
+							compilerOptions,
+							flags,
+							project);
+					needsToResolveBindingsState = false;
+				}
+				return CompilationUnitResolver.convert(
+					compilationUnitDeclaration,
+					sourceUnit.getContents(),
+					apiLevel,
+					compilerOptions,
+					needsToResolveBindingsState,
+					typeRootWorkingCopyOwner,
+					needsToResolveBindingsState ? new DefaultBindingResolver.BindingTables() : null,
+					flags,
+					monitor,
+					project != null,
+					project);
+			} finally {
+				if (compilationUnitDeclaration != null && initialNeedsToResolveBinding) {
+					compilationUnitDeclaration.cleanUp();
+				}
+			}
+		}
+	}
+
+	public static final ECJCompilationUnitResolver FACADE = new ECJCompilationUnitResolver();
+
 	public static final int RESOLVE_BINDING = 0x1;
 	public static final int PARTIAL = 0x2;
 	public static final int STATEMENT_RECOVERY = 0x4;
