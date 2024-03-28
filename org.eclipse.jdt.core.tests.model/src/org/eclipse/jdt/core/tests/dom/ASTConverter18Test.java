@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -69,6 +70,7 @@ import org.eclipse.jdt.core.dom.MethodRefParameter;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NameQualifiedType;
+import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedName;
@@ -5461,6 +5463,24 @@ public void testCaptureBinding18() throws CoreException {
 	ITypeBinding bound = typeBounds[0];
 	assertTrue("bound is parameterized", bound.isParameterizedType());
 	assertEquals("bound's type argument is the original type argument", binding, bound.getTypeArguments()[0]);
+}
+
+public void testLambdaParameterSourcePosition() throws JavaModelException {
+	String contents = """
+		class X {
+			I lambda = (x, y) -> {};
+		}
+		interface I {
+			public void apply(Integer k, Integer l);
+		}
+		""";
+	this.workingCopy = getWorkingCopy("/Converter11/src/X.java", true/*resolve*/);
+	ASTNode node = buildAST(contents, this.workingCopy);
+	Name name = (Name)NodeFinder.perform(node, contents.indexOf('y'), 0);
+	IVariableBinding variableBinding = (IVariableBinding)name.resolveBinding();
+	ILocalVariable variableElement = (ILocalVariable)variableBinding.getJavaElement();
+	assertEquals(26, variableElement.getSourceRange().getOffset());
+	assertEquals(1, variableElement.getSourceRange().getLength());
 }
 
 }
