@@ -36,7 +36,8 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 	 * Creates a new SetContainerOperation.
 	 */
 	public SetContainerOperation(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers) {
-		super(new IJavaElement[] {JavaModelManager.getJavaModelManager().getJavaModel()}, !ResourcesPlugin.getWorkspace().isTreeLocked());
+		super(new IJavaElement[] { JavaModelManager.getJavaModelManager().getJavaModel() },
+				!(ResourcesPlugin.getWorkspace().isTreeLocked() || JavaModelManager.isReadOnly()));
 		this.containerPath = containerPath;
 		this.affectedProjects = affectedProjects;
 		this.respectiveContainers = respectiveContainers;

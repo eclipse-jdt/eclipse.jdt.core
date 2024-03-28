@@ -5735,8 +5735,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	private static ThreadLocal<Boolean> readOnly = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
+	public static boolean isReadOnly() {
+		return readOnly.get().booleanValue();
+	}
+
 	public static void assertModelModifiable() {
-		if (readOnly.get().booleanValue()) {
+		if (isReadOnly()) {
 			throw new IllegalStateException("Its not allow to modify JavaModel during ReadOnly action."); //$NON-NLS-1$
 		}
 	}
