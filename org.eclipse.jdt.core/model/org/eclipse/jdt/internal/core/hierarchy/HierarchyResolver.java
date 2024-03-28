@@ -529,6 +529,13 @@ private void rememberAllTypes(CompilationUnitDeclaration parsedUnit, org.eclipse
 					remember(typeHandle, expression.getTypeBinding());
 				}
 			}
+			if (parsedUnit.functionalExpressions[i] instanceof ReferenceExpression) {
+				final ReferenceExpression expression = (ReferenceExpression) parsedUnit.functionalExpressions[i];
+				if (expression.resolvedType != null && expression.resolvedType.isValidBinding() && expression.isMethodReference()) {
+					IType typeHandle = (IType)factory.createElement(expression.scope, expression.sourceStart(), cu, existingElements, knownScopes).getParent();
+					remember(typeHandle, expression.getTypeBinding());
+				}
+			}
 		}
 	}
 }
