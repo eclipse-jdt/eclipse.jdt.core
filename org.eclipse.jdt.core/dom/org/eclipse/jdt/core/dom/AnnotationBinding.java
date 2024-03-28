@@ -110,7 +110,7 @@ class AnnotationBinding implements IAnnotationBinding {
 	@Override
 	public IJavaElement getJavaElement() {
 		if (!(this.bindingResolver instanceof DefaultBindingResolver)) return null;
-		ASTNode node = (ASTNode) ((DefaultBindingResolver) this.bindingResolver).bindingsToAstNodes.get(this);
+		ASTNode node = ((DefaultBindingResolver) this.bindingResolver).bindingsToAstNodes.get(this);
 		if (!(node instanceof Annotation)) return null;
 		ASTNode parent = node.getParent();
 		IJavaElement parentElement = null;
@@ -175,7 +175,7 @@ class AnnotationBinding implements IAnnotationBinding {
 	private String getRecipientKey() {
 		if (!(this.bindingResolver instanceof DefaultBindingResolver)) return ""; //$NON-NLS-1$
 		DefaultBindingResolver resolver = (DefaultBindingResolver) this.bindingResolver;
-		ASTNode node = (ASTNode) resolver.bindingsToAstNodes.get(this);
+		ASTNode node = resolver.bindingsToAstNodes.get(this);
 		if (node == null) {
 			// Can happen if annotation bindings have been resolved before having parsed the declaration
 			return ""; //$NON-NLS-1$
