@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,15 +29,24 @@ import java.util.stream.Stream;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.index.MetaIndex;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
+import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
@@ -45,6 +55,10 @@ import junit.framework.Test;
 
 public class IndexManagerTests extends ModifyingResourceTests {
 	private static final boolean SKIP_TESTS = Boolean.parseBoolean(System.getProperty("org.eclipse.jdt.disableMetaIndex", "false"));
+
+	static {
+//		TESTS_NAMES = new String[] { "testGH1203" };
+	}
 
 	private IJavaProject project;
 	private IndexManager indexManager;
@@ -176,6 +190,103 @@ public class IndexManagerTests extends ModifyingResourceTests {
 		Optional<Set<String>> indexNames = searchInMetaIndex("app.Q1");
 		assertTrue("No meta index", indexNames.isPresent());
 		assertEquals("No results found", 1, indexNames.get().size());
+	}
+
+	public void testGH1203() throws Exception {
+		waitUntilIndexesReady();
+
+		addLibrary(this.project, "lib.jar", "lib.zip",
+				new String[] {
+					"test/XY.java",
+					"""
+					package test;
+					public class XY {}
+					"""
+				},
+				"1.8");
+
+		// Wait a little bit to be sure file system is aware of zip file creation
+		try {
+			Thread.sleep(1000);
+		}
+		catch (InterruptedException ie) {
+			// skip
+		}
+
+		String packageFolder = "/" + this.project.getElementName() + "/src/test";
+		createFolder(packageFolder);
+		String source =
+				"""
+				package test;
+				public class ZXX {
+				}
+				""";
+		boolean indexDisabled = this.indexDisabledForTest;
+		this.indexDisabledForTest = true; // avoid waitForIndex() call from ModifyingResourceTests.createFile(String, InputStream)
+		createFile(packageFolder+"/ZXX.java", source);
+		this.indexDisabledForTest = indexDisabled;
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getCompilationUnit(packageFolder+"/XX.java");
+
+		IPath prjPath = this.project.getProject().getLocation();
+		String jarPath = prjPath+"/lib.jar";
+		createJar(new String[] {
+			"test/ZXY.java",
+			"package test;\n" +
+			"public class ZXY {}\n",
+			"test/ZXZ.java",
+			"package test;\n" +
+			"public class ZXZ {}\n",
+		}, jarPath);
+		this.project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+
+		try {
+			Thread.sleep(1000);
+		}
+		catch (InterruptedException ie) {
+			// skip
+		}
+
+		removeLibrary(this.project, "lib.jar", "lib.zip");
+
+		Thread.sleep(2000);
+
+		this.workingCopies[1] = getWorkingCopy(packageFolder+"/ZX0.java",
+				"""
+				package test;
+				public class ZX0 {}
+				""");
+		searchTypesExpecting("ZX", new HashSet<>(Arrays.asList("ZXX", "ZX0")));
+	}
+
+	public void searchTypesExpecting(String namePrefix, Set<String> names) throws JavaModelException {
+		IRestrictedAccessTypeRequestor typeRequestor = new IRestrictedAccessTypeRequestor() {
+			@Override
+			public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames,
+					String path, AccessRestriction access) {
+				if (!names.remove(String.valueOf(simpleTypeName))) {
+					fail("unexpected type "+String.valueOf(simpleTypeName));
+				}
+			}
+		};
+		try {
+			new BasicSearchEngine(this.workingCopies).searchAllTypeNames(
+				null,
+				SearchPattern.R_EXACT_MATCH,
+				namePrefix.toCharArray(),
+				SearchPattern.R_PREFIX_MATCH,
+				IJavaSearchConstants.TYPE,
+				BasicSearchEngine.createJavaSearchScope(false, new IJavaElement[] {this.project}),
+				false,
+				typeRequestor,
+				IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
+				null);
+		} catch (OperationCanceledException e) {
+			e.printStackTrace();
+		}
+		if (!names.isEmpty()) {
+			fail("Types not found: "+String.join(", ", names));
+		}
 	}
 
 	private void changeFile(String path, String content) {
