@@ -13,7 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 
@@ -33,6 +34,7 @@ public static Class[] getAllTestClasses() {
 		ASTMatcherTest.class,
 		ASTStructuralPropertyTest.class,
 		ASTParserTest.class,
+		ASTParserModelTests.class,
 		ASTModelBridgeTests.class,
 		BatchASTCreationTests.class,
 		CompatibilityRulesTests.class,
@@ -40,7 +42,7 @@ public static Class[] getAllTestClasses() {
 		org.eclipse.jdt.core.tests.rewrite.modifying.ASTRewritingModifyingTest.class,
 		ASTPositionsTest.class,
 		ASTNodeFinderTest.class,
-		org.eclipse.jdt.core.tests.dom.APIDocumentationTests.class
+		org.eclipse.jdt.core.tests.dom.APIDocumentationTests.class,
 	};
 }
 public static Test suite() {
