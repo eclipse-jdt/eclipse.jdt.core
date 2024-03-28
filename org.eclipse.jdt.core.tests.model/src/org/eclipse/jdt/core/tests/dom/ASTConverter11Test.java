@@ -13,11 +13,26 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
-import junit.framework.Test;
-
-import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.LambdaExpression;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NodeFinder;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+
+import junit.framework.Test;
 
 public class ASTConverter11Test extends ConverterTestSetup {
 
@@ -117,6 +132,24 @@ public class ASTConverter11Test extends ConverterTestSetup {
 				assertTrue("Wrong Binding", "Integer".equals(simpleName.resolveBinding().getName()));
 
 			}
+	}
+
+	public void testLambdaParameterSourcePosition() throws JavaModelException {
+		String contents = """
+			class X {
+				I lambda = (x, y) -> {};
+			}
+			interface I {
+				public void apply(Integer k, Integer l);
+			}
+			""";
+		this.workingCopy = getWorkingCopy("/Converter11/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		Name name = (Name)NodeFinder.perform(node, contents.indexOf('y'), 0);
+		IVariableBinding variableBinding = (IVariableBinding)name.resolveBinding();
+		ILocalVariable variableElement = (ILocalVariable)variableBinding.getJavaElement();
+		assertEquals(26, variableElement.getSourceRange().getOffset());
+		assertEquals(1, variableElement.getSourceRange().getLength());
 	}
 // Add new tests here
 }
