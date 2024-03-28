@@ -85,13 +85,13 @@ public class QualifiedName extends Name {
 	 * The identifier; lazily initialized; defaults to a unspecified, legal
 	 * Java identifier.
 	 */
-	private Name qualifier = null;
+	private volatile Name qualifier;
 
 	/**
 	 * The name being qualified; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private SimpleName name = null;
+	private volatile SimpleName name;
 
 	/**
 	 * Creates a new AST node for a qualified name owned by the given AST.

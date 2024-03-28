@@ -116,7 +116,7 @@ public class ModuleDeclaration extends ASTNode {
 	 * The referenced module name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private Name name = null;
+	private volatile Name name;
 
 	/**
 	 * The list of statements (element type: {@link ModuleDirective}).

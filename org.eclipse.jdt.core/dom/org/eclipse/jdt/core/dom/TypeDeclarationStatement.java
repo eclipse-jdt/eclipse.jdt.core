@@ -106,7 +106,7 @@ public class TypeDeclarationStatement extends Statement {
      * After JLS2, corresponds to DECLARATION_PROPERTY.
      * @see #typeDeclProperty
 	 */
-	private AbstractTypeDeclaration typeDecl = null;
+	private volatile AbstractTypeDeclaration typeDecl;
 
     /**
      * The child property stored on the <code>typeDecl</code> instance variable.

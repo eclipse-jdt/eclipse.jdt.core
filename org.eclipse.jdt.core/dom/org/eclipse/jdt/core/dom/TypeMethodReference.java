@@ -80,13 +80,13 @@ public class TypeMethodReference extends MethodReference {
 	/**
 	 * The type; lazily initialized; defaults to an unspecified type.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * The method name; lazily initialized; defaults to an unspecified,
 	 * legal Java method name.
 	 */
-	private SimpleName methodName = null;
+	private volatile SimpleName methodName;
 
 	/**
 	 * Creates a new AST node for an TypeMethodReference declaration owned

@@ -79,13 +79,13 @@ public class CatchClause extends ASTNode {
 	/**
 	 * The body; lazily initialized; defaults to an empty block.
 	 */
-	private Block body = null;
+	private volatile Block body;
 
 	/**
 	 * The exception variable declaration; lazily initialized; defaults to a
 	 * unspecified, but legal, variable declaration.
 	 */
-	private SingleVariableDeclaration exceptionDecl = null;
+	private volatile SingleVariableDeclaration exceptionDecl;
 
 	/**
 	 * Creates a new AST node for a catch clause owned by the given

@@ -199,7 +199,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * The type; lazily initialized; defaults to an unspecified,
 	 * legal type.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * The type annotations on the varargs token (element type: {@link Annotation}).

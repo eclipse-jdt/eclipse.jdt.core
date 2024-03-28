@@ -148,13 +148,13 @@ public class QualifiedType extends AnnotatableType {
 	 * The type node; lazily initialized; defaults to a type with
 	 * an unspecified, but legal, simple name.
 	 */
-	private Type qualifier = null;
+	private volatile Type qualifier;
 
 	/**
 	 * The name being qualified; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private SimpleName name = null;
+	private volatile SimpleName name;
 
 	/**
 	 * Creates a new unparented node for a qualified type owned by the

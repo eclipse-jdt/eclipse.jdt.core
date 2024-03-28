@@ -322,21 +322,21 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * The method name; lazily initialized; defaults to an unspecified,
 	 * legal Java identifier.
 	 */
-	private SimpleName methodName = null;
+	private volatile SimpleName methodName;
 
 	/**
 	 * The explicit receiver type, or <code>null</code> if none.
 	 * Defaults to none.
 	 * @since 3.10
 	 */
-	private Type optionalReceiverType = null;
+	private volatile Type optionalReceiverType;
 
 	/**
 	 * Qualifying name of the explicit </code>this</code> parameter, or <code>null</code> if none.
 	 * Defaults to none.
 	 * @since 3.10
 	 */
-	private SimpleName optionalReceiverQualifier = null;
+	private volatile SimpleName optionalReceiverQualifier;
 
 	/**
 	 * The parameter declarations

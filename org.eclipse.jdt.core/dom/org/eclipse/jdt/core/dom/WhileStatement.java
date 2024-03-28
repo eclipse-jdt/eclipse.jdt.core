@@ -79,13 +79,13 @@ public class WhileStatement extends Statement {
 	 * The expression; lazily initialized; defaults to an unspecified, but
 	 * legal, expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * The body statement; lazily initialized; defaults to an empty block
 	 * statement.
 	 */
-	private Statement body = null;
+	private volatile Statement body;
 
 	/**
 	 * Creates a new unparented while statement node owned by the given

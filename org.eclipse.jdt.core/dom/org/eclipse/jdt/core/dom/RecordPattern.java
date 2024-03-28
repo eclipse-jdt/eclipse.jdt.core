@@ -75,7 +75,7 @@ public class RecordPattern extends Pattern {
 	/**
 	 * The pattern type;
 	 */
-	private Type patternType = null;
+	private volatile Type patternType;
 
 	/**
 	 * The patterns

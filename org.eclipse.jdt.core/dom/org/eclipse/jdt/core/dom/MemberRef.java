@@ -85,7 +85,7 @@ public class MemberRef extends ASTNode implements IDocElement {
 	 * The member name; lazily initialized; defaults to a unspecified,
 	 * legal Java method name.
 	 */
-	private SimpleName memberName = null;
+	private volatile SimpleName memberName;
 
 	/**
 	 * Creates a new AST node for a member reference owned by the given

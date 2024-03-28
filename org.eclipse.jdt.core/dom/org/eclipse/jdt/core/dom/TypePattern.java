@@ -67,7 +67,7 @@ public class TypePattern extends Pattern {
 	/**
 	 * The pattern Variable list; <code>empty</code> for none;
 	 */
-	private SingleVariableDeclaration patternVariable = null;
+	private volatile SingleVariableDeclaration patternVariable;
 
 	/**
 	 * Returns a list of structural property descriptors for this node type.

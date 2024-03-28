@@ -79,13 +79,13 @@ public class LabeledStatement extends Statement {
 	 * The label; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private SimpleName labelName = null;
+	private volatile SimpleName labelName;
 
 	/**
 	 * The body statement; lazily initialized; defaults to an unspecified, but
 	 * legal, statement.
 	 */
-	private Statement body = null;
+	private volatile Statement body;
 
 	/**
 	 * Creates a new AST node for a labeled statement owned by the given

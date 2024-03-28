@@ -87,19 +87,19 @@ public class ConditionalExpression extends Expression {
 	 * The condition expression; lazily initialized; defaults to an unspecified,
 	 * but legal, expression.
 	 */
-	private Expression conditionExpression = null;
+	private volatile Expression conditionExpression;
 
 	/**
 	 * The "then" expression; lazily initialized; defaults to an unspecified,
 	 * but legal, expression.
 	 */
-	private Expression thenExpression = null;
+	private volatile Expression thenExpression;
 
 	/**
 	 * The "else" expression; lazily initialized; defaults to an unspecified,
 	 * but legal, expression.
 	 */
-	private Expression elseExpression = null;
+	private volatile Expression elseExpression;
 
 	/**
 	 * Creates a new unparented conditional expression node owned by the given

@@ -76,9 +76,9 @@ public class StringTemplateExpression extends Expression {
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
-	private Expression processor = null;
+	private volatile Expression processor;
 
-	private StringFragment firstFragment = null;
+	private volatile StringFragment firstFragment;
 
 	/**
 	 * <code>true</code> if this is part of a text block template, <code>false</code> otherwise. Defaults to false.

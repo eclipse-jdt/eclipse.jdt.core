@@ -82,7 +82,7 @@ public class SwitchExpression extends Expression {
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * The statements and SwitchCase nodes

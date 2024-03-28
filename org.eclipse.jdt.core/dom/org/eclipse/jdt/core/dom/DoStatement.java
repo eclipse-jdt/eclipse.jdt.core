@@ -78,13 +78,13 @@ public class DoStatement extends Statement {
 	/**
 	 * The body statement; lazily initialized; defaults to an empty block.
 	 */
-	private Statement body = null;
+	private volatile Statement body;
 
 	/**
 	 * The expression; lazily initialized; defaults to an unspecified, but
 	 * legal, expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * Creates a new unparented do statement node owned by the given
@@ -165,17 +165,20 @@ public class DoStatement extends Statement {
 	 * @return the body statement node
 	 */
 	public Statement getBody() {
-		if (this.body == null) {
+		Statement b = this.body;
+		if (b == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
-				if (this.body == null) {
+				b = this.body;
+				if (b == null) {
 					preLazyInit();
-					this.body = new Block(this.ast);
-					postLazyInit(this.body, BODY_PROPERTY);
+					b = new Block(this.ast);
+					this.body = b;
+					postLazyInit(b, BODY_PROPERTY);
 				}
 			}
 		}
-		return this.body;
+		return b;
 	}
 
 	/**

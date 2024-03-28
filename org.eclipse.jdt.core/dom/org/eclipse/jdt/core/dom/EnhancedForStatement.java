@@ -87,19 +87,19 @@ public class EnhancedForStatement extends Statement {
 	 * The parameter; lazily initialized; defaults to a unspecified,
 	 * legal node.
 	 */
-	private SingleVariableDeclaration parameter = null;
+	private volatile SingleVariableDeclaration parameter;
 
 	/**
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * The body statement; lazily initialized; defaults to an empty block
 	 * statement.
 	 */
-	private Statement body = null;
+	private volatile Statement body;
 
 	/**
 	 * Creates a new AST node for an enchanced for statement owned by the

@@ -79,13 +79,13 @@ public class ArrayAccess extends Expression {
 	 * The array expression; lazily initialized; defaults to an unspecified,
 	 * but legal, expression.
 	 */
-	private Expression arrayExpression = null;
+	private volatile Expression arrayExpression;
 
 	/**
 	 * The index expression; lazily initialized; defaults to an unspecified,
 	 * but legal, expression.
 	 */
-	private Expression indexExpression = null;
+	private volatile Expression indexExpression;
 
 	/**
 	 * Creates a new unparented array access expression node owned by the given

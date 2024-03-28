@@ -93,7 +93,7 @@ public class MethodRef extends ASTNode implements IDocElement {
 	 * The method name; lazily initialized; defaults to a unspecified,
 	 * legal Java method name.
 	 */
-	private SimpleName methodName = null;
+	private volatile SimpleName methodName;
 
 	/**
 	 * The parameter declarations

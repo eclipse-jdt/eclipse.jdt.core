@@ -112,7 +112,7 @@ public class MethodRefParameter extends ASTNode {
 	 * The type; lazily initialized; defaults to a unspecified,
 	 * legal type.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * Indicates the last parameter of a variable arity method;

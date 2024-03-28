@@ -109,7 +109,7 @@ public class SimpleType extends AnnotatableType {
 	 * The type name node; lazily initialized; defaults to a type with
 	 * an unspecified, but legal, name.
 	 */
-	private Name typeName = null;
+	private volatile Name typeName;
 
 	/**
 	 * Creates a new unparented node for a simple type owned by the given AST.

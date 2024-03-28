@@ -33,7 +33,7 @@ public abstract class ModulePackageAccess extends ModuleDirective {
 	 * The package name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	protected Name name = null;
+	protected volatile Name name;
 
 	/**
 	 * The target modules

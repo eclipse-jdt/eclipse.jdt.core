@@ -161,7 +161,7 @@ public class TryStatement extends Statement {
 	/**
 	 * The body; lazily initialized; defaults to an empty block.
 	 */
-	private Block body = null;
+	private volatile Block body;
 
 	/**
 	 * The catch clauses (element type: {@link CatchClause}).

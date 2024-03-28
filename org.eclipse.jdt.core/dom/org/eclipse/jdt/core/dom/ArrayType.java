@@ -124,7 +124,7 @@ public class ArrayType extends Type {
 	 * The element type (before JLS8: component type); lazily initialized; defaults to a simple type with
 	 * an unspecified, but legal, name.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * List of dimensions this node has with optional annotations

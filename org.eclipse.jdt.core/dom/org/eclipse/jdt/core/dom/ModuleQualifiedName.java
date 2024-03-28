@@ -79,7 +79,7 @@ public class ModuleQualifiedName extends Name {
 	 * The identifier; lazily initialized; defaults to a unspecified, legal
 	 * Java identifier.
 	 */
-	private Name moduleQualifier = null;
+	private volatile Name moduleQualifier;
 
 	/**
 	 * The name being module veysqualified; lazily initialized; defaults to a unspecified,

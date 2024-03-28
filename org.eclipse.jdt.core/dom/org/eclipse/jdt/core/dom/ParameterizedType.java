@@ -83,7 +83,7 @@ public class ParameterizedType extends Type {
 	 * The type node; lazily initialized; defaults to an unspecified, but legal,
 	 * type.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * The type arguments (element type: {@link Type}).

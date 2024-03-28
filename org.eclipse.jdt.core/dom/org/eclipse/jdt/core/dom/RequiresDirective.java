@@ -80,7 +80,7 @@ public class RequiresDirective extends ModuleDirective {
 	 * The referenced module name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private Name name = null;
+	private volatile Name name;
 
 	/**
 	 * Creates a new AST node for an requires directive owned by the
