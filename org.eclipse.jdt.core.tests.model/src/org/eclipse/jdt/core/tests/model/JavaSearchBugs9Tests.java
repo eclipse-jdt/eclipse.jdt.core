@@ -4846,6 +4846,7 @@ public void testGH902_whenTypeReferenceIsUnknownButQualified_expectToBeFound() t
 				""");
 
 		refresh(project);
+		waitUntilIndexesReady();
 
 		IType type = project.findType("java.lang.StackWalker");
 		assertNotNull("type should not be null", type);
@@ -4873,6 +4874,7 @@ public void testGH902_whenTypeReferenceIsUnknownButQualifiedNested_expectToBeFou
 				""");
 
 		refresh(project);
+		waitUntilIndexesReady();
 
 		IType type = project.findType("java.util.Map.Entry");
 		assertNotNull("type should not be null", type);
@@ -4900,6 +4902,7 @@ public void testGH902_whenTypeReferenceIsUnknownButNested_expectToBeFound() thro
 					}
 				""");
 		refresh(project);
+		waitUntilIndexesReady();
 
 		IType type = project.findType("java.util.Map.Entry");
 		assertNotNull("type should not be null", type);
