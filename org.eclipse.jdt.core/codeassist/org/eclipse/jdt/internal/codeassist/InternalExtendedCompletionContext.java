@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 IBM Corporation and others.
+ * Copyright (c) 2008, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -281,6 +281,13 @@ public class InternalExtendedCompletionContext {
 		}
 		if (parent == null) return null;
 
+		String typeSig;
+ 		if (local.type == null || local.type.isTypeNameVar(binding.declaringScope)) {
+ 			typeSig = Signature.createTypeSignature(binding.type.signableName(), true);
+ 		} else {
+ 			typeSig = Util.typeSignature(local.type);
+ 		}
+
 		return new LocalVariable(
 				parent,
 				DeduplicationUtil.toString(local.name),
@@ -288,7 +295,7 @@ public class InternalExtendedCompletionContext {
 				local.declarationSourceEnd,
 				local.sourceStart,
 				local.sourceEnd,
-				local.type == null ? Signature.createTypeSignature(binding.type.signableName(), true) : Util.typeSignature(local.type),
+				typeSig,
 				binding.declaration.annotations,
 				local.modifiers,
 				local.getKind() == AbstractVariableDeclaration.PARAMETER);
@@ -772,7 +779,10 @@ public class InternalExtendedCompletionContext {
 						// then don't propose the local variable
 						if (local.declaration.initialization != null) {
 							/*(use this if-else block if it is found that local.declaration.initialization != null is not sufficient to
-							  guarantee that proposal is being asked inside a local variable declaration's initializer)
+							  guarantee that proposal is being asked inside a local variable declaration's initializer)*/
+
+							// use this to avoid matching with var declarations.
+							// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/228
 							 if(local.declaration.initialization.sourceEnd > 0) {
 								if (this.assistNode.sourceEnd <= local.declaration.initialization.sourceEnd
 										&& this.assistNode.sourceStart >= local.declaration.initialization.sourceStart) {
@@ -785,8 +795,7 @@ public class InternalExtendedCompletionContext {
 								if (detector.containsCompletionNode()) {
 									continue next;
 								}
-							}*/
-							continue next;
+							}
 						}
 						for (int f = 0; f < localsFound.size; f++) {
 							LocalVariableBinding otherLocal =
