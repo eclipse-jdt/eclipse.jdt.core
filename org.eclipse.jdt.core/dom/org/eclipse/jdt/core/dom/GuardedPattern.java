@@ -28,7 +28,6 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  *
  * @since 3.27
  * @noinstantiate This class is not intended to be instantiated by clients.
- * @noreference This class is not intended to be referenced by clients.
  */
 
 @SuppressWarnings("rawtypes")
@@ -168,6 +167,7 @@ public class GuardedPattern extends Pattern{
 
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.37
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return null;
@@ -182,7 +182,7 @@ public class GuardedPattern extends Pattern{
 	 * @param previewEnabled the previewEnabled flag
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 3.37
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
 		if (DOMASTUtil.isPatternSupported(apiLevel, previewEnabled)) {
@@ -193,9 +193,11 @@ public class GuardedPattern extends Pattern{
 
 	/**
 	 * Returns the conditional expression of this pattern, or
-	 * <code>null</code> if there is none (the "default:" case).
+	 * <code>{@link NullPattern}</code> if there is none (the "default:" case).
 	 *
-	 * @return the expression node, or <code>null</code> if there is none
+	 * @return the <code>{@link Expression}</code> node, or <code>{@link NullPattern}</code> if there is none
+	 * @exception UnsupportedOperationException if this operation is used other than JLS21
+	 * @since 3.37
 	 */
 	public Expression getExpression() {
 		supportedOnlyIn21();
@@ -214,12 +216,11 @@ public class GuardedPattern extends Pattern{
 
 	/**
 	 * Returns the pattern of this Guarded Pattern, or
-	 * <code>empty</code> if there is none.
+	 * <code>{@link NullPattern}</code> if there is none.
 	 * @return the pattern node
 	 * 			(element type: {@link Pattern})
-	 * @exception UnsupportedOperationException if this operation is used other than JLS18
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @exception UnsupportedOperationException if this operation is used other than JLS21
+	 * @since 3.37
 	 */
 	public Pattern getPattern() {
 		supportedOnlyIn21();
@@ -248,6 +249,8 @@ public class GuardedPattern extends Pattern{
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used other than JLS21
+	 * @since 3.37
 	 */
 	public void setExpression(Expression expression) {
 		supportedOnlyIn21();
@@ -259,9 +262,8 @@ public class GuardedPattern extends Pattern{
 
 	/**
 	 * Sets the pattern of this switch case.
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @exception UnsupportedOperationException if this operation is used not for JLS18
-	 * @exception UnsupportedOperationException if this operation is used without previewEnabled
+	 * @exception UnsupportedOperationException if this operation is used other than JLS21
+	 * @since 3.37
 	 */
 	public void setPattern(Pattern pattern) {
 		supportedOnlyIn21();
@@ -274,8 +276,7 @@ public class GuardedPattern extends Pattern{
 	/**
 	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
 	 * identifier source position information is available for this node; <code>-1</code> by default.
-	 * @noreference
-	 * since 3.30
+	 * @since 3.37
 	 */
 	protected void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {
 		if (restrictedIdentifierStartPosition < 0) {
@@ -290,8 +291,7 @@ public class GuardedPattern extends Pattern{
 	/**
 	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
 	 * identifier source position information is available for this node; <code>-1</code> by default.
-	 * @noreference
-	 * @since 3.30
+	 * @since 3.37
 	 */
 	public int getRestrictedIdentifierStartPosition() {
 		return this.restrictedIdentifierStartPosition;
