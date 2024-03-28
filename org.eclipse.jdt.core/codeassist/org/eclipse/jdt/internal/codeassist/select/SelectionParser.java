@@ -67,8 +67,6 @@ import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.StringTemplate;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
-import org.eclipse.jdt.internal.compiler.ast.SwitchExpression;
-import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -103,8 +101,6 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_INSIDE_WHILE = SELECTION_PARSER + 9; // whether we are in a while statement
 	protected static final int K_POST_WHILE_EXPRESSION = SELECTION_PARSER + 10; // whether we are in an while statement's body
 
-	protected static final int K_INSIDE_STATEMENT_SWITCH = SELECTION_PARSER + 11; // whether we are in a switch statement
-	protected static final int K_INSIDE_EXPRESSION_SWITCH = SELECTION_PARSER + 12; // whether we are in an expression switch
 	protected static final int K_INSIDE_WHEN = SELECTION_PARSER + 13; // whether we are in the guard
 
 	protected static final int K_INSIDE_FOR_EACH = SELECTION_PARSER + 14; // whether we are in a for each statement
@@ -218,8 +214,6 @@ private void buildMoreCompletionContext(Expression expression) {
 			case K_POST_WHILE_EXPRESSION:
 			case K_INSIDE_THEN:
 			case K_INSIDE_ELSE:
-			case K_INSIDE_STATEMENT_SWITCH:
-			case K_INSIDE_EXPRESSION_SWITCH:
 			case K_INSIDE_FOR_EACH:
 				int newAstPtr = (int) this.elementObjectInfoStack[i];
 				int length = this.astPtr - newAstPtr;
@@ -254,17 +248,6 @@ private void buildMoreCompletionContext(Expression expression) {
 						whileBody = b;
 						this.expressionPtr = this.elementInfoStack[i];
 						orphan = this.expressionStack[this.expressionPtr--];
-						break;
-					case K_INSIDE_STATEMENT_SWITCH:
-					case K_INSIDE_EXPRESSION_SWITCH:
-						boolean exprSwitch = kind == K_INSIDE_EXPRESSION_SWITCH;
-						SwitchStatement switchStatement = exprSwitch ? new SwitchExpression() : new SwitchStatement();
-						this.expressionPtr = this.elementInfoStack[i];
-						switchStatement.expression = this.expressionStack[this.expressionPtr--];
-						switchStatement.statements = statements;
-						parentNode = orphan = switchStatement;
-						if (exprSwitch)
-							collectResultExpressionsYield((SwitchExpression) switchStatement);
 						break;
 				}
 				break;
@@ -888,12 +871,6 @@ protected void consumePostExpressionInIf() {
 }
 
 @Override
-protected void consumePostExpressionInSwitch(boolean statSwitch) {
-	super.consumePostExpressionInSwitch(statSwitch);
-	pushOnElementStack(statSwitch ? K_INSIDE_STATEMENT_SWITCH : K_INSIDE_EXPRESSION_SWITCH, this.expressionPtr, this.astPtr);
-}
-
-@Override
 protected void consumePostExpressionInWhile() {
 	super.consumePostExpressionInWhile();
 	if (this.expressionStack[this.expressionPtr].containsPatternVariable()) {
@@ -902,20 +879,6 @@ protected void consumePostExpressionInWhile() {
 		popUntilElement(K_INSIDE_WHILE);
 		popElement(K_INSIDE_WHILE);
 	}
-}
-
-@Override
-protected void consumeStatementSwitch() {
-	super.consumeStatementSwitch();
-	popUntilElement(K_INSIDE_STATEMENT_SWITCH);
-	popElement(K_INSIDE_STATEMENT_SWITCH);
-}
-
-@Override
-protected void consumeSwitchExpression() {
-	super.consumeSwitchExpression();
-	popUntilElement(K_INSIDE_EXPRESSION_SWITCH);
-	popElement(K_INSIDE_EXPRESSION_SWITCH);
 }
 
 @Override
@@ -1925,8 +1888,6 @@ protected boolean restartRecovery() {
 	boolean deferRestartOnLocalType = false;
 	for (int i = 0; i <= this.elementPtr; i++) {
 		switch (this.elementKindStack[i]) {
-			case K_INSIDE_STATEMENT_SWITCH:
-			case K_INSIDE_EXPRESSION_SWITCH:
 			case K_INSIDE_IF:
 			case K_INSIDE_WHILE:
 				deferRestartOnLocalType = true;
@@ -1945,8 +1906,6 @@ protected boolean restartRecovery() {
 protected int cookedAstPtr() {
 	for (int i = 0; i <= this.elementPtr; i++) {
 		switch (this.elementKindStack[i]) {
-			case K_INSIDE_STATEMENT_SWITCH:
-			case K_INSIDE_EXPRESSION_SWITCH:
 			case K_INSIDE_IF:
 			case K_INSIDE_WHILE:
 				if (this.assistNode != null)
