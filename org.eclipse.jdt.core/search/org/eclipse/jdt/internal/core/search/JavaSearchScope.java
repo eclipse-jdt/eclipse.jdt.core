@@ -374,6 +374,7 @@ private int indexOf(String fullPath) {
 		String currentRelativePath = this.relativePaths[i];
 		if (currentRelativePath == null) continue;
 		String currentContainerPath = this.containerPaths[i];
+		currentContainerPath = convertInternalToExternalPath(currentContainerPath, fullPath);
 		String currentFullPath = currentRelativePath.length() == 0 ? currentContainerPath : (currentContainerPath + '/' + currentRelativePath);
 		if (encloses(currentFullPath, fullPath, i))
 			return i;
@@ -401,6 +402,7 @@ private int indexOf(String containerPath, String relativePath) {
 		index = (containerPath.hashCode()& 0x7FFFFFFF) % length;
 	String currentContainerPath;
 	while ((currentContainerPath = this.containerPaths[index]) != null) {
+		currentContainerPath = convertInternalToExternalPath(currentContainerPath, containerPath);
 		if (currentContainerPath.equals(containerPath)) {
 			String currentRelativePath = this.relativePaths[index];
 			if (encloses(currentRelativePath, relativePath, index))
@@ -411,6 +413,34 @@ private int indexOf(String containerPath, String relativePath) {
 		}
 	}
 	return -1;
+}
+
+/**
+ * If the given path is internal but represents an external folder,
+ * converts it to the corresponding external path.
+ * The reference path indicates if conversion is necessary.
+ * No conversion takes place if the given path does not represent an external folder,
+ * or if conversion is unnecessary because the reference path also represents an external folder.
+ * @param given the given path to convert if necessary
+ * @param reference the reference path that indicates if conversion is necessary
+ * @return the external path that corresponds to the given path,
+ * or the given path itself if no conversion is necessary
+ */
+private String convertInternalToExternalPath(String given, String reference) {
+	IPath givenPath = new Path(given);
+	if (ExternalFoldersManager.isInternalPathForExternalFolder(givenPath)) {
+		IPath referencePath = new Path(reference);
+		if (!ExternalFoldersManager.isInternalPathForExternalFolder(referencePath)) {
+			IResource targetResource = JavaModel.getWorkspaceTarget(givenPath);
+			if (targetResource != null) {
+				IPath targetLocation = targetResource.getLocation();
+				if (targetLocation != null)
+					return targetLocation.toString();
+			}
+		}
+	}
+
+	return given;
 }
 
 /*
