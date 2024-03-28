@@ -1108,7 +1108,7 @@ public abstract class ASTNode {
 	public static final int EitherOr_MultiPattern = 118;
 
 	/**
-	 * @see UnnamedClass
+	 * @see ImplicitTypeDeclaration
 	 * @since 3.38
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
@@ -1363,7 +1363,7 @@ public abstract class ASTNode {
 			case EitherOr_MultiPattern:
 				return EitherOrMultiPattern.class;
 			case UNNAMED_CLASS :
-				return UnnamedClass.class;
+				return ImplicitTypeDeclaration.class;
 		}
 		throw new IllegalArgumentException();
 	}

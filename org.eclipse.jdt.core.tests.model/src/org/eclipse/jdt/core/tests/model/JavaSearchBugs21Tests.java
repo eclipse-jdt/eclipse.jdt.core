@@ -74,7 +74,7 @@ public class JavaSearchBugs21Tests extends AbstractJavaSearchTests {
 		this.resultCollector.showAccuracy(true);
 	}
 
-	public void testUnnamedClassInModel() throws CoreException {
+	public void testImplicitTypeDeclarationInModel() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", """
 				String foo() {
