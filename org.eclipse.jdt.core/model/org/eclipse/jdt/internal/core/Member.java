@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -49,13 +50,26 @@ protected static boolean areSimilarMethods(
 		int params1Length = params1.length;
 		if (params1Length == params2.length) {
 			for (int i = 0; i < params1Length; i++) {
-				String simpleName1 =
-					simpleNames1 == null ?
-						Signature.getSimpleName(Signature.toString(Signature.getTypeErasure(params1[i]))) :
-						simpleNames1[i];
-				String simpleName2 = Signature.getSimpleName(Signature.toString(Signature.getTypeErasure(params2[i])));
-				if (!simpleName1.equals(simpleName2)) {
-					return false;
+				String typeErasureParam1Signature = Signature.getTypeErasure(params1[i]);
+				String typeErasureParam2Signature = Signature.getTypeErasure(params2[i]);
+				String param1Qualifier = Signature.getSignatureQualifier(typeErasureParam1Signature);
+				String param2Qualifier = Signature.getSignatureQualifier(typeErasureParam2Signature);
+				if (!param1Qualifier.isEmpty() && !param2Qualifier.isEmpty()) {
+					// both qualified -> compare qualified type
+					String qualifiedType1 = Signature.toString(typeErasureParam1Signature);
+					String qualifiedType2 = Signature.toString(typeErasureParam2Signature);
+					if (!Objects.equals(qualifiedType1, qualifiedType2)) {
+						return false;
+					}
+				} else { // at least 1 unqualified name -> only compare simple names
+					String simpleName1 =
+						simpleNames1 == null ?
+							Signature.getSimpleName(Signature.toString(typeErasureParam1Signature)) :
+							simpleNames1[i];
+					String simpleName2 = Signature.getSimpleName(Signature.toString(typeErasureParam2Signature));
+					if (!simpleName1.equals(simpleName2)) {
+						return false;
+					}
 				}
 			}
 			return true;
