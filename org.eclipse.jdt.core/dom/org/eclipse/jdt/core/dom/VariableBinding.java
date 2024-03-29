@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LocalVariable;
@@ -264,7 +265,13 @@ class VariableBinding implements IVariableBinding {
 			}
 		}
 		int sourceEnd = sourceStart+sourceLength-1;
-		char[] typeSig = Signature.createTypeSignature(this.binding.type.signableName(), true).toCharArray();
+		TypeBinding signableType = this.binding.type;
+		if (signableType.isAnonymousType()) {
+			signableType = signableType.superInterfaces() != null && signableType.superInterfaces().length == 1 ?
+					signableType.superInterfaces()[0] :
+					signableType.superclass();
+		}
+		char[] typeSig = Signature.createTypeSignature(signableType.signableName(), true).toCharArray();
 		JavaElement parent = null;
 		IMethodBinding declaringMethod = getDeclaringMethod();
 		if (this.binding instanceof RecordComponentBinding) {
