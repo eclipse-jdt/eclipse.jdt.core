@@ -429,6 +429,12 @@ class JavacConverter {
 		if (tree instanceof JCBlock block) {
 			Initializer res = this.ast.newInitializer();
 			commonSettings(res, tree);
+			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+				// Now we have the tough task of going from a flags number to actual modifiers with source ranges
+				res.modifiers().addAll(convertModifiersFromFlags(block.getStartPosition(), block.endpos, block.flags));
+			} else {
+				res.internalSetModifiers(getJLS2ModifiersFlags(block.flags));
+			}
 			res.setBody(convertBlock(block));
 			return res;
 		}
@@ -594,39 +600,8 @@ class JavacConverter {
 	}
 
 	private int getJLS2ModifiersFlags(JCModifiers mods) {
-		int flags = 0;
-		if( (mods.flags & Flags.PUBLIC) > 0) flags += Flags.PUBLIC;
-		if( (mods.flags & Flags.PRIVATE) > 0) flags += Flags.PRIVATE;
-		if( (mods.flags & Flags.PROTECTED) > 0) flags += Flags.PROTECTED;
-		if( (mods.flags & Flags.STATIC) > 0) flags += Flags.STATIC;
-		if( (mods.flags & Flags.FINAL) > 0) flags += Flags.FINAL;
-		if( (mods.flags & Flags.SYNCHRONIZED) > 0) flags += Flags.SYNCHRONIZED;
-		if( (mods.flags & Flags.VOLATILE) > 0) flags += Flags.VOLATILE;
-		if( (mods.flags & Flags.TRANSIENT) > 0) flags += Flags.TRANSIENT;
-		if( (mods.flags & Flags.NATIVE) > 0) flags += Flags.NATIVE;
-		if( (mods.flags & Flags.INTERFACE) > 0) flags += Flags.INTERFACE;
-		if( (mods.flags & Flags.ABSTRACT) > 0) flags += Flags.ABSTRACT;
-		if( (mods.flags & Flags.STRICTFP) > 0) flags += Flags.STRICTFP;
-		return flags;
+		return getJLS2ModifiersFlags(mods.flags);
 	}
-
-	private int getJLS2ModifiersFlagsAsStringLength(long flags) {
-		int len = 0;
-		if( (flags & Flags.PUBLIC) > 0) len += 5 + 1;
-		if( (flags & Flags.PRIVATE) > 0) len += 7 + 1;
-		if( (flags & Flags.PROTECTED) > 0) len += 9 + 1;
-		if( (flags & Flags.STATIC) > 0) len += 5 + 1;
-		if( (flags & Flags.FINAL) > 0) len += 5 + 1;
-		if( (flags & Flags.SYNCHRONIZED) > 0) len += 12 + 1;
-		if( (flags & Flags.VOLATILE) > 0) len += 8 + 1;
-		if( (flags & Flags.TRANSIENT) > 0) len += 9 + 1;
-		if( (flags & Flags.NATIVE) > 0) len += 6 + 1;
-		if( (flags & Flags.INTERFACE) > 0) len += 9 + 1;
-		if( (flags & Flags.ABSTRACT) > 0) len += 8 + 1;
-		if( (flags & Flags.STRICTFP) > 0) len += 8 + 1;
-		return len;
-	}
-
 	
 	private FieldDeclaration convertFieldDeclaration(JCVariableDecl javac) {
 		return convertFieldDeclaration(javac, null);
@@ -1455,13 +1430,6 @@ class JavacConverter {
 		throw new UnsupportedOperationException("Not supported yet, type " + javac + " of class" + javac.getClass());
 	}
 
-	private List<IExtendedModifier> convert(JCModifiers modifiers) {
-		List<IExtendedModifier> res = new ArrayList<>();
-		modifiers.getFlags().stream().map(this::convert).forEach(res::add);
-		modifiers.getAnnotations().stream().map(this::convert).forEach(res::add);
-		return res;
-	}
-
 	private Code convert(TypeKind javac) {
 		return switch(javac) {
 			case BOOLEAN -> PrimitiveType.BOOLEAN;
@@ -1533,7 +1501,84 @@ class JavacConverter {
 //		}
 //	}
 
+	private List<IExtendedModifier> convert(JCModifiers modifiers) {
+		List<IExtendedModifier> res = new ArrayList<>();
+		modifiers.getFlags().stream().map(this::convert).forEach(res::add);
+		modifiers.getAnnotations().stream().map(this::convert).forEach(res::add);
+		return res;
+	}
 
+
+	private List<IExtendedModifier> convertModifiersFromFlags(int startPos, int endPos, long oflags) {
+		String rawTextSub = this.rawText.substring(startPos, endPos);
+		List<IExtendedModifier> res = new ArrayList<>();
+		ModifierKeyword[] ops = {
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.PUBLIC_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.PROTECTED_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.PRIVATE_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.STATIC_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.ABSTRACT_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.FINAL_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.NATIVE_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.TRANSIENT_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.VOLATILE_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.STRICTFP_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.DEFAULT_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.SEALED_KEYWORD,
+				org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.NON_SEALED_KEYWORD
+			};
+		for( int i = 0; i < ops.length; i++ ) {
+			ModifierKeyword k = ops[i];
+			int flagVal = k.toFlagValue();
+			if( (oflags & flagVal) > 0 ) {
+				Modifier m = this.ast.newModifier(k);
+				String asStr = k.toString();
+				int foundLoc = rawTextSub.indexOf(asStr);
+				if( foundLoc != -1 ) {
+					m.setSourceRange(startPos + foundLoc, asStr.length());
+				}
+				res.add(m);
+			}
+		}
+		return res;
+	}
+	
+	private int getJLS2ModifiersFlags(long oflags) {
+		int flags = 0;
+		if( (oflags & Flags.PUBLIC) > 0) flags += Flags.PUBLIC;
+		if( (oflags & Flags.PRIVATE) > 0) flags += Flags.PRIVATE;
+		if( (oflags & Flags.PROTECTED) > 0) flags += Flags.PROTECTED;
+		if( (oflags & Flags.STATIC) > 0) flags += Flags.STATIC;
+		if( (oflags & Flags.FINAL) > 0) flags += Flags.FINAL;
+		if( (oflags & Flags.SYNCHRONIZED) > 0) flags += Flags.SYNCHRONIZED;
+		if( (oflags & Flags.VOLATILE) > 0) flags += Flags.VOLATILE;
+		if( (oflags & Flags.TRANSIENT) > 0) flags += Flags.TRANSIENT;
+		if( (oflags & Flags.NATIVE) > 0) flags += Flags.NATIVE;
+		if( (oflags & Flags.INTERFACE) > 0) flags += Flags.INTERFACE;
+		if( (oflags & Flags.ABSTRACT) > 0) flags += Flags.ABSTRACT;
+		if( (oflags & Flags.STRICTFP) > 0) flags += Flags.STRICTFP;
+		return flags;
+	}
+
+	private int getJLS2ModifiersFlagsAsStringLength(long flags) {
+		int len = 0;
+		if( (flags & Flags.PUBLIC) > 0) len += 5 + 1;
+		if( (flags & Flags.PRIVATE) > 0) len += 7 + 1;
+		if( (flags & Flags.PROTECTED) > 0) len += 9 + 1;
+		if( (flags & Flags.STATIC) > 0) len += 5 + 1;
+		if( (flags & Flags.FINAL) > 0) len += 5 + 1;
+		if( (flags & Flags.SYNCHRONIZED) > 0) len += 12 + 1;
+		if( (flags & Flags.VOLATILE) > 0) len += 8 + 1;
+		if( (flags & Flags.TRANSIENT) > 0) len += 9 + 1;
+		if( (flags & Flags.NATIVE) > 0) len += 6 + 1;
+		if( (flags & Flags.INTERFACE) > 0) len += 9 + 1;
+		if( (flags & Flags.ABSTRACT) > 0) len += 8 + 1;
+		if( (flags & Flags.STRICTFP) > 0) len += 8 + 1;
+		return len;
+	}
+
+	
 	private Modifier convert(javax.lang.model.element.Modifier javac) {
 		Modifier res = this.ast.newModifier(switch (javac) {
 			case PUBLIC -> ModifierKeyword.PUBLIC_KEYWORD;
