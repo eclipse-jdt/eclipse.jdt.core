@@ -64,7 +64,7 @@
 		</properties>
 	</profile>
 	<profile>
-		<id>test-on-javase-20</id>
+		<id>test-on-javase-21</id>
 		<build>
 			<plugins>
 				<plugin>
@@ -73,7 +73,7 @@
 					<configuration>
 						<toolchains>
 							<jdk>
-								<id>JavaSE-20</id>
+								<id>JavaSE-21</id>
 							</jdk>
 						</toolchains>
 					</configuration>
@@ -81,7 +81,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,20</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,21</tycho.surefire.argLine>
 		</properties>
 	</profile>
   </profiles>
