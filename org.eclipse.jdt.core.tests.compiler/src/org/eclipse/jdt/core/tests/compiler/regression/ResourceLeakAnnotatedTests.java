@@ -1459,5 +1459,126 @@ public void testConsumingMethodUse_binary() {
 			""",
 			null,
 			false);
-	}
+}
+public void testGH2207_2() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTestWithAnnotations(
+		new String[] {
+			"ResourceLeakTest.java",
+			"""
+			import org.eclipse.jdt.annotation.Owning;
+
+			class RC implements AutoCloseable {
+				public void close() {}
+			}
+			interface ResourceProducer {
+				@Owning RC newResource();
+			}
+			public class ResourceLeakTest {
+
+				public void test() {
+					consumerOK(() -> new RC());
+				}
+				void consumerOK(ResourceProducer producer) {
+					try (RC ac = producer.newResource()) {
+						System.out.println(ac);
+					}
+				}
+				void consumerNOK(ResourceProducer producer) {
+					RC ac = producer.newResource();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in ResourceLeakTest.java (at line 20)
+			RC ac = producer.newResource();
+			   ^^
+		Resource leak: \'ac\' is never closed
+		----------
+		""",
+		options);
+}
+public void testGH2207_3() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTestWithAnnotations(
+		new String[] {
+			"ResourceLeakTest.java",
+			"""
+			import org.eclipse.jdt.annotation.NotOwning;
+
+			class RC implements AutoCloseable {
+				public void close() {}
+			}
+			interface ResourceProducer {
+				@NotOwning RC newResource();
+			}
+			public class ResourceLeakTest {
+
+				public void test(@NotOwning RC rcParm) {
+					consumer(() -> new RC());
+					consumer(() -> rcParm);
+				}
+				void consumer(ResourceProducer producer) {
+					RC ac = producer.newResource();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in ResourceLeakTest.java (at line 12)
+			consumer(() -> new RC());
+			               ^^^^^^^^
+		Resource leak: \'<unassigned Closeable value>\' is never closed
+		----------
+		""",
+		options);
+}
+public void testGH2207_4() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTestWithAnnotations(
+		new String[] {
+			"ResourceLeakTest.java",
+			"""
+			import org.eclipse.jdt.annotation.NotOwning;
+
+			class RC implements AutoCloseable {
+				public void close() {}
+			}
+			interface ResourceProducer {
+				@NotOwning RC newResource();
+			}
+			public class ResourceLeakTest {
+
+				public void test(@NotOwning RC rcParm) {
+					consumer(() -> new RC());
+					consumer(() -> rcParm);
+				}
+				void consumer(ResourceProducer producer) {
+					RC ac = producer.newResource();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in ResourceLeakTest.java (at line 12)
+			consumer(() -> new RC());
+			               ^^^^^^^^
+		Resource leak: \'<unassigned Closeable value>\' is never closed
+		----------
+		""",
+		options);
+}
 }
