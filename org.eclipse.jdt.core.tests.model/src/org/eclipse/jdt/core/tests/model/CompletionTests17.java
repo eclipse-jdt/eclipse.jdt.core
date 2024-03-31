@@ -27,7 +27,7 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 	private static int unqualifiedExact_Rel = R_DEFAULT+R_RESOLVED+R_EXACT_EXPECTED_TYPE+ R_CASE+ R_INTERESTING +R_UNQUALIFIED+R_NON_RESTRICTED;
 	private static int keyword_Rel= R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
 	static {
-		// TESTS_NAMES = new String[]{"test034"};
+		 // TESTS_NAMES = new String[]{"test034"};
 	}
 
 	public CompletionTests17(String name) {
@@ -704,5 +704,40 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		assertResults("dog[VARIABLE_DECLARATION]{dog, null, LDog;, dog, null, 48}",
 				requestor.getResults());
 
+	}
+
+	public void testGH2256() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/EnumClass.java", """
+				public enum EnumClass  {
+
+				}\
+				""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "EnumClass ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("""
+				implements[KEYWORD]{implements, null, null, implements, null, 49}\
+					""", requestor.getResults());
+	}
+
+	public void testGH2261() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/SealedI.java", """
+				public sealed interface SealedI p  {
+				}\
+				""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "SealedI p";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("""
+				permits[RESTRICTED_IDENTIFIER]{permits, null, null, permits, null, 49}\
+					""", requestor.getResults());
 	}
 }

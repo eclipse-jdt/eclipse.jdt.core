@@ -2258,7 +2258,7 @@ private boolean checkRecoveredType() {
 	}
 	return false;
 }
-private void classHeaderExtendsOrImplements(boolean isInterface, boolean isRecord) {
+private void classHeaderExtendsOrImplements(boolean isInterface, boolean isRecord, boolean isEnum) {
 	if (this.currentElement != null
 			&& this.currentToken == TokenNameIdentifier
 			&& this.cursorLocation+1 >= this.scanner.startPosition
@@ -2271,49 +2271,45 @@ private void classHeaderExtendsOrImplements(boolean isInterface, boolean isRecor
 			RecoveredType recoveredType = (RecoveredType)this.currentElement;
 			/* filter out cases where scanner is still inside type header */
 			if (!recoveredType.foundOpeningBrace) {
+				final boolean isClass = !isInterface && !isEnum && !isRecord;
 				TypeDeclaration type = recoveredType.typeDeclaration;
-				if(!isInterface) {
-					char[][] keywords = new char[Keywords.COUNT][];
-					int count = 0;
-
-
-					if(type.superInterfaces == null) {
-						if(!isRecord) {
-							if(type.superclass == null) {
+				char[][] keywords = new char[Keywords.COUNT][];
+				int count = 0;
+				if (!isInterface) {
+					if (type.superInterfaces == null) {
+						if (isClass) {
+							if (type.superclass == null) {
 								keywords[count++] = Keywords.EXTENDS;
 							}
 						}
 						keywords[count++] = Keywords.IMPLEMENTS;
 					}
-					if (JavaFeature.SEALED_CLASSES.isSupported(this.options)) {
-						boolean sealed = (type.modifiers & ExtraCompilerModifiers.AccSealed) != 0;
-						if (sealed)
-							keywords[count++] = RestrictedIdentifiers.PERMITS;
+				} else {
+					if (type.superInterfaces == null) {
+						keywords[count++] = Keywords.EXTENDS;
 					}
+				}
 
-					System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
+				if (JavaFeature.SEALED_CLASSES.isSupported(this.options) && (isClass || isInterface)) {
+					boolean sealed = (type.modifiers & ExtraCompilerModifiers.AccSealed) != 0;
+					if (sealed)
+						keywords[count++] = RestrictedIdentifiers.PERMITS;
+				}
+				
+				System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
 
-					if(count > 0) {
-						CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
-							this.identifierStack[ptr],
-							this.identifierPositionStack[ptr],
-							keywords);
+				if (count > 0) {
+					CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(this.identifierStack[ptr],
+							this.identifierPositionStack[ptr], keywords);
+					if (isInterface) {
+						type.superInterfaces = new TypeReference[] { completionOnKeyword };
+						type.superInterfaces[0].bits |= ASTNode.IsSuperType;
+					} else {
 						type.superclass = completionOnKeyword;
 						type.superclass.bits |= ASTNode.IsSuperType;
-						this.assistNode = completionOnKeyword;
-						this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
 					}
-				} else {
-					if(type.superInterfaces == null) {
-						CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
-							this.identifierStack[ptr],
-							this.identifierPositionStack[ptr],
-							Keywords.EXTENDS);
-						type.superInterfaces = new TypeReference[]{completionOnKeyword};
-						type.superInterfaces[0].bits |= ASTNode.IsSuperType;
-						this.assistNode = completionOnKeyword;
-						this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
-					}
+					this.assistNode = completionOnKeyword;
+					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
 				}
 			}
 		}
@@ -2581,7 +2577,7 @@ protected void consumeClassHeaderName1() {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
 	}
-	classHeaderExtendsOrImplements(false,false);
+	classHeaderExtendsOrImplements(false,false, false);
 }
 
 @Override
@@ -2592,7 +2588,7 @@ protected void consumeRecordHeaderPart() {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
 	}
-	classHeaderExtendsOrImplements(false,true);
+	classHeaderExtendsOrImplements(false,true, false);
 }
 
 @Override
@@ -2978,6 +2974,7 @@ protected void consumeEnumHeaderName() {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
 	}
+	classHeaderExtendsOrImplements(false, false, true);
 }
 @Override
 protected void consumeEnumHeaderNameWithTypeParameters() {
@@ -2986,6 +2983,7 @@ protected void consumeEnumHeaderNameWithTypeParameters() {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
 	}
+	classHeaderExtendsOrImplements(false, false, true);
 }
 @Override
 protected void consumeEqualityExpression(int op) {
@@ -3353,7 +3351,7 @@ protected void consumeInterfaceHeaderName1() {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
 	}
-	classHeaderExtendsOrImplements(true, false);
+	classHeaderExtendsOrImplements(true, false, false);
 }
 @Override
 protected void consumeInterfaceHeaderExtends() {
@@ -4836,7 +4834,7 @@ protected void consumeTypeHeaderNameWithTypeParameters() {
 	super.consumeTypeHeaderNameWithTypeParameters();
 
 	TypeDeclaration typeDecl = (TypeDeclaration)this.astStack[this.astPtr];
-	classHeaderExtendsOrImplements((typeDecl.modifiers & ClassFileConstants.AccInterface) != 0, false);
+	classHeaderExtendsOrImplements((typeDecl.modifiers & ClassFileConstants.AccInterface) != 0, false, false);
 }
 @Override
 protected void consumeTypeImportOnDemandDeclarationName() {
