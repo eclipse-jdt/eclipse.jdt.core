@@ -205,6 +205,7 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
@@ -696,6 +697,7 @@ public final class CompletionEngine
 
 	private final static char[] JAVA_LANG_OBJECT_SIGNATURE =
 		createTypeSignature(CharOperation.concatWith(JAVA_LANG, '.'), OBJECT);
+	private final static char[] JAVA_LANG_STRING_SIGNATURE = CharOperation.concatWith(JAVA_LANG_STRING, '.');
 	private final static char[] JAVA_LANG_NAME =
 		CharOperation.concatWith(JAVA_LANG, '.');
 	private final static char[] GET = "get".toCharArray(); //$NON-NLS-1$
@@ -2016,7 +2018,11 @@ public final class CompletionEngine
 		} else if (astNode instanceof CompletionOnMethodReturnType) {
 			completionOnMethodReturnType(astNode, scope);
 		} else if (astNode instanceof CompletionOnSingleNameReference) {
-			completionOnSingleNameReference(astNode, astNodeParent, scope, insideTypeAnnotation);
+			if(astNodeParent instanceof SwitchStatement ss && ss.caseCount > 0) {
+				completionAtSwitchCase(astNode, ss, scope);
+			} else {
+				completionOnSingleNameReference(astNode, astNodeParent, scope, insideTypeAnnotation);
+			}
 		} else if (astNode instanceof CompletionOnProvidesInterfacesQualifiedTypeReference) {
 			completionOnProvidesInterfacesQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnProvidesInterfacesSingleTypeReference) {
@@ -2026,7 +2032,11 @@ public final class CompletionEngine
 		} else if (astNode instanceof CompletionOnProvidesImplementationsSingleTypeReference) {
 			completionOnProvidesImplementationsSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnSingleTypeReference) {
-			completionOnSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+			if(astNodeParent instanceof InstanceOfExpression ioe) {
+				completionAtInstanceOf(astNodeParent, ioe, qualifiedBinding, scope);
+			} else {
+				completionOnSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+			}
 		} else if (astNode instanceof CompletionOnQualifiedNameReference) {
 			completionOnQualifiedNameReference(astNode, enclosingNode, qualifiedBinding, scope, insideTypeAnnotation);
 		} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
@@ -3962,6 +3972,7 @@ public final class CompletionEngine
 				}
 			}
 			else {
+					findTypesAndPackages(this.completionToken, scope, true, false, new ObjectVector());
 					// if switch with class/interface/record - J17 onwards
 					char[][] keywords = new char[2][];
 					int count = 0;
@@ -14799,6 +14810,43 @@ public final class CompletionEngine
 				}
 			}
 		}
+	}
+
+	private void completionAtSwitchCase(ASTNode astNode, SwitchStatement switchStatement, Scope scope) {
+		final CompletionOnSingleNameReference singleNameReference = (CompletionOnSingleNameReference) astNode;
+
+		this.completionToken = singleNameReference.token;
+		if(switchStatement.expression.resolvedType != null) {
+			TypeBinding exprType = switchStatement.expression.resolvedType;
+			// handle completions of enum literals
+			if(exprType.isEnum()) {
+				if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+					this.assistNodeIsEnum = true;
+					findEnumConstantsFromSwithStatement(this.completionToken, switchStatement);
+				}
+			} else if (exprType.isClass() || exprType.isInterface() || exprType.isRecord()) {
+				// suggest type reference completions for now if its java 21 and above or it is a string
+				
+				// We can later suggest more smart completions such as
+				// - completion for Subtypes
+				// - completion for subtypes with variable name, <<TypeName varName>>
+				// - completions for extracing record components a.k.a Record desctructions
+				
+				if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.compilerOptions)
+						|| CharOperation.equals(JAVA_LANG_STRING_SIGNATURE, exprType.signableName())) {
+					findTypesAndPackages(this.completionToken, scope.enclosingMethodScope(), true, false,
+							new ObjectVector());
+				}
+			} else {
+				// fallback to old behavior for primitives
+				completionOnSingleNameReference(astNode, switchStatement, scope, false);
+			}
+		}
+	}
+
+	private void completionAtInstanceOf(ASTNode astNode, InstanceOfExpression ioExpr, Binding qualifiedBinding, Scope scope) {
+		// use same behavior for now
+		completionOnSingleTypeReference(astNode, ioExpr, qualifiedBinding, scope);
 	}
 
 }
