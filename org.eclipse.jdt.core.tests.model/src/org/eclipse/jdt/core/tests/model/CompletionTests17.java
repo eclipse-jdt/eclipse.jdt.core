@@ -27,7 +27,7 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 	private static int unqualifiedExact_Rel = R_DEFAULT+R_RESOLVED+R_EXACT_EXPECTED_TYPE+ R_CASE+ R_INTERESTING +R_UNQUALIFIED+R_NON_RESTRICTED;
 	private static int keyword_Rel= R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
 	static {
-		 // TESTS_NAMES = new String[]{"test034"};
+		 TESTS_NAMES = new String[]{"testGH2260"};
 	}
 
 	public CompletionTests17(String name) {
