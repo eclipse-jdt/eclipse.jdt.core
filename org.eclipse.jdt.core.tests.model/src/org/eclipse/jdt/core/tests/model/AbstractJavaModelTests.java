@@ -3501,12 +3501,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		} else {
 			if (compliance.equals("22")) {
 				// Reuse the same 17 stuff as of now. No real need for a new one
-				newJclLibString = "JCL_17_LIB";
-				newJclSrcString = "JCL_17_SRC";
+				newJclLibString = "JCL_22_LIB";
+				newJclSrcString = "JCL_22_SRC";
 			} else			if (compliance.equals("21")) {
 				// Reuse the same 14 stuff as of now. No real need for a new one
-				newJclLibString = "JCL_17_LIB";
-				newJclSrcString = "JCL_17_SRC";
+				newJclLibString = "JCL_21_LIB";
+				newJclSrcString = "JCL_21_SRC";
 			} else if (compliance.equals("19")) {
 				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL_19_LIB";

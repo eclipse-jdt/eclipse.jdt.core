@@ -36,9 +36,9 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 
 	public void setUpSuite() throws Exception {
 		if (COMPLETION_PROJECT == null) {
-			COMPLETION_PROJECT = setUpJavaProject("Completion", "21");
+			COMPLETION_PROJECT = setUpJavaProject("Completion", "17");
 		} else {
-			setUpProjectCompliance(COMPLETION_PROJECT, "21");
+			setUpProjectCompliance(COMPLETION_PROJECT, "17");
 		}
 		super.setUpSuite();
 		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
