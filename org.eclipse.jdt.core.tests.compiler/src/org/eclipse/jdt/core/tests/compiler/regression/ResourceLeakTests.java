@@ -7147,4 +7147,30 @@ public void testGH1867() {
 		"----------\n",
 		options);
 }
+public void testGH2207_1() {
+	// relevant only since 19, where ExecutorService implements AutoCloseable
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"ResourceLeakTest.java",
+			"""
+			import java.util.Optional;
+			import java.util.concurrent.ExecutorService;
+			import java.util.concurrent.Executors;
+
+			public class ResourceLeakTest {
+				protected ExecutorService es;
+
+			    public ExecutorService t_supplier_lambda_returned(ExecutorService executor) {
+			        return Optional.ofNullable(executor).orElseGet(() -> Executors.newCachedThreadPool());
+			    }
+			}
+			"""
+		},
+		"",
+		options);
+}
 }

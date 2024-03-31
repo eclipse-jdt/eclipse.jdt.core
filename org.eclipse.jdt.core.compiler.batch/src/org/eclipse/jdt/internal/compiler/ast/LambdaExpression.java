@@ -617,12 +617,16 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					this.scope.problemReporter().shouldReturn(returnTypeBinding, this);
 				}
 			}
-		} else { // Expression
-			if (currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled
-					&& lambdaInfo.reachMode() == FlowInfo.REACHABLE)
-			{
-				Expression expression = (Expression)this.body;
-				checkAgainstNullAnnotation(flowContext, expression, flowInfo, expression.nullStatus(lambdaInfo, flowContext));
+		} else if (this.body instanceof Expression expression ){
+			if (lambdaInfo.reachMode() == FlowInfo.REACHABLE) {
+				CompilerOptions compilerOptions = currentScope.compilerOptions();
+				if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
+					checkAgainstNullAnnotation(flowContext, expression, flowInfo, expression.nullStatus(lambdaInfo, flowContext));
+				}
+				if (compilerOptions.analyseResourceLeaks) {
+					long owningTagBits = this.descriptor.tagBits & TagBits.AnnotationOwningMASK;
+					ReturnStatement.anylizeCloseableReturnExpression(expression, currentScope, owningTagBits, flowContext, flowInfo);
+				}
 			}
 		}
 		return flowInfo;

@@ -47,6 +47,7 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.ASSIGNMENT
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -89,29 +90,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (this.expression != null) {
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
 		this.expression.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
-		if (flowInfo.reachMode() == FlowInfo.REACHABLE && currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
-			checkAgainstNullAnnotation(currentScope, flowContext, flowInfo, this.expression);
-		if (currentScope.compilerOptions().analyseResourceLeaks) {
-			boolean returnWithoutOwning = false;
-			boolean useOwningAnnotations = currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
-			FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression, flowInfo, flowContext, useOwningAnnotations);
-			if (trackingVariable != null) {
-				long owningTagBits = 0;
-				boolean delegatingToCaller = true;
-				if (useOwningAnnotations) {
-					owningTagBits = methodScope.referenceMethodBinding().tagBits & TagBits.AnnotationOwningMASK;
-					returnWithoutOwning = owningTagBits == 0;
-					delegatingToCaller = (owningTagBits & TagBits.AnnotationNotOwning) == 0;
-				}
-				if (methodScope != trackingVariable.methodScope && delegatingToCaller)
-					trackingVariable.markClosedInNestedMethod();
-				if (delegatingToCaller) {
-					// by returning the method passes the responsibility to the caller:
-					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.expression, flowInfo, flowContext, true);
-				}
+		if (flowInfo.reachMode() == FlowInfo.REACHABLE) {
+			CompilerOptions compilerOptions = currentScope.compilerOptions();
+			if (compilerOptions.isAnnotationBasedNullAnalysisEnabled)
+				checkAgainstNullAnnotation(currentScope, flowContext, flowInfo, this.expression);
+			if (compilerOptions.analyseResourceLeaks) {
+				long owningTagBits = methodScope.referenceMethodBinding().tagBits & TagBits.AnnotationOwningMASK;
+				flowInfo = anylizeCloseableReturnExpression(this.expression, currentScope, owningTagBits, flowContext, flowInfo);
 			}
-			// don't wait till after this statement, because then flowInfo would be DEAD_END & thus cannot serve nullStatus any more:
-			FakedTrackingVariable.cleanUpUnassigned(currentScope, this.expression, flowInfo, returnWithoutOwning);
 		}
 	}
 	this.initStateIndex =
@@ -193,6 +179,29 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	flowContext.recordAbruptExit();
 	flowContext.expireNullCheckedFieldInfo();
 	return FlowInfo.DEAD_END;
+}
+
+public static FlowInfo anylizeCloseableReturnExpression(Expression returnExpression, BlockScope scope,
+		long owningTagBits, FlowContext flowContext, FlowInfo flowInfo) {
+	boolean returnWithoutOwning = false;
+	boolean useOwningAnnotations = scope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
+	FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(returnExpression, flowInfo, flowContext, useOwningAnnotations);
+	if (trackingVariable != null) {
+		boolean delegatingToCaller = true;
+		if (useOwningAnnotations) {
+			returnWithoutOwning = owningTagBits == 0;
+			delegatingToCaller = (owningTagBits & TagBits.AnnotationNotOwning) == 0;
+		}
+		if (scope.methodScope() != trackingVariable.methodScope && delegatingToCaller)
+			trackingVariable.markClosedInNestedMethod();
+		if (delegatingToCaller) {
+			// by returning the method passes the responsibility to the caller:
+			flowInfo = FakedTrackingVariable.markPassedToOutside(scope, returnExpression, flowInfo, flowContext, true);
+		}
+	}
+	// don't wait till after this statement, because then flowInfo would be DEAD_END & thus cannot serve nullStatus any more:
+	FakedTrackingVariable.cleanUpUnassigned(scope, returnExpression, flowInfo, returnWithoutOwning);
+	return flowInfo;
 }
 @Override
 public boolean doesNotCompleteNormally() {
