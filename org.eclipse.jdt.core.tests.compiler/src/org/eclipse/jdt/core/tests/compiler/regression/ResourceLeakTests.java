@@ -7148,6 +7148,8 @@ public void testGH1867() {
 		options);
 }
 public void testGH2207_1() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
 	// relevant only since 19, where ExecutorService implements AutoCloseable
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
