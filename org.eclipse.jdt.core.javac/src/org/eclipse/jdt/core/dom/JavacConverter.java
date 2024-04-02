@@ -1581,7 +1581,7 @@ class JavacConverter {
 
 	private int getJLS2ModifiersFlagsAsStringLength(long flags) {
 		int len = 0;
-		if( (flags & Flags.PUBLIC) > 0) len += 5 + 1;
+		if( (flags & Flags.PUBLIC) > 0) len += 6 + 1;
 		if( (flags & Flags.PRIVATE) > 0) len += 7 + 1;
 		if( (flags & Flags.PROTECTED) > 0) len += 9 + 1;
 		if( (flags & Flags.STATIC) > 0) len += 5 + 1;
