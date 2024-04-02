@@ -7175,4 +7175,50 @@ public void testGH2207_1() {
 		"",
 		options);
 }
+public void testGH2129() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_6) // override for implementing interface method
+		return;
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"ExampleResourceLeakWarningInternalResource.java",
+			"""
+			import java.io.IOException;
+			import java.net.InetSocketAddress;
+			import java.net.SocketAddress;
+
+			import javax.net.ssl.SSLContext;
+			import javax.net.ssl.SSLServerSocket;
+			import javax.net.ssl.SSLServerSocketFactory;
+
+			public class ExampleResourceLeakWarningInternalResource implements AutoCloseable {
+
+				private SSLServerSocket sslServerSocket;
+
+				public ExampleResourceLeakWarningInternalResource(int aSecurePort, SSLContext aSSLContext) throws IOException {
+					sslServerSocket = initialise(aSSLContext, aSecurePort);
+				}
+
+				private SSLServerSocket initialise(SSLContext aSSLContext, int aPort) throws IOException {
+					SSLServerSocketFactory secure_server_socket_factory = aSSLContext.getServerSocketFactory();
+					// No warning here for Eclipse 2019.06 but warnings for Eclipse 2020.03 and later
+					SSLServerSocket server_secure_socket = (SSLServerSocket) secure_server_socket_factory.createServerSocket();
+					SocketAddress endpoint = new InetSocketAddress(aPort);
+					server_secure_socket.bind(endpoint, 1);
+
+					return server_secure_socket;
+				}
+				@Override
+				public void close() throws IOException {
+					sslServerSocket.close();
+				}
+			}
+			"""
+		},
+		"",
+		options);
+}
 }
