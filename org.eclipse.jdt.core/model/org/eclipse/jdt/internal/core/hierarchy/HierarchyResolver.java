@@ -201,7 +201,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, Acc
 			org.eclipse.jdt.core.ICompilationUnit cu = ((SourceTypeElementInfo)sourceType).getHandle().getCompilationUnit();
 			rememberAllTypes(unit, cu, false);
 
-			environment.completeTypeBindings(unit, true/*build constructor only*/);
+			environment.completeTypeBindings(unit, true/*build constructor only*/, false /*no annotations*/);
 		} catch (AbortCompilation e) {
 			// missing 'java.lang' package: ignore
 		}
