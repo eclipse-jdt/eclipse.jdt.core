@@ -558,7 +558,6 @@ class JavacConverter {
 	private VariableDeclaration convertVariableDeclaration(JCVariableDecl javac) {
 		// if (singleDecl) {
 		SingleVariableDeclaration res = this.ast.newSingleVariableDeclaration();
-		String z = javac.toString();
 		commonSettings(res, javac);
 		if (convert(javac.getName()) instanceof SimpleName simpleName) {
 			res.setName(simpleName);
