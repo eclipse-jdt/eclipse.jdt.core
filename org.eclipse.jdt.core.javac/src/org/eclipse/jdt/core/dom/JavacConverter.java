@@ -248,6 +248,8 @@ class JavacConverter {
 					if( e instanceof JCFieldAccess jcfa) {
 						String pack = jcfa.selected == null ? null : jcfa.selected.toString();
 						typeDeclaration.setSuperclass(convert(jcfa.name, pack));
+					} else if( e instanceof JCIdent jcid) {
+						typeDeclaration.setSuperclass(convert(jcid.name, null));
 					}
 				}
 			}
