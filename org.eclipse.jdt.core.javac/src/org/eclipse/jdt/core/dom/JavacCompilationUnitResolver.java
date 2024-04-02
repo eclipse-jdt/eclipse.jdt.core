@@ -153,6 +153,19 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText);
 		converter.populateCompilationUnit(res, javacCompilationUnit);
 		attachComments(res, context, fileObject, converter, compilerOptions);
+		ASTVisitor v = new ASTVisitor() {
+			public void postVisit(ASTNode node) {
+				if( node.getParent() != null ) {
+					if( node.getStartPosition() < node.getParent().getStartPosition()) {
+						int parentEnd = node.getParent().getStartPosition() + node.getParent().getLength();
+						if( node.getStartPosition() >= 0 ) {
+							node.getParent().setSourceRange(node.getStartPosition(), parentEnd - node.getStartPosition());
+						}
+					}
+				}
+			}
+		};
+		res.accept(v);
 		ast.setBindingResolver(new JavacBindingResolver(javac, javaProject, context, converter));
 		//
 		ast.setOriginalModificationCount(ast.modificationCount()); // "un-dirty" AST so Rewrite can process it
@@ -210,7 +223,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			return res;
 		}
 	}
-
+//
 	/**
 	 * Currently re-scans the doc to build the list of comments and then
 	 * attach them to the already built AST.
@@ -254,15 +267,15 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				Arrays.stream(res.optionalCommentTable)
 					.filter(Javadoc.class::isInstance)
 					.map(Javadoc.class::cast)
-					.forEach(doc -> attachToSibling(doc, res));
+					.forEach(doc -> attachToSibling(res.getAST(), doc, res));
 			}
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
 
-	private void attachToSibling(Javadoc javadoc, CompilationUnit unit) {
-		FindNextJavadocableSibling finder = new FindNextJavadocableSibling(javadoc.getStartPosition() + javadoc.getLength());
+	private void attachToSibling(AST ast, Javadoc javadoc, CompilationUnit unit) {
+		FindNextJavadocableSibling finder = new FindNextJavadocableSibling(javadoc.getStartPosition(), javadoc.getLength());
 		unit.accept(finder);
 		if (finder.nextNode != null) {
 			int endOffset = finder.nextNode.getStartPosition() + finder.nextNode.getLength();
@@ -275,6 +288,13 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				if( fieldDecl.getJavadoc() == null ) {
 					fieldDecl.setJavadoc(javadoc);
 					finder.nextNode.setSourceRange(javadoc.getStartPosition(), endOffset - javadoc.getStartPosition());
+				}
+			} else if (finder.nextNode instanceof PackageDeclaration pd) {
+				if( ast.apiLevel != AST.JLS2_INTERNAL) {
+					if( pd.getJavadoc() == null ) {
+						pd.setJavadoc(javadoc);
+						finder.nextNode.setSourceRange(javadoc.getStartPosition(), endOffset - javadoc.getStartPosition());
+					}
 				}
 			} else if (finder.nextNode instanceof BodyDeclaration methodDecl) {
 				if( methodDecl.getJavadoc() == null ) {
