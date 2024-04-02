@@ -15,24 +15,47 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
 
 public class FindNextJavadocableSibling extends ASTVisitor {
 	public ASTNode nextNode = null;
-	private int javadocOffsetEnd;
-	public FindNextJavadocableSibling(int javadocOffsetEnd) {
-		this.javadocOffsetEnd = javadocOffsetEnd;
+	private int javadocStart;
+	private int javadocLength;
+	private boolean done = false;
+	public FindNextJavadocableSibling(int javadocStart, int javadocLength) {
+		this.javadocStart = javadocStart;
+		this.javadocLength = javadocLength;
 	}
+	public boolean preVisit2(ASTNode node) {
+		if( done ) 
+			return false;
+		
+		preVisit(node);
+		return true;
+	}
+
 	@Override
 	public void preVisit(ASTNode node) {
-		if (node.getStartPosition() > this.javadocOffsetEnd &&
-			isJavadocAble(node) &&
-			(this.nextNode == null || this.nextNode.getStartPosition() > node.getStartPosition())) {
+		// If there's any overlap, abort. 
+		//int nodeEnd = node.getStartPosition() + node.getLength();
+		int jdocEnd = this.javadocStart + this.javadocLength;
+		
+		if( isJavadocAble(node)) {
+			if( node.getStartPosition() == this.javadocStart ) {
 				this.nextNode = node;
+				done = true;
+				return;
 			}
+			if (node.getStartPosition() > jdocEnd &&
+				(this.nextNode == null || this.nextNode.getStartPosition() > node.getStartPosition())) {
+					this.nextNode = node;
+				}
+		}
 	}
 
 	private static boolean isJavadocAble(ASTNode node) {
-		return node instanceof AbstractTypeDeclaration ||
+		return node instanceof PackageDeclaration || 
+				node instanceof AbstractTypeDeclaration ||
 			node instanceof FieldDeclaration ||
 			node instanceof MethodDeclaration;
 	}
