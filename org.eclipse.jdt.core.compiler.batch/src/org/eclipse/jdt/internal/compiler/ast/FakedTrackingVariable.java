@@ -347,6 +347,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				if (messageSend.binding != null && ((messageSend.binding.tagBits & TagBits.AnnotationNotOwning) == 0))
 					closeTracker.owningState = OWNED;
 			}
+		} else if (rhs instanceof CastExpression cast) {
+			preConnectTrackerAcrossAssignment(location, local, cast.expression, flowInfo, useAnnotations);
 		}
 		return closeTracker;
 	}
