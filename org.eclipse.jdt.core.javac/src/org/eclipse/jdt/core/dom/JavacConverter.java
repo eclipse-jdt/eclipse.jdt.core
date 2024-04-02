@@ -624,6 +624,22 @@ class JavacConverter {
 		if (convert(javac.getName()) instanceof SimpleName simpleName) {
 			fragment.setName(simpleName);
 		}
+		if( javac.getType() instanceof JCArrayTypeTree jcatt && javac.vartype.pos > javac.pos ) {
+			// The array dimensions are part of the variable name
+			if (jcatt.getType() != null) {
+				int dims = countDimensions(jcatt);
+				if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
+					fragment.setExtraDimensions(dims);
+				} else {
+					// TODO might be buggy
+					for( int i = 0; i < dims; i++ ) {
+						Dimension d = this.ast.newDimension();
+						d.setSourceRange(jcatt.pos, 2);
+						fragment.extraDimensions().add(d);
+					}
+				}
+			}
+		}
 		if (javac.getInitializer() != null) {
 			fragment.setInitializer(convertExpression(javac.getInitializer()));
 		}
