@@ -237,7 +237,9 @@ class JavacConverter {
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
 			res.modifiers().addAll(convert(javacClassDecl.mods));
 		} else {
-			res.internalSetModifiers(getJLS2ModifiersFlags(javacClassDecl.mods));
+			int jls2Flags = getJLS2ModifiersFlags(javacClassDecl.mods);
+			jls2Flags &= ~Flags.INTERFACE; // remove AccInterface flags, see ASTConverter
+			res.internalSetModifiers(jls2Flags);
 		}
 		if (res instanceof TypeDeclaration typeDeclaration) {
 			if (javacClassDecl.getExtendsClause() != null) {
