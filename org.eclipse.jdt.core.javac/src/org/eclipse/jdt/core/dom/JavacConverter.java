@@ -137,6 +137,7 @@ class JavacConverter {
 
 	void populateCompilationUnit(CompilationUnit res, JCCompilationUnit javacCompilationUnit) {
 		commonSettings(res, javacCompilationUnit);
+		res.setSourceRange(0, this.rawText.length());
 		res.setLineEndTable(toLineEndPosTable(javacCompilationUnit.getLineMap(), res.getLength()));
 		if (javacCompilationUnit.getPackage() != null) {
 			res.setPackage(convert(javacCompilationUnit.getPackage()));
