@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -125,8 +129,7 @@ public String[] getCommandLine() {
 
 	// debug mode
 	if (this.debugPort != -1) {
-		addXdebug(commandLine);
-		commandLine.add("-Xnoagent");
+		addDebugOptions(commandLine);
 		// commandLine.add("-Djava.compiler=NONE");
 		commandLine.add(
 			"-Xrunjdwp:transport=dt_socket,address=" +
@@ -189,15 +192,6 @@ public String[] getCommandLine() {
 	}
 
 	return result;
-}
-protected void addXdebug(List<String> commandLine) {
-	long vmVersion = Util.getMajorMinorVMVersion();
-	addXdebug(commandLine, vmVersion);
-}
-private void addXdebug(List<String> commandLine, long vmVersion) {
-	if (vmVersion != -1 && vmVersion < ClassFileConstants.JDK22) {
-		commandLine.add("-Xdebug");
-	}
 }
 /**
  * Sets the name of the batch file used to launch the VM.

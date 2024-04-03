@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -47,15 +51,14 @@ public String[] getCommandLine() {
 
 	// debug mode
 	if (this.debugPort != -1) {
-		addXdebug(commandLine);
-		commandLine.add("-Xnoagent");
+		addDebugOptions(commandLine);
 		// commandLine.add("-Djava.compiler=NONE");
 		commandLine.add(
 			"-Xrunjdwp:transport=dt_socket,address=" +
 			this.debugPort +
 			",server=y,suspend=n");
 	} else {
-		addXdebug(commandLine);
+		addDebugOptions(commandLine);
 	}
 
 	// regular classpath

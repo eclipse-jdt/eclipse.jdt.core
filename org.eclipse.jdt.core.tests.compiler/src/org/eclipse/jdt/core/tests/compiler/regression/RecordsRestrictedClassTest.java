@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -8105,7 +8109,7 @@ public void testBug566846_1() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
 			"	^\n" +
-			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 22 and above\n" +
+			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 23 and above\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
@@ -8134,7 +8138,7 @@ public void testBug566846_2() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public class X {\n" +
 			"	^\n" +
-			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 22 and above\n" +
+			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 23 and above\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public class X {\n" +
@@ -8646,7 +8650,7 @@ public void testBug571765_001() {
 			"1. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
 			"	^\n" +
-			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 22 and above\n" +
+			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 23 and above\n" +
 			"----------\n" +
 			"2. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +

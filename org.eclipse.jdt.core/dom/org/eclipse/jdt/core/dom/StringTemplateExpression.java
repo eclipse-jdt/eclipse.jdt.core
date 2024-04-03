@@ -91,14 +91,14 @@ public class StringTemplateExpression extends Expression {
 
 	StringTemplateExpression(AST ast) {
 		super(ast);
-		supportedOnlyIn22();
+		supportedOnlyIn23();
 	}
 
 	/**
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public void setProcessor(Expression processor) {
-		supportedOnlyIn22();
+		supportedOnlyIn23();
 		if (processor == null) {
 			throw new IllegalArgumentException();
 		}
@@ -114,7 +114,7 @@ public class StringTemplateExpression extends Expression {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public Expression getProcessor() {
-		supportedOnlyIn22();
+		supportedOnlyIn23();
 		if (this.processor == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
@@ -132,7 +132,7 @@ public class StringTemplateExpression extends Expression {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public void setFirstFragment(StringFragment firstFragment) {
-		supportedOnlyIn22();
+		supportedOnlyIn23();
 		if (firstFragment == null) {
 			throw new IllegalArgumentException();
 		}
@@ -146,7 +146,7 @@ public class StringTemplateExpression extends Expression {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public StringFragment getFirstFragment() {
-		supportedOnlyIn22();
+		supportedOnlyIn23();
 		if (this.firstFragment == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
@@ -165,7 +165,7 @@ public class StringTemplateExpression extends Expression {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<StringTemplateComponent> components() {
-		supportedOnlyIn22();
+		supportedOnlyIn23();
 		return this.components;
 	}
 

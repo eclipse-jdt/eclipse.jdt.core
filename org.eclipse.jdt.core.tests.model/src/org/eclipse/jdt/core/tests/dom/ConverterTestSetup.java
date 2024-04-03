@@ -176,6 +176,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			this.deleteProject("Converter_19"); //$NON-NLS-1$
 			this.deleteProject("Converter_21"); //$NON-NLS-1$
 			this.deleteProject("Converter_22"); //$NON-NLS-1$
+			this.deleteProject("Converter_23"); //$NON-NLS-1$
 			PROJECT_SETUP = false;
 		} else {
 			TEST_SUITES.remove(getClass());
@@ -197,6 +198,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 				this.deleteProject("Converter_19"); //$NON-NLS-1$
 				this.deleteProject("Converter_21"); //$NON-NLS-1$
 				this.deleteProject("Converter_22"); //$NON-NLS-1$
+				this.deleteProject("Converter_23"); //$NON-NLS-1$
 				PROJECT_SETUP = false;
 			}
 		}
@@ -341,6 +343,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			setUpJavaProject("Converter_19", "19"); //$NON-NLS-1$ //$NON-NLS-2$
 			setUpJavaProject("Converter_21", "21"); //$NON-NLS-1$ //$NON-NLS-2$
 			setUpJavaProject("Converter_22", "22"); //$NON-NLS-1$ //$NON-NLS-2$
+			setUpJavaProject("Converter_23", "23"); //$NON-NLS-1$ //$NON-NLS-2$
 			waitUntilIndexesReady(); // needed to find secondary types
 			PROJECT_SETUP = true;
 		}

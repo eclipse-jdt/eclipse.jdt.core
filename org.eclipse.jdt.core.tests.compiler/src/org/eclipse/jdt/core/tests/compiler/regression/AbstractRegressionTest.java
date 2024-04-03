@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -2067,6 +2071,11 @@ protected static class JavacTestOptions {
 			javacOptions);
 	}
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments) {
+		if (this.complianceLevel > jreComplianceLevel) {
+			// JRE is going to crash, so bail out
+			// java.lang.UnsupportedClassVersionError: X has been compiled by a more recent version of the Java Runtime (class file version 67.65535), this version of the Java Runtime only recognizes class file versions up to 66.0\r\n
+			return;
+		}
 		runTest(
 			// test directory preparation
 			true /* flush output directory */,

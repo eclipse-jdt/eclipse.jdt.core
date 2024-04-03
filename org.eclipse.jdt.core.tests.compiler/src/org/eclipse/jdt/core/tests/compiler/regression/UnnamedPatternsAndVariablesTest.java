@@ -7,6 +7,11 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -25,7 +30,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 	private static String[] JAVAC_OPTIONS = new String[] { "--enable-preview" };
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(UnnamedPatternsAndVariablesTest.class, F_22);
+		return buildMinimalComplianceTestSuite(UnnamedPatternsAndVariablesTest.class, F_23);
 	}
 
 	static {
@@ -39,7 +44,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 	@Override
 	protected Map<String, String> getCompilerOptions() {
 		CompilerOptions compilerOptions = new CompilerOptions(super.getCompilerOptions());
-		if (compilerOptions.sourceLevel == ClassFileConstants.JDK22) {
+		if (compilerOptions.sourceLevel == ClassFileConstants.JDK23) {
 			compilerOptions.enablePreviewFeatures = true;
 		}
 		return compilerOptions.getMap();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -55,6 +59,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_20  = 0x20000;
 	public static final int F_21  = 0x40000;
 	public static final int F_22  = 0x80000;
+	public static final int F_23  = 0x100000;
 
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	public static final boolean PERFORMANCE_ASSERTS = !CompilerOptions.DISABLED.equals(System.getProperty("jdt.performance.asserts"));
@@ -63,6 +68,7 @@ public class AbstractCompilerTest extends TestCase {
 	private static int possibleComplianceLevels = UNINITIALIZED;
 
 	protected long complianceLevel;
+	protected static long jreComplianceLevel;
 	protected boolean enableAPT = false;
 	protected boolean enablePreview = false;
 	protected static boolean isJRE9Plus = false; // Stop gap, so tests need not be run at 9, but some tests can be adjusted for JRE 9
@@ -79,6 +85,7 @@ public class AbstractCompilerTest extends TestCase {
 	protected static boolean isJRE20Plus = false;
 	protected static boolean isJRE21Plus = false;
 	protected static boolean isJRE22Plus = false;
+	protected static boolean isJRE23Plus = false;
 	protected static boolean reflectNestedClassUseDollar;
 
 	public static int[][] complianceTestLevelMapping = new int[][] {
@@ -102,6 +109,7 @@ public class AbstractCompilerTest extends TestCase {
 		new int[] {F_20, ClassFileConstants.MAJOR_VERSION_20},
 		new int[] {F_21, ClassFileConstants.MAJOR_VERSION_21},
 		new int[] {F_22, ClassFileConstants.MAJOR_VERSION_22},
+		new int[] {F_23, ClassFileConstants.MAJOR_VERSION_23},
 	};
 
 	/**
@@ -344,11 +352,13 @@ public class AbstractCompilerTest extends TestCase {
 			// inside initReflectionVersion() later on will be of the format "20-ea" thus
 			// causing an exception. The following code will ensure that we ignore such cases
 			// until the latest version has been properly added in CompilerOptions.
+			jreComplianceLevel = CompilerOptions.versionToJdkLevel(specVersion);
 			int spec = Integer.parseInt(specVersion);
 			if (spec > Integer.parseInt(CompilerOptions.getLatestVersion())) {
 				specVersion = CompilerOptions.getLatestVersion();
 			}
-			isJRE22Plus = CompilerOptions.VERSION_22.equals(specVersion);
+			isJRE23Plus = CompilerOptions.VERSION_23.equals(specVersion);
+			isJRE22Plus = isJRE23Plus || CompilerOptions.VERSION_22.equals(specVersion);
 			isJRE21Plus = isJRE22Plus || CompilerOptions.VERSION_21.equals(specVersion);
 			isJRE20Plus = isJRE21Plus || CompilerOptions.VERSION_20.equals(specVersion);
 			isJRE19Plus = isJRE20Plus || CompilerOptions.VERSION_19.equals(specVersion);
@@ -411,7 +421,8 @@ public class AbstractCompilerTest extends TestCase {
 						System.out.println(CompilerOptions.VERSION_19 + ", ");
 						System.out.println(CompilerOptions.VERSION_20 + ", ");
 						System.out.println(CompilerOptions.VERSION_21 + ", ");
-						System.out.println(CompilerOptions.VERSION_22);
+						System.out.println(CompilerOptions.VERSION_22 + ", ");
+						System.out.println(CompilerOptions.VERSION_23);
 					}
 				}
 				if (possibleComplianceLevels == 0) {
