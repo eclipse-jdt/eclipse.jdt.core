@@ -144,7 +144,7 @@ public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestrict
 		CompilationResult unitResult = new CompilationResult(sourceUnit, 1, 1, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = basicParser().dietParse(sourceUnit, unitResult);
 		this.lookupEnvironment.buildTypeBindings(parsedUnit, accessRestriction);
-		this.lookupEnvironment.completeTypeBindings(parsedUnit, true); // work done inside checkAndSetImports()
+		this.lookupEnvironment.completeTypeBindings(parsedUnit, true, false /*no annotations*/); // work done inside checkAndSetImports()
 	} else {
 		this.lookupEnvironment.problemReporter.abortDueToInternalError(
 			new StringBuilder(Messages.accept_cannot)
