@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -56,16 +60,16 @@ public class ASTRewritingSuperAfterStatementsTest extends ASTRewritingTest{
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		if (this.apiLevel == AST.JLS22 ) {
-			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_22);
-			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_22);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_22);
+		if (this.apiLevel == AST.JLS23 ) {
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_23);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_23);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_23);
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		}
 	}
 
 	public void test001() throws Exception {
-		AST ast = AST.newAST(AST.JLS22, true);
+		AST ast = AST.newAST(AST.JLS23, true);
 		// Create CompilationUnit
         CompilationUnit compilationUnit = ast.newCompilationUnit();
         PackageDeclaration packageDeclaration = ast.newPackageDeclaration();
