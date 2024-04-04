@@ -119,6 +119,10 @@ protected String potentialLeakOrCloseNotShownAtExit(String resourceName) {
 protected String potentialOrDefiniteLeak(String string) {
 	return "Potential resource leak: '"+string+"' may not be closed\n";
 }
+/** prefix for a field declaration that should be seen as a resource owner */
+protected String fieldDeclPrefix() {
+	return "";
+}
 
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // a method uses an AutoCloseable without ever closing it.
@@ -2047,6 +2051,7 @@ public void test061e() {
 			"import java.io.FileInputStream;\n" +
 			"import java.io.IOException;\n" +
 			"public class X {\n" +
+			fieldDeclPrefix() +
 			"    FileInputStream fis;" +
 			"    void foo() throws IOException {\n" +
 			"        File file = new File(\"somefile\");\n" +
@@ -2076,11 +2081,7 @@ public void test061e() {
 			"}\n"
 		},
 		"Got IO Exception",
-		null,
-		true,
-		null,
-		options,
-		null);
+		options);
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // Bug 361073 - Avoid resource leak warning when the top level resource is closed explicitly
@@ -2434,6 +2435,7 @@ public void test061l() throws IOException {
 			"import java.io.BufferedInputStream;\n" +
 			"import java.io.IOException;\n" +
 			"public class X {\n" +
+			fieldDeclPrefix() +
 			"    BufferedInputStream stream;\n" +
 			"    void foo(File file) throws IOException {\n" +
 			"        FileInputStream s = new FileInputStream(file);\n" +
@@ -2442,11 +2444,7 @@ public void test061l() throws IOException {
 			"}\n"
 		},
 		"",
-		null,
-		true,
-		null,
-		options,
-		null);
+		options);
 }
 // Bug 361407 - Resource leak warning when resource is assigned to a field outside of constructor
 // a closeable is assigned to a field - constructor vs. method
@@ -4224,6 +4222,7 @@ public void testBug395977() {
 			"\n" +
 			"public class WriterTest implements Runnable\n" +
 			"{\n" +
+			fieldDeclPrefix() +
 			"   private BufferedWriter m_Writer;\n" +
 			"   \n" +
 			"   public void run()\n" +
@@ -4266,11 +4265,7 @@ public void testBug395977() {
 			"}"
 		},
 		"",
-		null,
-		true,
-		null,
-		options,
-		null);
+		options);
 }
 
 //Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
@@ -4286,6 +4281,7 @@ public void testBug395977_1() {
 			"\n" +
 			"public class WriterTest implements Runnable\n" +
 			"{\n" +
+			fieldDeclPrefix() +
 			"   private BufferedWriter m_Writer;\n" +
 			"   \n" +
 			"   public void run()\n" +
@@ -4345,6 +4341,7 @@ public void testBug395977_1a() {
 			"\n" +
 			"public class WriterTest implements Runnable\n" +
 			"{\n" +
+			fieldDeclPrefix() +
 			"   private BufferedWriter m_Writer;\n" +
 			"   \n" +
 			"   public void run()\n" +
@@ -4411,6 +4408,7 @@ public void testBug395977_2() {
 			"\n" +
 			"public class WriterTest implements Runnable\n" +
 			"{\n" +
+			fieldDeclPrefix() +
 			"   private BufferedWriter m_Writer;\n" +
 			"   \n" +
 			"   public void run()\n" +
@@ -6170,22 +6168,12 @@ public void testBug552521() {
 		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
 		"----------\n" +
-		"5. ERROR in EclipseBug552521getChannel.java (at line 60)\n" +
+		"5. ERROR in EclipseBug552521getChannel.java (at line 82)\n" +
 		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" +
 		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
 		"----------\n" +
-		"6. ERROR in EclipseBug552521getChannel.java (at line 72)\n" +
-		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" +
-		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n" +
-		"7. ERROR in EclipseBug552521getChannel.java (at line 82)\n" +
-		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" +
-		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n" +
-		"8. ERROR in EclipseBug552521getChannel.java (at line 94)\n" +
+		"6. ERROR in EclipseBug552521getChannel.java (at line 94)\n" +
 		"	final FileChannel      srcChannel = new FileInputStream (srcFile) .getChannel();\n" +
 		"	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
@@ -7185,38 +7173,37 @@ public void testGH2129() {
 	runLeakTest(
 		new String[] {
 			"ExampleResourceLeakWarningInternalResource.java",
-			"""
-			import java.io.IOException;
-			import java.net.InetSocketAddress;
-			import java.net.SocketAddress;
-
-			import javax.net.ssl.SSLContext;
-			import javax.net.ssl.SSLServerSocket;
-			import javax.net.ssl.SSLServerSocketFactory;
-
-			public class ExampleResourceLeakWarningInternalResource implements AutoCloseable {
-
-				private SSLServerSocket sslServerSocket;
-
-				public ExampleResourceLeakWarningInternalResource(int aSecurePort, SSLContext aSSLContext) throws IOException {
-					sslServerSocket = initialise(aSSLContext, aSecurePort);
-				}
-
-				private SSLServerSocket initialise(SSLContext aSSLContext, int aPort) throws IOException {
-					SSLServerSocketFactory secure_server_socket_factory = aSSLContext.getServerSocketFactory();
-					// No warning here for Eclipse 2019.06 but warnings for Eclipse 2020.03 and later
-					SSLServerSocket server_secure_socket = (SSLServerSocket) secure_server_socket_factory.createServerSocket();
-					SocketAddress endpoint = new InetSocketAddress(aPort);
-					server_secure_socket.bind(endpoint, 1);
-
-					return server_secure_socket;
-				}
-				@Override
-				public void close() throws IOException {
-					sslServerSocket.close();
-				}
-			}
-			"""
+			"import java.io.IOException;\n" +
+			"import java.net.InetSocketAddress;\n" +
+			"import java.net.SocketAddress;\n" +
+			"\n" +
+			"import javax.net.ssl.SSLContext;\n" +
+			"import javax.net.ssl.SSLServerSocket;\n" +
+			"import javax.net.ssl.SSLServerSocketFactory;\n" +
+			"\n" +
+			"public class ExampleResourceLeakWarningInternalResource implements AutoCloseable {\n" +
+			"\n" +
+			fieldDeclPrefix() +
+			"	private SSLServerSocket sslServerSocket;\n" +
+			"\n" +
+			"	public ExampleResourceLeakWarningInternalResource(int aSecurePort, SSLContext aSSLContext) throws IOException {\n" +
+			"		sslServerSocket = initialise(aSSLContext, aSecurePort);\n" +
+			"	}\n" +
+			"\n" +
+			"	private SSLServerSocket initialise(SSLContext aSSLContext, int aPort) throws IOException {\n" +
+			"		SSLServerSocketFactory secure_server_socket_factory = aSSLContext.getServerSocketFactory();\n" +
+			"		// No warning here for Eclipse 2019.06 but warnings for Eclipse 2020.03 and later\n" +
+			"		SSLServerSocket server_secure_socket = (SSLServerSocket) secure_server_socket_factory.createServerSocket();\n" +
+			"		SocketAddress endpoint = new InetSocketAddress(aPort);\n" +
+			"		server_secure_socket.bind(endpoint, 1);\n" +
+			"\n" +
+			"		return server_secure_socket;\n" +
+			"	}\n" +
+			"	@Override\n" +
+			"	public void close() throws IOException {\n" +
+			"		sslServerSocket.close();\n" +
+			"	}\n" +
+			"}\n"
 		},
 		"",
 		options);
