@@ -33,7 +33,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -127,9 +128,6 @@ import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
@@ -3501,8 +3499,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		} else {
 			if (compliance.equals("22")) {
 				// Reuse the same 17 stuff as of now. No real need for a new one
-				newJclLibString = "JCL_22_LIB";
-				newJclSrcString = "JCL_22_SRC";
+				newJclLibString = "JCL_21_LIB";
+				newJclSrcString = "JCL_21_SRC";
 			} else			if (compliance.equals("21")) {
 				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL_21_LIB";
