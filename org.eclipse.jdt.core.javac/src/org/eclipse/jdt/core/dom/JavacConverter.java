@@ -34,6 +34,8 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
@@ -235,7 +237,7 @@ class JavacConverter {
 		if( simpName != null )
 			res.setName(simpName);
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
-			res.modifiers().addAll(convert(javacClassDecl.mods));
+			res.modifiers().addAll(convert(javacClassDecl.mods, res));
 		} else {
 			int jls2Flags = getJLS2ModifiersFlags(javacClassDecl.mods);
 			jls2Flags &= ~Flags.INTERFACE; // remove AccInterface flags, see ASTConverter
@@ -374,7 +376,7 @@ class JavacConverter {
 		simpleName.internalSetIdentifier(typeParameter.getName().toString());
 		int start = typeParameter.pos;
 		int end = typeParameter.pos + typeParameter.getName().length();
-		simpleName.setSourceRange(start, end - start + 1);
+		simpleName.setSourceRange(start, end - start);
 		ret.setName(simpleName);
 		int annotationsStart = start;
 		List bounds = typeParameter.bounds;
@@ -414,7 +416,7 @@ class JavacConverter {
 //			recordNodes(typeParameter2, typeParameter);
 //			typeParameter2.resolveBinding();
 //		}
-		ret.setSourceRange(start, end - start + 1);
+		ret.setSourceRange(start, end - start);
 		return ret;
 	}
 
@@ -452,7 +454,7 @@ class JavacConverter {
 	private ASTNode convertMethodInAnnotationTypeDecl(JCMethodDecl javac, ASTNode parent) {
 		AnnotationTypeMemberDeclaration res = new AnnotationTypeMemberDeclaration(this.ast);
 		commonSettings(res, javac);
-		res.modifiers().addAll(convert(javac.getModifiers()));
+		res.modifiers().addAll(convert(javac.getModifiers(), res));
 		res.setType(convertToType(javac.getReturnType()));
 		if (convert(javac.getName()) instanceof SimpleName simpleName) {
 			res.setName(simpleName);
@@ -493,7 +495,7 @@ class JavacConverter {
 		MethodDeclaration res = this.ast.newMethodDeclaration();
 		commonSettings(res, javac);
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
-			res.modifiers().addAll(convert(javac.getModifiers()));
+			res.modifiers().addAll(convert(javac.getModifiers(), res));
 		} else {
 			res.internalSetModifiers(getJLS2ModifiersFlags(javac.mods));
 		}
@@ -512,7 +514,9 @@ class JavacConverter {
 		if( javacNameMatchesInit && !isConstructor ) {
 			malformed = true;
 		}
-		
+		if( javac.completesNormally ) {
+			
+		}
 		res.setName(this.ast.newSimpleName(methodDeclName));
 		JCTree retTypeTree = javac.getReturnType();
 		Type retType = null;
@@ -565,7 +569,7 @@ class JavacConverter {
 			res.setName(simpleName);
 		}
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
-			res.modifiers().addAll(convert(javac.getModifiers()));
+			res.modifiers().addAll(convert(javac.getModifiers(), res));
 		} else {
 			res.internalSetModifiers(getJLS2ModifiersFlags(javac.mods));
 		}
@@ -663,7 +667,7 @@ class JavacConverter {
 			FieldDeclaration res = this.ast.newFieldDeclaration(fragment);
 			commonSettings(res, javac);
 			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
-				res.modifiers().addAll(convert(javac.getModifiers()));
+				res.modifiers().addAll(convert(javac.getModifiers(), res));
 			} else {
 				res.internalSetModifiers(getJLS2ModifiersFlags(javac.mods));
 			}
@@ -1072,7 +1076,9 @@ class JavacConverter {
 			}
 			return res;
 		}
-		// TODO instanceof, lambdas
+		if (javac instanceof JCAnnotation jcAnnot) {
+			return convert(jcAnnot);
+		}
 		throw new UnsupportedOperationException("Missing support to convert '" + javac + "' of type " + javac.getClass().getSimpleName());
 	}
 
@@ -1468,17 +1474,46 @@ class JavacConverter {
 	private Annotation convert(JCAnnotation javac) {
 		// TODO this needs more work, see below
 		String asString = javac.toString();
-		Annotation res = null;
 		if( !asString.contains("(")) {
-			res = this.ast.newMarkerAnnotation();
+			MarkerAnnotation res = this.ast.newMarkerAnnotation();
 			commonSettings(res, javac);
 			res.setTypeName(toName(javac.getAnnotationType()));
+			return res;
 		} else {
-			res = this.ast.newNormalAnnotation();
+			NormalAnnotation res = this.ast.newNormalAnnotation();
 			commonSettings(res, javac);
 			res.setTypeName(toName(javac.getAnnotationType()));
+			Iterator<JCExpression> it = javac.getArguments().iterator();
+			while(it.hasNext()) {
+				JCExpression expr = it.next();
+				if( expr instanceof JCAssign jcass) {
+					if( jcass.lhs instanceof JCIdent jcid ) {
+						final MemberValuePair pair = new MemberValuePair(this.ast);
+						final SimpleName simpleName = new SimpleName(this.ast);
+						simpleName.internalSetIdentifier(new String(jcid.getName().toString()));
+						int start = jcid.pos;
+						int end = start + jcid.getName().toString().length();
+						simpleName.setSourceRange(start, end - start + 1);
+						pair.setName(simpleName);
+						Expression value = null;
+						if (jcass.rhs instanceof JCNewArray jcNewArray) {
+							ArrayInitializer initializer = this.ast.newArrayInitializer();
+							commonSettings(initializer, javac);
+							jcNewArray.getInitializers().stream().map(this::convertExpression).forEach(initializer.expressions()::add);
+							value = initializer;
+						} else {
+							value = convertExpression(jcass.rhs);
+						}
+						pair.setValue(value);
+						start = value.getStartPosition();
+						end = value.getStartPosition() + value.getLength() - 1;
+						pair.setSourceRange(start, end - start + 1);
+						res.values().add(pair);
+					}
+				}
+			}
+			return res;
 		}
-		return res;
 	}
 //
 //	public Annotation addAnnotation(IAnnotationBinding annotation, AST ast, ImportRewriteContext context) {
@@ -1521,10 +1556,13 @@ class JavacConverter {
 //		}
 //	}
 
-	private List<IExtendedModifier> convert(JCModifiers modifiers) {
+	private List<IExtendedModifier> convert(JCModifiers modifiers, ASTNode parent) {
 		List<IExtendedModifier> res = new ArrayList<>();
-		modifiers.getFlags().stream().map(this::convert).forEach(res::add);
 		modifiers.getAnnotations().stream().map(this::convert).forEach(res::add);
+		Iterator<javax.lang.model.element.Modifier> mods = modifiers.getFlags().iterator();
+		while(mods.hasNext()) {
+			res.add(convert(mods.next(), modifiers.pos, parent.getStartPosition() + parent.getLength()));
+		}
 		return res;
 	}
 
@@ -1599,7 +1637,7 @@ class JavacConverter {
 	}
 
 	
-	private Modifier convert(javax.lang.model.element.Modifier javac) {
+	private Modifier convert(javax.lang.model.element.Modifier javac, int startPos, int endPos) {
 		Modifier res = this.ast.newModifier(switch (javac) {
 			case PUBLIC -> ModifierKeyword.PUBLIC_KEYWORD;
 			case PROTECTED -> ModifierKeyword.PROTECTED_KEYWORD;
@@ -1616,7 +1654,12 @@ class JavacConverter {
 			case NATIVE -> ModifierKeyword.NATIVE_KEYWORD;
 			case STRICTFP -> ModifierKeyword.STRICTFP_KEYWORD;
 		});
-		// TODO set positions
+		// This needs work... It's not a great solution. 
+		String sub = this.rawText.substring(startPos, endPos);
+		int indOf = sub.indexOf(res.getKeyword().toString());
+		if( indOf != -1 ) {
+			res.setSourceRange(startPos+indOf, res.getKeyword().toString().length());
+		}
 		return res;
 	}
 
