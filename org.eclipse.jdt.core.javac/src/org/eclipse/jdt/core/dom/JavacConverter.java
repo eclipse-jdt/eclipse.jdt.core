@@ -1408,7 +1408,9 @@ class JavacConverter {
 		}
 		if (javac instanceof JCFieldAccess qualified) {
 			if( this.ast.apiLevel != AST.JLS2_INTERNAL ) {
-				QualifiedType res = this.ast.newQualifiedType(convertToType(qualified.getExpression()), (SimpleName)convert(qualified.name));
+				// TODO need more logic here, but, the common case is a simple type
+				Name qn = toName(qualified);  
+				SimpleType res = this.ast.newSimpleType(qn);
 				commonSettings(res, qualified);
 				return res;
 			}
@@ -1663,6 +1665,7 @@ class JavacConverter {
 		return res;
 	}
 
+	
 	private Name convert(com.sun.tools.javac.util.Name javac) {
 		if (javac == null || Objects.equals(javac, Names.instance(this.context).error) || Objects.equals(javac, Names.instance(this.context).empty)) {
 			return null;
