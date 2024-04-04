@@ -242,6 +242,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 * @return a new {@link FakedTrackingVariable} or null.
 	 */
 	public static FakedTrackingVariable getCloseTrackingVariable(Expression expression, FlowInfo flowInfo, FlowContext flowContext, boolean useAnnotations) {
+		if (flowInfo.reachMode() != FlowInfo.REACHABLE)
+			return null;
 		while (true) {
 			if (expression instanceof CastExpression)
 				expression = ((CastExpression) expression).expression;
@@ -425,6 +427,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 * See  Bug 358903 - Filter practically unimportant resource leak warnings
 	 */
 	public static void analyseCloseableAllocation(BlockScope scope, FlowInfo flowInfo, FlowContext flowContext, AllocationExpression allocation) {
+		if (flowInfo.reachMode() != FlowInfo.REACHABLE)
+			return;
 		// client has checked that the resolvedType is an AutoCloseable, hence the following cast is safe:
 		if (((ReferenceBinding)allocation.resolvedType).hasTypeBit(TypeIds.BitResourceFreeCloseable)) {
 			// remove unnecessary attempts (closeable is not relevant)
@@ -842,8 +846,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 							if (fieldReference.receiver.isThis())
 								field = fieldReference.binding;
 						}
-						if (field != null) {
-							if (!field.isStatic() && (field.tagBits & TagBits.AnnotationOwning) != 0) {
+						if (field != null&& (field.tagBits & TagBits.AnnotationNotOwning) == 0) { // assignment to @NotOwned has no meaning
+							if ((field.tagBits & TagBits.AnnotationOwning) != 0) {
 								rhsTrackVar.markNullStatus(flowInfo, flowContext, FlowInfo.NON_NULL);
 							} else {
 								rhsTrackVar.markAsShared();
@@ -1008,6 +1012,11 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	public static void cleanUpAfterAssignment(BlockScope currentScope, int lhsBits, Expression expression) {
 		// remove all remaining track vars with no original binding
 
+		boolean useAnnotations = currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
+		if (useAnnotations && (lhsBits & Binding.FIELD) != 0) {
+			return;
+		}
+
 		// unwrap uninteresting nodes:
 		while (true) {
 			if (expression instanceof Assignment)
@@ -1034,7 +1043,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			LocalVariableBinding local = expression.localVariableBinding();
 			if (local != null
 					&& ((lhsBits & Binding.FIELD) != 0)
-					&& !currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled
+					&& !useAnnotations
 					&& local.closeTracker != null) {
 				local.closeTracker.withdraw(); // TODO: may want to use local.closeTracker.markPassedToOutside(..,true)
 			}

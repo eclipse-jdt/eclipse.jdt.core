@@ -182,8 +182,10 @@ public class IrritantSet {
 		STATIC_METHOD
 		    .set(CompilerOptions.MethodCanBePotentiallyStatic);
 		RESOURCE
-			.set(CompilerOptions.PotentiallyUnclosedCloseable)
-			.set(CompilerOptions.ExplicitlyClosedAutoCloseable);
+			.set(CompilerOptions.PotentiallyUnclosedCloseable
+				|CompilerOptions.ExplicitlyClosedAutoCloseable)
+			.set(CompilerOptions.InsufficientResourceManagement
+				|CompilerOptions.IncompatibleOwningContract);
 		INCOMPLETE_SWITCH.set(CompilerOptions.MissingDefaultCase);
 		String suppressRawWhenUnchecked = System.getProperty("suppressRawWhenUnchecked"); //$NON-NLS-1$
 		if (suppressRawWhenUnchecked != null && "true".equalsIgnoreCase(suppressRawWhenUnchecked)) { //$NON-NLS-1$
