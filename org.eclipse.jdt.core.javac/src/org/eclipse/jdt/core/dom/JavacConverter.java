@@ -843,7 +843,9 @@ class JavacConverter {
 					SuperMethodInvocation res2 = this.ast.newSuperMethodInvocation();
 					commonSettings(res2, javac);
 					methodInvocation.getArguments().stream().map(this::convertExpression).forEach(res.arguments()::add);
-					methodInvocation.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
+					if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+						methodInvocation.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
+					}
 					if( superCall1 ) {
 						res2.setQualifier(toName(fa.getExpression()));
 					}
