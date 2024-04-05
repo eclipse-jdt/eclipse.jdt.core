@@ -629,7 +629,7 @@ class JavacConverter {
 		int fragmentStart = javac.pos;
 		int fragmentLength = fragmentEnd - fragmentStart; // ????  - 1;
 		char c = this.rawText.charAt(fragmentEnd-1);
-		if( c == ';') {
+		if( c == ';' || c == ',') {
 			fragmentLength--;
 		}
 		fragment.setSourceRange(fragmentStart, Math.max(0, fragmentLength));
