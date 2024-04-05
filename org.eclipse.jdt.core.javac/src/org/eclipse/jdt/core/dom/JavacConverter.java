@@ -683,7 +683,24 @@ class JavacConverter {
 			} else {
 				res.internalSetModifiers(getJLS2ModifiersFlags(javac.mods));
 			}
-			res.setType(convertToType(javac.getType()));
+			
+			int count = fragment.getExtraDimensions();
+			if( count > 0 ) {
+				// must do simple type here
+				JCTree t = javac.getType();
+				if( t instanceof JCArrayTypeTree jcatt) {
+					// unwrap the jcatt?
+					JCTree working = jcatt;
+					while(working instanceof JCArrayTypeTree work2) {
+						working = work2.getType();
+					}
+					res.setType(convertToType(working));
+				} else {
+					res.setType(convertToType(javac.getType()));
+				}
+			} else {
+				res.setType(convertToType(javac.getType()));
+			}
 			return res;
 		}
 	}
