@@ -34,12 +34,11 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
-import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
-import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import com.sun.source.tree.CaseTree.CaseKind;
+import com.sun.source.tree.LambdaExpressionTree;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.Tokens.Comment;
@@ -514,23 +513,24 @@ class JavacConverter {
 		if( javacNameMatchesInit && !isConstructor ) {
 			malformed = true;
 		}
-		if( javac.completesNormally ) {
-			
-		}
+
 		res.setName(this.ast.newSimpleName(methodDeclName));
 		JCTree retTypeTree = javac.getReturnType();
 		Type retType = null;
 		if( retTypeTree == null ) {
-			retType = this.ast.newPrimitiveType(convert(TypeKind.VOID));
-			retType.setSourceRange(javac.mods.pos + getJLS2ModifiersFlagsAsStringLength(javac.mods.flags), 0); // TODO need to find the right range
+			if( isConstructor ) { 
+				retType = this.ast.newPrimitiveType(convert(TypeKind.VOID));
+				// // TODO need to find the right range
+				retType.setSourceRange(javac.mods.pos + getJLS2ModifiersFlagsAsStringLength(javac.mods.flags), 0); 
+			}
 		} else {
 			retType = convertToType(retTypeTree);
 		}
 		
-		if (retType != null) {
-			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
-				res.setReturnType2(retType);
-			} else {
+		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+			res.setReturnType2(retType);
+		} else {
+			if (retType != null) {
 				res.internalSetReturnType(retType);
 			}
 		}
@@ -561,6 +561,13 @@ class JavacConverter {
 		return res;
 	}
 
+	private VariableDeclaration convertVariableDeclarationForLambda(JCVariableDecl javac) {
+		if( javac.type == null ) {
+			return createVariableDeclarationFragment(javac);			
+		} else {
+			return convertVariableDeclaration(javac);
+		}
+	}
 	private VariableDeclaration convertVariableDeclaration(JCVariableDecl javac) {
 		// if (singleDecl) {
 		SingleVariableDeclaration res = this.ast.newSingleVariableDeclaration();
@@ -615,15 +622,12 @@ class JavacConverter {
 		return convertFieldDeclaration(javac, null);
 	}
 
-	private FieldDeclaration convertFieldDeclaration(JCVariableDecl javac, ASTNode parent) {
-
-		// if (singleDecl) {
+	private VariableDeclarationFragment createVariableDeclarationFragment(JCVariableDecl javac) {
 		VariableDeclarationFragment fragment = this.ast.newVariableDeclarationFragment();
 		commonSettings(fragment, javac);
-		// start=34, len=17
 		int fragmentEnd = javac.getEndPosition(this.javacCompilationUnit.endPositions);
 		int fragmentStart = javac.pos;
-		int fragmentLength = fragmentEnd - fragmentStart - 1;
+		int fragmentLength = fragmentEnd - fragmentStart; // ????  - 1;
 		fragment.setSourceRange(fragmentStart, Math.max(0, fragmentLength));
 
 		if (convert(javac.getName()) instanceof SimpleName simpleName) {
@@ -648,7 +652,11 @@ class JavacConverter {
 		if (javac.getInitializer() != null) {
 			fragment.setInitializer(convertExpression(javac.getInitializer()));
 		}
-
+		return fragment;
+	}
+	
+	private FieldDeclaration convertFieldDeclaration(JCVariableDecl javac, ASTNode parent) {
+		VariableDeclarationFragment fragment = createVariableDeclarationFragment(javac);
 		List<ASTNode> sameStartPosition = new ArrayList<>();
 		if( parent instanceof TypeDeclaration decl) {
 			decl.bodyDeclarations().stream().filter(x -> x instanceof FieldDeclaration)
@@ -1050,13 +1058,15 @@ class JavacConverter {
 			jcLambda.getParameters().stream()
 				.filter(JCVariableDecl.class::isInstance)
 				.map(JCVariableDecl.class::cast)
-				.map(this::convertVariableDeclaration)
+				.map(this::convertVariableDeclarationForLambda)
 				.forEach(res.parameters()::add);
 			res.setBody(
 					jcLambda.getBody() instanceof JCExpression expr ? convertExpression(expr) :
 					jcLambda.getBody() instanceof JCStatement stmt ? convertStatement(stmt, res) :
 					null);
 			// TODO set parenthesis looking at the next non-whitespace char after the last parameter
+			int endPos = jcLambda.getEndPosition(this.javacCompilationUnit.endPositions);
+			res.setSourceRange(jcLambda.pos, endPos - jcLambda.pos);
 			return res;
 		}
 		if (javac instanceof JCNewArray jcNewArray) {
@@ -1187,12 +1197,7 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCVariableDecl jcVariableDecl) {
-			VariableDeclarationFragment fragment = this.ast.newVariableDeclarationFragment();
-			commonSettings(fragment, javac);
-			fragment.setName((SimpleName)convert(jcVariableDecl.getName()));
-			if (jcVariableDecl.getInitializer() != null) {
-				fragment.setInitializer(convertExpression(jcVariableDecl.getInitializer()));
-			}
+			VariableDeclarationFragment fragment = createVariableDeclarationFragment(jcVariableDecl);
 			VariableDeclarationStatement res = this.ast.newVariableDeclarationStatement(fragment);
 			commonSettings(res, javac);
 			res.setType(convertToType(jcVariableDecl.vartype));
