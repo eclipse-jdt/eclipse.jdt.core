@@ -628,6 +628,10 @@ class JavacConverter {
 		int fragmentEnd = javac.getEndPosition(this.javacCompilationUnit.endPositions);
 		int fragmentStart = javac.pos;
 		int fragmentLength = fragmentEnd - fragmentStart; // ????  - 1;
+		char c = this.rawText.charAt(fragmentEnd-1);
+		if( c == ';') {
+			fragmentLength--;
+		}
 		fragment.setSourceRange(fragmentStart, Math.max(0, fragmentLength));
 
 		if (convert(javac.getName()) instanceof SimpleName simpleName) {
