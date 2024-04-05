@@ -89,6 +89,14 @@ public class NaiveASTFlattener extends ASTVisitor {
 	private static final int JLS14 = AST.JLS14;
 
 	/**
+	 * Internal synonym for {@link AST#JLS21}. Use to alleviate
+	 * deprecation warnings.
+	 * @deprecated
+	 * @since 3.38
+	 */
+	private static final int JLS21 = AST.JLS21;
+
+	/**
 	 * The string buffer into which the serialized representation of the AST is
 	 * written.
 	 */
@@ -899,7 +907,11 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(PatternInstanceofExpression node) {
 		node.getLeftOperand().accept(this);
 		this.buffer.append(" instanceof ");//$NON-NLS-1$
-		node.getRightOperand().accept(this);
+		if (node.getAST().apiLevel() >= JLS21) {
+			node.getPattern().accept(this);
+		} else {
+			node.getRightOperand().accept(this);
+		}
 		return false;
 	}
 
