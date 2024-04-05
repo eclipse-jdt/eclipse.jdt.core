@@ -761,7 +761,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						currPos= end;
 						prevEnd= currEnd;
 						// if all removed and we are removing last item - we must remove end keyword
-						if (nextIndex == total && lastNonDelete == -1 && endKeyword.length() > 0) {
+						if (nextIndex == total && lastNonDelete == -1 && endKeyword != null && endKeyword.length() > 0) {
 							try {
 								TokenScanner scanner = getScanner();
 								int tempOffset = scanner.getNextEndOffset(currPos, true);
