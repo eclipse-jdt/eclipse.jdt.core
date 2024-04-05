@@ -38,7 +38,6 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import com.sun.source.tree.CaseTree.CaseKind;
-import com.sun.source.tree.LambdaExpressionTree;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.Tokens.Comment;
@@ -1141,6 +1140,19 @@ class JavacConverter {
 		}
 		return res;
 	}
+	
+	private SuperConstructorInvocation convertSuperConstructorInvocation(JCMethodInvocation javac) {
+		SuperConstructorInvocation res = this.ast.newSuperConstructorInvocation();
+		commonSettings(res, javac);
+		javac.getArguments().stream().map(this::convertExpression).forEach(res.arguments()::add);
+
+		//res.setFlags(javac.getFlags() | ASTNode.MALFORMED);
+		if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
+			javac.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
+		}
+		return res;
+	}
+
 
 	private ConstructorInvocation convertThisConstructorInvocation(JCMethodInvocation javac) {
 		ConstructorInvocation res = this.ast.newConstructorInvocation();
@@ -1219,6 +1231,18 @@ class JavacConverter {
 					parent.setFlags(parent.getFlags() | ASTNode.MALFORMED);
 					return substitute;
 				}
+			}
+			boolean uniqueCaseFound = false;
+			if (jcExpressionStatement.getExpression() instanceof JCMethodInvocation methodInvocation) {
+				JCExpression nameExpr = methodInvocation.getMethodSelect();
+				if (nameExpr instanceof JCIdent ident) {
+					if (Objects.equals(ident.getName(), Names.instance(this.context)._super)) {
+						uniqueCaseFound = true;
+					}
+				}
+			}
+			if( uniqueCaseFound ) {
+				return convertSuperConstructorInvocation((JCMethodInvocation)jcExpressionStatement.getExpression());
 			}
 			ExpressionStatement res = this.ast.newExpressionStatement(convertExpression(jcExpressionStatement.getExpression()));
 			commonSettings(res, javac);
@@ -1460,7 +1484,8 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCArrayTypeTree jcArrayType) {
-			ArrayType res = this.ast.newArrayType(convertToType(jcArrayType.getType()));
+			Type t = convertToType(jcArrayType.getType());
+			ArrayType res = this.ast.newArrayType(t);
 			commonSettings(res, javac);
 			return res;
 		}
