@@ -701,8 +701,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testConvertToModule() throws CoreException, IOException {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			IJavaProject project = setUpJavaProject("ConvertToModule");
@@ -738,8 +736,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testConvertToModuleWithRelease9() throws CoreException, IOException {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			IJavaProject project = setUpJavaProject("ConvertToModule");
@@ -3902,9 +3898,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug512053() throws CoreException, IOException {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		this.sourceWorkspacePath = super.getSourceWorkspacePath() + java.io.File.separator + "bug512053";
 		try {
@@ -7020,8 +7013,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569c() throws CoreException {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
 		if (!isJRE19) return;
 		IJavaProject p1 = createJava9Project("Bug527569", "17");
 		Map<String, String> options = new HashMap<>();
@@ -8274,9 +8265,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testReleaseOption1() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_11);
@@ -8372,9 +8360,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption4() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
@@ -8406,9 +8391,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption5() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		if (!isJRE19) return;
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
@@ -8520,9 +8502,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption8() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
@@ -8552,9 +8531,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption9() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		if (!isJRE10) return;
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
@@ -8621,9 +8597,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption11() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
@@ -8660,9 +8633,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption12() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		if (!isJRE16)
 			return;
 		Hashtable<String, String> options = JavaCore.getOptions();
@@ -8704,9 +8674,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption13() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		if (!isJRE12)
 			return;
 		Hashtable<String, String> options = JavaCore.getOptions();
