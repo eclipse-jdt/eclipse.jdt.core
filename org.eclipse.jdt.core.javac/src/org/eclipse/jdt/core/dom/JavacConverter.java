@@ -857,17 +857,7 @@ class JavacConverter {
 				res.setName(toName(newClass.clazz));
 			}
 			if (newClass.getClassBody() != null && newClass.getClassBody() instanceof JCClassDecl javacAnon) {
-				AnonymousClassDeclaration anon = this.ast.newAnonymousClassDeclaration();
-				commonSettings(anon, javacAnon);
-				if (javacAnon.getMembers() != null) {
-					List<JCTree> members = javacAnon.getMembers();
-					for( int i = 0; i < members.size(); i++ ) {
-						ASTNode decl = convertBodyDeclaration(members.get(i), res);
-						if( decl != null ) {
-							anon.bodyDeclarations().add(decl);
-						}
-					}
-				}
+				AnonymousClassDeclaration anon = createAnonymousClassDeclaration(javacAnon, res);
 				res.setAnonymousClassDeclaration(anon);
 			}
 			if (newClass.getArguments() != null) {
@@ -1094,6 +1084,21 @@ class JavacConverter {
 			return convert(jcAnnot);
 		}
 		throw new UnsupportedOperationException("Missing support to convert '" + javac + "' of type " + javac.getClass().getSimpleName());
+	}
+
+	private AnonymousClassDeclaration createAnonymousClassDeclaration(JCClassDecl javacAnon, ASTNode parent) {
+		AnonymousClassDeclaration anon = this.ast.newAnonymousClassDeclaration();
+		commonSettings(anon, javacAnon);
+		if (javacAnon.getMembers() != null) {
+			List<JCTree> members = javacAnon.getMembers();
+			for( int i = 0; i < members.size(); i++ ) {
+				ASTNode decl = convertBodyDeclaration(members.get(i), parent);
+				if( decl != null ) {
+					anon.bodyDeclarations().add(decl);
+				}
+			}
+		}
+		return anon;
 	}
 
 	private int countDimensions(JCArrayTypeTree tree) {
@@ -1835,6 +1840,12 @@ class JavacConverter {
 					int end = enumConstant.getEndPosition(this.javacCompilationUnit.endPositions);
 					enumConstantDeclaration.setSourceRange(start, end-start);
 					enumConstantDeclaration.setName(typeName);
+				}
+				if( enumConstant.init instanceof JCNewClass jcnc && jcnc.def instanceof JCClassDecl jccd) {
+					AnonymousClassDeclaration e = createAnonymousClassDeclaration(jccd, enumConstantDeclaration);
+					if( e != null ) {
+						enumConstantDeclaration.setAnonymousClassDeclaration(e);
+					}
 				}
 			}
 		}
