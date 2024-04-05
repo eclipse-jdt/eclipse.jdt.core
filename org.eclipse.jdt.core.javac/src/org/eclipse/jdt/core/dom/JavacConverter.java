@@ -518,7 +518,7 @@ class JavacConverter {
 		JCTree retTypeTree = javac.getReturnType();
 		Type retType = null;
 		if( retTypeTree == null ) {
-			if( isConstructor ) { 
+			if( isConstructor && this.ast.apiLevel == AST.JLS2_INTERNAL ) {
 				retType = this.ast.newPrimitiveType(convert(TypeKind.VOID));
 				// // TODO need to find the right range
 				retType.setSourceRange(javac.mods.pos + getJLS2ModifiersFlagsAsStringLength(javac.mods.flags), 0); 
