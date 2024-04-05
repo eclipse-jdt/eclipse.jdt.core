@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -247,9 +251,11 @@ public static Test suite() {
 //	 since_22.add(SuperAfterStatementsTest.class);
 	 since_22.add(UnnamedPatternsAndVariablesTest.class);
 	 since_22.add(UseOfUnderscoreWithPreviewTest.class);
+	 since_22.add(SwitchPatternTest21.class);
+
+	 ArrayList since_23 = new ArrayList();
 	 since_22.add(SuperAfterStatementsTest.class);
 	 since_22.add(StringTemplateTest.class);
-	 since_22.add(SwitchPatternTest21.class);
 	 since_22.add(ImplicitlyDeclaredClassesTest.class);
 
 	 // Build final test suite
@@ -554,6 +560,13 @@ public static Test suite() {
 		TestCase.resetForgottenFilters(tests_22);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
 				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_22), tests_22));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_23) != 0) {
+		ArrayList tests_23 = (ArrayList)standardTests.clone();
+		tests_23.addAll(since_23);
+		TestCase.resetForgottenFilters(tests_23);
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
+				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_23), tests_23));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;

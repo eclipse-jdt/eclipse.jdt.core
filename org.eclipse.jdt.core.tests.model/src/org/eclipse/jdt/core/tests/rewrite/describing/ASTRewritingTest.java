@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -109,10 +113,11 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	private final static int JLS21_INTERNAL = AST.JLS21;
 
 	private final static int JLS22_INTERNAL = AST.JLS22;
+	private final static int JLS23_INTERNAL = AST.JLS23;
 
 	private final static int[] JLS_LEVELS = { JLS2_INTERNAL, JLS3_INTERNAL, JLS4_INTERNAL, JLS8_INTERNAL, JLS9_INTERNAL,
 			JLS10_INTERNAL, JLS14_INTERNAL, JLS15_INTERNAL, JLS16_INTERNAL, JLS17_INTERNAL, JLS18_INTERNAL,
-			JLS19_INTERNAL, JLS20_INTERNAL, JLS21_INTERNAL , JLS22_INTERNAL};
+			JLS19_INTERNAL, JLS20_INTERNAL, JLS21_INTERNAL , JLS22_INTERNAL, JLS23_INTERNAL};
 
 	private static final String ONLY_AST_STRING = "_only";
 	private static final String SINCE_AST_STRING = "_since";
@@ -329,6 +334,14 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_22);
 			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_22);
 			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_22);
+		}
+		setUpProjectAbove23();
+	}
+	protected void setUpProjectAbove23() throws Exception {
+		if (this.apiLevel == AST_INTERNAL_JLS23) {
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_23);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_23);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_23);
 		}
 	}
 

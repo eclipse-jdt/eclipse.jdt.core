@@ -170,6 +170,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE20 = false;
 	protected static boolean isJRE21 = false;
 	protected static boolean isJRE22 = false;
+	protected static boolean isJRE23 = false;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -182,6 +183,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK23) {
+			isJRE23 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK22) {
 			isJRE22 = true;
 		}
@@ -306,6 +310,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Internal synonym for constant AST.JSL22
 	 */
 	protected static final int AST_INTERNAL_JLS22 = AST.JLS22;
+	/**
+	 * Internal synonym for constant AST.JSL22
+	 */
+	protected static final int AST_INTERNAL_JLS23 = AST.JLS23;
 	/**
 	 * Internal synonym for the latest AST level.
 	 */
