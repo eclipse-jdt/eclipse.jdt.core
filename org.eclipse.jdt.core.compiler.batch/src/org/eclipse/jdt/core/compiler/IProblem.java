@@ -2613,7 +2613,7 @@ void setSourceStart(int sourceStart);
 	/**
 	 * @since 3.38
 	 */
-	int ComparingWrapper = Internal + 2011;
+	int ComparingWrapper = Internal + 1202;
 
 	/**
 	 * @since 3.38
