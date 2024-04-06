@@ -1722,6 +1722,23 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE = PLUGIN_ID + ".compiler.problem.unlikelyEqualsArgumentType"; //$NON-NLS-1$
 
 	/**
+	 * Compiler option ID: Reporting an equal comparison with unlikely reference types, i.e. wrapper types (Integer, Long) for primitives (int, resp. long) and Strings.
+	 * <p>
+	 * When enabled, the compiler will issue an error or a warning if a comparison
+	 * is involving wrapper type (or String) operands (e.g <code>'1234L == 5678L'</code>).</p>
+	 * <p>
+	 * This warning can be suppressed using {@code @SuppressWarnings("unlikely-arg-type")}.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unlikelyEqualExpressionArgumentType"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"info"</code></dd>
+	 * </dl>
+	 * @since 3.38
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_COMPARING_WRAPPER = PLUGIN_ID + ".compiler.problem.unlikelyEqualExpressionArgumentType"; //$NON-NLS-1$
+
+	/**
 	 * Compiler option ID: Reporting when public API uses a non-API type.
 	 * <p>
 	 * This option is relevant only when compiling code in a named module (at compliance 9 or greater).
@@ -2507,19 +2524,6 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_COMPARING_IDENTICAL = PLUGIN_ID + ".compiler.problem.comparingIdentical"; //$NON-NLS-1$
-	/**
-	 * Compiler option ID: Reporting Comparison of Wrapper Expressions.
-	 * <p>When enabled, the compiler will issue an error or a warning if a comparison
-	 * is involving wrapper type (or String) operands (e.g <code>'1234L == 5678L'</code>).</p>
-	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.comparingWrapper"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
-	 * </dl>
-	 * @since 3.38
-	 * @category CompilerOptionID
-	 */
-	public static final String COMPILER_PB_COMPARING_WRAPPER = PLUGIN_ID + ".compiler.problem.comparingWrapper"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Missing Synchronized Modifier On Inherited Method.
 	 * <p>When enabled, the compiler will issue an error or a warning if a method
