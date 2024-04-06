@@ -916,7 +916,10 @@ public class EqualExpression extends BinaryExpression {
 			}
 		}
 
-		// both wrapper types or strings
+		// both wrapper types or strings. Putting primitives (or calculations) in the mix results
+		// in unboxing the wrappers to their primitives, so this only warns when both sides are
+		// wrappers. e.g. (x1 == (x2 + 1)) results in (x2 + 1) becoming a primitive, and an
+		// unboxing of x1 as well, not necessitating a warning
 		if((leftType.isBoxedPrimitiveType() && rightType.isBoxedPrimitiveType()) || (leftType.id == rightType.id && leftType.id == TypeIds.T_JavaLangString))
 		{
 			scope.problemReporter().comparingWrapperExpressions(this);
