@@ -1713,13 +1713,10 @@ public void comparingIdenticalExpressions(Expression comparison){
 			comparison.sourceEnd);
 }
 public void comparingWrapperExpressions(EqualExpression comparison) {
-	int severity = computeSeverity(IProblem.ComparingWrapper);
-	if (severity == ProblemSeverities.Ignore) return;
 	this.handle(
 			IProblem.ComparingWrapper,
 			NoArgument,
 			NoArgument,
-			severity,
 			comparison.sourceStart,
 			comparison.sourceEnd);
 }
