@@ -229,6 +229,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -2032,8 +2033,8 @@ public final class CompletionEngine
 		} else if (astNode instanceof CompletionOnProvidesImplementationsSingleTypeReference) {
 			completionOnProvidesImplementationsSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnSingleTypeReference) {
-			if(astNodeParent instanceof InstanceOfExpression ioe) {
-				completionAtInstanceOf(astNodeParent, ioe, qualifiedBinding, scope);
+			if (astNodeParent instanceof InstanceOfExpression ioe) {
+				completionAtInstanceOf(astNode, ioe, qualifiedBinding, scope);
 			} else {
 				completionOnSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 			}
@@ -11288,7 +11289,7 @@ public final class CompletionEngine
 									if (TypeBinding.equalsEquals(localType, otherType))
 										continue next;
 								}
-
+								
 								if (this.assistNodeIsExtendedType && localType.isFinal()) continue next;
 								if (this.assistNodeIsInterfaceExcludingAnnotation && localType.isAnnotationType()) continue next;
 								if(this.assistNodeIsClass) {
@@ -14832,10 +14833,27 @@ public final class CompletionEngine
 				// - completion for subtypes with variable name, <<TypeName varName>>
 				// - completions for extracing record components a.k.a Record desctructions
 				
-				if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.compilerOptions)
+				final boolean isPatternMatchingSupported = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.compilerOptions);
+				final boolean isJavaLangString = CharOperation.equals(JAVA_LANG_STRING_SIGNATURE, exprType.signableName());
+				final boolean isApplicableForPatternMatching = isPatternMatchingSupported && (!isJavaLangString && (exprType.isInterface() || exprType.isClass()));
+				if (isApplicableForPatternMatching
 						|| CharOperation.equals(JAVA_LANG_STRING_SIGNATURE, exprType.signableName())) {
 					findTypesAndPackages(this.completionToken, scope.enclosingMethodScope(), true, false,
 							new ObjectVector());
+				}
+
+				if (isApplicableForPatternMatching) {
+					for (char[] fqn : this.knownTypes.keyTable) {
+						checkCancel();
+						if (fqn == null)
+							continue;
+						char[][] simpleNames = Signature.getSimpleNames(fqn);
+
+						ReferenceBinding binding = (ReferenceBinding) scope.getType(simpleNames, simpleNames.length);
+						if (binding != null && binding.isRecord()) {
+							computeDestructors(binding);
+						}
+					}
 				}
 			} else {
 				// fallback to old behavior for primitives
@@ -14844,7 +14862,61 @@ public final class CompletionEngine
 		}
 	}
 
-	private void completionAtInstanceOf(ASTNode astNode, InstanceOfExpression ioExpr, Binding qualifiedBinding, Scope scope) {
+	private void computeDestructors(ReferenceBinding recordType) {
+		if (this.requestor.isIgnored(CompletionProposal.TYPE_PATTERN)) {
+			return;
+		}
+		checkCancel();
+
+		char[] typeCompletion = CharOperation.concat(recordType.qualifiedPackageName(),
+				recordType.qualifiedSourceName(), '.');
+		char[] packageName = recordType.isLocalType() ? null : recordType.qualifiedPackageName();
+		char[] typeName = recordType.qualifiedSourceName();
+
+		int componentsLength = recordType.components().length;
+		StringBuilder builder = new StringBuilder(String.valueOf(recordType.sourceName()));
+		builder.append("("); //$NON-NLS-1$
+		for (int i = 0; i < componentsLength; i++) {
+			RecordComponentBinding comp = recordType.components()[i];
+			builder.append(comp.type.shortReadableName()).append(' ').append(comp.readableName());
+			if (i < (componentsLength - 1)) {
+				builder.append(',');
+			}
+		}
+		builder.append(')');
+
+		char[] completion = builder.toString().toCharArray();
+		int relevance = computeRelevanceForConstructor();
+		relevance += computeRelevanceForExpectingType(recordType);
+
+		InternalCompletionProposal typeProposal = createProposal(CompletionProposal.TYPE_REF,
+				this.actualCompletionPosition);
+		typeProposal.nameLookup = this.nameEnvironment.nameLookup;
+		typeProposal.completionEngine = this;
+		typeProposal.setDeclarationSignature(packageName);
+		typeProposal.setSignature(getRequiredTypeSignature(recordType));
+		typeProposal.setPackageName(packageName);
+		typeProposal.setTypeName(typeName);
+		typeProposal.setCompletion(typeCompletion);
+		typeProposal.setFlags(recordType.modifiers);
+		typeProposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+		typeProposal.setTokenRange(this.startPosition - this.offset, this.endPosition - this.offset);
+		typeProposal.setRelevance(relevance);
+
+		InternalCompletionProposal proposal = createProposal(CompletionProposal.TYPE_PATTERN,
+				this.actualCompletionPosition);
+		proposal.setCompletion(completion);
+		proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+		proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+		proposal.setRequiredProposals(new CompletionProposal[] { typeProposal });
+		proposal.setRelevance(relevance);
+		proposal.setDeclarationSignature(getSignature(recordType));
+
+		this.requestor.accept(proposal);
+	}
+
+	private void completionAtInstanceOf(ASTNode astNode, InstanceOfExpression ioExpr, Binding qualifiedBinding,
+			Scope scope) {
 		// use same behavior for now
 		completionOnSingleTypeReference(astNode, ioExpr, qualifiedBinding, scope);
 	}

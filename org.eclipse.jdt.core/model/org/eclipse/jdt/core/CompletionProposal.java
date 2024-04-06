@@ -887,6 +887,20 @@ public class CompletionProposal {
 	public static final int LAMBDA_EXPRESSION = 30;
 
 	/**
+	 * Completion is a type pattern expression.
+	 * This kind of completion might occur in a context like
+	 * <code>"if instanceof ^"</code> and complete it to
+	 * <code>"if instanceof List list"</code> or
+	 * <code>"case ^"</code> and complete it to
+	 * <code>"case List list"</code> or
+	 * <code>"case ^"</code> and complete it to
+	 * <code>"case List list"</code>
+	 * @see #getKind()
+	 * @since 3.28
+	 */
+	public static final int TYPE_PATTERN = 31;
+
+	/**
 	 * First valid completion kind.
 	 *
 	 * @since 3.1
@@ -898,7 +912,7 @@ public class CompletionProposal {
 	 *
 	 * @since 3.1
 	 */
-	protected static final int LAST_KIND = LAMBDA_EXPRESSION;
+	protected static final int LAST_KIND = TYPE_PATTERN;
 
 	/**
 	 * Creates a basic completion proposal. All instance
