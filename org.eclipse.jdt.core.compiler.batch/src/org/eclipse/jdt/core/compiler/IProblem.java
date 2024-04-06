@@ -2184,6 +2184,8 @@ void setSourceStart(int sourceStart);
 	int UnlikelyCollectionMethodArgumentType = 1200;
 	/** @since 3.13 */
 	int UnlikelyEqualsArgumentType = 1201;
+	/** @since 3.38 */
+	int UnlikelyEqualExpressionArgumenType = 1202;
 
 	/* Local-Variable Type Inference */
 	/** @since 3.14 */
@@ -2609,11 +2611,6 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int UnnamedVariableMustHaveInitializer = PreviewRelated + 2001;
-
-	/**
-	 * @since 3.38
-	 */
-	int ComparingWrapper = Internal + 1202;
 
 	/**
 	 * @since 3.38

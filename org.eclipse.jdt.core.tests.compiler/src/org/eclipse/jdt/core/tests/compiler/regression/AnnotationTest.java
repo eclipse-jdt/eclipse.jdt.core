@@ -9976,7 +9976,6 @@ public void test297() {
 	runner.customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 	runner.customOptions.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
-	runner.customOptions.put(CompilerOptions.OPTION_ReportComparingWrapper, CompilerOptions.ERROR);
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 
 	runner.expectedCompilerLog =
@@ -10018,67 +10017,6 @@ public void test297() {
 			"	public boolean bar() {\n" +
 			"		int i = 0;\n" +
 			"		return i == i;\n" +
-			"	}\n" +
-			"}"
-	};
-	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
-	runner.runNegativeTest();
-}
-// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2176
-public void testGH2167() {
-	Runner runner = new Runner();
-	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.ENABLED);
-	runner.customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
-	runner.customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
-	runner.customOptions.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
-	runner.customOptions.put(CompilerOptions.OPTION_ReportComparingWrapper, CompilerOptions.ERROR);
-
-	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. ERROR in A.java (at line 5)\n" +
-		"	return x1 == x2;\n" +
-		"	       ^^^^^^^^\n" +
-		"Comparing primitive wrapper types or Strings using '=='\n" +
-		"----------\n" +
-		"2. ERROR in A.java (at line 10)\n" +
-		"	return x1 == x2;\n" +
-		"	       ^^^^^^^^\n" +
-		"Comparing primitive wrapper types or Strings using '=='\n" +
-		"----------\n" +
-		"3. ERROR in A.java (at line 15)\n" +
-		"	return x1 == x2;\n" +
-		"	       ^^^^^^^^\n" +
-		"Comparing primitive wrapper types or Strings using '=='\n" +
-		"----------\n" +
-		"4. ERROR in A.java (at line 20)\n" +
-		"	return x1 == x2;\n" +
-		"	       ^^^^^^^^\n" +
-		"Comparing primitive wrapper types or Strings using '=='\n" +
-		"----------\n";
-
-	runner.testFiles = new String[] {
-			"A.java",
-			"public class A {\n" +
-			"	public boolean a1() {\n" +
-			"		Long x1 = 12345L;\n" +
-			"		Long x2 = 67890L;\n" +
-			"		return x1 == x2;\n" +
-			"	}\n" +
-			"	public boolean a2() {\n" +
-			"		String x1 = \"12345\";\n" +
-			"		String x2 = \"67890\";\n" +
-			"		return x1 == x2;\n" +
-			"	}\n" +
-			"	public boolean a3() {\n" +
-			"		Byte x1 = 12;\n" +
-			"		Byte x2 = 34;\n" +
-			"		return x1 == x2;\n" +
-			"	}\n" +
-			"	public boolean a4() {\n" +
-			"		Integer x2 = 456;\n" +
-			"		Integer x1 = 123;\n" +
-			"		return x1 == x2;\n" +
 			"	}\n" +
 			"}"
 	};

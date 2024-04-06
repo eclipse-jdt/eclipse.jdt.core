@@ -3362,4 +3362,117 @@ public void testGH567() {
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
 }
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2176
+//report unlikely comparing references for primitive wrappers and String objects
+public void testGH2167() {
+	// un/boxing was introduced in JDK15, so no need to test compatibility prior to that
+	if (this.complianceLevel < ClassFileConstants.JDK15)
+		return;
+
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.ENABLED);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
+	runner.customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnlikelyEqualExpressionArgumentType, CompilerOptions.ERROR);
+
+	runner.testFiles = new String[] {
+			"A.java",
+			"""
+				public class A {
+					public boolean a1() {
+						String x1 = "12345";
+						String x2 = "67890";
+						return x1 == x2;
+					}
+					public boolean a2() {
+						Byte x1 = 12;
+						Byte x2 = 34;
+						return x1 == x2;
+					}
+					public boolean a3() {
+						Short x1 = 123;
+						Short x2 = 456;
+						return x1 == x2;
+					}
+					public boolean a4() {
+						Integer x1 = 123;
+						Integer x2 = 456;
+						return x1 == x2;
+					}
+					public boolean a5() {
+						Long x1 = 12345L;
+						Long x2 = 67890L;
+						return x1 == x2;
+					}
+					public boolean a6() {
+					    Long x = 12346L;
+
+					    return getId() == x;
+					}
+					private Long getId() {
+					    return 12345L;
+					}
+					public boolean no_error1() {
+						Long x1 = 12345L;
+						Long x2 = 67890L;
+						return x1 == (x2 + 1);
+					}
+					public boolean no_error2() {
+					    Long x1 = getId();
+					    long x2 = 12346L;
+					    return x1 == x2;
+					}
+					@SuppressWarnings("unlikely-arg-type")
+					public boolean no_error3() {
+						Long x1 = 12345L;
+						Long x2 = 67890L;
+						return x1 == x2;
+					}
+					@SuppressWarnings("all")
+					public boolean no_error4() {
+						Long x1 = 12345L;
+						Long x2 = 67890L;
+						return x1 == x2;
+					}
+				}"""
+	};
+
+	runner.expectedCompilerLog =
+		"""
+			----------
+			1. ERROR in A.java (at line 5)
+				return x1 == x2;
+				       ^^^^^^^^
+			Unlikely argument type for '==': java.lang.String is a reference
+			----------
+			2. ERROR in A.java (at line 10)
+				return x1 == x2;
+				       ^^^^^^^^
+			Unlikely argument type for '==': java.lang.Byte is a reference
+			----------
+			3. ERROR in A.java (at line 15)
+				return x1 == x2;
+				       ^^^^^^^^
+			Unlikely argument type for '==': java.lang.Short is a reference
+			----------
+			4. ERROR in A.java (at line 20)
+				return x1 == x2;
+				       ^^^^^^^^
+			Unlikely argument type for '==': java.lang.Integer is a reference
+			----------
+			5. ERROR in A.java (at line 25)
+				return x1 == x2;
+				       ^^^^^^^^
+			Unlikely argument type for '==': java.lang.Long is a reference
+			----------
+			6. ERROR in A.java (at line 30)
+				return getId() == x;
+				       ^^^^^^^^^^^^
+			Unlikely argument type for '==': java.lang.Long is a reference
+			""";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
+}
 }

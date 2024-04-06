@@ -156,7 +156,6 @@ public class CompilerOptions {
 	public static final String OPTION_EmulateJavacBug8031744 = "org.eclipse.jdt.core.compiler.emulateJavacBug8031744"; //$NON-NLS-1$
 	public static final String OPTION_ReportRedundantSuperinterface =  "org.eclipse.jdt.core.compiler.problem.redundantSuperinterface"; //$NON-NLS-1$
 	public static final String OPTION_ReportComparingIdentical =  "org.eclipse.jdt.core.compiler.problem.comparingIdentical"; //$NON-NLS-1$
-	public static final String OPTION_ReportComparingWrapper =  "org.eclipse.jdt.core.compiler.problem.comparingWrapper"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingSynchronizedOnInheritedMethod =  "org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingHashCodeMethod =  "org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeadCode =  "org.eclipse.jdt.core.compiler.problem.deadCode"; //$NON-NLS-1$
@@ -207,6 +206,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportUnlikelyCollectionMethodArgumentType = "org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentType"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnlikelyCollectionMethodArgumentTypeStrict = "org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentTypeStrict"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnlikelyEqualsArgumentType = "org.eclipse.jdt.core.compiler.problem.unlikelyEqualsArgumentType"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnlikelyEqualExpressionArgumentType =  "org.eclipse.jdt.core.compiler.problem.unlikelyEqualExpressionArgumentType"; //$NON-NLS-1$
 
 	public static final String OPTION_ReportAPILeak = "org.eclipse.jdt.core.compiler.problem.APILeak"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnstableAutoModuleName = "org.eclipse.jdt.core.compiler.problem.unstableAutoModuleName";   //$NON-NLS-1$
@@ -378,7 +378,7 @@ public class CompilerOptions {
 	// group 3
 	public static final int InsufficientResourceManagement = IrritantSet.GROUP3 | ASTNode.Bit1;
 	public static final int IncompatibleOwningContract = IrritantSet.GROUP3 | ASTNode.Bit2;
-	public static final int ComparingWrapper = IrritantSet.GROUP3 | ASTNode.Bit3;
+	public static final int UnlikelyEqualExpressionArgumenType = IrritantSet.GROUP3 | ASTNode.Bit3;
 
 
 	// Severity level for handlers
@@ -782,8 +782,6 @@ public class CompilerOptions {
 				return OPTION_ReportRedundantSuperinterface;
 			case ComparingIdentical :
 				return OPTION_ReportComparingIdentical;
-			case ComparingWrapper :
-				return OPTION_ReportComparingWrapper;
 			case MissingSynchronizedModifierInInheritedMethod :
 				return OPTION_ReportMissingSynchronizedOnInheritedMethod;
 			case ShouldImplementHashcode :
@@ -835,6 +833,8 @@ public class CompilerOptions {
 				return OPTION_ReportUnlikelyCollectionMethodArgumentType;
 			case UnlikelyEqualsArgumentType:
 				return OPTION_ReportUnlikelyEqualsArgumentType;
+			case UnlikelyEqualExpressionArgumenType :
+				return OPTION_ReportUnlikelyEqualExpressionArgumentType;
 			case APILeak:
 				return OPTION_ReportAPILeak;
 			case UnstableAutoModuleName:
@@ -980,7 +980,7 @@ public class CompilerOptions {
 			OPTION_ReportAssertIdentifier,
 			OPTION_ReportAutoboxing,
 			OPTION_ReportComparingIdentical,
-			OPTION_ReportComparingWrapper,
+			OPTION_ReportUnlikelyEqualExpressionArgumentType,
 			OPTION_ReportDeadCode,
 			OPTION_ReportDeadCodeInTrivialIfStatement,
 			OPTION_ReportDeprecation,
@@ -1414,7 +1414,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_EmulateJavacBug8031744, this.emulateJavacBug8031744 ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportRedundantSuperinterface, getSeverityString(RedundantSuperinterface));
 		optionsMap.put(OPTION_ReportComparingIdentical, getSeverityString(ComparingIdentical));
-		optionsMap.put(OPTION_ReportComparingWrapper, getSeverityString(ComparingWrapper));
+		optionsMap.put(OPTION_ReportUnlikelyEqualExpressionArgumentType, getSeverityString(UnlikelyEqualExpressionArgumenType));
 		optionsMap.put(OPTION_ReportMissingSynchronizedOnInheritedMethod, getSeverityString(MissingSynchronizedModifierInInheritedMethod));
 		optionsMap.put(OPTION_ReportMissingHashCodeMethod, getSeverityString(ShouldImplementHashcode));
 		optionsMap.put(OPTION_ReportDeadCode, getSeverityString(DeadCode));
@@ -1971,7 +1971,6 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedTypeArgumentsForMethodInvocation)) != null) updateSeverity(UnusedTypeArguments, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportRedundantSuperinterface)) != null) updateSeverity(RedundantSuperinterface, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportComparingIdentical)) != null) updateSeverity(ComparingIdentical, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportComparingWrapper)) != null) updateSeverity(ComparingWrapper, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingSynchronizedOnInheritedMethod)) != null) updateSeverity(MissingSynchronizedModifierInInheritedMethod, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingHashCodeMethod)) != null) updateSeverity(ShouldImplementHashcode, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDeadCode)) != null) updateSeverity(DeadCode, optionValue);
@@ -2009,6 +2008,7 @@ public class CompilerOptions {
 			this.reportUnlikelyCollectionMethodArgumentTypeStrict = ENABLED.equals(optionValue);
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportUnlikelyEqualsArgumentType)) != null) updateSeverity(UnlikelyEqualsArgumentType, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnlikelyEqualExpressionArgumentType)) != null) updateSeverity(UnlikelyEqualExpressionArgumenType, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAPILeak)) != null) updateSeverity(APILeak, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnstableAutoModuleName)) != null) updateSeverity(UnstableAutoModuleName, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_AnnotationBasedNullAnalysis)) != null) {
@@ -2353,7 +2353,6 @@ public class CompilerOptions {
 		buf.append("\n\t- unused type arguments for method/constructor invocation: ").append(getSeverityString(UnusedTypeArguments)); //$NON-NLS-1$
 		buf.append("\n\t- redundant superinterface: ").append(getSeverityString(RedundantSuperinterface)); //$NON-NLS-1$
 		buf.append("\n\t- comparing identical expr: ").append(getSeverityString(ComparingIdentical)); //$NON-NLS-1$
-		buf.append("\n\t- comparing wrapper expr: ").append(getSeverityString(ComparingWrapper)); //$NON-NLS-1$
 		buf.append("\n\t- missing synchronized on inherited method: ").append(getSeverityString(MissingSynchronizedModifierInInheritedMethod)); //$NON-NLS-1$
 		buf.append("\n\t- should implement hashCode() method: ").append(getSeverityString(ShouldImplementHashcode)); //$NON-NLS-1$
 		buf.append("\n\t- dead code: ").append(getSeverityString(DeadCode)); //$NON-NLS-1$
@@ -2375,6 +2374,7 @@ public class CompilerOptions {
 		buf.append("\n\t- unlikely argument type for collection methods: ").append(getSeverityString(UnlikelyCollectionMethodArgumentType)); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument type for collection methods, strict check against expected type: ").append(this.reportUnlikelyCollectionMethodArgumentTypeStrict ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument types for equals(): ").append(getSeverityString(UnlikelyEqualsArgumentType)); //$NON-NLS-1$
+		buf.append("\n\t- unlikely argument type for equal expression: ").append(getSeverityString(UnlikelyEqualExpressionArgumenType)); //$NON-NLS-1$
 		buf.append("\n\t- API leak: ").append(getSeverityString(APILeak)); //$NON-NLS-1$
 		buf.append("\n\t- unstable auto module name: ").append(getSeverityString(UnstableAutoModuleName)); //$NON-NLS-1$
 		buf.append("\n\t- SuppressWarnings not fully analysed: ").append(getSeverityString(SuppressWarningsNotAnalysed)); //$NON-NLS-1$

@@ -663,8 +663,6 @@ public static int getIrritant(int problemID) {
 
 		case IProblem.ComparingIdentical:
 			return CompilerOptions.ComparingIdentical;
-		case IProblem.ComparingWrapper:
-			return CompilerOptions.ComparingWrapper;
 
 		case IProblem.MissingSynchronizedModifierInInheritedMethod:
 			return CompilerOptions.MissingSynchronizedModifierInInheritedMethod;
@@ -720,6 +718,8 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.UnlikelyCollectionMethodArgumentType;
 		case IProblem.UnlikelyEqualsArgumentType:
 			return CompilerOptions.UnlikelyEqualsArgumentType;
+		case IProblem.UnlikelyEqualExpressionArgumenType:
+			return CompilerOptions.UnlikelyEqualExpressionArgumenType;
 
 		case IProblem.NonPublicTypeInAPI:
 		case IProblem.NotExportedTypeInAPI:
@@ -783,7 +783,6 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.FallthroughCase :
 			case CompilerOptions.OverridingMethodWithoutSuperInvocation :
 			case CompilerOptions.ComparingIdentical :
-			case CompilerOptions.ComparingWrapper :
 			case CompilerOptions.MissingSynchronizedModifierInInheritedMethod :
 			case CompilerOptions.ShouldImplementHashcode :
 			case CompilerOptions.DeadCode :
@@ -796,6 +795,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.NonNullTypeVariableFromLegacyInvocation :
 			case CompilerOptions.UnlikelyCollectionMethodArgumentType :
 			case CompilerOptions.UnlikelyEqualsArgumentType:
+			case CompilerOptions.UnlikelyEqualExpressionArgumenType :
 			case CompilerOptions.APILeak:
 			case CompilerOptions.UnstableAutoModuleName:
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
@@ -1709,14 +1709,6 @@ public void comparingIdenticalExpressions(Expression comparison){
 			NoArgument,
 			NoArgument,
 			severity,
-			comparison.sourceStart,
-			comparison.sourceEnd);
-}
-public void comparingWrapperExpressions(EqualExpression comparison) {
-	this.handle(
-			IProblem.ComparingWrapper,
-			NoArgument,
-			NoArgument,
 			comparison.sourceStart,
 			comparison.sourceEnd);
 }
@@ -11653,6 +11645,15 @@ public void unlikelyArgumentType(Expression argument, MethodBinding method, Type
 			},
 			argument.sourceStart,
 			argument.sourceEnd);
+}
+
+public void unlikelyEqualExpressionArgumentType(EqualExpression comparison, char[] expressionType) {
+	this.handle(
+			IProblem.UnlikelyEqualExpressionArgumenType,
+			NoArgument,
+			new String[] {new String(expressionType)},
+			comparison.sourceStart,
+			comparison.sourceEnd);
 }
 
 public void nonPublicTypeInAPI(TypeBinding type, int sourceStart, int sourceEnd) {
