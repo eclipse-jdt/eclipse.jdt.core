@@ -10682,4 +10682,32 @@ public void testBug508834_comment0() {
 			"----------\n",
 			null, true, customOptions);
 	}
+	public void testGH1475() {
+		runConformTest(
+			new String[] {
+				"CannotInferTypeArguments.java",
+				"""
+				public class CannotInferTypeArguments<V extends java.util.concurrent.Semaphore> {
+					class Fish {
+						public V getFlavour() {
+							return null;
+						}
+					}
+
+					class Shark<E extends Fish> {
+					}
+
+					<E extends Fish> Shark<E> fish() {
+						// This compiles fine with javac, but will only work in Eclipse with new Shark<E>();
+						return new Shark<>();
+					}
+
+					<E extends Fish> Shark<E> fish2() {
+						Shark<E> s = new Shark<>();
+						return s;
+					}
+				}
+				"""
+			});
+	}
 }
