@@ -12,11 +12,11 @@ Why? Some background...
 
 ▶️ **To test this**, you'll need to import the code of `org.eclipse.jdt.core` and `org.eclipse.jdt.core.javac` from this branch in your Eclipse workspace; and create a Launch Configuration of type "Eclipse Application" which does include the `org.eclipse.jdt.core` bundle. Go to _Arguments_ tab of this launch configuration, and add the following content to the _VM arguments_ list:
 
-> `--add-opens jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED -DICompilationUnitResolver=org.eclipse.jdt.core.dom.JavacCompilationUnitResolver -DCompilationUnit.DOM_BASED_OPERATIONS=true -DCompilationUnit.codeComplete.DOM_BASED_OPERATIONS=true -DAbstractImageBuilder.compiler=org.eclipse.jdt.internal.javac.JavacCompiler`
+> `-DCompilationUnit.DOM_BASED_OPERATIONS=true -DCompilationUnit.codeComplete.DOM_BASED_OPERATIONS=true -DSourceIndexer.DOM_BASED_INDEXER=true --add-opens jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED -DICompilationUnitResolver=org.eclipse.jdt.core.dom.JavacCompilationUnitResolver -DAbstractImageBuilder.compiler=org.eclipse.jdt.internal.javac.JavacCompiler`
 
-* `--add-opens` allow to access internal API of the JVM
+* `CompilationUnit.DOM_BASED_OPERATIONS=true`/`CompilationUnit.codeComplete.DOM_BASED_OPERATIONS` / `SourceIndexer.DOM_BASED_INDEXER=true` system properties enables some operations to use build and DOM instead of ECJ Parser (so if DOM comes from Javac, ECJ parser is not involved at all)
+* `--add-opens ...` allow to access internal API of the JVM, including Javac ones
 * `ICompilationUnitResolver=org.eclipse.jdt.core.dom.JavacCompilationUnitResolver` system property enables using Javac instead of ECJ to create JDT DOM AST.
-* `CompilationUnit.DOM_BASED_OPERATIONS=true`/`CompilationUnit.codeComplete.DOM_BASED_OPERATIONS` system properties enables some operations to use build and DOM instead of ECJ Parser (so if DOM comes from Javac, ECJ parser is not involved at all)
 * `AbstractImageBuilder.compiler=org.eclipse.jdt.internal.javac.JavacCompiler` system property instruct the builder to use Javac instead of ECJ to generate the .class file during build.
 
 Note that those properties can be set separately, which can useful when developing one particular aspect of this proposal, which property to set depends on what you want to focus on.
@@ -34,19 +34,23 @@ Note that those properties can be set separately, which can useful when developi
 
 
 🏗️ What works as a **proof of concept** with no strong design issue known/left, but still requires work to be generally usable:
-* about DOM production (use Javac APIs to generate DOM)
-  * Complete Javac AST -> JDT DOM converter (estimated difficulty 💪💪)
-  * Complete Javac AST/Symbols -> IBinding resolver (estimated difficulty 💪💪)
-  * Map all Javac diagnostic types to JDT's IProblem (estimated difficulty 💪💪)
-  * Forward all JDT compilerOptions/project configuration to configure Javac execution -currently only source path/class path configured (estimated difficulty 💪💪)
 * about DOM consumption (plain JDT)
-  * Complete DOM -> Index population (estimated difficulty 💪)
-  * More support completion based on DOM: filtering, priority, missing constructs (estimated difficulty 💪💪💪💪)
-* .class generation with Javac instead of JDT during project build (estimated difficulty 💪💪)
+  * Replace ECJ parser by DOM -> JDT model conversion (with binding) (estimated effort 💪💪💪)
+  * Complete DOM -> Index population (estimated effort 💪)
+  * More support completion based on DOM: filtering, priority, missing constructs (estimated effort 💪💪💪💪)
+  * Search (estimated effort 💪💪💪)
+* about DOM production (use Javac APIs to generate DOM)
+  * Complete Javac AST -> JDT DOM converter (estimated effort 💪💪)
+  * Complete Javac AST/Symbols -> IBinding resolver (estimated effort 💪💪💪)
+  * Map all Javac diagnostic types to JDT's IProblem (estimated effort 💪)
+  * Forward all JDT compilerOptions/project configuration to configure Javac execution -currently only source path/class path configured (estimated effort 💪💪)
+* .class generation with Javac instead of JDT during project build (estimated effort 💪💪)
 
 
 ❓ What is known to be **not yet tried** to consider this experiment capable of getting on par with ECJ-based IDE:
 * Support for **annotation processing**, which hopefully will be mostly a matter of looping the `parse` and `attr` steps of compilation with annotation processors, before running (binding) resolver
+* Some **search** is still implemented using ECJ parser.
+* Consider using JavacTask like NetBeans or existing javac-ls to get more consistency and more benefits from using javac (need to ensure this doesn't create a new process each time)
 
 
 🤔 What are the potential concerns:
@@ -56,6 +60,6 @@ Note that those properties can be set separately, which can useful when developi
 
 
 😧 What are the confirmed concerns:
-* **Null analysis** and some other static analysis are coded deep in ECJ and cannot be used with Javac. A solution can be to leverage another analysis engine (eg SpotBugs, SonarQube) deal with those features.
+* **Null analysis** and some other **static analysis** are coded deep in ECJ and cannot be used with Javac. A solution can be to leverage another analysis engine (eg SpotBugs, SonarQube) deal with those features.
 * At the moment, Javac cannot be configured to **generate .class despite CompilationError** in them like ECJ can do to allow updating the target application even when some code is not complete yet
   * We may actually be capable of hacking something like this in Eclipse/Javac integration (although it would be best to provide this directly in Javac), but running a 1st attempt of compilation, collecting errors, and then alterating the working copy of the source passed to Javac in case of error. More or less `if (diagnostics.anyMatch(getKind() == "error") { removeBrokenAST(diagnostic); injectAST("throw new CompilationError(diagnostic.getMessage()")`.
