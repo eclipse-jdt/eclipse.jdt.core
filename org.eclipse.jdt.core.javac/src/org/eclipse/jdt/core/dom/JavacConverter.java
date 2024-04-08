@@ -1451,7 +1451,12 @@ class JavacConverter {
 		IfStatement res = this.ast.newIfStatement();
 		commonSettings(res, javac);
 		if (javac.getCondition() != null) {
-			res.setExpression(convertExpression(javac.getCondition()));
+			JCExpression expr = javac.getCondition();
+			if( expr instanceof JCParens jpc) {
+				res.setExpression(convertExpression(jpc.getExpression()));
+			} else {
+				res.setExpression(convertExpression(expr));
+			}
 		}
 		if (javac.getThenStatement() != null) {
 			res.setThenStatement(convertStatement(javac.getThenStatement(), res));
