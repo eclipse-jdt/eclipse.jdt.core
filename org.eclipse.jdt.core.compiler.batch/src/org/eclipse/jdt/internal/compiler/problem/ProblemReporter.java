@@ -11647,11 +11647,11 @@ public void unlikelyArgumentType(Expression argument, MethodBinding method, Type
 			argument.sourceEnd);
 }
 
-public void unlikelyReferenceComparison(EqualExpression comparison, String operator, char[] expressionType) {
+public void unlikelyReferenceComparison(EqualExpression comparison, String operator, char[] leftType, char[] rightType) {
 	this.handle(
 			IProblem.UnlikelyReferenceComparison,
 			NoArgument,
-			new String[] {operator, new String(expressionType)},
+			new String[] {operator, new String(leftType), new String(rightType)},
 			comparison.sourceStart,
 			comparison.sourceEnd);
 }

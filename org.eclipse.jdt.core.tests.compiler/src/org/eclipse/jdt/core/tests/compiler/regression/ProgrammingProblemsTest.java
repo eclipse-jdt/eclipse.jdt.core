@@ -3411,6 +3411,21 @@ public void testGH2167() {
 
 					    return getId() != x;
 					}
+					public boolean a7() {
+					    Long x1 = 12346L;
+						Number x2 = 12345L;
+					    return x1 != x2;
+					}
+					public boolean a8() {
+					    Number x1 = 12346L;
+						Number x2 = 12345L;
+					    return x1 == x2;
+					}
+					public boolean a9() {
+					    java.io.Serializable x1 = 12346L;
+						Number x2 = 12345L;
+					    return x1 == x2;
+					}
 					private Long getId() {
 					    return 12345L;
 					}
@@ -3445,32 +3460,47 @@ public void testGH2167() {
 			1. ERROR in A.java (at line 5)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely operand type for '==': java.lang.String is a reference
+			Unlikely operand types for '==': java.lang.String and java.lang.String are references
 			----------
 			2. ERROR in A.java (at line 10)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely operand type for '==': java.lang.Byte is a reference
+			Unlikely operand types for '==': java.lang.Byte and java.lang.Byte are references
 			----------
 			3. ERROR in A.java (at line 15)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely operand type for '==': java.lang.Short is a reference
+			Unlikely operand types for '==': java.lang.Short and java.lang.Short are references
 			----------
 			4. ERROR in A.java (at line 20)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely operand type for '==': java.lang.Integer is a reference
+			Unlikely operand types for '==': java.lang.Integer and java.lang.Integer are references
 			----------
 			5. ERROR in A.java (at line 25)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely operand type for '==': java.lang.Long is a reference
+			Unlikely operand types for '==': java.lang.Long and java.lang.Long are references
 			----------
 			6. ERROR in A.java (at line 30)
 				return getId() != x;
 				       ^^^^^^^^^^^^
-			Unlikely operand type for '!=': java.lang.Long is a reference
+			Unlikely operand types for '!=': java.lang.Long and java.lang.Long are references
+			----------
+			7. ERROR in A.java (at line 35)
+				return x1 != x2;
+				       ^^^^^^^^
+			Unlikely operand types for '!=': java.lang.Long and java.lang.Number are references
+			----------
+			8. ERROR in A.java (at line 40)
+				return x1 == x2;
+				       ^^^^^^^^
+			Unlikely operand types for '==': java.lang.Number and java.lang.Number are references
+			----------
+			9. ERROR in A.java (at line 45)
+				return x1 == x2;
+				       ^^^^^^^^
+			Unlikely operand types for '==': java.io.Serializable and java.lang.Number are references
 			""";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
