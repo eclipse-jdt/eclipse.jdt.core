@@ -535,6 +535,15 @@ class JavacConverter {
 		}
 
 		javac.getParameters().stream().map(this::convertVariableDeclaration).forEach(res.parameters()::add);
+		
+		if( javac.getTypeParameters() != null ) {
+			Iterator<JCTypeParameter> i = javac.getTypeParameters().iterator();
+			while(i.hasNext()) {
+				JCTypeParameter next = i.next();
+				res.typeParameters().add(convert(next));
+			}
+		}
+		
 		if (javac.getBody() != null) {
 			Block b = convertBlock(javac.getBody());
 			res.setBody(b);
