@@ -2377,7 +2377,7 @@ public class CompilerOptions {
 		buf.append("\n\t- unlikely argument type for collection methods: ").append(getSeverityString(UnlikelyCollectionMethodArgumentType)); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument type for collection methods, strict check against expected type: ").append(this.reportUnlikelyCollectionMethodArgumentTypeStrict ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument types for equals(): ").append(getSeverityString(UnlikelyEqualsArgumentType)); //$NON-NLS-1$
-		buf.append("\n\t- unlikely operator type for equal expression: ").append(getSeverityString(UnlikelyReferenceComparison)); //$NON-NLS-1$
+		buf.append("\n\t- unlikely operand type for equal expression: ").append(getSeverityString(UnlikelyReferenceComparison)); //$NON-NLS-1$
 		buf.append("\n\t- API leak: ").append(getSeverityString(APILeak)); //$NON-NLS-1$
 		buf.append("\n\t- unstable auto module name: ").append(getSeverityString(UnstableAutoModuleName)); //$NON-NLS-1$
 		buf.append("\n\t- SuppressWarnings not fully analysed: ").append(getSeverityString(SuppressWarningsNotAnalysed)); //$NON-NLS-1$

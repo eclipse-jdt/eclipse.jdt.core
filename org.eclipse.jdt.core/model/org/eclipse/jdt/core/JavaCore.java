@@ -1729,14 +1729,14 @@ public final class JavaCore extends Plugin {
 	 * <p>
 	 * This warning can be suppressed using {@code @SuppressWarnings("unlikely-arg-type")}.
 	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unlikelyEqualExpressionArgumentType"</code></dd>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unlikelyReferenceComparison"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"info"</code></dd>
 	 * </dl>
 	 * @since 3.38
 	 * @category CompilerOptionID
 	 */
-	public static final String COMPILER_PB_COMPARING_WRAPPER = PLUGIN_ID + ".compiler.problem.unlikelyEqualExpressionArgumentType"; //$NON-NLS-1$
+	public static final String COMPILER_PB_UNLIKELY_REFERENCE_COMPARISON = PLUGIN_ID + ".compiler.problem.unlikelyReferenceComparison"; //$NON-NLS-1$
 
 	/**
 	 * Compiler option ID: Reporting when public API uses a non-API type.
