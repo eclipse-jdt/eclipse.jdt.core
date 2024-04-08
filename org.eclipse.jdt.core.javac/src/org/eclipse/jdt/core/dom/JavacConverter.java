@@ -1144,6 +1144,11 @@ class JavacConverter {
 	private SuperConstructorInvocation convertSuperConstructorInvocation(JCMethodInvocation javac) {
 		SuperConstructorInvocation res = this.ast.newSuperConstructorInvocation();
 		commonSettings(res, javac);
+		int end = res.getStartPosition() + res.getLength();
+		if( end < this.rawText.length() && this.rawText.charAt(end-1) != ';' && this.rawText.charAt(end) == ';') {
+			// jdt expects semicolon to be part of the range
+			res.setSourceRange(res.getStartPosition(), res.getLength() + 1);
+		}
 		javac.getArguments().stream().map(this::convertExpression).forEach(res.arguments()::add);
 
 		//res.setFlags(javac.getFlags() | ASTNode.MALFORMED);
