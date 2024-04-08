@@ -3946,9 +3946,6 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			} else if (token.equals("compareIdentical")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportComparingIdentical, severity, isEnabling);
 				return;
-			} else if (token.equals("compareWrapper")) { //$NON-NLS-1$
-				setSeverity(CompilerOptions.OPTION_ReportUnlikelyEqualExpressionArgumentType, severity, isEnabling);
-				return;
 			} else if (token.equals("charConcat") /*|| token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportNoImplicitStringConversion, severity, isEnabling);
 				return;
@@ -4470,6 +4467,9 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				return;
 			} else if (token.equals("unlikelyEqualsArgumentType")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUnlikelyEqualsArgumentType, severity, isEnabling);
+				return;
+			} else if (token.equals("unlikelyReferenceComparison")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportUnlikelyReferenceComparison, severity, isEnabling);
 				return;
 			} else if (token.equals("unnecessaryElse")) {//$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUnnecessaryElse, severity, isEnabling);

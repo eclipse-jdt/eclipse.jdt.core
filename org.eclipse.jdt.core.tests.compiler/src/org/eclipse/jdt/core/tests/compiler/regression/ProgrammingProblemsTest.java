@@ -3375,7 +3375,7 @@ public void testGH2167() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
 	runner.customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	runner.customOptions.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
-	runner.customOptions.put(CompilerOptions.OPTION_ReportUnlikelyEqualExpressionArgumentType, CompilerOptions.ERROR);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnlikelyReferenceComparison, CompilerOptions.ERROR);
 
 	runner.testFiles = new String[] {
 			"A.java",

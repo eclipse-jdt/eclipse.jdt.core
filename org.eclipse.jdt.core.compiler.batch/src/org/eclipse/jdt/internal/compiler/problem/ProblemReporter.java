@@ -718,8 +718,8 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.UnlikelyCollectionMethodArgumentType;
 		case IProblem.UnlikelyEqualsArgumentType:
 			return CompilerOptions.UnlikelyEqualsArgumentType;
-		case IProblem.UnlikelyEqualExpressionArgumenType:
-			return CompilerOptions.UnlikelyEqualExpressionArgumenType;
+		case IProblem.UnlikelyReferenceComparison:
+			return CompilerOptions.UnlikelyReferenceComparison;
 
 		case IProblem.NonPublicTypeInAPI:
 		case IProblem.NotExportedTypeInAPI:
@@ -795,7 +795,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.NonNullTypeVariableFromLegacyInvocation :
 			case CompilerOptions.UnlikelyCollectionMethodArgumentType :
 			case CompilerOptions.UnlikelyEqualsArgumentType:
-			case CompilerOptions.UnlikelyEqualExpressionArgumenType :
+			case CompilerOptions.UnlikelyReferenceComparison :
 			case CompilerOptions.APILeak:
 			case CompilerOptions.UnstableAutoModuleName:
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
@@ -11649,7 +11649,7 @@ public void unlikelyArgumentType(Expression argument, MethodBinding method, Type
 
 public void unlikelyEqualExpressionArgumentType(EqualExpression comparison, char[] expressionType) {
 	this.handle(
-			IProblem.UnlikelyEqualExpressionArgumenType,
+			IProblem.UnlikelyReferenceComparison,
 			NoArgument,
 			new String[] {new String(expressionType)},
 			comparison.sourceStart,
