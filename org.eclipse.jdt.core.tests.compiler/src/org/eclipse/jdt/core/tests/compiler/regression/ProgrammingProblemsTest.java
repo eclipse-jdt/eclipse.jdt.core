@@ -3409,7 +3409,7 @@ public void testGH2167() {
 					public boolean a6() {
 					    Long x = 12346L;
 
-					    return getId() == x;
+					    return getId() != x;
 					}
 					private Long getId() {
 					    return 12345L;
@@ -3445,32 +3445,32 @@ public void testGH2167() {
 			1. ERROR in A.java (at line 5)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely argument type for '==': java.lang.String is a reference
+			Unlikely operand type for '==': java.lang.String is a reference
 			----------
 			2. ERROR in A.java (at line 10)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely argument type for '==': java.lang.Byte is a reference
+			Unlikely operand type for '==': java.lang.Byte is a reference
 			----------
 			3. ERROR in A.java (at line 15)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely argument type for '==': java.lang.Short is a reference
+			Unlikely operand type for '==': java.lang.Short is a reference
 			----------
 			4. ERROR in A.java (at line 20)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely argument type for '==': java.lang.Integer is a reference
+			Unlikely operand type for '==': java.lang.Integer is a reference
 			----------
 			5. ERROR in A.java (at line 25)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely argument type for '==': java.lang.Long is a reference
+			Unlikely operand type for '==': java.lang.Long is a reference
 			----------
 			6. ERROR in A.java (at line 30)
-				return getId() == x;
+				return getId() != x;
 				       ^^^^^^^^^^^^
-			Unlikely argument type for '==': java.lang.Long is a reference
+			Unlikely operand type for '!=': java.lang.Long is a reference
 			""";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();

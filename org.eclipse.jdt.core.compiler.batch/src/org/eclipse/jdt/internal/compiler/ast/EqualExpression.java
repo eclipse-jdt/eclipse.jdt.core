@@ -922,7 +922,7 @@ public class EqualExpression extends BinaryExpression {
 		// unboxing of x1 as well, not necessitating a warning
 		if((leftType.isBoxedPrimitiveType() && rightType.isBoxedPrimitiveType()) || (leftType.id == rightType.id && leftType.id == TypeIds.T_JavaLangString))
 		{
-			scope.problemReporter().unlikelyEqualExpressionArgumentType(this, leftType.readableName());
+			scope.problemReporter().unlikelyReferenceComparison(this, operatorToString(), leftType.readableName());
 		}
 
 		// both base type
