@@ -383,7 +383,7 @@ class JavacConverter {
 			JCTree t = (JCTree)i.next();
 			Type type = convertToType(t);
 			ret.typeBounds().add(type);
-			end = type.getStartPosition() + type.getLength() - 1;
+			end = typeParameter.getEndPosition(this.javacCompilationUnit.endPositions);
 		}
 //		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = typeParameter.annotations;
 //		if (annotations != null) {
