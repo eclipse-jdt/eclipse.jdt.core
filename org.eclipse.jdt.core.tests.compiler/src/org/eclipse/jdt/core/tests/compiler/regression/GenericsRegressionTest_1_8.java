@@ -10710,4 +10710,111 @@ public void testBug508834_comment0() {
 				"""
 			});
 	}
+
+	public void testBug569231() {
+		runConformTest(
+			new String[] {
+				"GenericsBug.java",
+				"""
+				import java.util.function.Function;
+				import java.util.function.Predicate;
+
+				public class GenericsBug<S> {
+					public static interface MyInterface<U> {}
+
+					public static class SubClass<U,V> implements MyInterface<V>{
+						public SubClass(Function<U,V> g, MyInterface<V>... i) { }
+					}
+
+					public static class OptSubClass<U> implements MyInterface<U> {
+						public OptSubClass(String s, Predicate<U> p, MyInterface<U>... i) { }
+
+					}
+
+					public static class ParamClass<T> {
+						public T    getU()    { return null;}
+					}
+
+					GenericsBug(MyInterface<S> in1, MyInterface<S> in2) { }
+
+
+					public static class MySubClass extends SubClass<ParamClass<Boolean>,Boolean> {
+						public MySubClass() {
+							super(ParamClass::getU);
+						}
+					}
+
+					public static void foo() {
+						SubClass<ParamClass<Boolean>,Boolean> sc = new SubClass<>(ParamClass::getU);
+						new GenericsBug<>(new MySubClass(),
+										  new OptSubClass<>("foo", t->t, sc));
+					}
+				};
+				"""
+			});
+	}
+
+	public void testBug566989() {
+		runConformTest(
+			new String[] {
+				"InferTypeTest.java",
+				"""
+				import java.util.*;
+				public class InferTypeTest<T> {
+
+					@FunctionalInterface
+					interface DataLoader<T> {
+						List<T> loadData(int offset, int limit);
+					}
+
+					class DataList<T> extends ArrayList<T>{
+						public DataList(DataLoader<T> dataLoader) {
+						}
+					}
+
+					void testDataList() {
+						List<String> list = new ArrayList<>(new DataList<>((offset, limit) -> Collections.emptyList()));
+					}
+
+				}
+				"""
+			});
+	}
+
+	public void testBug509848() {
+		runConformTest(
+			new String[] {
+				"Generics.java",
+				"""
+				public class Generics {
+
+					public MyGeneric<?> test() {
+						boolean maybe = false;
+
+						return lambda((String result) -> {
+							if (maybe) {
+								return new MyGeneric<>(MyGeneric.of(null));
+							}
+							else {
+								return new MyGeneric<>(MyGeneric.of(""));
+							}
+						});
+					}
+
+					static class MyGeneric <T> {
+						T t;
+						public MyGeneric(MyGeneric<T> t) {
+						}
+						public static <R> MyGeneric<R> of(R t) {
+							return null;
+						}
+					}
+
+					public <R> MyGeneric<R> lambda(java.util.function.Function<String, MyGeneric<R>> mapper) {
+						return null;
+					}
+				}
+				"""
+			});
+	}
 }
