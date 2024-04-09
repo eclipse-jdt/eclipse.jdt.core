@@ -770,6 +770,8 @@ class BoundSet {
 			InferenceVariable alpha = boundLeft.left;
 			TypeBinding left = boundRight.left; // no substitution since S inference variable and (S != α) per precondition
 			TypeBinding right = boundRight.right.substituteInferenceVariable(alpha, u);
+			if (TypeBinding.equalsEquals(right, boundRight.right))
+				return null; // no new information
 			return ConstraintTypeFormula.create(left, right, ReductionResult.SAME, boundLeft.isSoft||boundRight.isSoft);
 		}
 		return null;
