@@ -3451,6 +3451,10 @@ public void testGH2167() {
 						Long x2 = 67890L;
 						return x1 == x2;
 					}
+					public boolean no_error5() {
+						Long x = 12345L;
+						return x == null;
+					}
 				}"""
 	};
 

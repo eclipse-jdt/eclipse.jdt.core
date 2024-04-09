@@ -923,10 +923,13 @@ public class EqualExpression extends BinaryExpression {
 		// in unboxing the wrappers to their primitives, so this only warns when both sides are
 		// wrappers. e.g. (x1 == (x2 + 1)) results in (x2 + 1) becoming a primitive, and an
 		// unboxing of x1 as well, not necessitating a warning
-		if((leftType.isBoxedPrimitiveType() && rightType.isBoxedPrimitiveType()) ||
+		// when comparing a reference to null the assumption is that the developer is aware of comparing references,
+		// so the comparison is not unlikely
+		if((leftType != TypeBinding.NULL && rightType != TypeBinding.NULL) &&
+				((leftType.isBoxedPrimitiveType() && rightType.isBoxedPrimitiveType()) ||
 				(!leftType.isPrimitiveType() && (rightType.isBoxedPrimitiveType() || rightTypeIsNumber)) ||
 				((leftType.isBoxedPrimitiveType() || leftTypeIsNumber) && !rightType.isPrimitiveType()) ||
-				(leftType.id == rightType.id && (leftType.id == TypeIds.T_JavaLangString || leftTypeIsNumber)))
+				(leftType.id == rightType.id && (leftType.id == TypeIds.T_JavaLangString || leftTypeIsNumber))))
 		{
 			scope.problemReporter().unlikelyReferenceComparison(this, operatorToString(), leftType.readableName(), rightType.readableName());
 		}
