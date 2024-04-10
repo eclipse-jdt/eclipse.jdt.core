@@ -93,8 +93,6 @@ public class TryStatement extends SubRoutineStatement {
 	private ExceptionLabel[] resourceExceptionLabels;
 	private int[] caughtExceptionsCatchBlocks;
 
-	public SwitchExpression enclosingSwitchExpression = null;
-
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 

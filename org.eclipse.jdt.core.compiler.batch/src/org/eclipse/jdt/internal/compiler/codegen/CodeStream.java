@@ -7730,6 +7730,26 @@ private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
 			}
 		}
 	}
+	ReferenceBinding declaringClass = this.methodDeclaration.binding.declaringClass;
+	if (resolvedPosition == 0 && !this.methodDeclaration.isStatic()) {
+		return declaringClass;
+	}
+	int enumOffset = declaringClass.isEnum() ? 2 : 0; // String name, int ordinal
+	int argSlotSize = 1 + enumOffset; // this==aload0
+	if (this.methodDeclaration.binding.isConstructor()) {
+		if (declaringClass.isNestedType()) {
+			ReferenceBinding[] enclosingTypes = declaringClass.syntheticEnclosingInstanceTypes();
+			if (enclosingTypes != null) {
+				if (resolvedPosition < argSlotSize + enclosingTypes.length)
+					return enclosingTypes[resolvedPosition - argSlotSize];
+			}
+			for (SyntheticArgumentBinding extraSyntheticArgument : declaringClass.syntheticOuterLocalVariables()) {
+				if (extraSyntheticArgument.resolvedPosition == resolvedPosition)
+					return extraSyntheticArgument.type;
+			}
+		}
+	}
+
 	return null;
 }
 private void pushTypeBinding(int resolvedPosition) {
@@ -7737,10 +7757,6 @@ private void pushTypeBinding(int resolvedPosition) {
 		return;
 	assert resolvedPosition < this.maxLocals;
 	TypeBinding type = retrieveLocalType(this.position, resolvedPosition);
-	if (type == null && resolvedPosition == 0 && !this.methodDeclaration.isStatic()) {
-		type = this.methodDeclaration.binding.declaringClass; // thisReference.resolvedType
-	}
-	assert type != null;
 	pushTypeBinding(type);
 }
 private void pushTypeBindingArray() {
@@ -7764,7 +7780,9 @@ private void pushTypeBinding(char[] typeName) {
 }
 private void pushTypeBinding(TypeBinding typeBinding) {
 	if (isSwitchStackTrackingActive()) {
-		assert typeBinding != null;
+		if (typeBinding == null) {
+			throw new AssertionError("Operand type is null"); //$NON-NLS-1$
+		}
 		this.switchSaveTypeBindings.push(typeBinding);
 	}
 }

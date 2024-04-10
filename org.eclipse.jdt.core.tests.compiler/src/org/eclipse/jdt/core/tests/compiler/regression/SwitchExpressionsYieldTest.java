@@ -6862,4 +6862,241 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"Entry = Hello");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					int k;
+					void foo() {
+						new X() {
+							{
+								System.out.println ("Switch Expr = " +  switch (X.this.k) {
+								default -> {
+									try {
+										yield throwing();
+									} catch (NumberFormatException nfe) {
+										yield 10;
+									}
+									finally {
+										System.out.println("Finally");
+									}
+								}
+							});
+							}
+
+							private Object throwing() {
+								throw new NumberFormatException();
+							}
+						};
+					}
+
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}
+				"""
+				},
+				"Finally\n"
+				+ "Switch Expr = 10");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					int k;
+					void foo() {
+						int fooLocal = 10;
+						class Local {
+							Local() {
+								System.out.println("Switch result = " + switch(X.this.k) {
+																			default -> {
+																				try {
+																					System.out.println("Try");
+																					yield 10;
+																				} catch (Exception e) {
+																					System.out.println("Catch");
+																					yield 20;
+																				} finally {
+																					System.out.println("Finally");
+																				}
+																			}
+																		});
+							}
+						}
+						new Local();
+					}
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}
+				"""
+				},
+				"Try\n" +
+				"Finally\n"
+				+ "Switch result = 10");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_3() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					int k;
+
+					{
+						System.out.println ("Switch Expr = " +  switch (k) {
+						default -> {
+							try {
+								yield throwing();
+							} catch (NumberFormatException nfe) {
+								yield 10;
+							}
+							finally {
+								System.out.println("Finally");
+							}
+						}
+					});
+					}
+					private Object throwing() {
+						throw new NumberFormatException();
+					}
+					public static void main(String[] args) {
+						new X();
+					}
+				}
+				"""
+				},
+				"Finally\n"
+				+ "Switch Expr = 10");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_4() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						args = new String [] { "one" , "two"};
+						System.out.println(switch (args) {
+							case null ->  0;
+							default -> switch(args.length) {
+											case 0 -> 0;
+											case 1 -> "One";
+											default -> new X();
+										};
+							});
+					}
+					public String toString() {
+						return "some X()";
+					}
+				}
+				"""
+				},
+				"some X()");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_5() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					int k;
+					void foo() {
+						String val = "123";
+						new X() {
+							{
+								System.out.println ("Switch Expr = " +  switch (X.this.k) {
+								default -> {
+									try {
+										yield throwing();
+									} catch (NumberFormatException nfe) {
+										yield val;
+									}
+									finally {
+										System.out.println("Finally");
+									}
+								}
+							});
+							}
+
+							private Object throwing() {
+								throw new NumberFormatException();
+							}
+						};
+					}
+
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}
+				"""
+				},
+				"Finally\n"
+				+ "Switch Expr = 123");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_6() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					static int k;
+
+					static {
+						System.out.println ("Switch Expr = " +  switch (k) {
+						default -> {
+							try {
+								yield throwing();
+							} catch (NumberFormatException nfe) {
+								yield 10;
+							}
+							finally {
+								System.out.println("Finally");
+							}
+						}
+					});
+					}
+					private static Object throwing() {
+						throw new NumberFormatException();
+					}
+					public static void main(String[] args) {
+						new X();
+					}
+				}
+				"""
+				},
+				"Finally\n"
+				+ "Switch Expr = 10");
+	}
+
 }

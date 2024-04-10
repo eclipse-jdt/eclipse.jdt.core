@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -395,6 +396,21 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			int resultExpressionsCount;
 			if (this.constant != Constant.NotAConstant) {
 				this.constant = Constant.NotAConstant;
+
+				if (this.containsTry) {
+					MethodScope namedMethodScope = upperScope.namedMethodScope();
+					if (namedMethodScope != null) {
+						if (namedMethodScope.referenceContext instanceof AbstractMethodDeclaration amd) {
+							amd.containsSwitchWithTry = true;
+						} else if (namedMethodScope.referenceContext instanceof TypeDeclaration typeDecl) {
+							if (namedMethodScope.isStatic) {
+								typeDecl.clinitContainsSwitchWithTry = true;
+							} else {
+								typeDecl.initContainsSwitchWithTry = true;
+							}
+						}
+					}
+				}
 
 				// A switch expression is a poly expression if it appears in an assignment context or an invocation context (5.2, 5.3).
 				// Otherwise, it is a standalone expression.

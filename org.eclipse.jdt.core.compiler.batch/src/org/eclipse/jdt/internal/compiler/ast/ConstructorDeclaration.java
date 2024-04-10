@@ -302,6 +302,8 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 		if (referenceContext != null) {
 			unitResult = referenceContext.compilationResult();
 			problemCount = unitResult.problemCount;
+			if (referenceContext.initContainsSwitchWithTry)
+				this.containsSwitchWithTry = true;
 		}
 	}
 	do {
@@ -601,7 +603,6 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		return;
 	}
 	parser.parse(this, unit, false);
-	this.containsSwitchWithTry = parser.switchWithTry;
 }
 
 @Override
