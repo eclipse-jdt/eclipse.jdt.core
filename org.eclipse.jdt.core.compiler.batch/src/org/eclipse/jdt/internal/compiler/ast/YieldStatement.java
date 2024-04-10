@@ -24,7 +24,6 @@ public class YieldStatement extends BranchStatement {
 
 	public Expression expression;
 	public SwitchExpression switchExpression;
-	public TryStatement tryStatement;
 
 	public boolean isImplicit;
 	static final char[] SECRET_YIELD_RESULT_VALUE_NAME = " secretYieldValue".toCharArray(); //$NON-NLS-1$
