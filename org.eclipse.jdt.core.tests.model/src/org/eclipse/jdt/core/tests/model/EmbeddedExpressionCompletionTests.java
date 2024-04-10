@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2023 Advantest Europe GmbH and others.
+* Copyright (c) 2023, 2024 Advantest Europe GmbH and others.
 *
 * This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License 2.0
@@ -32,9 +32,9 @@ public class EmbeddedExpressionCompletionTests extends AbstractJavaModelCompleti
 
 	public void setUpSuite() throws Exception {
 		if (COMPLETION_PROJECT == null) {
-			COMPLETION_PROJECT = setUpJavaProject("Completion", "21");
+			COMPLETION_PROJECT = setUpJavaProject("Completion", "23");
 		} else {
-			setUpProjectCompliance(COMPLETION_PROJECT, "21");
+			setUpProjectCompliance(COMPLETION_PROJECT, "23");
 		}
 		super.setUpSuite();
 		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
