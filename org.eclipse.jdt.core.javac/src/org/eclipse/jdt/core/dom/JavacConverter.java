@@ -1690,6 +1690,13 @@ class JavacConverter {
 		while(mods.hasNext()) {
 			res.add(convert(mods.next(), modifiers.pos, parent.getStartPosition() + parent.getLength()));
 		}
+		res.sort(new Comparator<IExtendedModifier>() {
+			@Override
+			public int compare(IExtendedModifier o1, IExtendedModifier o2) {
+				ASTNode a1 = (ASTNode)o1;
+				ASTNode a2 = (ASTNode)o2;
+				return a1.getStartPosition() - a2.getStartPosition();
+			}});
 		return res;
 	}
 
