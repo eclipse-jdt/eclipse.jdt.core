@@ -4849,6 +4849,7 @@ public abstract class Scope {
 			MethodBinding current = moreSpecific[i];
 			if (current != null) {
 				ReferenceBinding[] mostSpecificExceptions = null;
+				MethodBinding mostSpecificNullness = current;
 				MethodBinding original = current.original();
 				boolean shouldIntersectExceptions = original.declaringClass.isAbstract() && original.thrownExceptions != Binding.NO_EXCEPTIONS; // only needed when selecting from interface methods
 				for (int j = 0; j < visibleSize; j++) {
@@ -4909,6 +4910,10 @@ public abstract class Scope {
 							}
 							// continue with original 15.12.2.5
 						}
+						if (compilerOptions().isAnnotationBasedNullAnalysisEnabled
+								&& NullAnnotationMatching.hasMoreSpecificNullness(next, mostSpecificNullness)) {
+							mostSpecificNullness = next;
+						}
 						if (shouldIntersectExceptions && original2.declaringClass.isInterface()) {
 							if (current.thrownExceptions != next.thrownExceptions) {
 								if (next.thrownExceptions == Binding.NO_EXCEPTIONS) {
@@ -4950,7 +4955,7 @@ public abstract class Scope {
 				if (mostSpecificExceptions != null && mostSpecificExceptions != current.thrownExceptions) {
 					return new MostSpecificExceptionMethodBinding(current, mostSpecificExceptions);
 				}
-				return current;
+				return mostSpecificNullness;
 			}
 		}
 

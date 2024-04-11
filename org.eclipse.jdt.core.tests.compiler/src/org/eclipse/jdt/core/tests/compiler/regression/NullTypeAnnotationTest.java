@@ -19316,4 +19316,39 @@ public void testGH2158() {
 		TypeDeclaration.TESTING_GH_2158 = false;
 	}
 }
+public void testGH2325() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	runner.testFiles = new String[] {
+		"Sample.java",
+		"""
+		import org.eclipse.jdt.annotation.NonNull;
+		import org.eclipse.jdt.annotation.Nullable;
+		interface InterfaceA {
+			@Nullable Object get();
+		}
+		interface InterfaceB {
+			@NonNull Object get();
+		}
+		interface InterfaceAB extends InterfaceA, InterfaceB {}
+		interface InterfaceBA extends InterfaceB, InterfaceA {}
+		class Sample {
+			void ab(InterfaceAB ab) {
+				@NonNull Object obj = ab.get();
+								   // ^^^^^^^^
+								   // ⚠ Null type mismatch (type annotations): required '@NonNull Object' but this expression has type '@Nullable Object'
+								   // Expected: no "Null type mismatch" problem,
+								   //		   because the union of the two null constraints has to be @Nullable, the most restrictive null constraint
+								   //		   (@Nullable violates the null constraint given by InterfaceB; @NonNull fulfills both null constraints from InterfaceA and InterfaceB)
+			}
+			void ba(InterfaceBA ba) {
+				@NonNull Object obj = ba.get(); // (no "Null type mismatch" as expected)
+			}
+		}
+		"""
+	};
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+}
 }
