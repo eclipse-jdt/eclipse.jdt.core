@@ -456,6 +456,9 @@ class JavacConverter {
 		commonSettings(res, javac);
 		res.modifiers().addAll(convert(javac.getModifiers(), res));
 		res.setType(convertToType(javac.getReturnType()));
+		if( javac.defaultValue != null) {
+			res.setDefault(convertExpression(javac.defaultValue));
+		}
 		if (convert(javac.getName()) instanceof SimpleName simpleName) {
 			res.setName(simpleName);
 		}
