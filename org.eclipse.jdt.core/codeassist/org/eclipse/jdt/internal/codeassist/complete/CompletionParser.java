@@ -6426,7 +6426,10 @@ protected int actFromTokenOrSynthetic(int previousAct) {
 	}
 	return newAct;
 }
-
+@Override
+public boolean requireExtendedRecovery() {
+	return super.requireExtendedRecovery() || this.lastIndexOfElement(K_BETWEEN_CASE_AND_COLON) >= 0;
+}
 protected boolean isInImportStatement() {
 	return foundToken(K_INSIDE_IMPORT_STATEMENT);
 }

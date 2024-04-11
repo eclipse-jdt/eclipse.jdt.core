@@ -740,4 +740,31 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 				permits[RESTRICTED_IDENTIFIER]{permits, null, null, permits, null, 49}\
 					""", requestor.getResults());
 	}
+
+	public void testGH2299() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+				public class SwitchRecordPattern  {
+					public foo(java.io.Serializable o) {
+						switch(o) {
+							case Person(var name, var int) -> {
+								System.out.println(nam);
+							}
+						}
+					}
+				}\
+				""");
+		this.workingCopies[1] = getWorkingCopy("/Completion/src/Person.java", """
+				public record Person(String name, int age) implements java.io.Serializable  {}\
+				""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "System.out.println(nam";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("""
+				name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.Object;, name, null, 52}\
+				""", requestor.getResults());
+	}
 }
