@@ -199,7 +199,7 @@ public void testConflictWithUnnamedModule() {
 				"	}\n" +
 				"}"
 			};
-	runner.expectedErrorString =
+	runner.expectedCompilerLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
 			"	String s = org.xml.sax.helpers.NamespaceSupport.XMLNS;\n" +
