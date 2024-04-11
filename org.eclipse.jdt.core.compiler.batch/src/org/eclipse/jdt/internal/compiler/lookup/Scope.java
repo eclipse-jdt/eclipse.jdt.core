@@ -4849,7 +4849,6 @@ public abstract class Scope {
 			MethodBinding current = moreSpecific[i];
 			if (current != null) {
 				ReferenceBinding[] mostSpecificExceptions = null;
-				MethodBinding mostSpecificNullness = current;
 				MethodBinding original = current.original();
 				boolean shouldIntersectExceptions = original.declaringClass.isAbstract() && original.thrownExceptions != Binding.NO_EXCEPTIONS; // only needed when selecting from interface methods
 				for (int j = 0; j < visibleSize; j++) {
@@ -4911,8 +4910,14 @@ public abstract class Scope {
 							// continue with original 15.12.2.5
 						}
 						if (compilerOptions().isAnnotationBasedNullAnalysisEnabled
-								&& NullAnnotationMatching.hasMoreSpecificNullness(next, mostSpecificNullness)) {
-							mostSpecificNullness = next;
+								&& j > i // don't go backwards
+								&& NullAnnotationMatching.hasMoreSpecificNullness(next, current))
+						{
+							// In this case we want to prefer next among equivalent methods.
+							// (the case where JLS 15.12.2.5 says "...is chosen arbitrarily...")
+							// To try if 'next' matches all criteria, skip outer loop to j (after increment):
+							i = j -1 ;
+							continue nextSpecific;
 						}
 						if (shouldIntersectExceptions && original2.declaringClass.isInterface()) {
 							if (current.thrownExceptions != next.thrownExceptions) {
@@ -4955,7 +4960,7 @@ public abstract class Scope {
 				if (mostSpecificExceptions != null && mostSpecificExceptions != current.thrownExceptions) {
 					return new MostSpecificExceptionMethodBinding(current, mostSpecificExceptions);
 				}
-				return mostSpecificNullness;
+				return current;
 			}
 		}
 

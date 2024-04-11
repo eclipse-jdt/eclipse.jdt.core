@@ -19351,4 +19351,38 @@ public void testGH2325() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+public void testGH2325_a() {
+	// argument nullness variance
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	runner.testFiles = new String[] {
+		"Sample.java",
+		"""
+		import org.eclipse.jdt.annotation.NonNull;
+		import org.eclipse.jdt.annotation.Nullable;
+		interface InterfaceA {
+			void perform(@NonNull Object o);
+		}
+		interface InterfaceB {
+			void perform(@Nullable Object o);
+		}
+		interface InterfaceC {
+			void perform(@NonNull Object o);
+		}
+		interface InterfaceAB extends InterfaceA, InterfaceB, InterfaceC {}
+		interface InterfaceBA extends InterfaceB, InterfaceA, InterfaceC {}
+		class Sample {
+			void ab(InterfaceAB ab) {
+				ab.perform(null);
+			}
+			void ba(InterfaceBA ba) {
+				ba.perform(null);
+			}
+		}
+		"""
+	};
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+}
 }
