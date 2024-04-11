@@ -7737,6 +7737,15 @@ private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
 	int enumOffset = declaringClass.isEnum() ? 2 : 0; // String name, int ordinal
 	int argSlotSize = 1 + enumOffset; // this==aload0
 	if (this.methodDeclaration.binding.isConstructor()) {
+		if (declaringClass.isEnum()) {
+			switch (resolvedPosition) {
+				case 1:
+					return this.methodDeclaration.scope.getJavaLangString();
+				case 2:
+					return TypeBinding.INT;
+				default: break;
+			}
+		}
 		if (declaringClass.isNestedType()) {
 			ReferenceBinding[] enclosingTypes = declaringClass.syntheticEnclosingInstanceTypes();
 			if (enclosingTypes != null) {

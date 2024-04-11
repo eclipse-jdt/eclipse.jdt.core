@@ -7098,5 +7098,36 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Finally\n"
 				+ "Switch Expr = 10");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2233
+	// [Switch-Expression] Assertion failure while compiling enum class that uses switch expression with try block
+	public void testIssue2233() {
+		if (this.complianceLevel < ClassFileConstants.JDK16)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public enum X {
+					PARAMETER, FIELD, METHOD;
+					X() {
+						System.out.println(switch (this) {
+												default -> {
+													try {
+														yield 10;
+													} finally {
 
+													}
+												}
+											});
+					}
+
+				    public static void notmain(String [] args) {
+				        X x = PARAMETER;
+				        System.out.println(x);
+				    }
+				}
+				"""
+				},
+				"");
+	}
 }
