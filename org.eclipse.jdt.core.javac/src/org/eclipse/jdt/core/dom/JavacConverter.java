@@ -684,6 +684,11 @@ class JavacConverter {
 					.filter(x -> ((FieldDeclaration)x).getType().getStartPosition() == javac.vartype.getStartPosition())
 					.forEach(x -> sameStartPosition.add((ASTNode)x));
 		}
+		if( parent instanceof AnonymousClassDeclaration decl) {
+			decl.bodyDeclarations().stream().filter(x -> x instanceof FieldDeclaration)
+					.filter(x -> ((FieldDeclaration)x).getType().getStartPosition() == javac.vartype.getStartPosition())
+					.forEach(x -> sameStartPosition.add((ASTNode)x));
+		}
 		if( sameStartPosition.size() >= 1 ) {
 			FieldDeclaration fd = (FieldDeclaration)sameStartPosition.get(0);
 			if( fd != null ) {
@@ -1148,7 +1153,7 @@ class JavacConverter {
 		if (javacAnon.getMembers() != null) {
 			List<JCTree> members = javacAnon.getMembers();
 			for( int i = 0; i < members.size(); i++ ) {
-				ASTNode decl = convertBodyDeclaration(members.get(i), parent);
+				ASTNode decl = convertBodyDeclaration(members.get(i), anon);
 				if( decl != null ) {
 					anon.bodyDeclarations().add(decl);
 				}
