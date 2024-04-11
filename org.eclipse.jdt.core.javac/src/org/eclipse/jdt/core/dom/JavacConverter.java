@@ -1223,10 +1223,10 @@ class JavacConverter {
 			commonSettings(res, literal);
 			return res;
 		}
-		if (value instanceof Character) {
+		if (value instanceof Character v) {
 			CharacterLiteral res = this.ast.newCharacterLiteral();
 			commonSettings(res, literal);
-			res.setCharValue(res.charValue());
+			res.setCharValue(v.charValue());
 			return res;
 		}
 		throw new UnsupportedOperationException("Not supported yet " + literal + "\n of type" + literal.getClass().getName());
