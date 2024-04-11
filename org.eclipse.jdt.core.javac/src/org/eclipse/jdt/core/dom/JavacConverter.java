@@ -267,6 +267,8 @@ class JavacConverter {
 						if( next instanceof JCFieldAccess jcfa ) {
 							String pack = jcfa.selected == null ? null : jcfa.selected.toString();
 							typeDeclaration.superInterfaces().add(convert(jcfa.name, pack));
+						} else if( next instanceof JCIdent jcid ) {
+							typeDeclaration.superInterfaces().add(convert(jcid.name, null));
 						}
 					}
 				}
