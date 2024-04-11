@@ -1121,6 +1121,7 @@ class JavacConverter {
 				ArrayInitializer initializer = this.ast.newArrayInitializer();
 				commonSettings(initializer, javac);
 				jcNewArray.getInitializers().stream().map(this::convertExpression).forEach(initializer.expressions()::add);
+				res.setInitializer(initializer);
 			}
 			return res;
 		}
