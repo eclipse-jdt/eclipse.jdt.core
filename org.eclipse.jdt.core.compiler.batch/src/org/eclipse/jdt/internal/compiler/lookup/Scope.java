@@ -5382,7 +5382,9 @@ public abstract class Scope {
 						}
 				}
 			}
-			staticFactory.returnType = environment.createParameterizedType(genericType, Scope.substitute(substitution, genericType.typeVariables()), originalEnclosingType);
+			staticFactory.returnType = environment.createParameterizedType(genericType,
+					Scope.substitute(substitution, genericType.typeVariables()),
+					(ReferenceBinding) Scope.substitute(substitution, originalEnclosingType));
 			staticFactory.parameters = Scope.substitute(substitution, method.parameters);
 			staticFactory.thrownExceptions = Scope.substitute(substitution, method.thrownExceptions);
 			if (staticFactory.thrownExceptions == null) {
