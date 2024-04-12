@@ -778,11 +778,10 @@ class JavacConverter {
 						String[] split = jdStringContents.split("\n");
 						int runningTally = 0;
 						TagElement previousTag = null;
-						// TODO Now split by line? TODO there's much more to do here
 						for( int i = 0; i < split.length; i++ ) {
 							String line = split[i];
 							int leadingTrimmedFromLine = line.length() - trimLeadingWhiteAndStars(line).length();
-							int trailingTrimmedFromLine = line.length() - trimLeadingWhiteAndStars(new StringBuffer(line).reverse().toString()).length();
+							int trailingTrimmedFromLine = line.length() - trimJavadocLineEndings(line).length();
 							int lineStart = contentsStart + runningTally;
 							int lineTrimmedStart = contentsStart + leadingTrimmedFromLine + runningTally;
 							int lineTrimmedEnd = lineStart + line.length() - trailingTrimmedFromLine;
@@ -815,7 +814,22 @@ class JavacConverter {
 		}
 	}
 	
+	private String trimJavadocLineEndings(String l) {
+		String stripTrailingSpaces = l.stripTrailing();
+		if( stripTrailingSpaces.endsWith("*")) {
+			int length = stripTrailingSpaces.length();
+			for( int i = length - 1; i > 0; i-- ) {
+				if(stripTrailingSpaces.charAt(i) != '*') {
+					return stripTrailingSpaces.substring(0, i);
+				}
+			}
+		}
+		return l;
+	}
 	private String trimLeadingWhiteAndStars(String line) {
+		if( line.stripLeading().startsWith("*")) {
+			
+		}
 		int length = line.length();
 		for( int i = 0; i < length; i++ ) {
 			if( !Character.isWhitespace(line.charAt(i)) && line.charAt(i) != '*') {
