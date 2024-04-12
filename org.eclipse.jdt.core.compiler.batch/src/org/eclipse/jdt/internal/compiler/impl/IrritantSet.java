@@ -87,7 +87,10 @@ public class IrritantSet {
 		.set(
 			CompilerOptions.UnlikelyEqualsArgumentType
 			| CompilerOptions.SuppressWarningsNotAnalysed
-			| CompilerOptions.AnnotatedTypeArgumentToUnannotated);
+			| CompilerOptions.AnnotatedTypeArgumentToUnannotated)
+		// group-3 warnings enabled by default
+		.set(CompilerOptions.UnlikelyReferenceComparison)
+		;
 
 		COMPILER_DEFAULT_WARNINGS
 			// group-0 warnings enabled by default
@@ -141,8 +144,6 @@ public class IrritantSet {
 				|CompilerOptions.PreviewFeatureUsed)
 			.set(CompilerOptions.InsufficientResourceManagement
 				|CompilerOptions.IncompatibleOwningContract)
-			// group-3 warnings enabled by default
-			.set(CompilerOptions.UnlikelyReferenceComparison)
 			;
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
