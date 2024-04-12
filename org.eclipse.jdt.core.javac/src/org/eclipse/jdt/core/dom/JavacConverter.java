@@ -169,6 +169,10 @@ class JavacConverter {
 		PackageDeclaration res = this.ast.newPackageDeclaration();
 		res.setName(toName(javac.getPackageName()));
 		commonSettings(res, javac);
+		Iterator<JCAnnotation> it = javac.annotations.iterator();
+		while(it.hasNext()) {
+			res.annotations().add(convert(it.next()));
+		}
 		return res;
 	}
 
