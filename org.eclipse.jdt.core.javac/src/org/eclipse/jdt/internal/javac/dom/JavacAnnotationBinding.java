@@ -23,12 +23,16 @@ import com.sun.tools.javac.code.Attribute.Compound;
 
 public class JavacAnnotationBinding implements IAnnotationBinding {
 
-	private JavacBindingResolver resolver;
-	private Compound annotation;
+	private final JavacBindingResolver resolver;
+	private final Compound annotation;
 
-	public JavacAnnotationBinding(Compound ann, JavacBindingResolver resolver) {
+	private transient String key;
+	private final IBinding recipient;
+
+	public JavacAnnotationBinding(Compound ann, JavacBindingResolver resolver, IBinding recipient) {
 		this.resolver = resolver;
 		this.annotation = ann;
+		this.recipient = recipient;
 	}
 
 	@Override
@@ -68,8 +72,11 @@ public class JavacAnnotationBinding implements IAnnotationBinding {
 
 	@Override
 	public String getKey() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getKey'");
+		StringBuilder builder = new StringBuilder();
+		builder.append(this.recipient.getKey());
+		builder.append('@');
+		builder.append(this.getAnnotationType().getKey());
+		return builder.toString();
 	}
 
 	@Override
