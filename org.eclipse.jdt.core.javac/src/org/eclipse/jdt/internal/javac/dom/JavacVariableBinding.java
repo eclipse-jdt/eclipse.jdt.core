@@ -153,8 +153,7 @@ public class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public Object getConstantValue() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getConstantValue'");
+		return variableSymbol.getConstantValue();
 	}
 
 	@Override

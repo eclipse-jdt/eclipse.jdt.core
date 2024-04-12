@@ -62,10 +62,12 @@ public class JavacUtils {
 	private static void configurePaths(JavaProject javaProject, Context context) {
 		JavacFileManager fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		try {
-			IResource member = javaProject.getProject().getParent().findMember(javaProject.getOutputLocation());
-			if( member != null ) {
-				File f = member.getLocation().toFile();
-				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(f));
+			if (javaProject.getJavaProject() != null) {
+				IResource member = javaProject.getProject().getParent().findMember(javaProject.getOutputLocation());
+				if( member != null ) {
+					File f = member.getLocation().toFile();
+					fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(f));
+				}
 			}
 			fileManager.setLocation(StandardLocation.SOURCE_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() == IClasspathEntry.CPE_SOURCE));
 			fileManager.setLocation(StandardLocation.CLASS_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() != IClasspathEntry.CPE_SOURCE));

@@ -230,10 +230,15 @@ public class JavacBindingResolver extends BindingResolver {
 		final java.util.List<TypeSymbol> typeArguments = getTypeArguments(name);
 		if (tree instanceof JCIdent ident && ident.sym != null) {
 			return getBinding(ident.sym, typeArguments);
-		} else if (tree instanceof JCFieldAccess fieldAccess && fieldAccess.sym != null) {
+		}
+		if (tree instanceof JCFieldAccess fieldAccess && fieldAccess.sym != null) {
 			return getBinding(fieldAccess.sym, typeArguments);
-		} else if (tree instanceof JCClassDecl classDecl && classDecl.sym != null) {
+		}
+		if (tree instanceof JCClassDecl classDecl && classDecl.sym != null) {
 			return getBinding(classDecl.sym, typeArguments);
+		}
+		if (tree instanceof JCVariableDecl variableDecl && variableDecl.sym != null) {
+			return getBinding(variableDecl.sym, typeArguments);
 		}
 		return null;
 	}

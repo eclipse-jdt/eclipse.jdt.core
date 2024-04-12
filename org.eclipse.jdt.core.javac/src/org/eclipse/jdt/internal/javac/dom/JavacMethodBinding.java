@@ -327,7 +327,8 @@ public class JavacMethodBinding implements IMethodBinding {
 	@Override
 	public boolean overrides(IMethodBinding method) {
 		if (method instanceof JavacMethodBinding javacMethod) {
-			return this.methodSymbol.overrides(((JavacMethodBinding)method).methodSymbol, javacMethod.methodSymbol.enclClass(), this.resolver.getTypes(), true);
+			return Objects.equals(this.methodSymbol.name, javacMethod.methodSymbol.name)
+				&&this.methodSymbol.overrides(((JavacMethodBinding)method).methodSymbol, javacMethod.methodSymbol.enclClass(), this.resolver.getTypes(), true);
 		}
 		return false;
 	}

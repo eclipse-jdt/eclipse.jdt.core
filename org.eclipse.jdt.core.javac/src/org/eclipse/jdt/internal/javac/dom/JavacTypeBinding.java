@@ -203,6 +203,9 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IVariableBinding[] getDeclaredFields() {
+		if (this.typeSymbol.members() == null) {
+			return new IVariableBinding[0];
+		}
 		return StreamSupport.stream(this.typeSymbol.members().getSymbols().spliterator(), false)
 			.filter(VarSymbol.class::isInstance)
 			.map(VarSymbol.class::cast)
@@ -212,6 +215,9 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IMethodBinding[] getDeclaredMethods() {
+		if (this.typeSymbol.members() == null) {
+			return new IMethodBinding[0];
+		}
 		return StreamSupport.stream(this.typeSymbol.members().getSymbols().spliterator(), false)
 			.filter(MethodSymbol.class::isInstance)
 			.map(MethodSymbol.class::cast)

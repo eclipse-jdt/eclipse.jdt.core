@@ -706,12 +706,21 @@ class JavacConverter {
 					while(working instanceof JCArrayTypeTree work2) {
 						working = work2.getType();
 					}
-					res.setType(convertToType(working));
+					Type type = convertToType(working);
+					if (type != null) {
+						res.setType(type);
+					}
 				} else {
-					res.setType(convertToType(javac.getType()));
+					Type type = convertToType(javac.getType());
+					if (type != null) {
+						res.setType(type);
+					}
 				}
 			} else {
-				res.setType(convertToType(javac.getType()));
+				Type type = convertToType(javac.getType());
+				if (type != null) {
+					res.setType(type);
+				}
 			}
 			return res;
 		}
@@ -1270,7 +1279,9 @@ class JavacConverter {
 			VariableDeclarationFragment fragment = createVariableDeclarationFragment(jcVariableDecl);
 			VariableDeclarationStatement res = this.ast.newVariableDeclarationStatement(fragment);
 			commonSettings(res, javac);
-			res.setType(convertToType(jcVariableDecl.vartype));
+			if (jcVariableDecl.vartype != null) {
+				res.setType(convertToType(jcVariableDecl.vartype));
+			}
 			return res;
 		}
 		if (javac instanceof JCIf ifStatement) {
@@ -1536,6 +1547,9 @@ class JavacConverter {
 			jcTypeIntersection.getBounds().stream().map(this::convertToType).forEach(res.types()::add);
 			return res;
 		}
+		if (javac instanceof JCErroneous erroneous) {
+			return null;
+		}
 		throw new UnsupportedOperationException("Not supported yet, type " + javac + " of class" + javac.getClass());
 	}
 
@@ -1737,11 +1751,13 @@ class JavacConverter {
 			case NATIVE -> ModifierKeyword.NATIVE_KEYWORD;
 			case STRICTFP -> ModifierKeyword.STRICTFP_KEYWORD;
 		});
-		// This needs work... It's not a great solution. 
-		String sub = this.rawText.substring(startPos, endPos);
-		int indOf = sub.indexOf(res.getKeyword().toString());
-		if( indOf != -1 ) {
-			res.setSourceRange(startPos+indOf, res.getKeyword().toString().length());
+		if (startPos >= 0) {
+			// This needs work... It's not a great solution. 
+			String sub = this.rawText.substring(startPos, endPos);
+			int indOf = sub.indexOf(res.getKeyword().toString());
+			if( indOf != -1 ) {
+				res.setSourceRange(startPos+indOf, res.getKeyword().toString().length());
+			}
 		}
 		return res;
 	}
