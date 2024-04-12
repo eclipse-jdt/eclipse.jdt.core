@@ -49,6 +49,7 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
+import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
@@ -64,6 +65,8 @@ public class DOMCompletionEngine implements Runnable {
 	private final CompletionRequestor requestor;
 	private final ICompilationUnit modelUnit;
 	private final SearchableEnvironment nameEnvironment;
+	private final AssistOptions assistOptions;
+	private final SearchPattern pattern;
 
 	private static class Bindings {
 		private HashSet<IMethodBinding> methods = new HashSet<>();
@@ -108,6 +111,18 @@ public class DOMCompletionEngine implements Runnable {
 			}
 		}
 		this.nameEnvironment = env;
+		this.assistOptions = new AssistOptions(this.modelUnit.getOptions(true));
+		this.pattern = new SearchPattern(SearchPattern.R_PREFIX_MATCH |
+			(this.assistOptions.camelCaseMatch ? SearchPattern.R_CAMELCASE_MATCH : 0) |
+			(this.assistOptions.substringMatch ? SearchPattern.R_SUBSTRING_MATCH : 0) |
+			(this.assistOptions.subwordMatch ? SearchPattern.R_SUBWORD_MATCH :0)) {
+			@Override
+			public SearchPattern getBlankPattern() { return null; }
+		};
+		// TODO also honor assistOptions.checkVisibility!
+		// TODO also honor requestor.ignore*
+		// TODO sorting/relevance: closest/prefix match should go first
+		// ...
 	}
 
 	private static Collection<? extends IBinding> visibleBindings(ASTNode node, int offset) {
@@ -137,11 +152,15 @@ public class DOMCompletionEngine implements Runnable {
 				context = toComplete.getParent();
 			}
 		}
+		final String prefix = completeAfter;
 		Bindings scope = new Bindings();
 		if (context instanceof FieldAccess fieldAccess) {
 			processMembers(fieldAccess.getExpression().resolveTypeBinding(), scope);
 			if (scope.stream().findAny().isPresent()) {
-				scope.stream().map(binding -> toProposal(binding, toComplete)).forEach(this.requestor::accept);
+				scope.stream()
+					.filter(binding -> this.pattern.matchesName(prefix.toCharArray(), binding.getName().toCharArray()))
+					.map(binding -> toProposal(binding, toComplete))
+					.forEach(this.requestor::accept);
 				this.requestor.endReporting();
 				return;
 			}
@@ -153,11 +172,10 @@ public class DOMCompletionEngine implements Runnable {
 					&& name.resolveBinding() instanceof IPackageBinding packageBinding) {
 				packageName = packageBinding.getName();
 			}
-			List<IType> types = findTypes(completeAfter, packageName);
-			if (!types.isEmpty()) {
-				types.stream().map(type -> toProposal(type, toComplete)).forEach(this.requestor::accept);
-				return;
-			}
+			findTypes(completeAfter, packageName)
+				.filter(type -> this.pattern.matchesName(prefix.toCharArray(), type.getElementName().toCharArray()))
+				.map(type -> toProposal(type, toComplete))
+				.forEach(this.requestor::accept);
 			List<String> packageNames = new ArrayList<>();
 			try {
 				this.nameEnvironment.findPackages(this.modelUnit.getSource().substring(fieldAccess.getStartPosition(), this.offset).toCharArray(), new ISearchRequestor() {
@@ -182,6 +200,7 @@ public class DOMCompletionEngine implements Runnable {
 			} catch (JavaModelException ex) {
 				ILog.get().error(ex.getMessage(), ex);
 			}
+			packageNames.removeIf(name -> !this.pattern.matchesName(prefix.toCharArray(), name.toCharArray()));
 			if (!packageNames.isEmpty()) {
 				packageNames.stream().distinct().map(pack -> toPackageProposal(pack, fieldAccess)).forEach(this.requestor::accept);
 				return;
@@ -190,7 +209,11 @@ public class DOMCompletionEngine implements Runnable {
 		if (context instanceof MethodInvocation invocation) {
 			ITypeBinding type = invocation.getExpression().resolveTypeBinding();
 			processMembers(type, scope);
-			scope.stream().filter(IMethodBinding.class::isInstance).map(binding -> toProposal(binding, toComplete)).forEach(this.requestor::accept);
+			scope.stream()
+				.filter(binding -> this.pattern.matchesName(prefix.toCharArray(), binding.getName().toCharArray()))
+				.filter(IMethodBinding.class::isInstance)
+				.map(binding -> toProposal(binding, toComplete))
+				.forEach(this.requestor::accept);
 			return;
 		}
 
@@ -206,12 +229,19 @@ public class DOMCompletionEngine implements Runnable {
 			scope.addAll(visibleBindings(current, this.offset));
 			current = current.getParent();
 		}
-		scope.stream().map(binding -> toProposal(binding, toComplete)).forEach(this.requestor::accept);
-		findTypes(completeAfter, null).stream().map(type -> toProposal(type, toComplete)).forEach(this.requestor::accept);
+		scope.stream()
+			.filter(binding -> this.pattern.matchesName(prefix.toCharArray(), binding.getName().toCharArray()))
+			.map(binding -> toProposal(binding, toComplete))
+			.forEach(this.requestor::accept);
+		findTypes(completeAfter, null)
+			.filter(type -> this.pattern.matchesName(prefix.toCharArray(), type.getElementName().toCharArray()))
+			.map(type -> toProposal(type, toComplete))
+			.forEach(this.requestor::accept);
 		try {
 			Arrays.stream(this.modelUnit.getJavaProject().getPackageFragments())
 				.map(IPackageFragment::getElementName)
 				.distinct()
+				.filter(name -> this.pattern.matchesName(prefix.toCharArray(), name.toCharArray()))
 				.map(pack -> toPackageProposal(pack, toComplete))
 				.forEach(this.requestor::accept);
 		} catch (JavaModelException ex) {
@@ -220,7 +250,7 @@ public class DOMCompletionEngine implements Runnable {
 		this.requestor.endReporting();
 	}
 
-	private List<IType> findTypes(String namePrefix, String packageName) {
+	private Stream<IType> findTypes(String namePrefix, String packageName) {
 		if (namePrefix == null) {
 			namePrefix = ""; //$NON-NLS-1$
 		}
@@ -234,7 +264,7 @@ public class DOMCompletionEngine implements Runnable {
 		};
 		try {
 			new SearchEngine(this.modelUnit.getOwner()).searchAllTypeNames(packageName == null ? null : packageName.toCharArray(), SearchPattern.R_EXACT_MATCH,
-					namePrefix.toCharArray(), SearchPattern.R_PREFIX_MATCH | SearchPattern.R_SUBSTRING_MATCH,
+					namePrefix.toCharArray(), SearchPattern.R_PREFIX_MATCH | (this.assistOptions.substringMatch ? SearchPattern.R_SUBSTRING_MATCH : 0) | (this.assistOptions.subwordMatch ? SearchPattern.R_SUBWORD_MATCH : 0),
 					IJavaSearchConstants.TYPE,
 					searchScope,
 					typeRequestor,
@@ -244,7 +274,7 @@ public class DOMCompletionEngine implements Runnable {
 		} catch (JavaModelException ex) {
 			ILog.get().error(ex.getMessage(), ex);
 		}
-		return types;
+		return types.stream();
 	}
 
 	private void processMembers(ITypeBinding typeBinding, Bindings scope) {
@@ -269,6 +299,7 @@ public class DOMCompletionEngine implements Runnable {
 			binding instanceof IVariableBinding variableBinding ? CompletionProposal.LOCAL_VARIABLE_REF :
 			-1, this.offset);
 		res.setName(binding.getName().toCharArray());
+		// TODO: for methods, completion should also include potential args, not just name
 		res.setCompletion(binding.getName().toCharArray());
 		res.setSignature(
 			binding instanceof IMethodBinding methodBinding ?
@@ -301,6 +332,7 @@ public class DOMCompletionEngine implements Runnable {
 	}
 
 	private CompletionProposal toProposal(IType type, ASTNode toComplete) {
+		// TODO add import if necessary
 		InternalCompletionProposal res = new InternalCompletionProposal(CompletionProposal.TYPE_REF, this.offset);
 		res.setName(type.getElementName().toCharArray());
 		res.setCompletion(type.getElementName().toCharArray());
