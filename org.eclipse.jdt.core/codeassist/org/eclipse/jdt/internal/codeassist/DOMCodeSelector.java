@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
-package org.eclipse.jdt.internal.core;
+package org.eclipse.jdt.internal.codeassist;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -71,16 +71,27 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
+import org.eclipse.jdt.internal.core.AnnotatableInfo;
+import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.DOMToModelPopulator;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.SourceField;
+import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.TypeNameMatchRequestorWrapper;
 import org.eclipse.jdt.internal.core.util.Util;
 
-class DOMCodeSelector {
+/**
+ * A util to select relevant IJavaElement from a DOM (as opposed to {@link SelectionEngine}
+ * which processes it using lower-level ECJ parser)
+ */
+public class DOMCodeSelector {
 
 	private final CompilationUnit unit;
 	private final WorkingCopyOwner owner;
 
-	DOMCodeSelector(CompilationUnit unit, WorkingCopyOwner owner) {
+	public DOMCodeSelector(CompilationUnit unit, WorkingCopyOwner owner) {
 		this.unit = unit;
 		this.owner = owner;
 	}

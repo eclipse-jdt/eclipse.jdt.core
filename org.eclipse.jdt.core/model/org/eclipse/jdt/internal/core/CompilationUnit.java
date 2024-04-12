@@ -74,6 +74,8 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.internal.codeassist.DOMCodeSelector;
+import org.eclipse.jdt.internal.codeassist.DOMCompletionEngine;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -496,7 +498,7 @@ public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyO
 @Override
 public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) throws JavaModelException {
 	if (DOM_BASED_COMPLETION) {
-		new DOMCompletionEngine(offset, getOrBuildAST(workingCopyOwner), requestor, monitor).run();
+		new DOMCompletionEngine(offset, getOrBuildAST(workingCopyOwner), this, workingCopyOwner, requestor, monitor).run();
 		return;
 	}
 	codeComplete(
@@ -528,7 +530,7 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner workin
 	}
 }
 
-org.eclipse.jdt.core.dom.CompilationUnit getOrBuildAST(WorkingCopyOwner workingCopyOwner) throws JavaModelException {
+public org.eclipse.jdt.core.dom.CompilationUnit getOrBuildAST(WorkingCopyOwner workingCopyOwner) throws JavaModelException {
 	// https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/pull/133
 	// we should find some better condition than this as we would like to avoid calling twice this method
 	// on the same unsaved working copy does re-create an AST every time

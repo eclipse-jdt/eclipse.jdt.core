@@ -108,7 +108,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * Process an AST to populate a tree of IJavaElement->JavaElementInfo.
  * DOM-first approach to what legacy implements through ECJ parser and CompilationUnitStructureRequestor
  */
-class DOMToModelPopulator extends ASTVisitor {
+public class DOMToModelPopulator extends ASTVisitor {
 
 	private final Map<IJavaElement, IElementInfo> toPopulate;
 	private final Stack<JavaElement> elements = new Stack<>();
@@ -945,7 +945,7 @@ class DOMToModelPopulator extends ASTVisitor {
 		};
 	}
 
-	static LocalVariable toLocalVariable(SingleVariableDeclaration parameter, JavaElement parent) {
+	public static LocalVariable toLocalVariable(SingleVariableDeclaration parameter, JavaElement parent) {
 		return toLocalVariable(parameter, parent, parameter.getParent() instanceof MethodDeclaration);
 	}
 
