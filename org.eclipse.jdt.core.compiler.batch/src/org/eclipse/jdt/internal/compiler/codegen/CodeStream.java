@@ -3980,7 +3980,7 @@ public void i2c() {
 public void i2d() {
 	this.countLabels = 0;
 	this.stackDepth++;
-	pushTypeBinding(1, TypeBinding.INT);
+	pushTypeBinding(1, TypeBinding.DOUBLE);
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 	if (this.classFileOffset >= this.bCodeStream.length) {
