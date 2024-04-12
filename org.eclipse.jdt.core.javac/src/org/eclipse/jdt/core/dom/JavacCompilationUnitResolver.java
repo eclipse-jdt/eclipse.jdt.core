@@ -16,11 +16,13 @@ import java.nio.CharBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
@@ -35,12 +37,22 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.ISourceType;
+import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.javac.JavacUtils;
 import org.eclipse.jdt.internal.javac.dom.FindNextJavadocableSibling;
@@ -66,10 +78,101 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 	@Override
 	public void resolve(String[] sourceFilePaths, String[] encodings, String[] bindingKeys, FileASTRequestor requestor,
-			int apiLevel, Map<String, String> compilerOptions, List<Classpath> list, int flags,
+			int apiLevel, Map<String, String> compilerOptions, List<Classpath> classpaths, int flags,
 			IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'resolve'");
+
+		// make list of source unit
+		int length = sourceFilePaths.length;
+		List<org.eclipse.jdt.internal.compiler.env.ICompilationUnit> sourceUnitList = new ArrayList<>(length);
+		for (int i = 0; i < length; i++) {
+			char[] contents = null;
+			String encoding = encodings != null ? encodings[i] : null;
+			String sourceUnitPath = sourceFilePaths[i];
+			try {
+				contents = Util.getFileCharContent(new File(sourceUnitPath), encoding);
+			} catch(IOException e) {
+				// go to the next unit
+				continue;
+			}
+			if (contents == null) {
+				// go to the next unit
+				continue;
+			}
+			sourceUnitList.add(new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(contents, sourceUnitPath, encoding));
+		}
+
+		JavacBindingResolver bindingResolver = null;
+
+		// parse source units
+		var res = parse(sourceUnitList.toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new), apiLevel, compilerOptions, flags, (IJavaProject)null, monitor);
+
+		for (var entry : res.entrySet()) {
+			CompilationUnit cu = entry.getValue();
+			requestor.acceptAST(new String(entry.getKey().getFileName()), cu);
+			if (bindingResolver == null && (JavacBindingResolver)cu.ast.getBindingResolver() != null) {
+				bindingResolver = (JavacBindingResolver)cu.ast.getBindingResolver();
+			}
+		}
+
+		if (bindingResolver == null) {
+			var compiler = ToolProvider.getSystemJavaCompiler();
+			var context = new Context();
+			JavacTask task = (JavacTask) compiler.getTask(null, null, null, List.of(), List.of(), List.of());
+			bindingResolver = new JavacBindingResolver(null, task, context, new JavacConverter(null, null, context, null));
+		}
+
+		HashMap<String, IBinding> bindingMap = new HashMap<>();
+		for (CompilationUnit cu : res.values()) {
+			cu.accept(new BindingBuilder(bindingMap));
+		}
+
+		NameEnvironmentWithProgress environment = new NameEnvironmentWithProgress(classpaths.stream().toArray(Classpath[]::new), null, monitor);
+		LookupEnvironment lu = new LookupEnvironment(new ITypeRequestor() {
+
+			@Override
+			public void accept(IBinaryType binaryType, PackageBinding packageBinding,
+					AccessRestriction accessRestriction) {
+				// do nothing
+			}
+
+			@Override
+			public void accept(org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit,
+					AccessRestriction accessRestriction) {
+				// do nothing
+			}
+
+			@Override
+			public void accept(ISourceType[] sourceType, PackageBinding packageBinding,
+					AccessRestriction accessRestriction) {
+				// do nothing
+			}
+
+		}, new CompilerOptions(compilerOptions), null, environment);
+
+		// resolve the requested bindings
+		for (String bindingKey : bindingKeys) {
+
+			IBinding bindingFromMap = bindingMap.get(bindingKey);
+			if (bindingFromMap != null) {
+				// from parsed files
+				requestor.acceptBinding(bindingKey, bindingFromMap);
+			} else {
+				// from ECJ
+				char[] charArrayFQN = Signature.toCharArray(bindingKey.toCharArray());
+				char[][] twoDimensionalCharArrayFQN = Stream.of(new String(charArrayFQN).split("/")) //
+						.map(myString -> myString.toCharArray()) //
+						.toArray(char[][]::new);
+
+				NameEnvironmentAnswer answer = environment.findType(twoDimensionalCharArrayFQN);
+				IBinaryType binaryType = answer.getBinaryType();
+				if (binaryType != null) {
+					BinaryTypeBinding binding = lu.cacheBinaryType(binaryType, null);
+					requestor.acceptBinding(bindingKey, new TypeBinding(bindingResolver, binding));
+				}
+			}
+
+		}
+
 	}
 
 	@Override
@@ -160,6 +263,9 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 	private Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sourceUnits, int apiLevel, Map<String, String> compilerOptions,
 			int flags, IJavaProject javaProject, IProgressMonitor monitor) {
+		if (sourceUnits.length == 0) {
+			return Collections.emptyMap();
+		}
 		var compiler = ToolProvider.getSystemJavaCompiler();
 		Context context = new Context();
 		Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> result = new HashMap<>(sourceUnits.length, 1.f);
@@ -176,6 +282,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		context.put(DiagnosticListener.class, diagnosticListener);
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject);
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
+		List<JavaFileObject> fileObjects = new ArrayList<>(); // we need an ordered list of them
 		for (var sourceUnit : sourceUnits) {
 			var unitFile = new File(new String(sourceUnit.getFileName()));
 			Path sourceUnitPath;
@@ -191,52 +298,61 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			CompilationUnit res = ast.newCompilationUnit();
 			result.put(sourceUnit, res);
 			filesToUnits.put(fileObject, res);
+			fileObjects.add(fileObject);
+		}
 
-			JCCompilationUnit javacCompilationUnit = null;
-			JavacTask task = ((JavacTool)compiler).getTask(null, fileManager, null /* already added to context */, List.of() /* already set in options */, List.of() /* already set */, List.of(fileObject), context);
-			{
-				// don't know yet a better way to ensure those necessary flags get configured
-				var javac = com.sun.tools.javac.main.JavaCompiler.instance(context);
-				javac.keepComments = true;
-				javac.genEndPos = true;
-				javac.lineDebugInfo = true;
-			}
-			try {
-				var elements = task.parse().iterator();
+
+		JCCompilationUnit javacCompilationUnit = null;
+		JavacTask task = ((JavacTool)compiler).getTask(null, fileManager, null /* already added to context */, List.of() /* already set in options */, List.of() /* already set */, filesToUnits.keySet(), context);
+		{
+			// don't know yet a better way to ensure those necessary flags get configured
+			var javac = com.sun.tools.javac.main.JavaCompiler.instance(context);
+			javac.keepComments = true;
+			javac.genEndPos = true;
+			javac.lineDebugInfo = true;
+		}
+
+		try {
+			var elements = task.parse().iterator();
+
+			for (int i = 0 ; i < sourceUnits.length; i++) {
 				if (elements.hasNext() && elements.next() instanceof JCCompilationUnit u) {
 					javacCompilationUnit = u;
 				} else {
 					return Map.of();
 				}
-			} catch (IOException ex) {
-				ILog.get().error(ex.getMessage(), ex);
-			}
-			String rawText = null;
-			try {
-				rawText = fileObject.getCharContent(true).toString();
-			} catch( IOException ioe) {
-				// ignore
-			}
-			JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText);
-			converter.populateCompilationUnit(res, javacCompilationUnit);
-			attachComments(res, context, fileObject, converter, compilerOptions);
-			ASTVisitor v = new ASTVisitor() {
-				public void postVisit(ASTNode node) {
-					if( node.getParent() != null ) {
-						if( node.getStartPosition() < node.getParent().getStartPosition()) {
-							int parentEnd = node.getParent().getStartPosition() + node.getParent().getLength();
-							if( node.getStartPosition() >= 0 ) {
-								node.getParent().setSourceRange(node.getStartPosition(), parentEnd - node.getStartPosition());
+				String rawText = null;
+				try {
+					rawText = fileObjects.get(i).getCharContent(true).toString();
+				} catch( IOException ioe) {
+					// ignore
+				}
+				CompilationUnit res = result.get(sourceUnits[i]);
+				AST ast = res.ast;
+				JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText);
+				converter.populateCompilationUnit(res, javacCompilationUnit);
+				attachComments(res, context, fileObjects.get(i), converter, compilerOptions);
+				ASTVisitor v = new ASTVisitor() {
+					public void postVisit(ASTNode node) {
+						if( node.getParent() != null ) {
+							if( node.getStartPosition() < node.getParent().getStartPosition()) {
+								int parentEnd = node.getParent().getStartPosition() + node.getParent().getLength();
+								if( node.getStartPosition() >= 0 ) {
+									node.getParent().setSourceRange(node.getStartPosition(), parentEnd - node.getStartPosition());
+								}
 							}
 						}
 					}
-				}
-			};
-			res.accept(v);
-			ast.setBindingResolver(new JavacBindingResolver(javaProject, task, context, converter));
-			//
-			ast.setOriginalModificationCount(ast.modificationCount()); // "un-dirty" AST so Rewrite can process it
+				};
+				res.accept(v);
+				ast.setBindingResolver(new JavacBindingResolver(javaProject, task, context, converter));
+				//
+				ast.setOriginalModificationCount(ast.modificationCount()); // "un-dirty" AST so Rewrite can process it
+			}
+		} catch (IOException ex) {
+			ILog.get().error(ex.getMessage(), ex);
 		}
+
 		return result;
 	}
 
@@ -388,4 +504,62 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			}
 		}
 	}
+
+	private static class BindingBuilder extends ASTVisitor {
+		public HashMap<String, IBinding> bindingMap = new HashMap<>();
+
+		public BindingBuilder(HashMap<String, IBinding> bindingMap) {
+			this.bindingMap = bindingMap;
+		}
+
+		@Override
+		public boolean visit(TypeDeclaration node) {
+			IBinding binding = node.resolveBinding();
+			bindingMap.putIfAbsent(binding.getKey(), binding);
+			return true;
+		}
+
+		@Override
+		public boolean visit(MethodDeclaration node) {
+			IBinding binding = node.resolveBinding();
+			bindingMap.putIfAbsent(binding.getKey(), binding);
+			return true;
+		}
+
+		@Override
+		public boolean visit(EnumDeclaration node) {
+			IBinding binding = node.resolveBinding();
+			bindingMap.putIfAbsent(binding.getKey(), binding);
+			return true;
+		}
+
+		@Override
+		public boolean visit(RecordDeclaration node) {
+			IBinding binding = node.resolveBinding();
+			bindingMap.putIfAbsent(binding.getKey(), binding);
+			return true;
+		}
+
+		@Override
+		public boolean visit(SingleVariableDeclaration node) {
+			IBinding binding = node.resolveBinding();
+			bindingMap.putIfAbsent(binding.getKey(), binding);
+			return true;
+		}
+
+		@Override
+		public boolean visit(VariableDeclarationFragment node) {
+			IBinding binding = node.resolveBinding();
+			bindingMap.putIfAbsent(binding.getKey(), binding);
+			return true;
+		}
+
+		@Override
+		public boolean visit(AnnotationTypeDeclaration node) {
+			IBinding binding = node.resolveBinding();
+			bindingMap.putIfAbsent(binding.getKey(), binding);
+			return true;
+		}
+	}
+
 }
