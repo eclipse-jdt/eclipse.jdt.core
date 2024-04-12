@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
@@ -31,6 +30,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldAccess;
@@ -39,11 +39,10 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -120,22 +119,6 @@ public class DOMCompletionEngine implements Runnable {
 				.flatMap(decl -> ((List<VariableDeclarationFragment>)decl.fragments()).stream())
 				.map(VariableDeclarationFragment::resolveBinding)
 				.toList();
-		} else if (node instanceof MethodDeclaration method) {
-			return Stream.of((List<ASTNode>)method.parameters(), (List<ASTNode>)method.typeParameters())
-				.flatMap(List::stream)
-				.map(DOMCodeSelector::resolveBinding)
-				.filter(Objects::nonNull)
-				.toList();
-		} else if (node instanceof TypeDeclaration type) {
-			VariableDeclarationFragment[] fields = Arrays.stream(type.getFields())
-				.map(decl -> (List<VariableDeclarationFragment>)decl.fragments())
-				.flatMap(List::stream)
-				.toArray(VariableDeclarationFragment[]::new);
-			return Stream.of(fields, type.getMethods(), type.getTypes())
-				.flatMap(Arrays::stream)
-				.map(DOMCodeSelector::resolveBinding)
-				.filter(Objects::nonNull)
-				.toList();
 		}
 		return List.of();
 	}
@@ -144,21 +127,21 @@ public class DOMCompletionEngine implements Runnable {
 	public void run() {
 		this.requestor.beginReporting();
 		this.requestor.acceptContext(new CompletionContext());
-		final ASTNode initialNode = NodeFinder.perform(this.unit, this.offset, 0);
-		ASTNode toComplete = initialNode;
+		final ASTNode toComplete = NodeFinder.perform(this.unit, this.offset, 0);
+		ASTNode context = toComplete;
 		String completeAfter = ""; //$NON-NLS-1$
 		if (toComplete instanceof SimpleName simpleName) {
 			int charCount = this.offset - simpleName.getStartPosition();
 			completeAfter = simpleName.getIdentifier().substring(0, charCount);
-			if (simpleName.getParent() instanceof FieldAccess) {
-				toComplete = toComplete.getParent();
+			if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation) {
+				context = toComplete.getParent();
 			}
 		}
 		Bindings scope = new Bindings();
-		if (toComplete instanceof FieldAccess fieldAccess) {
+		if (context instanceof FieldAccess fieldAccess) {
 			processMembers(fieldAccess.getExpression().resolveTypeBinding(), scope);
 			if (scope.stream().findAny().isPresent()) {
-				scope.stream().map(binding -> toProposal(binding, initialNode)).forEach(this.requestor::accept);
+				scope.stream().map(binding -> toProposal(binding, toComplete)).forEach(this.requestor::accept);
 				this.requestor.endReporting();
 				return;
 			}
@@ -172,7 +155,7 @@ public class DOMCompletionEngine implements Runnable {
 			}
 			List<IType> types = findTypes(completeAfter, packageName);
 			if (!types.isEmpty()) {
-				types.stream().map(type -> toProposal(type, initialNode)).forEach(this.requestor::accept);
+				types.stream().map(type -> toProposal(type, toComplete)).forEach(this.requestor::accept);
 				return;
 			}
 			List<String> packageNames = new ArrayList<>();
@@ -204,24 +187,35 @@ public class DOMCompletionEngine implements Runnable {
 				return;
 			}
 		}
+		if (context instanceof MethodInvocation invocation) {
+			ITypeBinding type = invocation.getExpression().resolveTypeBinding();
+			processMembers(type, scope);
+			scope.stream().filter(IMethodBinding.class::isInstance).map(binding -> toProposal(binding, toComplete)).forEach(this.requestor::accept);
+			return;
+		}
+
 		ASTNode current = toComplete;
+		ASTNode parent = current;
+		while (parent != null) {
+			if (parent instanceof AbstractTypeDeclaration typeDecl) {
+				processMembers(typeDecl.resolveBinding(), scope);
+			}
+			parent = parent.getParent();
+		}
 		while (current != null) {
 			scope.addAll(visibleBindings(current, this.offset));
 			current = current.getParent();
 		}
-		// TODO also include other visible content: classpath, static methods...
-		scope.stream().map(binding -> toProposal(binding, initialNode)).forEach(this.requestor::accept);
-		if (!completeAfter.isBlank()) {
-			findTypes(completeAfter, null).stream().map(type -> toProposal(type, initialNode)).forEach(this.requestor::accept);
-			try {
-				Arrays.stream(this.modelUnit.getJavaProject().getPackageFragments())
-					.map(IPackageFragment::getElementName)
-					.distinct()
-					.map(pack -> toPackageProposal(pack, initialNode))
-					.forEach(this.requestor::accept);
-			} catch (JavaModelException ex) {
-				ILog.get().error(ex.getMessage(), ex);
-			}
+		scope.stream().map(binding -> toProposal(binding, toComplete)).forEach(this.requestor::accept);
+		findTypes(completeAfter, null).stream().map(type -> toProposal(type, toComplete)).forEach(this.requestor::accept);
+		try {
+			Arrays.stream(this.modelUnit.getJavaProject().getPackageFragments())
+				.map(IPackageFragment::getElementName)
+				.distinct()
+				.map(pack -> toPackageProposal(pack, toComplete))
+				.forEach(this.requestor::accept);
+		} catch (JavaModelException ex) {
+			ILog.get().error(ex.getMessage(), ex);
 		}
 		this.requestor.endReporting();
 	}
@@ -311,7 +305,7 @@ public class DOMCompletionEngine implements Runnable {
 		res.setName(type.getElementName().toCharArray());
 		res.setCompletion(type.getElementName().toCharArray());
 		res.setSignature(Signature.createTypeSignature(type.getFullyQualifiedName(), true).toCharArray());
-		res.setReplaceRange(toComplete instanceof SimpleName ? toComplete.getStartPosition() : this.offset, this.offset);
+		res.setReplaceRange(!(toComplete instanceof FieldAccess) ? toComplete.getStartPosition() : this.offset, this.offset);
 		try {
 			res.setFlags(type.getFlags());
 		} catch (JavaModelException ex) {
