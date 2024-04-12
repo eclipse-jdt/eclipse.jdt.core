@@ -11708,47 +11708,52 @@ public void test312_warn_options() {
 		"	                                      ^\n" +
 		"Null pointer access: The variable o can only be null at this location\n" +
 		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
+		"2. INFO in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
+		"	if (o.toString() == \"\"){ return null;}\n" +
+		"	    ^^^^^^^^^^^^^^^^^^\n" +
+		"Unlikely operand types for '==': java.lang.String and java.lang.String are references\n" +
+		"----------\n" +
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
 		"	if (o.toString() == \"\"){ return null;}\n" +
 		"	    ^\n" +
 		"Potential null pointer access: The variable o may be null at this location\n" +
 		"----------\n" +
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
 		"	if (o.toString() == \"\"){ return null;}\n" +
 		"	                                ^^^^\n" +
 		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n" +
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
 		"	if (o2 == null) {}\n" +
 		"	    ^^\n" +
 		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" +
 		"----------\n" +
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" +
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" +
 		"	goo(null).toString();\n" +
 		"	^^^^^^^^^\n" +
 		"Potential null pointer access: The method goo(Object) may return null\n" +
 		"----------\n" +
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" +
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" +
 		"	goo(null).toString();\n" +
 		"	    ^^^^\n" +
 		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 13)\n" +
+		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 13)\n" +
 		"	return null;\n" +
 		"	       ^^^^\n" +
 		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n" +
-		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 19)\n" +
+		"9. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 19)\n" +
 		"	if (o2 == null){}\n" +
 		"	    ^^\n" +
 		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" +
 		"----------\n" +
-		"9. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 20)\n" +
+		"10. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 20)\n" +
 		"	if (o2 == null){\n" +
 		"	    ^^\n" +
 		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" +
 		"----------\n" +
-		"9 problems (9 warnings)\n",
+		"10 problems (0 errors, 9 warnings, 1 info)\n",
 		true);
 }
 
