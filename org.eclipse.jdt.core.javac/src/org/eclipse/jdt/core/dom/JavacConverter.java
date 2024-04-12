@@ -443,7 +443,7 @@ class JavacConverter {
 			res.setBody(convertBlock(block));
 			return res;
 		}
-		if (tree instanceof JCErroneous) {
+		if (tree instanceof JCErroneous erroneous) {
 			return null;
 		}
 		throw new UnsupportedOperationException("Unsupported " + tree + " of type" + tree.getClass());
@@ -911,14 +911,16 @@ class JavacConverter {
 			if (error.getErrorTrees().size() == 1) {
 				JCTree tree = error.getErrorTrees().get(0);
 				if (tree instanceof JCExpression nestedExpr) {
-					return convertExpression(nestedExpr);
+					try {
+						return convertExpression(nestedExpr);
+					} catch (Exception ex) {
+						// pass-through: do not break when attempting such reconcile
+					}
 				}
-			} else {
-				ParenthesizedExpression substitute = this.ast.newParenthesizedExpression();
-				commonSettings(substitute, error);
-				return substitute;
 			}
-			return null;
+			ParenthesizedExpression substitute = this.ast.newParenthesizedExpression();
+			commonSettings(substitute, error);
+			return substitute;
 		}
 		if (javac instanceof JCBinary binary) {
 			InfixExpression res = this.ast.newInfixExpression();
@@ -1123,6 +1125,11 @@ class JavacConverter {
 		if (javac instanceof JCAnnotation jcAnnot) {
 			return convert(jcAnnot);
 		}
+		if (javac instanceof JCPrimitiveTypeTree primitiveTree) {
+			SimpleName res = this.ast.newSimpleName(primitiveTree.getPrimitiveTypeKind().name());
+			commonSettings(res, javac);
+			return res;
+		}
 		throw new UnsupportedOperationException("Missing support to convert '" + javac + "' of type " + javac.getClass().getSimpleName());
 	}
 
@@ -1248,16 +1255,25 @@ class JavacConverter {
 				if (jcError.getErrorTrees().size() == 1) {
 					JCTree tree = jcError.getErrorTrees().get(0);
 					if (tree instanceof JCStatement nestedStmt) {
-						Statement stmt = convertStatement(nestedStmt, parent);
-						stmt.setFlags(stmt.getFlags() | ASTNode.RECOVERED);
-						return stmt;
+						try {
+							Statement stmt = convertStatement(nestedStmt, parent);
+							stmt.setFlags(stmt.getFlags() | ASTNode.RECOVERED);
+							return stmt;
+						} catch (Exception ex) {
+							// pass-through: do not break when attempting such reconcile
+						}
 					}
-				} else {
-					Block substitute = this.ast.newBlock();
-					commonSettings(substitute, jcError);
-					parent.setFlags(parent.getFlags() | ASTNode.MALFORMED);
-					return substitute;
+					if (tree instanceof JCExpression expr) {
+						Expression expression = convertExpression(expr);
+						ExpressionStatement res = this.ast.newExpressionStatement(expression);
+						commonSettings(res, javac);
+						return res;
+					}
 				}
+				Block substitute = this.ast.newBlock();
+				commonSettings(substitute, jcError);
+				parent.setFlags(parent.getFlags() | ASTNode.MALFORMED);
+				return substitute;
 			}
 			boolean uniqueCaseFound = false;
 			if (jcExpressionStatement.getExpression() instanceof JCMethodInvocation methodInvocation) {
@@ -1307,7 +1323,7 @@ class JavacConverter {
 			ForStatement res = this.ast.newForStatement();
 			commonSettings(res, javac);
 			res.setBody(convertStatement(jcForLoop.getStatement(), res));
-			Iterator initializerIt = jcForLoop.getInitializer().iterator();
+			var initializerIt = jcForLoop.getInitializer().iterator();
 			while(initializerIt.hasNext()) {
 				res.initializers().add(convertStatementToExpression((JCStatement)initializerIt.next(), res));
 			}
