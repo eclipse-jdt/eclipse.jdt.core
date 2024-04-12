@@ -6654,15 +6654,27 @@ public void new_(TypeReference typeReference, TypeBinding typeBinding) {
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
 }
 
-public void newarray(int array_Type) {
+public void newarray(int arrayTypeCode) {
 	this.countLabels = 0;
 	if (this.classFileOffset + 1 >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
 	this.position += 2;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_newarray;
-	this.bCodeStream[this.classFileOffset++] = (byte) array_Type;
-	pushTypeBinding(1, TypeBinding.wellKnownBaseType(array_Type));
+	this.bCodeStream[this.classFileOffset++] = (byte) arrayTypeCode;
+
+	ClassScope scope = this.classFile.referenceBinding.scope;
+	pushTypeBinding(1, switch (arrayTypeCode) {
+				case ClassFileConstants.INT_ARRAY -> scope.createArrayType(TypeBinding.INT, 1);
+				case ClassFileConstants.BYTE_ARRAY -> scope.createArrayType(TypeBinding.BYTE, 1);
+				case ClassFileConstants.BOOLEAN_ARRAY -> scope.createArrayType(TypeBinding.BOOLEAN, 1);
+				case ClassFileConstants.SHORT_ARRAY -> scope.createArrayType(TypeBinding.SHORT, 1);
+				case ClassFileConstants.CHAR_ARRAY -> scope.createArrayType(TypeBinding.CHAR, 1);
+				case ClassFileConstants.LONG_ARRAY -> scope.createArrayType(TypeBinding.LONG, 1);
+				case ClassFileConstants.FLOAT_ARRAY -> scope.createArrayType(TypeBinding.FLOAT, 1);
+				case ClassFileConstants.DOUBLE_ARRAY -> scope.createArrayType(TypeBinding.DOUBLE, 1);
+				default -> throw new UnsupportedOperationException("Unknown base type");	//$NON-NLS-1$
+			});
 }
 
 public void newArray(ArrayBinding arrayBinding) {
