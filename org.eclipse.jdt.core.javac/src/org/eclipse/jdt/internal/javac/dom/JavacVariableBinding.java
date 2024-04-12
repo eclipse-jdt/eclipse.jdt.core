@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 
 import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -39,8 +40,9 @@ public class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getAnnotations'");
+		return this.variableSymbol.getAnnotationMirrors().stream()
+				.map(am -> new JavacAnnotationBinding(am, resolver, this))
+				.toArray(IAnnotationBinding[]::new);
 	}
 
 	@Override
@@ -60,8 +62,7 @@ public class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public boolean isRecovered() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isRecovered'");
+		return this.variableSymbol.kind == Kinds.Kind.ERR;
 	}
 
 	@Override
