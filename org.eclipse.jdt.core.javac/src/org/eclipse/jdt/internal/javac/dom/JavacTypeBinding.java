@@ -71,7 +71,7 @@ public class JavacTypeBinding implements ITypeBinding {
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		return typeSymbol.getAnnotationMirrors().stream()
-				.map(am -> new JavacAnnotationBinding(am, resolver))
+				.map(am -> new JavacAnnotationBinding(am, resolver, this))
 				.toArray(IAnnotationBinding[]::new);
 	}
 
@@ -340,7 +340,7 @@ public class JavacTypeBinding implements ITypeBinding {
 	@Override
 	public IAnnotationBinding[] getTypeAnnotations() {
 		return this.typeSymbol.getAnnotationMirrors().stream() //
-				.map(annotation -> new JavacAnnotationBinding(annotation, this.resolver)) //
+				.map(annotation -> new JavacAnnotationBinding(annotation, this.resolver, this)) //
 				.toArray(IAnnotationBinding[]::new);
 	}
 

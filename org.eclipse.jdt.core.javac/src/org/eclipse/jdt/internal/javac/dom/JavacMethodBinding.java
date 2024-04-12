@@ -51,7 +51,7 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
-		return methodSymbol.getAnnotationMirrors().stream().map(ann -> new JavacAnnotationBinding(ann, this.resolver)).toArray(IAnnotationBinding[]::new);
+		return methodSymbol.getAnnotationMirrors().stream().map(ann -> new JavacAnnotationBinding(ann, this.resolver, this)).toArray(IAnnotationBinding[]::new);
 	}
 
 	@Override
@@ -217,7 +217,7 @@ public class JavacMethodBinding implements IMethodBinding {
 	public IAnnotationBinding[] getParameterAnnotations(int paramIndex) {
 		VarSymbol parameter = this.methodSymbol.params.get(paramIndex);
 		return parameter.getAnnotationMirrors().stream() //
-				.map(annotation -> new JavacAnnotationBinding(annotation, this.resolver)) //
+				.map(annotation -> new JavacAnnotationBinding(annotation, this.resolver, this)) //
 				.toArray(IAnnotationBinding[]::new);
 	}
 
