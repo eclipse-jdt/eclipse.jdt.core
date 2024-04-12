@@ -36,7 +36,7 @@ public class JavacPackageBinding implements IPackageBinding {
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		return this.packageSymbol.getAnnotationMirrors().stream()
-				.map(am -> new JavacAnnotationBinding(am, resolver))
+				.map(am -> new JavacAnnotationBinding(am, resolver, this))
 				.toArray(IAnnotationBinding[]::new);
 	}
 
