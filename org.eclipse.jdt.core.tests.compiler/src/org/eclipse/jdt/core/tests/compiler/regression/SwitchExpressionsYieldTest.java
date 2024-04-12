@@ -7130,4 +7130,35 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2322
+	// [Switch Expression] Internal compiler error: java.util.EmptyStackException at java.base/java.util.Stack.peek
+	public void testIssue2322() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String [] args) {
+				    int lineCount = 10;
+				    long time = 1000;
+				    print((int) (lineCount * 10000.0 / time));
+				    print((double) (lineCount * 10000.0 / time));
+				    System.out.println(switch(lineCount) {
+				        default -> {
+				    	try {
+				    		yield "OK";
+				    	} finally {
+
+				    	}
+				        }
+				    });
+				  }
+				  static void print(double d) {}
+				}
+				"""
+				},
+				"OK");
+	}
 }
