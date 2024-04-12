@@ -2312,6 +2312,38 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Syntax error on token \"2\", delete this token\n" +
 				"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2323
+	// [Switch Expression] Internal compiler error: java.lang.ClassCastException while compiling switch expression
+	public void testIssue2323() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void f() {
+						int[] array = null;
+						(array = new int[1])[0] = 42;
+					}
+					public static int g() {
+						int[] array = null;
+						System.out.println(switch(10) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+					});
+						return (array = new int[1])[0];
+					}
+				}
+				"""
+				},
+				"");
+	}
 	public void testBug547891_01() {
 		this.runNegativeTest(
 				new String[] {
