@@ -1062,7 +1062,6 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.assertIdentifier\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.autoboxing\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.comparingIdentical\" value=\"warning\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.comparingWrapper\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deadCode\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\n" +
@@ -1152,6 +1151,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentType\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentTypeStrict\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyEqualsArgumentType\" value=\"info\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyReferenceComparison\" value=\"info\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryElse\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess\" value=\"ignore\"/>\n" +
