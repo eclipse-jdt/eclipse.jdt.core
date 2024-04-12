@@ -35,8 +35,9 @@ public class JavacPackageBinding implements IPackageBinding {
 
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getAnnotations'");
+		return this.packageSymbol.getAnnotationMirrors().stream()
+				.map(am -> new JavacAnnotationBinding(am, resolver))
+				.toArray(IAnnotationBinding[]::new);
 	}
 
 	@Override
@@ -56,14 +57,12 @@ public class JavacPackageBinding implements IPackageBinding {
 
 	@Override
 	public boolean isRecovered() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isRecovered'");
+		return false;
 	}
 
 	@Override
 	public boolean isSynthetic() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isSynthetic'");
+		return false;
 	}
 
 	@Override
@@ -85,8 +84,10 @@ public class JavacPackageBinding implements IPackageBinding {
 
 	@Override
 	public String getKey() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getKey'");
+		if (this.packageSymbol.isUnnamed()) {
+			return "";
+		}
+		return this.packageSymbol.getQualifiedName().toString().replace('.', '/');
 	}
 
 	@Override
