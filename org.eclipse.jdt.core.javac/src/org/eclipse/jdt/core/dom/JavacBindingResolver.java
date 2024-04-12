@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.internal.javac.dom.JavacAnnotationBinding;
@@ -24,6 +25,7 @@ import org.eclipse.jdt.internal.javac.dom.JavacPackageBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacTypeBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacVariableBinding;
 
+import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
@@ -327,6 +329,41 @@ public class JavacBindingResolver extends BindingResolver {
 				return null;
 			}) //
 			.collect(Collectors.toList());
+	}
+
+	/**
+	 * Returns the constant value or the binding that a Javac attribute represents.
+	 *
+	 * See a detailed explanation of the returned value: {@link org.eclipse.jdt.core.dom.IMethodBinding#getDefaultValue()}
+	 *
+	 * @param attribute the javac attribute
+	 * @return the constant value or the binding that a Javac attribute represents
+	 */
+	public Object getValueFromAttribute(Attribute attribute) {
+		if (attribute == null) {
+			return null;
+		}
+		if (attribute instanceof Attribute.Constant constant) {
+			return constant.value;
+		} else if (attribute instanceof Attribute.Class clazz) {
+			return new JavacTypeBinding(clazz.classType.tsym, this, null);
+		} else if (attribute instanceof Attribute.Enum enumm) {
+			return new JavacVariableBinding(enumm.value, this);
+		} else if (attribute instanceof Attribute.Array array) {
+			return Stream.of(array.values) //
+					.map(nestedAttr -> {
+						if (attribute instanceof Attribute.Constant constant) {
+							return constant.value;
+						} else if (attribute instanceof Attribute.Class clazz) {
+							return new JavacTypeBinding(clazz.classType.tsym, this, null);
+						} else if (attribute instanceof Attribute.Enum enumerable) {
+							return new JavacVariableBinding(enumerable.value, this);
+						}
+						throw new IllegalArgumentException("Unexpected attribute type: " + nestedAttr.getClass().getCanonicalName());
+					}) //
+					.toArray(Object[]::new);
+		}
+		throw new IllegalArgumentException("Unexpected attribute type: " + attribute.getClass().getCanonicalName());
 	}
 
 }

@@ -210,28 +210,7 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public Object getDefaultValue() {
-		Attribute attribute = this.methodSymbol.defaultValue;
-		if (attribute instanceof Attribute.Constant constant) {
-			return constant.value;
-		} else if (attribute instanceof Attribute.Class clazz) {
-			return new JavacTypeBinding(clazz.classType.tsym, this.resolver, null);
-		} else if (attribute instanceof Attribute.Enum enumm) {
-			return new JavacVariableBinding(enumm.value, this.resolver);
-		} else if (attribute instanceof Attribute.Array array) {
-			return Stream.of(array.values) //
-					.map(nestedAttr -> {
-						if (attribute instanceof Attribute.Constant constant) {
-							return constant.value;
-						} else if (attribute instanceof Attribute.Class clazz) {
-							return new JavacTypeBinding(clazz.classType.tsym, this.resolver, null);
-						} else if (attribute instanceof Attribute.Enum enumerable) {
-							return new JavacVariableBinding(enumerable.value, this.resolver);
-						}
-						throw new IllegalArgumentException("Unexpected attribute type: " + nestedAttr.getClass().getCanonicalName());
-					}) //
-					.toArray(Object[]::new);
-		}
-		throw new IllegalArgumentException("Unexpected attribute type: " + attribute.getClass().getCanonicalName());
+		return this.resolver.getValueFromAttribute(this.methodSymbol.defaultValue);
 	}
 
 	@Override

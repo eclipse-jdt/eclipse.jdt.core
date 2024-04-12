@@ -26,10 +26,12 @@ public class JavacMemberValuePairBinding implements IMemberValuePairBinding {
 
 	public final JavacMethodBinding method;
 	public final Attribute value;
+	private final JavacBindingResolver resolver;
 
 	public JavacMemberValuePairBinding(MethodSymbol key, Attribute value, JavacBindingResolver resolver) {
 		this.method = new JavacMethodBinding(key, resolver, null);
 		this.value = value;
+		this.resolver = resolver;
 	}
 
 	@Override
@@ -54,8 +56,7 @@ public class JavacMemberValuePairBinding implements IMemberValuePairBinding {
 
 	@Override
 	public boolean isRecovered() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isRecovered'");
+		return this.value instanceof Attribute.Error;
 	}
 
 	@Override
@@ -70,8 +71,9 @@ public class JavacMemberValuePairBinding implements IMemberValuePairBinding {
 
 	@Override
 	public String getKey() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getKey'");
+		// as of writing, not yet implemented for ECJ
+		// @see org.eclipse.jdt.core.dom.MemberValuePairBinding.getKey
+		return null;
 	}
 
 	@Override
@@ -92,13 +94,12 @@ public class JavacMemberValuePairBinding implements IMemberValuePairBinding {
 
 	@Override
 	public Object getValue() {
-		throw new UnsupportedOperationException("Unimplemented method 'getValue'");
+		return this.resolver.getValueFromAttribute(this.value);
 	}
 
 	@Override
 	public boolean isDefault() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'isDefault'");
+		return this.value == this.method.methodSymbol.defaultValue;
 	}
 
 }
