@@ -35,6 +35,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	protected Map getCompilerOptions() {
 		Map defaultOptions = super.getCompilerOptions();
 		defaultOptions.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
+		defaultOptions.put(CompilerOptions.OPTION_ReportUnlikelyReferenceComparison, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
 
