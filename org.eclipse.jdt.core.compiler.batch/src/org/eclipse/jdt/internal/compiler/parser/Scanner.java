@@ -2057,8 +2057,11 @@ protected int scanForTextBlock() throws InvalidInputException {
 						break outer;
 					case '\n' :
 					case '\r' :
+						this.currentCharacter = this.source[this.currentPosition++];
+						if (this.recordLineSeparator) {
+							pushLineSeparator();
+						}
 						this.currentCharacter = '\\';
-						this.currentPosition++;
 						break;
 					case '\"' :
 						this.currentPosition++;
