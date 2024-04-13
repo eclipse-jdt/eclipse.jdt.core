@@ -11,7 +11,7 @@ public abstract class X {
         double y = Double.parseDouble(args[1]);
 
         for (X op : X.values())
-            System.out.println(x + " " + op + " " + y + " = " + op.eval(x, y));
+            System.out.println(op.eval(x, y));
 	}
 
 	// Perform the arithmetic X represented by this constant

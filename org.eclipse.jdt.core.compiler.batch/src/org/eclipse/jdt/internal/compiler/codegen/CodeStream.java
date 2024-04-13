@@ -5392,8 +5392,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 			receiverAndArgsSize = 2;
 			break;
 	}
-	// TODO: revisit after bug 561726 is fixed
-	TypeBinding type = this.targetLevel >= ClassFileConstants.JDK14 ?
+	TypeBinding type = this.targetLevel >= ClassFileConstants.JDK1_5 ?
 		getPopularBinding(ConstantPool.JavaLangStringBuilderConstantPoolName) : null;
 	invoke(
 			Opcodes.OPC_invokevirtual,
@@ -6801,7 +6800,7 @@ public void newStringContatenation() {
 	// new: java.lang.StringBuilder
 	this.countLabels = 0;
 	this.stackDepth++;
-	pushTypeBinding(ConstantPool.JavaLangStringBufferConstantPoolName);
+	pushTypeBinding(ConstantPool.JavaLangStringBuilderConstantPoolName);
 	if (this.stackDepth > this.stackMax) {
 		this.stackMax = this.stackDepth;
 	}
