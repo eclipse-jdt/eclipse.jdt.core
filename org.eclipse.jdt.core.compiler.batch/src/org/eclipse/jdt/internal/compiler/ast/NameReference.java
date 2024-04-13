@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,6 +21,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.function.Predicate;
 
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 
@@ -39,6 +41,16 @@ public abstract class NameReference extends Reference implements InvocationSite 
 	//no changeClass in java.
 public NameReference() {
 	this.bits |= Binding.TYPE | Binding.VARIABLE; // restrictiveFlag
+}
+
+/**
+ * Creates a constant pool entry which is not needed by the VM but might help tools.
+ * See https://bugs.openjdk.org/browse/JDK-7153958
+ */
+public void emitDeclaringClassOfConstant(CodeStream codeStream) {
+	if (this.constant != Constant.NotAConstant && this.binding instanceof FieldBinding f) {
+		codeStream.constantPool.literalIndex(f.declaringClass);
+	}
 }
 
 /**
