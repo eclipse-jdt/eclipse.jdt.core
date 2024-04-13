@@ -16,7 +16,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import junit.framework.Test;
 
 /**
- * <b>README:</b> this class captures the actual outcome of examples were we doubt if the outcome is correct,
+ * <b>README:</b> this class captures the actual outcome of examples where we doubt if the outcome is correct,
  * (e.g., because javac behaves differently). Still the current outcome is expected in tests, in order
  * to alert us when their behavior changes due to some other fix. If such change occurs, we should decide:
  * <ol>
