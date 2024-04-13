@@ -6422,6 +6422,8 @@ public boolean expressionNonNullComparison(Expression expr, boolean checkForNull
 			return false;
 		}
 		// fall through to bottom
+	} else if (expr instanceof LambdaExpression) {
+		// not very useful code, but humor the user
 	} else {
 		needImplementation(expr); // want to see if we get here
 		return false;
