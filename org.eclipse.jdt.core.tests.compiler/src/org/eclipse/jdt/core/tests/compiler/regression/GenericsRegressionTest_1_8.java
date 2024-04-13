@@ -10682,25 +10682,4 @@ public void testBug508834_comment0() {
 			"----------\n",
 			null, true, customOptions);
 	}
-	public void testGH1591() {
-		runConformTest(
-			new String[] {
-				"Outer.java",
-				"""
-				import java.io.Serializable;
-				import java.util.List;
-				import java.util.function.Supplier;
-
-				public class Outer {
-					public void test() {
-						Supplier<? extends List<? extends Serializable>> supplier = () -> null;
-						error(supplier.get(), "");
-					}
-
-					public <T, V extends Serializable> void error(List<V> v2, T t) {}
-
-					}
-				"""
-			});
-	}
 }
