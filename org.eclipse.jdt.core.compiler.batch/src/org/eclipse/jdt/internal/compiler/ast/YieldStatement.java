@@ -174,7 +174,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		}
 	}
 	if (generateExpressionResultCodeExpanded) {
-		this.switchExpression.loadStoredTypesAndKeep(codeStream);
+		this.switchExpression.refillOperandStack(codeStream);
 		codeStream.load(this.secretYieldResultValue);
 		codeStream.removeVariable(this.secretYieldResultValue);
 	}

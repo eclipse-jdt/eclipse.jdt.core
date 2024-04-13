@@ -123,7 +123,6 @@ public class CodeStream {
 	public boolean wideMode = false;
 
 	public Stack<TypeBinding> switchSaveTypeBindings = new Stack<>();
-	public int lastSwitchCumulativeSyntheticVars = 0;
 
 	public Map<BlockScope, List<ExceptionLabel>> patternAccessorMap = new HashMap<>();
 	public Stack<BlockScope> accessorExceptionTrapScopes = new Stack<>();
@@ -4581,7 +4580,6 @@ public void init(ClassFile targetClassFile) {
 	this.position = 0;
 
 	this.clearTypeBindingStack();
-	this.lastSwitchCumulativeSyntheticVars = 0;
 	this.patternAccessorMap.clear();
 	this.accessorExceptionTrapScopes.clear();
 }
@@ -6934,7 +6932,7 @@ public void pop2() {
 
 public void pushExceptionOnStack(TypeBinding binding) {
 	this.stackDepth = 1;
-//	clearTypeBindingStack();
+	clearTypeBindingStack();
 	pushTypeBinding(binding);
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
@@ -7784,7 +7782,7 @@ private void pushTypeBindingArray() {
 		return;
 	popTypeBinding(); // index
 	TypeBinding type = popTypeBinding(); // arrayref
-	pushTypeBinding(((ArrayBinding) type).leafComponentType);
+	pushTypeBinding(((ArrayBinding) type).elementsType());
 }
 private TypeBinding getPopularBinding(char[] typeName) {
 	Scope scope = this.classFile.referenceBinding.scope;
