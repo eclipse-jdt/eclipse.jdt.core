@@ -10829,7 +10829,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"        private final AtomicInteger count = new AtomicInteger(1);\n" +
 				"\n" +
 				"        public Thread newThread(java.lang.Runnable r) {\n" +
-				"            return new Thread(r, \"AsyncTask #\" + this.count.getAndIncrement());\n" +
+				"            return new Thread(r, \"AsyncTask\");\n" +
 				"        }\n" +
 				"    }/*end*/;\n" +
 				"}\n";

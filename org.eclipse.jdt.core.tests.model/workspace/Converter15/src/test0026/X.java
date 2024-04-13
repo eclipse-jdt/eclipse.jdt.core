@@ -33,7 +33,7 @@ public enum X {
         double x = Double.parseDouble(args[0]);
         double y = Double.parseDouble(args[1]);
 
-        for (X op : X.values())
-            System.out.println(x + " " + op + " " + y + " = " + op.eval(x, y));
+//        for (X op : X.values())
+//            System.out.println(x + " " + op + " " + y + " = " + op.eval(x, y));
     }
 }

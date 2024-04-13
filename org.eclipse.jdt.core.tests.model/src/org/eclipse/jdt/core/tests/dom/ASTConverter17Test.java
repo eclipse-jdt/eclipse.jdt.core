@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -55,6 +53,8 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTConverter17Test extends ConverterTestSetup {
@@ -408,7 +408,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"            int option= 1;\n" +
 			"            throw option == 1 ? new ExceptionA() : new ExceptionB();\n" +
 			"        } catch (/*final*/ ExceptionA | ExceptionB ex) {\n" +
-			"            System.out.println(\"type of ex: \" + ex.getClass());\n" +
+			"            // System.out.println(\"type of ex: \" + ex.getClass());\n" +
 			"            // next 2 methods on 'ex' use different parts of lub:\n" +
 			"            ex.myMethod();\n" +
 			"            throw ex;\n" +
@@ -721,7 +721,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"		X.testFunction(d.getField()); // prints 1\n" +
 			"	}\n" +
 			"	public static void testFunction(String param){\n" +
-			"		System.out.println(1 + \", String param: \" + param);\n" +
+			"		// System.out.println(1 + \", String param: \" + param);\n" +
 			"	}\n" +
 			"	public static void testFunction(Object param){\n" +
 			"		System.out.println(2);\n" +
