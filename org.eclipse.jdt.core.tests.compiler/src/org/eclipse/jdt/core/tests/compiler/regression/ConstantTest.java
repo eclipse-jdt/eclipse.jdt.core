@@ -14,6 +14,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
 import junit.framework.Test;
 
@@ -1666,7 +1667,7 @@ public void testGH1382_singleName() throws Exception {
 			import static api.Constants.C2.L;
 			import static api.Constants.C3.S;
 			public class X {
-				static final String STRING = S;
+				static final String STRING = S+"suffix";
 				void test() {
 					System.out.print(B);
 					System.out.print(I);
@@ -1681,11 +1682,12 @@ public void testGH1382_singleName() throws Exception {
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.SYSTEM);
-	assertTrue(result.contains("Lapi/Constants;"));
-	assertTrue(result.contains("Lapi/Constants$C1;"));
-	assertTrue(result.contains("Lapi/Constants$C2;"));
-	assertTrue(result.contains("Lapi/Constants$C3;"));
+	assertContainsClassConstant(result, "api/Constants");
+	assertContainsClassConstant(result, "api/Constants$C1");
+	assertContainsClassConstant(result, "api/Constants$C2");
+	assertContainsClassConstant(result, "api/Constants$C3");
 }
+
 public void testGH1382_qualifiedName() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return;
@@ -1722,7 +1724,7 @@ public void testGH1382_qualifiedName() throws Exception {
 			"X.java",
 			"""
 			public class X {
-				static final boolean BOOL = api.Constants.B;
+				static final boolean BOOL = !api.Constants.B;
 				void test() {
 					System.out.print(api.Constants1.I);
 					System.out.print(api.Constants2.L);
@@ -1737,10 +1739,16 @@ public void testGH1382_qualifiedName() throws Exception {
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.SYSTEM);
-	assertTrue(result.contains("Lapi/Constants;"));
-	assertTrue(result.contains("Lapi/Constants1;"));
-	assertTrue(result.contains("Lapi/Constants2;"));
-	assertTrue(result.contains("Lapi/Constants3;"));
+	assertContainsClassConstant(result, "api/Constants");
+	assertContainsClassConstant(result, "api/Constants1");
+	assertContainsClassConstant(result, "api/Constants2");
+	assertContainsClassConstant(result, "api/Constants3");
+}
+
+void assertContainsClassConstant(String disassembled, String className) {
+	className = className.replace("/", "\\/").replace("$", "\\$");
+	Pattern pattern = Pattern.compile(".*constant #[0-9]+ class: #[0-9]+ "+className+".*", Pattern.DOTALL);
+	assertTrue("Should contain class constant for "+className, pattern.matcher(disassembled).matches());
 }
 
 public static Class testClass() {

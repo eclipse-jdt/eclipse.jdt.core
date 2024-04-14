@@ -363,8 +363,8 @@ public class Clinit extends AbstractMethodDeclaration {
 			int constantFlags = ClassFileConstants.AccStatic | ClassFileConstants.AccFinal;
 			for (FieldDeclaration fieldDecl : fieldDeclarations) {
 				if ((fieldDecl.modifiers & constantFlags) == constantFlags
-						&& fieldDecl.initialization instanceof NameReference nr) {
-					nr.emitDeclaringClassOfConstant(codeStream);
+						&& fieldDecl.initialization != null) {
+					NameReference.emitDeclaringClassOfConstant(fieldDecl.initialization, codeStream);
 				}
 			}
 		}
