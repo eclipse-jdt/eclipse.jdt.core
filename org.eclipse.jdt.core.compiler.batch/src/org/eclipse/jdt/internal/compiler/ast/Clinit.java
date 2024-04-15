@@ -357,6 +357,17 @@ public class Clinit extends AbstractMethodDeclaration {
 			codeStream.recordPositionsFrom(0, declaringType.sourceStart);
 			classFile.completeCodeAttributeForClinit(codeAttributeOffset, classScope);
 		}
+		// the following block must happen after constantPool.resetForClinit()
+		if (TypeDeclaration.kind(declaringType.modifiers) != TypeDeclaration.ENUM_DECL
+				&& fieldDeclarations != null) {
+			int constantFlags = ClassFileConstants.AccStatic | ClassFileConstants.AccFinal;
+			for (FieldDeclaration fieldDecl : fieldDeclarations) {
+				if ((fieldDecl.modifiers & constantFlags) == constantFlags
+						&& fieldDecl.initialization != null) {
+					NameReference.emitDeclaringClassOfConstant(fieldDecl.initialization, codeStream);
+				}
+			}
+		}
 	}
 
 	@Override
