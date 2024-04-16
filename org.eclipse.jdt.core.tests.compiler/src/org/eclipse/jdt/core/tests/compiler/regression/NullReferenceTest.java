@@ -18738,6 +18738,8 @@ public void testGH1461_d() {
 			""");
 }
 public void testGH1755() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
 	runNegativeTest(
 		new String[] {
 			"X.java",
