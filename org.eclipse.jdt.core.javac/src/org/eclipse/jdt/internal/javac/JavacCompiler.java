@@ -11,15 +11,14 @@
 package org.eclipse.jdt.internal.javac;
 
 import java.nio.charset.Charset;
-import java.util.Objects;
 import java.util.stream.Stream;
 
-import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CompilerConfiguration;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
@@ -27,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.tool.EclipseFileObject;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.builder.SourceFile;
@@ -37,10 +35,12 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 
 public class JavacCompiler extends Compiler {
+	CompilerConfiguration compilerConfig;
 
-	public JavacCompiler(INameEnvironment environment, IErrorHandlingPolicy policy, CompilerOptions options,
+	public JavacCompiler(INameEnvironment environment, IErrorHandlingPolicy policy, CompilerConfiguration compilerConfig,
 			ICompilerRequestor requestor, IProblemFactory problemFactory) {
-		super(environment, policy, options, requestor, problemFactory);
+		super(environment, policy, compilerConfig.getOptions(), requestor, problemFactory);
+		this.compilerConfig = compilerConfig;
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class JavacCompiler extends Compiler {
 //				res.setProblems(newProblems);
 //			}
 //		});
-		JavacUtils.configureJavacContext(javacContext, this.options.getMap(), Stream.of(sourceUnits)
+		JavacUtils.configureJavacContext(javacContext, this.compilerConfig, Stream.of(sourceUnits)
 			.filter(SourceFile.class::isInstance)
 			.map(SourceFile.class::cast)
 			.map(source -> source.resource)

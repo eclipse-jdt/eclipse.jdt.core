@@ -583,12 +583,12 @@ protected Compiler newCompiler() {
 			Constructor<? extends Compiler> constructor = compilerClass.getDeclaredConstructor(
 				INameEnvironment.class,
 				IErrorHandlingPolicy.class,
-				CompilerOptions.class,
+				CompilerConfiguration.class,
 				ICompilerRequestor.class,
 				IProblemFactory.class);
 			newCompiler = constructor.newInstance(this.nameEnvironment,
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-				compilerOptions,
+				prepareCompilerConfiguration(compilerOptions),
 				this,
 				ProblemFactory.getProblemFactory(Locale.getDefault()));
 		} catch (ClassNotFoundException e) {
@@ -622,6 +622,54 @@ protected Compiler newCompiler() {
 	}
 
 	return newCompiler;
+}
+
+private CompilerConfiguration prepareCompilerConfiguration(CompilerOptions options) {
+	CompilerConfiguration configuration = new CompilerConfiguration();
+	configuration.setOptions(options);
+
+	ClasspathLocation[] classpathLocations = this.nameEnvironment.binaryLocations;
+	List<String> classpaths = new ArrayList<>();
+	List<String> modulepaths = new ArrayList<>();
+	for (ClasspathLocation location : classpathLocations) {
+		if (location instanceof ClasspathDirectory cpDirectory) {
+			String filepath = cpDirectory.binaryFolder.getLocation().toFile().getAbsolutePath();
+			if (cpDirectory.isOnModulePath && !modulepaths.contains(filepath)) {
+				modulepaths.add(filepath);
+			} else if (!cpDirectory.isOnModulePath && !classpaths.contains(filepath)) {
+				classpaths.add(filepath);
+			}
+		} else if (location instanceof ClasspathJar cpJar) {
+			String filepath = cpJar.zipFilename;
+			if (cpJar.isOnModulePath && !modulepaths.contains(filepath)) {
+				modulepaths.add(filepath);
+			} else if (!cpJar.isOnModulePath && !classpaths.contains(filepath)) {
+				classpaths.add(filepath);
+			}
+		}
+	}
+	configuration.setClasspaths(classpaths);
+	configuration.setModulepaths(modulepaths);
+
+	Map<File, File> sourceOutputMapping = new HashMap<>();
+	List<String> sourcepaths = new ArrayList<>();
+	List<String> moduleSourcepaths = new ArrayList<>();
+	ClasspathMultiDirectory[] srcLocations = this.nameEnvironment.sourceLocations;
+	for (ClasspathMultiDirectory sourceLocation : srcLocations) {
+		File sourceFolder = sourceLocation.sourceFolder.getLocation().toFile();
+		File outputFolder = sourceLocation.binaryFolder.getLocation().toFile();
+		sourceOutputMapping.put(sourceFolder, outputFolder);
+		String sourcepath = sourceFolder.getAbsolutePath();
+		if (sourceLocation.isOnModulePath && !moduleSourcepaths.contains(sourcepath)) {
+			moduleSourcepaths.add(sourcepath);
+		} else if (!sourceLocation.isOnModulePath && !sourcepaths.contains(sourcepath)) {
+			sourcepaths.add(sourcepath);
+		}
+	}
+	configuration.setSourceOutputMapping(sourceOutputMapping);
+	configuration.setSourcepaths(sourcepaths);
+	configuration.setModuleSourcepaths(moduleSourcepaths);
+	return configuration;
 }
 
 protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAboutToCompile) {
