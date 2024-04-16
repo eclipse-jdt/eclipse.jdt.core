@@ -33,11 +33,13 @@ import javax.tools.JavaFileObject;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
+import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import com.sun.source.tree.CaseTree.CaseKind;
+import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.Tokens.Comment;
@@ -60,8 +62,10 @@ import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCConditional;
 import com.sun.tools.javac.tree.JCTree.JCContinue;
 import com.sun.tools.javac.tree.JCTree.JCDoWhileLoop;
+import com.sun.tools.javac.tree.JCTree.JCDirective;
 import com.sun.tools.javac.tree.JCTree.JCEnhancedForLoop;
 import com.sun.tools.javac.tree.JCTree.JCErroneous;
+import com.sun.tools.javac.tree.JCTree.JCExports;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCExpressionStatement;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
@@ -77,6 +81,7 @@ import com.sun.tools.javac.tree.JCTree.JCMemberReference;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
+import com.sun.tools.javac.tree.JCTree.JCModuleDecl;
 import com.sun.tools.javac.tree.JCTree.JCNewArray;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCPackageDecl;
@@ -101,6 +106,10 @@ import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
 import com.sun.tools.javac.tree.JCTree.Tag;
+import com.sun.tools.javac.tree.JCTree.JCOpens;
+import com.sun.tools.javac.tree.JCTree.JCProvides;
+import com.sun.tools.javac.tree.JCTree.JCRequires;
+import com.sun.tools.javac.tree.JCTree.JCUses;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Names;
 import com.sun.tools.javac.util.Position.LineMap;
@@ -128,7 +137,7 @@ class JavacConverter {
 	CompilationUnit convertCompilationUnit() {
 		return convertCompilationUnit(this.javacCompilationUnit);
 	}
-	
+
 	CompilationUnit convertCompilationUnit(JCCompilationUnit javacCompilationUnit) {
 		CompilationUnit res = this.ast.newCompilationUnit();
 		populateCompilationUnit(res, javacCompilationUnit);
@@ -141,6 +150,9 @@ class JavacConverter {
 		res.setLineEndTable(toLineEndPosTable(javacCompilationUnit.getLineMap(), res.getLength()));
 		if (javacCompilationUnit.getPackage() != null) {
 			res.setPackage(convert(javacCompilationUnit.getPackage()));
+		}
+		if (javacCompilationUnit.getModule() != null) {
+			res.setModule(convert(javacCompilationUnit.getModuleDecl()));
 		}
 		javacCompilationUnit.getImports().stream().map(jc -> convert(jc)).forEach(res.imports()::add);
 		javacCompilationUnit.getTypeDecls().stream()
@@ -173,6 +185,75 @@ class JavacConverter {
 		while(it.hasNext()) {
 			res.annotations().add(convert(it.next()));
 		}
+		return res;
+	}
+
+	private ModuleDeclaration convert(JCModuleDecl javac) {
+		ModuleDeclaration res = this.ast.newModuleDeclaration();
+		res.setName(toName(javac.getName()));
+		if (javac.getDirectives() != null) {
+			List<JCDirective> directives = javac.getDirectives();
+			for (int i = 0; i < directives.size(); i++) {
+				JCDirective jcDirective = directives.get(i);
+				res.moduleStatements().add(convert(jcDirective));
+			}
+		}
+		commonSettings(res, javac);
+		return res;
+	}
+
+	private ModuleDirective convert(JCDirective javac) {
+		return switch (javac.getKind()) {
+		case EXPORTS -> convert((JCExports)javac);
+		case OPENS -> convert((JCOpens)javac);
+		case PROVIDES -> convert((JCProvides)javac);
+		case REQUIRES -> convert((JCRequires)javac);
+		case USES -> convert((JCUses)javac);
+		default -> throw new IllegalStateException();
+		};
+	}
+
+	private ExportsDirective convert(JCExports javac) {
+		ExportsDirective res = this.ast.newExportsStatement();
+		res.setName(toName(javac.getPackageName()));
+		commonSettings(res, javac);
+		return res;
+	}
+
+	private OpensDirective convert(JCOpens javac) {
+		OpensDirective res = this.ast.newOpensDirective();
+		res.setName(toName(javac.getPackageName()));
+		commonSettings(res, javac);
+		return res;
+	}
+
+	private ProvidesDirective convert(JCProvides javac) {
+		ProvidesDirective res = this.ast.newProvidesDirective();
+		res.setName(toName(javac.getServiceName()));
+		for (var jcName : javac.implNames) {
+			res.implementations().add(toName(jcName));
+		}
+		commonSettings(res, javac);
+		return res;
+	}
+
+	private RequiresDirective convert(JCRequires javac) {
+		RequiresDirective res = this.ast.newRequiresDirective();
+		res.setName(toName(javac.getModuleName()));
+		if (javac.isTransitive()) {
+			res.modifiers().add(this.ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD));
+		}
+		if (javac.isStatic()) {
+			res.modifiers().add(this.ast.newModuleModifier(ModuleModifierKeyword.STATIC_KEYWORD));
+		}
+		commonSettings(res, javac);
+		return res;
+	}
+
+	private UsesDirective convert(JCUses javac) {
+		UsesDirective res = this.ast.newUsesDirective();
+		res.setName(toName(javac.getServiceName()));
+		commonSettings(res, javac);
 		return res;
 	}
 
@@ -468,7 +549,7 @@ class JavacConverter {
 		}
 		return res;
 	}
-	
+
 	private String getNodeName(ASTNode node) {
 		if( node instanceof AbstractTypeDeclaration atd) {
 			return atd.getName().toString();
@@ -529,12 +610,12 @@ class JavacConverter {
 			if( isConstructor && this.ast.apiLevel == AST.JLS2_INTERNAL ) {
 				retType = this.ast.newPrimitiveType(convert(TypeKind.VOID));
 				// // TODO need to find the right range
-				retType.setSourceRange(javac.mods.pos + getJLS2ModifiersFlagsAsStringLength(javac.mods.flags), 0); 
+				retType.setSourceRange(javac.mods.pos + getJLS2ModifiersFlagsAsStringLength(javac.mods.flags), 0);
 			}
 		} else {
 			retType = convertToType(retTypeTree);
 		}
-		
+
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
 			res.setReturnType2(retType);
 		} else {
@@ -544,7 +625,7 @@ class JavacConverter {
 		}
 
 		javac.getParameters().stream().map(this::convertVariableDeclaration).forEach(res.parameters()::add);
-		
+
 		if( javac.getTypeParameters() != null ) {
 			Iterator<JCTypeParameter> i = javac.getTypeParameters().iterator();
 			while(i.hasNext()) {
@@ -552,7 +633,7 @@ class JavacConverter {
 				res.typeParameters().add(convert(next));
 			}
 		}
-		
+
 		if (javac.getBody() != null) {
 			Block b = convertBlock(javac.getBody());
 			res.setBody(b);
@@ -580,7 +661,7 @@ class JavacConverter {
 
 	private VariableDeclaration convertVariableDeclarationForLambda(JCVariableDecl javac) {
 		if( javac.type == null ) {
-			return createVariableDeclarationFragment(javac);			
+			return createVariableDeclarationFragment(javac);
 		} else {
 			return convertVariableDeclaration(javac);
 		}
@@ -638,7 +719,7 @@ class JavacConverter {
 	private int getJLS2ModifiersFlags(JCModifiers mods) {
 		return getJLS2ModifiersFlags(mods.flags);
 	}
-	
+
 	private FieldDeclaration convertFieldDeclaration(JCVariableDecl javac) {
 		return convertFieldDeclaration(javac, null);
 	}
@@ -679,7 +760,7 @@ class JavacConverter {
 		}
 		return fragment;
 	}
-	
+
 	private FieldDeclaration convertFieldDeclaration(JCVariableDecl javac, ASTNode parent) {
 		VariableDeclarationFragment fragment = createVariableDeclarationFragment(javac);
 		List<ASTNode> sameStartPosition = new ArrayList<>();
@@ -709,7 +790,7 @@ class JavacConverter {
 			} else {
 				res.internalSetModifiers(getJLS2ModifiersFlags(javac.mods));
 			}
-			
+
 			int count = fragment.getExtraDimensions();
 			if( count > 0 ) {
 				// must do simple type here
@@ -739,7 +820,7 @@ class JavacConverter {
 			return res;
 		}
 	}
-	
+
 
 	private void setJavadocForNode(JCTree javac, ASTNode node) {
 		Comment c = this.javacCompilationUnit.docComments.getComment(javac);
@@ -762,7 +843,7 @@ class JavacConverter {
 					int nodeEndPosition = Math.max(jd.getStartPosition() + jd.getLength(), node.getStartPosition() + node.getLength());
 					int nodeFinalLength = nodeEndPosition - nodeStartPosition;
 					node.setSourceRange(nodeStartPosition, nodeFinalLength);
-					
+
 					if( node instanceof BodyDeclaration bd) {
 						bd.setJavadoc(jd);
 						int contentsStart = nodeStartPosition + 3;
@@ -774,7 +855,7 @@ class JavacConverter {
 						contentsStart += leadingStripped;
 						contentsLength = contentsEnd - contentsStart;
 						jdStringContents = this.rawText.substring(contentsStart, contentsStart + contentsLength);
-								
+
 						String[] split = jdStringContents.split("\n");
 						int runningTally = 0;
 						TagElement previousTag = null;
@@ -794,7 +875,7 @@ class JavacConverter {
 								TextElement text = this.ast.newTextElement();
 								text.setText(lineTrimmedContent);
 								text.setSourceRange(lineTrimmedStart, lineTrimmedLength);
-								
+
 								if( previousTag == null ) {
 									previousTag = this.ast.newTagElement();
 									previousTag.setSourceRange(lineTrimmedStart, lineTrimmedEnd - lineTrimmedStart);
@@ -813,7 +894,7 @@ class JavacConverter {
 			}
 		}
 	}
-	
+
 	private String trimJavadocLineEndings(String l) {
 		String stripTrailingSpaces = l.stripTrailing();
 		if( stripTrailingSpaces.endsWith("*")) {
@@ -826,9 +907,10 @@ class JavacConverter {
 		}
 		return l;
 	}
+
 	private String trimLeadingWhiteAndStars(String line) {
 		if( line.stripLeading().startsWith("*")) {
-			
+
 		}
 		int length = line.length();
 		for( int i = 0; i < length; i++ ) {
@@ -1201,7 +1283,7 @@ class JavacConverter {
 		}
 		return res;
 	}
-	
+
 	private SuperConstructorInvocation convertSuperConstructorInvocation(JCMethodInvocation javac) {
 		SuperConstructorInvocation res = this.ast.newSuperConstructorInvocation();
 		commonSettings(res, javac);
@@ -1548,7 +1630,7 @@ class JavacConverter {
 		if (javac instanceof JCFieldAccess qualified) {
 			if( this.ast.apiLevel != AST.JLS2_INTERNAL ) {
 				// TODO need more logic here, but, the common case is a simple type
-				Name qn = toName(qualified);  
+				Name qn = toName(qualified);
 				SimpleType res = this.ast.newSimpleType(qn);
 				commonSettings(res, qualified);
 				return res;
@@ -1708,13 +1790,11 @@ class JavacConverter {
 		while(mods.hasNext()) {
 			res.add(convert(mods.next(), modifiers.pos, parent.getStartPosition() + parent.getLength()));
 		}
-		res.sort(new Comparator<IExtendedModifier>() {
-			@Override
-			public int compare(IExtendedModifier o1, IExtendedModifier o2) {
-				ASTNode a1 = (ASTNode)o1;
-				ASTNode a2 = (ASTNode)o2;
-				return a1.getStartPosition() - a2.getStartPosition();
-			}});
+		res.sort((o1, o2) -> {
+			ASTNode a1 = (ASTNode)o1;
+			ASTNode a2 = (ASTNode)o2;
+			return a1.getStartPosition() - a2.getStartPosition();
+		});
 		return res;
 	}
 
@@ -1753,7 +1833,7 @@ class JavacConverter {
 		}
 		return res;
 	}
-	
+
 	private int getJLS2ModifiersFlags(long oflags) {
 		int flags = 0;
 		if( (oflags & Flags.PUBLIC) > 0) flags += Flags.PUBLIC;
@@ -1788,7 +1868,7 @@ class JavacConverter {
 		return len;
 	}
 
-	
+
 	private Modifier convert(javax.lang.model.element.Modifier javac, int startPos, int endPos) {
 		Modifier res = this.ast.newModifier(switch (javac) {
 			case PUBLIC -> ModifierKeyword.PUBLIC_KEYWORD;
@@ -1807,7 +1887,7 @@ class JavacConverter {
 			case STRICTFP -> ModifierKeyword.STRICTFP_KEYWORD;
 		});
 		if (startPos >= 0) {
-			// This needs work... It's not a great solution. 
+			// This needs work... It's not a great solution.
 			String sub = this.rawText.substring(startPos, endPos);
 			int indOf = sub.indexOf(res.getKeyword().toString());
 			if( indOf != -1 ) {
@@ -1817,7 +1897,7 @@ class JavacConverter {
 		return res;
 	}
 
-	
+
 	private Name convert(com.sun.tools.javac.util.Name javac) {
 		if (javac == null || Objects.equals(javac, Names.instance(this.context).error) || Objects.equals(javac, Names.instance(this.context).empty)) {
 			return null;
