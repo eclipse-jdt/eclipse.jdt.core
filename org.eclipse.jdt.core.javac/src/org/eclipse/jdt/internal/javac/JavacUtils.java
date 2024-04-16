@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CompilerConfiguration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaProject;
 
@@ -37,20 +38,37 @@ import com.sun.tools.javac.util.Options;
 public class JavacUtils {
 
 	public static void configureJavacContext(Context context, Map<String, String> compilerOptions, IJavaProject javaProject) {
+		configureJavacContext(context, compilerOptions, javaProject, null);
+	}
+
+	public static void configureJavacContext(Context context, CompilerConfiguration compilerConfig, IJavaProject javaProject) {
+		configureJavacContext(context, compilerConfig.getOptions().getMap(), javaProject, compilerConfig);
+	}
+
+	private static void configureJavacContext(Context context, Map<String, String> compilerOptions, IJavaProject javaProject, CompilerConfiguration compilerConfig) {
 		Options options = Options.instance(context);
 		options.put(Option.XLINT, Boolean.TRUE.toString()); // TODO refine according to compilerOptions
 		if (Boolean.parseBoolean(compilerOptions.get(CompilerOptions.OPTION_EnablePreviews))) {
 			options.put(Option.PREVIEW, Boolean.toString(true));
 		}
 		String release = compilerOptions.get(CompilerOptions.OPTION_Release);
-		if (release != null) {
-			options.put(Option.RELEASE, release);
+		String compliance = compilerOptions.get(CompilerOptions.OPTION_Compliance);
+		if (CompilerOptions.ENABLED.equals(release) && compliance != null && !compliance.isEmpty()) {
+			options.put(Option.RELEASE, compliance);
+		}
+		String source = compilerOptions.get(CompilerOptions.OPTION_Source);
+		if (source != null && !source.isEmpty()) {
+			options.put(Option.SOURCE, source);
+		}
+		String target = compilerOptions.get(CompilerOptions.OPTION_TargetPlatform);
+		if (target != null && !target.isEmpty()) {
+			options.put(Option.TARGET, target);
 		}
 		options.put(Option.XLINT_CUSTOM, "all"); // TODO refine according to compilerOptions
 		// TODO populate more from compilerOptions and/or project settings
 		JavacFileManager.preRegister(context);
 		if (javaProject instanceof JavaProject internal) {
-			configurePaths(internal, context);
+			configurePaths(internal, context, compilerConfig);
 		}
 		Todo.instance(context); // initialize early
 		com.sun.tools.javac.main.JavaCompiler javac = new com.sun.tools.javac.main.JavaCompiler(context);
@@ -59,21 +77,67 @@ public class JavacUtils {
 		javac.lineDebugInfo = true;
 	}
 
-	private static void configurePaths(JavaProject javaProject, Context context) {
+	private static void configurePaths(JavaProject javaProject, Context context, CompilerConfiguration compilerConfig) {
 		JavacFileManager fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		try {
-			if (javaProject.getJavaProject() != null) {
+			if (compilerConfig != null && !compilerConfig.getSourceOutputMapping().isEmpty()) {
+				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, compilerConfig.getSourceOutputMapping().values().stream().distinct().toList());
+			} else if (javaProject.getJavaProject() != null) {
 				IResource member = javaProject.getProject().getParent().findMember(javaProject.getOutputLocation());
 				if( member != null ) {
 					File f = member.getLocation().toFile();
 					fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(f));
 				}
 			}
-			fileManager.setLocation(StandardLocation.SOURCE_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() == IClasspathEntry.CPE_SOURCE));
-			fileManager.setLocation(StandardLocation.CLASS_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() != IClasspathEntry.CPE_SOURCE));
+
+			boolean sourcePathEnabled = false;
+			if (compilerConfig != null && !isEmpty(compilerConfig.getSourcepaths())) {
+				fileManager.setLocation(StandardLocation.SOURCE_PATH,
+					compilerConfig.getSourcepaths()
+						.stream()
+						.map(File::new)
+						.toList());
+				sourcePathEnabled = true;
+			}
+			if (compilerConfig != null && !isEmpty(compilerConfig.getModuleSourcepaths())) {
+				fileManager.setLocation(StandardLocation.MODULE_SOURCE_PATH,
+					compilerConfig.getModuleSourcepaths()
+						.stream()
+						.map(File::new)
+						.toList());
+				sourcePathEnabled = true;
+			}
+			if (!sourcePathEnabled) {
+				fileManager.setLocation(StandardLocation.SOURCE_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() == IClasspathEntry.CPE_SOURCE));
+			}
+
+			boolean classpathEnabled = false;
+			if (compilerConfig != null && !isEmpty(compilerConfig.getClasspaths())) {
+				fileManager.setLocation(StandardLocation.CLASS_PATH,
+					compilerConfig.getClasspaths()
+						.stream()
+						.map(File::new)
+						.toList());
+				classpathEnabled = true;
+			}
+			if (compilerConfig != null && !isEmpty(compilerConfig.getModulepaths())) {
+				fileManager.setLocation(StandardLocation.MODULE_PATH,
+					compilerConfig.getModulepaths()
+						.stream()
+						.map(File::new)
+						.toList());
+				classpathEnabled = true;
+			}
+			if (!classpathEnabled) {
+				fileManager.setLocation(StandardLocation.CLASS_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() != IClasspathEntry.CPE_SOURCE));
+			}
 		} catch (Exception ex) {
 			ILog.get().error(ex.getMessage(), ex);
 		}
+	}
+
+	private static <T> boolean isEmpty(List<T> list) {
+		return list == null || list.isEmpty();
 	}
 
 	private static List<File> classpathEntriesToFiles(JavaProject project, Predicate<IClasspathEntry> select) {
