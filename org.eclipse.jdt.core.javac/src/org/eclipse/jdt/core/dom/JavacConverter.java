@@ -240,11 +240,24 @@ class JavacConverter {
 	private RequiresDirective convert(JCRequires javac) {
 		RequiresDirective res = this.ast.newRequiresDirective();
 		res.setName(toName(javac.getModuleName()));
+		int javacStart = javac.getStartPosition();
 		if (javac.isTransitive()) {
-			res.modifiers().add(this.ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD));
+			ModuleModifier trans = this.ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
+			int transStart = this.rawText.substring(javacStart).indexOf(ModuleModifierKeyword.TRANSITIVE_KEYWORD.toString());
+			if( transStart != -1 ) {
+				int trueStart = javacStart + transStart;
+				trans.setSourceRange(trueStart, ModuleModifierKeyword.TRANSITIVE_KEYWORD.toString().length());
+			}
+			res.modifiers().add(trans);
 		}
 		if (javac.isStatic()) {
-			res.modifiers().add(this.ast.newModuleModifier(ModuleModifierKeyword.STATIC_KEYWORD));
+			ModuleModifier stat = this.ast.newModuleModifier(ModuleModifierKeyword.STATIC_KEYWORD);
+			int statStart = this.rawText.substring(javacStart).indexOf(ModuleModifierKeyword.STATIC_KEYWORD.toString());
+			if( statStart != -1 ) {
+				int trueStart = javacStart + statStart;
+				stat.setSourceRange(trueStart, ModuleModifierKeyword.STATIC_KEYWORD.toString().length());
+			}
+			res.modifiers().add(stat);
 		}
 		commonSettings(res, javac);
 		return res;

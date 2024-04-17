@@ -98,4 +98,25 @@ public class JavacASTConverterBugsTestJLS extends ASTConverterBugsTestSetup {
 			deleteProject("P");
 		}
 	}
+
+
+	/**
+	 */
+	public void testModuleTransitiveDependency() throws CoreException, IOException {
+		try {
+			createJavaProject("P", new String[] {""}, new String[0],
+					null, null, null, null, null, true, null, "", null, null, null, "9", false);
+			createFile("P/module-info.java",
+					"""
+					module name {
+						requires transitive asdfhjkl;
+					}
+					"""
+			);
+			ICompilationUnit cuA = getCompilationUnit("P/module-info.java");
+			runConversion(this.testLevel, cuA, true, true, true);
+		} finally {
+			deleteProject("P");
+		}
+	}
 }
