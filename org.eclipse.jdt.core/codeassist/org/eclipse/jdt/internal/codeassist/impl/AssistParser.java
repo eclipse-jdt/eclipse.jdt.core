@@ -113,6 +113,7 @@ public abstract class AssistParser extends Parser {
 	protected static final int K_LAMBDA_EXPRESSION_DELIMITER = ASSIST_PARSER + 7; // whether we are inside a lambda expression
 	protected static final int K_MODULE_INFO_DELIMITER = ASSIST_PARSER + 8; // whether we are inside a module info declaration
 	protected static final int K_SWITCH_EXPRESSION_DELIMITTER = ASSIST_PARSER + 9; // whether we are inside a switch expression
+	protected static final int K_RECORD_PATTERN = ASSIST_PARSER + 10; // whether we are inside record pattern
 
 	// selector constants
 	protected static final int THIS_CONSTRUCTOR = -1;

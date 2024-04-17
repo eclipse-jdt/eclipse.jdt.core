@@ -4138,6 +4138,11 @@ protected void consumeToken(int token) {
 				if(previous == TokenNameIdentifier &&
 						topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_METHOD_INVOCATION) {
 					popElement(K_PARAMETERIZED_METHOD_INVOCATION);
+				} else if (previous == TokenNameIdentifier
+						&& topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLON) {
+					// do this prior AssistParser.consumeToken since we want to stack the the record pattern kind before
+					// method selector and etc.
+					pushOnElementStack(K_RECORD_PATTERN);
 				} else {
 					popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
 				}
@@ -4174,6 +4179,12 @@ protected void consumeToken(int token) {
 			case TokenNameRBRACKET:
 				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_LEFT_AND_RIGHT_BRACKET) {
 					popElement(K_BETWEEN_LEFT_AND_RIGHT_BRACKET);
+				}
+				break;
+			case TokenNameARROW, TokenNameCOLON:
+				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_RECORD_PATTERN) {
+					popUntilElement(K_RECORD_PATTERN);
+					popElement(K_RECORD_PATTERN);
 				}
 				break;
 

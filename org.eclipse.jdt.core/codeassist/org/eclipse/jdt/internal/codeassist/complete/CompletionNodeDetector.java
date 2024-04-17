@@ -522,12 +522,27 @@ public class CompletionNodeDetector extends ASTVisitor {
 					&& astNode != this.searchedNode) {
 				if(!(astNode instanceof AllocationExpression && ((AllocationExpression) astNode).type == this.searchedNode)
 					&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfTrue == this.searchedNode)
-					&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfFalse == this.searchedNode)) {
+					&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfFalse == this.searchedNode)
+					// if the completion is on a case statement, accept the switch as parent.
+					&& (astNode instanceof SwitchStatement ss && isOnCompletingOnCaseLabel(ss))) {
 					this.parent = astNode;
 				}
 			}
 			checkUpdateOuter(astNode);
 		}
+	}
+
+	private boolean isOnCompletingOnCaseLabel(SwitchStatement statement) {
+		for (Statement stmt : statement.statements) {
+			if (stmt instanceof CaseStatement cs) {
+				for (Expression expr : cs.constantExpressions) {
+					if (this.searchedNode == expr) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	protected void checkUpdateOuter(ASTNode astNode) {

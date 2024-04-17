@@ -3974,11 +3974,6 @@ public final class CompletionEngine
 					}
 					System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
 					findKeywords(this.completionToken, keywords, false, false);
-
-					// list all variables in the current scope which are visible here
-					checkCancel();
-					findVariablesAndMethods(this.completionToken, scope, singleNameReference, scope, insideTypeAnnotation,
-							singleNameReference.isInsideAnnotationAttribute, true, new ObjectVector());
 				}
 
 		} else if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
