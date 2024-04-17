@@ -7193,4 +7193,110 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"OK");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
+	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	public void testIssue2335() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public final class X {
+
+				  public void show() {
+
+				    int size1 = 1;
+				    int size2 = 2;
+				    int size3 = 3;
+
+				    short[][][] array = new short[size1][size2][size3];
+
+				    for (int i = 0; i < size1; i++) {
+				      for (int j = 0; j < size2; j++) {
+				        boolean on = false;
+				        for (int k = 0; k < size3; k++) {
+				          array[i][j][k] = on ? (short) 1 : (short) 0;
+				        }
+				      }
+				    }
+				    System.out.println(switch(42) {
+				    	default -> {
+				    		try {
+				    			yield 42;
+				    		} finally {
+
+				    		}
+				    	}
+				    });
+
+				  }
+
+				  public static void main(String[] args) {
+				    new X().show();
+				  }
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
+	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	public void testIssue2335_min() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public final class X {
+				  public static void main(String[] args) {
+					   short[] array = new short[10];
+
+					    for (int i = 0; i < 10; i++) {
+					        boolean on = false;
+					          array[i] = on ? (short) 1 : (short) 0;
+					    }
+					    System.out.println(switch(42) {
+					    	default -> {
+					    		try {
+					    			yield 42;
+					    		} finally {
+
+					    		}
+					    	}
+					    });
+				  }
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
+	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	public void testIssue2335_other() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						System.out.println(switch (1) {
+						default -> {
+							try {
+								System.out.println(switch (10) { default -> { try { yield 10; } finally {} } });
+							} finally {}
+							yield 1;
+						}
+						});
+					}
+					X() {}
+				}
+				"""
+				},
+				"10\n" +
+				"1");
+	}
 }
