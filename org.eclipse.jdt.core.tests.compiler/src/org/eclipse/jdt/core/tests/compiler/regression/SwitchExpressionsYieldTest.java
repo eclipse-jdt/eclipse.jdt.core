@@ -7299,4 +7299,30 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"10\n" +
 				"1");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2349
+	// [Switch Expression] Verify error at runtime with switch expression and exception handling inside lambda expression
+	public void testIssue2349() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					int doit();
+				}
+				public class X {
+					public static void main(String[] args) {
+						I i = () -> {
+							return 10 + switch (10) {
+								default -> { try { yield 32; } catch (NullPointerException npe) { yield -10; } }
+						};
+						};
+						System.out.println(i.doit());
+					}
+				}
+				"""
+				},
+				"42");
+	}
 }

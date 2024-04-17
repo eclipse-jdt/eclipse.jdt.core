@@ -386,12 +386,14 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				this.constant = Constant.NotAConstant;
 
 				if (this.containsTry) {
-					MethodScope namedMethodScope = upperScope.namedMethodScope();
-					if (namedMethodScope != null) {
-						if (namedMethodScope.referenceContext instanceof AbstractMethodDeclaration amd) {
+					MethodScope methodScope = upperScope.methodScope();
+					if (methodScope != null) {
+						if (methodScope.referenceContext instanceof AbstractMethodDeclaration amd) {
 							amd.containsSwitchWithTry = true;
-						} else if (namedMethodScope.referenceContext instanceof TypeDeclaration typeDecl) {
-							if (namedMethodScope.isStatic) {
+						} else if (methodScope.referenceContext instanceof LambdaExpression lambda) {
+							lambda.containsSwitchWithTry = true;
+						} else if (methodScope.referenceContext instanceof TypeDeclaration typeDecl) {
+							if (methodScope.isStatic) {
 								typeDecl.clinitContainsSwitchWithTry = true;
 							} else {
 								typeDecl.initContainsSwitchWithTry = true;

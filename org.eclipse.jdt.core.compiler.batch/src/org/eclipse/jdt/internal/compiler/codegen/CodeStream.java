@@ -7717,7 +7717,8 @@ protected void writeWidePosition(BranchLabel label) {
 	}
 }
 private boolean isSwitchStackTrackingActive() {
-	return this.methodDeclaration != null && this.methodDeclaration.containsSwitchWithTry;
+	return this.methodDeclaration != null ? this.methodDeclaration.containsSwitchWithTry :
+		this.lambdaExpression != null ? this.lambdaExpression.containsSwitchWithTry : false;
 }
 private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
 	for (int i = this.allLocalsCounter  - 1 ; i >= 0; i--) {
