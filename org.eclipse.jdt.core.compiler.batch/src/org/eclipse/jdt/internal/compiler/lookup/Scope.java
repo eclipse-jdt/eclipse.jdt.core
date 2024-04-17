@@ -2911,8 +2911,8 @@ public abstract class Scope {
 	}
 	public final ReferenceBinding getJavaLangNoClassDefFoundError() {
 		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_NOCLASSDEFERROR);
-		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_NOCLASSDEFERROR, this);
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_NOCLASSDEFFOUNDERROR);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_NOCLASSDEFFOUNDERROR, this);
 	}
 	public final ReferenceBinding getJavaLangNoSuchFieldError() {
 		CompilationUnitScope unitScope = compilationUnitScope();
