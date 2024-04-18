@@ -1070,48 +1070,6 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
-	public void test031() {
-		runNegativeTest(new String[] {
-			"X.java",
-			"       class X {\n" +
-					"       int j = 0;\n" +
-					"       X() {}\n" +
-					"       X(int i) {\n" +
-					"           if (i == 0) {\n" +
-					"               String s = STR.\"\\{j}\";\n" +
-					"               i += s.length();\n" +
-					"           }\n" +
-					"           this();\n" +
-					"       }\n" +
-					"       public static void main(String[] args) {\n" +
-					"         Zork();\n" +
-					"         System.out.println(0);\n" +
-					"       }\n" +
-					"   }\n"
-			},
-				"----------\n" +
-				"1. WARNING in X.java (at line 6)\n" +
-				"	String s = STR.\"\\{j}\";\n" +
-				"	           ^^^^^^^^^\n" +
-				"You are using a preview language feature that may or may not be supported in a future release\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	String s = STR.\"\\{j}\";\n" +
-				"	                  ^\n" +
-				"Cannot use j in a pre-construction context\n" +
-				"----------\n" +
-				"3. WARNING in X.java (at line 9)\n" +
-				"	this();\n" +
-				"	^^^^^^^\n" +
-				"You are using a preview language feature that may or may not be supported in a future release\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 12)\n" +
-				"	Zork();\n" +
-				"	^^^^\n" +
-				"The method Zork() is undefined for the type X\n" +
-				"----------\n"
-			);
-	}
 	public void test032() {
 		runConformTest(new String[] {
 			"X.java",

@@ -301,18 +301,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 					"1");
 	}
 	@Test
-	public void testImplicitType010() {
-		runConformTest(
-					new String[] {"X.java",
-						"""
-						static String a = "foo";
-						public static void main(String ... args) {
-							String str = STR."\\{new Object() {String s = a;}.s}{}";
-							System.out.println(str);
-						}"""},
-					"foo{}");
-	}
-	@Test
 	public void testImplicitType011() {
 		runConformTest(
 					new String[] {"X.java",

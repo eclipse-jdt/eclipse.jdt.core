@@ -2134,9 +2134,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 		int currentKind = this.lexStream.kind(token);
 		String errorTokenName = Parser.name[Parser.terminal_index[this.lexStream.kind(token)]];
 		char[] errorTokenSource = this.lexStream.name(token);
-		if (currentKind == TerminalTokens.TokenNameStringLiteral ||
-				currentKind == TerminalTokens.TokenNameStringTemplate ||
-				currentKind == TerminalTokens.TokenNameTextBlockTemplate) {
+		if (currentKind == TerminalTokens.TokenNameStringLiteral) {
 			errorTokenSource = displayEscapeCharacters(errorTokenSource, 1, errorTokenSource.length - 1);
 		}
 

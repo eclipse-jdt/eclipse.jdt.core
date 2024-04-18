@@ -2659,7 +2659,6 @@ public void test0049() {
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
-	String token = (this.complianceLevel >= ClassFileConstants.JDK21) ? "." : "<";
 	String expected15ProblemLog =
 		"----------\n" +
 		"1. ERROR in X.java (at line 6)\n" +
@@ -2670,7 +2669,7 @@ public void test0049() {
 		"2. ERROR in X.java (at line 6)\n" +
 		"	public @MyAnn(\"\",\"\") class Test {		\n" +
 		"	                ^\n" +
-		"Syntax error on token \",\", "+ token +" expected\n" +
+		"Syntax error on token \",\", < expected\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 6)\n" +
 		"	public @MyAnn(\"\",\"\") class Test {		\n" +

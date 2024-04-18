@@ -78,7 +78,6 @@ import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
-import org.eclipse.jdt.internal.compiler.ast.StringTemplate;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -3672,8 +3671,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 				localContentsOffset = addBootStrapTypeCaseConstantEntry(localContentsOffset, (ResolvedCase) o, fPtr);
 			} else if (o instanceof TypeBinding) {
 				localContentsOffset = addClassDescBootstrap(localContentsOffset, (TypeBinding) o, fPtr);
-			} else if (o instanceof StringTemplate template) {
-				localContentsOffset = addBootStrapTemplateRuntimeEntry(localContentsOffset, template, fPtr);
 			}
 		}
 
@@ -4076,40 +4073,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
 		this.contents[localContentsOffset++] = (byte) intValIdx;
 
-		return localContentsOffset;
-	}
-	private int addBootStrapTemplateRuntimeEntry(int localContentsOffset, StringTemplate template, Map<String, Integer> fPtr) {
-		final int contentsEntries = 10;
-		int indexForProcess = fPtr.get(NEW_STRING_TEMPLATE);
-		if (contentsEntries + localContentsOffset >= this.contents.length) {
-			resizeContents(contentsEntries);
-		}
-		if (indexForProcess == 0) {
-			ReferenceBinding javaLangRuntimeTemplateBootstraps = this.referenceBinding.scope.getJavaLangRuntimeTemplateRuntimeBootstraps();
-			indexForProcess = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangRuntimeTemplateBootstraps,
-					NEW_STRING_TEMPLATE.toCharArray(), ConstantPool.JAVA_LANG_RUNTIME_STRING_TEMPLATE_SIGNATURE, false);
-			fPtr.put(NEW_STRING_TEMPLATE, indexForProcess);
-		}
-		this.contents[localContentsOffset++] = (byte) (indexForProcess >> 8);
-		this.contents[localContentsOffset++] = (byte) indexForProcess;
-
-		// u2 num_bootstrap_arguments
-		int numArgsLocation = localContentsOffset;
-		StringLiteral[] fragments = template.fragments();
-		int numArgs = fragments.length;
-		this.contents[numArgsLocation++] = (byte) (numArgs >> 8);
-		this.contents[numArgsLocation] = (byte) numArgs;
-		localContentsOffset += 2;
-
-		if ((numArgs * 2) + localContentsOffset >= this.contents.length) {
-			resizeContents(numArgs * 2);
-		}
-		for (StringLiteral frag : fragments) {
-			int intValIdx =
-					this.constantPool.literalIndex(frag.constant.stringValue());
-			this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
-			this.contents[localContentsOffset++] = (byte) intValIdx;
-		}
 		return localContentsOffset;
 	}
 	private int generateLineNumberAttribute() {
@@ -6436,13 +6399,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.bootstrapMethods = new ArrayList<>();
 		}
 		this.bootstrapMethods.add(expression);
-		return this.bootstrapMethods.size() - 1;
-	}
-	public int recordBootstrapMethod(StringTemplate template) {
-		if (this.bootstrapMethods == null) {
-			this.bootstrapMethods = new ArrayList<>();
-		}
-		this.bootstrapMethods.add(template);
 		return this.bootstrapMethods.size() - 1;
 	}
 	public void reset(/*@Nullable*/SourceTypeBinding typeBinding, CompilerOptions options) {

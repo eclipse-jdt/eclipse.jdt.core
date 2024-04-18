@@ -75,9 +75,6 @@ public class DOMASTUtil {
 				return apiLevel >= AST.JLS18;
 			case ASTNode.RECORD_PATTERN:
 				return apiLevel >= AST.JLS21;
-			case ASTNode.STRING_FRAGMENT:
-			case ASTNode.STRING_TEMPLATE_COMPONENT:
-			case ASTNode.STRING_TEMPLATE_EXPRESSION:
 			case ASTNode.EitherOr_MultiPattern:
 				return apiLevel >= AST.JLS21 && previewEnabled;
 		}
@@ -196,9 +193,6 @@ public class DOMASTUtil {
 
 	public static boolean isPatternSupported(int apiLevel, boolean previewEnabled) {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.TYPE_PATTERN);
-	}
-	public static boolean isStringTemplateSupported(int apiLevel, boolean previewEnabled) {
-		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.STRING_TEMPLATE_EXPRESSION);
 	}
 	public static boolean isEitherOrMultiPatternSupported(int apiLevel, boolean previewEnabled) {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.EitherOr_MultiPattern);

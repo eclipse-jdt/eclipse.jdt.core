@@ -1643,33 +1643,4 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append(';');
 		return false;
 	}
-	@Override
-	public boolean visit(StringFragment node) {
-		this.result.append(node.getEscapedValue());
-		return false;
-	}
-	@Override
-	public boolean visit(StringTemplateExpression node) {
-		ASTNode expression = getChildNode(node, StringTemplateExpression.TEMPLATE_PROCESSOR);
-		if (expression != null) {
-			expression.accept(this);
-		}
-		this.result.append('.');
-		this.result.append((node.isMultiline() ? "\"\"\"\n" : "\"")); //$NON-NLS-1$ //$NON-NLS-2$
-		expression = node.getFirstFragment();
-		expression.accept(this);
-		visitList(node, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS, Util.EMPTY_STRING, Util.EMPTY_STRING, Util.EMPTY_STRING);
-		this.result.append((node.isMultiline() ? "\"\"\"" : "\"")); //$NON-NLS-1$ //$NON-NLS-2$
-		return false;
-	}
-	@Override
-	public boolean visit(StringTemplateComponent node) {
-		this.result.append("\\{"); //$NON-NLS-1$
-		Expression expression = node.getEmbeddedExpression();
-		expression.accept(this);
-		this.result.append('}');
-		StringFragment fragment = node.getStringFragment();
-		fragment.accept(this);
-		return false;
-	}
 }

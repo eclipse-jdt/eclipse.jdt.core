@@ -255,7 +255,6 @@ public static Test suite() {
 
 	 ArrayList since_23 = new ArrayList();
 	 since_22.add(SuperAfterStatementsTest.class);
-	 since_22.add(StringTemplateTest.class);
 	 since_22.add(ImplicitlyDeclaredClassesTest.class);
 
 	 // Build final test suite
