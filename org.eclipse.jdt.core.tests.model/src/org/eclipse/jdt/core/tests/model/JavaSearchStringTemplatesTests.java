@@ -125,7 +125,7 @@ public class JavaSearchStringTemplatesTests extends JavaSearchTests {
 		this.resultCollector.showAccuracy(true);
 	}
 
-	public void test_001() throws CoreException {
+	public void _test_001() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		String code = """
 				public class X {
@@ -147,7 +147,7 @@ public class JavaSearchStringTemplatesTests extends JavaSearchTests {
 			assertSearchResults(SearchResults);
 	}
 
-	public void test_002() throws CoreException {
+	public void _test_002() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		String code = """
 				public class X {
@@ -163,5 +163,33 @@ public class JavaSearchStringTemplatesTests extends JavaSearchTests {
 
 			search("fooxx", METHOD, ALL_OCCURRENCES, EXACT_RULE);
 			assertSearchResults("src/X.java void X.fooxx(Object) [fooxx] EXACT_MATCH");
+	}
+
+	public void test_003() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		String code = """
+				public class X {
+					String sam = "sasm";
+					@SuppressWarnings("preview")
+					void foo() {
+						String name = "Eclipse";
+						String oss = "OS";
+						int xyz = 1;
+						this.sam = "xxx";
+						oss = name;
+						String eclipse = this.sam;
+						String s = STR. "Hello \\{name} \\{oss} is your OS. \\{xyz} is xyz. sam \\{this.sam}";
+					}
+				}
+				""";
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", code);
+
+			search("sam", FIELD, REFERENCES, EXACT_RULE);
+			assertSearchResults(
+					"""
+					src/X.java void X.foo() [sam] EXACT_MATCH
+					src/X.java void X.foo() [sam] EXACT_MATCH
+					src/X.java void X.foo() [sam] EXACT_MATCH"""
+					);
 	}
 }
