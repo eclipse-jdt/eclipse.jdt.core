@@ -145,7 +145,6 @@ import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
-import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.DeltaProcessor.RootInfo;
 import org.eclipse.jdt.internal.core.JavaProjectElementInfo.ProjectCache;
@@ -2937,11 +2936,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public static boolean isJrt(IPath path) {
-		return path.toString().endsWith(JRTUtil.JRT_FS_JAR);
+		return org.eclipse.jdt.internal.compiler.util.Util.isJrt(path.lastSegment());
 	}
 
 	public static boolean isJrt(String path) {
-		return isJrt(new Path(path));
+		return org.eclipse.jdt.internal.compiler.util.Util.isJrt(path);
 	}
 
 	public void verifyArchiveContent(IPath path) throws CoreException {
