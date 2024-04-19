@@ -337,13 +337,13 @@ public void aload(int iArg) {
 public void aload_0() {
 	this.countLabels = 0;
 	this.stackDepth++;
-	pushTypeBinding(0);
 	if (this.stackDepth > this.stackMax) {
 		this.stackMax = this.stackDepth;
 	}
 	if (this.maxLocals == 0) {
 		this.maxLocals = 1;
 	}
+	pushTypeBinding(0);
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
@@ -354,12 +354,12 @@ public void aload_0() {
 public void aload_1() {
 	this.countLabels = 0;
 	this.stackDepth++;
-	pushTypeBinding(1);
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 	if (this.maxLocals <= 1) {
 		this.maxLocals = 2;
 	}
+	pushTypeBinding(1);
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
@@ -370,12 +370,12 @@ public void aload_1() {
 public void aload_2() {
 	this.countLabels = 0;
 	this.stackDepth++;
-	pushTypeBinding(2);
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 	if (this.maxLocals <= 2) {
 		this.maxLocals = 3;
 	}
+	pushTypeBinding(2);
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
@@ -386,12 +386,12 @@ public void aload_2() {
 public void aload_3() {
 	this.countLabels = 0;
 	this.stackDepth++;
-	pushTypeBinding(3);
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 	if (this.maxLocals <= 3) {
 		this.maxLocals = 4;
 	}
+	pushTypeBinding(3);
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
@@ -7706,7 +7706,9 @@ private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
 private void pushTypeBinding(int resolvedPosition) {
 	if (!isSwitchStackTrackingActive())
 		return;
-	assert resolvedPosition < this.maxLocals;
+	if (resolvedPosition >= this.maxLocals) {
+		throw new AssertionError("Unexpected resolved position"); //$NON-NLS-1$
+	}
 	TypeBinding type = retrieveLocalType(this.position, resolvedPosition);
 	pushTypeBinding(type);
 }

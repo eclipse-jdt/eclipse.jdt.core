@@ -7426,4 +7426,45 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"true\n42");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2366
+	// [Switch Expression] Assertion fails when IDE is launched with JVM option -ea
+	public void testIssue2366() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				  public X() {
+				    super();
+				  }
+				  public static void foo() {
+				    X z;
+				    while (((z = getObject()) != null))      {
+				        z.bar();
+				      }
+				    System.out.println(switch(42) {
+					  default -> {
+						try {
+							yield 42;
+						} finally {
+
+						}
+					  }
+				    });
+				  }
+				  public void bar() {
+				  }
+				  public static X getObject() {
+				    return null;
+				  }
+				  public static void main(String[] args) {
+				    new X().foo();
+				  }
+				}
+				"""
+				},
+				"42");
+	}
 }
