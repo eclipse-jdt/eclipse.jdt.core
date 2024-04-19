@@ -7398,4 +7398,32 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"42");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2363
+	// [Switch Expressions] Compiler crashes with Switch expressions mixed with exception handling
+	public void testIssue2363() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String argv[]) {
+						System.out.println(void.class == Void.TYPE);
+						System.out.println(switch(42) {
+				    	default -> {
+				    		try {
+				    			yield 42;
+				    		} finally {
+
+				    		}
+				    	}
+				    });
+
+					}
+				}
+				"""
+				},
+				"true\n42");
+	}
 }

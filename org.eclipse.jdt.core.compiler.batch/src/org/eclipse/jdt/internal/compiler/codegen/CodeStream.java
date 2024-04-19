@@ -1445,9 +1445,6 @@ public void fieldAccess(byte opcode, FieldBinding fieldBinding, TypeBinding decl
 	this.fieldAccess(opcode, returnTypeSize, declaringClass.constantPoolName(), fieldBinding.name, returnType.signature(), returnType.id, returnType);
 }
 
-private void fieldAccess(byte opcode, int returnTypeSize, char[] declaringClass, char[] fieldName, char[] signature, int typeId) {
-	fieldAccess(opcode, returnTypeSize, declaringClass, fieldName, signature, typeId, null);
-}
 private void fieldAccess(byte opcode, int returnTypeSize, char[] declaringClass, char[] fieldName, char[] signature, int typeId, TypeBinding typeBinding) {
 	this.countLabels = 0;
 	switch(opcode) {
@@ -1960,7 +1957,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
  */
 public void generateClassLiteralAccessForType(Scope scope, TypeBinding accessedType, FieldBinding syntheticFieldBinding) {
 	if (accessedType.isBaseType() && accessedType != TypeBinding.NULL) {
-		getTYPE(accessedType.id);
+		getClass(accessedType);
 		return;
 	}
 	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
@@ -2121,11 +2118,11 @@ public void generateEmulationForConstructor(Scope scope, MethodBinding methodBin
 			this.generateInlinedValue(i);
 			TypeBinding parameter = methodBinding.parameters[i];
 			if (parameter.isBaseType()) {
-				getTYPE(parameter.id);
+				getClass(parameter);
 			} else if (parameter.isArrayType()) {
 				ArrayBinding array = (ArrayBinding)parameter;
 				if (array.leafComponentType.isBaseType()) {
-					getTYPE(array.leafComponentType.id);
+					getClass(array.leafComponentType);
 				} else {
 					this.ldc(String.valueOf(array.leafComponentType.constantPoolName()).replace('/', '.'));
 					invokeClassForName();
@@ -2177,11 +2174,11 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 			this.generateInlinedValue(i);
 			TypeBinding parameter = methodBinding.parameters[i];
 			if (parameter.isBaseType()) {
-				getTYPE(parameter.id);
+				getClass(parameter);
 			} else if (parameter.isArrayType()) {
 				ArrayBinding array = (ArrayBinding)parameter;
 				if (array.leafComponentType.isBaseType()) {
-					getTYPE(array.leafComponentType.id);
+					getClass(array.leafComponentType);
 				} else {
 					this.ldc(String.valueOf(array.leafComponentType.constantPoolName()).replace('/', '.'));
 					invokeClassForName();
@@ -3804,100 +3801,28 @@ protected int getPosition() {
 	return this.position;
 }
 
-public void getTYPE(int baseTypeID) {
+public void getClass(TypeBinding baseType) {
 	this.countLabels = 0;
-	switch (baseTypeID) {
-		case TypeIds.T_byte :
-			// getstatic: java.lang.Byte.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangByteConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_short :
-			// getstatic: java.lang.Short.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangShortConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_char :
-			// getstatic: java.lang.Character.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangCharacterConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_int :
-			// getstatic: java.lang.Integer.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangIntegerConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_long :
-			// getstatic: java.lang.Long.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangLongConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_float :
-			// getstatic: java.lang.Float.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangFloatConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_double :
-			// getstatic: java.lang.Double.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangDoubleConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_boolean :
-			// getstatic: java.lang.Boolean.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangBooleanConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_void :
-			// getstatic: java.lang.Void.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangVoidConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-	}
+	char [] constantPoolName = switch (baseType.id) {
+					case TypeIds.T_byte -> ConstantPool.JavaLangByteConstantPoolName;
+					case TypeIds.T_short -> ConstantPool.JavaLangShortConstantPoolName;
+					case TypeIds.T_char -> ConstantPool.JavaLangCharacterConstantPoolName;
+					case TypeIds.T_int -> ConstantPool.JavaLangIntegerConstantPoolName;
+					case TypeIds.T_long -> ConstantPool.JavaLangLongConstantPoolName;
+					case TypeIds.T_float -> ConstantPool.JavaLangFloatConstantPoolName;
+					case TypeIds.T_double -> ConstantPool.JavaLangDoubleConstantPoolName;
+					case TypeIds.T_boolean -> ConstantPool.JavaLangBooleanConstantPoolName;
+					case TypeIds.T_void -> ConstantPool.JavaLangVoidConstantPoolName;
+					default-> throw new AssertionError("Unknown base type"); //$NON-NLS-1$
+				};
+	fieldAccess(
+			Opcodes.OPC_getstatic,
+			1, // return type size
+			constantPoolName,
+			ConstantPool.TYPE,
+			ConstantPool.JavaLangClassSignature,
+			baseType.id,
+			baseType);
 }
 
 /**
