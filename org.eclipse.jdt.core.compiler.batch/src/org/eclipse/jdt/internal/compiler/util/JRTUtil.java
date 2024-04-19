@@ -76,6 +76,7 @@ public class JRTUtil {
 	 * Map from JDK home path to ct.sym file (located in /lib in the JDK)
 	 */
 	private static final Map<Path, CtSym> ctSymFiles = new ConcurrentHashMap<>();
+	private static final Map<String, FileSystem> JRT_FILE_SYSTEMS = new ConcurrentHashMap<>();
 
 	static final SoftClassCache classCache = new SoftClassCache();
 
@@ -163,6 +164,20 @@ public class JRTUtil {
 			return system;
 		} catch (RuntimeIOException e) {
 				throw e.getCause();
+		}
+	}
+
+	static FileSystem getJrtFileSystem(String path) throws IOException {
+		try {
+			return JRT_FILE_SYSTEMS.computeIfAbsent(path, p -> {
+				try {
+					return FileSystems.newFileSystem(JRTUtil.JRT_URI, Map.of("java.home", p)); //$NON-NLS-1$
+				} catch (IOException e) {
+					throw new RuntimeIOException(e);
+				}
+			});
+		} catch (RuntimeIOException e) {
+			throw e.getCause();
 		}
 	}
 
@@ -531,9 +546,7 @@ class JrtFileSystem {
 		this.jdk = jdkHome;
 		this.release = release;
 		JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
-		HashMap<String, String> env = new HashMap<>();
-		env.put("java.home", this.jdk.path); //$NON-NLS-1$
-		this.fs = FileSystems.newFileSystem(JRTUtil.JRT_URI, env);
+		this.fs = JRTUtil.getJrtFileSystem(this.jdk.path);
 		this.modRoot = this.fs.getPath(JRTUtil.MODULES_SUBDIR);
 		// Set up the root directory where modules are located
 		walkJrtForModules();
