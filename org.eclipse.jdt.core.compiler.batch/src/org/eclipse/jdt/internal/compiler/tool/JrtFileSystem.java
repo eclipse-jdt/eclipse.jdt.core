@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,7 +43,7 @@ import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 
 public class JrtFileSystem extends Archive {
 
-	public HashMap<String, Path> modulePathMap;
+	Map<String, Path> modulePathMap;
 	Path modules;
 	private java.nio.file.FileSystem jrtfs;
 
@@ -55,7 +56,7 @@ public class JrtFileSystem extends Archive {
 		// initialize packages
 		this.modulePathMap = new HashMap<>();
 		if (this.file.exists()) {
-			this.jrtfs = JRTUtil.getJrtFileSystem(this.file.getAbsolutePath());
+			this.jrtfs = JRTUtil.getJrtFileSystem(this.file.toPath());
 			this.modules = this.jrtfs.getPath(JRTUtil.MODULES_SUBDIR);
 		} else {
 			return;
