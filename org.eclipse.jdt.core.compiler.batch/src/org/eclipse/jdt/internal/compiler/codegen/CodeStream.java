@@ -7740,32 +7740,39 @@ private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
 			}
 		}
 	}
-	ReferenceBinding declaringClass = this.methodDeclaration.binding.declaringClass;
-	if (resolvedPosition == 0 && !this.methodDeclaration.isStatic()) {
-		return declaringClass;
-	}
-	int enumOffset = declaringClass.isEnum() ? 2 : 0; // String name, int ordinal
-	int argSlotSize = 1 + enumOffset; // this==aload0
-	if (this.methodDeclaration.binding.isConstructor()) {
-		if (declaringClass.isEnum()) {
-			switch (resolvedPosition) {
-				case 1:
-					return this.methodDeclaration.scope.getJavaLangString();
-				case 2:
-					return TypeBinding.INT;
-				default: break;
+	if (this.methodDeclaration != null) {
+		ReferenceBinding declaringClass = this.methodDeclaration.binding.declaringClass;
+		if (resolvedPosition == 0 && !this.methodDeclaration.isStatic()) {
+			return declaringClass;
+		}
+		int enumOffset = declaringClass.isEnum() ? 2 : 0; // String name, int ordinal
+		int argSlotSize = 1 + enumOffset; // this==aload0
+		if (this.methodDeclaration.binding.isConstructor()) {
+			if (declaringClass.isEnum()) {
+				switch (resolvedPosition) {
+					case 1:
+						return this.methodDeclaration.scope.getJavaLangString();
+					case 2:
+						return TypeBinding.INT;
+					default: break;
+				}
+			}
+			if (declaringClass.isNestedType()) {
+				ReferenceBinding[] enclosingTypes = declaringClass.syntheticEnclosingInstanceTypes();
+				if (enclosingTypes != null) {
+					if (resolvedPosition < argSlotSize + enclosingTypes.length)
+						return enclosingTypes[resolvedPosition - argSlotSize];
+				}
+				for (SyntheticArgumentBinding extraSyntheticArgument : declaringClass.syntheticOuterLocalVariables()) {
+					if (extraSyntheticArgument.resolvedPosition == resolvedPosition)
+						return extraSyntheticArgument.type;
+				}
 			}
 		}
-		if (declaringClass.isNestedType()) {
-			ReferenceBinding[] enclosingTypes = declaringClass.syntheticEnclosingInstanceTypes();
-			if (enclosingTypes != null) {
-				if (resolvedPosition < argSlotSize + enclosingTypes.length)
-					return enclosingTypes[resolvedPosition - argSlotSize];
-			}
-			for (SyntheticArgumentBinding extraSyntheticArgument : declaringClass.syntheticOuterLocalVariables()) {
-				if (extraSyntheticArgument.resolvedPosition == resolvedPosition)
-					return extraSyntheticArgument.type;
-			}
+	} else if (this.lambdaExpression != null) {
+		ReferenceBinding declaringClass = this.lambdaExpression.binding.declaringClass;
+		if (resolvedPosition == 0 && !this.lambdaExpression.binding.isStatic()) {
+			return declaringClass;
 		}
 	}
 

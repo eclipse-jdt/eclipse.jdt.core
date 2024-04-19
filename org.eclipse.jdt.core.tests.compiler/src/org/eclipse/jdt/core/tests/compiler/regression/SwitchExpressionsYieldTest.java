@@ -7325,4 +7325,77 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"42");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2360
+	// [Switch Expression] Internal compiler error: java.lang.NullPointerException: Cannot read field "binding" because "this.methodDeclaration" is null
+	public void testIssue2360() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					void foo(int p, int q);
+				}
+				public class X {
+				   int f;
+					void foo(int a) {
+				       int loc = 10;
+						I i = (int p, int q)  -> {
+				           I i2 = new I() { public void foo(int f, int p0) {};};
+				           System.out.println(10 + switch (10) {
+							default -> { try { yield 32; } catch (NullPointerException npe) { yield -10; } }});
+							System.out.println(10 + switch (loc) {
+							default -> { try { yield 0; } catch (NullPointerException npe) { yield -10; } }});
+							System.out.println(10 + switch (p) {
+							default -> { try { yield p; } catch (NullPointerException npe) { yield -10; } }});
+							System.out.println(10 + switch (q) {
+							default -> { try { yield q; } catch (NullPointerException npe) { yield -10; } }});
+						};
+						i.foo(10,  20);
+					}
+
+					public static void main(String[] args) {
+						new X().foo(42);
+					}
+				}
+				"""
+				},
+				"42\n" +
+				"10\n" +
+				"20\n" +
+				"30");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2360
+	// [Switch Expression] Internal compiler error: java.lang.NullPointerException: Cannot read field "binding" because "this.methodDeclaration" is null
+	public void testIssue2360_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					void foo(int p, int q);
+				}
+				public class X {
+				   int f;
+					void foo(int a) {
+				       int loc;
+						I i = (int p, int q)  -> {
+				           I i2 = new I() { public void foo(int f, int p0) {};};
+				           System.out.println(10 + switch (10) {
+							default -> { try { yield 32; } catch (NullPointerException npe) { yield -10; } }});
+						};
+						i.foo(10,  20);
+					}
+
+					public static void main(String[] args) {
+						new X().foo(42);
+					}
+				}
+				"""
+				},
+				"42");
+	}
 }
