@@ -524,7 +524,7 @@ public class CompletionNodeDetector extends ASTVisitor {
 					&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfTrue == this.searchedNode)
 					&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfFalse == this.searchedNode)
 					// if the completion is on a case statement, accept the switch as parent.
-					&& (astNode instanceof SwitchStatement ss && isOnCompletingOnCaseLabel(ss))) {
+					&& (!(astNode instanceof SwitchStatement ss) || isOnCompletingOnCaseLabel(ss))) {
 					this.parent = astNode;
 				}
 			}
