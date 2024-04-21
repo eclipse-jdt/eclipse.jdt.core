@@ -19,6 +19,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import junit.framework.Test;
 
 public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletionTests {
+	private static int UNQUALIFIED_REL = R_DEFAULT + R_RESOLVED + R_CASE + R_INTERESTING + R_UNQUALIFIED
+			+ R_NON_RESTRICTED;
 
 
 	static {
@@ -558,4 +560,31 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			assertResults("ar_ray[LOCAL_VARIABLE_REF]{ar_ray, null, [LColoredRectangle;, ar_ray, null, 52}",
 					requestor.getResults());
 		}
+
+		public void testGH2299() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					public class SwitchRecordPattern {
+						public void foo(java.io.Serializable o) {
+							switch(o) {
+								case Person(var name, var age) -> {
+									/*here*/nam
+								}
+							}
+						}
+					}\
+					""");
+			this.workingCopies[1] = getWorkingCopy("/Completion/src/Person.java", """
+					public record Person(String name, int age) implements java.io.Serializable  {}\
+					""");
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "/*here*/nam";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, " + UNQUALIFIED_REL + "}",
+					requestor.getResults());
+		}
+	
 }

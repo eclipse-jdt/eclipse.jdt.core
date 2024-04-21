@@ -536,7 +536,8 @@ public class CompletionNodeDetector extends ASTVisitor {
 		for (Statement stmt : statement.statements) {
 			if (stmt instanceof CaseStatement cs) {
 				for (Expression expr : cs.constantExpressions) {
-					if (this.searchedNode == expr) {
+					if (this.searchedNode == expr
+							|| (expr instanceof RecordPattern rp && rp.type == this.searchedNode)) {
 						return true;
 					}
 				}
