@@ -68,6 +68,8 @@ public class DOMCompletionEngine implements Runnable {
 	private final AssistOptions assistOptions;
 	private final SearchPattern pattern;
 
+	private final CompletionEngine nestedEngine; // to reuse some utilities
+
 	private static class Bindings {
 		private HashSet<IMethodBinding> methods = new HashSet<>();
 		private HashSet<IBinding> others = new HashSet<>();
@@ -123,6 +125,7 @@ public class DOMCompletionEngine implements Runnable {
 		// TODO also honor requestor.ignore*
 		// TODO sorting/relevance: closest/prefix match should go first
 		// ...
+		this.nestedEngine = new CompletionEngine(this.nameEnvironment, this.requestor, this.modelUnit.getOptions(true), this.modelUnit.getJavaProject(), workingCopyOwner, monitor);
 	}
 
 	private static Collection<? extends IBinding> visibleBindings(ASTNode node, int offset) {
@@ -299,8 +302,11 @@ public class DOMCompletionEngine implements Runnable {
 			binding instanceof IVariableBinding variableBinding ? CompletionProposal.LOCAL_VARIABLE_REF :
 			-1, this.offset);
 		res.setName(binding.getName().toCharArray());
-		// TODO: for methods, completion should also include potential args, not just name
-		res.setCompletion(binding.getName().toCharArray());
+		String completion = binding.getName();
+		if (binding instanceof IMethodBinding) {
+			completion += "()"; //$NON-NLS-1$
+		}
+		res.setCompletion(completion.toCharArray());
 		res.setSignature(
 			binding instanceof IMethodBinding methodBinding ?
 				Signature.createMethodSignature(
@@ -328,6 +334,11 @@ public class DOMCompletionEngine implements Runnable {
 			binding instanceof IVariableBinding variable && variable.isField() ?
 				Signature.createTypeSignature(variable.getDeclaringClass().getQualifiedName().toCharArray(), true).toCharArray() :
 			new char[]{});
+
+		res.setDeclarationTypeName(((IType)binding.getJavaElement().getAncestor(IJavaElement.TYPE)).getFullyQualifiedName().toCharArray());
+		res.setDeclarationPackageName(binding.getJavaElement().getAncestor(IJavaElement.PACKAGE_FRAGMENT).getElementName().toCharArray());
+		res.completionEngine = this.nestedEngine;
+		res.nameLookup = this.nameEnvironment.nameLookup;
 		return res;
 	}
 
@@ -346,6 +357,8 @@ public class DOMCompletionEngine implements Runnable {
 		if (toComplete instanceof SimpleName) {
 			res.setTokenRange(toComplete.getStartPosition(), toComplete.getStartPosition() + toComplete.getLength());
 		}
+		res.completionEngine = this.nestedEngine;
+		res.nameLookup = this.nameEnvironment.nameLookup;
 		return res;
 	}
 
@@ -355,6 +368,8 @@ public class DOMCompletionEngine implements Runnable {
 		res.setCompletion(packageName.toCharArray());
 		res.setReplaceRange(completing.getStartPosition(), this.offset);
 		res.setDeclarationSignature(packageName.toCharArray());
+		res.completionEngine = this.nestedEngine;
+		res.nameLookup = this.nameEnvironment.nameLookup;
 		return res;
 	}
 
