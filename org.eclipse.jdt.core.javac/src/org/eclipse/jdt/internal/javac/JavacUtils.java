@@ -66,7 +66,9 @@ public class JavacUtils {
 		}
 		options.put(Option.XLINT_CUSTOM, "all"); // TODO refine according to compilerOptions
 		// TODO populate more from compilerOptions and/or project settings
-		JavacFileManager.preRegister(context);
+		if (context.get(JavaFileManager.class) == null) {
+			JavacFileManager.preRegister(context);
+		}
 		if (javaProject instanceof JavaProject internal) {
 			configurePaths(internal, context, compilerConfig);
 		}
