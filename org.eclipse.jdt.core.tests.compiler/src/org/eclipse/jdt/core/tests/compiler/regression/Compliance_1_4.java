@@ -2595,9 +2595,56 @@ public void test078() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
  */
 public void test079() {
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK23) ?
+			"""
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Unnamed Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
+			----------
+			2. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly declared class must have a candidate main method
+			----------
+			3. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""" :
+			"""
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			The preview feature Unnamed Classes and Instance Main Methods is only available with source level 23 and above
+			----------
+			2. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly declared class must have a candidate main method
+			----------
+			3. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""";
+
+	if (this.complianceLevel < ClassFileConstants.JDK16) {
+		problemLog += """
+			4. ERROR in X.java (at line 14)
+				public static void main(String[] args) {
+				                   ^^^^^^^^^^^^^^^^^^^
+			The method main cannot be declared static; static methods can only be declared in a static or top level type
+			----------
+			""";
+	}
 	this.runNegativeTest(
 		new String[] {
-			"Hello.java",
+			"X.java",
 			"void ___eval() {\n" +
 			"	new Runnable() {\n" +
 			"		int ___run() throws Throwable {\n" +
@@ -2608,7 +2655,7 @@ public void test079() {
 			"		}\n" +
 			"	};\n" +
 			"}\n" +
-			"public class Hello {\n" +
+			"public class X {\n" +
 			"	private static int x;\n" +
 			"	private String blah;\n" +
 			"	public static void main(String[] args) {\n" +
@@ -2622,24 +2669,7 @@ public void test079() {
 			"	}\n" +
 			"}\n"
 		},
-		"""
-		----------
-		1. ERROR in Hello.java (at line 1)
-			void ___eval() {
-			^
-		The preview feature Unnamed Classes and Instance Main Methods is only available with source level 21 and above
-		----------
-		2. ERROR in Hello.java (at line 4)
-			return blah;
-			       ^^^^
-		blah cannot be resolved to a variable
-		----------
-		3. ERROR in Hello.java (at line 14)
-			public static void main(String[] args) {
-			                   ^^^^^^^^^^^^^^^^^^^
-		The method main cannot be declared static; static methods can only be declared in a static or top level type
-		----------
-		"""
+		problemLog
 	);
 }
 /*
