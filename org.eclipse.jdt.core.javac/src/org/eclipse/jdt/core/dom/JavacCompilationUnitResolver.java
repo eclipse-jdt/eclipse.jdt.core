@@ -12,6 +12,8 @@ package org.eclipse.jdt.core.dom;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.CharBuffer;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,9 +22,11 @@ import java.util.Objects;
 
 import javax.tools.DiagnosticListener;
 import javax.tools.FileObject;
-import javax.tools.JavaFileObject;
+import javax.tools.JavaFileManager;
 import javax.tools.SimpleJavaFileObject;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -38,6 +42,8 @@ import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.javac.JavacUtils;
 import org.eclipse.jdt.internal.javac.dom.FindNextJavadocableSibling;
 
+import com.sun.tools.javac.file.JavacFileManager;
+import com.sun.tools.javac.file.PathFileObject;
 import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.parser.JavadocTokenizer;
 import com.sun.tools.javac.parser.Scanner;
@@ -118,29 +124,26 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 	public CompilationUnit parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, int apiLevel, Map<String, String> compilerOptions,
 			int flags, IJavaProject javaProject, IProgressMonitor monitor) {
-		SimpleJavaFileObject fileObject = new SimpleJavaFileObject(new File(new String(sourceUnit.getFileName())).toURI(), JavaFileObject.Kind.SOURCE) {
-			@Override
-			public CharSequence getCharContent(boolean ignoreEncodingErrors) throws java.io.IOException {
-				return new String(sourceUnit.getContents());
-			}
-		};
 		Context context = new Context();
 		AST ast = createAST(compilerOptions, apiLevel, context);
-//		int savedDefaultNodeFlag = ast.getDefaultNodeFlag();
-//		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
-//		ast.setDefaultNodeFlag(savedDefaultNodeFlag);
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		CompilationUnit res = ast.newCompilationUnit();
+
 		context.put(DiagnosticListener.class, diagnostic -> {
-			if (Objects.equals(diagnostic.getSource(), fileObject) ||
-				diagnostic.getSource() instanceof DiagnosticSource source && Objects.equals(source.getFile(), fileObject)) {
+			if (match(diagnostic.getSource(), sourceUnit)) {
 				IProblem[] previous = res.getProblems();
 				IProblem[] newProblems = Arrays.copyOf(previous, previous.length + 1);
 				newProblems[newProblems.length - 1] = JavacConverter.convertDiagnostic(diagnostic);
 				res.setProblems(newProblems);
 			}
 		});
+		// diagnostic listener needs to be added before anything else to the context
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject);
+		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
+		var fileObject = fileManager.getJavaFileObject(sourceUnit.getFileName().length == 0
+			? Path.of("whatever.java")
+			: toOSPath(sourceUnit));
+		fileManager.cache(fileObject, CharBuffer.wrap(sourceUnit.getContents()));
 		JavaCompiler javac = JavaCompiler.instance(context);
 		javac.keepComments = true;
 		String rawText = null;
@@ -170,6 +173,19 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		//
 		ast.setOriginalModificationCount(ast.modificationCount()); // "un-dirty" AST so Rewrite can process it
 		return res;
+	}
+
+	private static Path toOSPath(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit) {
+		String unitPath = new String(sourceUnit.getFileName());
+		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(org.eclipse.core.runtime.Path.fromPortableString(new String(sourceUnit.getFileName())));
+		if (file.isAccessible()) {
+			return file.getLocation().toPath();
+		}
+		File tentativeOSFile = new File(unitPath);
+		if (tentativeOSFile.isFile()) {
+			return tentativeOSFile.toPath();
+		}
+		return null;
 	}
 
 	private AST createAST(Map<String, String> options, int level, Context context) {
@@ -305,4 +321,16 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 	}
 
+	private static boolean match(Object source, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit) {
+		if (source instanceof DiagnosticSource diagnosticSource) {
+			return match(diagnosticSource.getFile(), unit);
+		}
+		if (source instanceof SimpleJavaFileObject javaFileObject) {
+			return Objects.equals(javaFileObject.toUri(), new File(new String(unit.getFileName())).toURI());
+		}
+		if (source instanceof PathFileObject pathFileObject) {
+			return Objects.equals(pathFileObject.getPath(), toOSPath(unit));
+		}
+		return false;
+	}
 }
