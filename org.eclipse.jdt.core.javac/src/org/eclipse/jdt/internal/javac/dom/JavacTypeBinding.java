@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.stream.StreamSupport;
 
 import javax.lang.model.type.NullType;
+import javax.lang.model.type.TypeKind;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IType;
@@ -97,6 +98,9 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IType getJavaElement() {
+		if (this.resolver.javaProject == null) {
+			return null;
+		}
 		if (this.typeSymbol instanceof final ClassSymbol classSymbol) {
 			try {
 				return this.resolver.javaProject.findType(classSymbol.className());
@@ -136,6 +140,23 @@ public class JavacTypeBinding implements ITypeBinding {
 				builder.append(';');
 			}
 			return;
+		}
+		if (typeToBuild.isPrimitiveOrVoid()) {
+			/**
+			 * @see org.eclipse.jdt.core.Signature
+			 */
+			switch (typeToBuild.getKind()) {
+			case TypeKind.BYTE: builder.append('B'); return;
+			case TypeKind.CHAR: builder.append('C'); return;
+			case TypeKind.DOUBLE: builder.append('D'); return;
+			case TypeKind.FLOAT: builder.append('F'); return;
+			case TypeKind.INT: builder.append('I'); return;
+			case TypeKind.LONG: builder.append('J'); return;
+			case TypeKind.SHORT: builder.append('S'); return;
+			case TypeKind.BOOLEAN: builder.append('Z'); return;
+			case TypeKind.VOID: builder.append('V'); return;
+			default: // fall through to unsupported operation exception
+			}
 		}
 		throw new UnsupportedOperationException("Unimplemented method 'getKey'");
 	}

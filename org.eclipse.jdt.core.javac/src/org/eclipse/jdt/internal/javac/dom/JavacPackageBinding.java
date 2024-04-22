@@ -68,6 +68,9 @@ public class JavacPackageBinding implements IPackageBinding {
 	@Override
 	public IJavaElement getJavaElement() {
 		System.err.println("Hardocded binding->IJavaElement to 1st package");
+		if (this.resolver.javaProject == null) {
+			return null;
+		}
 		try {
 			return Arrays.stream(this.resolver.javaProject.getAllPackageFragmentRoots())
 				.map(root -> root.getPackageFragment(this.packageSymbol.getQualifiedName().toString()))

@@ -172,6 +172,16 @@ public class JavacBindingResolver extends BindingResolver {
 		return null;
 	}
 
+	@Override
+	ITypeBinding resolveType(EnumDeclaration enumDecl) {
+		resolve();
+		JCTree javacNode = this.converter.domToJavac.get(enumDecl);
+		if (javacNode instanceof JCClassDecl jcClassDecl) {
+			return new JavacTypeBinding(jcClassDecl.sym, this, null);
+		}
+		return null;
+	}
+
 	public IBinding getBinding(final Symbol owner, final java.util.List<TypeSymbol> typeArguments) {
 		if (owner instanceof final PackageSymbol other) {
 			return new JavacPackageBinding(other, this);

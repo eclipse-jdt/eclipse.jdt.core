@@ -72,6 +72,9 @@ public class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public IField getJavaElement() {
+		if (this.resolver.javaProject == null) {
+			return null;
+		}
 		if (this.variableSymbol.owner instanceof TypeSymbol parentType) {//field
 			return new JavacTypeBinding(parentType, this.resolver, null).getJavaElement().getField(this.variableSymbol.name.toString());
 		}
