@@ -655,15 +655,11 @@ class JavacConverter {
 			}
 		}
 
-		List throwing = javac.getThrows();
-		for( Iterator i = throwing.iterator(); i.hasNext(); ) {
-			if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
-				JCIdent id = (JCIdent)i.next();
-				Name r = convert(id.getName());
-				res.thrownExceptions().add(r);
+		for (JCExpression thrown : javac.getThrows()) {
+			if (this.ast.apiLevel < AST.JLS8_INTERNAL) {
+				res.thrownExceptions().add(toName(thrown));
 			} else {
-				JCIdent id = (JCIdent)i.next();
-				res.thrownExceptionTypes().add(convertToType(id));
+				res.thrownExceptionTypes().add(convertToType(thrown));
 			}
 		}
 		if( malformed ) {
@@ -951,6 +947,12 @@ class JavacConverter {
 				TypeLiteral res = this.ast.newTypeLiteral();
 				commonSettings(res, javac);
 				res.setType(convertToType(fieldAccess.getExpression()));
+				return res;
+			}
+			if (Objects.equals(Names.instance(this.context)._this, fieldAccess.getIdentifier())) {
+				ThisExpression res = this.ast.newThisExpression();
+				commonSettings(res, javac);
+				res.setQualifier(toName(fieldAccess.getExpression()));
 				return res;
 			}
 			if (fieldAccess.getExpression() instanceof JCFieldAccess parentFieldAccess && Objects.equals(Names.instance(this.context)._super, parentFieldAccess.getIdentifier())) {
@@ -1454,7 +1456,9 @@ class JavacConverter {
 			while(initializerIt.hasNext()) {
 				res.initializers().add(convertStatementToExpression((JCStatement)initializerIt.next(), res));
 			}
-			res.setExpression(convertExpression(jcForLoop.getCondition()));
+			if (jcForLoop.getCondition() != null) {
+				res.setExpression(convertExpression(jcForLoop.getCondition()));
+			}
 
 			Iterator updateIt = jcForLoop.getUpdate().iterator();
 			while(updateIt.hasNext()) {
@@ -1641,10 +1645,15 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCFieldAccess qualified) {
-			if( this.ast.apiLevel != AST.JLS2_INTERNAL ) {
-				// TODO need more logic here, but, the common case is a simple type
+			try {
 				Name qn = toName(qualified);
 				SimpleType res = this.ast.newSimpleType(qn);
+				commonSettings(res, qualified);
+				return res;
+			} catch (Exception ex) {
+				// case of not translatable name, eg because of generics
+				// TODO find a better check instead of relying on exception
+				QualifiedType res = this.ast.newQualifiedType(convertToType(qualified.getExpression()), (SimpleName)convert(qualified.getIdentifier()));
 				commonSettings(res, qualified);
 				return res;
 			}
