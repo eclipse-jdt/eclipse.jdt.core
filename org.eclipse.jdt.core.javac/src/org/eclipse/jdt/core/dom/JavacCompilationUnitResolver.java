@@ -16,13 +16,19 @@ import java.nio.CharBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 
 import org.eclipse.core.resources.IFile;
@@ -72,15 +78,35 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	@Override
 	public void parse(ICompilationUnit[] compilationUnits, ASTRequestor requestor, int apiLevel,
 			Map<String, String> compilerOptions, int flags, IProgressMonitor monitor) {
-		// TODO ECJCompilationUnitResolver has support for dietParse and ignore method body
-		// is this something we need?
-		for (ICompilationUnit in : compilationUnits) {
-			if (in instanceof org.eclipse.jdt.internal.compiler.env.ICompilationUnit compilerUnit) {
-				requestor.acceptAST(in, parse(compilerUnit, apiLevel, compilerOptions, flags, null, monitor));
-			}
+		var units = parse(compilationUnits, apiLevel, compilerOptions, flags, monitor);
+		if (requestor != null) {
+			units.entrySet().forEach(entry -> requestor.acceptAST(entry.getKey(), entry.getValue()));
 		}
 	}
 
+	private Map<ICompilationUnit, CompilationUnit> parse(ICompilationUnit[] compilationUnits, int apiLevel,
+			Map<String, String> compilerOptions, int flags, IProgressMonitor monitor) {
+		// TODO ECJCompilationUnitResolver has support for dietParse and ignore method body
+		// is this something we need?
+		if (compilationUnits.length > 0
+			&& Arrays.stream(compilationUnits).map(ICompilationUnit::getJavaProject).distinct().count() == 1
+			&& Arrays.stream(compilationUnits).allMatch(org.eclipse.jdt.internal.compiler.env.ICompilationUnit.class::isInstance)) {
+			// all in same project, build together
+			return
+				parse(Arrays.stream(compilationUnits).map(org.eclipse.jdt.internal.compiler.env.ICompilationUnit.class::cast).toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new),
+					apiLevel, compilerOptions, flags, compilationUnits[0].getJavaProject(), monitor)
+				.entrySet().stream().collect(Collectors.toMap(entry -> (ICompilationUnit)entry.getKey(), entry -> entry.getValue()));
+		}
+		// build individually
+		Map<ICompilationUnit, CompilationUnit> res = new HashMap<>(compilationUnits.length, 1.f);
+		for (ICompilationUnit in : compilationUnits) {
+			if (in instanceof org.eclipse.jdt.internal.compiler.env.ICompilationUnit compilerUnit) {
+				res.put(in, parse(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { compilerUnit },
+						apiLevel, compilerOptions, flags, in.getJavaProject(), monitor).get(compilerUnit));
+			}
+		}
+		return res;
+	}
 
 	@Override
 	public void parse(String[] sourceFilePaths, String[] encodings, FileASTRequestor requestor, int apiLevel,
@@ -93,21 +119,34 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	public void resolve(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor requestor, int apiLevel,
 			Map<String, String> compilerOptions, IJavaProject project, WorkingCopyOwner workingCopyOwner, int flags,
 			IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'resolve'");
+		var units = parse(compilationUnits, apiLevel, compilerOptions, flags, monitor);
+		units.values().forEach(this::resolveBindings);
+		if (requestor != null) {
+			units.entrySet().forEach(entry -> requestor.acceptAST(entry.getKey(), entry.getValue()));
+			// TODO send request.acceptBinding according to input bindingKeys
+		}
 	}
 
+	private void resolveBindings(CompilationUnit unit) {
+		if (unit.getPackage() != null) {
+			unit.getPackage().resolveBinding();
+		} else if (!unit.types().isEmpty()) {
+			((AbstractTypeDeclaration) unit.types().get(0)).resolveBinding();
+		} else if (unit.getModule() != null) {
+			unit.getModule().resolveBinding();
+		}
+	}
+	
 	@Override
 	public CompilationUnit toCompilationUnit(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
 			boolean initialNeedsToResolveBinding, IJavaProject project, List<Classpath> classpaths, int focalPosition,
 			int apiLevel, Map<String, String> compilerOptions, WorkingCopyOwner parsedUnitWorkingCopyOwner,
 			WorkingCopyOwner typeRootWorkingCopyOwner, int flags, IProgressMonitor monitor) {
 		// TODO currently only parse
-		CompilationUnit res = parse(sourceUnit, apiLevel, compilerOptions, flags, project, monitor);
+		CompilationUnit res = parse(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { sourceUnit},
+				apiLevel, compilerOptions, flags, project, monitor).get(sourceUnit);
 		if (initialNeedsToResolveBinding) {
-			if( res.getPackage() != null ) {
-				res.getPackage().resolveBinding();
-			}
+			resolveBindings(res);
 		}
 		// For comparison
 //		CompilationUnit res2  = CompilationUnitResolver.FACADE.toCompilationUnit(sourceUnit, initialNeedsToResolveBinding, project, classpaths, nodeSearcher, apiLevel, compilerOptions, typeRootWorkingCopyOwner, typeRootWorkingCopyOwner, flags, monitor);
@@ -122,57 +161,78 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		return res;
 	}
 
-	public CompilationUnit parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, int apiLevel, Map<String, String> compilerOptions,
+	public Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sourceUnits, int apiLevel, Map<String, String> compilerOptions,
 			int flags, IJavaProject javaProject, IProgressMonitor monitor) {
 		Context context = new Context();
-		AST ast = createAST(compilerOptions, apiLevel, context);
-		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
-		CompilationUnit res = ast.newCompilationUnit();
-
+		Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> result = new HashMap<>(sourceUnits.length, 1.f);
+		Map<JavaFileObject, CompilationUnit> filesToUnits = new HashMap<>();
 		context.put(DiagnosticListener.class, diagnostic -> {
-			if (match(diagnostic.getSource(), sourceUnit)) {
-				IProblem[] previous = res.getProblems();
+			findTargetDOM(filesToUnits, diagnostic).ifPresent(dom -> {
+				IProblem[] previous = dom.getProblems();
 				IProblem[] newProblems = Arrays.copyOf(previous, previous.length + 1);
 				newProblems[newProblems.length - 1] = JavacConverter.convertDiagnostic(diagnostic);
-				res.setProblems(newProblems);
-			}
+				dom.setProblems(newProblems);
+			});
 		});
 		// diagnostic listener needs to be added before anything else to the context
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject);
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
-		var fileObject = fileManager.getJavaFileObject(sourceUnit.getFileName().length == 0
-			? Path.of("whatever.java")
-			: toOSPath(sourceUnit));
-		fileManager.cache(fileObject, CharBuffer.wrap(sourceUnit.getContents()));
-		JavaCompiler javac = JavaCompiler.instance(context);
-		javac.keepComments = true;
-		String rawText = null;
-		try {
-			rawText = fileObject.getCharContent(true).toString();
-		} catch( IOException ioe) {
-			// ignore
-		}
-		JCCompilationUnit javacCompilationUnit = javac.parse(fileObject);
-		JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText);
-		converter.populateCompilationUnit(res, javacCompilationUnit);
-		attachComments(res, context, fileObject, converter, compilerOptions);
-		ASTVisitor v = new ASTVisitor() {
-			public void postVisit(ASTNode node) {
-				if( node.getParent() != null ) {
-					if( node.getStartPosition() < node.getParent().getStartPosition()) {
-						int parentEnd = node.getParent().getStartPosition() + node.getParent().getLength();
-						if( node.getStartPosition() >= 0 ) {
-							node.getParent().setSourceRange(node.getStartPosition(), parentEnd - node.getStartPosition());
+		for (var sourceUnit : sourceUnits) {
+			var fileObject = fileManager.getJavaFileObject(sourceUnit.getFileName().length == 0
+				? Path.of("whatever.java")
+				: toOSPath(sourceUnit));
+			fileManager.cache(fileObject, CharBuffer.wrap(sourceUnit.getContents()));
+			AST ast = createAST(compilerOptions, apiLevel, context);
+			ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
+			CompilationUnit res = ast.newCompilationUnit();
+			result.put(sourceUnit, res);
+			filesToUnits.put(fileObject, res);
+			JavaCompiler javac = JavaCompiler.instance(context);
+			javac.keepComments = true;
+			String rawText = null;
+			try {
+				rawText = fileObject.getCharContent(true).toString();
+			} catch( IOException ioe) {
+				// ignore
+			}
+			JCCompilationUnit javacCompilationUnit = javac.parse(fileObject);
+			JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText);
+			converter.populateCompilationUnit(res, javacCompilationUnit);
+			attachComments(res, context, fileObject, converter, compilerOptions);
+			ASTVisitor v = new ASTVisitor() {
+				public void postVisit(ASTNode node) {
+					if( node.getParent() != null ) {
+						if( node.getStartPosition() < node.getParent().getStartPosition()) {
+							int parentEnd = node.getParent().getStartPosition() + node.getParent().getLength();
+							if( node.getStartPosition() >= 0 ) {
+								node.getParent().setSourceRange(node.getStartPosition(), parentEnd - node.getStartPosition());
+							}
 						}
 					}
 				}
-			}
-		};
-		res.accept(v);
-		ast.setBindingResolver(new JavacBindingResolver(javac, javaProject, context, converter));
-		//
-		ast.setOriginalModificationCount(ast.modificationCount()); // "un-dirty" AST so Rewrite can process it
-		return res;
+			};
+			res.accept(v);
+			ast.setBindingResolver(new JavacBindingResolver(javac, javaProject, context, converter));
+			//
+			ast.setOriginalModificationCount(ast.modificationCount()); // "un-dirty" AST so Rewrite can process it
+		}
+		return result;
+	}
+
+	private Optional<CompilationUnit> findTargetDOM(Map<JavaFileObject, CompilationUnit> filesToUnits, Object obj) {
+		if (obj == null) {
+			return Optional.empty();
+		}
+		if (obj instanceof JavaFileObject o) {
+			return Optional.of(filesToUnits.get(o));
+		}
+		if (obj instanceof DiagnosticSource source) {
+			return findTargetDOM(filesToUnits, source.getFile());
+		}
+		if (obj instanceof Diagnostic diag) {
+			return findTargetDOM(filesToUnits, diag.getSource());
+		}
+		return Optional.empty();
 	}
 
 	private static Path toOSPath(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit) {
