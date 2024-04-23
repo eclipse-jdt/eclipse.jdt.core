@@ -161,7 +161,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		return res;
 	}
 
-	public Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sourceUnits, int apiLevel, Map<String, String> compilerOptions,
+	private Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sourceUnits, int apiLevel, Map<String, String> compilerOptions,
 			int flags, IJavaProject javaProject, IProgressMonitor monitor) {
 		Context context = new Context();
 		Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> result = new HashMap<>(sourceUnits.length, 1.f);
@@ -379,18 +379,5 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				}
 			}
 		}
-	}
-
-	private static boolean match(Object source, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit) {
-		if (source instanceof DiagnosticSource diagnosticSource) {
-			return match(diagnosticSource.getFile(), unit);
-		}
-		if (source instanceof SimpleJavaFileObject javaFileObject) {
-			return Objects.equals(javaFileObject.toUri(), new File(new String(unit.getFileName())).toURI());
-		}
-		if (source instanceof PathFileObject pathFileObject) {
-			return Objects.equals(pathFileObject.getPath(), toOSPath(unit));
-		}
-		return false;
 	}
 }
