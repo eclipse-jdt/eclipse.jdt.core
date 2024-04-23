@@ -247,13 +247,13 @@ public class InfixExpression extends Expression {
 	 * The left operand; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
 	 */
-	private Expression leftOperand = null;
+	private volatile Expression leftOperand;
 
 	/**
 	 * The right operand; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
 	 */
-	private Expression rightOperand = null;
+	private volatile Expression rightOperand;
 
 	/**
 	 * The list of extended operand expressions (element type:

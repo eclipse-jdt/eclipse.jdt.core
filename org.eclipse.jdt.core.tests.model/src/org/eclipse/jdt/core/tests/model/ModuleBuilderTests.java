@@ -701,8 +701,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testConvertToModule() throws CoreException, IOException {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			IJavaProject project = setUpJavaProject("ConvertToModule");
@@ -738,8 +736,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testConvertToModuleWithRelease9() throws CoreException, IOException {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			IJavaProject project = setUpJavaProject("ConvertToModule");
@@ -3435,6 +3431,48 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
+	public void test_no_conflicting_packages_for_debugger_both_named() throws CoreException {
+		// the current project is modular, hence we need to suppress a conflict between 2 named modules
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		try {
+			String[] sources = new String[] {
+					"src/module-info.java",
+					"module Test {}\n",
+					"src/java/util/Map___.java",
+					"package java.util;\n" +
+					"abstract class Map___ implements java.util.Map {\n" +
+					"  Map___() {\n" +
+					"    super();\n" +
+					"  }\n" +
+					"  Object[] ___run() throws Throwable {\n" +
+					"    return entrySet().toArray();\n" +
+					"  }\n" +
+					"}"
+			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			IJavaProject p1= setupModuleProject("debugger_project", sources, new IClasspathEntry[]{dep});
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers",
+					"The package java.util conflicts with a package accessible from another module: java.base\n" +
+					"The package java.util is accessible from more than one module: Test, java.base\n" +
+					"The method entrySet() is undefined for the type Map___",
+					markers);
+
+			Hashtable<String, String> newOptions=new Hashtable<>(javaCoreOptions);
+			newOptions.put(CompilerOptions.OPTION_JdtDebugCompileMode, JavaCore.ENABLED);
+			JavaCore.setOptions(newOptions);
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+
+			assertNull("Option should not be stored", JavaCore.getOption(CompilerOptions.OPTION_JdtDebugCompileMode));
+		} finally {
+			deleteProject("debugger_project");
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+
 	// test that the special OPTION_JdtDebugCompileMode cannot be persisted on a project
 	public void test_no_conflicting_packages_for_debugger_project() throws CoreException {
 		try {
@@ -3902,9 +3940,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug512053() throws CoreException, IOException {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		this.sourceWorkspacePath = super.getSourceWorkspacePath() + java.io.File.separator + "bug512053";
 		try {
@@ -7020,8 +7055,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569c() throws CoreException {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
 		if (!isJRE19) return;
 		IJavaProject p1 = createJava9Project("Bug527569", "17");
 		Map<String, String> options = new HashMap<>();
@@ -8274,9 +8307,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testReleaseOption1() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_11);
@@ -8372,9 +8402,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption4() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
@@ -8406,9 +8433,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption5() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		if (!isJRE19) return;
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
@@ -8520,9 +8544,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption8() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
@@ -8552,9 +8573,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption9() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		if (!isJRE10) return;
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
@@ -8621,9 +8639,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption11() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
@@ -8660,9 +8675,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption12() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		if (!isJRE16)
 			return;
 		Hashtable<String, String> options = JavaCore.getOptions();
@@ -8704,9 +8716,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption13() throws Exception {
-		if (isJRE22) // TODO: Fix Issue #1874
-			return;
-
 		if (!isJRE12)
 			return;
 		Hashtable<String, String> options = JavaCore.getOptions();

@@ -53,6 +53,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	public static junit.framework.Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_23);
 	}
+	@Override
 	protected Map<String, String> getCompilerOptions() {
 		return getCompilerOptions(true);
 	}
@@ -66,6 +67,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
+	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		if(!isJRE23Plus)
 			return;
@@ -77,6 +79,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 			return;
 		runConformTest(testFiles, expectedOutput, customOptions, VMARGS, JAVAC_OPTIONS);
 	}
+	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 		Map<String, String> customOptions = getCompilerOptions(true);
 		Runner runner = new Runner();
@@ -104,7 +107,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		return parser.parse(sourceUnit, compilationResult);
 	}
 
-	private ImplicitTypeDeclaration unnamedClass(CompilationUnitDeclaration cu) {
+	private ImplicitTypeDeclaration implicitTypeDeclaration(CompilationUnitDeclaration cu) {
 		return cu == null || cu.types == null ? null :
 			Stream.of(cu.types).filter(ImplicitTypeDeclaration.class::isInstance).map(ImplicitTypeDeclaration.class::cast).findAny().orElse(null);
 	}
@@ -113,16 +116,16 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	public void testParseExplicitClass() {
 		CompilationUnitDeclaration res = parse("import java.lang.*;\npublic class A {}", "A.java");
 		assertFalse(res.compilationResult.hasErrors());
-		assertNull(unnamedClass(res));
+		assertNull(implicitTypeDeclaration(res));
 	}
 
 	@Test
 	public void testParseOnlyMain() {
 		CompilationUnitDeclaration res = parse("void main() {}", "A.java");
 		assertFalse(res.hasErrors());
-		ImplicitTypeDeclaration unnamedClass = unnamedClass(res);
-		assertNotNull(unnamedClass);
-		assertTrue(Stream.of(unnamedClass.methods).anyMatch(m -> m instanceof MethodDeclaration method && "main".equals(new String(method.selector))));
+		ImplicitTypeDeclaration implicitTypeDeclaration = implicitTypeDeclaration(res);
+		assertNotNull(implicitTypeDeclaration);
+		assertTrue(Stream.of(implicitTypeDeclaration.methods).anyMatch(m -> m instanceof MethodDeclaration method && "main".equals(new String(method.selector))));
 		// should generated A.class (unnamed)
 	}
 
@@ -135,7 +138,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 			""", "A.java");
 		assertFalse(res.compilationResult.hasErrors());
 		// hello, main, and the implicit constructor
-		assertEquals(3, unnamedClass(res).methods.length);
+		assertEquals(3, implicitTypeDeclaration(res).methods.length);
 		// should generated A.class (unnamed) and A$B.class
 		assertEquals(1, res.types[0].memberTypes.length);
 	}

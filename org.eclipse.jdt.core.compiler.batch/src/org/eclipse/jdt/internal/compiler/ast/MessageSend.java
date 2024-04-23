@@ -159,7 +159,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	yieldQualifiedCheck(currentScope);
 	// recording the closing of AutoCloseable resources:
 	CompilerOptions compilerOptions = currentScope.compilerOptions();
-	boolean analyseResources = compilerOptions.analyseResourceLeaks;
+	boolean analyseResources = compilerOptions.analyseResourceLeaks && flowInfo.reachMode() == FlowInfo.REACHABLE;
 	if (analyseResources) {
 		if (nonStatic) {
 			// closeable.close()

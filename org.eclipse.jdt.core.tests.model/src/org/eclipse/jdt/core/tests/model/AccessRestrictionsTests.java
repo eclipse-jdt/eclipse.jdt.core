@@ -14,15 +14,23 @@
 package org.eclipse.jdt.core.tests.model;
 
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IProblemRequestor;
+import org.eclipse.jdt.core.ITypeRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+
+import junit.framework.Test;
 
 public class AccessRestrictionsTests extends ModifyingResourceTests {
 	static class ProblemRequestor extends AbstractJavaModelTests.ProblemRequestor {
@@ -338,7 +346,7 @@ public void test003() throws CoreException {
 			"		C1 m1 =                 // error\n" +
 			"		        new C1(0);      // error\n" +
 			"		C2 m2 = new C2();\n" +
-			"		return m1.toString() + m2.toString();\n" +
+			"		return m1 == null || m2 == null ? \"!OK\" : \"OK\";\n" +
 			"	}\n" +
 			"}";
 		this.problemRequestor = new ProblemRequestor(src);
@@ -982,7 +990,7 @@ public void test010() throws CoreException {
 			"		C1 m1 =                 // error\n" +
 			"		        new C1(0);      // error\n" +
 			"		C2 m2 = new C2();\n" +
-			"		return m1.toString() + m2.toString();\n" +
+			"		return m1 == null || m2 == null ? \"!OK\" : \"OK\";\n" +
 			"	}\n" +
 			"}";
 		this.problemRequestor = new ProblemRequestor(src);

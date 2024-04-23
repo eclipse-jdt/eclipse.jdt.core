@@ -213,13 +213,13 @@ public class Assignment extends Expression {
 	 * The left hand side; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
 	 */
-	private Expression leftHandSide = null;
+	private volatile Expression leftHandSide;
 
 	/**
 	 * The right hand side; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
 	 */
-	private Expression rightHandSide = null;
+	private volatile Expression rightHandSide;
 
 	/**
 	 * Creates a new AST node for an assignment expression owned by the given

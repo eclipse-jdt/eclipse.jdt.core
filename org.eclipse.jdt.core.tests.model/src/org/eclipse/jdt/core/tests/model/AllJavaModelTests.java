@@ -65,6 +65,7 @@ private static Class[] getAllTestClasses() {
 
 		// Attached javadoc tests
 		AttachedJavadocTests.class,
+		AttachedJavadocTests21.class,
 
 		// Java search tests
 		RunJavaSearchTests.class,

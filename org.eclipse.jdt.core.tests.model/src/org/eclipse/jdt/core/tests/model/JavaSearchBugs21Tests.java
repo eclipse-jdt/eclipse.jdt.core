@@ -74,7 +74,7 @@ public class JavaSearchBugs21Tests extends AbstractJavaSearchTests {
 		this.resultCollector.showAccuracy(true);
 	}
 
-	public void testUnnamedClassInModel() throws CoreException {
+	public void testImplicitTypeDeclarationInModel() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", """
 				String foo() {
@@ -85,8 +85,8 @@ public class JavaSearchBugs21Tests extends AbstractJavaSearchTests {
 				}
 				""");
 		IType unnamedType = this.workingCopies[0].getType("X");
-		assertTrue("Unnamed class should exist in the model", unnamedType.exists());
-		assertTrue("Unnamed class should be marked as unnamed", unnamedType.isImplicitlyDeclared());
+		assertTrue("Implicitly declared class should exist in the model", unnamedType.exists());
+		assertTrue("Implicitly declared class should be marked as implicitly declared", unnamedType.isImplicitlyDeclared());
 	}
 
 	public void testNamedClassInModel() throws CoreException {
@@ -103,7 +103,7 @@ public class JavaSearchBugs21Tests extends AbstractJavaSearchTests {
 				""");
 		IType namedTyped = this.workingCopies[0].getType("X");
 		assertTrue("class should exist in the model", namedTyped.exists());
-		assertTrue("class should be marked as named", !namedTyped.isImplicitlyDeclared());
+		assertTrue("class should not be marked as implicitly declared", !namedTyped.isImplicitlyDeclared());
 	}
 
 }

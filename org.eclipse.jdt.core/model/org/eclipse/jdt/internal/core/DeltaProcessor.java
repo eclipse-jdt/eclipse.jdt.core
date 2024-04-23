@@ -2022,7 +2022,9 @@ public class DeltaProcessor {
 	 * Registers the given delta with this delta processor.
 	 */
 	public void registerJavaModelDelta(IJavaElementDelta delta) {
-		JavaModelManager.assertModelModifiable();
+		if (JavaModelManager.isReadOnly()) {
+			throw new IllegalStateException("Its not allow to modify JavaModel during ReadOnly action. delta=" + delta); //$NON-NLS-1$
+		}
 		this.javaModelDeltas.add(delta);
 	}
 	/*

@@ -166,6 +166,14 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 			return this; // no-change to signal "at end"
 		}
 
+		boolean isRequired(boolean buildFieldsAndMethods, boolean resolveAnnotations) {
+			return switch (this) {
+				case BUILD_FIELDS_AND_METHODS -> buildFieldsAndMethods;
+				case INTEGRATE_ANNOTATIONS_IN_HIERARCHY -> resolveAnnotations;
+				default -> true;
+			};
+		}
+
 		/** values without NONE */
 		static final CompleteTypeBindingsSteps[] realValues = Arrays.copyOfRange(values(), 1, values().length-1);
 
@@ -498,7 +506,7 @@ public void buildTypeBindings(CompilationUnitDeclaration unit, AccessRestriction
 		scope = new CompilationUnitScope(unit, this.globalOptions);
 		unitModule = unit.moduleDeclaration.setBinding(new SourceModuleBinding(moduleName, scope, this.root));
 	} else {
-		if (this.globalOptions.sourceLevel >= ClassFileConstants.JDK9) {
+		if (this.globalOptions.sourceLevel >= ClassFileConstants.JDK9 && !unit.isModuleInfo()) {
 			unitModule = unit.module(this);
 		}
 		scope = new CompilationUnitScope(unit, unitModule != null ? unitModule.environment : this);
@@ -601,11 +609,14 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit) {
 * suitable replacement will be substituted (such as Object for a missing superclass)
 */
 public void completeTypeBindings(CompilationUnitDeclaration parsedUnit, boolean buildFieldsAndMethods) {
+	completeTypeBindings(parsedUnit, buildFieldsAndMethods, true);
+}
+public void completeTypeBindings(CompilationUnitDeclaration parsedUnit, boolean buildFieldsAndMethods, boolean resolveAnnotations) {
 	if (parsedUnit.scope == null) return; // parsing errors were too severe
 	LookupEnvironment rootEnv = this.root;
 	CompilationUnitDeclaration previousUnitBeingCompleted = rootEnv.unitBeingCompleted;
 	for (CompleteTypeBindingsSteps step : CompleteTypeBindingsSteps.realValues) {
-		if (step != CompleteTypeBindingsSteps.BUILD_FIELDS_AND_METHODS || buildFieldsAndMethods)
+		if (step.isRequired(buildFieldsAndMethods, resolveAnnotations))
 			step.perform((rootEnv.unitBeingCompleted = parsedUnit).scope);
 	}
 

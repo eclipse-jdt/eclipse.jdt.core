@@ -56,7 +56,7 @@ public class JRTUtil {
 
 	public static final String JAVA_BASE = "java.base".intern(); //$NON-NLS-1$
 	public static final char[] JAVA_BASE_CHAR = JAVA_BASE.toCharArray();
-	static final String MODULES_SUBDIR = "/modules"; //$NON-NLS-1$
+	public static final String MODULES_SUBDIR = "/modules"; //$NON-NLS-1$
 	static final String[] DEFAULT_MODULE = new String[]{JAVA_BASE};
 	static final String[] NO_MODULE = new String[0];
 	static final String MULTIPLE = "MU"; //$NON-NLS-1$
@@ -76,6 +76,7 @@ public class JRTUtil {
 	 * Map from JDK home path to ct.sym file (located in /lib in the JDK)
 	 */
 	private static final Map<Path, CtSym> ctSymFiles = new ConcurrentHashMap<>();
+	private static final Map<String, FileSystem> JRT_FILE_SYSTEMS = new ConcurrentHashMap<>();
 
 	static final SoftClassCache classCache = new SoftClassCache();
 
@@ -163,6 +164,28 @@ public class JRTUtil {
 			return system;
 		} catch (RuntimeIOException e) {
 				throw e.getCause();
+		}
+	}
+
+	/**
+	 * @param path
+	 *            absolute path to java.home
+	 * @return new {@link FileSystem} based on {@link #JRT_FS_JAR} for given Java home path.
+	 * @throws IOException
+	 *             on any error
+	 */
+	public static FileSystem getJrtFileSystem(String path) throws IOException {
+		try {
+			FileSystem fs = JRT_FILE_SYSTEMS.computeIfAbsent(path, p -> {
+				try {
+					return FileSystems.newFileSystem(JRTUtil.JRT_URI, Map.of("java.home", p)); //$NON-NLS-1$
+				} catch (IOException e) {
+					throw new RuntimeIOException(e);
+				}
+			});
+			return fs;
+		} catch (RuntimeIOException e) {
+			throw e.getCause();
 		}
 	}
 
@@ -531,9 +554,7 @@ class JrtFileSystem {
 		this.jdk = jdkHome;
 		this.release = release;
 		JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
-		HashMap<String, String> env = new HashMap<>();
-		env.put("java.home", this.jdk.path); //$NON-NLS-1$
-		this.fs = FileSystems.newFileSystem(JRTUtil.JRT_URI, env);
+		this.fs = JRTUtil.getJrtFileSystem(this.jdk.path);
 		this.modRoot = this.fs.getPath(JRTUtil.MODULES_SUBDIR);
 		// Set up the root directory where modules are located
 		walkJrtForModules();

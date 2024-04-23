@@ -36,7 +36,7 @@ public abstract class VariableDeclaration extends ASTNode {
 	 * The variable name; lazily initialized; defaults to an unspecified,
 	 * legal Java identifier.
 	 */
-	SimpleName variableName = null;
+	volatile SimpleName variableName;
 
 	/**
 	 * The number of extra array dimensions that appear after the variable;

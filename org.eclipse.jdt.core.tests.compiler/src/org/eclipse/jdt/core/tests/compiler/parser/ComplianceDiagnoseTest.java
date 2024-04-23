@@ -2348,7 +2348,7 @@ public void test0042() {
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			Unnamed Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
+			Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
 			----------
 			2. ERROR in X.java (at line 1)
 				void ___eval() {
@@ -2366,7 +2366,7 @@ public void test0042() {
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			The preview feature Unnamed Classes and Instance Main Methods is only available with source level 23 and above
+			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above
 			----------
 			2. ERROR in X.java (at line 1)
 				void ___eval() {
