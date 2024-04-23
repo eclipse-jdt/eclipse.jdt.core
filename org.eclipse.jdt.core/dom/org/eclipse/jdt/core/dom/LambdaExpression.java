@@ -109,7 +109,7 @@ public class LambdaExpression extends Expression {
 	 * The method body.
 	 * The method body; lazily initialized, defaults to an empty Block.
 	 */
-	private ASTNode body = null;
+	private volatile ASTNode body;
 
 	/**
 	 * Creates a new AST node for a LambdaExpression declaration owned

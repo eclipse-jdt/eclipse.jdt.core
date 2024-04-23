@@ -179,7 +179,7 @@ public class PrefixExpression extends Expression {
 	 * The operand; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
 	 */
-	private Expression operand = null;
+	private volatile Expression operand;
 
 	/**
 	 * Creates a new AST node for an prefix expression owned by the given

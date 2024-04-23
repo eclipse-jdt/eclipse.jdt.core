@@ -57,6 +57,9 @@ public class SourceRangeVerifier extends ASTVisitor {
 		ASTNode previous = null;
 
 		List properties = node.structuralPropertiesForType();
+		if (properties == null) { // happens for some nodes that aren't usually available at AST level
+			return false;
+		}
 		for (Object p : properties) {
 			StructuralPropertyDescriptor property = (StructuralPropertyDescriptor) p;
 			if (property.isChildProperty()) {

@@ -157,13 +157,13 @@ public class ClassInstanceCreation extends Expression {
 	 * The type name; lazily initialized; defaults to a unspecified,
 	 * legal type name. Not used in JLS3.
 	 */
-	private Name typeName = null;
+	private volatile Name typeName;
 
 	/**
 	 * The type; lazily initialized; defaults to a unspecified type.
 	 * @since 3.0
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * The list of argument expressions (element type:

@@ -74,13 +74,13 @@ public class GuardedPattern extends Pattern{
 	/**
 	 * The pattern; <code>null</code> for none
 	 */
-	private Pattern pattern = null;
+	private volatile Pattern pattern;
 
 	/**
 	 * The expression; <code>null</code> for none; lazily initialized (but
 	 * does <b>not</b> default to none).
 	 */
-	private Expression conditionalExpression = null;
+	private volatile Expression conditionalExpression;
 
 
 

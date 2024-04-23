@@ -137,7 +137,7 @@ public class VariableDeclarationExpression extends Expression {
 	 * The base type; lazily initialized; defaults to an unspecified,
 	 * legal type.
 	 */
-	private Type baseType = null;
+	private volatile Type baseType;
 
 	/**
 	 * The list of variable declaration fragments (element type:

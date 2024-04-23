@@ -130,7 +130,7 @@ public class ForStatement extends Statement {
 	 * The body statement; lazily initialized; defaults to an empty block
 	 * statement.
 	 */
-	private Statement body = null;
+	private volatile Statement body;
 
 	/**
 	 * Creates a new AST node for a for statement owned by the given AST.

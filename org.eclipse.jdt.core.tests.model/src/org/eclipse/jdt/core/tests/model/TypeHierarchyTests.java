@@ -3580,9 +3580,6 @@ public void testIndexQualificationJavaLangReferences() throws Exception {
 }
 
 public void testIndexQualificationLambdaReferences_AsReturnTypes() throws Exception {
-	if (isJRE22)	//TODO: Fix Issue 1875
-		return;
-
 	setupQualifierProject();
 	waitUntilIndexesReady();
 	try {
@@ -3597,9 +3594,6 @@ public void testIndexQualificationLambdaReferences_AsReturnTypes() throws Except
 }
 
 public void testIndexQualificationLambdaReferences_AsParameters() throws Exception {
-	if (isJRE22)	//TODO: Fix Issue 1875
-		return;
-
 	setupQualifierProject();
 	waitUntilIndexesReady();
 	try {

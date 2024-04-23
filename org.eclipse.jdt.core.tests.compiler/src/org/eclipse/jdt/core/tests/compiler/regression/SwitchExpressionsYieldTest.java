@@ -2312,6 +2312,38 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Syntax error on token \"2\", delete this token\n" +
 				"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2323
+	// [Switch Expression] Internal compiler error: java.lang.ClassCastException while compiling switch expression
+	public void testIssue2323() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void f() {
+						int[] array = null;
+						(array = new int[1])[0] = 42;
+					}
+					public static int g() {
+						int[] array = null;
+						System.out.println(switch(10) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+					});
+						return (array = new int[1])[0];
+					}
+				}
+				"""
+				},
+				"");
+	}
 	public void testBug547891_01() {
 		this.runNegativeTest(
 				new String[] {
@@ -6861,5 +6893,578 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"""
 				},
 				"Entry = Hello");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					int k;
+					void foo() {
+						new X() {
+							{
+								System.out.println ("Switch Expr = " +  switch (X.this.k) {
+								default -> {
+									try {
+										yield throwing();
+									} catch (NumberFormatException nfe) {
+										yield 10;
+									}
+									finally {
+										System.out.println("Finally");
+									}
+								}
+							});
+							}
+
+							private Object throwing() {
+								throw new NumberFormatException();
+							}
+						};
+					}
+
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}
+				"""
+				},
+				"Finally\n"
+				+ "Switch Expr = 10");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					int k;
+					void foo() {
+						int fooLocal = 10;
+						class Local {
+							Local() {
+								System.out.println("Switch result = " + switch(X.this.k) {
+																			default -> {
+																				try {
+																					System.out.println("Try");
+																					yield 10;
+																				} catch (Exception e) {
+																					System.out.println("Catch");
+																					yield 20;
+																				} finally {
+																					System.out.println("Finally");
+																				}
+																			}
+																		});
+							}
+						}
+						new Local();
+					}
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}
+				"""
+				},
+				"Try\n" +
+				"Finally\n"
+				+ "Switch result = 10");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_3() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					int k;
+
+					{
+						System.out.println ("Switch Expr = " +  switch (k) {
+						default -> {
+							try {
+								yield throwing();
+							} catch (NumberFormatException nfe) {
+								yield 10;
+							}
+							finally {
+								System.out.println("Finally");
+							}
+						}
+					});
+					}
+					private Object throwing() {
+						throw new NumberFormatException();
+					}
+					public static void main(String[] args) {
+						new X();
+					}
+				}
+				"""
+				},
+				"Finally\n"
+				+ "Switch Expr = 10");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_4() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						args = new String [] { "one" , "two"};
+						System.out.println(switch (args) {
+							case null ->  0;
+							default -> switch(args.length) {
+											case 0 -> 0;
+											case 1 -> "One";
+											default -> new X();
+										};
+							});
+					}
+					public String toString() {
+						return "some X()";
+					}
+				}
+				"""
+				},
+				"some X()");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_5() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					int k;
+					void foo() {
+						String val = "123";
+						new X() {
+							{
+								System.out.println ("Switch Expr = " +  switch (X.this.k) {
+								default -> {
+									try {
+										yield throwing();
+									} catch (NumberFormatException nfe) {
+										yield val;
+									}
+									finally {
+										System.out.println("Finally");
+									}
+								}
+							});
+							}
+
+							private Object throwing() {
+								throw new NumberFormatException();
+							}
+						};
+					}
+
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}
+				"""
+				},
+				"Finally\n"
+				+ "Switch Expr = 123");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_6() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					static int k;
+
+					static {
+						System.out.println ("Switch Expr = " +  switch (k) {
+						default -> {
+							try {
+								yield throwing();
+							} catch (NumberFormatException nfe) {
+								yield 10;
+							}
+							finally {
+								System.out.println("Finally");
+							}
+						}
+					});
+					}
+					private static Object throwing() {
+						throw new NumberFormatException();
+					}
+					public static void main(String[] args) {
+						new X();
+					}
+				}
+				"""
+				},
+				"Finally\n"
+				+ "Switch Expr = 10");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2233
+	// [Switch-Expression] Assertion failure while compiling enum class that uses switch expression with try block
+	public void testIssue2233() {
+		if (this.complianceLevel < ClassFileConstants.JDK16)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public enum X {
+					PARAMETER, FIELD, METHOD;
+					X() {
+						System.out.println(switch (this) {
+												default -> {
+													try {
+														yield 10;
+													} finally {
+
+													}
+												}
+											});
+					}
+
+				    public static void notmain(String [] args) {
+				        X x = PARAMETER;
+				        System.out.println(x);
+				    }
+				}
+				"""
+				},
+				"");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2322
+	// [Switch Expression] Internal compiler error: java.util.EmptyStackException at java.base/java.util.Stack.peek
+	public void testIssue2322() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String [] args) {
+				    int lineCount = 10;
+				    long time = 1000;
+				    print((int) (lineCount * 10000.0 / time));
+				    print((double) (lineCount * 10000.0 / time));
+				    System.out.println(switch(lineCount) {
+				        default -> {
+				    	try {
+				    		yield "OK";
+				    	} finally {
+
+				    	}
+				        }
+				    });
+				  }
+				  static void print(double d) {}
+				}
+				"""
+				},
+				"OK");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
+	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	public void testIssue2335() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public final class X {
+
+				  public void show() {
+
+				    int size1 = 1;
+				    int size2 = 2;
+				    int size3 = 3;
+
+				    short[][][] array = new short[size1][size2][size3];
+
+				    for (int i = 0; i < size1; i++) {
+				      for (int j = 0; j < size2; j++) {
+				        boolean on = false;
+				        for (int k = 0; k < size3; k++) {
+				          array[i][j][k] = on ? (short) 1 : (short) 0;
+				        }
+				      }
+				    }
+				    System.out.println(switch(42) {
+				    	default -> {
+				    		try {
+				    			yield 42;
+				    		} finally {
+
+				    		}
+				    	}
+				    });
+
+				  }
+
+				  public static void main(String[] args) {
+				    new X().show();
+				  }
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
+	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	public void testIssue2335_min() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public final class X {
+				  public static void main(String[] args) {
+					   short[] array = new short[10];
+
+					    for (int i = 0; i < 10; i++) {
+					        boolean on = false;
+					          array[i] = on ? (short) 1 : (short) 0;
+					    }
+					    System.out.println(switch(42) {
+					    	default -> {
+					    		try {
+					    			yield 42;
+					    		} finally {
+
+					    		}
+					    	}
+					    });
+				  }
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
+	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	public void testIssue2335_other() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						System.out.println(switch (1) {
+						default -> {
+							try {
+								System.out.println(switch (10) { default -> { try { yield 10; } finally {} } });
+							} finally {}
+							yield 1;
+						}
+						});
+					}
+					X() {}
+				}
+				"""
+				},
+				"10\n" +
+				"1");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2349
+	// [Switch Expression] Verify error at runtime with switch expression and exception handling inside lambda expression
+	public void testIssue2349() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					int doit();
+				}
+				public class X {
+					public static void main(String[] args) {
+						I i = () -> {
+							return 10 + switch (10) {
+								default -> { try { yield 32; } catch (NullPointerException npe) { yield -10; } }
+						};
+						};
+						System.out.println(i.doit());
+					}
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2360
+	// [Switch Expression] Internal compiler error: java.lang.NullPointerException: Cannot read field "binding" because "this.methodDeclaration" is null
+	public void testIssue2360() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					void foo(int p, int q);
+				}
+				public class X {
+				   int f;
+					void foo(int a) {
+				       int loc = 10;
+						I i = (int p, int q)  -> {
+				           I i2 = new I() { public void foo(int f, int p0) {};};
+				           System.out.println(10 + switch (10) {
+							default -> { try { yield 32; } catch (NullPointerException npe) { yield -10; } }});
+							System.out.println(10 + switch (loc) {
+							default -> { try { yield 0; } catch (NullPointerException npe) { yield -10; } }});
+							System.out.println(10 + switch (p) {
+							default -> { try { yield p; } catch (NullPointerException npe) { yield -10; } }});
+							System.out.println(10 + switch (q) {
+							default -> { try { yield q; } catch (NullPointerException npe) { yield -10; } }});
+						};
+						i.foo(10,  20);
+					}
+
+					public static void main(String[] args) {
+						new X().foo(42);
+					}
+				}
+				"""
+				},
+				"42\n" +
+				"10\n" +
+				"20\n" +
+				"30");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2360
+	// [Switch Expression] Internal compiler error: java.lang.NullPointerException: Cannot read field "binding" because "this.methodDeclaration" is null
+	public void testIssue2360_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					void foo(int p, int q);
+				}
+				public class X {
+				   int f;
+					void foo(int a) {
+				       int loc;
+						I i = (int p, int q)  -> {
+				           I i2 = new I() { public void foo(int f, int p0) {};};
+				           System.out.println(10 + switch (10) {
+							default -> { try { yield 32; } catch (NullPointerException npe) { yield -10; } }});
+						};
+						i.foo(10,  20);
+					}
+
+					public static void main(String[] args) {
+						new X().foo(42);
+					}
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2363
+	// [Switch Expressions] Compiler crashes with Switch expressions mixed with exception handling
+	public void testIssue2363() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String argv[]) {
+						System.out.println(void.class == Void.TYPE);
+						System.out.println(switch(42) {
+				    	default -> {
+				    		try {
+				    			yield 42;
+				    		} finally {
+
+				    		}
+				    	}
+				    });
+
+					}
+				}
+				"""
+				},
+				"true\n42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2366
+	// [Switch Expression] Assertion fails when IDE is launched with JVM option -ea
+	public void testIssue2366() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				  public X() {
+				    super();
+				  }
+				  public static void foo() {
+				    X z;
+				    while (((z = getObject()) != null))      {
+				        z.bar();
+				      }
+				    System.out.println(switch(42) {
+					  default -> {
+						try {
+							yield 42;
+						} finally {
+
+						}
+					  }
+				    });
+				  }
+				  public void bar() {
+				  }
+				  public static X getObject() {
+				    return null;
+				  }
+				  public static void main(String[] args) {
+				    new X().foo();
+				  }
+				}
+				"""
+				},
+				"42");
 	}
 }

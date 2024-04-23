@@ -78,13 +78,13 @@ public class InstanceofExpression extends Expression {
 	 * The left operand; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
 	 */
-	private Expression leftOperand = null;
+	private volatile Expression leftOperand;
 
 	/**
 	 * The right operand; lazily initialized; defaults to an unspecified,
 	 * but legal, simple type.
 	 */
-	private Type rightOperand = null;
+	private volatile Type rightOperand;
 
 	/**
 	 * Creates a new AST node for an instanceof expression owned by the given

@@ -77,7 +77,7 @@ public final class SingleMemberAnnotation extends Annotation {
 	 * The value; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
 	 */
-	private Expression value = null;
+	private volatile Expression value;
 
 	/**
 	 * Creates a new unparented normal annotation node owned

@@ -123,7 +123,6 @@ public class CodeStream {
 	public boolean wideMode = false;
 
 	public Stack<TypeBinding> switchSaveTypeBindings = new Stack<>();
-	public int lastSwitchCumulativeSyntheticVars = 0;
 
 	public Map<BlockScope, List<ExceptionLabel>> patternAccessorMap = new HashMap<>();
 	public Stack<BlockScope> accessorExceptionTrapScopes = new Stack<>();
@@ -338,13 +337,13 @@ public void aload(int iArg) {
 public void aload_0() {
 	this.countLabels = 0;
 	this.stackDepth++;
-	pushTypeBinding(0);
 	if (this.stackDepth > this.stackMax) {
 		this.stackMax = this.stackDepth;
 	}
 	if (this.maxLocals == 0) {
 		this.maxLocals = 1;
 	}
+	pushTypeBinding(0);
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
@@ -355,12 +354,12 @@ public void aload_0() {
 public void aload_1() {
 	this.countLabels = 0;
 	this.stackDepth++;
-	pushTypeBinding(1);
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 	if (this.maxLocals <= 1) {
 		this.maxLocals = 2;
 	}
+	pushTypeBinding(1);
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
@@ -371,12 +370,12 @@ public void aload_1() {
 public void aload_2() {
 	this.countLabels = 0;
 	this.stackDepth++;
-	pushTypeBinding(2);
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 	if (this.maxLocals <= 2) {
 		this.maxLocals = 3;
 	}
+	pushTypeBinding(2);
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
@@ -387,12 +386,12 @@ public void aload_2() {
 public void aload_3() {
 	this.countLabels = 0;
 	this.stackDepth++;
-	pushTypeBinding(3);
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 	if (this.maxLocals <= 3) {
 		this.maxLocals = 4;
 	}
+	pushTypeBinding(3);
 	if (this.classFileOffset >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
@@ -1446,9 +1445,6 @@ public void fieldAccess(byte opcode, FieldBinding fieldBinding, TypeBinding decl
 	this.fieldAccess(opcode, returnTypeSize, declaringClass.constantPoolName(), fieldBinding.name, returnType.signature(), returnType.id, returnType);
 }
 
-private void fieldAccess(byte opcode, int returnTypeSize, char[] declaringClass, char[] fieldName, char[] signature, int typeId) {
-	fieldAccess(opcode, returnTypeSize, declaringClass, fieldName, signature, typeId, null);
-}
 private void fieldAccess(byte opcode, int returnTypeSize, char[] declaringClass, char[] fieldName, char[] signature, int typeId, TypeBinding typeBinding) {
 	this.countLabels = 0;
 	switch(opcode) {
@@ -1961,7 +1957,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
  */
 public void generateClassLiteralAccessForType(Scope scope, TypeBinding accessedType, FieldBinding syntheticFieldBinding) {
 	if (accessedType.isBaseType() && accessedType != TypeBinding.NULL) {
-		getTYPE(accessedType.id);
+		getClass(accessedType);
 		return;
 	}
 	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
@@ -2122,11 +2118,11 @@ public void generateEmulationForConstructor(Scope scope, MethodBinding methodBin
 			this.generateInlinedValue(i);
 			TypeBinding parameter = methodBinding.parameters[i];
 			if (parameter.isBaseType()) {
-				getTYPE(parameter.id);
+				getClass(parameter);
 			} else if (parameter.isArrayType()) {
 				ArrayBinding array = (ArrayBinding)parameter;
 				if (array.leafComponentType.isBaseType()) {
-					getTYPE(array.leafComponentType.id);
+					getClass(array.leafComponentType);
 				} else {
 					this.ldc(String.valueOf(array.leafComponentType.constantPoolName()).replace('/', '.'));
 					invokeClassForName();
@@ -2178,11 +2174,11 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 			this.generateInlinedValue(i);
 			TypeBinding parameter = methodBinding.parameters[i];
 			if (parameter.isBaseType()) {
-				getTYPE(parameter.id);
+				getClass(parameter);
 			} else if (parameter.isArrayType()) {
 				ArrayBinding array = (ArrayBinding)parameter;
 				if (array.leafComponentType.isBaseType()) {
-					getTYPE(array.leafComponentType.id);
+					getClass(array.leafComponentType);
 				} else {
 					this.ldc(String.valueOf(array.leafComponentType.constantPoolName()).replace('/', '.'));
 					invokeClassForName();
@@ -3805,100 +3801,28 @@ protected int getPosition() {
 	return this.position;
 }
 
-public void getTYPE(int baseTypeID) {
+public void getClass(TypeBinding baseType) {
 	this.countLabels = 0;
-	switch (baseTypeID) {
-		case TypeIds.T_byte :
-			// getstatic: java.lang.Byte.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangByteConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_short :
-			// getstatic: java.lang.Short.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangShortConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_char :
-			// getstatic: java.lang.Character.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangCharacterConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_int :
-			// getstatic: java.lang.Integer.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangIntegerConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_long :
-			// getstatic: java.lang.Long.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangLongConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_float :
-			// getstatic: java.lang.Float.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangFloatConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_double :
-			// getstatic: java.lang.Double.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangDoubleConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_boolean :
-			// getstatic: java.lang.Boolean.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangBooleanConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-		case TypeIds.T_void :
-			// getstatic: java.lang.Void.TYPE
-			fieldAccess(
-					Opcodes.OPC_getstatic,
-					1, // return type size
-					ConstantPool.JavaLangVoidConstantPoolName,
-					ConstantPool.TYPE,
-					ConstantPool.JavaLangClassSignature,
-					baseTypeID);
-			break;
-	}
+	char [] constantPoolName = switch (baseType.id) {
+					case TypeIds.T_byte -> ConstantPool.JavaLangByteConstantPoolName;
+					case TypeIds.T_short -> ConstantPool.JavaLangShortConstantPoolName;
+					case TypeIds.T_char -> ConstantPool.JavaLangCharacterConstantPoolName;
+					case TypeIds.T_int -> ConstantPool.JavaLangIntegerConstantPoolName;
+					case TypeIds.T_long -> ConstantPool.JavaLangLongConstantPoolName;
+					case TypeIds.T_float -> ConstantPool.JavaLangFloatConstantPoolName;
+					case TypeIds.T_double -> ConstantPool.JavaLangDoubleConstantPoolName;
+					case TypeIds.T_boolean -> ConstantPool.JavaLangBooleanConstantPoolName;
+					case TypeIds.T_void -> ConstantPool.JavaLangVoidConstantPoolName;
+					default-> throw new AssertionError("Unknown base type"); //$NON-NLS-1$
+				};
+	fieldAccess(
+			Opcodes.OPC_getstatic,
+			1, // return type size
+			constantPoolName,
+			ConstantPool.TYPE,
+			ConstantPool.JavaLangClassSignature,
+			baseType.id,
+			baseType);
 }
 
 /**
@@ -3980,7 +3904,7 @@ public void i2c() {
 public void i2d() {
 	this.countLabels = 0;
 	this.stackDepth++;
-	pushTypeBinding(1, TypeBinding.INT);
+	pushTypeBinding(1, TypeBinding.DOUBLE);
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -4581,7 +4505,6 @@ public void init(ClassFile targetClassFile) {
 	this.position = 0;
 
 	this.clearTypeBindingStack();
-	this.lastSwitchCumulativeSyntheticVars = 0;
 	this.patternAccessorMap.clear();
 	this.accessorExceptionTrapScopes.clear();
 }
@@ -5392,8 +5315,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 			receiverAndArgsSize = 2;
 			break;
 	}
-	// TODO: revisit after bug 561726 is fixed
-	TypeBinding type = this.targetLevel >= ClassFileConstants.JDK14 ?
+	TypeBinding type = this.targetLevel >= ClassFileConstants.JDK1_5 ?
 		getPopularBinding(ConstantPool.JavaLangStringBuilderConstantPoolName) : null;
 	invoke(
 			Opcodes.OPC_invokevirtual,
@@ -6654,15 +6576,27 @@ public void new_(TypeReference typeReference, TypeBinding typeBinding) {
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
 }
 
-public void newarray(int array_Type) {
+public void newarray(int arrayTypeCode) {
 	this.countLabels = 0;
 	if (this.classFileOffset + 1 >= this.bCodeStream.length) {
 		resizeByteArray();
 	}
 	this.position += 2;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_newarray;
-	this.bCodeStream[this.classFileOffset++] = (byte) array_Type;
-	pushTypeBinding(1, TypeBinding.wellKnownBaseType(array_Type));
+	this.bCodeStream[this.classFileOffset++] = (byte) arrayTypeCode;
+
+	ClassScope scope = this.classFile.referenceBinding.scope;
+	pushTypeBinding(1, switch (arrayTypeCode) {
+				case ClassFileConstants.INT_ARRAY -> scope.createArrayType(TypeBinding.INT, 1);
+				case ClassFileConstants.BYTE_ARRAY -> scope.createArrayType(TypeBinding.BYTE, 1);
+				case ClassFileConstants.BOOLEAN_ARRAY -> scope.createArrayType(TypeBinding.BOOLEAN, 1);
+				case ClassFileConstants.SHORT_ARRAY -> scope.createArrayType(TypeBinding.SHORT, 1);
+				case ClassFileConstants.CHAR_ARRAY -> scope.createArrayType(TypeBinding.CHAR, 1);
+				case ClassFileConstants.LONG_ARRAY -> scope.createArrayType(TypeBinding.LONG, 1);
+				case ClassFileConstants.FLOAT_ARRAY -> scope.createArrayType(TypeBinding.FLOAT, 1);
+				case ClassFileConstants.DOUBLE_ARRAY -> scope.createArrayType(TypeBinding.DOUBLE, 1);
+				default -> throw new UnsupportedOperationException("Unknown base type");	//$NON-NLS-1$
+			});
 }
 
 public void newArray(ArrayBinding arrayBinding) {
@@ -6789,7 +6723,7 @@ public void newStringContatenation() {
 	// new: java.lang.StringBuilder
 	this.countLabels = 0;
 	this.stackDepth++;
-	pushTypeBinding(ConstantPool.JavaLangStringBufferConstantPoolName);
+	pushTypeBinding(ConstantPool.JavaLangStringBuilderConstantPoolName);
 	if (this.stackDepth > this.stackMax) {
 		this.stackMax = this.stackDepth;
 	}
@@ -6923,7 +6857,7 @@ public void pop2() {
 
 public void pushExceptionOnStack(TypeBinding binding) {
 	this.stackDepth = 1;
-//	clearTypeBindingStack();
+	clearTypeBindingStack();
 	pushTypeBinding(binding);
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
@@ -7708,7 +7642,8 @@ protected void writeWidePosition(BranchLabel label) {
 	}
 }
 private boolean isSwitchStackTrackingActive() {
-	return this.methodDeclaration != null && this.methodDeclaration.containsSwitchWithTry;
+	return this.methodDeclaration != null ? this.methodDeclaration.containsSwitchWithTry :
+		this.lambdaExpression != null ? this.lambdaExpression.containsSwitchWithTry : false;
 }
 private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
 	for (int i = this.allLocalsCounter  - 1 ; i >= 0; i--) {
@@ -7730,17 +7665,51 @@ private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
 			}
 		}
 	}
+	if (this.methodDeclaration != null) {
+		ReferenceBinding declaringClass = this.methodDeclaration.binding.declaringClass;
+		if (resolvedPosition == 0 && !this.methodDeclaration.isStatic()) {
+			return declaringClass;
+		}
+		int enumOffset = declaringClass.isEnum() ? 2 : 0; // String name, int ordinal
+		int argSlotSize = 1 + enumOffset; // this==aload0
+		if (this.methodDeclaration.binding.isConstructor()) {
+			if (declaringClass.isEnum()) {
+				switch (resolvedPosition) {
+					case 1:
+						return this.methodDeclaration.scope.getJavaLangString();
+					case 2:
+						return TypeBinding.INT;
+					default: break;
+				}
+			}
+			if (declaringClass.isNestedType()) {
+				ReferenceBinding[] enclosingTypes = declaringClass.syntheticEnclosingInstanceTypes();
+				if (enclosingTypes != null) {
+					if (resolvedPosition < argSlotSize + enclosingTypes.length)
+						return enclosingTypes[resolvedPosition - argSlotSize];
+				}
+				for (SyntheticArgumentBinding extraSyntheticArgument : declaringClass.syntheticOuterLocalVariables()) {
+					if (extraSyntheticArgument.resolvedPosition == resolvedPosition)
+						return extraSyntheticArgument.type;
+				}
+			}
+		}
+	} else if (this.lambdaExpression != null) {
+		ReferenceBinding declaringClass = this.lambdaExpression.binding.declaringClass;
+		if (resolvedPosition == 0 && !this.lambdaExpression.binding.isStatic()) {
+			return declaringClass;
+		}
+	}
+
 	return null;
 }
 private void pushTypeBinding(int resolvedPosition) {
 	if (!isSwitchStackTrackingActive())
 		return;
-	assert resolvedPosition < this.maxLocals;
-	TypeBinding type = retrieveLocalType(this.position, resolvedPosition);
-	if (type == null && resolvedPosition == 0 && !this.methodDeclaration.isStatic()) {
-		type = this.methodDeclaration.binding.declaringClass; // thisReference.resolvedType
+	if (resolvedPosition >= this.maxLocals) {
+		throw new AssertionError("Unexpected resolved position"); //$NON-NLS-1$
 	}
-	assert type != null;
+	TypeBinding type = retrieveLocalType(this.position, resolvedPosition);
 	pushTypeBinding(type);
 }
 private void pushTypeBindingArray() {
@@ -7748,7 +7717,7 @@ private void pushTypeBindingArray() {
 		return;
 	popTypeBinding(); // index
 	TypeBinding type = popTypeBinding(); // arrayref
-	pushTypeBinding(((ArrayBinding) type).leafComponentType);
+	pushTypeBinding(((ArrayBinding) type).elementsType());
 }
 private TypeBinding getPopularBinding(char[] typeName) {
 	Scope scope = this.classFile.referenceBinding.scope;
@@ -7764,7 +7733,9 @@ private void pushTypeBinding(char[] typeName) {
 }
 private void pushTypeBinding(TypeBinding typeBinding) {
 	if (isSwitchStackTrackingActive()) {
-		assert typeBinding != null;
+		if (typeBinding == null) {
+			throw new AssertionError("Operand type is null"); //$NON-NLS-1$
+		}
 		this.switchSaveTypeBindings.push(typeBinding);
 	}
 }

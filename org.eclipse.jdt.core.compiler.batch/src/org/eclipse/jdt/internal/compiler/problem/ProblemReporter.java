@@ -699,6 +699,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.NotOwningResourceField:
 		case IProblem.OwningFieldInNonResourceClass:
 		case IProblem.OwningFieldShouldImplementClose:
+		case IProblem.StaticResourceField:
 			return CompilerOptions.InsufficientResourceManagement;
 		case IProblem.OverrideReducingParamterOwning:
 		case IProblem.OverrideAddingReturnOwning:
@@ -6421,6 +6422,8 @@ public boolean expressionNonNullComparison(Expression expr, boolean checkForNull
 			return false;
 		}
 		// fall through to bottom
+	} else if (expr instanceof LambdaExpression) {
+		// not very useful code, but humor the user
 	} else {
 		needImplementation(expr); // want to see if we get here
 		return false;
@@ -10323,6 +10326,14 @@ public void shouldMarkFieldAsOwning(ASTNode location) {
 		args,
 		location.sourceStart,
 		location.sourceEnd);
+}
+public void staticResourceField(FieldDeclaration fieldDeclaration) {
+	this.handle(
+		IProblem.StaticResourceField,
+		NoArgument,
+		NoArgument,
+		fieldDeclaration.sourceStart,
+		fieldDeclaration.sourceEnd);
 }
 public void shouldImplementAutoCloseable(ASTNode location) {
 	char[] name = this.options.owningAnnotationName[this.options.owningAnnotationName.length-1];
