@@ -193,6 +193,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_AFTER_WITH_IN_PROVIDES_STATEMENT = COMPLETION_PARSER + 50;
 	protected static final int K_INSIDE_OPENS_STATEMENT = COMPLETION_PARSER + 51;
 	protected static final int K_YIELD_KEYWORD = COMPLETION_PARSER + 52;
+	protected static final int K_ENHANCED_SWITCH = COMPLETION_PARSER + 53;
 
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
@@ -2695,6 +2696,7 @@ protected void consumeSwitchExpression() {
 		SwitchExpression expr = (SwitchExpression) this.expressionStack[this.expressionPtr];
 		expr.resolveAll = true;
 	}
+	popElement(K_ENHANCED_SWITCH);
 }
 @Override
 protected void consumeConditionalExpression(int op) {
@@ -3928,6 +3930,7 @@ protected void consumeStatementSwitch() {
 		popElement(K_SWITCH_LABEL);
 		popElement(K_BLOCK_DELIMITER);
 	}
+	popElement(K_ENHANCED_SWITCH);
 }
 @Override
 protected void consumeStatementWhile() {
@@ -4140,8 +4143,8 @@ protected void consumeToken(int token) {
 					popElement(K_PARAMETERIZED_METHOD_INVOCATION);
 				} else if (previous == TokenNameIdentifier
 						&& topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLON) {
-					// do this prior AssistParser.consumeToken since we want to stack the the record pattern kind before
-					// method selector and etc.
+					// replace, ID( is no longer a regular case constant, but starts a record pattern:
+					popElement(K_BETWEEN_CASE_AND_COLON);
 					pushOnElementStack(K_RECORD_PATTERN);
 				} else {
 					popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
@@ -4183,8 +4186,9 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameARROW, TokenNameCOLON:
 				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_RECORD_PATTERN) {
-					popUntilElement(K_RECORD_PATTERN);
+					// leaving the record pattern we still need to signal the need for extendedRecovery:
 					popElement(K_RECORD_PATTERN);
+					pushOnElementStack(K_ENHANCED_SWITCH);
 				}
 				break;
 
@@ -6439,7 +6443,7 @@ protected int actFromTokenOrSynthetic(int previousAct) {
 }
 @Override
 public boolean requireExtendedRecovery() {
-	return super.requireExtendedRecovery() || this.lastIndexOfElement(K_BETWEEN_CASE_AND_COLON) >= 0;
+	return super.requireExtendedRecovery() || this.lastIndexOfElement(K_ENHANCED_SWITCH) >= 0;
 }
 protected boolean isInImportStatement() {
 	return foundToken(K_INSIDE_IMPORT_STATEMENT);

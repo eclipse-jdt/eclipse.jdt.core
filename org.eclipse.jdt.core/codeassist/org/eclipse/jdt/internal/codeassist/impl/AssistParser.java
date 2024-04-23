@@ -1367,6 +1367,8 @@ protected void consumeToken(int token) {
 		adjustBracket(token);
 		switch (token) {
 			case TokenNameLPAREN :
+				if (topKnownElementKind(ASSIST_PARSER) == K_RECORD_PATTERN)
+					break; // after 'case' 'ID(' is *not* the start of an invocation
 				switch (this.previousToken) {
 					case TokenNameIdentifier:
 						this.pushOnElementStack(K_SELECTOR, this.identifierPtr);
