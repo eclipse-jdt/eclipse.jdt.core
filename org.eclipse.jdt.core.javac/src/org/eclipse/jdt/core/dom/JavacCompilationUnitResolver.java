@@ -19,9 +19,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.tools.Diagnostic;
@@ -29,7 +27,6 @@ import javax.tools.DiagnosticListener;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
-import javax.tools.SimpleJavaFileObject;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -49,7 +46,6 @@ import org.eclipse.jdt.internal.javac.JavacUtils;
 import org.eclipse.jdt.internal.javac.dom.FindNextJavadocableSibling;
 
 import com.sun.tools.javac.file.JavacFileManager;
-import com.sun.tools.javac.file.PathFileObject;
 import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.parser.JavadocTokenizer;
 import com.sun.tools.javac.parser.Scanner;
@@ -136,7 +132,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			unit.getModule().resolveBinding();
 		}
 	}
-	
+
 	@Override
 	public CompilationUnit toCompilationUnit(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
 			boolean initialNeedsToResolveBinding, IJavaProject project, List<Classpath> classpaths, int focalPosition,
@@ -153,7 +149,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 //		//res.typeAndFlags=res2.typeAndFlags;
 //		String res1a = res.toString();
 //		String res2a = res2.toString();
-//		
+//
 //		AnnotationTypeDeclaration l1 = (AnnotationTypeDeclaration)res.types().get(0);
 //		AnnotationTypeDeclaration l2 = (AnnotationTypeDeclaration)res2.types().get(0);
 //		Object o1 = l1.bodyDeclarations().get(0);
@@ -178,9 +174,13 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject);
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		for (var sourceUnit : sourceUnits) {
-			var fileObject = fileManager.getJavaFileObject(sourceUnit.getFileName().length == 0
-				? Path.of("whatever.java")
-				: toOSPath(sourceUnit));
+			Path sourceUnitPath;
+			if (sourceUnit.getFileName() == null || sourceUnit.getFileName().length == 0) {
+				sourceUnitPath = Path.of(new File("whatever.java").toURI());
+			} else {
+				sourceUnitPath = Path.of(new File(new String(sourceUnit.getFileName())).toURI());
+			}
+			var fileObject = fileManager.getJavaFileObject(sourceUnitPath);
 			fileManager.cache(fileObject, CharBuffer.wrap(sourceUnit.getContents()));
 			AST ast = createAST(compilerOptions, apiLevel, context);
 			ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
@@ -233,19 +233,6 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			return findTargetDOM(filesToUnits, diag.getSource());
 		}
 		return Optional.empty();
-	}
-
-	private static Path toOSPath(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit) {
-		String unitPath = new String(sourceUnit.getFileName());
-		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(org.eclipse.core.runtime.Path.fromPortableString(new String(sourceUnit.getFileName())));
-		if (file.isAccessible()) {
-			return file.getLocation().toPath();
-		}
-		File tentativeOSFile = new File(unitPath);
-		if (tentativeOSFile.isFile()) {
-			return tentativeOSFile.toPath();
-		}
-		return null;
 	}
 
 	private AST createAST(Map<String, String> options, int level, Context context) {
@@ -334,7 +321,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			} catch (InvalidInputException ex) {
 				JavaCore.getPlugin().getLog().log(Status.error(ex.getMessage(), ex));
 			}
-			
+
 			// need to scan with ecjScanner first to populate some line indexes used by the CommentMapper
 			// on longer-term, implementing an alternative comment mapper based on javac scanner might be best
 			res.initCommentMapper(ecjScanner);
