@@ -24,7 +24,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 
 
 	static {
-//		 TESTS_NAMES = new String[]{"test012"};
+		 //TESTS_NAMES = new String[]{"testGH2299_SwitchStatement"};
 	}
 
 	public CompletionTestsForRecordPattern(String name) {
@@ -561,16 +561,42 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 					requestor.getResults());
 		}
 
-		public void testGH2299() throws JavaModelException {
+		public void testGH2299_SwitchStatement() throws JavaModelException {
 			this.workingCopies = new ICompilationUnit[2];
 			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
 					public class SwitchRecordPattern {
 						public void foo(java.io.Serializable o) {
 							switch(o) {
-								case Person(var name, var age) -> {
+								case Person(var name, var age) : {
 									/*here*/nam
 								}
 							}
+						}
+					}\
+					""");
+			this.workingCopies[1] = getWorkingCopy("/Completion/src/Person.java", """
+					public record Person(String name, int age) implements java.io.Serializable  {}\
+					""");
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "/*here*/nam";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, " + UNQUALIFIED_REL + "}",
+					requestor.getResults());
+		}
+
+		public void testGH2299_SwitchExpression() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					public class SwitchRecordPattern {
+						public void foo(java.io.Serializable o) {
+							String result = switch(o) {
+								case Person(var name, var age) -> {
+									/*here*/nam
+								}
+							};
 						}
 					}\
 					""");

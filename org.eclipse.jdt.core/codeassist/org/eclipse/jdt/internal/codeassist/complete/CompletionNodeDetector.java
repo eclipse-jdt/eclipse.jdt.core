@@ -276,10 +276,16 @@ public class CompletionNodeDetector extends ASTVisitor {
 	@Override
 	public void endVisit(SwitchStatement switchStatement, BlockScope scope) {
 		endVisit(switchStatement);
+		if (this.parent == switchStatement && !isOnCompletingOnCaseLabel(switchStatement)) {
+			this.parent = NOT_A_PARENT;
+		}
 	}
 	@Override
 	public void endVisit(SwitchExpression switchExpression, BlockScope scope) {
 		endVisit(switchExpression);
+		if (this.parent == switchExpression && !isOnCompletingOnCaseLabel(switchExpression)) {
+			this.parent = NOT_A_PARENT;
+		}
 	}
 	@Override
 	public void endVisit(ThisReference thisReference, BlockScope scope) {
@@ -522,9 +528,7 @@ public class CompletionNodeDetector extends ASTVisitor {
 					&& astNode != this.searchedNode) {
 				if(!(astNode instanceof AllocationExpression && ((AllocationExpression) astNode).type == this.searchedNode)
 					&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfTrue == this.searchedNode)
-					&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfFalse == this.searchedNode)
-					// if the completion is on a case statement, accept the switch as parent.
-					&& (!(astNode instanceof SwitchStatement ss) || isOnCompletingOnCaseLabel(ss))) {
+					&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfFalse == this.searchedNode)) {
 					this.parent = astNode;
 				}
 			}
