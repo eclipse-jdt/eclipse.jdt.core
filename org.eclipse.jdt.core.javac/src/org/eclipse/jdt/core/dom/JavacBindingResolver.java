@@ -137,15 +137,14 @@ public class JavacBindingResolver extends BindingResolver {
 	ITypeBinding resolveType(Type type) {
 		resolve();
 		JCTree jcTree = this.converter.domToJavac.get(type);
-		final java.util.List<TypeSymbol> typeArguments = getTypeArguments(type);
 		if (jcTree instanceof JCIdent ident && ident.sym instanceof TypeSymbol typeSymbol) {
-			return new JavacTypeBinding(typeSymbol, this, typeArguments);
+			return new JavacTypeBinding(ident.type, this);
 		}
 		if (jcTree instanceof JCFieldAccess access && access.sym instanceof TypeSymbol typeSymbol) {
-			return new JavacTypeBinding(typeSymbol, this, typeArguments);
+			return new JavacTypeBinding(access.type, this);
 		}
 		if (jcTree instanceof JCPrimitiveTypeTree primitive) {
-			return new JavacTypeBinding(primitive.type, this, typeArguments);
+			return new JavacTypeBinding(primitive.type, this);
 		}
 //			return this.flowResult.stream().map(env -> env.enclClass)
 //				.filter(Objects::nonNull)
@@ -167,7 +166,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(type);
 		if (javacNode instanceof JCClassDecl jcClassDecl) {
-			return new JavacTypeBinding(jcClassDecl.sym, this, null);
+			return new JavacTypeBinding(jcClassDecl.type, this);
 		}
 		return null;
 	}
@@ -177,18 +176,18 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(enumDecl);
 		if (javacNode instanceof JCClassDecl jcClassDecl) {
-			return new JavacTypeBinding(jcClassDecl.sym, this, null);
+			return new JavacTypeBinding(jcClassDecl.type, this);
 		}
 		return null;
 	}
 
-	public IBinding getBinding(final Symbol owner, final java.util.List<TypeSymbol> typeArguments) {
+	public IBinding getBinding(final Symbol owner, final com.sun.tools.javac.code.Type type) {
 		if (owner instanceof final PackageSymbol other) {
 			return new JavacPackageBinding(other, this);
-		} else if (owner instanceof final TypeSymbol other) {
-			return new JavacTypeBinding(other, this, typeArguments);
+		} else if (owner instanceof TypeSymbol) {
+			return new JavacTypeBinding(type, this);
 		} else if (owner instanceof final MethodSymbol other) {
-			return new JavacMethodBinding(other, this, typeArguments);
+			return new JavacMethodBinding(type.asMethodType(), other, this);
 		} else if (owner instanceof final VarSymbol other) {
 			return new JavacVariableBinding(other, this);
 		}
@@ -209,15 +208,14 @@ public class JavacBindingResolver extends BindingResolver {
 	IMethodBinding resolveMethod(MethodInvocation method) {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(method);
-		final java.util.List<TypeSymbol> typeArguments = getTypeArguments(method);
 		if (javacElement instanceof JCMethodInvocation javacMethodInvocation) {
 			javacElement = javacMethodInvocation.getMethodSelect();
 		}
 		if (javacElement instanceof JCIdent ident && ident.sym instanceof MethodSymbol methodSymbol) {
-			return new JavacMethodBinding(methodSymbol, this, typeArguments);
+			return new JavacMethodBinding(ident.type.asMethodType(), methodSymbol, this);
 		}
 		if (javacElement instanceof JCFieldAccess fieldAccess && fieldAccess.sym instanceof MethodSymbol methodSymbol) {
-			return new JavacMethodBinding(methodSymbol, this, typeArguments);
+			return new JavacMethodBinding(fieldAccess.type.asMethodType(), methodSymbol, this);
 		}
 		return null;
 	}
@@ -227,7 +225,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(method);
 		if (javacElement instanceof JCMethodDecl methodDecl) {
-			return new JavacMethodBinding(methodDecl.sym, this, null);
+			return new JavacMethodBinding(methodDecl.type.asMethodType(), methodDecl.sym, this);
 		}
 		return null;
 	}
@@ -239,18 +237,17 @@ public class JavacBindingResolver extends BindingResolver {
 		if (tree == null) {
 			tree = this.converter.domToJavac.get(name.getParent());
 		}
-		final java.util.List<TypeSymbol> typeArguments = getTypeArguments(name);
 		if (tree instanceof JCIdent ident && ident.sym != null) {
-			return getBinding(ident.sym, typeArguments);
+			return getBinding(ident.sym, ident.type);
 		}
 		if (tree instanceof JCFieldAccess fieldAccess && fieldAccess.sym != null) {
-			return getBinding(fieldAccess.sym, typeArguments);
+			return getBinding(fieldAccess.sym, fieldAccess.type);
 		}
 		if (tree instanceof JCClassDecl classDecl && classDecl.sym != null) {
-			return getBinding(classDecl.sym, typeArguments);
+			return getBinding(classDecl.sym, classDecl.type);
 		}
 		if (tree instanceof JCVariableDecl variableDecl && variableDecl.sym != null) {
-			return getBinding(variableDecl.sym, typeArguments);
+			return getBinding(variableDecl.sym, variableDecl.type);
 		}
 		return null;
 	}
@@ -272,7 +269,7 @@ public class JavacBindingResolver extends BindingResolver {
 	public ITypeBinding resolveExpressionType(Expression expr) {
 		resolve();
 		return this.converter.domToJavac.get(expr) instanceof JCExpression jcExpr ?
-			new JavacTypeBinding(jcExpr.type, this, null) :
+			new JavacTypeBinding(jcExpr.type, this) :
 			null;
 	}
 
@@ -356,7 +353,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if (attribute instanceof Attribute.Constant constant) {
 			return constant.value;
 		} else if (attribute instanceof Attribute.Class clazz) {
-			return new JavacTypeBinding(clazz.classType.tsym, this, null);
+			return new JavacTypeBinding(clazz.classType, this);
 		} else if (attribute instanceof Attribute.Enum enumm) {
 			return new JavacVariableBinding(enumm.value, this);
 		} else if (attribute instanceof Attribute.Array array) {
@@ -365,7 +362,7 @@ public class JavacBindingResolver extends BindingResolver {
 						if (attribute instanceof Attribute.Constant constant) {
 							return constant.value;
 						} else if (attribute instanceof Attribute.Class clazz) {
-							return new JavacTypeBinding(clazz.classType.tsym, this, null);
+							return new JavacTypeBinding(clazz.classType, this);
 						} else if (attribute instanceof Attribute.Enum enumerable) {
 							return new JavacVariableBinding(enumerable.value, this);
 						}

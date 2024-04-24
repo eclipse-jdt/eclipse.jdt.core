@@ -76,7 +76,7 @@ public class JavacVariableBinding implements IVariableBinding {
 			return null;
 		}
 		if (this.variableSymbol.owner instanceof TypeSymbol parentType) {//field
-			return new JavacTypeBinding(parentType, this.resolver, null).getJavaElement().getField(this.variableSymbol.name.toString());
+			return new JavacTypeBinding(parentType.type, this.resolver).getJavaElement().getField(this.variableSymbol.name.toString());
 		}
 		return null;
 	}
@@ -96,7 +96,7 @@ public class JavacVariableBinding implements IVariableBinding {
 			}
 			return builder.toString();
 		} else if (this.variableSymbol.owner instanceof MethodSymbol methodSymbol) {
-			JavacMethodBinding.getKey(builder, methodSymbol);
+			JavacMethodBinding.getKey(builder, methodSymbol, this.resolver);
 			builder.append('#');
 			builder.append(this.variableSymbol.name);
 			// FIXME: is it possible for the javac AST to contain multiple definitions of the same variable?
@@ -138,7 +138,7 @@ public class JavacVariableBinding implements IVariableBinding {
 		Symbol parentSymbol = this.variableSymbol.owner;
 		do {
 			if (parentSymbol instanceof ClassSymbol clazz) {
-				return new JavacTypeBinding(clazz, this.resolver, null);
+				return new JavacTypeBinding(clazz.type, this.resolver);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
@@ -147,7 +147,7 @@ public class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public ITypeBinding getType() {
-		return new JavacTypeBinding(this.variableSymbol.type, this.resolver, null);
+		return new JavacTypeBinding(this.variableSymbol.type, this.resolver);
 	}
 
 	@Override
@@ -165,7 +165,7 @@ public class JavacVariableBinding implements IVariableBinding {
 		Symbol parentSymbol = this.variableSymbol.owner;
 		do {
 			if (parentSymbol instanceof MethodSymbol method) {
-				return new JavacMethodBinding(method, this.resolver, null);
+				return new JavacMethodBinding(method.type.asMethodType(), method, this.resolver);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);

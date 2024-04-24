@@ -93,7 +93,7 @@ public class JavacAnnotationBinding implements IAnnotationBinding {
 
 	@Override
 	public ITypeBinding getAnnotationType() {
-		return new JavacTypeBinding(this.annotation.type, this.resolver, null);
+		return new JavacTypeBinding(this.annotation.type, this.resolver);
 	}
 
 	@Override
