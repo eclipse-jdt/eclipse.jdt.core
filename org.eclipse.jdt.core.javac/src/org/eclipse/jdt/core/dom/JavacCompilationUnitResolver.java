@@ -27,9 +27,9 @@ import javax.tools.DiagnosticListener;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
+import javax.tools.ToolProvider;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -45,8 +45,9 @@ import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.javac.JavacUtils;
 import org.eclipse.jdt.internal.javac.dom.FindNextJavadocableSibling;
 
+import com.sun.source.util.JavacTask;
+import com.sun.tools.javac.api.JavacTool;
 import com.sun.tools.javac.file.JavacFileManager;
-import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.parser.JavadocTokenizer;
 import com.sun.tools.javac.parser.Scanner;
 import com.sun.tools.javac.parser.ScannerFactory;
@@ -76,7 +77,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			Map<String, String> compilerOptions, int flags, IProgressMonitor monitor) {
 		var units = parse(compilationUnits, apiLevel, compilerOptions, flags, monitor);
 		if (requestor != null) {
-			units.entrySet().forEach(entry -> requestor.acceptAST(entry.getKey(), entry.getValue()));
+			units.forEach(requestor::acceptAST);
 		}
 	}
 
@@ -118,7 +119,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		var units = parse(compilationUnits, apiLevel, compilerOptions, flags, monitor);
 		units.values().forEach(this::resolveBindings);
 		if (requestor != null) {
-			units.entrySet().forEach(entry -> requestor.acceptAST(entry.getKey(), entry.getValue()));
+			units.forEach(requestor::acceptAST);
 			// TODO send request.acceptBinding according to input bindingKeys
 		}
 	}
@@ -159,18 +160,20 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 	private Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sourceUnits, int apiLevel, Map<String, String> compilerOptions,
 			int flags, IJavaProject javaProject, IProgressMonitor monitor) {
+		var compiler = ToolProvider.getSystemJavaCompiler();
 		Context context = new Context();
 		Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> result = new HashMap<>(sourceUnits.length, 1.f);
 		Map<JavaFileObject, CompilationUnit> filesToUnits = new HashMap<>();
-		context.put(DiagnosticListener.class, diagnostic -> {
+		DiagnosticListener<JavaFileObject> diagnosticListener = diagnostic -> {
 			findTargetDOM(filesToUnits, diagnostic).ifPresent(dom -> {
 				IProblem[] previous = dom.getProblems();
 				IProblem[] newProblems = Arrays.copyOf(previous, previous.length + 1);
 				newProblems[newProblems.length - 1] = JavacConverter.convertDiagnostic(diagnostic);
 				dom.setProblems(newProblems);
 			});
-		});
-		// diagnostic listener needs to be added before anything else to the context
+		};
+		// must be 1st thing added to context
+		context.put(DiagnosticListener.class, diagnosticListener);
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject);
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		for (var sourceUnit : sourceUnits) {
@@ -187,15 +190,32 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			CompilationUnit res = ast.newCompilationUnit();
 			result.put(sourceUnit, res);
 			filesToUnits.put(fileObject, res);
-			JavaCompiler javac = JavaCompiler.instance(context);
-			javac.keepComments = true;
+			
+			JCCompilationUnit javacCompilationUnit = null;
+			JavacTask task = ((JavacTool)compiler).getTask(null, fileManager, null /* already added to context */, List.of() /* already set in options */, List.of() /* already set */, List.of(fileObject), context);
+			{
+				// don't know yet a better way to ensure those necessary flags get configured
+				var javac = com.sun.tools.javac.main.JavaCompiler.instance(context);
+				javac.keepComments = true;
+				javac.genEndPos = true;
+				javac.lineDebugInfo = true;
+			}
+			try {
+				var elements = task.parse().iterator();
+				if (elements.hasNext() && elements.next() instanceof JCCompilationUnit u) {
+					javacCompilationUnit = u;
+				} else {
+					return Map.of();
+				}
+			} catch (IOException ex) {
+				ILog.get().error(ex.getMessage(), ex);
+			}
 			String rawText = null;
 			try {
 				rawText = fileObject.getCharContent(true).toString();
 			} catch( IOException ioe) {
 				// ignore
 			}
-			JCCompilationUnit javacCompilationUnit = javac.parse(fileObject);
 			JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText);
 			converter.populateCompilationUnit(res, javacCompilationUnit);
 			attachComments(res, context, fileObject, converter, compilerOptions);
@@ -212,7 +232,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				}
 			};
 			res.accept(v);
-			ast.setBindingResolver(new JavacBindingResolver(javac, javaProject, context, converter));
+			ast.setBindingResolver(new JavacBindingResolver(javaProject, task, context, converter));
 			//
 			ast.setOriginalModificationCount(ast.modificationCount()); // "un-dirty" AST so Rewrite can process it
 		}
