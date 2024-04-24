@@ -119,4 +119,24 @@ public class JavacASTConverterBugsTestJLS extends ASTConverterBugsTestSetup {
 			deleteProject("P");
 		}
 	}
+
+	public void testAnnotatedDoublyNestedArray() throws CoreException, IOException {
+		try {
+			createJavaProject("P", new String[] {""}, new String[0],
+					null, null, null, null, null, true, null, "", null, null, null, "9", false);
+			createFile("P/A.java",
+					"""
+					public class A {
+						public static void main(String... args) {
+							@NonNull String @NonNull[] @NonNull myCoolArray = new String[0][];
+						}
+					}
+					"""
+			);
+			ICompilationUnit cuA = getCompilationUnit("P/A.java");
+			runConversion(this.testLevel, cuA, true, true, true);
+		} finally {
+			deleteProject("P");
+		}
+	}
 }
