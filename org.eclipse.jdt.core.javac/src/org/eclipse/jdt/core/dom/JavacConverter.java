@@ -42,6 +42,7 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
+import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnyPattern;
 import com.sun.tools.javac.tree.JCTree.JCArrayAccess;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
@@ -1235,7 +1236,13 @@ class JavacConverter {
 			commonSettings(res, javac);
 			if (jcNewArray.getType() != null) {
 				Type type = convertToType(jcNewArray.getType());
-				ArrayType arrayType = this.ast.newArrayType(type);
+				ArrayType arrayType;
+				if (type instanceof ArrayType childArrayType) {
+					arrayType = childArrayType;
+					arrayType.dimensions().addFirst(this.ast.newDimension());
+				} else {
+					arrayType = this.ast.newArrayType(type);
+				}
 				commonSettings(arrayType, jcNewArray.getType());
 				res.setType(arrayType);
 			}
@@ -1674,7 +1681,13 @@ class JavacConverter {
 		}
 		if (javac instanceof JCArrayTypeTree jcArrayType) {
 			Type t = convertToType(jcArrayType.getType());
-			ArrayType res = this.ast.newArrayType(t);
+			ArrayType res;
+			if (t instanceof ArrayType childArrayType) {
+				res = childArrayType;
+				res.dimensions().addFirst(this.ast.newDimension());
+			} else {
+				res = this.ast.newArrayType(t);
+			}
 			commonSettings(res, javac);
 			return res;
 		}
@@ -1700,6 +1713,21 @@ class JavacConverter {
 			IntersectionType res = this.ast.newIntersectionType();
 			commonSettings(res, javac);
 			jcTypeIntersection.getBounds().stream().map(this::convertToType).forEach(res.types()::add);
+			return res;
+		}
+		if (javac instanceof JCAnnotatedType jcAnnotatedType) {
+			Type res = convertToType(jcAnnotatedType.getUnderlyingType());
+			if (res instanceof AnnotatableType annotatableType) {
+				for (JCAnnotation annotation : jcAnnotatedType.getAnnotations()) {
+					annotatableType.annotations.add(convert(annotation));
+				}
+			} else if (res instanceof ArrayType arrayType) {
+				if (!arrayType.dimensions().isEmpty()) {
+					for (JCAnnotation annotation : jcAnnotatedType.getAnnotations()) {
+						((Dimension)arrayType.dimensions().get(0)).annotations().add(convert(annotation));
+					}
+				}
+			}
 			return res;
 		}
 		if (javac instanceof JCErroneous erroneous) {
