@@ -224,7 +224,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			return Optional.empty();
 		}
 		if (obj instanceof JavaFileObject o) {
-			return Optional.of(filesToUnits.get(o));
+			return Optional.ofNullable(filesToUnits.get(o));
 		}
 		if (obj instanceof DiagnosticSource source) {
 			return findTargetDOM(filesToUnits, source.getFile());
