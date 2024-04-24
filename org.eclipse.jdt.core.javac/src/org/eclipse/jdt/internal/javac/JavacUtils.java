@@ -48,7 +48,7 @@ public class JavacUtils {
 	private static void configureJavacContext(Context context, Map<String, String> compilerOptions, IJavaProject javaProject, CompilerConfiguration compilerConfig) {
 		Options options = Options.instance(context);
 		options.put(Option.XLINT, Boolean.TRUE.toString()); // TODO refine according to compilerOptions
-		if (Boolean.parseBoolean(compilerOptions.get(CompilerOptions.OPTION_EnablePreviews))) {
+		if (CompilerOptions.ENABLED.equals(compilerOptions.get(CompilerOptions.OPTION_EnablePreviews))) {
 			options.put(Option.PREVIEW, Boolean.toString(true));
 		}
 		String release = compilerOptions.get(CompilerOptions.OPTION_Release);
