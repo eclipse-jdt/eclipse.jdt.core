@@ -39,7 +39,6 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import com.sun.source.tree.CaseTree.CaseKind;
-import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.Tokens.Comment;
@@ -546,7 +545,10 @@ class JavacConverter {
 		if (tree instanceof JCErroneous erroneous) {
 			return null;
 		}
-		throw new UnsupportedOperationException("Unsupported " + tree + " of type" + tree.getClass());
+		ILog.get().error("Unsupported " + tree + " of type" + tree.getClass());
+		Block substitute = this.ast.newBlock();
+		commonSettings(substitute, tree);
+		return substitute;
 	}
 
 	private ASTNode convertMethodInAnnotationTypeDecl(JCMethodDecl javac, ASTNode parent) {
@@ -1259,7 +1261,10 @@ class JavacConverter {
 			commonSettings(res, javac);
 			return res;
 		}
-		throw new UnsupportedOperationException("Missing support to convert '" + javac + "' of type " + javac.getClass().getSimpleName());
+		ILog.get().error("Unsupported " + javac + " of type" + javac.getClass());
+		ParenthesizedExpression substitute = this.ast.newParenthesizedExpression();
+		commonSettings(substitute, javac);
+		return substitute;
 	}
 
 	private AnonymousClassDeclaration createAnonymousClassDeclaration(JCClassDecl javacAnon, ASTNode parent) {
