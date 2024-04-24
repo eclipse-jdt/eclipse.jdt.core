@@ -46,6 +46,17 @@ public class JavacUtils {
 	}
 
 	private static void configureJavacContext(Context context, Map<String, String> compilerOptions, IJavaProject javaProject, CompilerConfiguration compilerConfig) {
+		configureOptions(context, compilerOptions);
+		// TODO populate more from compilerOptions and/or project settings
+		if (context.get(JavaFileManager.class) == null) {
+			JavacFileManager.preRegister(context);
+		}
+		if (javaProject instanceof JavaProject internal) {
+			configurePaths(internal, context, compilerConfig);
+		}
+	}
+
+	private static void configureOptions(Context context, Map<String, String> compilerOptions) {
 		Options options = Options.instance(context);
 		options.put(Option.XLINT, Boolean.TRUE.toString()); // TODO refine according to compilerOptions
 		if (CompilerOptions.ENABLED.equals(compilerOptions.get(CompilerOptions.OPTION_EnablePreviews))) {
@@ -55,28 +66,17 @@ public class JavacUtils {
 		String compliance = compilerOptions.get(CompilerOptions.OPTION_Compliance);
 		if (CompilerOptions.ENABLED.equals(release) && compliance != null && !compliance.isEmpty()) {
 			options.put(Option.RELEASE, compliance);
-		}
-		String source = compilerOptions.get(CompilerOptions.OPTION_Source);
-		if (source != null && !source.isEmpty()) {
-			options.put(Option.SOURCE, source);
-		}
-		String target = compilerOptions.get(CompilerOptions.OPTION_TargetPlatform);
-		if (target != null && !target.isEmpty()) {
-			options.put(Option.TARGET, target);
+		} else {
+			String source = compilerOptions.get(CompilerOptions.OPTION_Source);
+			if (source != null && !source.isEmpty()) {
+				options.put(Option.SOURCE, source);
+			}
+			String target = compilerOptions.get(CompilerOptions.OPTION_TargetPlatform);
+			if (target != null && !target.isEmpty()) {
+				options.put(Option.TARGET, target);
+			}
 		}
 		options.put(Option.XLINT_CUSTOM, "all"); // TODO refine according to compilerOptions
-		// TODO populate more from compilerOptions and/or project settings
-		if (context.get(JavaFileManager.class) == null) {
-			JavacFileManager.preRegister(context);
-		}
-		if (javaProject instanceof JavaProject internal) {
-			configurePaths(internal, context, compilerConfig);
-		}
-		Todo.instance(context); // initialize early
-		com.sun.tools.javac.main.JavaCompiler javac = new com.sun.tools.javac.main.JavaCompiler(context);
-		javac.keepComments = true;
-		javac.genEndPos = true;
-		javac.lineDebugInfo = true;
 	}
 
 	private static void configurePaths(JavaProject javaProject, Context context, CompilerConfiguration compilerConfig) {

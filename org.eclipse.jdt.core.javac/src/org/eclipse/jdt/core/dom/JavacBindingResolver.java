@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.internal.javac.dom.JavacAnnotationBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacMemberValuePairBinding;
@@ -25,6 +26,7 @@ import org.eclipse.jdt.internal.javac.dom.JavacPackageBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacTypeBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacVariableBinding;
 
+import com.sun.source.util.JavacTask;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -32,14 +34,8 @@ import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Types;
-import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.Env;
-import com.sun.tools.javac.comp.Modules;
-import com.sun.tools.javac.comp.Todo;
-import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
-import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
@@ -48,7 +44,6 @@ import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
 
 /**
  * Deals with creation of binding model, using the <code>Symbol</code>s from Javac.
@@ -56,7 +51,7 @@ import com.sun.tools.javac.util.List;
  */
 public class JavacBindingResolver extends BindingResolver {
 
-	private final JavaCompiler javac; // TODO evaluate memory cost of storing the instance
+	private final JavacTask javac; // TODO evaluate memory cost of storing the instance
 	// it will probably be better to run the `Enter` and then only extract interesting
 	// date from it.
 	public final Context context;
@@ -64,8 +59,8 @@ public class JavacBindingResolver extends BindingResolver {
 	public final IJavaProject javaProject;
 	private JavacConverter converter;
 
-	public JavacBindingResolver(JavaCompiler javac, IJavaProject javaProject, Context context, JavacConverter converter) {
-		this.javac = javac;
+	public JavacBindingResolver(IJavaProject javaProject, JavacTask javacTask, Context context, JavacConverter converter) {
+		this.javac = javacTask;
 		this.context = context;
 		this.javaProject = javaProject;
 		this.converter = converter;
@@ -73,15 +68,11 @@ public class JavacBindingResolver extends BindingResolver {
 
 	private void resolve() {
 		if (this.symbolToDom == null) {
-			java.util.List<JCCompilationUnit> units = this.converter.domToJavac.values().stream()
-				.filter(JCCompilationUnit.class::isInstance)
-				.map(JCCompilationUnit.class::cast)
-				.toList();
-			Modules.instance(this.context).initModules(List.from(units));
-			Todo todo = Todo.instance(this.context);
-			this.javac.enterTrees(List.from(units));
-			Queue<Env<AttrContext>> attribute = this.javac.attribute(todo);
-			this.javac.flow(attribute);
+			try {
+				this.javac.analyze();
+			} catch (IOException e) {
+				ILog.get().error(e.getMessage(), e);
+			}
 			this.symbolToDom = new HashMap<>();
 			this.converter.domToJavac.entrySet().forEach(entry ->
 				symbol(entry.getValue()).ifPresent(sym -> this.symbolToDom.put(sym, entry.getKey())));
