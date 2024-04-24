@@ -36,17 +36,21 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type.JCNoType;
+import com.sun.tools.javac.code.Type.MethodType;
 
 public class JavacMethodBinding implements IMethodBinding {
 
-	public final MethodSymbol methodSymbol;
-	final JavacBindingResolver resolver;
-	private final List<TypeSymbol> typeArguments;
+	private static final ITypeBinding[] NO_TYPE_ARGUMENTS = new ITypeBinding[0];
 
-	public JavacMethodBinding(MethodSymbol sym, JavacBindingResolver resolver, List<TypeSymbol> typeArguments) {
-		this.methodSymbol = sym;
+	public final MethodSymbol methodSymbol;
+	private final MethodType methodType;
+	final JavacBindingResolver resolver;
+
+	public JavacMethodBinding(MethodType methodType, MethodSymbol methodSymbol, JavacBindingResolver resolver) {
+		this.methodType = methodType;
+		this.methodSymbol = methodSymbol;
 		this.resolver = resolver;
-		this.typeArguments = typeArguments;
 	}
 
 	@Override
@@ -109,7 +113,7 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public IJavaElement getJavaElement() {
-		IJavaElement parent = this.resolver.getBinding(this.methodSymbol.owner, null).getJavaElement();
+		IJavaElement parent = this.resolver.getBinding(this.methodSymbol.owner, this.methodType).getJavaElement();
 		if (parent instanceof IType type) {
 			return type.getMethod(this.methodSymbol.getSimpleName().toString(),
 				this.methodSymbol.params().stream()
@@ -123,30 +127,47 @@ public class JavacMethodBinding implements IMethodBinding {
 	@Override
 	public String getKey() {
 		StringBuilder builder = new StringBuilder();
-		getKey(builder, this.methodSymbol);
+		getKey(builder, this.methodSymbol, this.resolver);
 		return builder.toString();
 	}
 
-	static void getKey(StringBuilder builder, MethodSymbol methodSymbol) {
+	static void getKey(StringBuilder builder, MethodSymbol methodSymbol, JavacBindingResolver resolver) {
 		Symbol ownerSymbol = methodSymbol.owner;
 		while (ownerSymbol != null && !(ownerSymbol instanceof TypeSymbol)) {
 			ownerSymbol = ownerSymbol.owner;
 		}
 		if (ownerSymbol instanceof TypeSymbol ownerTypeSymbol) {
-			builder.append(ownerTypeSymbol.name);
+			JavacTypeBinding.getKey(builder, resolver.getTypes().erasure(ownerTypeSymbol.type), false);
 		} else {
 			throw new IllegalArgumentException("Method has no owning class");
 		}
 		builder.append('.');
-		// TODO: what is a selector? why is it added?
-		for (var typeParam : methodSymbol.getTypeParameters()) {
-			builder.append(typeParam.getQualifiedName());
+		if (!methodSymbol.isConstructor()) {
+			builder.append(methodSymbol.getSimpleName());
 		}
+		if (!methodSymbol.getTypeParameters().isEmpty()) {
+			builder.append('<');
+			for (var typeParam : methodSymbol.getTypeParameters()) {
+				JavacTypeVariableBinding typeVarBinding = new JavacTypeVariableBinding(typeParam);
+				builder.append(typeVarBinding.getKey());
+			}
+			builder.append('>');
+		}
+		builder.append('(');
 		for (var param : methodSymbol.getParameters()) {
-			builder.append(param.getQualifiedName());
+			JavacTypeBinding.getKey(builder, param.type, false);
 		}
-		for (var thrownException : methodSymbol.getThrownTypes()) {
-			builder.append(thrownException.tsym.getQualifiedName());
+		builder.append(')');
+		if (!(methodSymbol.getReturnType() instanceof JCNoType)) {
+			JavacTypeBinding.getKey(builder, methodSymbol.getReturnType(), false);
+		}
+		if (
+				methodSymbol.getThrownTypes().stream().anyMatch(a -> !a.getParameterTypes().isEmpty())
+			) {
+			builder.append('^');
+			for (var thrownException : methodSymbol.getThrownTypes()) {
+				builder.append(thrownException.tsym.getQualifiedName());
+			}
 		}
 	}
 
@@ -188,7 +209,7 @@ public class JavacMethodBinding implements IMethodBinding {
 		Symbol parentSymbol = this.methodSymbol.owner;
 		do {
 			if (parentSymbol instanceof ClassSymbol clazz) {
-				return new JavacTypeBinding(clazz, this.resolver, null);
+				return new JavacTypeBinding(clazz.type, this.resolver);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
@@ -201,7 +222,7 @@ public class JavacMethodBinding implements IMethodBinding {
 			return null;
 		}
 		if (this.methodSymbol.owner instanceof MethodSymbol methodSymbol) {
-			return new JavacMethodBinding(methodSymbol, resolver, null);
+			return new JavacMethodBinding(methodSymbol.type.asMethodType(), methodSymbol, resolver);
 		} else if (this.methodSymbol.owner instanceof VarSymbol variableSymbol) {
 			return new JavacVariableBinding(variableSymbol, resolver);
 		}
@@ -225,18 +246,18 @@ public class JavacMethodBinding implements IMethodBinding {
 	public ITypeBinding[] getParameterTypes() {
 		return this.methodSymbol.params().stream()
 			.map(param -> param.type)
-			.map(type -> new JavacTypeBinding(type, this.resolver,  /* TODO */ null))
+			.map(type -> new JavacTypeBinding(type, this.resolver))
 			.toArray(ITypeBinding[]::new);
 	}
 
 	@Override
 	public ITypeBinding getDeclaredReceiverType() {
-		return new JavacTypeBinding(this.methodSymbol.getReceiverType(), this.resolver, /* TODO */ null);
+		return new JavacTypeBinding(this.methodSymbol.getReceiverType(), this.resolver);
 	}
 
 	@Override
 	public ITypeBinding getReturnType() {
-		return new JavacTypeBinding(this.methodSymbol.getReturnType(), this.resolver, /* TODO */ null);
+		return new JavacTypeBinding(this.methodSymbol.getReturnType(), this.resolver);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -254,7 +275,7 @@ public class JavacMethodBinding implements IMethodBinding {
 	@Override
 	public ITypeBinding[] getTypeParameters() {
 		return this.methodSymbol.getTypeParameters().stream()
-				.map(symbol -> new JavacTypeBinding(symbol, this.resolver, null))
+				.map(symbol -> new JavacTypeBinding(symbol.type, this.resolver))
 				.toArray(ITypeBinding[]::new);
 	}
 
@@ -265,18 +286,21 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isGenericMethod() {
-		return this.typeArguments == null && !this.methodSymbol.getTypeParameters().isEmpty();
+		return this.methodType.getTypeArguments().isEmpty() && !this.methodSymbol.getTypeParameters().isEmpty();
 	}
 
 	@Override
 	public boolean isParameterizedMethod() {
-		return this.typeArguments != null;
+		return !this.methodType.getTypeArguments().isEmpty();
 	}
 
 	@Override
 	public ITypeBinding[] getTypeArguments() {
-		return this.typeArguments.stream()
-				.map(symbol -> new JavacTypeBinding(symbol, this.resolver, null))
+		if (this.methodType.getTypeArguments().isEmpty()) {
+			return NO_TYPE_ARGUMENTS;
+		}
+		return this.methodType.getTypeArguments().stream()
+				.map(type -> new JavacTypeBinding(type, this.resolver))
 				.toArray(ITypeBinding[]::new);
 	}
 
