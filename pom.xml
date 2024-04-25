@@ -66,6 +66,7 @@
     <module>org.eclipse.jdt.core.tests.builder.mockcompiler</module>
     <module>org.eclipse.jdt.core.tests.builder</module>
     <module>org.eclipse.jdt.core.tests.compiler</module>
+    <module>org.eclipse.jdt.core.tests.javac</module>
     <module>org.eclipse.jdt.core.tests.model</module>
     <module>org.eclipse.jdt.core.tests.performance</module>
     <module>org.eclipse.jdt.apt.core</module>
