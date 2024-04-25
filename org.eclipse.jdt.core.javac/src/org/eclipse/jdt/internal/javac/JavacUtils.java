@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023, Red Hat, Inc. and others.
+ * Copyright (c) 2023, 2024 Red Hat, Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -84,7 +84,7 @@ public class JavacUtils {
 		try {
 			if (compilerConfig != null && !compilerConfig.getSourceOutputMapping().isEmpty()) {
 				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, compilerConfig.getSourceOutputMapping().values().stream().distinct().toList());
-			} else if (javaProject.getJavaProject() != null) {
+			} else if (javaProject.getProject() != null) {
 				IResource member = javaProject.getProject().getParent().findMember(javaProject.getOutputLocation());
 				if( member != null ) {
 					File f = member.getLocation().toFile();
