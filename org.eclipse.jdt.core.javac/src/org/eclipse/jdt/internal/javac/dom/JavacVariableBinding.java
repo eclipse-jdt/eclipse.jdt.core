@@ -10,9 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac.dom;
 
+import java.util.Arrays;
 import java.util.Objects;
 
-import org.eclipse.jdt.core.IField;
+import org.eclipse.core.runtime.ILog;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -71,9 +75,20 @@ public class JavacVariableBinding implements IVariableBinding {
 	}
 
 	@Override
-	public IField getJavaElement() {
+	public IJavaElement getJavaElement() {
 		if (this.resolver.javaProject == null) {
 			return null;
+		}
+		if (isParameter() &&
+			getDeclaringMethod().getJavaElement() instanceof IMethod method) {
+			try {
+				return Arrays.stream(method.getParameters())
+					.filter(param -> Objects.equals(param.getElementName(), getName()))
+					.findAny()
+					.orElse(null);
+			} catch (JavaModelException e) {
+				ILog.get().error(e.getMessage(), e);
+			}
 		}
 		if (this.variableSymbol.owner instanceof TypeSymbol parentType) {//field
 			return new JavacTypeBinding(parentType.type, this.resolver).getJavaElement().getField(this.variableSymbol.name.toString());

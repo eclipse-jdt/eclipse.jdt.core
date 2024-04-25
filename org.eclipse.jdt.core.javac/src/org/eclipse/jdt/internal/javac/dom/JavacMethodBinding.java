@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -119,6 +120,7 @@ public class JavacMethodBinding implements IMethodBinding {
 				this.methodSymbol.params().stream()
 					.map(varSymbol -> varSymbol.type)
 					.map(t -> t.tsym.name.toString())
+					.map(t -> Signature.createTypeSignature(t, false))
 					.toArray(String[]::new));
 		}
 		return null;
