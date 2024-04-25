@@ -69,11 +69,21 @@ public class JavacUtils {
 		} else {
 			String source = compilerOptions.get(CompilerOptions.OPTION_Source);
 			if (source != null && !source.isEmpty()) {
-				options.put(Option.SOURCE, source);
+				if (source.indexOf("1.") != -1 && source.indexOf("1.8") == -1 || source.indexOf(".") == -1 && Integer.parseInt(source) < 8) {
+					ILog.get().warn("Unsupported source level: " + source + ", using 1.8 instead");
+					options.put(Option.SOURCE, "1.8");
+				} else {
+					options.put(Option.SOURCE, source);
+				}
 			}
 			String target = compilerOptions.get(CompilerOptions.OPTION_TargetPlatform);
 			if (target != null && !target.isEmpty()) {
-				options.put(Option.TARGET, target);
+				if (target.indexOf("1.") != -1 && target.indexOf("1.8") == -1 || target.indexOf(".") == -1 && Integer.parseInt(target) < 8) {
+					ILog.get().warn("Unsupported target level: " + target + ", using 1.8 instead");
+					options.put(Option.TARGET, "1.8");
+				} else {
+					options.put(Option.TARGET, target);
+				}
 			}
 		}
 		options.put(Option.XLINT_CUSTOM, "all"); // TODO refine according to compilerOptions
