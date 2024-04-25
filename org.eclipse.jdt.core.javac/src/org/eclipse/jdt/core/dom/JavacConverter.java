@@ -20,7 +20,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.PriorityQueue;
@@ -35,8 +34,6 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
-import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import com.sun.source.tree.CaseTree.CaseKind;
 import com.sun.tools.javac.code.BoundKind;
@@ -1962,32 +1959,7 @@ class JavacConverter {
 	}
 
 	static IProblem convertDiagnostic(Diagnostic<? extends JavaFileObject> javacDiagnostic) {
-		// TODO use a problem factory? Map code to category...?
-		return new DefaultProblem(
-			javacDiagnostic.getSource().getName().toCharArray(),
-			javacDiagnostic.getMessage(Locale.getDefault()),
-			toProblemId(javacDiagnostic.getCode()), // TODO probably use `getCode()` here
-			null,
-			switch (javacDiagnostic.getKind()) {
-				case ERROR -> ProblemSeverities.Error;
-				case WARNING, MANDATORY_WARNING -> ProblemSeverities.Warning;
-				case NOTE -> ProblemSeverities.Info;
-				default -> ProblemSeverities.Error;
-			},
-			(int)Math.min(javacDiagnostic.getPosition(), javacDiagnostic.getStartPosition()),
-			(int)javacDiagnostic.getEndPosition(),
-			(int)javacDiagnostic.getLineNumber(),
-			(int)javacDiagnostic.getColumnNumber());
-	}
-
-	private static int toProblemId(String javacDiagnosticCode) {
-		// better use a Map<String, IProblem> if there is a 1->0..1 mapping
-		return switch (javacDiagnosticCode) {
-			case "compiler.warn.raw.class.use" -> IProblem.RawTypeReference;
-			// TODO complete mapping list; dig in https://github.com/openjdk/jdk/blob/master/src/jdk.compiler/share/classes/com/sun/tools/javac/resources/compiler.properties
-			// for an exhaustive (but polluted) list, unless a better source can be found (spec?)
-			default -> 0;
-		};
+		return JavacProblemConverter.createJavacProblem(javacDiagnostic);
 	}
 
 	class FixPositions extends ASTVisitor {
