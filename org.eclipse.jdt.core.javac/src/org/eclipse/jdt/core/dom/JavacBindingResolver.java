@@ -175,8 +175,8 @@ public class JavacBindingResolver extends BindingResolver {
 	public IBinding getBinding(final Symbol owner, final com.sun.tools.javac.code.Type type) {
 		if (owner instanceof final PackageSymbol other) {
 			return new JavacPackageBinding(other, this);
-		} else if (owner instanceof TypeSymbol) {
-			return new JavacTypeBinding(type, this);
+		} else if (owner instanceof TypeSymbol typeSymbol) {
+			return new JavacTypeBinding(typeSymbol.type, this);
 		} else if (owner instanceof final MethodSymbol other) {
 			return new JavacMethodBinding(type.asMethodType(), other, this);
 		} else if (owner instanceof final VarSymbol other) {
