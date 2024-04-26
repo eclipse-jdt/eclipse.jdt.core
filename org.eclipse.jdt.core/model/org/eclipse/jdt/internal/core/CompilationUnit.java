@@ -1639,7 +1639,7 @@ public Map<String, String> getCustomOptions() {
 			IJavaProject parentProject = getJavaProject();
 			Map<String, String> parentOptions = parentProject == null ? JavaCore.getOptions() : parentProject.getOptions(true);
 			if (JavaCore.ENABLED.equals(parentOptions.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)) &&
-				AST.newAST(parentOptions).apiLevel() != AST.getJLSLatest()) {
+				AST.newAST(parentOptions).apiLevel() < AST.getJLSLatest()) {
 				// Disable preview features for older Java releases as it causes the compiler to fail later
 				if (customOptions != null) {
 					customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
