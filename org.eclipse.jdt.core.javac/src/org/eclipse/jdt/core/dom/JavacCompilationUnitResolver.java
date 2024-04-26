@@ -177,11 +177,12 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject);
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		for (var sourceUnit : sourceUnits) {
+			var unitFile = new File(new String(sourceUnit.getFileName()));
 			Path sourceUnitPath;
-			if (sourceUnit.getFileName() == null || sourceUnit.getFileName().length == 0) {
+			if (!unitFile.getName().endsWith(".java") || sourceUnit.getFileName() == null || sourceUnit.getFileName().length == 0) {
 				sourceUnitPath = Path.of(new File("whatever.java").toURI());
 			} else {
-				sourceUnitPath = Path.of(new File(new String(sourceUnit.getFileName())).toURI());
+				sourceUnitPath = Path.of(unitFile.toURI());
 			}
 			var fileObject = fileManager.getJavaFileObject(sourceUnitPath);
 			fileManager.cache(fileObject, CharBuffer.wrap(sourceUnit.getContents()));
