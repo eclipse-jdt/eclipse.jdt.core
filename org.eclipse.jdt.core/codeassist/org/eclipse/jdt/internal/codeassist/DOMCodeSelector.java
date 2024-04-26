@@ -230,6 +230,7 @@ public class DOMCodeSelector {
 				ArrayDeque<IJavaElement> overloadedMethods = Stream.of(methodBinding.getDeclaringClass().getDeclaredMethods()) //
 						.filter(otherMethodBinding -> methodBinding.getName().equals(otherMethodBinding.getName())) //
 						.map(IMethodBinding::getJavaElement) //
+						.filter(IJavaElement::exists)
 						.collect(Collectors.toCollection(ArrayDeque::new));
 				IJavaElement[] reorderedOverloadedMethods = new IJavaElement[overloadedMethods.size()];
 				Iterator<IJavaElement> reverseIterator = overloadedMethods.descendingIterator();

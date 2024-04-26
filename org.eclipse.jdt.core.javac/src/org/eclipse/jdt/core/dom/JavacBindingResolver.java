@@ -11,8 +11,10 @@
 package org.eclipse.jdt.core.dom;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -115,10 +117,10 @@ public class JavacBindingResolver extends BindingResolver {
 
 	private Optional<Symbol> symbol(JCTree value) {
 		if (value instanceof JCClassDecl jcClassDecl) {
-			return Optional.of(jcClassDecl.sym);
+			return Optional.ofNullable(jcClassDecl.sym);
 		}
 		if (value instanceof JCFieldAccess jcFieldAccess) {
-			return Optional.of(jcFieldAccess.sym);
+			return Optional.ofNullable(jcFieldAccess.sym);
 		}
 		// TODO fields, methods, variables...
 		return Optional.empty();
@@ -364,4 +366,23 @@ public class JavacBindingResolver extends BindingResolver {
 		throw new IllegalArgumentException("Unexpected attribute type: " + attribute.getClass().getCanonicalName());
 	}
 
+	@Override
+	IBinding resolveImport(ImportDeclaration importDeclaration) {
+		var javac = this.converter.domToJavac.get(importDeclaration.getName());
+		if (javac instanceof JCFieldAccess fieldAccess) {
+			if (fieldAccess.sym != null) {
+				return getBinding(fieldAccess.sym, null);
+			}
+			if (importDeclaration.isStatic()) {
+				com.sun.tools.javac.code.Type type = fieldAccess.getExpression().type;
+				if (type != null) {
+					return Arrays.stream(new JavacTypeBinding(type, this).getDeclaredMethods())
+						.filter(method -> Objects.equals(fieldAccess.getIdentifier().toString(), method.getName()))
+						.findAny()
+						.orElse(null);
+				}
+			}
+		}
+		return null;
+	}
 }
