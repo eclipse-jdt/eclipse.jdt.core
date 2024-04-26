@@ -11,7 +11,7 @@
 *     Microsoft Corporation - initial API and implementation
 *******************************************************************************/
 
-package org.eclipse.jdt.core.dom;
+package org.eclipse.jdt.internal.javac;
 
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 
@@ -21,14 +21,6 @@ public class JavacProblem extends DefaultProblem {
 	public JavacProblem(char[] originatingFileName, String message, String javacCode, int jdtProblemId, String[] stringArguments, int severity,
 			int startPosition, int endPosition, int line, int column) {
 		super(originatingFileName, message, jdtProblemId, stringArguments, severity, startPosition, endPosition, line, column);
-		this.javacCode = javacCode;
-	}
-
-	public String getJavacCode() {
-		return this.javacCode;
-	}
-
-	public void setJavacCode(String javacCode) {
 		this.javacCode = javacCode;
 	}
 

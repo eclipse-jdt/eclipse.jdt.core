@@ -25,8 +25,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CompilerConfiguration;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.JavacProblem;
-import org.eclipse.jdt.core.dom.JavacProblemConverter;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;

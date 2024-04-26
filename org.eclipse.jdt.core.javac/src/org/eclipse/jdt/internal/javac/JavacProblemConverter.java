@@ -11,7 +11,7 @@
 *     Microsoft Corporation - initial API and implementation
 *******************************************************************************/
 
-package org.eclipse.jdt.core.dom;
+package org.eclipse.jdt.internal.javac;
 
 import java.util.Locale;
 
