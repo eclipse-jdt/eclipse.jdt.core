@@ -7804,4 +7804,37 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"Type mismatch: cannot convert from null to void\n" +
 						"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2387
+	// [Switch Expression] Empty Stack exception compiling switch expression with exception handling
+	public void testIssue2387() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					static class Y {}
+					void foo() {
+						new X().new Y(){};
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+					}
+				}
+				"""
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 4)\n"
+				+ "	new X().new Y(){};\n"
+				+ "	^^^^^^^\n"
+				+ "Illegal enclosing instance specification for type X.Y\n"
+				+ "----------\n");
+	}
 }
