@@ -4913,7 +4913,8 @@ public abstract class Scope {
 								}
 								// continue with original 15.12.2.5
 							}
-							if (compilerOptions().isAnnotationBasedNullAnalysisEnabled
+							if (attempt == 0
+									&& compilerOptions().isAnnotationBasedNullAnalysisEnabled
 									&& j > i // don't go backwards
 									&& NullAnnotationMatching.hasMoreSpecificNullness(next, current))
 							{
