@@ -713,6 +713,8 @@ protected void attachOrphanCompletionNode(){
 	Expression expression;
 	if (this.expressionPtr > -1) {
 		expression = this.expressionStack[this.expressionPtr];
+		if (assembleSwitch(expression))
+			return;
 		CompletionNodeDetector detector = new CompletionNodeDetector(this.assistNode, expression);
 		if(detector.containsCompletionNode()) {
 			/* check for completion at the beginning of method body
@@ -1195,38 +1197,8 @@ private void buildMoreCompletionContext(Expression expression) {
 				break;
 			case K_SWITCH_EXPRESSION_DELIMITTER:				// at "case <something> -> {" ?
 			case K_BLOCK_DELIMITER:								// at "case <something> : {" ?
-				if (lastIndexOfElement(K_SWITCH_LABEL) > -1
-						&& this.expressionPtr > 0
-						&& this.astLengthPtr > -1
-						&& this.astPtr > -1
-						&& this.currentElement instanceof RecoveredBlock)
-				{
-					int length = this.astLengthStack[this.astLengthPtr];
-					int newAstPtr = this.astPtr - length;
-					ASTNode firstNode = this.astStack[newAstPtr + 1];
-					if (popBlockContaining(firstNode)) {
-						// established: the parts of the switch had been captured in recovered elements.
-						// now we replace those parts with a manually assembled switch statement:
-						SwitchStatement switchStatement = new SwitchStatement();
-						switchStatement.expression = this.expressionStack[this.expressionPtr - 1];
-						if(length != 0 && firstNode.sourceStart > switchStatement.expression.sourceEnd) {
-							// transfer existing case statements:
-							switchStatement.statements = new Statement[length + 1];
-							System.arraycopy(
-								this.astStack,
-								newAstPtr + 1,
-								switchStatement.statements,
-								0,
-								length);
-						}
-						// now attach the orphan expression:
-						Block block = new Block(0);
-						block.statements = new Statement[] { expression };
-						switchStatement.statements[switchStatement.statements.length-1] = block;
-						this.currentElement.add(switchStatement, 0);
-						break nextElement;
-					}
-				}
+				if (assembleSwitch(expression))
+					break nextElement;
 				break;
 			case K_BETWEEN_IF_AND_RIGHT_PAREN :
 				IfStatement ifStatement = new IfStatement(expression, new EmptyStatement(expression.sourceEnd, expression.sourceEnd), expression.sourceStart, expression.sourceEnd);
@@ -1290,6 +1262,70 @@ private void buildMoreCompletionContext(Expression expression) {
 			this.currentElement = this.currentElement.add(buildMoreCompletionEnclosingContext(expression), 0);
 		}
 	}
+}
+private boolean assembleSwitch(Expression innerStatement) {
+	if (lastIndexOfElement(K_SWITCH_LABEL) > -1
+			&& this.expressionPtr > -1
+			&& this.astPtr > -1
+			&& this.currentElement instanceof RecoveredBlock)
+	{
+		// init a temporary expression pointer:
+		int tmpExrPtr = this.expressionPtr;
+		if (this.expressionStack[tmpExrPtr] == innerStatement) {
+			tmpExrPtr--; // skip the assistNode
+			if (tmpExrPtr == -1)
+				return false;
+		}
+
+		// find the caseStatement on the stack:
+		CaseStatement caseStatement = null;
+		int casePos = -1;
+		for (int i=this.astPtr; i >= 0; i--) {
+			if (this.astStack[i] instanceof CaseStatement stmt) {
+				caseStatement = stmt;
+				casePos = i;
+				break;
+			}
+		}
+		if (caseStatement != null && popBlockContaining(caseStatement)) {
+			// established: the parts of the switch had been captured in recovered elements.
+			// now we replace those parts with a manually assembled switch statement:
+			SwitchStatement switchStatement = new SwitchStatement(); // TODO: possibly create a SwitchExpression?
+			switchStatement.expression = this.expressionStack[tmpExrPtr--];
+
+			int length = this.astPtr - casePos;
+			if(length != 0 && caseStatement.sourceStart > switchStatement.expression.sourceEnd) {
+				switchStatement.statements = new Statement[length + 2];
+				switchStatement.statements[0] = caseStatement;
+				// transfer existing statements:
+				System.arraycopy(
+					this.astStack,
+					casePos + 1,
+					switchStatement.statements,
+					1,
+					length);
+				switchStatement.statements[switchStatement.statements.length-1] = innerStatement;
+			} else {
+				switchStatement.statements = new Statement[] { caseStatement, innerStatement };
+			}
+			// commit new stack pointers:
+			this.astPtr = casePos-1;
+			this.astLengthPtr--; // TODO: this decrement is guess work
+			this.expressionPtr = tmpExrPtr;
+
+			// update elementStack:
+			popUntilElement(K_SWITCH_LABEL);
+			popElement(K_SWITCH_LABEL);
+
+			// now attach the orphan expression:
+			this.currentElement.add(switchStatement, 0);
+
+			// assemble also enclosing switch, if any:
+			assembleSwitch(switchStatement);
+			return true;
+		}
+	}
+	return false;
 }
 private boolean popBlockContaining(ASTNode soughtStatement) {
 	// check if soughtStatement was prematurely captured in a RecoveredStatement up the parent chain.

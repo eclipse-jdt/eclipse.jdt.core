@@ -671,8 +671,11 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 		public void testGH2299_Switch_CompletionInsideLambda() throws JavaModelException {
 			this.workingCopies = new ICompilationUnit[2];
 			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					interface List<T> { Stream<T> stream(); }
+					interface Stream<T> { Stream<T> filter(Predicate<T> pred); }
+					interface Predicate<T> { boolean test(T t); }
 					public class SwitchRecordPattern {
-						public void foo(java.io.Serializable o, java.util.List<String> col) {
+						public void foo(java.io.Serializable o, List<String> col) {
 							switch(o) {
 								case Person(var name, var age): {
 									col.stream().filter(el -> el.equals(/*here*/nam))
@@ -690,15 +693,18 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			String completeBehind = "/*here*/nam";
 			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-			assertResults("name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, " + UNQUALIFIED_REL + "}",
+			assertResults("name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, " + (UNQUALIFIED_REL + R_PACKAGE_EXPECTED_TYPE) + "}",
 					requestor.getResults());
 		}
 
 		public void testGH2299_Switch_SwitchInsideLambda() throws JavaModelException {
 			this.workingCopies = new ICompilationUnit[2];
 			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					interface List<T> { Stream<T> stream(); }
+					interface Stream<T> { Stream<T> filter(Predicate<T> pred); }
+					interface Predicate<T> { boolean test(T t); }
 					public class SwitchRecordPattern {
-						public void foo(java.util.List<java.io.Serializable> col) {
+						public void foo(List<java.io.Serializable> col) {
 							col.stream().filter(el -> {
 								switch(el) {
 									case Person(var name, var age): {
