@@ -191,7 +191,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			CompilationUnit res = ast.newCompilationUnit();
 			result.put(sourceUnit, res);
 			filesToUnits.put(fileObject, res);
-			
+
 			JCCompilationUnit javacCompilationUnit = null;
 			JavacTask task = ((JavacTool)compiler).getTask(null, fileManager, null /* already added to context */, List.of() /* already set in options */, List.of() /* already set */, List.of(fileObject), context);
 			{

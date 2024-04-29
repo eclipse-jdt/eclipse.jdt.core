@@ -1031,6 +1031,9 @@ class JavacConverter {
 					.map(this::convertExpression)
 					.forEach(res.arguments()::add);
 			}
+			if (newClass.encl != null) {
+				res.setExpression(convertExpression(newClass.encl));
+			}
 			return res;
 		}
 		if (javac instanceof JCErroneous error) {
@@ -1340,7 +1343,13 @@ class JavacConverter {
 		if (value instanceof Number number) {
 			NumberLiteral res = this.ast.newNumberLiteral();
 			commonSettings(res, literal);
-			res.setToken(literal.value.toString()); // TODO: we want the token here
+			if (value instanceof Float || value instanceof Long) {
+				// we want the 'F' or 'L' suffix.
+				// ideally we should grab it from the source so that it has the same capitalization
+				res.setToken(literal.toString());
+			} else {
+				res.setToken(literal.value.toString()); // TODO: we want the token here
+			}
 			return res;
 		}
 		if (value instanceof String string) {
@@ -1549,6 +1558,7 @@ class JavacConverter {
 			LabeledStatement res = this.ast.newLabeledStatement();
 			commonSettings(res, javac);
 			res.setLabel((SimpleName)convert(jcLabel.getLabel()));
+			res.setBody(convertStatement(jcLabel.getStatement(), res));
 			return res;
 		}
 		if (javac instanceof JCAssert jcAssert) {
