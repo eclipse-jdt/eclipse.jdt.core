@@ -21,31 +21,6 @@
 	<artifactId>org.eclipse.jdt.core.tests.javac</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>eclipse-test-plugin</packaging>
-	<properties>
-		<defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
-	</properties>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-surefire-plugin</artifactId>
-				<configuration>
-					<includes>
-						<include>
-							org/eclipse/jdt/core/tests/javac/RunConverterTestsJavac.class</include>
-					</includes>
-					<argLine>${tycho.surefire.argLine}</argLine>
-					<dependencies>
-						<dependency>
-							<type>eclipse-plugin</type>
-							<artifactId>org.eclipse.jdt.core.javac</artifactId>
-							<version>1.0.0</version>
-						</dependency>
-					</dependencies>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 	<profiles>
 		<profile>
 			<id>test-on-javase-22</id>
