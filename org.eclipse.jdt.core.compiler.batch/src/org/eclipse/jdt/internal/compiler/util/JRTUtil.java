@@ -150,7 +150,7 @@ public class JRTUtil {
 	 */
 	public static FileSystem getJrtFileSystem(Path path) throws IOException {
 		try {
-			FileSystem fs = JRT_FILE_SYSTEMS.computeIfAbsent(path.toRealPath(), p -> {
+			FileSystem fs = JRT_FILE_SYSTEMS.computeIfAbsent(path.toAbsolutePath().normalize(), p -> {
 				try {
 					return FileSystems.newFileSystem(JRTUtil.JRT_URI, Map.of("java.home", p.toString())); //$NON-NLS-1$
 				} catch (IOException e) {
@@ -196,7 +196,7 @@ public class JRTUtil {
 	public static CtSym getCtSym(Path jdkHome) throws IOException {
 		CtSym ctSym;
 		try {
-			ctSym = ctSymFiles.compute(jdkHome.toRealPath(), (Path x, CtSym current) -> {
+			ctSym = ctSymFiles.compute(jdkHome.toAbsolutePath().normalize(), (Path x, CtSym current) -> {
 				if (current == null || !current.getFs().isOpen()) {
 					try {
 						return new CtSym(x);
@@ -440,7 +440,7 @@ class Jdk {
 	public Jdk(File jrt) throws IOException {
 		this.path = toJdkHome(jrt);
 		try {
-			this.release = pathToRelease.computeIfAbsent(this.path.toRealPath(), p -> {
+			this.release = pathToRelease.computeIfAbsent(this.path, p -> {
 				try {
 					return readJdkReleaseFile(p);
 				} catch (IOException e) {
@@ -477,7 +477,7 @@ class Jdk {
 
 	static Path toJdkHome(File jrt) {
 		Path home;
-		Path normalized = jrt.toPath().normalize();
+		Path normalized = jrt.toPath().toAbsolutePath().normalize();
 		if (jrt.getName().equals(JRTUtil.JRT_FS_JAR)) {
 			home = normalized.getParent().getParent();
 		} else {
