@@ -92,7 +92,7 @@ public class RecordPattern extends Pattern {
 	 * <code>AST.JLS*</code> constants
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.31
+	 * @since 3.38
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return null;
@@ -107,7 +107,7 @@ public class RecordPattern extends Pattern {
 	 * @param previewEnabled the previewEnabled flag
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.31
+	 * @since 3.38
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
 		if (DOMASTUtil.isPatternSupported(apiLevel, previewEnabled)) {
@@ -161,7 +161,7 @@ public class RecordPattern extends Pattern {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used other than JLS21
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @since 3.31
+	 * @since 3.38
 	 */
 	public void setPatternType(Type patternType) {
 		supportedOnlyIn21();
@@ -180,7 +180,7 @@ public class RecordPattern extends Pattern {
 	 * @return the pattern type
 	 * @exception UnsupportedOperationException if this operation is used other than JLS21
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @since 3.31
+	 * @since 3.38
 	 */
 	public Type getPatternType() {
 		supportedOnlyIn21();
@@ -204,7 +204,7 @@ public class RecordPattern extends Pattern {
 	 *    (element type: {@link Pattern})
 	 * @exception UnsupportedOperationException if this operation is used other than JLS21
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @since 3.31
+	 * @since 3.38
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Pattern> patterns() {
