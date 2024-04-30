@@ -1557,7 +1557,11 @@ class JavacConverter {
 		if (javac instanceof JCSwitch jcSwitch) {
 			SwitchStatement res = this.ast.newSwitchStatement();
 			commonSettings(res, javac);
-			res.setExpression(convertExpression(jcSwitch.getExpression()));
+			JCExpression switchExpr = jcSwitch.getExpression();
+			if( switchExpr instanceof JCParens jcp) {
+				switchExpr = jcp.getExpression();
+			}
+			res.setExpression(convertExpression(switchExpr));
 			jcSwitch.getCases().stream()
 				.flatMap(switchCase -> {
 					int numStatements = switchCase.getStatements() != null ? switchCase.getStatements().size() : 0;
@@ -1574,8 +1578,17 @@ class JavacConverter {
 		if (javac instanceof JCCase jcCase) {
 			SwitchCase res = this.ast.newSwitchCase();
 			commonSettings(res, javac);
-			res.setSwitchLabeledRule(jcCase.getCaseKind() == CaseKind.RULE);
-			jcCase.getExpressions().stream().map(this::convertExpression).forEach(res.expressions()::add);
+			if( this.ast.apiLevel >= AST.JLS14_INTERNAL) {
+				res.setSwitchLabeledRule(jcCase.getCaseKind() == CaseKind.RULE);
+				jcCase.getExpressions().stream().map(this::convertExpression).forEach(res.expressions()::add);
+			} else {
+				List<JCExpression> l = jcCase.getExpressions();
+				if( l.size() == 1 ) {
+					res.setExpression(convertExpression(l.get(0)));
+				} else if( l.size() == 0 ) {
+					res.setExpression(null);
+				}
+			}
 			// jcCase.getStatements is processed as part of JCSwitch conversion
 			return res;
 		}
