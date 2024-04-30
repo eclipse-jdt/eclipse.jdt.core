@@ -1602,7 +1602,11 @@ class JavacConverter {
 		if (javac instanceof JCDoWhileLoop jcDoWhile) {
 			DoStatement res = this.ast.newDoStatement();
 			commonSettings(res, javac);
-			res.setExpression(convertExpression(jcDoWhile.getCondition()));
+			JCExpression expr = jcDoWhile.getCondition();
+			if( expr instanceof JCParens jcp) {
+				//expr = jcp.getExpression();
+			}
+			res.setExpression(convertExpression(expr));
 			res.setBody(convertStatement(jcDoWhile.getStatement(), res));
 			return res;
 		}
