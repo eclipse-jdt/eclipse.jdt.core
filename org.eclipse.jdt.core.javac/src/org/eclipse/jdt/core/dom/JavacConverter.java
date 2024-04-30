@@ -1595,7 +1595,11 @@ class JavacConverter {
 		if (javac instanceof JCWhileLoop jcWhile) {
 			WhileStatement res = this.ast.newWhileStatement();
 			commonSettings(res, javac);
-			res.setExpression(convertExpression(jcWhile.getCondition()));
+			JCExpression expr = jcWhile.getCondition();
+			if( expr instanceof JCParens jcp) {
+				expr = jcp.getExpression();
+			}
+			res.setExpression(convertExpression(expr));
 			res.setBody(convertStatement(jcWhile.getStatement(), res));
 			return res;
 		}
@@ -1604,7 +1608,7 @@ class JavacConverter {
 			commonSettings(res, javac);
 			JCExpression expr = jcDoWhile.getCondition();
 			if( expr instanceof JCParens jcp) {
-				//expr = jcp.getExpression();
+				expr = jcp.getExpression();
 			}
 			res.setExpression(convertExpression(expr));
 			res.setBody(convertStatement(jcDoWhile.getStatement(), res));
