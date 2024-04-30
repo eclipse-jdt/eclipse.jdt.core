@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.tests.dom;
+package org.eclipse.jdt.core.tests.javac;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,6 +19,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.tests.dom.ASTConverterBugsTestSetup;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
