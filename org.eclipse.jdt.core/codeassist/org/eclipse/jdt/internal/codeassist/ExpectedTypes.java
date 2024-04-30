@@ -48,6 +48,7 @@ import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 
@@ -77,7 +78,8 @@ public class ExpectedTypes {
 
 	private void computeExpectedTypes(){
 
-		ASTNode parent = this.node.getParent();
+		ASTNode parent = this.node instanceof VariableDeclarationFragment ?
+				this.node : this.node.getParent();
 		// default filter
 		this.expectedTypesFilters = Set.of(TypeFilter.SUBTYPE);
 
