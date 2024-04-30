@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
+import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 
@@ -41,8 +42,8 @@ import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
+import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAnyPattern;
 import com.sun.tools.javac.tree.JCTree.JCArrayAccess;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
@@ -59,8 +60,8 @@ import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCConditional;
 import com.sun.tools.javac.tree.JCTree.JCContinue;
-import com.sun.tools.javac.tree.JCTree.JCDoWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCDirective;
+import com.sun.tools.javac.tree.JCTree.JCDoWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCEnhancedForLoop;
 import com.sun.tools.javac.tree.JCTree.JCErroneous;
 import com.sun.tools.javac.tree.JCTree.JCExports;
@@ -82,10 +83,13 @@ import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.tree.JCTree.JCModuleDecl;
 import com.sun.tools.javac.tree.JCTree.JCNewArray;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
+import com.sun.tools.javac.tree.JCTree.JCOpens;
 import com.sun.tools.javac.tree.JCTree.JCPackageDecl;
 import com.sun.tools.javac.tree.JCTree.JCParens;
 import com.sun.tools.javac.tree.JCTree.JCPattern;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
+import com.sun.tools.javac.tree.JCTree.JCProvides;
+import com.sun.tools.javac.tree.JCTree.JCRequires;
 import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCSkip;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
@@ -99,15 +103,12 @@ import com.sun.tools.javac.tree.JCTree.JCTypeIntersection;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCTypeUnion;
 import com.sun.tools.javac.tree.JCTree.JCUnary;
+import com.sun.tools.javac.tree.JCTree.JCUses;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
 import com.sun.tools.javac.tree.JCTree.Tag;
-import com.sun.tools.javac.tree.JCTree.JCOpens;
-import com.sun.tools.javac.tree.JCTree.JCProvides;
-import com.sun.tools.javac.tree.JCTree.JCRequires;
-import com.sun.tools.javac.tree.JCTree.JCUses;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Names;
 import com.sun.tools.javac.util.Position.LineMap;
@@ -272,7 +273,9 @@ class JavacConverter {
 		ImportDeclaration res = this.ast.newImportDeclaration();
 		commonSettings(res, javac);
 		if (javac.isStatic()) {
-			res.setStatic(true);
+			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+				res.setStatic(true);
+			}
 		}
 		var select = javac.getQualifiedIdentifier();
 		if (select.getIdentifier().contentEquals("*")) {
@@ -644,7 +647,11 @@ class JavacConverter {
 			Iterator<JCTypeParameter> i = javac.getTypeParameters().iterator();
 			while(i.hasNext()) {
 				JCTypeParameter next = i.next();
-				res.typeParameters().add(convert(next));
+				if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+					res.typeParameters().add(convert(next));
+				} else {
+					// TODO
+				}
 			}
 		}
 
@@ -1729,10 +1736,14 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCTypeApply jcTypeApply) {
-			ParameterizedType res = this.ast.newParameterizedType(convertToType(jcTypeApply.getType()));
-			commonSettings(res, javac);
-			jcTypeApply.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
-			return res;
+			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+				ParameterizedType res = this.ast.newParameterizedType(convertToType(jcTypeApply.getType()));
+				commonSettings(res, javac);
+				jcTypeApply.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
+				return res;
+			} else {
+				// TODO ??
+			}
 		}
 		if (javac instanceof JCWildcard wc) {
 			WildcardType res = this.ast.newWildcardType();
