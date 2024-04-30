@@ -999,7 +999,9 @@ class JavacConverter {
 					res2.setName((SimpleName)convert(access.getIdentifier()));
 					return res2;
 				}
-				res.setName((SimpleName)convert(access.getIdentifier()));
+				if (convert(access.getIdentifier()) instanceof SimpleName simpleName) {
+					res.setName(simpleName);
+				}
 				res.setExpression(convertExpression(access.getExpression()));
 			}
 			if (methodInvocation.getArguments() != null) {

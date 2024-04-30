@@ -217,14 +217,17 @@ public class DOMCompletionEngine implements Runnable {
 			}
 		}
 		if (context instanceof MethodInvocation invocation) {
-			ITypeBinding type = invocation.getExpression().resolveTypeBinding();
-			processMembers(type, scope);
-			scope.stream()
+			if (this.offset <= invocation.getName().getStartPosition() + invocation.getName().getLength()) {
+				// complete name
+				ITypeBinding type = invocation.getExpression().resolveTypeBinding();
+				processMembers(type, scope);
+				scope.stream()
 				.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
 				.filter(IMethodBinding.class::isInstance)
 				.map(binding -> toProposal(binding))
 				.forEach(this.requestor::accept);
-			return;
+			}
+			// else complete parameters, get back to default
 		}
 
 		ASTNode current = this.toComplete;

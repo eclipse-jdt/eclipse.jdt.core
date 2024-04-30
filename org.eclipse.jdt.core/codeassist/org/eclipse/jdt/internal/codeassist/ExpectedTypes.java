@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
@@ -42,6 +41,7 @@ import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
@@ -78,7 +78,9 @@ public class ExpectedTypes {
 
 	private void computeExpectedTypes(){
 
-		ASTNode parent = this.node instanceof VariableDeclarationFragment ?
+		ASTNode parent =
+				this.node instanceof VariableDeclarationFragment
+				|| this.node instanceof MethodInvocation ?
 				this.node : this.node.getParent();
 		// default filter
 		this.expectedTypesFilters = Set.of(TypeFilter.SUBTYPE);
@@ -119,7 +121,7 @@ public class ExpectedTypes {
 		} else if(parent instanceof MethodInvocation messageSend) {
 			final ITypeBinding initialBinding = messageSend.getExpression().resolveTypeBinding();
 			ITypeBinding currentBinding = initialBinding; // messageSend.actualReceiverType
-			boolean isStatic = (messageSend.resolveMethodBinding().getModifiers() & Flags.AccStatic) != 0;
+			boolean isStatic = messageSend.getExpression() instanceof Name name && name.resolveBinding() instanceof ITypeBinding;
 			while(currentBinding != null) {
 				computeExpectedTypesForMessageSend(
 					currentBinding,
@@ -462,7 +464,7 @@ public class ExpectedTypes {
 
 			if (method.isConstructor()) continue nextMethod;
 
-			if (isStatic && Flags.isStatic(method.getModifiers())) continue nextMethod;
+			if (isStatic && !Modifier.isStatic(method.getModifiers())) continue nextMethod;
 
 			//if (this.options.checkVisibility && !method.canBeSeenBy(receiverType, invocationSite, scope)) continue nextMethod;
 
@@ -472,24 +474,28 @@ public class ExpectedTypes {
 			if(parameters.length < arguments.size())
 				continue nextMethod;
 
-			int length = arguments.size() - 1;
-			int completionArgIndex = arguments.size() - 1;
+			if (arguments.isEmpty() && parameters.length > 0) {
+				this.expectedTypes.add(parameters[0]);
+			} else {
+				int length = arguments.size() - 1;
+				int completionArgIndex = arguments.size() - 1;
 
-			for (int j = 0; j < length; j++) {
-				Expression argument = arguments.get(j);
-				ITypeBinding argType = argument.resolveTypeBinding();
-				if(argType != null && !argType.getErasure().isSubTypeCompatible(parameters[j].getErasure()))
-					continue nextMethod;
+				for (int j = 0; j < length; j++) {
+					Expression argument = arguments.get(j);
+					ITypeBinding argType = argument.resolveTypeBinding();
+					if(argType != null && !argType.getErasure().isSubTypeCompatible(parameters[j].getErasure()))
+						continue nextMethod;
 
-				/*if((argument.getStartPosition() >= this.startPosition)
-						&& (argument.getStartPosition() + argument.getLength() <= this.endPosition)) {
-					completionArgIndex = j;
-				}*/
-			}
-			if (completionArgIndex >= 0) {
-				ITypeBinding expectedType = method.getParameterTypes()[completionArgIndex];
-				if(expectedType != null) {
-					this.expectedTypes.add(expectedType);
+					/*if((argument.getStartPosition() >= this.startPosition)
+							&& (argument.getStartPosition() + argument.getLength() <= this.endPosition)) {
+						completionArgIndex = j;
+					}*/
+				}
+				if (completionArgIndex >= 0) {
+					ITypeBinding expectedType = method.getParameterTypes()[completionArgIndex];
+					if(expectedType != null) {
+						this.expectedTypes.add(expectedType);
+					}
 				}
 			}
 		}
