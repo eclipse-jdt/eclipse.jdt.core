@@ -979,9 +979,29 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCMethodInvocation methodInvocation) {
+			JCExpression nameExpr = methodInvocation.getMethodSelect();
+			if (nameExpr instanceof JCFieldAccess access) {
+				// Handle super method calls first
+				boolean superCall1 = access.getExpression() instanceof JCFieldAccess && Objects.equals(Names.instance(this.context)._super, ((JCFieldAccess)access.getExpression()).getIdentifier());
+				boolean superCall2 = access instanceof JCFieldAccess && Objects.equals(Names.instance(this.context)._super.toString(), access.getExpression().toString());
+				if (superCall1 || superCall2) {
+					JCFieldAccess fa = superCall1 ? ((JCFieldAccess)access.getExpression()) : access;
+					SuperMethodInvocation res2 = this.ast.newSuperMethodInvocation();
+					commonSettings(res2, javac);
+					methodInvocation.getArguments().stream().map(this::convertExpression).forEach(res2.arguments()::add);
+					if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+						methodInvocation.getTypeArguments().stream().map(this::convertToType).forEach(res2.typeArguments()::add);
+					}
+					if( superCall1 ) {
+						res2.setQualifier(toName(fa.getExpression()));
+					}
+					res2.setName((SimpleName)convert(access.getIdentifier()));
+					return res2;
+				}
+			}
+			
 			MethodInvocation res = this.ast.newMethodInvocation();
 			commonSettings(res, methodInvocation);
-			JCExpression nameExpr = methodInvocation.getMethodSelect();
 			if (nameExpr instanceof JCIdent ident) {
 				if (Objects.equals(ident.getName(), Names.instance(this.context)._super)) {
 					return convertSuperMethodInvocation(methodInvocation);
