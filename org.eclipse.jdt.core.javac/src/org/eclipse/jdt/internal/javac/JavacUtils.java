@@ -59,6 +59,7 @@ public class JavacUtils {
 	private static void configureOptions(Context context, Map<String, String> compilerOptions) {
 		Options options = Options.instance(context);
 		options.put(Option.XLINT, Boolean.TRUE.toString()); // TODO refine according to compilerOptions
+		options.put("allowStringFolding", Boolean.FALSE.toString());
 		if (CompilerOptions.ENABLED.equals(compilerOptions.get(CompilerOptions.OPTION_EnablePreviews))) {
 			options.put(Option.PREVIEW, Boolean.toString(true));
 		}
