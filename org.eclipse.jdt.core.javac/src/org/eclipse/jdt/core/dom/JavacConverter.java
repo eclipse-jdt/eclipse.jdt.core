@@ -1239,12 +1239,22 @@ class JavacConverter {
 		if (javac instanceof JCNewArray jcNewArray) {
 			ArrayCreation res = this.ast.newArrayCreation();
 			commonSettings(res, javac);
+			if (jcNewArray.getType() == null) {
+				// we have no type, we should return an initializer directly
+				ArrayInitializer ret = createArrayInitializerFromJCNewArray(jcNewArray);
+				return ret;
+			}	
+			
 			if (jcNewArray.getType() != null) {
 				Type type = convertToType(jcNewArray.getType());
 				ArrayType arrayType;
 				if (type instanceof ArrayType childArrayType) {
 					arrayType = childArrayType;
-					arrayType.dimensions().addFirst(this.ast.newDimension());
+					if( this.ast.apiLevel >= AST.JLS8_INTERNAL) {
+						arrayType.dimensions().addFirst(this.ast.newDimension());
+					} else {
+						arrayType = this.ast.newArrayType(childArrayType);
+					}
 				} else {
 					arrayType = this.ast.newArrayType(type);
 				}
@@ -1253,13 +1263,7 @@ class JavacConverter {
 			}
 			jcNewArray.getDimensions().map(this::convertExpression).forEach(res.dimensions()::add);
 			if (jcNewArray.getInitializers() != null) {
-				ArrayInitializer initializer = this.ast.newArrayInitializer();
-				commonSettings(initializer, javac);
-				if( jcNewArray.getInitializers().size() > 0 ) {
-					commonSettings(initializer, jcNewArray.getInitializers().get(0));
-				}
-				jcNewArray.getInitializers().stream().map(this::convertExpression).forEach(initializer.expressions()::add);
-				res.setInitializer(initializer);
+				res.setInitializer(createArrayInitializerFromJCNewArray(jcNewArray));
 			}
 			return res;
 		}
@@ -1277,6 +1281,16 @@ class JavacConverter {
 		return substitute;
 	}
 
+	private ArrayInitializer createArrayInitializerFromJCNewArray(JCNewArray jcNewArray) {
+		ArrayInitializer initializer = this.ast.newArrayInitializer();
+		commonSettings(initializer, jcNewArray);
+		if( jcNewArray.getInitializers().size() > 0 ) {
+			commonSettings(initializer, jcNewArray.getInitializers().get(0));
+		}
+		jcNewArray.getInitializers().stream().map(this::convertExpression).forEach(initializer.expressions()::add);
+		return initializer;
+	}
+	
 	private AnonymousClassDeclaration createAnonymousClassDeclaration(JCClassDecl javacAnon, ASTNode parent) {
 		AnonymousClassDeclaration anon = this.ast.newAnonymousClassDeclaration();
 		commonSettings(anon, javacAnon);
