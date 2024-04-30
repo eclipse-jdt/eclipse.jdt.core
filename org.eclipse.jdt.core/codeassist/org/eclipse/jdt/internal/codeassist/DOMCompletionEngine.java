@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
@@ -22,6 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -41,6 +43,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NodeFinder;
+import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -69,6 +72,9 @@ public class DOMCompletionEngine implements Runnable {
 	private final SearchPattern pattern;
 
 	private final CompletionEngine nestedEngine; // to reuse some utilities
+	private ExpectedTypes expectedTypes;
+	private String prefix;
+	private ASTNode toComplete;
 
 	private static class Bindings {
 		private HashSet<IMethodBinding> methods = new HashSet<>();
@@ -145,24 +151,25 @@ public class DOMCompletionEngine implements Runnable {
 	public void run() {
 		this.requestor.beginReporting();
 		this.requestor.acceptContext(new CompletionContext());
-		final ASTNode toComplete = NodeFinder.perform(this.unit, this.offset, 0);
-		ASTNode context = toComplete;
+		this.toComplete = NodeFinder.perform(this.unit, this.offset, 0);
+		this.expectedTypes = new ExpectedTypes(this.assistOptions, this.toComplete);
+		ASTNode context = this.toComplete;
 		String completeAfter = ""; //$NON-NLS-1$
-		if (toComplete instanceof SimpleName simpleName) {
+		if (this.toComplete instanceof SimpleName simpleName) {
 			int charCount = this.offset - simpleName.getStartPosition();
 			completeAfter = simpleName.getIdentifier().substring(0, charCount);
 			if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation) {
-				context = toComplete.getParent();
+				context = this.toComplete.getParent();
 			}
 		}
-		final String prefix = completeAfter;
+		this.prefix = completeAfter;
 		Bindings scope = new Bindings();
 		if (context instanceof FieldAccess fieldAccess) {
 			processMembers(fieldAccess.getExpression().resolveTypeBinding(), scope);
 			if (scope.stream().findAny().isPresent()) {
 				scope.stream()
-					.filter(binding -> this.pattern.matchesName(prefix.toCharArray(), binding.getName().toCharArray()))
-					.map(binding -> toProposal(binding, toComplete))
+					.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
+					.map(binding -> toProposal(binding))
 					.forEach(this.requestor::accept);
 				this.requestor.endReporting();
 				return;
@@ -176,8 +183,8 @@ public class DOMCompletionEngine implements Runnable {
 				packageName = packageBinding.getName();
 			}
 			findTypes(completeAfter, packageName)
-				.filter(type -> this.pattern.matchesName(prefix.toCharArray(), type.getElementName().toCharArray()))
-				.map(type -> toProposal(type, toComplete))
+				.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(), type.getElementName().toCharArray()))
+				.map(this::toProposal)
 				.forEach(this.requestor::accept);
 			List<String> packageNames = new ArrayList<>();
 			try {
@@ -203,7 +210,7 @@ public class DOMCompletionEngine implements Runnable {
 			} catch (JavaModelException ex) {
 				ILog.get().error(ex.getMessage(), ex);
 			}
-			packageNames.removeIf(name -> !this.pattern.matchesName(prefix.toCharArray(), name.toCharArray()));
+			packageNames.removeIf(name -> !this.pattern.matchesName(this.prefix.toCharArray(), name.toCharArray()));
 			if (!packageNames.isEmpty()) {
 				packageNames.stream().distinct().map(pack -> toPackageProposal(pack, fieldAccess)).forEach(this.requestor::accept);
 				return;
@@ -213,14 +220,14 @@ public class DOMCompletionEngine implements Runnable {
 			ITypeBinding type = invocation.getExpression().resolveTypeBinding();
 			processMembers(type, scope);
 			scope.stream()
-				.filter(binding -> this.pattern.matchesName(prefix.toCharArray(), binding.getName().toCharArray()))
+				.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
 				.filter(IMethodBinding.class::isInstance)
-				.map(binding -> toProposal(binding, toComplete))
+				.map(binding -> toProposal(binding))
 				.forEach(this.requestor::accept);
 			return;
 		}
 
-		ASTNode current = toComplete;
+		ASTNode current = this.toComplete;
 		ASTNode parent = current;
 		while (parent != null) {
 			if (parent instanceof AbstractTypeDeclaration typeDecl) {
@@ -233,18 +240,20 @@ public class DOMCompletionEngine implements Runnable {
 			current = current.getParent();
 		}
 		scope.stream()
-			.filter(binding -> this.pattern.matchesName(prefix.toCharArray(), binding.getName().toCharArray()))
-			.map(binding -> toProposal(binding, toComplete))
+			.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
+			.map(binding -> toProposal(binding))
 			.forEach(this.requestor::accept);
-		findTypes(completeAfter, null)
-			.filter(type -> this.pattern.matchesName(prefix.toCharArray(), type.getElementName().toCharArray()))
-			.map(type -> toProposal(type, toComplete))
-			.forEach(this.requestor::accept);
+		if (!completeAfter.isBlank()) {
+			findTypes(completeAfter, null)
+				.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(), type.getElementName().toCharArray()))
+				.map(this::toProposal)
+				.forEach(this.requestor::accept);
+		}
 		try {
 			Arrays.stream(this.modelUnit.getJavaProject().getPackageFragments())
 				.map(IPackageFragment::getElementName)
 				.distinct()
-				.filter(name -> this.pattern.matchesName(prefix.toCharArray(), name.toCharArray()))
+				.filter(name -> this.pattern.matchesName(this.prefix.toCharArray(), name.toCharArray()))
 				.map(pack -> toPackageProposal(pack, toComplete))
 				.forEach(this.requestor::accept);
 		} catch (JavaModelException ex) {
@@ -292,9 +301,9 @@ public class DOMCompletionEngine implements Runnable {
 		processMembers(typeBinding.getSuperclass(), scope);
 	}
 
-	private CompletionProposal toProposal(IBinding binding, ASTNode toComplete) {
+	private CompletionProposal toProposal(IBinding binding) {
 		if (binding instanceof ITypeBinding && binding.getJavaElement() instanceof IType type) {
-			return toProposal(type, toComplete);
+			return toProposal(type);
 		}
 		InternalCompletionProposal res = new InternalCompletionProposal(
 			binding instanceof ITypeBinding ? CompletionProposal.TYPE_REF :
@@ -321,7 +330,7 @@ public class DOMCompletionEngine implements Runnable {
 			binding instanceof ITypeBinding typeBinding ?
 				Signature.createTypeSignature(typeBinding.getQualifiedName().toCharArray(), true).toCharArray() :
 			new char[] {});
-		res.setReplaceRange(toComplete instanceof SimpleName ? toComplete.getStartPosition() : this.offset, DOMCompletionEngine.this.offset);
+		res.setReplaceRange(this.toComplete instanceof SimpleName ? this.toComplete.getStartPosition() : this.offset, DOMCompletionEngine.this.offset);
 		res.setReceiverSignature(
 			binding instanceof IMethodBinding method ?
 				Signature.createTypeSignature(method.getDeclaringClass().getQualifiedName().toCharArray(), true).toCharArray() :
@@ -335,27 +344,41 @@ public class DOMCompletionEngine implements Runnable {
 				Signature.createTypeSignature(variable.getDeclaringClass().getQualifiedName().toCharArray(), true).toCharArray() :
 			new char[]{});
 
-		res.setDeclarationTypeName(((IType)binding.getJavaElement().getAncestor(IJavaElement.TYPE)).getFullyQualifiedName().toCharArray());
-		res.setDeclarationPackageName(binding.getJavaElement().getAncestor(IJavaElement.PACKAGE_FRAGMENT).getElementName().toCharArray());
+		var element = binding.getJavaElement();
+		if (element != null) {
+			res.setDeclarationTypeName(((IType)element.getAncestor(IJavaElement.TYPE)).getFullyQualifiedName().toCharArray());
+			res.setDeclarationPackageName(element.getAncestor(IJavaElement.PACKAGE_FRAGMENT).getElementName().toCharArray());
+		}
 		res.completionEngine = this.nestedEngine;
 		res.nameLookup = this.nameEnvironment.nameLookup;
+
+		res.setRelevance(CompletionEngine.computeBaseRelevance() +
+				CompletionEngine.computeRelevanceForResolution() +
+				this.nestedEngine.computeRelevanceForInterestingProposal() +
+				CompletionEngine.computeRelevanceForCaseMatching(this.prefix.toCharArray(), binding.getName().toCharArray(), this.assistOptions) +
+				computeRelevanceForExpectingType(binding instanceof ITypeBinding typeBinding ? typeBinding :
+					binding instanceof IMethodBinding methodBinding ? methodBinding.getReturnType() :
+					binding instanceof IVariableBinding variableBinding ? variableBinding.getType() :
+					this.toComplete.getAST().resolveWellKnownType(Object.class.getName())) +
+				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) + //no access restriction for class field
+				CompletionEngine.R_NON_INHERITED);
 		return res;
 	}
 
-	private CompletionProposal toProposal(IType type, ASTNode toComplete) {
+	private CompletionProposal toProposal(IType type) {
 		// TODO add import if necessary
 		InternalCompletionProposal res = new InternalCompletionProposal(CompletionProposal.TYPE_REF, this.offset);
 		res.setName(type.getElementName().toCharArray());
 		res.setCompletion(type.getElementName().toCharArray());
 		res.setSignature(Signature.createTypeSignature(type.getFullyQualifiedName(), true).toCharArray());
-		res.setReplaceRange(!(toComplete instanceof FieldAccess) ? toComplete.getStartPosition() : this.offset, this.offset);
+		res.setReplaceRange(!(this.toComplete instanceof FieldAccess) ? this.toComplete.getStartPosition() : this.offset, this.offset);
 		try {
 			res.setFlags(type.getFlags());
 		} catch (JavaModelException ex) {
 			ILog.get().error(ex.getMessage(), ex);
 		}
-		if (toComplete instanceof SimpleName) {
-			res.setTokenRange(toComplete.getStartPosition(), toComplete.getStartPosition() + toComplete.getLength());
+		if (this.toComplete instanceof SimpleName) {
+			res.setTokenRange(this.toComplete.getStartPosition(), this.toComplete.getStartPosition() + this.toComplete.getLength());
 		}
 		res.completionEngine = this.nestedEngine;
 		res.nameLookup = this.nameEnvironment.nameLookup;
@@ -371,6 +394,44 @@ public class DOMCompletionEngine implements Runnable {
 		res.completionEngine = this.nestedEngine;
 		res.nameLookup = this.nameEnvironment.nameLookup;
 		return res;
+	}
+
+	private int computeRelevanceForExpectingType(ITypeBinding proposalType){
+		if (proposalType != null) {
+			int relevance = 0;
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=271296
+			// If there is at least one expected type, then void proposal types attract a degraded relevance.
+			if (PrimitiveType.VOID.toString().equals(proposalType.getName())) {
+				return RelevanceConstants.R_VOID;
+			}
+			for (ITypeBinding expectedType : this.expectedTypes.getExpectedTypes()) {
+				if(this.expectedTypes.allowsSubtypes()
+						&& proposalType.getErasure().isSubTypeCompatible(expectedType.getErasure())) {
+
+					if(Objects.equals(expectedType.getQualifiedName(), proposalType.getQualifiedName())) {
+						return RelevanceConstants.R_EXACT_EXPECTED_TYPE;
+					} else if (proposalType.getPackage().isUnnamed()) {
+						return RelevanceConstants.R_PACKAGE_EXPECTED_TYPE;
+					}
+					relevance = RelevanceConstants.R_EXPECTED_TYPE;
+
+				}
+				if(this.expectedTypes.allowsSupertypes() && expectedType.isSubTypeCompatible(proposalType)) {
+
+					if(Objects.equals(expectedType.getQualifiedName(), proposalType.getQualifiedName())) {
+						return RelevanceConstants.R_EXACT_EXPECTED_TYPE;
+					}
+					relevance = RelevanceConstants.R_EXPECTED_TYPE;
+				}
+				// Bug 84720 - [1.5][assist] proposal ranking by return value should consider auto(un)boxing
+				// Just ensuring that the unitScope is not null, even though it's an unlikely case.
+//				if (this.unitScope != null && this.unitScope.isBoxingCompatibleWith(proposalType, this.expectedTypes[i])) {
+//					relevance = CompletionEngine.R_EXPECTED_TYPE;
+//				}
+			}
+			return relevance;
+		}
+		return 0;
 	}
 
 }
