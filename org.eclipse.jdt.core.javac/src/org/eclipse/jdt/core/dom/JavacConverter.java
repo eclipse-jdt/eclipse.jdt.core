@@ -1364,23 +1364,22 @@ class JavacConverter {
 	private Expression convertLiteral(JCLiteral literal) {
 		Object value = literal.getValue();
 		if (value instanceof Number number) {
-			char c = number.toString().charAt(0);
-			// we want the 'F' or 'L' suffix.
-			// ideally we should grab it from the source so that it has the same capitalization
-			String token = (value instanceof Float || value instanceof Long) ? literal.toString() : literal.value.toString();
-			if( c != '-' ) {
+			char firstChar = number.toString().charAt(0);
+			if( firstChar != '-' ) {
 				NumberLiteral res = this.ast.newNumberLiteral();
 				commonSettings(res, literal);
-				res.setToken(token);
+				String fromSrc = this.rawText.substring(res.getStartPosition(), res.getStartPosition() + res.getLength());
+				res.setToken(fromSrc);
 				return res;
 			} else {
-				String content = number.toString().substring(1);
-				NumberLiteral operand = this.ast.newNumberLiteral();
-				commonSettings(operand, literal);
-				operand.setToken(content);
-				
 				PrefixExpression res = this.ast.newPrefixExpression();
 				commonSettings(res, literal);
+				
+				String fromSrc = this.rawText.substring(res.getStartPosition()+1, res.getStartPosition() + res.getLength());
+				NumberLiteral operand = this.ast.newNumberLiteral();
+				commonSettings(operand, literal);
+				operand.setToken(fromSrc);
+				
 				res.setOperand(operand);
 				res.setOperator(Operator.MINUS);
 				return res;
