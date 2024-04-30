@@ -1669,11 +1669,25 @@ class JavacConverter {
 			fragment.delete();
 			VariableDeclarationExpression jdtVariableDeclarationExpression = this.ast.newVariableDeclarationExpression(fragment);
 			commonSettings(jdtVariableDeclarationExpression, javac);
+			if (javac instanceof JCVariableDecl jcvd && jcvd.vartype != null) {
+				if( fragment.extraArrayDimensions > 0 ) {
+					jdtVariableDeclarationExpression.setType(convertToType(findBaseType(jcvd.vartype)));
+				} else if( this.ast.apiLevel > AST.JLS4_INTERNAL && fragment.extraDimensions().size() > 0 ) {
+					jdtVariableDeclarationExpression.setType(convertToType(findBaseType(jcvd.vartype)));
+				}
+			}
 			return jdtVariableDeclarationExpression;
 		}
 		throw new UnsupportedOperationException(javac + " of type" + javac.getClass());
 	}
 
+	private JCTree findBaseType(JCExpression vartype) {
+		if( vartype instanceof JCArrayTypeTree jcatt) {
+			return findBaseType(jcatt.elemtype);
+		}
+		return vartype;
+	}
+	
 	private Block convertBlock(JCBlock javac) {
 		Block res = this.ast.newBlock();
 		commonSettings(res, javac);
