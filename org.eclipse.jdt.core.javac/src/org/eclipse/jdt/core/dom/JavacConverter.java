@@ -1516,7 +1516,11 @@ class JavacConverter {
 		if (javac instanceof JCSynchronized jcSynchronized) {
 			SynchronizedStatement res = this.ast.newSynchronizedStatement();
 			commonSettings(res, javac);
-			res.setExpression(convertExpression(jcSynchronized.getExpression()));
+			JCExpression syncExpr = jcSynchronized.getExpression();
+			if( syncExpr instanceof JCParens jcp) {
+				syncExpr = jcp.getExpression();
+			}
+			res.setExpression(convertExpression(syncExpr));
 			res.setBody(convertBlock(jcSynchronized.getBlock()));
 			return res;
 		}
