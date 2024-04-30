@@ -1499,6 +1499,14 @@ class JavacConverter {
 			if (jcVariableDecl.vartype != null) {
 				res.setType(convertToType(jcVariableDecl.vartype));
 			}
+			if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
+				res.modifiers().addAll(convert(jcVariableDecl.getModifiers(), res));
+			} else {
+				JCModifiers mods = jcVariableDecl.getModifiers();
+				int[] total = new int[] {0};
+				mods.getFlags().forEach(x -> {total[0] += modifierToFlagVal(x);});
+				res.internalSetModifiers(total[0]);
+			}
 			return res;
 		}
 		if (javac instanceof JCIf ifStatement) {
@@ -2030,8 +2038,8 @@ class JavacConverter {
 	}
 
 
-	private Modifier convert(javax.lang.model.element.Modifier javac, int startPos, int endPos) {
-		Modifier res = this.ast.newModifier(switch (javac) {
+	private ModifierKeyword modifierToKeyword(javax.lang.model.element.Modifier javac) {
+		return switch (javac) {
 			case PUBLIC -> ModifierKeyword.PUBLIC_KEYWORD;
 			case PROTECTED -> ModifierKeyword.PROTECTED_KEYWORD;
 			case PRIVATE -> ModifierKeyword.PRIVATE_KEYWORD;
@@ -2046,7 +2054,22 @@ class JavacConverter {
 			case SYNCHRONIZED -> ModifierKeyword.SYNCHRONIZED_KEYWORD;
 			case NATIVE -> ModifierKeyword.NATIVE_KEYWORD;
 			case STRICTFP -> ModifierKeyword.STRICTFP_KEYWORD;
-		});
+		};
+	}
+	private Modifier modifierToDom(javax.lang.model.element.Modifier javac) {
+		return this.ast.newModifier(modifierToKeyword(javac));
+	}
+	private int modifierToFlagVal(javax.lang.model.element.Modifier javac) {
+		ModifierKeyword m = modifierToKeyword(javac);
+		if( m != null ) {
+			return m.toFlagValue();
+		}
+		return 0;
+	}
+
+	
+	private Modifier convert(javax.lang.model.element.Modifier javac, int startPos, int endPos) {
+		Modifier res = modifierToDom(javac);
 		if (startPos >= 0) {
 			// This needs work... It's not a great solution.
 			String sub = this.rawText.substring(startPos, endPos);
