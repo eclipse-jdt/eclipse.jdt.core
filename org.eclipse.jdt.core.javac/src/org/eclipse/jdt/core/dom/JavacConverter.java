@@ -292,12 +292,14 @@ class JavacConverter {
 	}
 
 	private void commonSettings(ASTNode res, JCTree javac) {
-		if (javac.getStartPosition() >= 0) {
-			int length = javac.getEndPosition(this.javacCompilationUnit.endPositions) - javac.getStartPosition();
-			res.setSourceRange(javac.getStartPosition(), Math.max(0, length));
+		if( javac != null ) {
+			if (javac.getStartPosition() >= 0) {
+				int length = javac.getEndPosition(this.javacCompilationUnit.endPositions) - javac.getStartPosition();
+				res.setSourceRange(javac.getStartPosition(), Math.max(0, length));
+			}
+			this.domToJavac.put(res, javac);
+			setJavadocForNode(javac, res);
 		}
-		this.domToJavac.put(res, javac);
-		setJavadocForNode(javac, res);
 	}
 
 
@@ -1518,6 +1520,10 @@ class JavacConverter {
 			commonSettings(res, javac);
 			if (jcVariableDecl.vartype != null) {
 				res.setType(convertToType(jcVariableDecl.vartype));
+			} else if( jcVariableDecl.declaredUsingVar() ) {
+				SimpleType st = this.ast.newSimpleType(this.ast.newSimpleName("var"));
+				st.setSourceRange(javac.getStartPosition(), 3);
+				res.setType(st);
 			}
 			if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
 				res.modifiers().addAll(convert(jcVariableDecl.getModifiers(), res));
