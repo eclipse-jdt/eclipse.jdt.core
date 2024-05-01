@@ -29,7 +29,6 @@ import org.eclipse.jdt.core.compiler.CompilerConfiguration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaProject;
 
-import com.sun.tools.javac.comp.Todo;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.main.Option;
 import com.sun.tools.javac.util.Context;
@@ -38,21 +37,23 @@ import com.sun.tools.javac.util.Options;
 public class JavacUtils {
 
 	public static void configureJavacContext(Context context, Map<String, String> compilerOptions, IJavaProject javaProject) {
-		configureJavacContext(context, compilerOptions, javaProject, null);
+		configureJavacContext(context, compilerOptions, javaProject, null, null);
 	}
 
-	public static void configureJavacContext(Context context, CompilerConfiguration compilerConfig, IJavaProject javaProject) {
-		configureJavacContext(context, compilerConfig.getOptions().getMap(), javaProject, compilerConfig);
+	public static void configureJavacContext(Context context, CompilerConfiguration compilerConfig,
+	        IJavaProject javaProject, File output) {
+		configureJavacContext(context, compilerConfig.getOptions().getMap(), javaProject, compilerConfig, output);
 	}
 
-	private static void configureJavacContext(Context context, Map<String, String> compilerOptions, IJavaProject javaProject, CompilerConfiguration compilerConfig) {
+	private static void configureJavacContext(Context context, Map<String, String> compilerOptions,
+	        IJavaProject javaProject, CompilerConfiguration compilerConfig, File output) {
 		configureOptions(context, compilerOptions);
 		// TODO populate more from compilerOptions and/or project settings
 		if (context.get(JavaFileManager.class) == null) {
 			JavacFileManager.preRegister(context);
 		}
 		if (javaProject instanceof JavaProject internal) {
-			configurePaths(internal, context, compilerConfig);
+			configurePaths(internal, context, compilerConfig, output);
 		}
 	}
 
@@ -90,10 +91,13 @@ public class JavacUtils {
 		options.put(Option.XLINT_CUSTOM, "all"); // TODO refine according to compilerOptions
 	}
 
-	private static void configurePaths(JavaProject javaProject, Context context, CompilerConfiguration compilerConfig) {
+	private static void configurePaths(JavaProject javaProject, Context context, CompilerConfiguration compilerConfig,
+	        File output) {
 		JavacFileManager fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		try {
-			if (compilerConfig != null && !compilerConfig.getSourceOutputMapping().isEmpty()) {
+			if (output != null) {
+				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(output));
+			} else if (compilerConfig != null && !compilerConfig.getSourceOutputMapping().isEmpty()) {
 				fileManager.setLocation(StandardLocation.CLASS_OUTPUT, compilerConfig.getSourceOutputMapping().values().stream().distinct().toList());
 			} else if (javaProject.getProject() != null) {
 				IResource member = javaProject.getProject().getParent().findMember(javaProject.getOutputLocation());
