@@ -724,7 +724,9 @@ class JavacConverter {
 		} else {
 			// the array dimensions are part of the type
 			if (javac.getType() != null) {
-				res.setType(convertToType(javac.getType()));
+				if( !(javac.getType() instanceof JCErroneous)) {
+					res.setType(convertToType(javac.getType()));
+				}
 			}
 		}
 		if (javac.getInitializer() != null) {
