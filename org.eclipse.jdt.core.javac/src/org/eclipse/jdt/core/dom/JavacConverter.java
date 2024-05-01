@@ -976,6 +976,12 @@ class JavacConverter {
 				res.setName((SimpleName)convert(fieldAccess.getIdentifier()));
 				return res;
 			}
+			if (fieldAccess.getExpression() instanceof JCIdent parentFieldAccess && Objects.equals(Names.instance(this.context)._super, parentFieldAccess.getName())) {
+				SuperFieldAccess res = this.ast.newSuperFieldAccess();
+				commonSettings(res, javac);
+				res.setName((SimpleName)convert(fieldAccess.getIdentifier()));
+				return res;
+			}
 			FieldAccess res = this.ast.newFieldAccess();
 			commonSettings(res, javac);
 			res.setExpression(convertExpression(fieldAccess.getExpression()));
