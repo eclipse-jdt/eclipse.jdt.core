@@ -1381,6 +1381,9 @@ class JavacConverter {
 		if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
 			javac.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
 		}
+		if( javac.getMethodSelect() instanceof JCFieldAccess jcfa && jcfa.selected != null ) {
+			res.setExpression(convertExpression(jcfa.selected));
+		}
 		return res;
 	}
 
@@ -1493,6 +1496,11 @@ class JavacConverter {
 				JCExpression nameExpr = methodInvocation.getMethodSelect();
 				if (nameExpr instanceof JCIdent ident) {
 					if (Objects.equals(ident.getName(), Names.instance(this.context)._super)) {
+						uniqueCaseFound = true;
+					}
+				}
+				if (nameExpr instanceof JCFieldAccess jcfa) {
+					if (Objects.equals(jcfa.getIdentifier(), Names.instance(this.context)._super)) {
 						uniqueCaseFound = true;
 					}
 				}
