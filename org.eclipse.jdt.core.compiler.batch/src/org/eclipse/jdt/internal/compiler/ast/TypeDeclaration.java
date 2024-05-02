@@ -1898,7 +1898,7 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 	if (this.binding instanceof MemberTypeBinding) {
 		((MemberTypeBinding) this.binding).updateDeprecationFromEnclosing();
 	}
-	 Map<ReferenceBinding,ReferenceBinding> updates = new HashMap<>();
+	Map<ReferenceBinding,ReferenceBinding> updates = new HashMap<>();
 	if (this.typeParameters != null) {
 		for (TypeParameter typeParameter : this.typeParameters) {
 			typeParameter.updateWithAnnotations(this.scope); // TODO: need to integrate with outerUpdates/updates?
