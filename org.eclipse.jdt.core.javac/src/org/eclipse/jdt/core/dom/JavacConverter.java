@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 
 import com.sun.source.tree.CaseTree.CaseKind;
+import com.sun.source.tree.ModuleTree.ModuleKind;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.Tokens.Comment;
@@ -194,6 +195,7 @@ class JavacConverter {
 	private ModuleDeclaration convert(JCModuleDecl javac) {
 		ModuleDeclaration res = this.ast.newModuleDeclaration();
 		res.setName(toName(javac.getName()));
+		res.setOpen(javac.getModuleType() == ModuleKind.OPEN);
 		if (javac.getDirectives() != null) {
 			List<JCDirective> directives = javac.getDirectives();
 			for (int i = 0; i < directives.size(); i++) {
@@ -262,6 +264,7 @@ class JavacConverter {
 		RequiresDirective res = this.ast.newRequiresDirective();
 		res.setName(toName(javac.getModuleName()));
 		int javacStart = javac.getStartPosition();
+		List modifiersToAdd = new ArrayList<>();
 		if (javac.isTransitive()) {
 			ModuleModifier trans = this.ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
 			int transStart = this.rawText.substring(javacStart).indexOf(ModuleModifierKeyword.TRANSITIVE_KEYWORD.toString());
@@ -269,7 +272,7 @@ class JavacConverter {
 				int trueStart = javacStart + transStart;
 				trans.setSourceRange(trueStart, ModuleModifierKeyword.TRANSITIVE_KEYWORD.toString().length());
 			}
-			res.modifiers().add(trans);
+			modifiersToAdd.add(trans);
 		}
 		if (javac.isStatic()) {
 			ModuleModifier stat = this.ast.newModuleModifier(ModuleModifierKeyword.STATIC_KEYWORD);
@@ -278,8 +281,10 @@ class JavacConverter {
 				int trueStart = javacStart + statStart;
 				stat.setSourceRange(trueStart, ModuleModifierKeyword.STATIC_KEYWORD.toString().length());
 			}
-			res.modifiers().add(stat);
+			modifiersToAdd.add(stat);
 		}
+		modifiersToAdd.sort((a, b) -> ((ASTNode)a).getStartPosition() - ((ASTNode)b).getStartPosition());
+		modifiersToAdd.stream().forEach(res.modifiers()::add);
 		commonSettings(res, javac);
 		return res;
 	}
