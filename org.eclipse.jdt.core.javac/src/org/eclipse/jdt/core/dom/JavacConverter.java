@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 
 import com.sun.source.tree.CaseTree.CaseKind;
 import com.sun.source.tree.ModuleTree.ModuleKind;
+import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.Tokens.Comment;
@@ -360,6 +361,9 @@ class JavacConverter {
 	}
 
 	private AbstractTypeDeclaration convertClassDecl(JCClassDecl javacClassDecl, ASTNode parent) {
+		if( javacClassDecl.getKind() == Kind.ANNOTATION_TYPE && this.ast.apiLevel == AST.JLS2_INTERNAL) {
+			return null;
+		}
 		AbstractTypeDeclaration	res = switch (javacClassDecl.getKind()) {
 			case ANNOTATION_TYPE -> this.ast.newAnnotationTypeDeclaration();
 			case ENUM -> this.ast.newEnumDeclaration();
