@@ -10817,4 +10817,51 @@ public void testBug508834_comment0() {
 				"""
 			});
 	}
+
+	public void testGH2386() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"TestClass.java",
+			"""
+			public class TestClass<E> {
+			    class Itr { }
+			    class C123172 extends TestClass.Itr<Missing<E>> { }
+			}
+			"""
+		};
+		runner.expectedCompilerLog = """
+			----------
+			1. ERROR in TestClass.java (at line 3)
+				class C123172 extends TestClass.Itr<Missing<E>> { }
+				                      ^^^^^^^^^^^^^
+			The type TestClass.Itr is not generic; it cannot be parameterized with arguments <Missing<E>>
+			----------
+			2. ERROR in TestClass.java (at line 3)
+				class C123172 extends TestClass.Itr<Missing<E>> { }
+				                                    ^^^^^^^
+			Missing cannot be resolved to a type
+			----------
+			""";
+		runner.runNegativeTest();
+	}
+
+	public void testGH2399() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"TestClass.java",
+			"""
+			public class TestClass implements TestClass.Missing1<TestClass.Missing2<TestClass.Missing3>> {
+			}
+			"""
+		};
+		runner.expectedCompilerLog = """
+			----------
+			1. ERROR in TestClass.java (at line 1)
+				public class TestClass implements TestClass.Missing1<TestClass.Missing2<TestClass.Missing3>> {
+				                                  ^^^^^^^^^^^^^^^^^^
+			Cycle detected: the type TestClass cannot extend/implement itself or one of its own member types
+			----------
+			""";
+		runner.runNegativeTest();
+	}
 }
