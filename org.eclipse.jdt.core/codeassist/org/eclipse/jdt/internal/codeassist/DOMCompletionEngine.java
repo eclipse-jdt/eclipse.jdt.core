@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.IAccessRule;
@@ -64,6 +63,7 @@ import org.eclipse.jdt.internal.core.SearchableEnvironment;
 public class DOMCompletionEngine implements Runnable {
 
 	private final int offset;
+	private final DOMCompletionContext completionContext;
 	private final CompilationUnit unit;
 	private final CompletionRequestor requestor;
 	private final ICompilationUnit modelUnit;
@@ -110,6 +110,7 @@ public class DOMCompletionEngine implements Runnable {
 		this.unit = domUnit;
 		this.modelUnit = modelUnit;
 		this.requestor = requestor;
+		this.completionContext = new DOMCompletionContext(offset);
 		SearchableEnvironment env = null;
 		if (this.modelUnit.getJavaProject() instanceof JavaProject p) {
 			try {
@@ -147,10 +148,22 @@ public class DOMCompletionEngine implements Runnable {
 		return List.of();
 	}
 
+	private IJavaElement computeEnclosingElement() {
+		try {
+			if (this.modelUnit == null)
+				return null;
+			IJavaElement enclosingElement = this.modelUnit.getElementAt(this.offset);
+			return enclosingElement == null ? this.modelUnit : enclosingElement;
+		} catch (JavaModelException e) {
+			ILog.get().error(e.getMessage(), e);
+			return null;
+		}
+	}
+
 	@Override
 	public void run() {
 		this.requestor.beginReporting();
-		this.requestor.acceptContext(new CompletionContext());
+		this.requestor.acceptContext(this.completionContext);
 		this.toComplete = NodeFinder.perform(this.unit, this.offset, 0);
 		this.expectedTypes = new ExpectedTypes(this.assistOptions, this.toComplete);
 		ASTNode context = this.toComplete;
@@ -163,6 +176,8 @@ public class DOMCompletionEngine implements Runnable {
 			}
 		}
 		this.prefix = completeAfter;
+		this.completionContext.setToken(completeAfter.toCharArray());
+		this.completionContext.setEnclosingElement(computeEnclosingElement());
 		Bindings scope = new Bindings();
 		if (context instanceof FieldAccess fieldAccess) {
 			processMembers(fieldAccess.getExpression().resolveTypeBinding(), scope);
