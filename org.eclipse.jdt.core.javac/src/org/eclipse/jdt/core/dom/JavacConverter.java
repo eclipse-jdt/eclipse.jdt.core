@@ -1967,8 +1967,13 @@ class JavacConverter {
 			commonSettings(result, javac);
 			result.setTypeName(toName(javac.annotationType));
 			JCTree value = javac.getArguments().get(0);
-			if (value != null)
-				result.setValue(toName(value));
+			if (value != null) {
+				if( value instanceof JCExpression jce) {
+					result.setValue(convertExpression(jce));
+				} else {
+					result.setValue(toName(value));
+				}
+			}
 
 			return result;
 
