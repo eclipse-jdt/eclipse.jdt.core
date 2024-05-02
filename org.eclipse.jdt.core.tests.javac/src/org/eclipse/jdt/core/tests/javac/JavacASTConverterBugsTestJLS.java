@@ -15,10 +15,15 @@ package org.eclipse.jdt.core.tests.javac;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.tests.dom.ASTConverterBugsTest;
 import org.eclipse.jdt.core.tests.dom.ASTConverterBugsTestSetup;
 
 import junit.framework.Test;
@@ -136,6 +141,29 @@ public class JavacASTConverterBugsTestJLS extends ASTConverterBugsTestSetup {
 			);
 			ICompilationUnit cuA = getCompilationUnit("P/A.java");
 			runConversion(this.testLevel, cuA, true, true, true);
+		} finally {
+			deleteProject("P");
+		}
+	}
+
+	public void testGettingParameterInModel() throws Exception {
+		try {
+			createJavaProject("P", new String[] {""}, new String[0], "");
+			createFile("P/A.java",
+				"""
+				public class A {
+					public static void main(String[] args) {
+						System.out.println(args.length);
+					}
+				}
+			"""
+					);
+			ICompilationUnit cuA = getCompilationUnit("P/A.java");
+			IType typeA = cuA.getType("A");
+			assertEquals(1, typeA.getMethods().length);
+			IMethod mainMethod = Stream.of(typeA.getMethods()).filter(method -> "main".equals(method.getElementName())).findFirst().get();
+			ILocalVariable[] parameters = mainMethod.getParameters();
+			assertEquals(1, parameters.length);
 		} finally {
 			deleteProject("P");
 		}

@@ -122,6 +122,12 @@ public class JavacBindingResolver extends BindingResolver {
 		if (value instanceof JCFieldAccess jcFieldAccess) {
 			return Optional.ofNullable(jcFieldAccess.sym);
 		}
+		if (value instanceof JCTree.JCVariableDecl jcVariableDecl) {
+			return Optional.ofNullable(jcVariableDecl.sym);
+		}
+		if (value instanceof JCTree.JCMethodDecl jcMethodDecl) {
+			return Optional.ofNullable(jcMethodDecl.sym);
+		}
 		// TODO fields, methods, variables...
 		return Optional.empty();
 	}
@@ -180,7 +186,7 @@ public class JavacBindingResolver extends BindingResolver {
 		} else if (owner instanceof TypeSymbol typeSymbol) {
 			return new JavacTypeBinding(typeSymbol.type, this);
 		} else if (owner instanceof final MethodSymbol other) {
-			return new JavacMethodBinding(type.asMethodType(), other, this);
+			return new JavacMethodBinding(type instanceof com.sun.tools.javac.code.Type.MethodType methodType ? methodType : owner.type.asMethodType(), other, this);
 		} else if (owner instanceof final VarSymbol other) {
 			return new JavacVariableBinding(other, this);
 		}
@@ -231,7 +237,7 @@ public class JavacBindingResolver extends BindingResolver {
 			tree = this.converter.domToJavac.get(name.getParent());
 		}
 		if (tree instanceof JCIdent ident && ident.sym != null) {
-			return getBinding(ident.sym, ident.type);
+			return getBinding(ident.sym, ident.type != null ? ident.type : ident.sym.type);
 		}
 		if (tree instanceof JCFieldAccess fieldAccess && fieldAccess.sym != null) {
 			return getBinding(fieldAccess.sym, fieldAccess.type);

@@ -7,4 +7,5 @@ Fragment-Host: org.eclipse.jdt.core
 Automatic-Module-Name: org.eclipse.jdt.core.javac
 Require-Capability: osgi.ee; filter:="(&(osgi.ee=JavaSE)(version=22))"
 Import-Package: org.eclipse.jdt.core.dom
-Export-Package: org.eclipse.jdt.internal.javac;x-friends:="org.eclipse.jdt.core.tests.javac"
+Export-Package: org.eclipse.jdt.internal.javac;x-friends:="org.eclipse.jdt.core.tests.javac",
+ org.eclipse.jdt.internal.javac.dom;x-friends:="org.eclipse.jdt.core.tests.javac"

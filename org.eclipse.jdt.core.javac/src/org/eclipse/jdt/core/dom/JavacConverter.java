@@ -1931,6 +1931,9 @@ class JavacConverter {
 		}
 		if (javac instanceof JCArrayTypeTree jcArrayType) {
 			Type t = convertToType(jcArrayType.getType());
+			if (t == null) {
+				return null;
+			}
 			ArrayType res;
 			if (t instanceof ArrayType childArrayType) {
 				res = childArrayType;

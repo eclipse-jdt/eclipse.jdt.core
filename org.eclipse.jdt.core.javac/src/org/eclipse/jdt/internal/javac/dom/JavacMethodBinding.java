@@ -13,11 +13,9 @@ package org.eclipse.jdt.internal.javac.dom;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -27,9 +25,10 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.internal.core.util.Util;
 
-import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
@@ -116,12 +115,13 @@ public class JavacMethodBinding implements IMethodBinding {
 	public IJavaElement getJavaElement() {
 		IJavaElement parent = this.resolver.getBinding(this.methodSymbol.owner, this.methodType).getJavaElement();
 		if (parent instanceof IType type) {
-			return type.getMethod(this.methodSymbol.getSimpleName().toString(),
-				this.methodSymbol.params().stream()
-					.map(varSymbol -> varSymbol.type)
-					.map(t -> t.tsym.name.toString())
-					.map(t -> Signature.createTypeSignature(t, false))
-					.toArray(String[]::new));
+			MethodDeclaration methodDeclaration = (MethodDeclaration)this.resolver.findDeclaringNode(this);
+			if (methodDeclaration != null) {
+				String[] params = ((List<SingleVariableDeclaration>)methodDeclaration.parameters()).stream() //
+						.map(param -> Util.getSignature(param.getType())) //
+						.toArray(String[]::new);
+				return type.getMethod(this.methodSymbol.getSimpleName().toString(), params);
+			}
 		}
 		return null;
 	}

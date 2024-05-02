@@ -17,12 +17,21 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.internal.core.DOMToModelPopulator;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.util.Util;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
@@ -79,20 +88,30 @@ public class JavacVariableBinding implements IVariableBinding {
 		if (this.resolver.javaProject == null) {
 			return null;
 		}
-		if (isParameter() &&
-			getDeclaringMethod().getJavaElement() instanceof IMethod method) {
-			try {
-				return Arrays.stream(method.getParameters())
-					.filter(param -> Objects.equals(param.getElementName(), getName()))
-					.findAny()
-					.orElse(null);
-			} catch (JavaModelException e) {
-				ILog.get().error(e.getMessage(), e);
+		IMethodBinding methodBinding = getDeclaringMethod();
+		if (methodBinding != null && methodBinding.getJavaElement() instanceof IMethod method) {
+			if (isParameter()) {
+				try {
+					return Arrays.stream(method.getParameters())
+							.filter(param -> Objects.equals(param.getElementName(), getName()))
+							.findAny()
+							.orElse(null);
+				} catch (JavaModelException e) {
+					ILog.get().error(e.getMessage(), e);
+				}
+			} else {
+				ASTNode node = this.resolver.findNode(this.variableSymbol);
+				if (node instanceof VariableDeclarationFragment fragment) {
+					return toLocalVariable(fragment, (JavaElement) method);
+				} else if (node instanceof SingleVariableDeclaration variableDecl) {
+					return DOMToModelPopulator.toLocalVariable(variableDecl, (JavaElement) method);
+				}
 			}
 		}
 		if (this.variableSymbol.owner instanceof TypeSymbol parentType) {//field
 			return new JavacTypeBinding(parentType.type, this.resolver).getJavaElement().getField(this.variableSymbol.name.toString());
 		}
+
 		return null;
 	}
 
@@ -140,7 +159,7 @@ public class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public boolean isParameter() {
-		return this.variableSymbol.owner instanceof MethodSymbol;
+		return this.variableSymbol.owner instanceof MethodSymbol && (this.variableSymbol.flags() & Flags.PARAMETER) != 0;
 	}
 
 	@Override
@@ -197,4 +216,37 @@ public class JavacVariableBinding implements IVariableBinding {
 		return (this.variableSymbol.flags() & Flags.EFFECTIVELY_FINAL) != 0;
 	}
 
+	private static LocalVariable toLocalVariable(VariableDeclarationFragment fragment, JavaElement parent) {
+		VariableDeclarationStatement variableDeclaration = (VariableDeclarationStatement)fragment.getParent();
+		return new LocalVariable(parent,
+				fragment.getName().getIdentifier(),
+				variableDeclaration.getStartPosition(),
+				variableDeclaration.getStartPosition() + variableDeclaration.getLength() - 1,
+				fragment.getName().getStartPosition(),
+				fragment.getName().getStartPosition() + fragment.getName().getLength() - 1,
+				Util.getSignature(variableDeclaration.getType()),
+				null, // I don't think we need this, also it's the ECJ's annotation node
+				toModelFlags(variableDeclaration.getModifiers(), false),
+				false);
+	}
+
+	private static int toModelFlags(int domModifiers, boolean isDeprecated) {
+		int res = 0;
+		if (Modifier.isAbstract(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccAbstract;
+		if (Modifier.isDefault(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccDefaultMethod;
+		if (Modifier.isFinal(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccFinal;
+		if (Modifier.isNative(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccNative;
+		if (Modifier.isNonSealed(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccNonSealed;
+		if (Modifier.isPrivate(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccPrivate;
+		if (Modifier.isProtected(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccProtected;
+		if (Modifier.isPublic(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccPublic;
+		if (Modifier.isSealed(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccSealed;
+		if (Modifier.isStatic(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccStatic;
+		if (Modifier.isStrictfp(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccStrictfp;
+		if (Modifier.isSynchronized(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccSynchronized;
+		if (Modifier.isTransient(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccTransient;
+		if (Modifier.isVolatile(domModifiers)) res |= org.eclipse.jdt.core.Flags.AccVolatile;
+		if (isDeprecated) res |= org.eclipse.jdt.core.Flags.AccDeprecated;
+		return res;
+	}
 }
