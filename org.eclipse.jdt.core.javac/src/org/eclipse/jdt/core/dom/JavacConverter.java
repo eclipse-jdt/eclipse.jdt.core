@@ -426,10 +426,12 @@ class JavacConverter {
 			}
 
 			if( javacClassDecl.getTypeParameters() != null ) {
-				Iterator<JCTypeParameter> i = javacClassDecl.getTypeParameters().iterator();
-				while(i.hasNext()) {
-					JCTypeParameter next = i.next();
-					typeDeclaration.typeParameters().add(convert(next));
+				if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+					Iterator<JCTypeParameter> i = javacClassDecl.getTypeParameters().iterator();
+					while(i.hasNext()) {
+						JCTypeParameter next = i.next();
+						typeDeclaration.typeParameters().add(convert(next));
+					}
 				}
 			}
 
