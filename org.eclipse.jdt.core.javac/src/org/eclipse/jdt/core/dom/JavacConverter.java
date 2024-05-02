@@ -357,6 +357,9 @@ class JavacConverter {
 		if (expression instanceof JCAnnotatedType jcat) {
 			return toName(jcat.underlyingType);
 		}
+		if (expression instanceof JCTypeApply jcta) {
+			return toName(jcta.clazz);
+		}
 		throw new UnsupportedOperationException("toName for " + expression + " (" + expression.getClass().getName() + ")");
 	}
 
@@ -1111,7 +1114,9 @@ class JavacConverter {
 			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
 				res.setType(convertToType(newClass.getIdentifier()));
 			} else {
-				res.setName(toName(newClass.clazz));
+				Name n = toName(newClass.clazz);
+				if( n != null )
+					res.setName(n);
 			}
 			if (newClass.getClassBody() != null && newClass.getClassBody() instanceof JCClassDecl javacAnon) {
 				AnonymousClassDeclaration anon = createAnonymousClassDeclaration(javacAnon, res);
@@ -1442,7 +1447,9 @@ class JavacConverter {
 		ConstructorInvocation res = this.ast.newConstructorInvocation();
 		commonSettings(res, javac);
 		javac.getArguments().stream().map(this::convertExpression).forEach(res.arguments()::add);
-		javac.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
+		if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
+			javac.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
+		}
 		return res;
 	}
 
@@ -1567,7 +1574,9 @@ class JavacConverter {
 			VariableDeclarationStatement res = this.ast.newVariableDeclarationStatement(fragment);
 			commonSettings(res, javac);
 			if (jcVariableDecl.vartype != null) {
-				res.setType(convertToType(jcVariableDecl.vartype));
+				Type t = convertToType(jcVariableDecl.vartype);
+				if( t != null )
+					res.setType(t);
 			} else if( jcVariableDecl.declaredUsingVar() ) {
 				SimpleType st = this.ast.newSimpleType(this.ast.newSimpleName("var"));
 				st.setSourceRange(javac.getStartPosition(), 3);
@@ -1840,15 +1849,23 @@ class JavacConverter {
 		}
 		if (javac instanceof JCFieldAccess qualified) {
 			try {
-				Name qn = toName(qualified);
-				SimpleType res = this.ast.newSimpleType(qn);
-				commonSettings(res, qualified);
-				return res;
+				if( qualified.getExpression() == null ) {
+					Name qn = toName(qualified);
+					SimpleType res = this.ast.newSimpleType(qn);
+					commonSettings(res, qualified);
+					return res;
+				} 
 			} catch (Exception ex) {
-				// case of not translatable name, eg because of generics
-				// TODO find a better check instead of relying on exception
+			}
+			// case of not translatable name, eg because of generics
+			// TODO find a better check instead of relying on exception
+			if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
 				QualifiedType res = this.ast.newQualifiedType(convertToType(qualified.getExpression()), (SimpleName)convert(qualified.getIdentifier()));
 				commonSettings(res, qualified);
+				return res;
+			} else {
+				SimpleType res = this.ast.newSimpleType(toName(qualified));
+				commonSettings(res, javac);
 				return res;
 			}
 		}
