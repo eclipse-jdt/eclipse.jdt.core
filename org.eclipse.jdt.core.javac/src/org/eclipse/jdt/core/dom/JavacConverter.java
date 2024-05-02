@@ -195,7 +195,8 @@ class JavacConverter {
 	private ModuleDeclaration convert(JCModuleDecl javac) {
 		ModuleDeclaration res = this.ast.newModuleDeclaration();
 		res.setName(toName(javac.getName()));
-		res.setOpen(javac.getModuleType() == ModuleKind.OPEN);
+		boolean isOpen = javac.getModuleType() == ModuleKind.OPEN; 
+		res.setOpen(isOpen);
 		if (javac.getDirectives() != null) {
 			List<JCDirective> directives = javac.getDirectives();
 			for (int i = 0; i < directives.size(); i++) {
@@ -204,6 +205,21 @@ class JavacConverter {
 			}
 		}
 		commonSettings(res, javac);
+		if( isOpen ) {
+			int start = res.getStartPosition();
+			if( !this.rawText.substring(start).trim().startsWith("open")) {
+				// we are open but we don't start with open... so... gotta look backwards
+				String prefix =  this.rawText.substring(0,start); 
+				if( prefix.trim().endsWith("open")) {
+					// previous token is open
+					int ind = new StringBuffer().append(prefix).reverse().toString().indexOf("nepo");
+					if( ind != -1 ) {
+						int gap = ind + 4;
+						res.setSourceRange(res.getStartPosition() - gap, res.getLength() + gap);
+					}
+				}
+			}
+		}
 		List<IExtendedModifier> l = convert(javac.mods, res);
 		res.annotations().addAll(l);
 		return res;
