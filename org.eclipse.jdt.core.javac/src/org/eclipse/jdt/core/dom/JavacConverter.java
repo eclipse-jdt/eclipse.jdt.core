@@ -222,6 +222,14 @@ class JavacConverter {
 		ExportsDirective res = this.ast.newExportsStatement();
 		res.setName(toName(javac.getPackageName()));
 		commonSettings(res, javac);
+		List<JCExpression> mods = javac.getModuleNames();
+		Iterator<JCExpression> it = mods.iterator();
+		while(it.hasNext()) {
+			JCExpression jcpe = it.next();
+			Expression e = convertExpression(jcpe);
+			if( e != null )
+				res.modules().add(e);
+		}
 		return res;
 	}
 
@@ -229,6 +237,14 @@ class JavacConverter {
 		OpensDirective res = this.ast.newOpensDirective();
 		res.setName(toName(javac.getPackageName()));
 		commonSettings(res, javac);
+		List<JCExpression> mods = javac.getModuleNames();
+		Iterator<JCExpression> it = mods.iterator();
+		while(it.hasNext()) {
+			JCExpression jcpe = it.next();
+			Expression e = convertExpression(jcpe);
+			if( e != null )
+				res.modules().add(e);
+		}
 		return res;
 	}
 
