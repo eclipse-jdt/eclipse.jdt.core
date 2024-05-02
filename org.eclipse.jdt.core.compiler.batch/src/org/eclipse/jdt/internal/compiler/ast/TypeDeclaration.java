@@ -1898,8 +1898,6 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 	if (this.binding instanceof MemberTypeBinding) {
 		((MemberTypeBinding) this.binding).updateDeprecationFromEnclosing();
 	}
-	if (this.binding.isHierarchyInconsistent())
-		return;
 	 Map<ReferenceBinding,ReferenceBinding> updates = new HashMap<>();
 	if (this.typeParameters != null) {
 		for (TypeParameter typeParameter : this.typeParameters) {
