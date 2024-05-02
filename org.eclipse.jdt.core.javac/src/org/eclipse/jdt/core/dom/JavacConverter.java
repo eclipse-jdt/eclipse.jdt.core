@@ -1878,7 +1878,7 @@ class JavacConverter {
 				jcTypeApply.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
 				return res;
 			} else {
-				// TODO ??
+				return convertToType(jcTypeApply.clazz);
 			}
 		}
 		if (javac instanceof JCWildcard wc) {
