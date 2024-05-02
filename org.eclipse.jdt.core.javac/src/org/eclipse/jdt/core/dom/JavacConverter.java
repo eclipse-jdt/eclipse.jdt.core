@@ -337,6 +337,9 @@ class JavacConverter {
 			commonSettings(res, fieldAccess);
 			return res;
 		}
+		if (expression instanceof JCAnnotatedType jcat) {
+			return toName(jcat.underlyingType);
+		}
 		throw new UnsupportedOperationException("toName for " + expression + " (" + expression.getClass().getName() + ")");
 	}
 
@@ -1881,7 +1884,28 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCAnnotatedType jcAnnotatedType) {
-			Type res = convertToType(jcAnnotatedType.getUnderlyingType());
+			boolean createNameQualifiedType = jcAnnotatedType.getAnnotations() != null && jcAnnotatedType.getAnnotations().size() > 0;
+			Type res = null;
+			if( createNameQualifiedType && this.ast.apiLevel >= AST.JLS8_INTERNAL) {
+				JCExpression jcpe = jcAnnotatedType.underlyingType;
+				if( jcpe instanceof JCFieldAccess jcfa2) {
+					if( jcfa2.selected instanceof JCAnnotatedType) {
+						QualifiedType nameQualifiedType = new QualifiedType(this.ast);
+						commonSettings(nameQualifiedType, javac);
+						nameQualifiedType.setQualifier(convertToType(jcfa2.selected));
+						nameQualifiedType.setName(this.ast.newSimpleName(jcfa2.name.toString()));
+						res = nameQualifiedType;
+					} else {
+						NameQualifiedType nameQualifiedType = new NameQualifiedType(this.ast);
+						commonSettings(nameQualifiedType, javac);
+						nameQualifiedType.setQualifier(toName(jcfa2.selected));
+						nameQualifiedType.setName(this.ast.newSimpleName(jcfa2.name.toString()));
+						res = nameQualifiedType;
+					}
+				}
+			} else {
+				convertToType(jcAnnotatedType.getUnderlyingType());
+			}
 			if (res instanceof AnnotatableType annotatableType) {
 				for (JCAnnotation annotation : jcAnnotatedType.getAnnotations()) {
 					annotatableType.annotations.add(convert(annotation));
@@ -1917,13 +1941,21 @@ class JavacConverter {
 	}
 
 	private Annotation convert(JCAnnotation javac) {
-		// TODO this needs more work, see below
-		String asString = javac.toString();
-		if( !asString.contains("(")) {
+		if( javac.getArguments().size() == 0) {
 			MarkerAnnotation res = this.ast.newMarkerAnnotation();
 			commonSettings(res, javac);
 			res.setTypeName(toName(javac.getAnnotationType()));
 			return res;
+		} else if( javac.getArguments().size() == 1 ) {
+			SingleMemberAnnotation result= ast.newSingleMemberAnnotation();
+			commonSettings(result, javac);
+			result.setTypeName(toName(javac.annotationType));
+			JCTree value = javac.getArguments().get(0);
+			if (value != null)
+				result.setValue(toName(value));
+
+			return result;
+
 		} else {
 			NormalAnnotation res = this.ast.newNormalAnnotation();
 			commonSettings(res, javac);
