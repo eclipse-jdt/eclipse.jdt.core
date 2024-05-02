@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,8 +16,9 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.Method;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.dom.*;
+
+import junit.framework.Test;
 
 /**
  * Test suite for <code>ASTMatcher</code> and <code>ASTNode.subtreeMatch</code>.
@@ -77,6 +78,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	Block B1;
 	SingleVariableDeclaration V1;
 	SingleVariableDeclaration V2;
+	SingleVariableDeclaration RV1;
+	SingleVariableDeclaration RV2;
 	AnnotatableType R1;
 	Name Q1;
 	VariableDeclarationFragment W1;
@@ -129,7 +132,12 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	static int getJLS8() {
 		return AST.JLS8;
 	}
-
+	/**
+	 * @deprecated
+	 */
+	static int getJLS17() {
+		return AST.JLS17;
+	}
 	/**
 	 * @deprecated (not really - just suppressing the warnings
 	 * that come from testing Javadoc.getComment())
@@ -161,6 +169,12 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.V2 = this.ast.newSingleVariableDeclaration();
 		this.V2.setType(this.ast.newPrimitiveType(PrimitiveType.BYTE));
 		this.V2.setName(this.ast.newSimpleName("b")); //$NON-NLS-1$
+		this.RV1 = this.ast.newSingleVariableDeclaration();
+		this.RV1.setType(this.T1);
+		this.RV1.setName(this.ast.newSimpleName("a"));
+		this.RV2 = this.ast.newSingleVariableDeclaration();
+		this.RV2.setType(this.T2);
+		this.RV2.setName(this.ast.newSimpleName("b"));
 		this.W1 = this.ast.newVariableDeclarationFragment();
 		this.W1.setName(this.ast.newSimpleName("a")); //$NON-NLS-1$
 		this.W2 = this.ast.newVariableDeclarationFragment();
@@ -492,6 +506,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(QualifiedType node, Object other) {
+			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(RecordDeclaration node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(ReturnStatement node, Object other) {
@@ -1183,6 +1200,21 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		PrefixExpression x1 = this.ast.newPrefixExpression();
 		x1.setOperand(this.E1);
 		x1.setOperator(PrefixExpression.Operator.INCREMENT);
+		basicMatch(x1);
+	}
+	public void testRecordDeclaration() {
+		if (this.ast.apiLevel() < getJLS17()) {
+			return;
+		}
+		RecordDeclaration x1 = this.ast.newRecordDeclaration();
+		x1.setJavadoc(this.JD1);
+		x1.setName(this.N1);
+		x1.modifiers().add(this.MOD1);
+		x1.modifiers().add(this.MOD2);
+		x1.recordComponents().add(this.RV1);
+		x1.recordComponents().add(this.RV2);
+		x1.typeParameters().add(this.TP1);
+		x1.typeParameters().add(this.TP2);
 		basicMatch(x1);
 	}
 	public void testReturnStatement() {
