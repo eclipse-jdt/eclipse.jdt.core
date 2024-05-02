@@ -202,6 +202,8 @@ class JavacConverter {
 			}
 		}
 		commonSettings(res, javac);
+		List<IExtendedModifier> l = convert(javac.mods, res);
+		res.annotations().addAll(l);
 		return res;
 	}
 
