@@ -367,6 +367,12 @@ class JavacConverter {
 		if( javacClassDecl.getKind() == Kind.ANNOTATION_TYPE && this.ast.apiLevel == AST.JLS2_INTERNAL) {
 			return null;
 		}
+		if( javacClassDecl.getKind() == Kind.ENUM && this.ast.apiLevel == AST.JLS2_INTERNAL) {
+			return null;
+		}
+		if( javacClassDecl.getKind() == Kind.RECORD && this.ast.apiLevel < AST.JLS16_INTERNAL) {
+			return null;
+		}
 		AbstractTypeDeclaration	res = switch (javacClassDecl.getKind()) {
 			case ANNOTATION_TYPE -> this.ast.newAnnotationTypeDeclaration();
 			case ENUM -> this.ast.newEnumDeclaration();
