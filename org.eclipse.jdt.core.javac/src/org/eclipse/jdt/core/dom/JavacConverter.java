@@ -1980,7 +1980,11 @@ class JavacConverter {
 	}
 
 	private Annotation convert(JCAnnotation javac) {
-		if( javac.getArguments().size() == 0) {
+		int startPos = javac.getStartPosition();
+		int length = javac.getEndPosition(this.javacCompilationUnit.endPositions) - startPos;
+		String content = this.rawText.substring(startPos, startPos+length);
+		boolean mustUseNormalAnnot = content != null && content.contains("(");
+		if( javac.getArguments().size() == 0 && !mustUseNormalAnnot) {
 			MarkerAnnotation res = this.ast.newMarkerAnnotation();
 			commonSettings(res, javac);
 			res.setTypeName(toName(javac.getAnnotationType()));
