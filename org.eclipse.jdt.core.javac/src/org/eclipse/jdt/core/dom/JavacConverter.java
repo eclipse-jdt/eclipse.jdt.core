@@ -2362,12 +2362,23 @@ class JavacConverter {
 					enumConstantDeclaration.setSourceRange(start, end-start);
 					enumConstantDeclaration.setName(typeName);
 				}
-				if( enumConstant.init instanceof JCNewClass jcnc && jcnc.def instanceof JCClassDecl jccd) {
-					AnonymousClassDeclaration e = createAnonymousClassDeclaration(jccd, enumConstantDeclaration);
-					if( e != null ) {
-						enumConstantDeclaration.setAnonymousClassDeclaration(e);
+				if( enumConstant.init instanceof JCNewClass jcnc ) {
+					if( jcnc.def instanceof JCClassDecl jccd) {
+						AnonymousClassDeclaration e = createAnonymousClassDeclaration(jccd, enumConstantDeclaration);
+						if( e != null ) {
+							enumConstantDeclaration.setAnonymousClassDeclaration(e);
+						}
 					}
-				}
+					if( jcnc.getArguments() != null ) {
+						Iterator<JCExpression> it = jcnc.getArguments().iterator();
+						while(it.hasNext()) {
+							Expression e = convertExpression(it.next());
+							if( e != null ) {
+								enumConstantDeclaration.arguments().add(e);
+							}
+						}
+					}
+				} 
 			}
 		}
 		return enumConstantDeclaration;
