@@ -478,19 +478,16 @@ class JavacConverter {
 	        List enumStatements= enumDecl.enumConstants();
 			if (javacClassDecl.getMembers() != null) {
 		        for( Iterator<JCTree> i = javacClassDecl.getMembers().iterator(); i.hasNext(); ) {
-		        	EnumConstantDeclaration dec1 = convertEnumConstantDeclaration(i.next(), parent, enumDecl);
+		        	JCTree iNext = i.next();
+		        	EnumConstantDeclaration dec1 = convertEnumConstantDeclaration(iNext, parent, enumDecl);
 		        	if( dec1 != null ) {
 		        		enumStatements.add(dec1);
-		        	}
-		        }
-			}
-
-			List bodyDecl = enumDecl.bodyDeclarations();
-			if (javacClassDecl.getMembers() != null) {
-		        for( Iterator<JCTree> i = javacClassDecl.getMembers().iterator(); i.hasNext(); ) {
-		        	BodyDeclaration bd = convertEnumFieldOrMethodDeclaration(i.next(), res, enumDecl);
-		        	if( bd != null ) {
-		        		bodyDecl.add(bd);
+		        	} else {
+		        		// body declaration
+		        		ASTNode bodyDecl = convertBodyDeclaration(iNext, res);
+		        		if( bodyDecl != null ) {
+		        			res.bodyDeclarations().add(bodyDecl);
+		        		}
 		        	}
 		        }
 			}
