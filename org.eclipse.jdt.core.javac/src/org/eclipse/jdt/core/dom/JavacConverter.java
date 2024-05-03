@@ -424,11 +424,9 @@ class JavacConverter {
 					Iterator<JCExpression> it = javacClassDecl.getImplementsClause().iterator();
 					while(it.hasNext()) {
 						JCExpression next = it.next();
-						if( next instanceof JCFieldAccess jcfa ) {
-							String pack = jcfa.selected == null ? null : jcfa.selected.toString();
-							typeDeclaration.superInterfaces().add(convert(jcfa.name, pack));
-						} else if( next instanceof JCIdent jcid ) {
-							typeDeclaration.superInterfaces().add(convert(jcid.name, null));
+						Name m = toName(next);
+						if( m != null ) {
+							typeDeclaration.superInterfaces().add(m);
 						}
 					}
 				}
