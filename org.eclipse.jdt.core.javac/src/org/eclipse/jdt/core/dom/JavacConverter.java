@@ -1130,6 +1130,15 @@ class JavacConverter {
 			if (newClass.encl != null) {
 				res.setExpression(convertExpression(newClass.encl));
 			}
+			if( newClass.getTypeArguments() != null && this.ast.apiLevel != AST.JLS2_INTERNAL) {
+				Iterator<JCExpression> it = newClass.getTypeArguments().iterator();
+				while(it.hasNext()) {
+					Type e = convertToType(it.next());
+					if( e != null ) {
+						res.typeArguments().add(e);
+					}
+				}
+			}
 			return res;
 		}
 		if (javac instanceof JCErroneous error) {
