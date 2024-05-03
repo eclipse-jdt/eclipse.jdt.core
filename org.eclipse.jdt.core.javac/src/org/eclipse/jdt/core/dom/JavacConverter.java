@@ -1329,10 +1329,11 @@ class JavacConverter {
 				.map(JCVariableDecl.class::cast)
 				.map(this::convertVariableDeclarationForLambda)
 				.forEach(res.parameters()::add);
-			res.setBody(
-					jcLambda.getBody() instanceof JCExpression expr ? convertExpression(expr) :
-					jcLambda.getBody() instanceof JCStatement stmt ? convertStatement(stmt, res) :
-					null);
+			ASTNode body = jcLambda.getBody() instanceof JCExpression expr ? convertExpression(expr) :
+				jcLambda.getBody() instanceof JCStatement stmt ? convertStatement(stmt, res) :
+				null;
+			if( body != null ) 
+				res.setBody(body);
 			// TODO set parenthesis looking at the next non-whitespace char after the last parameter
 			int endPos = jcLambda.getEndPosition(this.javacCompilationUnit.endPositions);
 			res.setSourceRange(jcLambda.pos, endPos - jcLambda.pos);
@@ -1538,7 +1539,8 @@ class JavacConverter {
 					if (tree instanceof JCStatement nestedStmt) {
 						try {
 							Statement stmt = convertStatement(nestedStmt, parent);
-							stmt.setFlags(stmt.getFlags() | ASTNode.RECOVERED);
+							if( stmt != null )
+								stmt.setFlags(stmt.getFlags() | ASTNode.RECOVERED);
 							return stmt;
 						} catch (Exception ex) {
 							// pass-through: do not break when attempting such reconcile
@@ -1626,28 +1628,46 @@ class JavacConverter {
 		if (javac instanceof JCForLoop jcForLoop) {
 			ForStatement res = this.ast.newForStatement();
 			commonSettings(res, javac);
-			res.setBody(convertStatement(jcForLoop.getStatement(), res));
+			Statement stmt = convertStatement(jcForLoop.getStatement(), res); 
+			if( stmt != null )
+				res.setBody(stmt);
 			var initializerIt = jcForLoop.getInitializer().iterator();
 			while(initializerIt.hasNext()) {
-				res.initializers().add(convertStatementToExpression((JCStatement)initializerIt.next(), res));
+				Expression expr = convertStatementToExpression((JCStatement)initializerIt.next(), res);
+				if( expr != null )
+					res.initializers().add(expr);
 			}
 			if (jcForLoop.getCondition() != null) {
-				res.setExpression(convertExpression(jcForLoop.getCondition()));
+				Expression expr = convertExpression(jcForLoop.getCondition());
+				if( expr != null )
+					res.setExpression(expr);
 			}
 
 			Iterator updateIt = jcForLoop.getUpdate().iterator();
 			while(updateIt.hasNext()) {
-				res.updaters().add(convertStatementToExpression((JCStatement)updateIt.next(), res));
+				Expression expr = convertStatementToExpression((JCStatement)updateIt.next(), res);
+				if( expr != null )
+					res.updaters().add(expr);
 			}
 			return res;
 		}
 		if (javac instanceof JCEnhancedForLoop jcEnhancedForLoop) {
-			EnhancedForStatement res = this.ast.newEnhancedForStatement();
-			commonSettings(res, javac);
-			res.setParameter((SingleVariableDeclaration)convertVariableDeclaration(jcEnhancedForLoop.getVariable()));
-			res.setExpression(convertExpression(jcEnhancedForLoop.getExpression()));
-			res.setBody(convertStatement(jcEnhancedForLoop.getStatement(), res));
-			return res;
+			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+				EnhancedForStatement res = this.ast.newEnhancedForStatement();
+				commonSettings(res, javac);
+				res.setParameter((SingleVariableDeclaration)convertVariableDeclaration(jcEnhancedForLoop.getVariable()));
+				Expression expr = convertExpression(jcEnhancedForLoop.getExpression());
+				if( expr != null )
+					res.setExpression(expr);
+				Statement stmt = convertStatement(jcEnhancedForLoop.getStatement(), res);
+				if( stmt != null )
+					res.setBody(stmt);
+				return res;
+			} else {
+				EmptyStatement res = this.ast.newEmptyStatement();
+				commonSettings(res, javac);
+				return res;
+			}
 		}
 		if (javac instanceof JCBreak jcBreak) {
 			BreakStatement res = this.ast.newBreakStatement();
@@ -1675,6 +1695,7 @@ class JavacConverter {
 					}
 					return stmts.stream();
 				}).map(x -> convertStatement(x, res))
+				.filter(x -> x != null)
 				.forEach(res.statements()::add);
 			return res;
 		}
@@ -1703,7 +1724,9 @@ class JavacConverter {
 				expr = jcp.getExpression();
 			}
 			res.setExpression(convertExpression(expr));
-			res.setBody(convertStatement(jcWhile.getStatement(), res));
+			Statement body = convertStatement(jcWhile.getStatement(), res); 
+			if( body != null )
+				res.setBody(body);
 			return res;
 		}
 		if (javac instanceof JCDoWhileLoop jcDoWhile) {
@@ -1713,8 +1736,13 @@ class JavacConverter {
 			if( expr instanceof JCParens jcp) {
 				expr = jcp.getExpression();
 			}
-			res.setExpression(convertExpression(expr));
-			res.setBody(convertStatement(jcDoWhile.getStatement(), res));
+			Expression expr1 = convertExpression(expr);
+			if( expr != null )
+				res.setExpression(expr1);
+			
+			Statement body = convertStatement(jcDoWhile.getStatement(), res);
+			if( body != null )
+				res.setBody(body);
 			return res;
 		}
 		if (javac instanceof JCYield jcYield) {
@@ -1735,13 +1763,17 @@ class JavacConverter {
 			LabeledStatement res = this.ast.newLabeledStatement();
 			commonSettings(res, javac);
 			res.setLabel((SimpleName)convert(jcLabel.getLabel()));
-			res.setBody(convertStatement(jcLabel.getStatement(), res));
+			Statement stmt = convertStatement(jcLabel.getStatement(), res);
+			if( stmt != null )
+				res.setBody(stmt);
 			return res;
 		}
 		if (javac instanceof JCAssert jcAssert) {
 			AssertStatement res =this.ast.newAssertStatement();
 			commonSettings(res, javac);
-			res.setExpression(convertExpression(jcAssert.getCondition()));
+			Expression expr = convertExpression(jcAssert.getCondition());
+			if( expr != null )
+				res.setExpression(expr);
 			return res;
 		}
 		if (javac instanceof JCClassDecl jcclass) {
@@ -1841,10 +1873,14 @@ class JavacConverter {
 			}
 		}
 		if (javac.getThenStatement() != null) {
-			res.setThenStatement(convertStatement(javac.getThenStatement(), res));
+			Statement stmt = convertStatement(javac.getThenStatement(), res);
+			if( stmt != null )
+				res.setThenStatement(stmt);
 		}
 		if (javac.getElseStatement() != null) {
-			res.setElseStatement(convertStatement(javac.getElseStatement(), res));
+			Statement stmt = convertStatement(javac.getElseStatement(), res);
+			if( stmt != null )
+				res.setElseStatement(stmt);
 		}
 		return res;
 	}
