@@ -17,6 +17,7 @@ import javax.lang.model.type.NullType;
 import javax.lang.model.type.TypeKind;
 
 import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
@@ -99,7 +100,7 @@ public class JavacTypeBinding implements ITypeBinding {
 		}
 		if (this.typeSymbol instanceof final ClassSymbol classSymbol) {
 			try {
-				return this.resolver.javaProject.findType(classSymbol.className());
+				return this.resolver.javaProject.findType(classSymbol.className(), new NullProgressMonitor());
 			} catch (JavaModelException ex) {
 				ILog.get().error(ex.getMessage(), ex);
 			}
