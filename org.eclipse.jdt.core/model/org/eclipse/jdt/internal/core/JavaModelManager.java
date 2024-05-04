@@ -5740,7 +5740,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public static void assertModelModifiable() {
 		if (isReadOnly()) {
-			throw new IllegalStateException("Its not allow to modify JavaModel during ReadOnly action."); //$NON-NLS-1$
+			throw new IllegalStateException("It's not allowed to modify JavaModel during ReadOnly action."); //$NON-NLS-1$
 		}
 	}
 
