@@ -118,7 +118,7 @@ public class ExpectedTypes {
 				this.expectedTypes.add(binding);
 				this.expectedTypesFilters = Set.of(TypeFilter.SUBTYPE, TypeFilter.SUPERTYPE);
 			}
-		} else if(parent instanceof MethodInvocation messageSend) {
+		} else if (parent instanceof MethodInvocation messageSend && messageSend.getExpression() != null) {
 			final ITypeBinding initialBinding = messageSend.getExpression().resolveTypeBinding();
 			ITypeBinding currentBinding = initialBinding; // messageSend.actualReceiverType
 			boolean isStatic = messageSend.getExpression() instanceof Name name && name.resolveBinding() instanceof ITypeBinding;

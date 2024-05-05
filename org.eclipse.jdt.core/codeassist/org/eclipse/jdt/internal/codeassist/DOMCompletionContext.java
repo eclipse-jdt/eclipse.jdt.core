@@ -13,13 +13,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
+import java.util.Collection;
+
 import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.dom.IBinding;
 
 class DOMCompletionContext extends CompletionContext {
     private int offset;
     private char[] token;
     private IJavaElement enclosingElement;
+    private Collection<? extends IBinding> visibleBindings;
 
     DOMCompletionContext(int offset) {
         this.offset = offset;
@@ -46,5 +50,19 @@ class DOMCompletionContext extends CompletionContext {
 
     public void setEnclosingElement(IJavaElement enclosingElement) {
         this.enclosingElement = enclosingElement;
+    }
+
+    @Override
+    public IJavaElement[] getVisibleElements(String typeSignature) {
+        if (this.visibleBindings == null || this.visibleBindings.isEmpty()) {
+            return new IJavaElement[0];
+        }
+
+        // todo: calculate based on visible elements
+        return new IJavaElement[0];
+    }
+
+    public void setVisibleBindings(Collection<? extends IBinding> bindings) {
+        this.visibleBindings = bindings;
     }
 }

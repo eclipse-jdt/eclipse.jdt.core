@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -233,8 +234,12 @@ public class DOMCompletionEngine implements Runnable {
 		}
 		if (context instanceof MethodInvocation invocation) {
 			if (this.offset <= invocation.getName().getStartPosition() + invocation.getName().getLength()) {
+				Expression expression = invocation.getExpression();
+				if (expression == null) {
+					return;
+				}
 				// complete name
-				ITypeBinding type = invocation.getExpression().resolveTypeBinding();
+				ITypeBinding type = expression.resolveTypeBinding();
 				processMembers(type, scope);
 				scope.stream()
 				.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
