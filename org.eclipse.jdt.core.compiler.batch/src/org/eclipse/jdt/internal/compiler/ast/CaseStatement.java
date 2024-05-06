@@ -54,6 +54,11 @@ public CaseStatement(Expression[] constantExpressions, int sourceStart, int sour
 	this.sourceEnd = sourceEnd;
 }
 
+@Deprecated
+public CaseStatement(int sourceEnd, int sourceStart, Expression[] constantExpressions) {
+	this(constantExpressions, sourceStart, sourceEnd);
+}
+
 /** Provide an under-the-hood view of label expressions, peeling away any abstractions that package many expressions as one
  *  @return flattened array of label expressions
  */
