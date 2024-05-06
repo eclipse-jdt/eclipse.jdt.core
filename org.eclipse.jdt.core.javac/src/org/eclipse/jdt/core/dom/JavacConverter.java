@@ -1906,11 +1906,9 @@ class JavacConverter {
 				return null;
 			}
 			ArrayType res;
-			if (t instanceof ArrayType childArrayType) {
+			if (t instanceof ArrayType childArrayType && this.ast.apiLevel > AST.JLS4_INTERNAL) {
 				res = childArrayType;
-				if( this.ast.apiLevel > AST.JLS4_INTERNAL) {
-					res.dimensions().addFirst(this.ast.newDimension());
-				}
+				res.dimensions().addFirst(this.ast.newDimension());
 			} else {
 				res = this.ast.newArrayType(t);
 			}
