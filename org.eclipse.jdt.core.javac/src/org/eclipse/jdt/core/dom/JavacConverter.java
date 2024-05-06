@@ -775,7 +775,9 @@ class JavacConverter {
 			if( javac.getType() instanceof JCArrayTypeTree arr) {
 				res.setType(convertToType(arr.elemtype));
 			}
-			res.setVarargs(true);
+			if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
+				res.setVarargs(true);
+			}
 		} else {
 			// the array dimensions are part of the type
 			if (javac.getType() != null) {
