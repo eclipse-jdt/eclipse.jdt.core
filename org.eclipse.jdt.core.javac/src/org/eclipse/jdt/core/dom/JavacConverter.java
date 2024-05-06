@@ -1954,7 +1954,7 @@ class JavacConverter {
 			commonSettings(res, javac);
 			res.setTypeName(toName(javac.getAnnotationType()));
 			return res;
-		} else if( javac.getArguments().size() == 1 ) {
+		} else if( javac.getArguments().size() == 1 && !(javac.getArguments().get(0) instanceof JCAssign)) {
 			SingleMemberAnnotation result= ast.newSingleMemberAnnotation();
 			commonSettings(result, javac);
 			result.setTypeName(toName(javac.annotationType));
