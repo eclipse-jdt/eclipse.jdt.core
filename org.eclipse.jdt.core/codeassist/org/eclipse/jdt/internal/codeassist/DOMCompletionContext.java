@@ -20,13 +20,17 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.dom.IBinding;
 
 class DOMCompletionContext extends CompletionContext {
-    private int offset;
-    private char[] token;
-    private IJavaElement enclosingElement;
-    private Collection<? extends IBinding> visibleBindings;
+    private final int offset;
+    private final char[] token;
+    private final IJavaElement enclosingElement;
+    private final Collection<? extends IBinding> visibleBindings;
 
-    DOMCompletionContext(int offset) {
+    DOMCompletionContext(int offset, char[] token, IJavaElement enclosingElement,
+            Collection<? extends IBinding> bindings) {
         this.offset = offset;
+        this.enclosingElement = enclosingElement;
+        this.visibleBindings = bindings;
+        this.token = token;
     }
 
     @Override
@@ -39,17 +43,9 @@ class DOMCompletionContext extends CompletionContext {
         return this.token;
     }
 
-    public void setToken(char[] t) {
-        this.token = t;
-    }
-
     @Override
     public IJavaElement getEnclosingElement() {
         return this.enclosingElement;
-    }
-
-    public void setEnclosingElement(IJavaElement enclosingElement) {
-        this.enclosingElement = enclosingElement;
     }
 
     @Override
@@ -60,9 +56,5 @@ class DOMCompletionContext extends CompletionContext {
 
         // todo: calculate based on visible elements
         return new IJavaElement[0];
-    }
-
-    public void setVisibleBindings(Collection<? extends IBinding> bindings) {
-        this.visibleBindings = bindings;
     }
 }
