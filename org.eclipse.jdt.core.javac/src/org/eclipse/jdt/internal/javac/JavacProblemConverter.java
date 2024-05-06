@@ -73,7 +73,7 @@ public class JavacProblemConverter {
 
 	private static org.eclipse.jface.text.Position getDefaultPosition(Diagnostic<? extends JavaFileObject> diagnostic) {
 		int start = (int) Math.min(diagnostic.getPosition(), diagnostic.getStartPosition());
-		int end = (int) (diagnostic.getEndPosition() - 1);
+		int end = (int) Math.max(diagnostic.getEndPosition() - 1, start);
 		return new org.eclipse.jface.text.Position( start, end - start);
 	}
 
@@ -133,7 +133,7 @@ public class JavacProblemConverter {
 	/**
 	 * See the link below for Javac problem list:
 	 * https://github.com/openjdk/jdk/blob/master/src/jdk.compiler/share/classes/com/sun/tools/javac/resources/compiler.properties
-	 * 
+	 *
 	 * And the examples to reproduce the Javac problems:
 	 * https://github.com/openjdk/jdk/tree/master/test/langtools/tools/javac/diags/examples
 	 */
