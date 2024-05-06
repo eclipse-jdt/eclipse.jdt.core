@@ -692,7 +692,7 @@ class JavacConverter {
 		if( retTypeTree instanceof JCArrayTypeTree jcatt && retTypeTree.pos > javac.pos ) {
 			// The array dimensions are part of the variable name
 			if (jcatt.getType() != null) {
-				int dims = countDimensions(jcatt);
+				int dims = countDimensionsAfterPosition(jcatt, retTypeTree.pos);
 				if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
 					res.setExtraDimensions(dims);
 					retType = convertToType(jcatt.getType());
@@ -804,7 +804,7 @@ class JavacConverter {
 		if( javac.getType() instanceof JCArrayTypeTree jcatt && javac.vartype.pos > javac.pos ) {
 			// The array dimensions are part of the variable name
 			if (jcatt.getType() != null) {
-				int dims = countDimensions(jcatt);
+				int dims = countDimensionsAfterPosition(jcatt, javac.vartype.pos);
 				if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
 					res.setExtraDimensions(dims);
 					res.setType(convertToType(jcatt.getType()));
@@ -869,7 +869,7 @@ class JavacConverter {
 		if( javac.getType() instanceof JCArrayTypeTree jcatt && javac.vartype.pos > javac.pos ) {
 			// The array dimensions are part of the variable name
 			if (jcatt.getType() != null) {
-				int dims = countDimensions(jcatt);
+				int dims = countDimensionsAfterPosition(jcatt, fragmentStart);
 				if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
 					fragment.setExtraDimensions(dims);
 				} else {
@@ -923,10 +923,12 @@ class JavacConverter {
 				// must do simple type here
 				JCTree t = javac.getType();
 				if( t instanceof JCArrayTypeTree jcatt) {
-					// unwrap the jcatt?
+					// unwrap the jcatt count times?
 					JCTree working = jcatt;
-					while(working instanceof JCArrayTypeTree work2) {
-						working = work2.getType();
+					for( int i = 0; i < count; i++ ) {
+						if( working instanceof JCArrayTypeTree work2) {
+							working = work2.getType();
+						}
 					}
 					Type type = convertToType(working);
 					if (type != null) {
@@ -1385,6 +1387,18 @@ class JavacConverter {
         JCTree elem = tree;
         while (elem != null && elem.hasTag(TYPEARRAY)) {
         	ret++;
+            elem = ((JCArrayTypeTree)elem).elemtype;
+        }
+        return ret;
+	}
+	
+
+	private int countDimensionsAfterPosition(JCArrayTypeTree tree, int pos) {
+		int ret = 0;
+        JCTree elem = tree;
+        while (elem != null && elem.hasTag(TYPEARRAY)) {
+        	if( elem.pos > pos)
+        		ret++;
             elem = ((JCArrayTypeTree)elem).elemtype;
         }
         return ret;
