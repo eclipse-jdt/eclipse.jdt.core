@@ -1694,6 +1694,9 @@ class JavacConverter {
 			Expression expr = convertExpression(jcAssert.getCondition());
 			if( expr != null )
 				res.setExpression(expr);
+			Expression det = convertExpression(jcAssert.getDetail());
+			if( det != null )
+				res.setMessage(det);			
 			return res;
 		}
 		if (javac instanceof JCClassDecl jcclass) {
