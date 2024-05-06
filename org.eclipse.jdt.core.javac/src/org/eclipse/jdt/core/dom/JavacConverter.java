@@ -1349,7 +1349,7 @@ class JavacConverter {
 			commonSettings(res, javac);
 			return res;
 		}
-		ILog.get().error("Unsupported " + javac + " of type" + javac.getClass());
+		ILog.get().error("Unsupported " + javac + " of type" + (javac == null ? "null" : javac.getClass()));
 		ParenthesizedExpression substitute = this.ast.newParenthesizedExpression();
 		commonSettings(substitute, javac);
 		return substitute;
@@ -1745,9 +1745,11 @@ class JavacConverter {
 			Expression expr = convertExpression(jcAssert.getCondition());
 			if( expr != null )
 				res.setExpression(expr);
-			Expression det = convertExpression(jcAssert.getDetail());
-			if( det != null )
-				res.setMessage(det);			
+			if( jcAssert.getDetail() != null ) {
+				Expression det = convertExpression(jcAssert.getDetail());
+				if( det != null )
+					res.setMessage(det);			
+			}
 			return res;
 		}
 		if (javac instanceof JCClassDecl jcclass) {
@@ -2329,7 +2331,9 @@ class JavacConverter {
 		private int findPositionOfText(String text, ASTNode in, List<ASTNode> excluding) {
 			int current = in.getStartPosition();
 			PriorityQueue<ASTNode> excluded = new PriorityQueue<>(Comparator.comparing(ASTNode::getStartPosition));
-			if (excluded.isEmpty()) {
+			if( current == -1 ) {
+				return -1;
+			} if (excluded.isEmpty()) {
 				String subText = this.contents.substring(current, current + in.getLength());
 				int foundInSubText = subText.indexOf(text);
 				if (foundInSubText >= 0) {
