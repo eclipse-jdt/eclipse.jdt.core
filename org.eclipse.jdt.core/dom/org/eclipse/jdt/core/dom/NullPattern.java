@@ -21,8 +21,6 @@ import java.util.List;
  * Null Pattern node.
  *
  * @since 3.27
- * @noreference This class is not intended to be referenced by clients.
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
 @SuppressWarnings("rawtypes")
 public class NullPattern extends Pattern {
@@ -49,6 +47,7 @@ public class NullPattern extends Pattern {
 
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.37
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
