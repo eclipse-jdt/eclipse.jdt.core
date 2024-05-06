@@ -689,7 +689,29 @@ class JavacConverter {
 		} else {
 			retType = convertToType(retTypeTree);
 		}
-
+		if( retTypeTree instanceof JCArrayTypeTree jcatt && retTypeTree.pos > javac.pos ) {
+			// The array dimensions are part of the variable name
+			if (jcatt.getType() != null) {
+				int dims = countDimensions(jcatt);
+				if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
+					res.setExtraDimensions(dims);
+					retType = convertToType(jcatt.getType());
+				} else {
+					// TODO might be buggy
+					for( int i = 0; i < dims; i++ ) {
+						Dimension d = this.ast.newDimension();
+						d.setSourceRange(jcatt.pos, 2);
+						res.extraDimensions().add(d);
+						if( jcatt.getType() instanceof JCArrayTypeTree jcatt2) {
+							jcatt = jcatt2;
+						}
+					}
+					retType = convertToType(jcatt.getType());
+				}
+			}
+		}
+		
+		
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
 			res.setReturnType2(retType);
 		} else {
