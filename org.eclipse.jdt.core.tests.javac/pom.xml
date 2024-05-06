@@ -41,9 +41,6 @@
 						<groupId>org.eclipse.tycho</groupId>
 						<artifactId>tycho-surefire-plugin</artifactId>
 						<configuration>
-							<includes>
-								<include>org/eclipse/jdt/core/tests/javac/RunConverterTestsJavac.class</include>
-							</includes>
 							<argLine>${tycho.surefire.argLine}</argLine>
 						</configuration>
 					</plugin>
