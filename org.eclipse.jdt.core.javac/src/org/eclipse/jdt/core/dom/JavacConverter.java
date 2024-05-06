@@ -35,6 +35,8 @@ import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
 import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 
 import com.sun.source.tree.CaseTree.CaseKind;
@@ -712,7 +714,25 @@ class JavacConverter {
 
 		if (javac.getBody() != null) {
 			Block b = convertBlock(javac.getBody());
-			res.setBody(b);
+			if (b != null) {
+				AbstractUnnamedTypeDeclaration td = findSurroundingTypeDeclaration(parent);
+				boolean isInterface = td instanceof TypeDeclaration td1 && td1.isInterface();
+				long modFlags = javac.getModifiers() == null ? 0 : javac.getModifiers().flags;
+				boolean isAbstractOrNative = (modFlags & (Flags.ABSTRACT | Flags.NATIVE)) != 0;
+				boolean isJlsBelow8 = this.ast.apiLevel < AST.JLS8_INTERNAL;
+				boolean isJlsAbove8 = this.ast.apiLevel > AST.JLS8_INTERNAL;
+				long flagsToCheckForAboveJLS8 = Flags.STATIC | Flags.DEFAULT | (isJlsAbove8 ? Flags.PRIVATE : 0);
+				boolean notAllowed = (isAbstractOrNative || (isInterface && (isJlsBelow8 || (modFlags & flagsToCheckForAboveJLS8) == 0)));
+				if (notAllowed) {
+					res.setFlags(res.getFlags() | ASTNode.MALFORMED);
+					Block b1 = this.ast.newBlock();
+					commonSettings(b1, javac);
+					res.setBody(b1);
+				} else {
+					res.setBody(b);
+				}
+			}
+
 			if( (b.getFlags() & ASTNode.MALFORMED) > 0 ) {
 				malformed = true;
 			}
@@ -729,6 +749,15 @@ class JavacConverter {
 			res.setFlags(res.getFlags() | ASTNode.MALFORMED);
 		}
 		return res;
+	}
+	
+	private AbstractUnnamedTypeDeclaration findSurroundingTypeDeclaration(ASTNode parent) {
+		if( parent == null )
+			return null;
+		if( parent instanceof AbstractUnnamedTypeDeclaration t) {
+			return t;
+		}
+		return findSurroundingTypeDeclaration(parent.getParent());
 	}
 
 	private VariableDeclaration convertVariableDeclarationForLambda(JCVariableDecl javac) {
