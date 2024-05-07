@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.javac;
 
 import java.io.File;
+import java.lang.Runtime.Version;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -59,28 +60,30 @@ public class JavacUtils {
 
 	private static void configureOptions(Context context, Map<String, String> compilerOptions) {
 		Options options = Options.instance(context);
-		options.put(Option.XLINT, Boolean.TRUE.toString()); // TODO refine according to compilerOptions
 		options.put("allowStringFolding", Boolean.FALSE.toString());
-		if (CompilerOptions.ENABLED.equals(compilerOptions.get(CompilerOptions.OPTION_EnablePreviews))) {
-			options.put(Option.PREVIEW, Boolean.toString(true));
-		}
-		String release = compilerOptions.get(CompilerOptions.OPTION_Release);
+		final Version complianceVersion;
 		String compliance = compilerOptions.get(CompilerOptions.OPTION_Compliance);
-		if (CompilerOptions.ENABLED.equals(release) && compliance != null && !compliance.isEmpty()) {
+		if (CompilerOptions.ENABLED.equals(compilerOptions.get(CompilerOptions.OPTION_Release))
+			&& compliance != null && !compliance.isEmpty()) {
+			complianceVersion = Version.parse(compliance);
 			options.put(Option.RELEASE, compliance);
 		} else {
 			String source = compilerOptions.get(CompilerOptions.OPTION_Source);
-			if (source != null && !source.isEmpty()) {
-				if (source.indexOf("1.") != -1 && source.indexOf("1.8") == -1 || source.indexOf(".") == -1 && Integer.parseInt(source) < 8) {
+			if (source != null && !source.isBlank()) {
+				complianceVersion = Version.parse(source);
+				if (complianceVersion.compareToIgnoreOptional(Version.parse("1.8")) < 0) {
 					ILog.get().warn("Unsupported source level: " + source + ", using 1.8 instead");
 					options.put(Option.SOURCE, "1.8");
 				} else {
 					options.put(Option.SOURCE, source);
 				}
+			} else {
+				complianceVersion = Runtime.version();
 			}
 			String target = compilerOptions.get(CompilerOptions.OPTION_TargetPlatform);
 			if (target != null && !target.isEmpty()) {
-				if (target.indexOf("1.") != -1 && target.indexOf("1.8") == -1 || target.indexOf(".") == -1 && Integer.parseInt(target) < 8) {
+				Version version = Version.parse(target);
+				if (version.compareToIgnoreOptional(Version.parse("1.8")) < 0) {
 					ILog.get().warn("Unsupported target level: " + target + ", using 1.8 instead");
 					options.put(Option.TARGET, "1.8");
 				} else {
@@ -88,6 +91,11 @@ public class JavacUtils {
 				}
 			}
 		}
+		if (CompilerOptions.ENABLED.equals(compilerOptions.get(CompilerOptions.OPTION_EnablePreviews)) &&
+			Runtime.version().feature() == complianceVersion.feature()) {
+			options.put(Option.PREVIEW, Boolean.toString(true));
+		}
+		options.put(Option.XLINT, Boolean.TRUE.toString()); // TODO refine according to compilerOptions
 		options.put(Option.XLINT_CUSTOM, "all"); // TODO refine according to compilerOptions
 	}
 
