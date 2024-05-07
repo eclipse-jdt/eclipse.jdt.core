@@ -666,6 +666,7 @@ class JavacConverter {
 		String methodDeclName = getMethodDeclName(javac, parent);
 		boolean methodDeclNameMatchesInit = Objects.equals(methodDeclName, Names.instance(this.context).init.toString());
 		boolean javacNameMatchesInit = javacName.equals("<init>");
+		boolean javacNameMatchesError = javacName.equals("<error>");
 		boolean javacNameMatchesInitAndMethodNameMatchesTypeName = javacNameMatchesInit && methodDeclName.equals(getNodeName(parent));
 		boolean isConstructor = methodDeclNameMatchesInit || javacNameMatchesInitAndMethodNameMatchesTypeName;
 		res.setConstructor(isConstructor);
@@ -677,7 +678,11 @@ class JavacConverter {
 			malformed = true;
 		}
 
-		res.setName(this.ast.newSimpleName(methodDeclName));
+		if( javacNameMatchesError) {
+			malformed = true;
+		} else {
+			res.setName(this.ast.newSimpleName(methodDeclName));
+		}
 		JCTree retTypeTree = javac.getReturnType();
 		Type retType = null;
 		if( retTypeTree == null ) {
