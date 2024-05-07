@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil.MergeStrategy;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.osgi.framework.Bundle;
 
 import junit.framework.Test;
@@ -865,6 +866,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 	public void testBug565246() throws Exception {
 		myCreateJavaProject("TestForloop");
 		this.project.setOption(JavaCore.COMPILER_PB_INCLUDE_ASSERTS_IN_NULL_ANALYSIS, JavaCore.ENABLED);
+		this.project.setOption(CompilerOptions.OPTION_SimulateOperandStack, CompilerOptions.DISABLED);
 
 		// std API missing from jclMin:
 		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("java.lang", true, null);

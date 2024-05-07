@@ -14,11 +14,8 @@
 package org.eclipse.jdt.internal.compiler.codegen;
 
 import java.util.Arrays;
-import java.util.Stack;
-
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class BranchLabel extends Label {
 
@@ -31,7 +28,7 @@ public class BranchLabel extends Label {
 	protected int targetStackDepth = -1;
 	public final static int WIDE = 1;
 	public final static int USED = 2;
-	private Stack<TypeBinding> switchSaveTypeBindings;
+	private OperandStack switchSaveTypeBindings;
 
 
 public BranchLabel() {
@@ -122,7 +119,6 @@ public void becomeDelegateFor(BranchLabel otherLabel) {
 	this.forwardReferenceCount = indexInMerge;
 }
 
-@SuppressWarnings("unchecked")
 protected void trackStackDepth(boolean branch) {
 	/* Control can reach an instruction with a label in two ways: (1) via a branch using that label or (2) by falling through from the previous instruction.
 	   In both cases, we KNOW the stack depth at the instruction from which control flows to the instruction with the label.
@@ -137,10 +133,10 @@ protected void trackStackDepth(boolean branch) {
 				this.codeStream.classFile.referenceBinding.scope.problemReporter()
 						.operandStackSizeInappropriate(this.codeStream.classFile.referenceBinding.scope.referenceContext);
 				this.codeStream.stackDepth = 0; // FWIW
-				this.codeStream.switchSaveTypeBindings.clear();
+				this.codeStream.operandStack.clear();
 			}
 			this.targetStackDepth = this.codeStream.stackDepth;
-			this.switchSaveTypeBindings = (Stack<TypeBinding>) this.codeStream.switchSaveTypeBindings.clone();
+			this.switchSaveTypeBindings = this.codeStream.operandStack.copy();
 			// TODO: check that contents slot count matches targetStackDepth
 		} // else: previous instruction completes abruptly via goto/return/throw: Wait for a backward branch to be emitted.
 	} else {
@@ -155,7 +151,7 @@ protected void trackStackDepth(boolean branch) {
 			// TODO: check that contents slot count matches targetStackDepth
 		}
 		this.codeStream.stackDepth = this.targetStackDepth;
-		this.codeStream.switchSaveTypeBindings = (Stack<TypeBinding>) this.switchSaveTypeBindings.clone();
+		this.codeStream.operandStack = this.switchSaveTypeBindings.copy();
 	}
 }
 /*

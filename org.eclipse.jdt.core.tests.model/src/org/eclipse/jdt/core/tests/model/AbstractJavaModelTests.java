@@ -3475,6 +3475,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, compliance);
 		javaProject.setOption(JavaCore.COMPILER_SOURCE, compliance);
 		javaProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, compliance);
+		javaProject.setOption(CompilerOptions.OPTION_SimulateOperandStack, CompilerOptions.DISABLED);
 		return javaProject;
 	}
 	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {

@@ -1264,7 +1264,8 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"----------\n"
 			);
 	}
-	public void test037() {
+	// Disabled till https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2373 is fixed
+	public void _test037() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
