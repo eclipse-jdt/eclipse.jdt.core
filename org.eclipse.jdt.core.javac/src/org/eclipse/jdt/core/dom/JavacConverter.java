@@ -246,12 +246,14 @@ class JavacConverter {
 		res.setName(toName(javac.getPackageName()));
 		commonSettings(res, javac);
 		List<JCExpression> mods = javac.getModuleNames();
-		Iterator<JCExpression> it = mods.iterator();
-		while(it.hasNext()) {
-			JCExpression jcpe = it.next();
-			Expression e = convertExpression(jcpe);
-			if( e != null )
-				res.modules().add(e);
+		if (mods != null) {
+			Iterator<JCExpression> it = mods.iterator();
+			while(it.hasNext()) {
+				JCExpression jcpe = it.next();
+				Expression e = convertExpression(jcpe);
+				if( e != null )
+					res.modules().add(e);
+			}
 		}
 		return res;
 	}
@@ -729,14 +731,14 @@ class JavacConverter {
 				retType = convertToType(unwrapDimensions(jcatt, dims));
 			}
 		}
-		
+
 		if( retType != null || isConstructor) {
 			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
 				res.setReturnType2(retType);
 			} else {
 				res.internalSetReturnType(retType);
 			}
-		} 
+		}
 
 		javac.getParameters().stream().map(this::convertVariableDeclaration).forEach(res.parameters()::add);
 
@@ -790,7 +792,7 @@ class JavacConverter {
 		}
 		return res;
 	}
-	
+
 	private AbstractUnnamedTypeDeclaration findSurroundingTypeDeclaration(ASTNode parent) {
 		if( parent == null )
 			return null;
@@ -1415,7 +1417,7 @@ class JavacConverter {
 	private int countDimensions(JCArrayTypeTree tree) {
 		return countDimensionsAfterPosition(tree, 0);
 	}
-	
+
 	private int countDimensionsAfterPosition(JCArrayTypeTree tree, int pos) {
 		int ret = 0;
         JCTree elem = tree;
@@ -1426,7 +1428,7 @@ class JavacConverter {
         }
         return ret;
 	}
-	
+
 	private JCTree unwrapDimensions(JCArrayTypeTree tree, int count) {
         JCTree elem = tree;
         while (elem != null && elem.hasTag(TYPEARRAY) && count > 0) {
@@ -1829,7 +1831,7 @@ class JavacConverter {
 			if( jcAssert.getDetail() != null ) {
 				Expression det = convertExpression(jcAssert.getDetail());
 				if( det != null )
-					res.setMessage(det);			
+					res.setMessage(det);
 			}
 			return res;
 		}

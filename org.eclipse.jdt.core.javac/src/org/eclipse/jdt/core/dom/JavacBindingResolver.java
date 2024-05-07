@@ -180,6 +180,16 @@ public class JavacBindingResolver extends BindingResolver {
 		return null;
 	}
 
+	@Override
+	ITypeBinding resolveType(AnonymousClassDeclaration anonymousClassDecl) {
+		resolve();
+		JCTree javacNode = this.converter.domToJavac.get(anonymousClassDecl);
+		if (javacNode instanceof JCClassDecl jcClassDecl) {
+			return new JavacTypeBinding(jcClassDecl.type, this);
+		}
+		return null;
+	}
+
 	public IBinding getBinding(final Symbol owner, final com.sun.tools.javac.code.Type type) {
 		if (owner instanceof final PackageSymbol other) {
 			return new JavacPackageBinding(other, this);

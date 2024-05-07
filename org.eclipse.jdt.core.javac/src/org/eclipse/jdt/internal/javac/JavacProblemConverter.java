@@ -132,7 +132,7 @@ public class JavacProblemConverter {
 
 	private static org.eclipse.jface.text.Position getDiagnosticPosition(String name, int startPosition, JCDiagnostic jcDiagnostic)
 			throws IOException {
-		if (name != null) {
+		if (name != null && !name.isEmpty()) {
 			DiagnosticSource source = jcDiagnostic.getDiagnosticSource();
 			JavaFileObject fileObject = source.getFile();
 			CharSequence charContent = fileObject.getCharContent(true);
@@ -194,6 +194,7 @@ public class JavacProblemConverter {
 			case "compiler.err.cant.apply.symbol" -> convertInApplicableSymbols(diagnostic);
 			case "compiler.err.premature.eof" -> IProblem.ParsingErrorUnexpectedEOF; // syntax error
 			case "compiler.err.report.access" -> convertNotVisibleAccess(diagnostic);
+			case "compiler.err.does.not.override.abstract" -> IProblem.AbstractMethodMustBeImplemented;
 			case COMPILER_WARN_MISSING_SVUID -> IProblem.MissingSerialVersion;
 			case COMPILER_WARN_NON_SERIALIZABLE_INSTANCE_FIELD -> 99999999; // JDT doesn't have this diagnostic
 			case "compiler.err.ref.ambiguous" -> convertAmbiguous(diagnostic);

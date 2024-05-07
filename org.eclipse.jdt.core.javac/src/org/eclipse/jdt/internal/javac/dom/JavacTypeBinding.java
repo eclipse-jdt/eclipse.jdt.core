@@ -563,7 +563,7 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isPrimitive() {
-		return this.type.isPrimitive();
+		return this.type.isPrimitiveOrVoid();
 	}
 
 	@Override
