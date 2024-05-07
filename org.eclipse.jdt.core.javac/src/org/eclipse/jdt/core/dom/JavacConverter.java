@@ -692,22 +692,21 @@ class JavacConverter {
 		if( retTypeTree instanceof JCArrayTypeTree jcatt && retTypeTree.pos > javac.pos ) {
 			// The array dimensions are part of the variable name
 			if (jcatt.getType() != null) {
-				int dims = countDimensionsAfterPosition(jcatt, retTypeTree.pos);
+				int dims = countDimensionsAfterPosition(jcatt, javac.pos);
 				if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
 					res.setExtraDimensions(dims);
-					retType = convertToType(jcatt.getType());
 				} else {
 					// TODO might be buggy
 					for( int i = 0; i < dims; i++ ) {
 						Dimension d = this.ast.newDimension();
-						d.setSourceRange(jcatt.pos, 2);
+						d.setSourceRange(jcatt.pos + (2*i), 2);
 						res.extraDimensions().add(d);
 						if( jcatt.getType() instanceof JCArrayTypeTree jcatt2) {
 							jcatt = jcatt2;
 						}
 					}
-					retType = convertToType(jcatt.getType());
 				}
+				retType = convertToType(unwrapDimensions(jcatt, dims));
 			}
 		}
 		
@@ -807,19 +806,18 @@ class JavacConverter {
 				int dims = countDimensionsAfterPosition(jcatt, javac.vartype.pos);
 				if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
 					res.setExtraDimensions(dims);
-					res.setType(convertToType(jcatt.getType()));
 				} else {
 					// TODO might be buggy
 					for( int i = 0; i < dims; i++ ) {
 						Dimension d = this.ast.newDimension();
-						d.setSourceRange(jcatt.pos, 2);
+						d.setSourceRange(jcatt.pos + (2*i), 2);
 						res.extraDimensions().add(d);
 						if( jcatt.getType() instanceof JCArrayTypeTree jcatt2) {
 							jcatt = jcatt2;
 						}
 					}
-					res.setType(convertToType(jcatt.getType()));
 				}
+				res.setType(convertToType(unwrapDimensions(jcatt, dims)));
 			}
 		} else if ( (javac.mods.flags & VARARGS) != 0) {
 			// We have varity
@@ -1383,16 +1381,9 @@ class JavacConverter {
 	}
 
 	private int countDimensions(JCArrayTypeTree tree) {
-		int ret = 0;
-        JCTree elem = tree;
-        while (elem != null && elem.hasTag(TYPEARRAY)) {
-        	ret++;
-            elem = ((JCArrayTypeTree)elem).elemtype;
-        }
-        return ret;
+		return countDimensionsAfterPosition(tree, 0);
 	}
 	
-
 	private int countDimensionsAfterPosition(JCArrayTypeTree tree, int pos) {
 		int ret = 0;
         JCTree elem = tree;
@@ -1402,6 +1393,15 @@ class JavacConverter {
             elem = ((JCArrayTypeTree)elem).elemtype;
         }
         return ret;
+	}
+	
+	private JCTree unwrapDimensions(JCArrayTypeTree tree, int count) {
+        JCTree elem = tree;
+        while (elem != null && elem.hasTag(TYPEARRAY) && count > 0) {
+            elem = ((JCArrayTypeTree)elem).elemtype;
+            count--;
+        }
+        return elem;
 	}
 
 	private SuperMethodInvocation convertSuperMethodInvocation(JCMethodInvocation javac) {
