@@ -674,17 +674,26 @@ class JavacConverter {
 		if(isConstructor && !javacNameMatchesInitAndMethodNameMatchesTypeName) {
 			malformed = true;
 		}
-		if( javacNameMatchesInit && !isConstructor ) {
+		if( javacNameMatchesError || (javacNameMatchesInit && !isConstructor )) {
 			malformed = true;
 		}
 
-		if( javacNameMatchesError) {
-			malformed = true;
-		} else {
-			res.setName(this.ast.newSimpleName(methodDeclName));
-		}
 		JCTree retTypeTree = javac.getReturnType();
 		Type retType = null;
+		if( !javacNameMatchesError) {
+			res.setName(this.ast.newSimpleName(methodDeclName));
+		} else {
+			// javac name is an error, so let's treat the return type as the name
+			if( retTypeTree instanceof JCIdent jcid) {
+				res.setName(this.ast.newSimpleName(jcid.getName().toString()));
+				retTypeTree = null;
+				if( jcid.toString().equals(getNodeName(parent))) {
+					res.setConstructor(true);
+					isConstructor = true;
+				}
+			}
+		}
+
 		if( retTypeTree == null ) {
 			if( isConstructor && this.ast.apiLevel == AST.JLS2_INTERNAL ) {
 				retType = this.ast.newPrimitiveType(convert(TypeKind.VOID));
@@ -715,11 +724,10 @@ class JavacConverter {
 			}
 		}
 		
-		
-		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
-			res.setReturnType2(retType);
-		} else {
-			if (retType != null) {
+		if( retType != null ) {
+			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+				res.setReturnType2(retType);
+			} else {
 				res.internalSetReturnType(retType);
 			}
 		}
