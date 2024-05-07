@@ -1069,27 +1069,18 @@ public abstract class ASTNode {
 
 	/**
 	 * Node type constant indicating a node of type
-	 * <code>EnhancedForWithRecordPattern</code>.
-	 * @see EnhancedForWithRecordPattern
-	 * @since 3.34
-	 * @noreference This field is not intended to be referenced by clients.
-	 */
-	public static final int ENHANCED_FOR_WITH_RECORD_PATTERN = 114;
-
-	/**
-	 * Node type constant indicating a node of type
 	 * <code>EitherOrMultiPattern</code>.
 	 * @since 3.38
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
-	public static final int EitherOr_MultiPattern = 115;
+	public static final int EitherOr_MultiPattern = 114;
 
 	/**
 	 * @see ImplicitTypeDeclaration
 	 * @since 3.38
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
-	public static final int UNNAMED_CLASS = 116;
+	public static final int UNNAMED_CLASS = 115;
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -1157,8 +1148,6 @@ public abstract class ASTNode {
 				return EmptyStatement.class;
 			case ENHANCED_FOR_STATEMENT :
 				return EnhancedForStatement.class;
-			case ENHANCED_FOR_WITH_RECORD_PATTERN :
-				return EnhancedForWithRecordPattern.class;
 			case ENUM_CONSTANT_DECLARATION :
 				return EnumConstantDeclaration.class;
 			case ENUM_DECLARATION :
@@ -2591,7 +2580,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is not used in JLS23
-	 * @since 3.38 BETA_JAVA23
+	 * @since 3.38
 	 */
 	final void supportedOnlyIn23() {
 		if (this.ast.apiLevel < AST.JLS23_INTERNAL) {

@@ -19385,4 +19385,28 @@ public void testGH2325_a() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+public void testGH2325_b() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.testFiles = new String[] {
+		"Test.java",
+		"""
+		interface EntityManager {
+			public <T> T merge(T entity);
+		}
+		interface HibernateEntityManager extends EntityManager { }
+		interface Session extends HibernateEntityManager, EntityManager {
+			@SuppressWarnings("unchecked")
+			Object merge(Object object);
+		}
+		public class Test {
+			void f(Session session) {
+				session.merge(new Test()); // Error: The method merge(Object) is ambiguous for the type Session
+			}
+		}
+		"""
+	};
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+}
 }

@@ -266,8 +266,8 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		int nextResolvedPosition = this.scope.offset;
 		this.typesOnStack = new ArrayList<>();
 		int index = 0;
-		while (codeStream.switchSaveTypeBindings.size() > 0) {
-			TypeBinding type = codeStream.switchSaveTypeBindings.peek();
+		while (codeStream.operandStack.size() > 0) {
+			TypeBinding type = codeStream.operandStack.peek();
 			LocalVariableBinding lvb = addTypeStackVariable(codeStream, type, TypeIds.T_undefined, index++, nextResolvedPosition);
 			nextResolvedPosition += switch (lvb.type.id) {
 				case TypeIds.T_long, TypeIds.T_double -> 2;
@@ -277,7 +277,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			codeStream.store(lvb, false);
 			codeStream.addVariable(lvb);
 		}
-		if (codeStream.stackDepth != 0 || codeStream.switchSaveTypeBindings.size() != 0) {
+		if (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0) {
 			codeStream.classFile.referenceBinding.scope.problemReporter().operandStackSizeInappropriate(codeStream.classFile.referenceBinding.scope.referenceContext);
 		}
 		// now keep a position reserved for yield result value
@@ -292,7 +292,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	public void refillOperandStack(CodeStream codeStream) {
 		List<LocalVariableBinding> tos = this.typesOnStack;
 		int sz = tos != null ? tos.size() : 0;
-		codeStream.clearTypeBindingStack();
+		codeStream.operandStack.clear();
 		codeStream.stackDepth = 0;
 		int index = sz - 1;
 		while (index >= 0) {

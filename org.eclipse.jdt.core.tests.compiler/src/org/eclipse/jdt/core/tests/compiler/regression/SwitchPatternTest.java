@@ -3514,12 +3514,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					" }\n"+
 					"}",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case 0 : \n" +
-				"	     ^\n" +
-				"Type mismatch: cannot convert from int to float\n" +
-				"----------\n");
+				"----------\n"
+				+ "1. ERROR in X.java (at line 3)\n"
+				+ "	switch (c) {\n"
+				+ "	        ^\n"
+				+ "Cannot switch on a value of type float. Only convertible int values, strings or enum variables are permitted\n"
+				+ "----------\n");
 	}
 	public void testBug575047_06() {
 		runNegativeTest(

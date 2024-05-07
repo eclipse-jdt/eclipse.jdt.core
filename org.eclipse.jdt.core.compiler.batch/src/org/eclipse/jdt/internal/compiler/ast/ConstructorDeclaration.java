@@ -750,6 +750,11 @@ private void markPreConstructorContext(Statement[] stmts, int prologueLength) {
 			typeDeclaration.inPreConstructorContext = true;
 			return false;
 		}
+		@Override
+		public boolean visit(LambdaExpression lambda, BlockScope skope) {
+			lambda.inPreConstructorContext = true;
+			return true;
+		}
 	}
 	for (int i = 0; i <= prologueLength; ++i) {
 		stmts[i].traverse(new MarkAllExpressionsPreConVisitor(), this.scope);

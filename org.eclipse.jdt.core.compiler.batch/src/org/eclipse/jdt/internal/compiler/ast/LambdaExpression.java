@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2019 IBM Corporation and others.
+ * Copyright (c) 2012, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1285,7 +1285,10 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 		codeStream.pushPatternAccessTrapScope(this.scope);
 		if (this.body instanceof Block) {
+			boolean prev = codeStream.stmtInPreConContext;
+			codeStream.stmtInPreConContext = this.inPreConstructorContext;
 			this.body.generateCode(this.scope, codeStream);
+			codeStream.stmtInPreConContext = prev;
 			if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
 				codeStream.return_();
 			}
