@@ -26,21 +26,18 @@ import java.util.stream.Stream;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
-import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -55,17 +52,10 @@ import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.javac.JavacUtils;
-import org.eclipse.jdt.internal.javac.dom.FindNextJavadocableSibling;
 
 import com.sun.source.util.JavacTask;
 import com.sun.tools.javac.api.JavacTool;
 import com.sun.tools.javac.file.JavacFileManager;
-import com.sun.tools.javac.parser.JavadocTokenizer;
-import com.sun.tools.javac.parser.Scanner;
-import com.sun.tools.javac.parser.ScannerFactory;
-import com.sun.tools.javac.parser.Tokens.Comment;
-import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
-import com.sun.tools.javac.parser.Tokens.TokenKind;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
@@ -331,9 +321,10 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				AST ast = res.ast;
 				JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText);
 				converter.populateCompilationUnit(res, javacCompilationUnit);
-				attachComments(res, context, fileObjects.get(i), converter, compilerOptions);
-				ASTVisitor v = new ASTVisitor() {
-					public void postVisit(ASTNode node) {
+				List<org.eclipse.jdt.core.dom.Comment> comments = new ArrayList<>();
+				res.accept(new ASTVisitor() {
+					@Override
+					public void postVisit(ASTNode node) { // fix some positions
 						if( node.getParent() != null ) {
 							if( node.getStartPosition() < node.getParent().getStartPosition()) {
 								int parentEnd = node.getParent().getStartPosition() + node.getParent().getLength();
@@ -343,8 +334,13 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 							}
 						}
 					}
-				};
-				res.accept(v);
+					@Override
+					public boolean visit(Javadoc javadoc) {
+						comments.add(javadoc);
+						return true;
+					}
+				});
+				res.setCommentTable(comments.toArray(org.eclipse.jdt.core.dom.Comment[]::new));
 				ast.setBindingResolver(new JavacBindingResolver(javaProject, task, context, converter));
 				//
 				ast.setOriginalModificationCount(ast.modificationCount()); // "un-dirty" AST so Rewrite can process it
@@ -405,104 +401,6 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 //		unit.setLineEndTable(compilationUnitDeclaration.compilationResult.getLineSeparatorPositions());
 //		unit.setTypeRoot(workingCopy.originalFromClone());
 		return ast;
-	}
-
-	private class JavadocTokenizerFeedingComments extends JavadocTokenizer {
-		public final List<org.eclipse.jdt.core.dom.Comment> comments = new ArrayList<>();
-		private final JavacConverter converter;
-
-		public JavadocTokenizerFeedingComments(ScannerFactory factory, char[] content, JavacConverter converter) {
-			super(factory, content, content.length);
-			this.converter = converter;
-		}
-
-		@Override
-		protected Comment processComment(int pos, int endPos, CommentStyle style) {
-			Comment res = super.processComment(pos, endPos, style);
-			this.comments.add(this.converter.convert(res, pos, endPos));
-			return res;
-		}
-	}
-//
-	/**
-	 * Currently re-scans the doc to build the list of comments and then
-	 * attach them to the already built AST.
-	 * @param res
-	 * @param context
-	 * @param fileObject
-	 * @param converter
-	 * @param compilerOptions
-	 */
-	private void attachComments(CompilationUnit res, Context context, FileObject fileObject, JavacConverter converter, Map<String, String> compilerOptions) {
-		try {
-			char[] content =  fileObject.getCharContent(false).toString().toCharArray();
-			ScannerFactory scannerFactory = ScannerFactory.instance(context);
-			JavadocTokenizerFeedingComments commentTokenizer = new JavadocTokenizerFeedingComments(scannerFactory, content, converter);
-			Scanner javacScanner = new Scanner(scannerFactory, commentTokenizer) {
-				// subclass just to access constructor
-				// TODO DefaultCommentMapper.this.scanner.linePtr == -1?
-			};
-			do { // consume all tokens to populate comments
-				javacScanner.nextToken();
-			} while (javacScanner.token() != null && javacScanner.token().kind != TokenKind.EOF);
-//			commentTokenizer.comments.forEach(comment -> comment.setAlternateRoot(res));
-			res.setCommentTable(commentTokenizer.comments.toArray(org.eclipse.jdt.core.dom.Comment[]::new));
-			org.eclipse.jdt.internal.compiler.parser.Scanner ecjScanner = new ASTConverter(compilerOptions, false, null).scanner;
-			ecjScanner.recordLineSeparator = true;
-			ecjScanner.skipComments = false;
-			try {
-				ecjScanner.setSource(content);
-				do {
-					ecjScanner.getNextToken();
-				} while (!ecjScanner.atEnd());
-			} catch (InvalidInputException ex) {
-				JavaCore.getPlugin().getLog().log(Status.error(ex.getMessage(), ex));
-			}
-
-			// need to scan with ecjScanner first to populate some line indexes used by the CommentMapper
-			// on longer-term, implementing an alternative comment mapper based on javac scanner might be best
-			res.initCommentMapper(ecjScanner);
-			res.setCommentTable(commentTokenizer.comments.toArray(org.eclipse.jdt.core.dom.Comment[]::new)); // TODO only javadoc comments are in; need to add regular comments
-			if (res.optionalCommentTable != null) {
-				Arrays.stream(res.optionalCommentTable)
-					.filter(Javadoc.class::isInstance)
-					.map(Javadoc.class::cast)
-					.forEach(doc -> attachToSibling(res.getAST(), doc, res));
-			}
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
-	private void attachToSibling(AST ast, Javadoc javadoc, CompilationUnit unit) {
-		FindNextJavadocableSibling finder = new FindNextJavadocableSibling(javadoc.getStartPosition(), javadoc.getLength());
-		unit.accept(finder);
-		if (finder.nextNode != null) {
-			int endOffset = finder.nextNode.getStartPosition() + finder.nextNode.getLength();
-			if (finder.nextNode instanceof AbstractTypeDeclaration typeDecl) {
-				if( typeDecl.getJavadoc() == null ) {
-					typeDecl.setJavadoc(javadoc);
-					finder.nextNode.setSourceRange(javadoc.getStartPosition(), endOffset - javadoc.getStartPosition());
-				}
-			} else if (finder.nextNode instanceof FieldDeclaration fieldDecl) {
-				if( fieldDecl.getJavadoc() == null ) {
-					fieldDecl.setJavadoc(javadoc);
-					finder.nextNode.setSourceRange(javadoc.getStartPosition(), endOffset - javadoc.getStartPosition());
-				}
-			} else if (finder.nextNode instanceof PackageDeclaration pd) {
-				if( ast.apiLevel != AST.JLS2_INTERNAL) {
-					if( pd.getJavadoc() == null ) {
-						pd.setJavadoc(javadoc);
-						finder.nextNode.setSourceRange(javadoc.getStartPosition(), endOffset - javadoc.getStartPosition());
-					}
-				}
-			} else if (finder.nextNode instanceof BodyDeclaration methodDecl) {
-				if( methodDecl.getJavadoc() == null ) {
-					methodDecl.setJavadoc(javadoc);
-					finder.nextNode.setSourceRange(javadoc.getStartPosition(), endOffset - javadoc.getStartPosition());
-				}
-			}
-		}
 	}
 
 	private static class BindingBuilder extends ASTVisitor {

@@ -126,7 +126,7 @@ class JavacConverter {
 	private final JCCompilationUnit javacCompilationUnit;
 	private final Context context;
 	final Map<ASTNode, JCTree> domToJavac = new HashMap<>();
-	private String rawText;
+	final String rawText;
 
 	public JavacConverter(AST ast, JCCompilationUnit javacCompilationUnit, Context context, String rawText) {
 		this.ast = ast;
@@ -343,7 +343,7 @@ class JavacConverter {
 	}
 
 
-	private Name toName(JCTree expression) {
+	Name toName(JCTree expression) {
 		if (expression instanceof JCIdent ident) {
 			Name res = convert(ident.getName());
 			commonSettings(res, ident);
@@ -899,112 +899,19 @@ class JavacConverter {
 	private void setJavadocForNode(JCTree javac, ASTNode node) {
 		Comment c = this.javacCompilationUnit.docComments.getComment(javac);
 		if( c != null && c.getStyle() == Comment.CommentStyle.JAVADOC) {
-			// Some of the following code is bogus and causes further errors such as
-			// https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/227
-			// The default "empty" comments currently seem to provide better results,
-			// at least for rendering.
-			// But we eventually need properly formed Javadoc nodes (for linking, refactoring...).
-			// To do that, instead of hardcoding text manipulation logic here, we should probably
-			// produce the Javadoc using a DocCommentParser and converting DCDocTrees.
-			// https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/367
-			
-//			String textVal = c.getText(); // initialize
-//			int start = -1;
-//			if (textVal.isEmpty()) {
-//				start = new StringBuilder(this.rawText.substring(0, javac.getStartPosition())).lastIndexOf("/**") + 3;
-//			} else {
-//				start = c.getSourcePos(0);
-//			}
-//			String prefix = new StringBuilder(this.rawText.substring(0, start)).reverse().toString();
-//			int ind = prefix.indexOf("*/");
-//			if( ind != -1 ) {
-//				start -= (ind + "*/".length());
-//				int len = this.rawText.substring(start).indexOf("*/");
-//				if( len != -1 ) {
-//					len += "*/".length();
-//					Javadoc jd = (Javadoc)convert(c, start, start + len);
-//					String jdString = this.rawText.substring(start, start + len);
-//					if( this.ast.apiLevel == AST.JLS2_INTERNAL) {
-//						jd.setComment(jdString);
-//					}
-//					int nodeStartPosition = Math.min(jd.getStartPosition(), node.getStartPosition());
-//					int nodeEndPosition = Math.max(jd.getStartPosition() + jd.getLength(), node.getStartPosition() + node.getLength());
-//					int nodeFinalLength = nodeEndPosition - nodeStartPosition;
-//					node.setSourceRange(nodeStartPosition, nodeFinalLength);
-//
-//					if( node instanceof BodyDeclaration bd) {
-//						bd.setJavadoc(jd);
-//						int contentsStart = nodeStartPosition + 3;
-//						int contentsEnd = jd.getStartPosition() + jd.getLength() - 2;
-//						int contentsLength = contentsEnd - contentsStart;
-//						String jdStringContents = this.rawText.substring(contentsStart, contentsStart + contentsLength);
-//						String stripLeading = jdStringContents.stripLeading();
-//						int leadingStripped = jdStringContents.length() - stripLeading.length();
-//						contentsStart += leadingStripped;
-//						contentsLength = contentsEnd - contentsStart;
-//						jdStringContents = this.rawText.substring(contentsStart, contentsStart + contentsLength);
-//
-//						int runningTally = 0;
-//						TagElement previousTag = null;
-//						for(String line : jdStringContents.split("\n")) {
-//							int leadingTrimmedFromLine = line.length() - trimLeadingWhiteAndStars(line).length();
-//							int trailingTrimmedFromLine = line.length() - trimJavadocLineEndings(line).length();
-//							int lineStart = contentsStart + runningTally;
-//							int lineTrimmedStart = contentsStart + leadingTrimmedFromLine + runningTally;
-//							int lineTrimmedEnd = lineStart + line.length() - trailingTrimmedFromLine;
-//							int lineTrimmedLength = lineTrimmedEnd - lineTrimmedStart;
-//							if( lineTrimmedLength > 0 ) {
-//								String lineTrimmedContent = this.rawText.substring(lineTrimmedStart, lineTrimmedEnd);
-//								if( lineTrimmedContent.startsWith("@")) {
-//									previousTag = null;
-//								}
-//								TextElement text = this.ast.newTextElement();
-//								text.setText(lineTrimmedContent);
-//								text.setSourceRange(lineTrimmedStart, lineTrimmedLength);
-//
-//								if( previousTag == null ) {
-//									previousTag = this.ast.newTagElement();
-//									previousTag.setSourceRange(lineTrimmedStart, lineTrimmedEnd - lineTrimmedStart);
-//									jd.tags().add(previousTag);
-//								} else {
-//									previousTag.setSourceRange(previousTag.getStartPosition(), lineTrimmedEnd - previousTag.getStartPosition());
-//								}
-//								previousTag.fragments().add(text);
-//							} else {
-//								previousTag = null;
-//							}
-//							runningTally += line.length() + 1;
-//						}
-//					}
-//				}
-//			}
-		}
-	}
-
-	private String trimJavadocLineEndings(String l) {
-		String stripTrailingSpaces = l.stripTrailing();
-		if( stripTrailingSpaces.endsWith("*")) {
-			int length = stripTrailingSpaces.length();
-			for( int i = length - 1; i > 0; i-- ) {
-				if(stripTrailingSpaces.charAt(i) != '*') {
-					return stripTrailingSpaces.substring(0, i);
-				}
+			var docCommentTree = this.javacCompilationUnit.docComments.getCommentTree(javac);
+			Javadoc javadoc = new JavadocConverter(this, docCommentTree).convertJavadoc();
+			if (node instanceof BodyDeclaration bodyDeclaration) {
+				bodyDeclaration.setJavadoc(javadoc);
+				bodyDeclaration.setSourceRange(javadoc.getStartPosition(), bodyDeclaration.getStartPosition() + bodyDeclaration.getLength() - javadoc.getStartPosition());
+			} else if (node instanceof ModuleDeclaration moduleDeclaration) {
+				moduleDeclaration.setJavadoc(javadoc);
+				moduleDeclaration.setSourceRange(javadoc.getStartPosition(), moduleDeclaration.getStartPosition() + moduleDeclaration.getLength() - javadoc.getStartPosition());
+			} else if (node instanceof PackageDeclaration packageDeclaration) {
+				packageDeclaration.setJavadoc(javadoc);
+				packageDeclaration.setSourceRange(javadoc.getStartPosition(), packageDeclaration.getStartPosition() + packageDeclaration.getLength() - javadoc.getStartPosition());
 			}
 		}
-		return l;
-	}
-
-	private String trimLeadingWhiteAndStars(String line) {
-		if( line.stripLeading().startsWith("*")) {
-
-		}
-		int length = line.length();
-		for( int i = 0; i < length; i++ ) {
-			if( !Character.isWhitespace(line.charAt(i)) && line.charAt(i) != '*') {
-				return line.substring(i);
-			}
-		}
-		return "";
 	}
 
 	private Expression convertExpression(JCExpression javac) {
