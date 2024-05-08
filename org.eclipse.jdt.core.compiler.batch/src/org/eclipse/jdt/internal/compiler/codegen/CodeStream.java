@@ -7641,6 +7641,12 @@ protected void writeWidePosition(BranchLabel label) {
 	}
 }
 private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
+
+	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
+			| ClassFileConstants.ATTR_STACK_MAP_TABLE
+			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
+		return null; // can't retrieve what we didn't record.
+
 	for (int i = this.allLocalsCounter  - 1 ; i >= 0; i--) {
 		LocalVariableBinding localVariable = this.locals[i];
 		if (localVariable == null) continue;
@@ -7660,6 +7666,7 @@ private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
 			}
 		}
 	}
+
 	if (this.methodDeclaration != null) {
 		ReferenceBinding declaringClass = this.methodDeclaration.binding.declaringClass;
 		if (resolvedPosition == 0 && !this.methodDeclaration.isStatic()) {
