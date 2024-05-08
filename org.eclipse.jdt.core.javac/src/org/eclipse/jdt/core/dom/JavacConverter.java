@@ -724,13 +724,13 @@ class JavacConverter {
 			}
 		}
 		
-		if( retType != null ) {
+		if( retType != null || isConstructor) {
 			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
 				res.setReturnType2(retType);
 			} else {
 				res.internalSetReturnType(retType);
 			}
-		}
+		} 
 
 		javac.getParameters().stream().map(this::convertVariableDeclaration).forEach(res.parameters()::add);
 
