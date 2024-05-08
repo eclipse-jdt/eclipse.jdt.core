@@ -18,7 +18,8 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 
 public class FindNextJavadocableSibling extends ASTVisitor {
-	public ASTNode nextNode = null;
+	private ASTNode nextNode = null;
+	private ASTNode nonJavaDocableNextNode = null;
 	private int javadocStart;
 	private int javadocLength;
 	private boolean done = false;
@@ -34,6 +35,15 @@ public class FindNextJavadocableSibling extends ASTVisitor {
 		return true;
 	}
 
+	public ASTNode getNextNode() {
+		if( this.nonJavaDocableNextNode == null || this.nextNode == null)
+			return this.nextNode;
+		if( this.nonJavaDocableNextNode.getStartPosition() < this.nextNode.getStartPosition()) {
+			return null;
+		}
+		return this.nextNode;
+	}
+	
 	@Override
 	public void preVisit(ASTNode node) {
 		// If there's any overlap, abort. 
@@ -50,6 +60,15 @@ public class FindNextJavadocableSibling extends ASTVisitor {
 				(this.nextNode == null || this.nextNode.getStartPosition() > node.getStartPosition())) {
 					this.nextNode = node;
 				}
+		} else {
+			// Let's keep track of the non-jdocable next node in case. 
+			// If there's a sysout between the jdoc and a type, it is invalid
+			if( node.getStartPosition() == this.javadocStart ) {
+				this.nonJavaDocableNextNode = node;
+			} else if (node.getStartPosition() > jdocEnd &&
+					(this.nonJavaDocableNextNode == null || this.nonJavaDocableNextNode.getStartPosition() > node.getStartPosition())) {
+				this.nonJavaDocableNextNode = node;
+			}
 		}
 	}
 
