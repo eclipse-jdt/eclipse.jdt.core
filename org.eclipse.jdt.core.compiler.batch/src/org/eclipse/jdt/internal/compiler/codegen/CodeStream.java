@@ -407,7 +407,9 @@ public void anewarray(TypeBinding typeBinding) {
 	this.position++;
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_anewarray;
 	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
-	pushTypeBinding(1, typeBinding);
+
+	ClassScope scope = this.classFile.referenceBinding.scope;
+	pushTypeBinding(1, scope.createArrayType(typeBinding, 1));
 }
 
 public void areturn() {
