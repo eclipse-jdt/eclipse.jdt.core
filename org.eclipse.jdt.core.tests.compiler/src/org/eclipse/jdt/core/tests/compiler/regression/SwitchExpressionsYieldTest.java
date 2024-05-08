@@ -7837,4 +7837,35 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				+ "Illegal enclosing instance specification for type X.Y\n"
 				+ "----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2423
+	// [Switch-expression] Internal compiler error: java.lang.ClassCastException while compiling switch expression with exception handling
+	public void testIssue2423() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					static String getString(int i) {
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+						return new String[] { "Hello", "World" }[i];
+					}
+					public static void main(String [] args) {
+						System.out.println(getString(0));
+					}
+				}
+				"""
+				},
+				"42\n"
+				+ "Hello");
+	}
 }
