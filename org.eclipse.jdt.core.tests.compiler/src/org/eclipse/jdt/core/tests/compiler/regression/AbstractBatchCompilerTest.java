@@ -665,7 +665,8 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 					"Unexpected error output for invocation with arguments ["
 						+ extraArguments + "]",
 					expectedErrOutputString,
-					errOutputString);
+					outputDirNormalizer
+					.normalized(errOutputString));
 		}
 	}
 
