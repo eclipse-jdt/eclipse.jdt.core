@@ -30,6 +30,7 @@ import com.sun.tools.javac.parser.Scanner;
 import com.sun.tools.javac.parser.ScannerFactory;
 import com.sun.tools.javac.parser.Tokens.Token;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.parser.Tokens.TokenKind;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
@@ -93,15 +94,39 @@ public class JavacProblemConverter {
 			CharSequence charContent = fileObject.getCharContent(true);
 			ScannerFactory scannerFactory = ScannerFactory.instance(new Context());
 			Scanner javacScanner = scannerFactory.newScanner(charContent, true);
-			while (javacScanner.token().endPos <= preferedOffset) {
+			Token t = javacScanner.token();
+			while (t.kind != TokenKind.EOF && t.endPos <= preferedOffset) {
 				javacScanner.nextToken();
+				t = javacScanner.token();
 			}
-			Token toHighlight = javacScanner.prevToken();
-			return new org.eclipse.jface.text.Position(toHighlight.pos, Math.max(0, toHighlight.endPos - toHighlight.pos - 1));
+			Token toHighlight = javacScanner.token();
+			if (isTokenBadChoiceForHighlight(t) && !isTokenBadChoiceForHighlight(javacScanner.prevToken())) {
+				toHighlight = javacScanner.prevToken();
+			}
+			return new org.eclipse.jface.text.Position(toHighlight.pos, toHighlight.endPos - toHighlight.pos - 1);
 		} catch (IOException ex) {
 			ILog.get().error(ex.getMessage(), ex);
 		}
 		return getDefaultPosition(jcDiagnostic);
+	}
+
+	/**
+	 * Returns true if, based off a heuristic, the token is not a good choice for highlighting.
+	 *
+	 * eg. a closing bracket is bad, because the problem in the code is likely before the bracket,
+	 *     and the bracket is narrow and hard to see
+	 * eg. an identifier is good, because it's very likely the problem, and it's probably wide
+	 *
+	 * @param t the token to check
+	 * @return true if, based off a heuristic, the token is not a good choice for highlighting, and false otherwise
+	 */
+	private static boolean isTokenBadChoiceForHighlight(Token t) {
+		return t.kind == TokenKind.LPAREN
+				|| t.kind == TokenKind.RPAREN
+				|| t.kind == TokenKind.LBRACKET
+				|| t.kind == TokenKind.RBRACKET
+				|| t.kind == TokenKind.LBRACE
+				|| t.kind == TokenKind.RBRACE;
 	}
 
 	private static org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic, JCVariableDecl jcVariableDecl) {
