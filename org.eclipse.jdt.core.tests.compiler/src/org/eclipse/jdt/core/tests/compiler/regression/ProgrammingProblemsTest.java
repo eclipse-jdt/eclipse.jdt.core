@@ -3464,47 +3464,47 @@ public void testGH2167() {
 			1. ERROR in A.java (at line 5)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely operand types for '==': java.lang.String and java.lang.String are references
+			Dubious operand types for '==': java.lang.String and java.lang.String are references
 			----------
 			2. ERROR in A.java (at line 10)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely operand types for '==': java.lang.Byte and java.lang.Byte are references
+			Dubious operand types for '==': java.lang.Byte and java.lang.Byte are references
 			----------
 			3. ERROR in A.java (at line 15)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely operand types for '==': java.lang.Short and java.lang.Short are references
+			Dubious operand types for '==': java.lang.Short and java.lang.Short are references
 			----------
 			4. ERROR in A.java (at line 20)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely operand types for '==': java.lang.Integer and java.lang.Integer are references
+			Dubious operand types for '==': java.lang.Integer and java.lang.Integer are references
 			----------
 			5. ERROR in A.java (at line 25)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely operand types for '==': java.lang.Long and java.lang.Long are references
+			Dubious operand types for '==': java.lang.Long and java.lang.Long are references
 			----------
 			6. ERROR in A.java (at line 30)
 				return getId() != x;
 				       ^^^^^^^^^^^^
-			Unlikely operand types for '!=': java.lang.Long and java.lang.Long are references
+			Dubious operand types for '!=': java.lang.Long and java.lang.Long are references
 			----------
 			7. ERROR in A.java (at line 35)
 				return x1 != x2;
 				       ^^^^^^^^
-			Unlikely operand types for '!=': java.lang.Long and java.lang.Number are references
+			Dubious operand types for '!=': java.lang.Long and java.lang.Number are references
 			----------
 			8. ERROR in A.java (at line 40)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely operand types for '==': java.lang.Number and java.lang.Number are references
+			Dubious operand types for '==': java.lang.Number and java.lang.Number are references
 			----------
 			9. ERROR in A.java (at line 45)
 				return x1 == x2;
 				       ^^^^^^^^
-			Unlikely operand types for '==': java.io.Serializable and java.lang.Number are references
+			Dubious operand types for '==': java.io.Serializable and java.lang.Number are references
 			""";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();

@@ -11711,7 +11711,7 @@ public void test312_warn_options() {
 		"2. INFO in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
 		"	if (o.toString() == \"\"){ return null;}\n" +
 		"	    ^^^^^^^^^^^^^^^^^^\n" +
-		"Unlikely operand types for '==': java.lang.String and java.lang.String are references\n" +
+		"Dubious operand types for '==': java.lang.String and java.lang.String are references\n" +
 		"----------\n" +
 		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
 		"	if (o.toString() == \"\"){ return null;}\n" +
