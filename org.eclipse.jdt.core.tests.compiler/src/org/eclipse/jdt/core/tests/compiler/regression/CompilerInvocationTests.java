@@ -110,7 +110,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 				String token = CompilerOptions.warningTokenFromIrritant(irritant);
 				if (token != null) {
 					matcher.put(token, token);
-					assertTrue(CompilerOptions.warningTokenToIrritants(token) != null);
+					assertNotNull("Token " + token + " should be in CompilerOptions", CompilerOptions.warningTokenToIrritants(token));
 				}
 			}
 		}
@@ -122,7 +122,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 		assertEquals(allTokens.length, matcher.size());
 		for (int i = 0; i < length; i++) {
 			Object object = matcher.get(allTokens[i]);
-			assertNotNull(object);
+			assertNotNull("token " + allTokens[i] + " should be found", object);
 		}
 	}
 
