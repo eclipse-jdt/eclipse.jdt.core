@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.DCTree;
 import com.sun.tools.javac.tree.DCTree.DCAuthor;
 import com.sun.tools.javac.tree.DCTree.DCBlockTag;
@@ -62,10 +63,20 @@ class JavadocConverter {
 		}
 		//this.domToJavac.put(res, javac);
 	}
+	private void commonSettings(ASTNode res, JCTree javac) {
+		int start = this.docComment.getSourcePosition(javac.getStartPosition());
+		int length = javac.toString().length();
+		res.setSourceRange(start, Math.max(0,length));
+	}
 
 	Javadoc convertJavadoc() {
 		Javadoc res = this.ast.newJavadoc();
 		res.setSourceRange(this.initialOffset, this.endOffset - this.initialOffset);
+		String rawContent2 = this.javacConverter.rawText.substring(this.initialOffset, this.endOffset);
+		if( rawContent2 != null && rawContent2.contains("@see junit.framework.TestListener#addError()")) {
+			int z = 5;
+			int a = 21;
+		}
 		if( this.javacConverter.ast.apiLevel == AST.JLS2_INTERNAL) {
 			String rawContent = this.javacConverter.rawText.substring(this.initialOffset, this.endOffset);
 			res.setComment(rawContent);
@@ -85,6 +96,9 @@ class JavadocConverter {
 			} else {
 				if (host == null) {
 					host = this.ast.newTagElement();
+					if( elements[i] instanceof ASTNode astn) {
+						host.setSourceRange(astn.getStartPosition(), astn.getLength());
+					}
 				}
 				host.fragments().add(elements[i]);
 			}
@@ -169,6 +183,32 @@ class JavadocConverter {
 		}
 		return Optional.of(res);
 	}
+	
+	private Name toName(JCTree expression) {
+		Name n = this.javacConverter.toName(expression, (a,b) -> commonSettings(a,b));
+		// We need to clean all the sub-names
+		if( n instanceof QualifiedName qn ) {
+			SimpleName sn = qn.getName();
+			if( sn.getStartPosition() == 0 || sn.getStartPosition() == -1) {
+				int qnEnd = qn.getStartPosition() + qn.getLength();
+				int start = qnEnd - sn.toString().length();
+				sn.setSourceRange(start, qnEnd-start);
+			}
+			cleanNameQualifierLocations(qn);
+		}
+		return n;
+	}
+	
+	private void cleanNameQualifierLocations(QualifiedName qn) {
+		Name qualifier = qn.getQualifier();
+		if( qualifier != null ) {
+			qualifier.setSourceRange(qn.getStartPosition(), qualifier.toString().length());
+			if( qualifier instanceof QualifiedName qn2) {
+				cleanNameQualifierLocations(qn2);
+			}
+		}
+	}
+	
 	private IDocElement convertElement(DCTree javac) {
 		if (javac instanceof DCText text) {
 			JavaDocTextElement res = this.ast.newJavaDocTextElement();
@@ -186,11 +226,12 @@ class JavadocConverter {
 				commonSettings(res, javac);
 				if (reference.memberName != null) {
 					SimpleName name = this.ast.newSimpleName(reference.memberName.toString());
-					// TODO set range
+					name.setSourceRange(this.docComment.getSourcePosition(javac.getStartPosition()), Math.max(0, reference.memberName.toString().length()));
 					res.setName(name);
 				}
 				if (reference.qualifierExpression != null) {
-					res.setQualifier(this.javacConverter.toName(reference.qualifierExpression));
+					Name n = toName(reference.qualifierExpression);
+					res.setQualifier(n);
 				}
 				// TODO here: fix 
 //				reference.paramTypes.stream().map(this.javacConverter::toName).forEach(res.parameters()::add);
@@ -200,10 +241,12 @@ class JavadocConverter {
 				commonSettings(res, javac);
 				if (reference.memberName != null) {
 					SimpleName name = this.ast.newSimpleName(reference.memberName.toString());
-					// TODO set range
+					name.setSourceRange(this.docComment.getSourcePosition(javac.getStartPosition()), Math.max(0, reference.memberName.toString().length()));
 					res.setName(name);
 				}
-				res.setQualifier(this.javacConverter.toName(reference.qualifierExpression));
+				Name n = toName(reference.qualifierExpression);
+				n.setSourceRange(this.docComment.getSourcePosition(reference.pos), Math.max(0, reference.qualifierExpression.toString().length()));
+				res.setQualifier(n);
 				return res;
 			}
 		} else if (javac instanceof DCStartElement || javac instanceof DCEndElement || javac instanceof DCEntity) {

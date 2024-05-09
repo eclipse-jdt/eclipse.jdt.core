@@ -333,7 +333,7 @@ class JavacConverter {
 		return res;
 	}
 
-	private void commonSettings(ASTNode res, JCTree javac) {
+	void commonSettings(ASTNode res, JCTree javac) {
 		if( javac != null ) {
 			if (javac.getStartPosition() >= 0) {
 				int length = javac.getEndPosition(this.javacCompilationUnit.endPositions) - javac.getStartPosition();
@@ -344,23 +344,30 @@ class JavacConverter {
 		}
 	}
 
-
-	Name toName(JCTree expression) {
+	public interface CommonSettingsOperator {
+	    public void op(ASTNode res, JCTree javac);
+	}
+	private Name toName(JCTree expression) {
+		return toName(expression, (a,b) -> commonSettings(a,b));
+	}
+	Name toName(JCTree expression, CommonSettingsOperator commonSettings ) {
 		if (expression instanceof JCIdent ident) {
-			Name res = convert(ident.getName());
-			commonSettings(res, ident);
+			Name res = convertName(ident.getName());
+			commonSettings.op(res, ident);
 			return res;
 		}
 		if (expression instanceof JCFieldAccess fieldAccess) {
-			QualifiedName res = this.ast.newQualifiedName(toName(fieldAccess.getExpression()), (SimpleName)convert(fieldAccess.getIdentifier()));
-			commonSettings(res, fieldAccess);
+			Name qualifier = toName(fieldAccess.getExpression());
+			SimpleName n = (SimpleName)convertName(fieldAccess.getIdentifier());
+			QualifiedName res = this.ast.newQualifiedName(qualifier, n);
+			commonSettings.op(res, fieldAccess);
 			return res;
 		}
 		if (expression instanceof JCAnnotatedType jcat) {
-			return toName(jcat.underlyingType);
+			return toName(jcat.underlyingType, commonSettings);
 		}
 		if (expression instanceof JCTypeApply jcta) {
-			return toName(jcta.clazz);
+			return toName(jcta.clazz, commonSettings);
 		}
 		throw new UnsupportedOperationException("toName for " + expression + " (" + expression.getClass().getName() + ")");
 	}
@@ -392,7 +399,7 @@ class JavacConverter {
 
 	private AbstractTypeDeclaration convertClassDecl(JCClassDecl javacClassDecl, ASTNode parent, AbstractTypeDeclaration res) {
 		commonSettings(res, javacClassDecl);
-		SimpleName simpName = (SimpleName)convert(javacClassDecl.getSimpleName());
+		SimpleName simpName = (SimpleName)convertName(javacClassDecl.getSimpleName());
 		if( simpName != null )
 			res.setName(simpName);
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
@@ -618,7 +625,7 @@ class JavacConverter {
 		if( javac.defaultValue != null) {
 			res.setDefault(convertExpression(javac.defaultValue));
 		}
-		if (convert(javac.getName()) instanceof SimpleName simpleName) {
+		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
 			res.setName(simpleName);
 		}
 		return res;
@@ -805,7 +812,7 @@ class JavacConverter {
 		// if (singleDecl) {
 		SingleVariableDeclaration res = this.ast.newSingleVariableDeclaration();
 		commonSettings(res, javac);
-		if (convert(javac.getName()) instanceof SimpleName simpleName) {
+		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
 			res.setName(simpleName);
 		}
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
@@ -874,7 +881,7 @@ class JavacConverter {
 		}
 		fragment.setSourceRange(fragmentStart, Math.max(0, fragmentLength));
 
-		if (convert(javac.getName()) instanceof SimpleName simpleName) {
+		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
 			fragment.setName(simpleName);
 		}
 		if( javac.getType() instanceof JCArrayTypeTree jcatt && javac.vartype.pos > javac.pos ) {
@@ -974,7 +981,9 @@ class JavacConverter {
 				moduleDeclaration.setJavadoc(javadoc);
 				moduleDeclaration.setSourceRange(javadoc.getStartPosition(), moduleDeclaration.getStartPosition() + moduleDeclaration.getLength() - javadoc.getStartPosition());
 			} else if (node instanceof PackageDeclaration packageDeclaration) {
-				packageDeclaration.setJavadoc(javadoc);
+				if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+					packageDeclaration.setJavadoc(javadoc);
+				}
 				packageDeclaration.setSourceRange(javadoc.getStartPosition(), packageDeclaration.getStartPosition() + packageDeclaration.getLength() - javadoc.getStartPosition());
 			}
 		}
@@ -1009,19 +1018,19 @@ class JavacConverter {
 				SuperFieldAccess res = this.ast.newSuperFieldAccess();
 				commonSettings(res, javac);
 				res.setQualifier(toName(parentFieldAccess.getExpression()));
-				res.setName((SimpleName)convert(fieldAccess.getIdentifier()));
+				res.setName((SimpleName)convertName(fieldAccess.getIdentifier()));
 				return res;
 			}
 			if (fieldAccess.getExpression() instanceof JCIdent parentFieldAccess && Objects.equals(Names.instance(this.context)._super, parentFieldAccess.getName())) {
 				SuperFieldAccess res = this.ast.newSuperFieldAccess();
 				commonSettings(res, javac);
-				res.setName((SimpleName)convert(fieldAccess.getIdentifier()));
+				res.setName((SimpleName)convertName(fieldAccess.getIdentifier()));
 				return res;
 			}
 			FieldAccess res = this.ast.newFieldAccess();
 			commonSettings(res, javac);
 			res.setExpression(convertExpression(fieldAccess.getExpression()));
-			if (convert(fieldAccess.getIdentifier()) instanceof SimpleName name) {
+			if (convertName(fieldAccess.getIdentifier()) instanceof SimpleName name) {
 				res.setName(name);
 			}
 			return res;
@@ -1043,7 +1052,7 @@ class JavacConverter {
 					if( superCall1 ) {
 						res2.setQualifier(toName(fa.getExpression()));
 					}
-					res2.setName((SimpleName)convert(access.getIdentifier()));
+					res2.setName((SimpleName)convertName(access.getIdentifier()));
 					return res2;
 				}
 			}
@@ -1054,7 +1063,7 @@ class JavacConverter {
 				if (Objects.equals(ident.getName(), Names.instance(this.context)._super)) {
 					return convertSuperMethodInvocation(methodInvocation);
 				}
-				SimpleName name = (SimpleName)convert(ident.getName());
+				SimpleName name = (SimpleName)convertName(ident.getName());
 				commonSettings(name, ident);
 				res.setName(name);
 			} else if (nameExpr instanceof JCFieldAccess access) {
@@ -1071,10 +1080,10 @@ class JavacConverter {
 					if( superCall1 ) {
 						res2.setQualifier(toName(fa.getExpression()));
 					}
-					res2.setName((SimpleName)convert(access.getIdentifier()));
+					res2.setName((SimpleName)convertName(access.getIdentifier()));
 					return res2;
 				}
-				if (convert(access.getIdentifier()) instanceof SimpleName simpleName) {
+				if (convertName(access.getIdentifier()) instanceof SimpleName simpleName) {
 					res.setName(simpleName);
 				}
 				res.setExpression(convertExpression(access.getExpression()));
@@ -1291,7 +1300,7 @@ class JavacConverter {
 				ExpressionMethodReference res = this.ast.newExpressionMethodReference();
 				commonSettings(res, javac);
 				res.setExpression(convertExpression(jcMemberReference.getQualifierExpression()));
-				res.setName((SimpleName)convert(jcMemberReference.getName()));
+				res.setName((SimpleName)convertName(jcMemberReference.getName()));
 				if (jcMemberReference.getTypeArguments() != null) {
 					jcMemberReference.getTypeArguments().map(this::convertToType).forEach(res.typeArguments()::add);
 				}
@@ -1671,7 +1680,7 @@ class JavacConverter {
 			BreakStatement res = this.ast.newBreakStatement();
 			commonSettings(res, javac);
 			if (jcBreak.getLabel() != null) {
-				res.setLabel((SimpleName)convert(jcBreak.getLabel()));
+				res.setLabel((SimpleName)convertName(jcBreak.getLabel()));
 			}
 			return res;
 		}
@@ -1753,14 +1762,14 @@ class JavacConverter {
 			ContinueStatement res = this.ast.newContinueStatement();
 			commonSettings(res, javac);
 			if (jcContinue.getLabel() != null) {
-				res.setLabel((SimpleName)convert(jcContinue.getLabel()));
+				res.setLabel((SimpleName)convertName(jcContinue.getLabel()));
 			}
 			return res;
 		}
 		if (javac instanceof JCLabeledStatement jcLabel) {
 			LabeledStatement res = this.ast.newLabeledStatement();
 			commonSettings(res, javac);
-			res.setLabel((SimpleName)convert(jcLabel.getLabel()));
+			res.setLabel((SimpleName)convertName(jcLabel.getLabel()));
 			Statement stmt = convertStatement(jcLabel.getStatement(), res);
 			if( stmt != null )
 				res.setBody(stmt);
@@ -1890,7 +1899,7 @@ class JavacConverter {
 
 	private Type convertToType(JCTree javac) {
 		if (javac instanceof JCIdent ident) {
-			SimpleType res = this.ast.newSimpleType(convert(ident.name));
+			SimpleType res = this.ast.newSimpleType(convertName(ident.name));
 			commonSettings(res, ident);
 			return res;
 		}
@@ -1907,7 +1916,7 @@ class JavacConverter {
 			// case of not translatable name, eg because of generics
 			// TODO find a better check instead of relying on exception
 			if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
-				QualifiedType res = this.ast.newQualifiedType(convertToType(qualified.getExpression()), (SimpleName)convert(qualified.getIdentifier()));
+				QualifiedType res = this.ast.newQualifiedType(convertToType(qualified.getExpression()), (SimpleName)convertName(qualified.getIdentifier()));
 				commonSettings(res, qualified);
 				return res;
 			} else {
@@ -2259,7 +2268,7 @@ class JavacConverter {
 	}
 
 
-	private Name convert(com.sun.tools.javac.util.Name javac) {
+	private Name convertName(com.sun.tools.javac.util.Name javac) {
 		if (javac == null || Objects.equals(javac, Names.instance(this.context).error) || Objects.equals(javac, Names.instance(this.context).empty)) {
 			return null;
 		}
@@ -2268,7 +2277,7 @@ class JavacConverter {
 		if (lastDot < 0) {
 			return this.ast.newSimpleName(nameString);
 		} else {
-			return this.ast.newQualifiedName(convert(javac.subName(0, lastDot)), (SimpleName)convert(javac.subName(lastDot + 1, javac.length() - 1)));
+			return this.ast.newQualifiedName(convertName(javac.subName(0, lastDot)), (SimpleName)convertName(javac.subName(lastDot + 1, javac.length() - 1)));
 		}
 		// position is set later, in FixPositions, as computing them depends on the sibling
 	}
