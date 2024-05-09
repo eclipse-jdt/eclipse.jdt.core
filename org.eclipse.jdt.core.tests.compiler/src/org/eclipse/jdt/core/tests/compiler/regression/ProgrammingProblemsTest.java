@@ -3375,7 +3375,7 @@ public void testGH2167() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
 	runner.customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	runner.customOptions.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
-	runner.customOptions.put(CompilerOptions.OPTION_ReportUnlikelyReferenceComparison, CompilerOptions.ERROR);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportDubiousReferenceComparison, CompilerOptions.ERROR);
 
 	runner.testFiles = new String[] {
 			"A.java",
@@ -3439,7 +3439,7 @@ public void testGH2167() {
 					    long x2 = 12346L;
 					    return x1 == x2;
 					}
-					@SuppressWarnings("unlikely-arg-type")
+					@SuppressWarnings("reference-comparison")
 					public boolean no_error3() {
 						Long x1 = 12345L;
 						Long x2 = 67890L;

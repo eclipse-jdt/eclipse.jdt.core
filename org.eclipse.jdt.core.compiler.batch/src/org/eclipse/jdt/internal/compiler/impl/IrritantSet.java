@@ -89,7 +89,7 @@ public class IrritantSet {
 			| CompilerOptions.SuppressWarningsNotAnalysed
 			| CompilerOptions.AnnotatedTypeArgumentToUnannotated)
 		// group-3 warnings enabled by default
-		.set(CompilerOptions.UnlikelyReferenceComparison)
+		.set(CompilerOptions.DubiousReferenceComparison)
 		;
 
 		COMPILER_DEFAULT_WARNINGS
@@ -200,7 +200,7 @@ public class IrritantSet {
 
 		UNLIKELY_ARGUMENT_TYPE
 			.set(CompilerOptions.UnlikelyEqualsArgumentType)
-			.set(CompilerOptions.UnlikelyReferenceComparison);
+			.set(CompilerOptions.DubiousReferenceComparison);
 	}
 	// Internal state
 

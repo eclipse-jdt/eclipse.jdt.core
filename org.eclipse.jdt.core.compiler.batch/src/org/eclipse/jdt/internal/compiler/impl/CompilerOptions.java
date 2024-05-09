@@ -206,7 +206,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportUnlikelyCollectionMethodArgumentType = "org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentType"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnlikelyCollectionMethodArgumentTypeStrict = "org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentTypeStrict"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnlikelyEqualsArgumentType = "org.eclipse.jdt.core.compiler.problem.unlikelyEqualsArgumentType"; //$NON-NLS-1$
-	public static final String OPTION_ReportUnlikelyReferenceComparison =  "org.eclipse.jdt.core.compiler.problem.unlikelyReferenceComparison"; //$NON-NLS-1$
+	public static final String OPTION_ReportDubiousReferenceComparison =  "org.eclipse.jdt.core.compiler.problem.dubiousReferenceComparison"; //$NON-NLS-1$
 
 	public static final String OPTION_ReportAPILeak = "org.eclipse.jdt.core.compiler.problem.APILeak"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnstableAutoModuleName = "org.eclipse.jdt.core.compiler.problem.unstableAutoModuleName";   //$NON-NLS-1$
@@ -378,7 +378,7 @@ public class CompilerOptions {
 	// group 3
 	public static final int InsufficientResourceManagement = IrritantSet.GROUP3 | ASTNode.Bit1;
 	public static final int IncompatibleOwningContract = IrritantSet.GROUP3 | ASTNode.Bit2;
-	public static final int UnlikelyReferenceComparison = IrritantSet.GROUP3 | ASTNode.Bit3;
+	public static final int DubiousReferenceComparison = IrritantSet.GROUP3 | ASTNode.Bit3;
 
 
 	// Severity level for handlers
@@ -603,6 +603,7 @@ public class CompilerOptions {
 		"nls", //$NON-NLS-1$
 		"null", //$NON-NLS-1$
 		"rawtypes", //$NON-NLS-1$
+		"reference-comparison", //$NON-NLS-1$
 		"removal", //$NON-NLS-1$
 		"resource", //$NON-NLS-1$
 		"restriction", //$NON-NLS-1$
@@ -833,8 +834,8 @@ public class CompilerOptions {
 				return OPTION_ReportUnlikelyCollectionMethodArgumentType;
 			case UnlikelyEqualsArgumentType:
 				return OPTION_ReportUnlikelyEqualsArgumentType;
-			case UnlikelyReferenceComparison :
-				return OPTION_ReportUnlikelyReferenceComparison;
+			case DubiousReferenceComparison :
+				return OPTION_ReportDubiousReferenceComparison;
 			case APILeak:
 				return OPTION_ReportAPILeak;
 			case UnstableAutoModuleName:
@@ -980,13 +981,13 @@ public class CompilerOptions {
 			OPTION_ReportAssertIdentifier,
 			OPTION_ReportAutoboxing,
 			OPTION_ReportComparingIdentical,
-			OPTION_ReportUnlikelyReferenceComparison,
 			OPTION_ReportDeadCode,
 			OPTION_ReportDeadCodeInTrivialIfStatement,
 			OPTION_ReportDeprecation,
 			OPTION_ReportDeprecationInDeprecatedCode,
 			OPTION_ReportDeprecationWhenOverridingDeprecatedMethod,
 			OPTION_ReportDiscouragedReference,
+			OPTION_ReportDubiousReferenceComparison,
 			OPTION_ReportEmptyStatement,
 			OPTION_ReportEnumIdentifier,
 			OPTION_ReportFallthroughCase,
@@ -1094,7 +1095,6 @@ public class CompilerOptions {
 
 			OPTION_ReportUnlikelyCollectionMethodArgumentType,
 			OPTION_ReportUnlikelyEqualsArgumentType,
-			OPTION_ReportUnlikelyReferenceComparison,
 			OPTION_ReportAPILeak,
 			OPTION_ReportPreviewFeatures,
 			OPTION_ReportSuppressWarningNotFullyAnalysed
@@ -1196,8 +1196,9 @@ public class CompilerOptions {
 				return "sync-override";	 //$NON-NLS-1$
 			case UnlikelyEqualsArgumentType:
 			case UnlikelyCollectionMethodArgumentType:
-			case UnlikelyReferenceComparison:
 				return "unlikely-arg-type"; //$NON-NLS-1$
+			case DubiousReferenceComparison:
+				return "reference-comparison"; //$NON-NLS-1$
 			case APILeak:
 				return "exports"; //$NON-NLS-1$
 			case UnstableAutoModuleName:
@@ -1270,6 +1271,8 @@ public class CompilerOptions {
 			case 'r' :
 				if ("rawtypes".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.RAW;
+				if ("reference-comparison".equals(warningToken)) //$NON-NLS-1$
+					return IrritantSet.UNLIKELY_ARGUMENT_TYPE;
 				if ("resource".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.RESOURCE;
 				if ("restriction".equals(warningToken)) //$NON-NLS-1$
@@ -1416,7 +1419,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_EmulateJavacBug8031744, this.emulateJavacBug8031744 ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportRedundantSuperinterface, getSeverityString(RedundantSuperinterface));
 		optionsMap.put(OPTION_ReportComparingIdentical, getSeverityString(ComparingIdentical));
-		optionsMap.put(OPTION_ReportUnlikelyReferenceComparison, getSeverityString(UnlikelyReferenceComparison));
+		optionsMap.put(OPTION_ReportDubiousReferenceComparison, getSeverityString(DubiousReferenceComparison));
 		optionsMap.put(OPTION_ReportMissingSynchronizedOnInheritedMethod, getSeverityString(MissingSynchronizedModifierInInheritedMethod));
 		optionsMap.put(OPTION_ReportMissingHashCodeMethod, getSeverityString(ShouldImplementHashcode));
 		optionsMap.put(OPTION_ReportDeadCode, getSeverityString(DeadCode));
@@ -1462,7 +1465,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportUnlikelyCollectionMethodArgumentType, getSeverityString(UnlikelyCollectionMethodArgumentType));
 		optionsMap.put(OPTION_ReportUnlikelyCollectionMethodArgumentTypeStrict, this.reportUnlikelyCollectionMethodArgumentTypeStrict ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnlikelyEqualsArgumentType, getSeverityString(UnlikelyEqualsArgumentType));
-		optionsMap.put(OPTION_ReportUnlikelyReferenceComparison, getSeverityString(UnlikelyReferenceComparison));
+		optionsMap.put(OPTION_ReportDubiousReferenceComparison, getSeverityString(DubiousReferenceComparison));
 		optionsMap.put(OPTION_ReportAPILeak, getSeverityString(APILeak));
 		optionsMap.put(OPTION_ReportUnstableAutoModuleName, getSeverityString(UnstableAutoModuleName));
 		optionsMap.put(OPTION_EnablePreviews, this.enablePreviewFeatures ? ENABLED : DISABLED);
@@ -2011,7 +2014,7 @@ public class CompilerOptions {
 			this.reportUnlikelyCollectionMethodArgumentTypeStrict = ENABLED.equals(optionValue);
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportUnlikelyEqualsArgumentType)) != null) updateSeverity(UnlikelyEqualsArgumentType, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportUnlikelyReferenceComparison)) != null) updateSeverity(UnlikelyReferenceComparison, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportDubiousReferenceComparison)) != null) updateSeverity(DubiousReferenceComparison, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAPILeak)) != null) updateSeverity(APILeak, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnstableAutoModuleName)) != null) updateSeverity(UnstableAutoModuleName, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_AnnotationBasedNullAnalysis)) != null) {
@@ -2377,7 +2380,7 @@ public class CompilerOptions {
 		buf.append("\n\t- unlikely argument type for collection methods: ").append(getSeverityString(UnlikelyCollectionMethodArgumentType)); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument type for collection methods, strict check against expected type: ").append(this.reportUnlikelyCollectionMethodArgumentTypeStrict ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument types for equals(): ").append(getSeverityString(UnlikelyEqualsArgumentType)); //$NON-NLS-1$
-		buf.append("\n\t- unlikely operand type for equal expression: ").append(getSeverityString(UnlikelyReferenceComparison)); //$NON-NLS-1$
+		buf.append("\n\t- dubious operand type for equal expression: ").append(getSeverityString(DubiousReferenceComparison)); //$NON-NLS-1$
 		buf.append("\n\t- API leak: ").append(getSeverityString(APILeak)); //$NON-NLS-1$
 		buf.append("\n\t- unstable auto module name: ").append(getSeverityString(UnstableAutoModuleName)); //$NON-NLS-1$
 		buf.append("\n\t- SuppressWarnings not fully analysed: ").append(getSeverityString(SuppressWarningsNotAnalysed)); //$NON-NLS-1$

@@ -4468,8 +4468,8 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			} else if (token.equals("unlikelyEqualsArgumentType")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUnlikelyEqualsArgumentType, severity, isEnabling);
 				return;
-			} else if (token.equals("unlikelyReferenceComparison")) { //$NON-NLS-1$
-				setSeverity(CompilerOptions.OPTION_ReportUnlikelyReferenceComparison, severity, isEnabling);
+			} else if (token.equals("dubiousReferenceComparison")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportDubiousReferenceComparison, severity, isEnabling);
 				return;
 			} else if (token.equals("unnecessaryElse")) {//$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUnnecessaryElse, severity, isEnabling);

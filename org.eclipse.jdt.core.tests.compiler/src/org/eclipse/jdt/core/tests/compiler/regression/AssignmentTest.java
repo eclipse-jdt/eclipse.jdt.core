@@ -34,7 +34,7 @@ public AssignmentTest(String name) {
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
-	options.put(CompilerOptions.OPTION_ReportUnlikelyReferenceComparison, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportDubiousReferenceComparison, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);

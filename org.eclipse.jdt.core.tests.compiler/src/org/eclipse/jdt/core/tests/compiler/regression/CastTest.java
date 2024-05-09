@@ -38,7 +38,7 @@ protected Map getCompilerOptions() {
 	Map defaultOptions = super.getCompilerOptions();
 	defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
 	defaultOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-	defaultOptions.put(CompilerOptions.OPTION_ReportUnlikelyReferenceComparison, CompilerOptions.IGNORE);
+	defaultOptions.put(CompilerOptions.OPTION_ReportDubiousReferenceComparison, CompilerOptions.IGNORE);
 	return defaultOptions;
 }
 public static Test suite() {

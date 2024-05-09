@@ -2566,7 +2566,7 @@ public class DeltaProcessor {
 	 * Returns whether the children of the given delta must be processed.
 	 * @throws a JavaModelException if the delta doesn't correspond to a java element of the given type.
 	 */
-	@SuppressWarnings("unlikely-arg-type")
+	@SuppressWarnings("reference-comparison")
 	public boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType, RootInfo rootInfo) {
 		Openable element;
 		switch (delta.getKind()) {

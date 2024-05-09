@@ -1722,21 +1722,21 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE = PLUGIN_ID + ".compiler.problem.unlikelyEqualsArgumentType"; //$NON-NLS-1$
 
 	/**
-	 * Compiler option ID: Reporting an equal comparison with unlikely reference types, i.e. wrapper types (Integer, Long) for primitives (int, resp. long) and Strings.
+	 * Compiler option ID: Reporting an equal comparison with dubious reference types, i.e. wrapper types (Integer, Long) for primitives (int, resp. long) and Strings.
 	 * <p>
 	 * When enabled, the compiler will issue an error or a warning if a comparison
 	 * is involving wrapper type (or String) operands (e.g <code>'1234L == 5678L'</code>).</p>
 	 * <p>
-	 * This warning can be suppressed using {@code @SuppressWarnings("unlikely-arg-type")}.
+	 * This warning can be suppressed using {@code @SuppressWarnings("reference-comparison")}.
 	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unlikelyReferenceComparison"</code></dd>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.dubiousReferenceComparison"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"info"</code></dd>
 	 * </dl>
 	 * @since 3.38
 	 * @category CompilerOptionID
 	 */
-	public static final String COMPILER_PB_UNLIKELY_REFERENCE_COMPARISON = PLUGIN_ID + ".compiler.problem.unlikelyReferenceComparison"; //$NON-NLS-1$
+	public static final String COMPILER_PB_DUBIOUS_REFERENCE_COMPARISON = PLUGIN_ID + ".compiler.problem.dubiousReferenceComparison"; //$NON-NLS-1$
 
 	/**
 	 * Compiler option ID: Reporting when public API uses a non-API type.

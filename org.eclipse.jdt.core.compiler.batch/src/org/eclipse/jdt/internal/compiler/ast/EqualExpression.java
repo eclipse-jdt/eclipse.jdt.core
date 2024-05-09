@@ -931,7 +931,7 @@ public class EqualExpression extends BinaryExpression {
 				((leftType.isBoxedPrimitiveType() || leftTypeIsNumber) && !rightType.isPrimitiveType()) ||
 				(leftType.id == rightType.id && (leftType.id == TypeIds.T_JavaLangString || leftTypeIsNumber))))
 		{
-			scope.problemReporter().unlikelyReferenceComparison(this, operatorToString(), leftType.readableName(), rightType.readableName());
+			scope.problemReporter().dubiousComparison(this, operatorToString(), leftType.readableName(), rightType.readableName());
 		}
 
 		// both base type

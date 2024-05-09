@@ -2185,7 +2185,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.13 */
 	int UnlikelyEqualsArgumentType = 1201;
 	/** @since 3.38 */
-	int UnlikelyReferenceComparison = 1202;
+	int DubiousReferenceComparison = 1202;
 
 	/* Local-Variable Type Inference */
 	/** @since 3.14 */
