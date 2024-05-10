@@ -76,7 +76,8 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 			return;
 		}
 		String contents = """
-					public class X {
+					package x;
+					public class X{
 					  public static void main(String[] args) {
 					    Object notification = "Email notification";
 					    switch (notification) {
@@ -106,7 +107,7 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 					}
 					record SMSNotification(Object smsMessage) {}
 				""";
-		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", false/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/x/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -180,7 +181,7 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 					}
 					record SMSNotification(Object smsMessage) {}
 				""";
-		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", false/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;

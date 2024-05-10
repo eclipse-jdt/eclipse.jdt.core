@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="var" path="CONVERTER_JCL_21_LIB" sourcepath="CONVERTER_JCL_21_SRC" rootpath="CONVERTER_JCL_SRCROOT"/>
+	<classpathentry kind="var" path="CONVERTER_JCL_22_LIB" sourcepath="CONVERTER_JCL_22_SRC" rootpath="CONVERTER_JCL_SRCROOT"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
