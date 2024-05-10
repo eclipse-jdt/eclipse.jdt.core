@@ -1895,9 +1895,15 @@ class JavacConverter {
 			VariableDeclarationExpression jdtVariableDeclarationExpression = this.ast.newVariableDeclarationExpression(fragment);
 			commonSettings(jdtVariableDeclarationExpression, javac);
 			if (javac instanceof JCVariableDecl jcvd && jcvd.vartype != null) {
-				if( fragment.extraArrayDimensions > 0 ) {
-					jdtVariableDeclarationExpression.setType(convertToType(findBaseType(jcvd.vartype)));
-				} else if( this.ast.apiLevel > AST.JLS4_INTERNAL && fragment.extraDimensions().size() > 0 ) {
+				if( jcvd.vartype instanceof JCArrayTypeTree jcatt) {
+					int extraDims = 0;
+					if( fragment.extraArrayDimensions > 0 ) {
+						extraDims = fragment.extraArrayDimensions;
+					} else if( this.ast.apiLevel > AST.JLS4_INTERNAL && fragment.extraDimensions() != null && fragment.extraDimensions().size() > 0 ) {
+						extraDims = fragment.extraDimensions().size();
+					}
+					jdtVariableDeclarationExpression.setType(convertToType(unwrapDimensions(jcatt, extraDims)));
+				} else {
 					jdtVariableDeclarationExpression.setType(convertToType(findBaseType(jcvd.vartype)));
 				}
 			}
