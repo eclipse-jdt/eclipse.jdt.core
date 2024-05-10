@@ -109,9 +109,15 @@ public class JavacProblemConverter {
 			ScannerFactory scannerFactory = ScannerFactory.instance(context);
 			Scanner javacScanner = scannerFactory.newScanner(charContent, true);
 			Token t = javacScanner.token();
-			while (t.kind != TokenKind.EOF && t.endPos <= preferedOffset) {
+			while (t != null && t.kind != TokenKind.EOF && t.endPos <= preferedOffset) {
 				javacScanner.nextToken();
 				t = javacScanner.token();
+				Token prev = javacScanner.prevToken();
+				if( prev != null ) {
+					if( t.endPos == prev.endPos && t.pos == prev.pos && t.kind.equals(prev.kind)) {
+						t = null; // We're stuck in a loop. Give up. 
+					}
+				}
 			}
 			Token toHighlight = javacScanner.token();
 			if (isTokenBadChoiceForHighlight(t) && !isTokenBadChoiceForHighlight(javacScanner.prevToken())) {
