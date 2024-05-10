@@ -1457,7 +1457,7 @@ class JavacConverter {
 		int ret = 0;
         JCTree elem = tree;
         while (elem != null && elem.hasTag(TYPEARRAY)) {
-        	if( elem.pos > pos)
+        	if( elem.pos >= pos)
         		ret++;
             elem = ((JCArrayTypeTree)elem).elemtype;
         }
