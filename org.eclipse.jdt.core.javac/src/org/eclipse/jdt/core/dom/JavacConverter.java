@@ -1638,9 +1638,17 @@ class JavacConverter {
 			VariableDeclarationStatement res = this.ast.newVariableDeclarationStatement(fragment);
 			commonSettings(res, javac);
 			if (jcVariableDecl.vartype != null) {
-				Type t = convertToType(jcVariableDecl.vartype);
-				if( t != null )
-					res.setType(t);
+				if( jcVariableDecl.vartype instanceof JCArrayTypeTree jcatt) {
+					int extraDims = 0;
+					if( fragment.extraArrayDimensions > 0 ) {
+						extraDims = fragment.extraArrayDimensions;
+					} else if( this.ast.apiLevel > AST.JLS4_INTERNAL && fragment.extraDimensions() != null && fragment.extraDimensions().size() > 0 ) {
+						extraDims = fragment.extraDimensions().size();
+					}
+					res.setType(convertToType(unwrapDimensions(jcatt, extraDims)));
+				} else {
+					res.setType(convertToType(findBaseType(jcVariableDecl.vartype)));
+				}
 			} else if( jcVariableDecl.declaredUsingVar() ) {
 				SimpleType st = this.ast.newSimpleType(this.ast.newSimpleName("var"));
 				st.setSourceRange(javac.getStartPosition(), 3);
