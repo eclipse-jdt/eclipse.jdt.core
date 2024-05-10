@@ -1380,6 +1380,16 @@ class JavacConverter {
 					} else {
 						arrayType = this.ast.newArrayType(childArrayType);
 					}
+				} else if(jcNewArray.dims != null && jcNewArray.dims.size() > 0 ){
+					arrayType = this.ast.newArrayType(type);
+					int dims = jcNewArray.dims.size();
+					for( int i = 0; i < dims - 1; i++ ) {
+						if( this.ast.apiLevel >= AST.JLS8_INTERNAL) {
+							arrayType.dimensions().addFirst(this.ast.newDimension());
+						} else {
+							arrayType = this.ast.newArrayType(arrayType);
+						}
+					}
 				} else {
 					arrayType = this.ast.newArrayType(type);
 				}
