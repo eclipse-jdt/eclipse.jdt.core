@@ -236,6 +236,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		CompilationUnit res = parse(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { sourceUnit},
 				apiLevel, compilerOptions, flags, project, monitor).get(sourceUnit);
 		if (initialNeedsToResolveBinding) {
+			((JavacBindingResolver)res.ast.getBindingResolver()).isRecoveringBindings = (flags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0;
 			resolveBindings(res);
 		}
 		// For comparison

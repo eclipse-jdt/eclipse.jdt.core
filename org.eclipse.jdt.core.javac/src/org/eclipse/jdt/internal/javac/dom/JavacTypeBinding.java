@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 
@@ -320,7 +321,11 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding getElementType() {
-		return new JavacTypeBinding(this.types.elemtype(this.type), this.resolver);
+		Type t = this.types.elemtype(this.type);
+		if (t == null) {
+			return null;
+		}
+		return new JavacTypeBinding(t, this.resolver);
 	}
 
 	@Override
@@ -360,7 +365,12 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public int getModifiers() {
-		return JavacMethodBinding.toInt(this.typeSymbol.getModifiers());
+		int modifiers = JavacMethodBinding.toInt(this.typeSymbol.getModifiers());
+		// JDT doesn't mark interfaces as abstract
+		if (this.isInterface()) {
+			modifiers &= ~Modifier.ABSTRACT;
+		}
+		return modifiers;
 	}
 
 	@Override
@@ -377,6 +387,9 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String getQualifiedName() {
+		if (this.typeSymbol.owner instanceof MethodSymbol) {
+			return "";
+		}
 		return this.typeSymbol.getQualifiedName().toString();
 	}
 
@@ -502,7 +515,7 @@ public class JavacTypeBinding implements ITypeBinding {
 	@Override
 	public boolean isClass() {
 		return this.typeSymbol instanceof final ClassSymbol classSymbol
-				&& !(classSymbol.isEnum() || classSymbol.isRecord());
+				&& !(classSymbol.isEnum() || classSymbol.isRecord() || classSymbol.isInterface());
 	}
 
 	@Override
@@ -543,7 +556,7 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isMember() {
-		return this.typeSymbol.owner instanceof TypeSymbol;
+		return this.typeSymbol.owner instanceof ClassSymbol;
 	}
 
 	@Override

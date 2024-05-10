@@ -37,7 +37,9 @@ import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.JCTree.JCPackageDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
@@ -45,6 +47,7 @@ import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.util.Context;
 
 /**
@@ -60,6 +63,7 @@ public class JavacBindingResolver extends BindingResolver {
 	private Map<Symbol, ASTNode> symbolToDom;
 	public final IJavaProject javaProject;
 	private JavacConverter converter;
+	boolean isRecoveringBindings = false;
 
 	public JavacBindingResolver(IJavaProject javaProject, JavacTask javacTask, Context context, JavacConverter converter) {
 		this.javac = javacTask;
@@ -144,6 +148,9 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		if (jcTree instanceof JCPrimitiveTypeTree primitive) {
 			return new JavacTypeBinding(primitive.type, this);
+		}
+		if (jcTree instanceof JCArrayTypeTree arrayType) {
+			return new JavacTypeBinding(arrayType.type, this);
 		}
 //			return this.flowResult.stream().map(env -> env.enclClass)
 //				.filter(Objects::nonNull)
@@ -252,8 +259,14 @@ public class JavacBindingResolver extends BindingResolver {
 		if (tree instanceof JCFieldAccess fieldAccess && fieldAccess.sym != null) {
 			return getBinding(fieldAccess.sym, fieldAccess.type);
 		}
+		if (tree instanceof JCMethodInvocation methodInvocation && methodInvocation.meth.type.tsym != null) {
+			return getBinding(((JCFieldAccess)methodInvocation.meth).sym, methodInvocation.meth.type);
+		}
 		if (tree instanceof JCClassDecl classDecl && classDecl.sym != null) {
 			return getBinding(classDecl.sym, classDecl.type);
+		}
+		if (tree instanceof JCMethodDecl methodDecl && methodDecl.sym != null) {
+			return getBinding(methodDecl.sym, methodDecl.type);
 		}
 		if (tree instanceof JCVariableDecl variableDecl && variableDecl.sym != null) {
 			return getBinding(variableDecl.sym, variableDecl.type);
@@ -264,22 +277,50 @@ public class JavacBindingResolver extends BindingResolver {
 	@Override
 	IVariableBinding resolveVariable(VariableDeclaration variable) {
 		resolve();
-		return this.converter.domToJavac.get(variable) instanceof JCVariableDecl decl ?
-			new JavacVariableBinding(decl.sym, this) : null;
+		if (this.converter.domToJavac.get(variable) instanceof JCVariableDecl decl) {
+			if (!decl.type.isErroneous() || this.isRecoveringBindings) {
+				return new JavacVariableBinding(decl.sym, this);
+			}
+		}
+		return null;
 	}
 
 	@Override
 	public IPackageBinding resolvePackage(PackageDeclaration decl) {
 		resolve();
+		if (this.converter.domToJavac.get(decl) instanceof JCPackageDecl jcPackageDecl) {
+			return new JavacPackageBinding(jcPackageDecl.packge, this);
+		}
 		return null;
 	}
 
 	@Override
 	public ITypeBinding resolveExpressionType(Expression expr) {
 		resolve();
+		if (expr instanceof SimpleName name) {
+			IBinding binding = resolveName(name);
+			if (binding.isRecovered() && !this.isRecoveringBindings) {
+				return null;
+			}
+			switch (binding) {
+			case IVariableBinding variableBinding: return variableBinding.getType();
+			case ITypeBinding typeBinding: return typeBinding;
+			case IMethodBinding methodBinding: return methodBinding.getReturnType();
+			default:
+				return null;
+			}
+		}
 		return this.converter.domToJavac.get(expr) instanceof JCExpression jcExpr ?
 			new JavacTypeBinding(jcExpr.type, this) :
 			null;
+	}
+
+	@Override
+	IMethodBinding resolveConstructor(ClassInstanceCreation expression) {
+		resolve();
+		return this.converter.domToJavac.get(expression) instanceof JCNewClass jcExpr ?
+				new JavacMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor, this) :
+				null;
 	}
 
 	public Types getTypes() {
