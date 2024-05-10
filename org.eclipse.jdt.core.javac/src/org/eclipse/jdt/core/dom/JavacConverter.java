@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.PriorityQueue;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import javax.lang.model.type.TypeKind;
@@ -35,8 +36,6 @@ import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
 import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 
 import com.sun.source.tree.CaseTree.CaseKind;
@@ -64,7 +63,6 @@ import com.sun.tools.javac.tree.JCTree.JCCatch;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCConditional;
-import com.sun.tools.javac.tree.JCTree.JCConstantCaseLabel;
 import com.sun.tools.javac.tree.JCTree.JCContinue;
 import com.sun.tools.javac.tree.JCTree.JCDirective;
 import com.sun.tools.javac.tree.JCTree.JCDoWhileLoop;
@@ -348,30 +346,27 @@ class JavacConverter {
 		}
 	}
 
-	public interface CommonSettingsOperator {
-	    public void op(ASTNode res, JCTree javac);
-	}
 	private Name toName(JCTree expression) {
-		return toName(expression, (a,b) -> commonSettings(a,b));
+		return toName(expression, this::commonSettings);
 	}
-	Name toName(JCTree expression, CommonSettingsOperator commonSettings ) {
+	Name toName(JCTree expression, BiConsumer<ASTNode, JCTree> extraSettings ) {
 		if (expression instanceof JCIdent ident) {
 			Name res = convertName(ident.getName());
-			commonSettings.op(res, ident);
+			extraSettings.accept(res, ident);
 			return res;
 		}
 		if (expression instanceof JCFieldAccess fieldAccess) {
 			Name qualifier = toName(fieldAccess.getExpression());
 			SimpleName n = (SimpleName)convertName(fieldAccess.getIdentifier());
 			QualifiedName res = this.ast.newQualifiedName(qualifier, n);
-			commonSettings.op(res, fieldAccess);
+			extraSettings.accept(res, fieldAccess);
 			return res;
 		}
 		if (expression instanceof JCAnnotatedType jcat) {
-			return toName(jcat.underlyingType, commonSettings);
+			return toName(jcat.underlyingType, extraSettings);
 		}
 		if (expression instanceof JCTypeApply jcta) {
-			return toName(jcta.clazz, commonSettings);
+			return toName(jcta.clazz, extraSettings);
 		}
 		throw new UnsupportedOperationException("toName for " + expression + " (" + expression.getClass().getName() + ")");
 	}

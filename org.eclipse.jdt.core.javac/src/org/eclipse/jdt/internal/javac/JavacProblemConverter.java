@@ -97,7 +97,7 @@ public class JavacProblemConverter {
 				javacScanner.nextToken();
 			}
 			Token toHighlight = javacScanner.prevToken();
-			return new org.eclipse.jface.text.Position(toHighlight.pos, toHighlight.endPos - toHighlight.pos - 1);
+			return new org.eclipse.jface.text.Position(toHighlight.pos, Math.max(0, toHighlight.endPos - toHighlight.pos - 1));
 		} catch (IOException ex) {
 			ILog.get().error(ex.getMessage(), ex);
 		}

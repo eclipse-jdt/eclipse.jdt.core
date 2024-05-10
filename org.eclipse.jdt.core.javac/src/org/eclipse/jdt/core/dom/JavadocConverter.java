@@ -63,11 +63,6 @@ class JavadocConverter {
 		}
 		//this.domToJavac.put(res, javac);
 	}
-	private void commonSettings(ASTNode res, JCTree javac) {
-		int start = this.docComment.getSourcePosition(javac.getStartPosition());
-		int length = javac.toString().length();
-		res.setSourceRange(start, Math.max(0,length));
-	}
 
 	Javadoc convertJavadoc() {
 		Javadoc res = this.ast.newJavadoc();
@@ -185,7 +180,11 @@ class JavadocConverter {
 	}
 	
 	private Name toName(JCTree expression) {
-		Name n = this.javacConverter.toName(expression, (a,b) -> commonSettings(a,b));
+		Name n = this.javacConverter.toName(expression, (dom, javac) -> {
+			int start = this.docComment.getSourcePosition(javac.getStartPosition());
+			int length = javac.toString().length();
+			dom.setSourceRange(start, Math.max(0,length));
+		});
 		// We need to clean all the sub-names
 		if( n instanceof QualifiedName qn ) {
 			SimpleName sn = qn.getName();
@@ -239,14 +238,25 @@ class JavadocConverter {
 			} else {
 				MemberRef res = this.ast.newMemberRef();
 				commonSettings(res, javac);
+				Name qualifierExpressionName = toName(reference.qualifierExpression);
+				qualifierExpressionName.setSourceRange(this.docComment.getSourcePosition(reference.pos), Math.max(0, reference.qualifierExpression.toString().length()));
 				if (reference.memberName != null) {
 					SimpleName name = this.ast.newSimpleName(reference.memberName.toString());
 					name.setSourceRange(this.docComment.getSourcePosition(javac.getStartPosition()), Math.max(0, reference.memberName.toString().length()));
 					res.setName(name);
+					res.setQualifier(qualifierExpressionName);
+				} else {
+					if (qualifierExpressionName instanceof SimpleName simpleQualifier) {
+						res.setName(simpleQualifier);
+					} else if (qualifierExpressionName instanceof QualifiedName qName) {
+						Name qualifier = qName.getQualifier();
+						qualifier.setParent(null, MemberRef.QUALIFIER_PROPERTY);
+						res.setQualifier(qualifier);
+						SimpleName simpleName = qName.getName();
+						simpleName.setParent(null, MemberRef.NAME_PROPERTY);
+						res.setName(simpleName);
+					}
 				}
-				Name n = toName(reference.qualifierExpression);
-				n.setSourceRange(this.docComment.getSourcePosition(reference.pos), Math.max(0, reference.qualifierExpression.toString().length()));
-				res.setQualifier(n);
 				return res;
 			}
 		} else if (javac instanceof DCStartElement || javac instanceof DCEndElement || javac instanceof DCEntity) {
