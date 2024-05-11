@@ -1944,7 +1944,7 @@ class JavacConverter {
 		return res;
 	}
 
-	private Type convertToType(JCTree javac) {
+	Type convertToType(JCTree javac) {
 		if (javac instanceof JCIdent ident) {
 			SimpleType res = this.ast.newSimpleType(convertName(ident.name));
 			commonSettings(res, ident);
