@@ -101,7 +101,7 @@ public class JavacProblemConverter {
 			if (isTokenBadChoiceForHighlight(t) && !isTokenBadChoiceForHighlight(javacScanner.prevToken())) {
 				toHighlight = javacScanner.prevToken();
 			}
-			return new org.eclipse.jface.text.Position(toHighlight.pos, toHighlight.endPos - toHighlight.pos - 1);
+			return new org.eclipse.jface.text.Position(Math.min(charContent.length() - 1, toHighlight.pos), Math.max(0, toHighlight.endPos - toHighlight.pos - 1));
 		} catch (IOException ex) {
 			ILog.get().error(ex.getMessage(), ex);
 		}
@@ -142,7 +142,8 @@ public class JavacProblemConverter {
 
 	private static org.eclipse.jface.text.Position getDiagnosticPosition(JCDiagnostic jcDiagnostic, JCClassDecl jcClassDecl) {
 		int startPosition = (int) jcDiagnostic.getPosition();
-		if (startPosition != Position.NOPOS) {
+		if (startPosition != Position.NOPOS &&
+			!(jcClassDecl.getMembers().isEmpty() && jcClassDecl.getStartPosition() == jcClassDecl.getMembers().get(0).getStartPosition())) {
 			try {
 				String name = jcClassDecl.getSimpleName().toString();
 				return getDiagnosticPosition(name, startPosition, jcDiagnostic);
@@ -163,9 +164,11 @@ public class JavacProblemConverter {
 			if (content != null && content.length() > startPosition) {
 				String temp = content.substring(startPosition);
 				int ind = temp.indexOf(name);
-				int offset = startPosition + ind;
-				int length = name.length() - 1;
-				return new org.eclipse.jface.text.Position(offset, length);
+				if (ind >= 0) {
+					int offset = startPosition + ind;
+					int length = name.length() - 1;
+					return new org.eclipse.jface.text.Position(offset, length);
+				}
 			}
 		}
 		return getDefaultPosition(jcDiagnostic);
