@@ -60,5 +60,23 @@ pipeline {
 				}
 			}
 		}
+		stage('javac specific tests') {
+			steps {
+				sh """#!/bin/bash -x
+					mkdir -p $WORKSPACE/tmp
+					
+					unset JAVA_TOOL_OPTIONS
+					unset _JAVA_OPTIONS
+					mvn install -DskipTests -Djava.io.tmpdir=$WORKSPACE/tmp
+
+					mvn verify --batch-mode -f org.eclipse.jdt.core.tests.javac --fail-at-end -Ptest-on-javase-22 -Pbree-libs -Papi-check -Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8
+"""
+			}
+			post {
+				always {
+					junit 'org.eclipse.jdt.core.tests.javac/target/surefire-reports/*.xml'
+				}
+			}
+		}
 	}
 }
