@@ -7641,6 +7641,9 @@ protected void writeWidePosition(BranchLabel label) {
 	}
 }
 private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
+	if (this.operandStack instanceof OperandStack.NullStack) {
+		return null;
+	}
 
 	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
 			| ClassFileConstants.ATTR_STACK_MAP_TABLE

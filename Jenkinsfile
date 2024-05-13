@@ -35,7 +35,7 @@ pipeline {
 						-Dmaven.test.failure.ignore=true \
 						-Dcompare-version-with-baselines.skip=false \
 						-Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 \
-						-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,21,22 -Djdt.performance.asserts=disabled" \
+						-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.5,1.8,11,17,21,22 -Djdt.performance.asserts=disabled" \
 						-DDetectVMInstallationsJob.disabled=true \
 						-Dtycho.apitools.debug \
 						-Dtycho.debug.artifactcomparator \
