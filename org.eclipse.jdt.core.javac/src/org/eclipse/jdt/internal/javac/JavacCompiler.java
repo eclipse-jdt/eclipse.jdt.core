@@ -57,7 +57,7 @@ public class JavacCompiler extends Compiler {
 		Map<ICompilationUnit, List<IProblem>> javacProblems = new HashMap<>();
 		javacContext.put(DiagnosticListener.class, diagnostic -> {
 			if (diagnostic.getSource() instanceof JavacFileObject fileObject) {
-				JavacProblem javacProblem = JavacProblemConverter.createJavacProblem(diagnostic);
+				JavacProblem javacProblem = JavacProblemConverter.createJavacProblem(diagnostic, javacContext);
 				List<IProblem> previous = javacProblems.get(fileObject.getOriginalUnit());
 				if (previous == null) {
 					previous = new ArrayList<>();

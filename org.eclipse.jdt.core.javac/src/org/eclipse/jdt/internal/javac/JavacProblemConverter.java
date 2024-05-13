@@ -42,9 +42,9 @@ public class JavacProblemConverter {
 	private static final String COMPILER_WARN_NON_SERIALIZABLE_INSTANCE_FIELD = "compiler.warn.non.serializable.instance.field";
 	private static final String COMPILER_WARN_MISSING_SVUID = "compiler.warn.missing.SVUID";
 
-	public static JavacProblem createJavacProblem(Diagnostic<? extends JavaFileObject> diagnostic) {
+	public static JavacProblem createJavacProblem(Diagnostic<? extends JavaFileObject> diagnostic, Context context) {
 		int problemId = toProblemId(diagnostic);
-		org.eclipse.jface.text.Position diagnosticPosition = getDiagnosticPosition(diagnostic);
+		org.eclipse.jface.text.Position diagnosticPosition = getDiagnosticPosition(diagnostic, context);
 		return new JavacProblem(
 				diagnostic.getSource().getName().toCharArray(),
 				diagnostic.getMessage(Locale.getDefault()),
@@ -58,9 +58,7 @@ public class JavacProblemConverter {
 				(int) diagnostic.getColumnNumber());
 	}
 
-	// result[0] - startPosition
-	// result[1] - endPosition
-	private static org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic) {
+	private static org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic, Context context) {
 		switch (diagnostic) {
 		case JCDiagnostic jcDiagnostic -> {
 			switch (jcDiagnostic.getDiagnosticPosition()) {
@@ -71,7 +69,7 @@ public class JavacProblemConverter {
 				return getDiagnosticPosition(jcDiagnostic, JCVariableDecl);
 			}
 			default -> {
-				return getPositionUsingScanner(jcDiagnostic);
+				return getPositionUsingScanner(jcDiagnostic, context);
 			}
 			}
 		}
@@ -86,13 +84,13 @@ public class JavacProblemConverter {
 		return new org.eclipse.jface.text.Position( start, end - start);
 	}
 
-	private static org.eclipse.jface.text.Position getPositionUsingScanner(JCDiagnostic jcDiagnostic) {
+	private static org.eclipse.jface.text.Position getPositionUsingScanner(JCDiagnostic jcDiagnostic, Context context) {
 		try {
 			int preferedOffset = jcDiagnostic.getDiagnosticPosition().getPreferredPosition();
 			DiagnosticSource source = jcDiagnostic.getDiagnosticSource();
 			JavaFileObject fileObject = source.getFile();
 			CharSequence charContent = fileObject.getCharContent(true);
-			ScannerFactory scannerFactory = ScannerFactory.instance(new Context());
+			ScannerFactory scannerFactory = ScannerFactory.instance(context);
 			Scanner javacScanner = scannerFactory.newScanner(charContent, true);
 			Token t = javacScanner.token();
 			while (t.kind != TokenKind.EOF && t.endPos <= preferedOffset) {
@@ -169,21 +167,6 @@ public class JavacProblemConverter {
 				int length = name.length() - 1;
 				return new org.eclipse.jface.text.Position(offset, length);
 			}
-		}
-		return getDefaultPosition(jcDiagnostic);
-	}
-
-	private static org.eclipse.jface.text.Position getDiagnosticPosition(int preferedOffset, JCDiagnostic jcDiagnostic) throws IOException {
-		DiagnosticSource source = jcDiagnostic.getDiagnosticSource();
-		JavaFileObject fileObject = source.getFile();
-		CharSequence charContent = fileObject.getCharContent(true);
-		String content = charContent.toString();
-		if (content != null && content.length() > preferedOffset) {
-			int scanOffset = preferedOffset - 1;
-			while (scanOffset > 0 && Character.isAlphabetic(content.charAt(scanOffset))) {
-				scanOffset--;
-			}
-			return new org.eclipse.jface.text.Position(scanOffset, preferedOffset - scanOffset - 1);
 		}
 		return getDefaultPosition(jcDiagnostic);
 	}

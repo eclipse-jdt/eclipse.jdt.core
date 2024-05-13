@@ -51,6 +51,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
+import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 import org.eclipse.jdt.internal.javac.JavacUtils;
 
 import com.sun.source.util.JavacTask;
@@ -265,7 +266,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			findTargetDOM(filesToUnits, diagnostic).ifPresent(dom -> {
 				IProblem[] previous = dom.getProblems();
 				IProblem[] newProblems = Arrays.copyOf(previous, previous.length + 1);
-				newProblems[newProblems.length - 1] = JavacConverter.convertDiagnostic(diagnostic);
+				newProblems[newProblems.length - 1] = JavacProblemConverter.createJavacProblem(diagnostic, context);
 				dom.setProblems(newProblems);
 			});
 		};

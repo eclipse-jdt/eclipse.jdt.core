@@ -2351,10 +2351,6 @@ class JavacConverter {
 		return jdt;
 	}
 
-	static IProblem convertDiagnostic(Diagnostic<? extends JavaFileObject> javacDiagnostic) {
-		return JavacProblemConverter.createJavacProblem(javacDiagnostic);
-	}
-
 	class FixPositions extends ASTVisitor {
 		private final String contents;
 
