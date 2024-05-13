@@ -7642,6 +7642,9 @@ protected void writeWidePosition(BranchLabel label) {
 }
 private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
 
+	if (this.operandStack instanceof OperandStack.NullStack)
+		return null;
+
 	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
 			| ClassFileConstants.ATTR_STACK_MAP_TABLE
 			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
@@ -7667,7 +7670,7 @@ private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
 		}
 	}
 
-	if (this.methodDeclaration != null) {
+	if (this.methodDeclaration != null && this.methodDeclaration.binding != null) {
 		ReferenceBinding declaringClass = this.methodDeclaration.binding.declaringClass;
 		if (resolvedPosition == 0 && !this.methodDeclaration.isStatic()) {
 			return declaringClass;
@@ -7690,9 +7693,12 @@ private TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
 					if (resolvedPosition < argSlotSize + enclosingTypes.length)
 						return enclosingTypes[resolvedPosition - argSlotSize];
 				}
-				for (SyntheticArgumentBinding extraSyntheticArgument : declaringClass.syntheticOuterLocalVariables()) {
-					if (extraSyntheticArgument.resolvedPosition == resolvedPosition)
-						return extraSyntheticArgument.type;
+				final SyntheticArgumentBinding[] syntheticOuterLocalVariables = declaringClass.syntheticOuterLocalVariables();
+				if (syntheticOuterLocalVariables != null) {
+					for (SyntheticArgumentBinding extraSyntheticArgument : syntheticOuterLocalVariables) {
+						if (extraSyntheticArgument.resolvedPosition == resolvedPosition)
+							return extraSyntheticArgument.type;
+					}
 				}
 			}
 		}
