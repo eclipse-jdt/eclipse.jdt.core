@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.internal.core.DOMToModelPopulator;
@@ -105,6 +106,10 @@ public class JavacVariableBinding implements IVariableBinding {
 					return toLocalVariable(fragment, (JavaElement) method);
 				} else if (node instanceof SingleVariableDeclaration variableDecl) {
 					return DOMToModelPopulator.toLocalVariable(variableDecl, (JavaElement) method);
+				} else if (node instanceof VariableDeclarationStatement statement && statement.fragments().size() == 1) {
+					return toLocalVariable((VariableDeclarationFragment)statement.fragments().get(0), (JavaElement)method);
+				} else if (node instanceof VariableDeclarationExpression expression && expression.fragments().size() == 1) {
+					return toLocalVariable((VariableDeclarationFragment)expression.fragments().get(0), (JavaElement)method);
 				}
 			}
 		}
@@ -217,8 +222,8 @@ public class JavacVariableBinding implements IVariableBinding {
 	}
 
 	private static LocalVariable toLocalVariable(VariableDeclarationFragment fragment, JavaElement parent) {
-		VariableDeclarationStatement variableDeclaration = (VariableDeclarationStatement)fragment.getParent();
-		return new LocalVariable(parent,
+		if (fragment.getParent() instanceof VariableDeclarationStatement variableDeclaration) {
+			return new LocalVariable(parent,
 				fragment.getName().getIdentifier(),
 				variableDeclaration.getStartPosition(),
 				variableDeclaration.getStartPosition() + variableDeclaration.getLength() - 1,
@@ -228,6 +233,19 @@ public class JavacVariableBinding implements IVariableBinding {
 				null, // I don't think we need this, also it's the ECJ's annotation node
 				toModelFlags(variableDeclaration.getModifiers(), false),
 				false);
+		} else if (fragment.getParent() instanceof VariableDeclarationExpression variableDeclaration) {
+			return new LocalVariable(parent,
+					fragment.getName().getIdentifier(),
+					variableDeclaration.getStartPosition(),
+					variableDeclaration.getStartPosition() + variableDeclaration.getLength() - 1,
+					fragment.getName().getStartPosition(),
+					fragment.getName().getStartPosition() + fragment.getName().getLength() - 1,
+					Util.getSignature(variableDeclaration.getType()),
+					null, // I don't think we need this, also it's the ECJ's annotation node
+					toModelFlags(variableDeclaration.getModifiers(), false),
+					false);
+		}
+		return null;
 	}
 
 	private static int toModelFlags(int domModifiers, boolean isDeprecated) {

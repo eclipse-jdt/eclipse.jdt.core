@@ -360,6 +360,10 @@ class JavacConverter {
 		if (expression instanceof JCFieldAccess fieldAccess) {
 			Name qualifier = toName(fieldAccess.getExpression());
 			SimpleName n = (SimpleName)convertName(fieldAccess.getIdentifier());
+			if (n == null) {
+				n = this.ast.newSimpleName("NOT_SET");
+			}
+			// TODO set range for simpleName
 			QualifiedName res = this.ast.newQualifiedName(qualifier, n);
 			extraSettings.accept(res, fieldAccess);
 			return res;
@@ -1902,13 +1906,51 @@ class JavacConverter {
 		}
 
 		if( this.ast.apiLevel >= AST.JLS4_INTERNAL) {
-			javac.getResources().stream().map(this::convertTryResource).forEach(res.resources()::add);
+			javac.getResources().stream().map(this::convertTryResource)
+				.filter(Objects::nonNull)
+				.forEach(res.resources()::add);
 		}
 		javac.getCatches().stream().map(this::convertCatcher).forEach(res.catchClauses()::add);
 		return res;
 	}
 
 	private ASTNode /*VariableDeclarationExpression or Name*/ convertTryResource(JCTree javac) {
+		if (javac instanceof JCFieldAccess || javac instanceof JCIdent) {
+			return toName(javac);
+		}
+		if (javac instanceof JCVariableDecl decl) {
+			var converted = convertVariableDeclaration(decl);
+			final VariableDeclarationFragment fragment;
+			if (converted instanceof VariableDeclarationFragment f) {
+				fragment = f;
+			} else if (converted instanceof SingleVariableDeclaration single) {
+				single.delete();
+				this.domToJavac.remove(single);
+				fragment = this.ast.newVariableDeclarationFragment();
+				commonSettings(fragment, javac);
+				fragment.setFlags(single.getFlags());
+				SimpleName name = (SimpleName)single.getName().clone(this.ast);
+				fragment.setName(name);
+				Expression initializer = single.getInitializer();
+				if (initializer != null) {
+					initializer.delete();
+					fragment.setInitializer(initializer);
+				}
+				for (Dimension extraDimension : (List<Dimension>)single.extraDimensions()) {
+					extraDimension.delete();
+					fragment.extraDimensions().add(extraDimension);
+				}
+			} else {
+				fragment = this.ast.newVariableDeclarationFragment();
+			}
+			VariableDeclarationExpression res = this.ast.newVariableDeclarationExpression(fragment);
+			res.setType(convertToType(decl.getType()));
+			commonSettings(res, javac);
+			return res;
+		}
+		if (javac instanceof JCErroneous error && error.getErrorTrees().isEmpty()) {
+			return null;
+		}
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 

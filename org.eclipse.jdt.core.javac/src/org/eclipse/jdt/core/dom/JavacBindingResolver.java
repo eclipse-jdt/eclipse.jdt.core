@@ -318,7 +318,8 @@ public class JavacBindingResolver extends BindingResolver {
 	@Override
 	IMethodBinding resolveConstructor(ClassInstanceCreation expression) {
 		resolve();
-		return this.converter.domToJavac.get(expression) instanceof JCNewClass jcExpr ?
+		return this.converter.domToJavac.get(expression) instanceof JCNewClass jcExpr
+				&& !jcExpr.constructor.type.isErroneous()?
 				new JavacMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor, this) :
 				null;
 	}
