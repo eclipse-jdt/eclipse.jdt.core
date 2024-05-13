@@ -25,6 +25,7 @@ import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.DCTree.DCEndElement;
 import com.sun.tools.javac.tree.DCTree.DCEntity;
 import com.sun.tools.javac.tree.DCTree.DCIdentifier;
+import com.sun.tools.javac.tree.DCTree.DCInheritDoc;
 import com.sun.tools.javac.tree.DCTree.DCLink;
 import com.sun.tools.javac.tree.DCTree.DCLiteral;
 import com.sun.tools.javac.tree.DCTree.DCParam;
@@ -32,6 +33,7 @@ import com.sun.tools.javac.tree.DCTree.DCReference;
 import com.sun.tools.javac.tree.DCTree.DCReturn;
 import com.sun.tools.javac.tree.DCTree.DCSee;
 import com.sun.tools.javac.tree.DCTree.DCSince;
+import com.sun.tools.javac.tree.DCTree.DCSnippet;
 import com.sun.tools.javac.tree.DCTree.DCStartElement;
 import com.sun.tools.javac.tree.DCTree.DCText;
 import com.sun.tools.javac.tree.DCTree.DCThrows;
@@ -68,11 +70,6 @@ class JavadocConverter {
 	Javadoc convertJavadoc() {
 		Javadoc res = this.ast.newJavadoc();
 		res.setSourceRange(this.initialOffset, this.endOffset - this.initialOffset);
-		String rawContent2 = this.javacConverter.rawText.substring(this.initialOffset, this.endOffset);
-		if( rawContent2 != null && rawContent2.contains("@see junit.framework.TestListener#addError()")) {
-			int z = 5;
-			int a = 21;
-		}
 		if( this.javacConverter.ast.apiLevel == AST.JLS2_INTERNAL) {
 			String rawContent = this.javacConverter.rawText.substring(this.initialOffset, this.endOffset);
 			res.setComment(rawContent);
@@ -172,6 +169,12 @@ class JavadocConverter {
 			res.setTagName(TagElement.TAG_LINK);
 			res.fragments().add(convertElement(link.ref));
 			link.label.stream().map(this::convertElement).forEach(res.fragments()::add);
+		} else if (javac instanceof DCInheritDoc inheritDoc) {
+			res.setTagName(TagElement.TAG_INHERITDOC);
+		} else if (javac instanceof DCSnippet snippet) {
+			res.setTagName(TagElement.TAG_SNIPPET);
+			// TODO attributes
+			res.fragments().add(convertElement(snippet.body));
 		} else if (javac instanceof DCUnknownInlineTag unknown) {
 			res.fragments().add(toDefaultTextElement(unknown));
 		} else {
