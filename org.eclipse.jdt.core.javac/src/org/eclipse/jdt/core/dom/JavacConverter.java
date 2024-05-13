@@ -818,6 +818,9 @@ class JavacConverter {
 		SingleVariableDeclaration res = this.ast.newSingleVariableDeclaration();
 		commonSettings(res, javac);
 		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
+			int endPos = javac.getEndPosition(this.javacCompilationUnit.endPositions);
+			int length = simpleName.toString().length();
+			simpleName.setSourceRange(endPos - length, length);
 			res.setName(simpleName);
 		}
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
