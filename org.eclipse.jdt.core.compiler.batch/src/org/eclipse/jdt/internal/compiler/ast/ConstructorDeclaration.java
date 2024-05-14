@@ -302,8 +302,6 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 		if (referenceContext != null) {
 			unitResult = referenceContext.compilationResult();
 			problemCount = unitResult.problemCount;
-			if (referenceContext.initContainsSwitchWithTry)
-				this.containsSwitchWithTry = true;
 		}
 	}
 	do {
