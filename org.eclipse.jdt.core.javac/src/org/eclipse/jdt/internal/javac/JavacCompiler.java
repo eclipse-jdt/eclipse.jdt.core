@@ -14,10 +14,12 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.tools.DiagnosticListener;
@@ -39,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.builder.SourceFile;
 
+import com.sun.tools.javac.comp.CompileStates.CompileState;
 import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.util.Context;
 
@@ -70,12 +73,13 @@ public class JavacCompiler extends Compiler {
 		        SourceFile.class::cast).map(source -> source.resource).map(IResource::getProject).filter(
 		                JavaProject::hasJavaNature).map(JavaCore::create).findFirst().orElse(null);
 		
-		Map<File, List<ICompilationUnit>> outputSourceMapping = groupByOutput(sourceUnits);
+		Map<File, List<ICompilationUnit>> outputSourceMapping = Arrays.stream(sourceUnits).collect(Collectors.groupingBy(this::computeOutputDirectory));
 		
 		for (Entry<File, List<ICompilationUnit>> outputSourceSet : outputSourceMapping.entrySet()) {
 			var outputFile = outputSourceSet.getKey();
 			JavacUtils.configureJavacContext(javacContext, this.compilerConfig, javaProject, outputFile);
 			JavaCompiler javac = JavaCompiler.instance(javacContext);
+			javac.shouldStopPolicyIfError = CompileState.GENERATE;
 			try {
 				javac.compile(com.sun.tools.javac.util.List.from(
 				        outputSourceSet.getValue().stream().filter(SourceFile.class::isInstance).map(
@@ -101,33 +105,18 @@ public class JavacCompiler extends Compiler {
 		}
 	}
 	
-	/**
-	 * @return grouped files where for each unique output folder, the mapped
-	 *         list of source folders
-	 */
-	private Map<File, List<ICompilationUnit>> groupByOutput(ICompilationUnit[] sourceUnits) {
-		Map<Path, ICompilationUnit> pathsToUnits = new HashMap<>();
-		for (ICompilationUnit unit : sourceUnits) {
-			if (unit instanceof SourceFile sf) {
-				pathsToUnits.put(sf.resource.getLocation().toFile().toPath(), unit);
+	private File computeOutputDirectory(ICompilationUnit unit) {
+		if (unit instanceof SourceFile sf) {
+			File sourceFile = sf.resource.getLocation().toFile();
+			File sourceDirectory = sourceFile.getParentFile();
+			while (sourceDirectory != null) {
+				File mappedOutput = this.compilerConfig.getSourceOutputMapping().get(sourceDirectory);
+				if (mappedOutput != null) {
+					return mappedOutput;
+				}
+				sourceDirectory = sourceDirectory.getParentFile();
 			}
 		}
-		
-		Map<File, List<ICompilationUnit>> groupResult = new HashMap<>();
-		this.compilerConfig.getSourceOutputMapping().entrySet().forEach(entry -> {
-			groupResult.compute(entry.getValue(), (key, exising) -> {
-				final List<ICompilationUnit> result;
-				if (exising == null) {
-					result = new ArrayList<>();
-				} else {
-					result = exising;
-				}
-				pathsToUnits.entrySet().stream().filter(
-				        e -> e.getKey().startsWith(entry.getKey().toPath())).findFirst().ifPresent(
-				        e -> result.add(e.getValue()));
-				return result;
-			});
-		});
-		return groupResult;
+		return null;
 	}
 }

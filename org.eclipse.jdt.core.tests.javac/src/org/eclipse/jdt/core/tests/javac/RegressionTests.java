@@ -10,12 +10,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.javac;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -30,13 +37,29 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class RegressionTests {
 
+	private static IProject project;
+
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		project = importProject("projects/dummy");
+	}
+
+	@Test
+	public void testCheckBuild() throws Exception {
+		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		assertEquals(Set.of("A.class", "B.class", "pack"),
+				new HashSet<>(Arrays.asList(new File(project.getLocation().toFile(), "bin").list())));
+		assertArrayEquals(new String[] { "Packaged.class" },
+				new File(project.getLocation().toFile(), "bin/pack").list());
+	}
+
 	@Test
 	public void testGetDOMForClassWithSource() throws Exception {
-		IProject project = importProject("projects/dummy");
 		IJavaProject javaProject = JavaCore.create(project);
 		IType arrayList = javaProject.findType("java.util.ArrayList");
 		IClassFile classFile = (IClassFile)arrayList.getAncestor(IJavaElement.CLASS_FILE);
@@ -47,8 +70,8 @@ public class RegressionTests {
 		var domUnit = parser.createAST(null);
 	}
 
-	private IProject importProject(String locationInBundle) throws URISyntaxException, IOException, CoreException {
-		File file = new File(FileLocator.toFileURL(getClass().getResource("/projects/dummy/.project")).toURI());
+	static IProject importProject(String locationInBundle) throws URISyntaxException, IOException, CoreException {
+		File file = new File(FileLocator.toFileURL(RegressionTests.class.getResource("/projects/dummy/.project")).toURI());
 		IPath dotProjectPath = Path.fromOSString(file.getAbsolutePath());
 		IProjectDescription projectDescription = ResourcesPlugin.getWorkspace()
 				.loadProjectDescription(dotProjectPath);
