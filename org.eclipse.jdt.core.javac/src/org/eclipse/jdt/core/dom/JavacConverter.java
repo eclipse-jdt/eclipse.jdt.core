@@ -32,12 +32,11 @@ import java.util.function.Predicate;
 import javax.lang.model.type.TypeKind;
 
 import org.eclipse.core.runtime.ILog;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
 import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
-import org.eclipse.jdt.internal.javac.JavacProblemConverter;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 
 import com.sun.source.tree.CaseTree.CaseKind;
 import com.sun.source.tree.ModuleTree.ModuleKind;
@@ -101,6 +100,7 @@ import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCSkip;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.tree.JCTree.JCSwitch;
+import com.sun.tools.javac.tree.JCTree.JCSwitchExpression;
 import com.sun.tools.javac.tree.JCTree.JCSynchronized;
 import com.sun.tools.javac.tree.JCTree.JCThrow;
 import com.sun.tools.javac.tree.JCTree.JCTry;
@@ -1025,7 +1025,7 @@ class JavacConverter {
 		}
 	}
 
-	private Expression convertExpression(JCExpression javac) {
+	private Expression convertExpressionImpl(JCExpression javac) {
 		if (javac instanceof JCIdent ident) {
 			if (Objects.equals(ident.name, Names.instance(this.context)._this)) {
 				ThisExpression res = this.ast.newThisExpression();
@@ -1168,21 +1168,6 @@ class JavacConverter {
 				}
 			}
 			return res;
-		}
-		if (javac instanceof JCErroneous error) {
-			if (error.getErrorTrees().size() == 1) {
-				JCTree tree = error.getErrorTrees().get(0);
-				if (tree instanceof JCExpression nestedExpr) {
-					try {
-						return convertExpression(nestedExpr);
-					} catch (Exception ex) {
-						// pass-through: do not break when attempting such reconcile
-					}
-				}
-			}
-			ParenthesizedExpression substitute = this.ast.newParenthesizedExpression();
-			commonSettings(substitute, error);
-			return substitute;
 		}
 		if (javac instanceof JCBinary binary) {
 			InfixExpression res = this.ast.newInfixExpression();
@@ -1410,10 +1395,79 @@ class JavacConverter {
 			commonSettings(res, javac);
 			return res;
 		}
+		if (javac instanceof JCSwitchExpression jcSwitch) {
+			SwitchExpression res = this.ast.newSwitchExpression();
+			commonSettings(res, javac);
+			JCExpression switchExpr = jcSwitch.getExpression();
+			if( switchExpr instanceof JCParens jcp) {
+				switchExpr = jcp.getExpression();
+			}
+			res.setExpression(convertExpression(switchExpr));
+			
+			List<JCCase> cases = jcSwitch.getCases();
+			Iterator<JCCase> it = cases.iterator();
+			ArrayList<JCTree> bodyList = new ArrayList<>();
+			while(it.hasNext()) {
+				JCCase switchCase = it.next();
+				bodyList.add(switchCase);
+				if( switchCase.getCaseKind() == CaseKind.STATEMENT ) {
+					if( switchCase.getStatements() != null && switchCase.getStatements().size() > 0 ) {
+						bodyList.addAll(switchCase.getStatements());
+					}
+				} else {
+					bodyList.add(switchCase.getBody());
+				}
+			}
+			
+			Iterator<JCTree> stmtIterator = bodyList.iterator();
+			while(stmtIterator.hasNext()) {
+				JCTree next = stmtIterator.next();
+				if( next instanceof JCStatement jcs) {
+					Statement s1 = convertStatement(jcs, res);
+					if( s1 != null ) {
+						res.statements().add(s1);
+					}
+				} else if( next instanceof JCExpression jce) {
+					Expression s1 = convertExpression(jce);
+					if( s1 != null ) {
+						// make a yield statement out of it??
+						YieldStatement r1 = this.ast.newYieldStatement();
+						commonSettings(r1, javac);
+						r1.setExpression(s1);
+						res.statements().add(r1);
+					}
+				}
+			}
+			return res;
+		}
+		return null;
+	}
+	
+	private Expression convertExpressionOrNull(JCExpression javac) {
+		return convertExpressionImpl(javac);
+	}
+	
+	private Expression convertExpression(JCExpression javac) {
+		Expression ret = convertExpressionImpl(javac);
+		if( ret != null )
+			return ret;
+		
+		// Handle errors or default situation
+		if (javac instanceof JCErroneous error) {
+			if (error.getErrorTrees().size() == 1) {
+				JCTree tree = error.getErrorTrees().get(0);
+				if (tree instanceof JCExpression nestedExpr) {
+					try {
+						return convertExpression(nestedExpr);
+					} catch (Exception ex) {
+						// pass-through: do not break when attempting such reconcile
+					}
+				}
+			}
+			return this.ast.newSimpleName(new String(RecoveryScanner.FAKE_IDENTIFIER));
+		}
 		ILog.get().error("Unsupported " + javac + " of type" + (javac == null ? "null" : javac.getClass()));
-		ParenthesizedExpression substitute = this.ast.newParenthesizedExpression();
-		commonSettings(substitute, javac);
-		return substitute;
+		return this.ast.newSimpleName(new String(RecoveryScanner.FAKE_IDENTIFIER));
 	}
 
 	private Pattern convert(JCPattern jcPattern) {
