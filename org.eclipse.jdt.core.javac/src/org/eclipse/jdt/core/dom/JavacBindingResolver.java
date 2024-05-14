@@ -259,7 +259,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if (tree instanceof JCFieldAccess fieldAccess && fieldAccess.sym != null) {
 			return getBinding(fieldAccess.sym, fieldAccess.type);
 		}
-		if (tree instanceof JCMethodInvocation methodInvocation && methodInvocation.meth.type.tsym != null) {
+		if (tree instanceof JCMethodInvocation methodInvocation && methodInvocation.meth.type != null) {
 			return getBinding(((JCFieldAccess)methodInvocation.meth).sym, methodInvocation.meth.type);
 		}
 		if (tree instanceof JCClassDecl classDecl && classDecl.sym != null) {
