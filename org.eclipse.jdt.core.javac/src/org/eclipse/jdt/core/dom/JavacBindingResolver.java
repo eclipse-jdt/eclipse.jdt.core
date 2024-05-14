@@ -37,6 +37,7 @@ import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCPackageDecl;
@@ -195,6 +196,14 @@ public class JavacBindingResolver extends BindingResolver {
 		JCTree javacNode = this.converter.domToJavac.get(anonymousClassDecl);
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
 			return canonicalize(new JavacTypeBinding(jcClassDecl.type, this));
+		}
+		return null;
+	}
+	ITypeBinding resolveTypeParameter(TypeParameter typeParameter) {
+		resolve();
+		JCTree javacNode = this.converter.domToJavac.get(typeParameter);
+		if (javacNode instanceof JCTypeParameter jcClassDecl) {
+			return new JavacTypeBinding(jcClassDecl.type, this);
 		}
 		return null;
 	}

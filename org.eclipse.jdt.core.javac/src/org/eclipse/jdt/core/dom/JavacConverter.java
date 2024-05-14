@@ -566,6 +566,7 @@ class JavacConverter {
 
 	private TypeParameter convert(JCTypeParameter typeParameter) {
 		final TypeParameter ret = new TypeParameter(this.ast);
+		commonSettings(ret, typeParameter);
 		final SimpleName simpleName = new SimpleName(this.ast);
 		simpleName.internalSetIdentifier(typeParameter.getName().toString());
 		int start = typeParameter.pos;
