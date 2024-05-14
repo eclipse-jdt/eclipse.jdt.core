@@ -53,6 +53,17 @@ public class JavacVariableBinding implements IVariableBinding {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof JavacVariableBinding other
+				&& Objects.equals(this.resolver, other.resolver)
+				&& Objects.equals(this.variableSymbol, other.variableSymbol);
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.resolver, this.variableSymbol);
+	}
+
+	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		return this.variableSymbol.getAnnotationMirrors().stream()
 				.map(am -> new JavacAnnotationBinding(am, resolver, this))

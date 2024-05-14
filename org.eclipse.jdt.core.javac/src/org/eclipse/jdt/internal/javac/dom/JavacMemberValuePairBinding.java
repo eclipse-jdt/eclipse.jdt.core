@@ -35,6 +35,18 @@ public class JavacMemberValuePairBinding implements IMemberValuePairBinding {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof JavacMemberValuePairBinding other
+				&& Objects.equals(this.resolver, other.resolver)
+				&& Objects.equals(this.method, other.method)
+				&& Objects.equals(this.value, other.value);
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.resolver, this.method, this.value);
+	}
+
+	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		return new IAnnotationBinding[0];
 	}

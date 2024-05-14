@@ -68,6 +68,18 @@ public class JavacTypeBinding implements ITypeBinding {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof JavacTypeBinding other
+				&& Objects.equals(this.resolver, other.resolver)
+				&& Objects.equals(this.type, other.type)
+				&& Objects.equals(this.typeSymbol, other.typeSymbol);
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.resolver, this.type, this.typeSymbol);
+	}
+
+	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		return typeSymbol.getAnnotationMirrors().stream()
 				.map(am -> new JavacAnnotationBinding(am, resolver, this))

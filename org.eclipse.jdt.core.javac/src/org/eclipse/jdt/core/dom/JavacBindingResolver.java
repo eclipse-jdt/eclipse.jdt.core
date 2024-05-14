@@ -140,16 +140,16 @@ public class JavacBindingResolver extends BindingResolver {
 	ITypeBinding resolveType(Type type) {
 		resolve();
 		JCTree jcTree = this.converter.domToJavac.get(type);
-		if (jcTree instanceof JCIdent ident && ident.sym instanceof TypeSymbol typeSymbol) {
+		if (jcTree instanceof JCIdent ident && ident.type != null) {
 			return new JavacTypeBinding(ident.type, this);
 		}
-		if (jcTree instanceof JCFieldAccess access && access.sym instanceof TypeSymbol typeSymbol) {
+		if (jcTree instanceof JCFieldAccess access && access.type != null) {
 			return new JavacTypeBinding(access.type, this);
 		}
-		if (jcTree instanceof JCPrimitiveTypeTree primitive) {
+		if (jcTree instanceof JCPrimitiveTypeTree primitive && primitive.type != null) {
 			return new JavacTypeBinding(primitive.type, this);
 		}
-		if (jcTree instanceof JCArrayTypeTree arrayType) {
+		if (jcTree instanceof JCArrayTypeTree arrayType && arrayType.type != null) {
 			return new JavacTypeBinding(arrayType.type, this);
 		}
 //			return this.flowResult.stream().map(env -> env.enclClass)
@@ -171,7 +171,7 @@ public class JavacBindingResolver extends BindingResolver {
 	ITypeBinding resolveType(TypeDeclaration type) {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(type);
-		if (javacNode instanceof JCClassDecl jcClassDecl) {
+		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
 			return new JavacTypeBinding(jcClassDecl.type, this);
 		}
 		return null;
@@ -181,7 +181,7 @@ public class JavacBindingResolver extends BindingResolver {
 	ITypeBinding resolveType(EnumDeclaration enumDecl) {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(enumDecl);
-		if (javacNode instanceof JCClassDecl jcClassDecl) {
+		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
 			return new JavacTypeBinding(jcClassDecl.type, this);
 		}
 		return null;
@@ -191,7 +191,7 @@ public class JavacBindingResolver extends BindingResolver {
 	ITypeBinding resolveType(AnonymousClassDeclaration anonymousClassDecl) {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(anonymousClassDecl);
-		if (javacNode instanceof JCClassDecl jcClassDecl) {
+		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
 			return new JavacTypeBinding(jcClassDecl.type, this);
 		}
 		return null;

@@ -34,6 +34,17 @@ public class JavacPackageBinding implements IPackageBinding {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof JavacPackageBinding other
+				&& Objects.equals(this.resolver, other.resolver)
+				&& Objects.equals(this.packageSymbol, other.packageSymbol);
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.resolver, this.packageSymbol);
+	}
+
+	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		return this.packageSymbol.getAnnotationMirrors().stream()
 				.map(am -> new JavacAnnotationBinding(am, resolver, this))

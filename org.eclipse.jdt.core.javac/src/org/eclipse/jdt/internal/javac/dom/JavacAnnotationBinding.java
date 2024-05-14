@@ -36,6 +36,18 @@ public class JavacAnnotationBinding implements IAnnotationBinding {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof JavacAnnotationBinding other
+				&& Objects.equals(this.resolver, other.resolver)
+				&& Objects.equals(this.annotation, other.annotation)
+				&& Objects.equals(this.recipient, other.recipient);
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.resolver, this.annotation, this.recipient);
+	}
+
+	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		return new IAnnotationBinding[0];
 	}

@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac.dom;
 
+import java.util.Objects;
+
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 
 /**
@@ -26,6 +28,16 @@ class JavacTypeVariableBinding {
 		this.typeVar = typeVar;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof JavacTypeVariableBinding other
+				&& Objects.equals(this.typeVar, other.typeVar);
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.typeVar);
+	}
+	
 	public String getKey() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(typeVar.getSimpleName());

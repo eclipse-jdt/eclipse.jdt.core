@@ -54,6 +54,18 @@ public class JavacMethodBinding implements IMethodBinding {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof JavacMethodBinding other
+				&& Objects.equals(this.resolver, other.resolver)
+				&& Objects.equals(this.methodSymbol, other.methodSymbol)
+				&& Objects.equals(this.methodType, other.methodType);
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.resolver, this.methodSymbol, this.methodType);
+	}
+
+	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		return methodSymbol.getAnnotationMirrors().stream().map(ann -> new JavacAnnotationBinding(ann, this.resolver, this)).toArray(IAnnotationBinding[]::new);
 	}
