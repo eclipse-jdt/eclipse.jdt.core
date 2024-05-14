@@ -8109,6 +8109,15 @@ public void resourceHasToImplementAutoCloseable(TypeBinding binding, ASTNode ref
 			reference.sourceStart,
 			reference.sourceEnd);
 }
+public void resourceNotAValue(NameReference node) {
+	String[] arguments = { node.toString() };
+	this.handle(
+			IProblem.ResourceIsNotAValue,
+			arguments,
+			arguments,
+			node.sourceStart,
+			node.sourceEnd);
+}
 private int retrieveClosingAngleBracketPosition(int start) {
 	if (this.referenceContext == null) return start;
 	CompilationResult compilationResult = this.referenceContext.compilationResult();
