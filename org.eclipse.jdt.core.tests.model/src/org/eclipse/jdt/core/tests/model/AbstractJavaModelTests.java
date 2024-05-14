@@ -33,8 +33,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -128,6 +127,9 @@ import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.util.Util;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
@@ -3475,7 +3477,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, compliance);
 		javaProject.setOption(JavaCore.COMPILER_SOURCE, compliance);
 		javaProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, compliance);
-		javaProject.setOption(CompilerOptions.OPTION_SimulateOperandStack, CompilerOptions.DISABLED);
 		return javaProject;
 	}
 	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {

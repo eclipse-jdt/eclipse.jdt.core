@@ -60,6 +60,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -7052,7 +7053,7 @@ public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetCla
 	this.methodDeclaration = referenceMethod;
 	this.lambdaExpression = null;
 
-	this.operandStack = createOperandStack(referenceMethod);
+	this.operandStack = createOperandStack(referenceMethod.scope.compilerOptions());
 
 	int[] lineSeparatorPositions2 = this.lineSeparatorPositions;
 	if (lineSeparatorPositions2 != null) {
@@ -7080,26 +7081,21 @@ public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetCla
 	initializeMaxLocals(referenceMethod.binding);
 }
 
-private OperandStack createOperandStack(AbstractMethodDeclaration referenceMethod) {
+private OperandStack createOperandStack(CompilerOptions compilerOptions) {
 	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
 			| ClassFileConstants.ATTR_STACK_MAP_TABLE
 			| ClassFileConstants.ATTR_STACK_MAP)) == 0) {
 		return new OperandStack.NullStack();
 	}
 
-	if (this.targetLevel >= ClassFileConstants.JDK1_6) {
-		if (referenceMethod.containsSwitchWithTry || referenceMethod.scope.compilerOptions().simulateOperandStack) {
-			return new OperandStack(this.classFile);
-		}
-	}
-
-	return new OperandStack.NullStack();
+	return this.targetLevel >= ClassFileConstants.JDK1_6 && JavaFeature.SWITCH_EXPRESSIONS.isSupported(compilerOptions.sourceLevel, compilerOptions.enablePreviewFeatures) ?
+										new OperandStack(this.classFile) : new OperandStack.NullStack();
 }
 public void reset(LambdaExpression lambda, ClassFile targetClassFile) {
 	init(targetClassFile);
 	this.lambdaExpression = lambda;
 	this.methodDeclaration = null;
-	this.operandStack = lambda.containsSwitchWithTry || lambda.scope.compilerOptions().simulateOperandStack ? new OperandStack(this.classFile) : new OperandStack.NullStack();
+	this.operandStack = createOperandStack(lambda.scope.compilerOptions());
 	int[] lineSeparatorPositions2 = this.lineSeparatorPositions;
 	if (lineSeparatorPositions2 != null) {
 		int length = lineSeparatorPositions2.length;
