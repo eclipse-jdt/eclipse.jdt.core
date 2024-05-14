@@ -99,13 +99,13 @@ public class JavacAnnotationBinding implements IAnnotationBinding {
 	@Override
 	public IMemberValuePairBinding[] getAllMemberValuePairs() {
 		return this.annotation.getElementValues().entrySet().stream()
-			.map(entry -> new JavacMemberValuePairBinding(entry.getKey(), entry.getValue(), this.resolver))
+			.map(entry -> this.resolver.canonicalize(new JavacMemberValuePairBinding(entry.getKey(), entry.getValue(), this.resolver)))
 			.toArray(IMemberValuePairBinding[]::new);
 	}
 
 	@Override
 	public ITypeBinding getAnnotationType() {
-		return new JavacTypeBinding(this.annotation.type, this.resolver);
+		return this.resolver.canonicalize(new JavacTypeBinding(this.annotation.type, this.resolver));
 	}
 
 	@Override

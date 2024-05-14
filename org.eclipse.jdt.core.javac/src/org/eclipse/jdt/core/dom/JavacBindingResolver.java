@@ -61,6 +61,7 @@ public class JavacBindingResolver extends BindingResolver {
 	// date from it.
 	public final Context context;
 	private Map<Symbol, ASTNode> symbolToDom;
+	private final Map<String, IBinding> bindingCache;
 	public final IJavaProject javaProject;
 	private JavacConverter converter;
 	boolean isRecoveringBindings = false;
@@ -70,6 +71,7 @@ public class JavacBindingResolver extends BindingResolver {
 		this.context = context;
 		this.javaProject = javaProject;
 		this.converter = converter;
+		this.bindingCache = new HashMap<>();
 	}
 
 	private void resolve() {
@@ -141,16 +143,16 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree jcTree = this.converter.domToJavac.get(type);
 		if (jcTree instanceof JCIdent ident && ident.type != null) {
-			return new JavacTypeBinding(ident.type, this);
+			return canonicalize(new JavacTypeBinding(ident.type, this));
 		}
 		if (jcTree instanceof JCFieldAccess access && access.type != null) {
-			return new JavacTypeBinding(access.type, this);
+			return canonicalize(new JavacTypeBinding(access.type, this));
 		}
 		if (jcTree instanceof JCPrimitiveTypeTree primitive && primitive.type != null) {
-			return new JavacTypeBinding(primitive.type, this);
+			return canonicalize(new JavacTypeBinding(primitive.type, this));
 		}
 		if (jcTree instanceof JCArrayTypeTree arrayType && arrayType.type != null) {
-			return new JavacTypeBinding(arrayType.type, this);
+			return canonicalize(new JavacTypeBinding(arrayType.type, this));
 		}
 //			return this.flowResult.stream().map(env -> env.enclClass)
 //				.filter(Objects::nonNull)
@@ -172,7 +174,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(type);
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
-			return new JavacTypeBinding(jcClassDecl.type, this);
+			return canonicalize(new JavacTypeBinding(jcClassDecl.type, this));
 		}
 		return null;
 	}
@@ -182,7 +184,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(enumDecl);
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
-			return new JavacTypeBinding(jcClassDecl.type, this);
+			return canonicalize(new JavacTypeBinding(jcClassDecl.type, this));
 		}
 		return null;
 	}
@@ -192,20 +194,20 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(anonymousClassDecl);
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
-			return new JavacTypeBinding(jcClassDecl.type, this);
+			return canonicalize(new JavacTypeBinding(jcClassDecl.type, this));
 		}
 		return null;
 	}
 
 	public IBinding getBinding(final Symbol owner, final com.sun.tools.javac.code.Type type) {
 		if (owner instanceof final PackageSymbol other) {
-			return new JavacPackageBinding(other, this);
+			return canonicalize(new JavacPackageBinding(other, this));
 		} else if (owner instanceof TypeSymbol typeSymbol) {
-			return new JavacTypeBinding(typeSymbol.type, this);
+			return canonicalize(new JavacTypeBinding(typeSymbol.type, this));
 		} else if (owner instanceof final MethodSymbol other) {
-			return new JavacMethodBinding(type instanceof com.sun.tools.javac.code.Type.MethodType methodType ? methodType : owner.type.asMethodType(), other, this);
+			return canonicalize(new JavacMethodBinding(type instanceof com.sun.tools.javac.code.Type.MethodType methodType ? methodType : owner.type.asMethodType(), other, this));
 		} else if (owner instanceof final VarSymbol other) {
-			return new JavacVariableBinding(other, this);
+			return canonicalize(new JavacVariableBinding(other, this));
 		}
 		return null;
 	}
@@ -215,7 +217,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(fieldAccess);
 		if (javacElement instanceof JCFieldAccess javacFieldAccess && javacFieldAccess.sym instanceof VarSymbol varSymbol) {
-			return new JavacVariableBinding(varSymbol, this);
+			return canonicalize(new JavacVariableBinding(varSymbol, this));
 		}
 		return null;
 	}
@@ -228,10 +230,10 @@ public class JavacBindingResolver extends BindingResolver {
 			javacElement = javacMethodInvocation.getMethodSelect();
 		}
 		if (javacElement instanceof JCIdent ident && ident.sym instanceof MethodSymbol methodSymbol) {
-			return new JavacMethodBinding(ident.type.asMethodType(), methodSymbol, this);
+			return canonicalize(new JavacMethodBinding(ident.type.asMethodType(), methodSymbol, this));
 		}
 		if (javacElement instanceof JCFieldAccess fieldAccess && fieldAccess.sym instanceof MethodSymbol methodSymbol) {
-			return new JavacMethodBinding(fieldAccess.type.asMethodType(), methodSymbol, this);
+			return canonicalize(new JavacMethodBinding(fieldAccess.type.asMethodType(), methodSymbol, this));
 		}
 		return null;
 	}
@@ -241,7 +243,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(method);
 		if (javacElement instanceof JCMethodDecl methodDecl) {
-			return new JavacMethodBinding(methodDecl.type.asMethodType(), methodDecl.sym, this);
+			return canonicalize(new JavacMethodBinding(methodDecl.type.asMethodType(), methodDecl.sym, this));
 		}
 		return null;
 	}
@@ -279,7 +281,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		if (this.converter.domToJavac.get(variable) instanceof JCVariableDecl decl) {
 			if (!decl.type.isErroneous() || this.isRecoveringBindings) {
-				return new JavacVariableBinding(decl.sym, this);
+				return canonicalize(new JavacVariableBinding(decl.sym, this));
 			}
 		}
 		return null;
@@ -289,7 +291,7 @@ public class JavacBindingResolver extends BindingResolver {
 	public IPackageBinding resolvePackage(PackageDeclaration decl) {
 		resolve();
 		if (this.converter.domToJavac.get(decl) instanceof JCPackageDecl jcPackageDecl) {
-			return new JavacPackageBinding(jcPackageDecl.packge, this);
+			return canonicalize(new JavacPackageBinding(jcPackageDecl.packge, this));
 		}
 		return null;
 	}
@@ -311,7 +313,7 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 		}
 		return this.converter.domToJavac.get(expr) instanceof JCExpression jcExpr ?
-			new JavacTypeBinding(jcExpr.type, this) :
+				canonicalize(new JavacTypeBinding(jcExpr.type, this)) :
 			null;
 	}
 
@@ -320,7 +322,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		return this.converter.domToJavac.get(expression) instanceof JCNewClass jcExpr
 				&& !jcExpr.constructor.type.isErroneous()?
-				new JavacMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor, this) :
+						canonicalize(new JavacMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor, this)) :
 				null;
 	}
 
@@ -404,18 +406,18 @@ public class JavacBindingResolver extends BindingResolver {
 		if (attribute instanceof Attribute.Constant constant) {
 			return constant.value;
 		} else if (attribute instanceof Attribute.Class clazz) {
-			return new JavacTypeBinding(clazz.classType, this);
+			return canonicalize(new JavacTypeBinding(clazz.classType, this));
 		} else if (attribute instanceof Attribute.Enum enumm) {
-			return new JavacVariableBinding(enumm.value, this);
+			return canonicalize(new JavacVariableBinding(enumm.value, this));
 		} else if (attribute instanceof Attribute.Array array) {
 			return Stream.of(array.values) //
 					.map(nestedAttr -> {
 						if (attribute instanceof Attribute.Constant constant) {
 							return constant.value;
 						} else if (attribute instanceof Attribute.Class clazz) {
-							return new JavacTypeBinding(clazz.classType, this);
+							return canonicalize(new JavacTypeBinding(clazz.classType, this));
 						} else if (attribute instanceof Attribute.Enum enumerable) {
-							return new JavacVariableBinding(enumerable.value, this);
+							return canonicalize(new JavacVariableBinding(enumerable.value, this));
 						}
 						throw new IllegalArgumentException("Unexpected attribute type: " + nestedAttr.getClass().getCanonicalName());
 					}) //
@@ -442,5 +444,14 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 		}
 		return null;
+	}
+
+	public <T extends IBinding> T canonicalize(T binding) {
+		T cachedBinding = (T) this.bindingCache.get(binding.getKey());
+		if (cachedBinding == null) {
+			this.bindingCache.put(binding.getKey(), binding);
+			return binding;
+		}
+		return cachedBinding;
 	}
 }

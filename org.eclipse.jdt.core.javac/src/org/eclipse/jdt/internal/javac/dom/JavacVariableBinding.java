@@ -66,7 +66,7 @@ public class JavacVariableBinding implements IVariableBinding {
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		return this.variableSymbol.getAnnotationMirrors().stream()
-				.map(am -> new JavacAnnotationBinding(am, resolver, this))
+				.map(am -> this.resolver.canonicalize(new JavacAnnotationBinding(am, resolver, this)))
 				.toArray(IAnnotationBinding[]::new);
 	}
 
@@ -188,7 +188,7 @@ public class JavacVariableBinding implements IVariableBinding {
 		Symbol parentSymbol = this.variableSymbol.owner;
 		do {
 			if (parentSymbol instanceof ClassSymbol clazz) {
-				return new JavacTypeBinding(clazz.type, this.resolver);
+				return this.resolver.canonicalize(new JavacTypeBinding(clazz.type, this.resolver));
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
@@ -197,7 +197,7 @@ public class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public ITypeBinding getType() {
-		return new JavacTypeBinding(this.variableSymbol.type, this.resolver);
+		return this.resolver.canonicalize(new JavacTypeBinding(this.variableSymbol.type, this.resolver));
 	}
 
 	@Override
@@ -215,7 +215,7 @@ public class JavacVariableBinding implements IVariableBinding {
 		Symbol parentSymbol = this.variableSymbol.owner;
 		do {
 			if (parentSymbol instanceof MethodSymbol method) {
-				return new JavacMethodBinding(method.type.asMethodType(), method, this.resolver);
+				return this.resolver.canonicalize(new JavacMethodBinding(method.type.asMethodType(), method, this.resolver));
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);

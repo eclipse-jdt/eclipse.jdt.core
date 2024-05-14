@@ -67,7 +67,7 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
-		return methodSymbol.getAnnotationMirrors().stream().map(ann -> new JavacAnnotationBinding(ann, this.resolver, this)).toArray(IAnnotationBinding[]::new);
+		return methodSymbol.getAnnotationMirrors().stream().map(ann -> this.resolver.canonicalize(new JavacAnnotationBinding(ann, this.resolver, this))).toArray(IAnnotationBinding[]::new);
 	}
 
 	@Override
@@ -223,7 +223,7 @@ public class JavacMethodBinding implements IMethodBinding {
 		Symbol parentSymbol = this.methodSymbol.owner;
 		do {
 			if (parentSymbol instanceof ClassSymbol clazz) {
-				return new JavacTypeBinding(clazz.type, this.resolver);
+				return this.resolver.canonicalize(new JavacTypeBinding(clazz.type, this.resolver));
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
@@ -236,9 +236,9 @@ public class JavacMethodBinding implements IMethodBinding {
 			return null;
 		}
 		if (this.methodSymbol.owner instanceof MethodSymbol methodSymbol) {
-			return new JavacMethodBinding(methodSymbol.type.asMethodType(), methodSymbol, resolver);
+			return this.resolver.canonicalize(new JavacMethodBinding(methodSymbol.type.asMethodType(), methodSymbol, resolver));
 		} else if (this.methodSymbol.owner instanceof VarSymbol variableSymbol) {
-			return new JavacVariableBinding(variableSymbol, resolver);
+			return this.resolver.canonicalize(new JavacVariableBinding(variableSymbol, resolver));
 		}
 		throw new IllegalArgumentException("Unexpected owner type: " + this.methodSymbol.owner.getClass().getCanonicalName());
 	}
@@ -252,7 +252,7 @@ public class JavacMethodBinding implements IMethodBinding {
 	public IAnnotationBinding[] getParameterAnnotations(int paramIndex) {
 		VarSymbol parameter = this.methodSymbol.params.get(paramIndex);
 		return parameter.getAnnotationMirrors().stream() //
-				.map(annotation -> new JavacAnnotationBinding(annotation, this.resolver, this)) //
+				.map(annotation -> this.resolver.canonicalize(new JavacAnnotationBinding(annotation, this.resolver, this))) //
 				.toArray(IAnnotationBinding[]::new);
 	}
 
@@ -260,18 +260,18 @@ public class JavacMethodBinding implements IMethodBinding {
 	public ITypeBinding[] getParameterTypes() {
 		return this.methodSymbol.params().stream()
 			.map(param -> param.type)
-			.map(type -> new JavacTypeBinding(type, this.resolver))
+			.map(type -> this.resolver.canonicalize(new JavacTypeBinding(type, this.resolver)))
 			.toArray(ITypeBinding[]::new);
 	}
 
 	@Override
 	public ITypeBinding getDeclaredReceiverType() {
-		return new JavacTypeBinding(this.methodSymbol.getReceiverType(), this.resolver);
+		return this.resolver.canonicalize(new JavacTypeBinding(this.methodSymbol.getReceiverType(), this.resolver));
 	}
 
 	@Override
 	public ITypeBinding getReturnType() {
-		return new JavacTypeBinding(this.methodSymbol.getReturnType(), this.resolver);
+		return this.resolver.canonicalize(new JavacTypeBinding(this.methodSymbol.getReturnType(), this.resolver));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -289,7 +289,7 @@ public class JavacMethodBinding implements IMethodBinding {
 	@Override
 	public ITypeBinding[] getTypeParameters() {
 		return this.methodSymbol.getTypeParameters().stream()
-				.map(symbol -> new JavacTypeBinding(symbol.type, this.resolver))
+				.map(symbol -> this.resolver.canonicalize(new JavacTypeBinding(symbol.type, this.resolver)))
 				.toArray(ITypeBinding[]::new);
 	}
 
@@ -314,7 +314,7 @@ public class JavacMethodBinding implements IMethodBinding {
 			return NO_TYPE_ARGUMENTS;
 		}
 		return this.methodType.getTypeArguments().stream()
-				.map(type -> new JavacTypeBinding(type, this.resolver))
+				.map(type -> this.resolver.canonicalize(new JavacTypeBinding(type, this.resolver)))
 				.toArray(ITypeBinding[]::new);
 	}
 
@@ -356,7 +356,7 @@ public class JavacMethodBinding implements IMethodBinding {
 			return new IVariableBinding[0];
 		}
 		return this.methodSymbol.capturedLocals.stream() //
-				.map(capturedLocal -> new JavacVariableBinding(capturedLocal, this.resolver)) //
+				.map(capturedLocal -> this.resolver.canonicalize(new JavacVariableBinding(capturedLocal, this.resolver))) //
 				.toArray(IVariableBinding[]::new);
 	}
 
