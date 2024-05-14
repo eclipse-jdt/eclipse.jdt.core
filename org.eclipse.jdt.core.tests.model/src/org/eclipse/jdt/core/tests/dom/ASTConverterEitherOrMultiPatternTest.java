@@ -16,16 +16,23 @@ package org.eclipse.jdt.core.tests.dom;
 import java.util.List;
 import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.EitherOrMultiPattern;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.GuardedPattern;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Pattern;
 import org.eclipse.jdt.core.dom.SwitchCase;
@@ -76,7 +83,6 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 			return;
 		}
 		String contents = """
-					package x;
 					public class X{
 					  public static void main(String[] args) {
 					    Object notification = "Email notification";
@@ -107,7 +113,7 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 					}
 					record SMSNotification(Object smsMessage) {}
 				""";
-		this.workingCopy = getWorkingCopy("/Converter_22/src/x/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -119,16 +125,16 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 
 		assertProblemsSize(compilationUnit, 0);
 		node = getASTNode(compilationUnit, 0, 0, 0);
-		assertEquals("variable decleration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertEquals("variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
 
 		node = getASTNode(compilationUnit, 0, 0, 1);
-		assertEquals("variable decleration statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
+		assertEquals("variable declaration statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
 
 		List<ASTNode> blockStatements= block.statements();
 		assertTrue("Number of statements not 2", blockStatements.size() == 2);
 
-		SwitchStatement switchDeclerationStatement = (SwitchStatement)blockStatements.get(1);
-		List<ASTNode> statements = switchDeclerationStatement.statements();
+		SwitchStatement switchDeclarationStatement = (SwitchStatement)blockStatements.get(1);
+		List<ASTNode> statements = switchDeclarationStatement.statements();
 		assertTrue("Number of statements not 9", statements.size() == 9);
 
 		SwitchCase firstSwitchCase = (SwitchCase) statements.get(0);
@@ -193,16 +199,16 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 
 		assertProblemsSize(compilationUnit, 0);
 		node = getASTNode(compilationUnit, 0, 0, 0);
-		assertEquals("variable decleration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertEquals("variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
 
 		node = getASTNode(compilationUnit, 0, 0, 1);
-		assertEquals("variable decleration statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
+		assertEquals("variable declaration statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
 
 		List<ASTNode> blockStatements= block.statements();
 		assertTrue("Number of statements not 2", blockStatements.size() == 2);
 
-		SwitchStatement switchDeclerationStatement = (SwitchStatement)blockStatements.get(1);
-		List<ASTNode> statements = switchDeclerationStatement.statements();
+		SwitchStatement switchDeclarationStatement = (SwitchStatement)blockStatements.get(1);
+		List<ASTNode> statements = switchDeclarationStatement.statements();
 		assertTrue("Number of statements not 6", statements.size() == 6);
 
 		SwitchCase firstSwitchCase = (SwitchCase) statements.get(0);
@@ -222,5 +228,124 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 		assertEquals("Instance of Expression", conditionalExpression.getNodeType(), ASTNode.INSTANCEOF_EXPRESSION);
 
 
+	}
+
+	public void test003() throws JavaModelException {
+		if (!isJRE22) {
+			printJREError();
+			return;
+		}
+
+		String contents = """
+				public class X {
+				  public static void main(String[] args) {
+				    Object notification = "Email notification";
+				    switch (notification) {
+				    	case PushNotification _, EmailNotification _, SMSNotification(String _) : System.out.println("Eclipse");
+				    	default: System.out.println("Unknown notification type");
+				    }
+				  }
+				}
+				class PushNotification {
+				  String pMessage;
+				  public PushNotification(String message) {
+				    this.pMessage = message;
+				  }
+				}
+				class EmailNotification {
+					String eMessage;
+					public EmailNotification(String eMessage) {
+						this.eMessage = eMessage;
+					}
+				}
+				record SMSNotification(Object smsMessage) {}
+			""";
+
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) getASTNode(compilationUnit, 0, 0);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		Block block = methodDeclaration.getBody();
+		assertEquals("statements size", block.statements().size(), 2);
+
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
+
+		node = getASTNode(compilationUnit, 0, 0, 1);
+		assertEquals("variable declaration statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
+
+		List<ASTNode> blockStatements= block.statements();
+		assertTrue("Number of statements not 2", blockStatements.size() == 2);
+
+		SwitchStatement switchDeclarationStatement = (SwitchStatement)blockStatements.get(1);
+		List<ASTNode> statements = switchDeclarationStatement.statements();
+		assertTrue("Number of statements not 4", statements.size() == 4);
+
+		SwitchCase firstSwitchCase = (SwitchCase) statements.get(0);
+		List<EitherOrMultiPattern> switchExpression = firstSwitchCase.expressions();
+		assertEquals("Either OR Multipattern", switchExpression.get(0).getNodeType(), ASTNode.EitherOr_MultiPattern);
+
+		List<Pattern> listPatterns = switchExpression.get(0).patterns();
+		assertTrue("Number of patterns not 3", listPatterns.size() == 3);
+		assertEquals("TypePattern", listPatterns.get(0).getNodeType(), ASTNode.TYPE_PATTERN);
+		assertEquals("TypePattern", listPatterns.get(1).getNodeType(), ASTNode.TYPE_PATTERN);
+		assertEquals("RecordPattern", listPatterns.get(2).getNodeType(), ASTNode.RECORD_PATTERN);
+	}
+
+	public void test004() throws JavaModelException {
+		if (!isJRE22) {
+			printJREError();
+			return;
+		}
+
+		String contents = """
+				public class X {
+				  public static void main(String[] args) {
+				    Object notification = "Email notification";
+				    switch (notification) {
+				    	case PushNotification _, EmailNotification _, SMSNotification(String _) : System.out.println("Eclipse");
+				    	default: System.out.println("Unknown notification type");
+				    }
+				  }
+				}
+				class PushNotification {
+				  String pMessage;
+				  public PushNotification(String message) {
+				    this.pMessage = message;
+				  }
+				}
+				class EmailNotification {
+					String eMessage;
+					public EmailNotification(String eMessage) {
+						this.eMessage = eMessage;
+					}
+				}
+				record SMSNotification(Object smsMessage) {}
+			""";
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+		ASTNode nodePush = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+		ASTNode nodeEmail = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+		ASTNode nodeSMS = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+		assertEquals("Node Type Decleration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		assertEquals("Node Type Decleration - PushNotification", ASTNode.TYPE_DECLARATION, nodePush.getNodeType());
+		assertEquals("Node Type Decleration - EmailNotification", ASTNode.TYPE_DECLARATION, nodeEmail.getNodeType());
+		assertEquals("Node Type Decleration - SMSNotification", ASTNode.TYPE_DECLARATION, nodeSMS.getNodeType());
+		ASTParser parser= ASTParser.newParser(getASTLatest());
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		parser.setProject(javaProject);
+		IBinding[] bindings = parser.createBindings(new IJavaElement[] { this.workingCopy.findPrimaryType() }, null);
+		IMethodBinding methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[0];
+		assertEquals("constructor name", "X", methodBinding.getName());
+		methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[1];
+		assertEquals("method name", "main", methodBinding.getName());
 	}
 }
