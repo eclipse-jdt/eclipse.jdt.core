@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.DCTree;
 import com.sun.tools.javac.tree.DCTree.DCAuthor;
 import com.sun.tools.javac.tree.DCTree.DCBlockTag;
@@ -24,6 +25,7 @@ import com.sun.tools.javac.tree.DCTree.DCDeprecated;
 import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.DCTree.DCEndElement;
 import com.sun.tools.javac.tree.DCTree.DCEntity;
+import com.sun.tools.javac.tree.DCTree.DCErroneous;
 import com.sun.tools.javac.tree.DCTree.DCIdentifier;
 import com.sun.tools.javac.tree.DCTree.DCInheritDoc;
 import com.sun.tools.javac.tree.DCTree.DCLink;
@@ -40,6 +42,8 @@ import com.sun.tools.javac.tree.DCTree.DCThrows;
 import com.sun.tools.javac.tree.DCTree.DCUnknownBlockTag;
 import com.sun.tools.javac.tree.DCTree.DCUnknownInlineTag;
 import com.sun.tools.javac.tree.DCTree.DCUses;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.util.JCDiagnostic;
 
 class JavadocConverter {
 	
@@ -48,6 +52,8 @@ class JavadocConverter {
 	private final DCDocComment docComment;
 	private final int initialOffset;
 	private final int endOffset;
+	
+	private Set<JCDiagnostic> diagnostics = new HashSet<>();
 
 	JavadocConverter(JavacConverter javacConverter, DCDocComment docComment) {
 		this.javacConverter = javacConverter;
@@ -101,6 +107,10 @@ class JavadocConverter {
 		}
 		return res;
 	}
+	
+	Set<JCDiagnostic> getDiagnostics() {
+        return diagnostics;
+    }
 
 	private boolean isInline(TagElement tag) {
 		return tag.getTagName() != null && switch (tag.getTagName()) {
@@ -263,6 +273,12 @@ class JavadocConverter {
 			if (blockTag.isPresent()) {
 				return blockTag.get();
 			}
+		} else if (javac instanceof DCErroneous erroneous) {
+		    JavaDocTextElement res = this.ast.newJavaDocTextElement();
+	        commonSettings(res, erroneous);
+	        res.setText(res.text);
+	        diagnostics.add(erroneous.diag);
+	        return res;
 		} else {
 			Optional<TagElement> inlineTag = convertInlineTag(javac);
 			if (inlineTag.isPresent()) {

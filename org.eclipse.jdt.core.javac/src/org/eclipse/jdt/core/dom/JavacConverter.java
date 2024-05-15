@@ -15,20 +15,21 @@ import static com.sun.tools.javac.tree.JCTree.Tag.TYPEARRAY;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import javax.lang.model.type.TypeKind;
-import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -116,6 +117,7 @@ import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
 import com.sun.tools.javac.tree.JCTree.Tag;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.Names;
 import com.sun.tools.javac.util.Position.LineMap;
 
@@ -131,6 +133,7 @@ class JavacConverter {
 	private final Context context;
 	final Map<ASTNode, JCTree> domToJavac = new HashMap<>();
 	final String rawText;
+	private Set<JCDiagnostic> javadocDiagnostics = new HashSet<>();
 
 	public JavacConverter(AST ast, JCCompilationUnit javacCompilationUnit, Context context, String rawText) {
 		this.ast = ast;
@@ -165,9 +168,26 @@ class JavacConverter {
 			.filter(Objects::nonNull)
 			.forEach(res.types()::add);
 		res.accept(new FixPositions());
+		populateJavadocDiagnostics(res);
+		
 	}
 
-	private int[] toLineEndPosTable(LineMap lineMap, int fileLength) {
+	private void populateJavadocDiagnostics(CompilationUnit cu) {
+	    Set<IProblem> javadocProblems = new HashSet<IProblem>();
+	    for (JCDiagnostic jcDiag: javadocDiagnostics) {
+	        IProblem javacProblem = JavacProblemConverter.createJavadocProblem(jcDiag);
+	        javadocProblems.add(javacProblem);
+	    }
+	    var newProblems = Arrays.copyOf(cu.getProblems(), cu.getProblems().length + javadocProblems.size());
+	    int i = cu.getProblems().length;
+	    for (IProblem problem: javadocProblems) {
+	        newProblems[i++] = problem;
+	    }
+	    cu.setProblems(newProblems);
+        
+    }
+
+    private int[] toLineEndPosTable(LineMap lineMap, int fileLength) {
 		List<Integer> lineEnds = new ArrayList<>();
 		int line = 1;
 		try {
@@ -981,7 +1001,9 @@ class JavacConverter {
 		Comment c = this.javacCompilationUnit.docComments.getComment(javac);
 		if( c != null && c.getStyle() == Comment.CommentStyle.JAVADOC) {
 			var docCommentTree = this.javacCompilationUnit.docComments.getCommentTree(javac);
-			Javadoc javadoc = new JavadocConverter(this, docCommentTree).convertJavadoc();
+			JavadocConverter javadocConverter = new JavadocConverter(this, docCommentTree);
+			Javadoc javadoc = javadocConverter.convertJavadoc();
+			this.javadocDiagnostics.addAll(javadocConverter.getDiagnostics());
 			if (node instanceof BodyDeclaration bodyDeclaration) {
 				bodyDeclaration.setJavadoc(javadoc);
 				bodyDeclaration.setSourceRange(javadoc.getStartPosition(), bodyDeclaration.getStartPosition() + bodyDeclaration.getLength() - javadoc.getStartPosition());

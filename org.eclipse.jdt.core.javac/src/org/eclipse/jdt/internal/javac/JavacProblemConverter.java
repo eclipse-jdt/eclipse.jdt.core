@@ -29,8 +29,8 @@ import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.parser.Scanner;
 import com.sun.tools.javac.parser.ScannerFactory;
 import com.sun.tools.javac.parser.Tokens.Token;
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.parser.Tokens.TokenKind;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
@@ -57,6 +57,22 @@ public class JavacProblemConverter {
 				(int) diagnostic.getLineNumber(),
 				(int) diagnostic.getColumnNumber());
 	}
+	
+	public static JavacProblem createJavadocProblem(Diagnostic<? extends JavaFileObject> diagnostic) {
+        int problemId = toProblemId(diagnostic);
+        org.eclipse.jface.text.Position diagnosticPosition = getDefaultPosition(diagnostic);
+        return new JavacProblem(
+                diagnostic.getSource().getName().toCharArray(),
+                diagnostic.getMessage(Locale.getDefault()),
+                diagnostic.getCode(),
+                problemId,
+                new String[0],
+                toSeverity(diagnostic),
+                diagnosticPosition.getOffset(),
+                diagnosticPosition.getOffset() + diagnosticPosition.getLength(),
+                (int) diagnostic.getLineNumber(),
+                (int) diagnostic.getColumnNumber());
+    }
 
 	private static org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic, Context context) {
 		switch (diagnostic) {
