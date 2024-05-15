@@ -1709,6 +1709,7 @@ public void fsub() {
 }
 
 public void generateBoxingConversion(int unboxedTypeID) {
+	TypeBinding boxedType = this.classFile.referenceBinding.scope.environment().computeBoxingType(TypeBinding.wellKnownBaseType(unboxedTypeID));
     switch (unboxedTypeID) {
         case TypeIds.T_byte :
             if (this.targetLevel >= ClassFileConstants.JDK1_5) {
@@ -1721,7 +1722,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.ValueOf,
                     ConstantPool.byteByteSignature,
                     unboxedTypeID,
-                    TypeBinding.BYTE);
+                    boxedType);
             } else {
                // new Byte( byte )
                 newWrapperFor(unboxedTypeID);
@@ -1735,7 +1736,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.Init,
                     ConstantPool.ByteConstrSignature,
                     unboxedTypeID,
-                    TypeBinding.BYTE);
+                    boxedType);
             }
             break;
         case TypeIds.T_short :
@@ -1749,7 +1750,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.ValueOf,
                     ConstantPool.shortShortSignature,
                     unboxedTypeID,
-                    TypeBinding.SHORT);
+                    boxedType);
             } else {
                 // new Short(short)
             	newWrapperFor(unboxedTypeID);
@@ -1763,7 +1764,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.Init,
                     ConstantPool.ShortConstrSignature,
                     unboxedTypeID,
-                    TypeBinding.SHORT);
+                    boxedType);
             }
             break;
         case TypeIds.T_char :
@@ -1777,7 +1778,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.ValueOf,
                     ConstantPool.charCharacterSignature,
                     unboxedTypeID,
-                    TypeBinding.CHAR);
+                    boxedType);
             } else {
                 // new Char( char )
                 newWrapperFor(unboxedTypeID);
@@ -1791,7 +1792,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.Init,
                     ConstantPool.CharConstrSignature,
                     unboxedTypeID,
-                    TypeBinding.CHAR);
+                    boxedType);
             }
             break;
         case TypeIds.T_int :
@@ -1805,7 +1806,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.ValueOf,
                     ConstantPool.IntIntegerSignature,
                     unboxedTypeID,
-                    TypeBinding.INT);
+                    boxedType);
             } else {
                 // new Integer(int)
                 newWrapperFor(unboxedTypeID);
@@ -1819,7 +1820,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.Init,
                     ConstantPool.IntConstrSignature,
                     unboxedTypeID,
-                    TypeBinding.INT);
+                    boxedType);
             }
             break;
         case TypeIds.T_long :
@@ -1833,7 +1834,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.ValueOf,
                     ConstantPool.longLongSignature,
                     unboxedTypeID,
-                    TypeBinding.LONG);
+                    boxedType);
             } else {
                 // new Long( long )
                 newWrapperFor(unboxedTypeID);
@@ -1848,7 +1849,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.Init,
                     ConstantPool.LongConstrSignature,
                     unboxedTypeID,
-                    TypeBinding.LONG);
+                    boxedType);
             }
             break;
         case TypeIds.T_float :
@@ -1862,7 +1863,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.ValueOf,
                     ConstantPool.floatFloatSignature,
                     unboxedTypeID,
-                    TypeBinding.FLOAT);
+                    boxedType);
             } else {
                 // new Float(float)
                 newWrapperFor(unboxedTypeID);
@@ -1876,7 +1877,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.Init,
                     ConstantPool.FloatConstrSignature,
                     unboxedTypeID,
-                    TypeBinding.FLOAT);
+                    boxedType);
             }
             break;
         case TypeIds.T_double :
@@ -1890,7 +1891,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.ValueOf,
                     ConstantPool.doubleDoubleSignature,
                     unboxedTypeID,
-                    TypeBinding.DOUBLE);
+                    boxedType);
             } else {
                 // new Double( double )
             	newWrapperFor(unboxedTypeID);
@@ -1906,7 +1907,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.Init,
                     ConstantPool.DoubleConstrSignature,
                     unboxedTypeID,
-                    TypeBinding.DOUBLE);
+                    boxedType);
             }
 
             break;
@@ -1921,7 +1922,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.ValueOf,
                     ConstantPool.booleanBooleanSignature,
                     unboxedTypeID,
-                    TypeBinding.BOOLEAN);
+                    boxedType);
             } else {
                 // new Boolean(boolean)
                 newWrapperFor(unboxedTypeID);
@@ -1935,7 +1936,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
                     ConstantPool.Init,
                     ConstantPool.BooleanConstrSignature,
                     unboxedTypeID,
-                    TypeBinding.BOOLEAN);
+                    boxedType);
             }
     }
 }
@@ -4566,11 +4567,9 @@ public void instance_of(TypeReference typeReference, TypeBinding typeBinding) {
 protected void invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, char[] declaringClass, char[] selector, char[] signature, TypeBinding type) {
 	invoke(opcode, receiverAndArgsSize, returnTypeSize, declaringClass, selector, signature, TypeIds.T_JavaLangObject, type);
 }
-protected void _invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, char[] declaringClass, char[] selector, char[] signature, int typeId) {
-//	invoke18(opcode, receiverAndArgsSize, returnTypeSize, declaringClass, opcode == Opcodes.OPC_invokeinterface, selector, signature, typeId);
-}
-protected void invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, char[] declaringClass, char[] selector, char[] signature, int typeId, TypeBinding type) {
-	invoke18(opcode, receiverAndArgsSize, returnTypeSize, declaringClass, opcode == Opcodes.OPC_invokeinterface, selector, signature, typeId, type);
+
+protected void invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, char[] declaringClass, char[] selector, char[] signature, int typeId, TypeBinding returnType) {
+	invoke18(opcode, receiverAndArgsSize, returnTypeSize, declaringClass, opcode == Opcodes.OPC_invokeinterface, selector, signature, returnType);
 }
 
 private void popInvokeTypeBinding(int receiverAndArgsSize) {
@@ -4589,7 +4588,7 @@ private void popInvokeTypeBinding(int receiverAndArgsSize) {
 // Hence adding explicit parameter 'isInterface', which is needed only for non-ctor invokespecial invocations
 // (i.e., other clients may still call the shorter overload).
 private void invoke18(byte opcode, int receiverAndArgsSize, int returnTypeSize, char[] declaringClass,
-		boolean isInterface, char[] selector, char[] signature, int typeId, TypeBinding type) {
+		boolean isInterface, char[] selector, char[] signature, TypeBinding returnType) {
 	this.countLabels = 0;
 	if (opcode == Opcodes.OPC_invokeinterface) {
 		// invokeinterface
@@ -4615,7 +4614,7 @@ private void invoke18(byte opcode, int receiverAndArgsSize, int returnTypeSize, 
 	this.stackDepth += returnTypeSize - receiverAndArgsSize;
 	popInvokeTypeBinding(receiverAndArgsSize);
 	if (returnTypeSize > 0) {
-		this.operandStack.push(type);
+		this.operandStack.push(returnType);
 	}
 	if (this.stackDepth > this.stackMax) {
 		this.stackMax = this.stackDepth;
@@ -4735,7 +4734,6 @@ public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declari
 			declaringClass.isInterface(),
 			methodBinding.selector,
 			methodBinding.signature(this.classFile),
-			methodBinding.returnType.id,
 			methodBinding.returnType);
 }
 

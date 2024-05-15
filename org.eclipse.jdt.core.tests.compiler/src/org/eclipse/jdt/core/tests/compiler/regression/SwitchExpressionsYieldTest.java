@@ -7901,4 +7901,47 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"42");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2451
+	// Internal compiler error: java.lang.AssertionError: Anomalous/Inconsistent operand stack!
+	public void testIssue2451() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				import java.util.HashMap;
+				import java.util.Map;
+
+				public class X {
+
+					static void foo(long l) {
+
+					}
+
+					private static Map<String, Long> getLevelMapTable() {
+						Map<String, Long> t = new HashMap<>();
+						t.put(null, 0l);
+
+
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+						return null;
+					}
+
+					public static void main(String[] args) {
+						getLevelMapTable();
+					}
+				}
+				"""
+				},
+				"42");
+	}
 }
