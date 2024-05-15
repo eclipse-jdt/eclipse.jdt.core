@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac.dom;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.StreamSupport;
 
@@ -463,11 +465,18 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getTypeBounds() {
-		Type upperBound = this.type.getUpperBound();
-		if (upperBound == null) {
-			return new ITypeBinding[0];
+		Type z1 = ((ClassType)this.type).supertype_field;
+		List<Type> z2 = ((ClassType)this.type).interfaces_field;
+		ArrayList<JavacTypeBinding> l = new ArrayList<>();
+		if( z1 != null ) {
+			l.add(new JavacTypeBinding(z1, this.resolver));
 		}
-		return new ITypeBinding[] { this.resolver.canonicalize(new JavacTypeBinding(upperBound, this.resolver)) };
+		if( z2 != null ) {
+			for( int i = 0; i < z2.size(); i++ ) {
+				l.add(this.resolver.canonicalize(new JavacTypeBinding(z2.get(i), this.resolver)));
+			}
+		}
+		return (JavacTypeBinding[]) l.toArray(new JavacTypeBinding[l.size()]);
 	}
 
 	@Override
