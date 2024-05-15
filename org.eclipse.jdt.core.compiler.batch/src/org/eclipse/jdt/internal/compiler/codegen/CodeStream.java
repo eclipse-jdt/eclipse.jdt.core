@@ -1209,8 +1209,6 @@ private void adjustTypeBindingStackForDup2X2() {
 				this.operandStack.push(val1);
 			}
 		}
-		this.operandStack.push(val1);
-		this.operandStack.push(val1);
 	} else { // val1 category 1
 		TypeBinding val2 = this.operandStack.pop();
 		if (TypeIds.getCategory(val2.id) == 1) {
