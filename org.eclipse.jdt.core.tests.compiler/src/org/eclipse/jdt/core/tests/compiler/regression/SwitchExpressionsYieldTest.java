@@ -7868,4 +7868,37 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"42\n"
 				+ "Hello");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2447
+	// [Switch-expressions] Internal inconsistency warning at compile time and verify error at runtime
+	public void testIssue2447() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					static void foo(long l) {
+
+					}
+					public static void main(String[] args) {
+						long [] larray = { 10 };
+
+						foo(larray[0] = 10);
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+					}
+				}
+				"""
+				},
+				"42");
+	}
 }
