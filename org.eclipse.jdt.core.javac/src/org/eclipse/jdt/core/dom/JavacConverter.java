@@ -245,7 +245,7 @@ class JavacConverter {
 				}
 			}
 		}
-		List<IExtendedModifier> l = convert(javac.mods, res);
+		List<IExtendedModifier> l = convertModifierAnnotations(javac.mods, res);
 		res.annotations().addAll(l);
 		return res;
 	}
@@ -2339,19 +2339,38 @@ class JavacConverter {
 
 	private List<IExtendedModifier> convert(JCModifiers modifiers, ASTNode parent) {
 		List<IExtendedModifier> res = new ArrayList<>();
-		modifiers.getAnnotations().stream().map(this::convert).forEach(res::add);
-		Iterator<javax.lang.model.element.Modifier> mods = modifiers.getFlags().iterator();
-		while(mods.hasNext()) {
-			res.add(convert(mods.next(), modifiers.pos, parent.getStartPosition() + parent.getLength()));
-		}
-		res.sort((o1, o2) -> {
+		convertModifiers(modifiers, parent, res);
+		convertModifierAnnotations(modifiers, parent, res);
+		sortModifierNodesByPosition(res);
+		return res;
+	}
+
+	private void sortModifierNodesByPosition(List<IExtendedModifier> l) {
+		l.sort((o1, o2) -> {
 			ASTNode a1 = (ASTNode)o1;
 			ASTNode a2 = (ASTNode)o2;
 			return a1.getStartPosition() - a2.getStartPosition();
 		});
-		return res;
+	}
+	
+	private void convertModifiers(JCModifiers modifiers, ASTNode parent, List<IExtendedModifier> res) {
+		Iterator<javax.lang.model.element.Modifier> mods = modifiers.getFlags().iterator();
+		while(mods.hasNext()) {
+			res.add(convert(mods.next(), modifiers.pos, parent.getStartPosition() + parent.getLength()));
+		}
 	}
 
+
+	private List<IExtendedModifier>  convertModifierAnnotations(JCModifiers modifiers, ASTNode parent ) {
+		List<IExtendedModifier> res = new ArrayList<>();
+		convertModifierAnnotations(modifiers, parent, res);
+		sortModifierNodesByPosition(res);
+		return res;
+	}
+	
+	private void convertModifierAnnotations(JCModifiers modifiers, ASTNode parent, List<IExtendedModifier> res) {
+		modifiers.getAnnotations().stream().map(this::convert).forEach(res::add);
+	}
 
 	private List<IExtendedModifier> convertModifiersFromFlags(int startPos, int endPos, long oflags) {
 		String rawTextSub = this.rawText.substring(startPos, endPos);
