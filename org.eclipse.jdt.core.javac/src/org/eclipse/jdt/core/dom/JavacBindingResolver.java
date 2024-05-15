@@ -223,6 +223,16 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	@Override
+	IVariableBinding resolveField(SuperFieldAccess fieldAccess) {
+		resolve();
+		JCTree javacElement = this.converter.domToJavac.get(fieldAccess);
+		if (javacElement instanceof JCFieldAccess javacFieldAccess && javacFieldAccess.sym instanceof VarSymbol varSymbol) {
+			return new JavacVariableBinding(varSymbol, this);
+		}
+		return null;
+	}
+
+	@Override
 	IMethodBinding resolveMethod(MethodInvocation method) {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(method);
@@ -453,5 +463,36 @@ public class JavacBindingResolver extends BindingResolver {
 			return binding;
 		}
 		return cachedBinding;
+	}
+
+	@Override
+	ITypeBinding resolveWellKnownType(String typeName) {
+		com.sun.tools.javac.code.Symtab symtab = com.sun.tools.javac.code.Symtab.instance(this.context);
+		com.sun.tools.javac.code.Type type = switch (typeName) {
+		case "byte", "java.lang.Byte" -> symtab.byteType;
+		case "char", "java.lang.Char" -> symtab.charType;
+		case "double", "java.lang.Double" -> symtab.doubleType;
+		case "float", "java.lang.Float" -> symtab.floatType;
+		case "int", "java.lang.Integer" -> symtab.intType;
+		case "long", "java.lang.Long" -> symtab.longType;
+		case "short", "java.lang.Short" -> symtab.shortType;
+		case "boolean", "java.lang.Boolean" -> symtab.booleanType;
+		case "void", "java.lang.Void" -> symtab.voidType;
+		case "java.lang.Object" -> symtab.objectType;
+		case "java.lang.String" -> symtab.stringType;
+		case "java.lang.StringBuffer" -> symtab.stringBufferType;
+		case "java.lang.Throwable" -> symtab.throwableType;
+		case "java.lang.Exception" -> symtab.exceptionType;
+		case "java.lang.RuntimeException" -> symtab.runtimeExceptionType;
+		case "java.lang.Error" -> symtab.errorType;
+		case "java.lang.Class" -> symtab.classType;
+		case "java.lang.Cloneable" -> symtab.cloneableType;
+		case "java.lang.Serializable" -> symtab.serializableType;
+		default -> null;
+		};
+		if (type == null) {
+			return null;
+		}
+		return canonicalize(new JavacTypeBinding(type, this));
 	}
 }

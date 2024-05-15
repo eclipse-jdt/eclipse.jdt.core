@@ -334,6 +334,9 @@ public class JavacTypeBinding implements ITypeBinding {
 	@Override
 	public ITypeBinding getElementType() {
 		Type t = this.types.elemtype(this.type);
+		while (t instanceof Type.ArrayType) {
+			t = this.types.elemtype(t);
+		}
 		if (t == null) {
 			return null;
 		}
@@ -387,6 +390,13 @@ public class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String getName() {
+		if (this.isArray()) {
+			StringBuilder builder = new StringBuilder(this.getElementType().getName());
+			for (int i = 0; i < this.getDimensions(); i++) {
+				builder.append("[]");
+			}
+			return builder.toString();
+		}
 		return this.typeSymbol.getSimpleName().toString();
 	}
 

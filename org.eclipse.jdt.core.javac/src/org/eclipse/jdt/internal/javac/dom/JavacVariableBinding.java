@@ -202,7 +202,10 @@ public class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public int getVariableId() {
-		return variableSymbol.adr; // ?
+		// FIXME: since we are not running code generation,
+		// the variable has not been assigned an offset,
+		// so it's always -1.
+		return variableSymbol.adr;
 	}
 
 	@Override
