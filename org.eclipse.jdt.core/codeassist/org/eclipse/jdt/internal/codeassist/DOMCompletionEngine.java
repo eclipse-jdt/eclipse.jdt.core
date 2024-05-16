@@ -45,7 +45,9 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -53,7 +55,9 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
+import org.eclipse.jdt.internal.codeassist.impl.Engine;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 
@@ -75,8 +79,9 @@ public class DOMCompletionEngine implements Runnable {
 	private ExpectedTypes expectedTypes;
 	private String prefix;
 	private ASTNode toComplete;
+	private DOMCompletionEngineVariableDeclHandler variableDeclHandler;
 
-	private static class Bindings {
+	static class Bindings {
 		private HashSet<IMethodBinding> methods = new HashSet<>();
 		private HashSet<IBinding> others = new HashSet<>();
 
@@ -132,6 +137,7 @@ public class DOMCompletionEngine implements Runnable {
 		// TODO sorting/relevance: closest/prefix match should go first
 		// ...
 		this.nestedEngine = new CompletionEngine(this.nameEnvironment, this.requestor, this.modelUnit.getOptions(true), this.modelUnit.getJavaProject(), workingCopyOwner, monitor);
+		this.variableDeclHandler = new DOMCompletionEngineVariableDeclHandler();
 	}
 
 	private static Collection<? extends IBinding> visibleBindings(ASTNode node, int offset) {
@@ -170,7 +176,8 @@ public class DOMCompletionEngine implements Runnable {
 		if (this.toComplete instanceof SimpleName simpleName) {
 			int charCount = this.offset - simpleName.getStartPosition();
 			completeAfter = simpleName.getIdentifier().substring(0, charCount);
-			if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation) {
+			if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
+					|| simpleName.getParent() instanceof VariableDeclaration) {
 				context = this.toComplete.getParent();
 			}
 		}
@@ -249,6 +256,13 @@ public class DOMCompletionEngine implements Runnable {
 			}
 			// else complete parameters, get back to default
 		}
+		if (context instanceof VariableDeclaration declaration) {
+			var binding = declaration.resolveBinding();
+			if (binding != null) {
+				this.variableDeclHandler.findVariableNames(binding, completeAfter, scope).stream()
+						.map(name -> toProposal(binding, name)).forEach(this.requestor::accept);
+			}
+		}
 
 		ASTNode current = this.toComplete;
 		ASTNode parent = current;
@@ -323,8 +337,11 @@ public class DOMCompletionEngine implements Runnable {
 		}
 		processMembers(typeBinding.getSuperclass(), scope);
 	}
-
 	private CompletionProposal toProposal(IBinding binding) {
+		return toProposal(binding, binding.getName());
+	}
+
+	private CompletionProposal toProposal(IBinding binding, String completion) {
 		if (binding instanceof ITypeBinding && binding.getJavaElement() instanceof IType type) {
 			return toProposal(type);
 		}
@@ -334,7 +351,6 @@ public class DOMCompletionEngine implements Runnable {
 			binding instanceof IVariableBinding variableBinding ? CompletionProposal.LOCAL_VARIABLE_REF :
 			-1, this.offset);
 		res.setName(binding.getName().toCharArray());
-		String completion = binding.getName();
 		if (binding instanceof IMethodBinding) {
 			completion += "()"; //$NON-NLS-1$
 		}
@@ -412,11 +428,44 @@ public class DOMCompletionEngine implements Runnable {
 		InternalCompletionProposal res = new InternalCompletionProposal(CompletionProposal.PACKAGE_REF, this.offset);
 		res.setName(packageName.toCharArray());
 		res.setCompletion(packageName.toCharArray());
-		res.setReplaceRange(completing.getStartPosition(), this.offset);
 		res.setDeclarationSignature(packageName.toCharArray());
-		res.completionEngine = this.nestedEngine;
-		res.nameLookup = this.nameEnvironment.nameLookup;
+		configureProposal(res, completing);
 		return res;
+	}
+
+	private CompletionProposal toVariableNameProposal(String name, VariableDeclaration variable, ASTNode completing) {
+		InternalCompletionProposal res = new InternalCompletionProposal(CompletionProposal.VARIABLE_DECLARATION,
+				this.offset);
+		res.setName(name.toCharArray());
+		res.setCompletion(name.toCharArray());
+
+		if (variable instanceof SingleVariableDeclaration sv) {
+			var binding = sv.resolveBinding();
+			if (binding == null) {
+				return res;
+			}
+			if (binding.getType().getPackage() != null) {
+				res.setPackageName(binding.getType().getPackage().getName().toCharArray());
+			}
+			if (binding.getType() instanceof TypeBinding tb) {
+				res.setSignature(Engine.getSignature(tb));
+				res.setRelevance(
+						CompletionEngine.computeBaseRelevance() + CompletionEngine.computeRelevanceForResolution()
+								+ this.nestedEngine.computeRelevanceForInterestingProposal()
+								+ CompletionEngine.computeRelevanceForCaseMatching(this.prefix.toCharArray(),
+										binding.getName().toCharArray(), this.assistOptions)
+								+ computeRelevanceForExpectingType((ITypeBinding) tb)
+								+ CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE)
+								+ RelevanceConstants.R_NON_INHERITED);
+			}
+		}
+		return res;
+	}
+
+	private void configureProposal(InternalCompletionProposal proposal, ASTNode completing) {
+		proposal.setReplaceRange(completing.getStartPosition(), this.offset);
+		proposal.completionEngine = this.nestedEngine;
+		proposal.nameLookup = this.nameEnvironment.nameLookup;
 	}
 
 	private int computeRelevanceForExpectingType(ITypeBinding proposalType){
