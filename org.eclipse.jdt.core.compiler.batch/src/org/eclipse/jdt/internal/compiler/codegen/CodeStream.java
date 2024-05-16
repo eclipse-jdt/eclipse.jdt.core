@@ -1430,25 +1430,25 @@ public void fieldAccess(byte opcode, FieldBinding fieldBinding, TypeBinding decl
 			returnTypeSize = 1;
 			break;
 	}
-	this.fieldAccess(opcode, returnTypeSize, declaringClass.constantPoolName(), fieldBinding.name, returnType.signature(), returnType.id, returnType);
+	this.fieldAccess(opcode, returnTypeSize, declaringClass.constantPoolName(), fieldBinding.name, returnType.signature(), returnType);
 }
 
-private void fieldAccess(byte opcode, int returnTypeSize, char[] declaringClass, char[] fieldName, char[] signature, int typeId, TypeBinding typeBinding) {
+private void fieldAccess(byte opcode, int returnTypeSize, char[] declaringClass, char[] fieldName, char[] signature, TypeBinding fieldType) {
 	this.countLabels = 0;
 	switch(opcode) {
 		case Opcodes.OPC_getfield :
 			if (returnTypeSize == 2) {
 				this.stackDepth++;
 			}
-			pushTypeBinding(1, typeBinding);
+			pushTypeBinding(1, fieldType);
 			break;
 		case Opcodes.OPC_getstatic :
 			if (returnTypeSize == 2) {
 				this.stackDepth += 2;
-				this.operandStack.push(typeBinding);
+				this.operandStack.push(fieldType);
 			} else {
 				this.stackDepth++;
-				this.operandStack.push(typeBinding);
+				this.operandStack.push(fieldType);
 			}
 			break;
 		case Opcodes.OPC_putfield :
@@ -3792,8 +3792,7 @@ public void getClass(TypeBinding baseType) {
 			constantPoolName,
 			ConstantPool.TYPE,
 			ConstantPool.JavaLangClassSignature,
-			baseType.id,
-			baseType);
+			getPopularBinding(ConstantPool.JavaLangClassConstantPoolName));
 }
 
 /**
@@ -7716,7 +7715,6 @@ private void pushTypeBinding(int resolvedPosition) {
 }
 private TypeBinding getPopularBinding(char[] typeName) {
 	Scope scope = this.classFile.referenceBinding.scope;
-	assert scope != null;
 	Supplier<ReferenceBinding> finder = scope.getCommonReferenceBinding(typeName);
 	return finder != null ? finder.get() : TypeBinding.NULL;
 }
