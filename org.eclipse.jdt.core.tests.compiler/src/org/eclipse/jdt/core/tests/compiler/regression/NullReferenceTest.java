@@ -113,18 +113,22 @@ public void test0001_simple_local() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			  "public class X {\n" +
-			  "  void foo() {\n" +
-			  "    Object o = null;\n" +
-			  "    o.toString();\n" +
-			  "  }\n" +
-			  "}\n"},
-	    "----------\n" +
-	    "1. ERROR in X.java (at line 4)\n" +
-	    "	o.toString();\n" +
-	    "	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-	    "----------\n",
+			  """
+				public class X {
+				  void foo() {
+				    Object o = null;
+				    o.toString();
+				  }
+				}
+				"""},
+	    """
+			----------
+			1. ERROR in X.java (at line 4)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -134,13 +138,15 @@ public void test0002_simple_field() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object o;\n" +
-			"  void foo() {\n" +
-			"    o = null;\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object o;
+				  void foo() {
+				    o = null;
+				    o.toString();
+				  }
+				}
+				"""},
 	""
 //      "----------\n" +
 //      "1. ERROR in X.java (at line 5)\n" +
@@ -156,18 +162,22 @@ public void test0003_simple_parameter() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o) {\n" +
-			"    o = null;\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o) {
+				    o = null;
+				    o.toString();
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -176,18 +186,22 @@ public void test0004_final_local() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    final Object o = null;\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo() {
+				    final Object o = null;
+				    o.toString();
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -196,12 +210,14 @@ public void test0005_final_local() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    final Object o;\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo() {
+				    final Object o;
+				    o.toString();
+				  }
+				}
+				"""},
 		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
 		"	o.toString();\n" +
@@ -222,17 +238,19 @@ public void test0006_final_local() {
 			"    if (o != null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o != null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			2. WARNING in X.java (at line 4)
+				if (o != null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -248,12 +266,14 @@ public void test0007_local_with_member() {
 			"    x.m.toString();\n" + // complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	x.m.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable x can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				x.m.toString();
+				^
+			Null pointer access: The variable x can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -269,12 +289,14 @@ public void test0008_local_with_member() {
 			"    System.out.println(x.m);\n" + // complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	System.out.println(x.m);\n" +
-		"	                   ^\n" +
-		"Null pointer access: The variable x can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				System.out.println(x.m);
+				                   ^
+			Null pointer access: The variable x can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -333,16 +355,18 @@ public void test0012_field_with_method_call() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object o;\n" +
-			"  void foo() {\n" +
-			"    o = null;\n" +
-			"    bar();\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"  static void bar() {\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object o;
+				  void foo() {
+				    o = null;
+				    bar();
+				    o.toString();
+				  }
+				  static void bar() {
+				  }
+				}
+				"""},
 		"" // still ok because the class may hold a pointer to this
 	);
 }
@@ -352,16 +376,18 @@ public void test0013_field_with_method_call() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  static Object o;\n" +
-			"  void foo() {\n" +
-			"    o = null;\n" +
-			"    bar();\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  static Object o;
+				  void foo() {
+				    o = null;
+				    bar();
+				    o.toString();
+				  }
+				  void bar() {
+				  }
+				}
+				"""},
 		"" // still ok because this may place a static call upon X
 	);
 }
@@ -371,13 +397,15 @@ public void test0014_field_with_explicit_this_access() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object o;\n" +
-			"  void foo() {\n" +
-			"    o = null;\n" +
-			"    this.o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object o;
+				  void foo() {
+				    o = null;
+				    this.o.toString();
+				  }
+				}
+				"""},
 		""
 //      "----------\n" +
 //      "1. ERROR in X.java (at line 5)\n" +
@@ -393,13 +421,15 @@ public void test0015_field_with_explicit_this_access() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object o;\n" +
-			"  void foo() {\n" +
-			"    this.o = null;\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object o;
+				  void foo() {
+				    this.o = null;
+				    o.toString();
+				  }
+				}
+				"""},
 		""
 //      "----------\n" +
 //      "1. ERROR in X.java (at line 5)\n" +
@@ -415,14 +445,16 @@ public void test0016_field_of_another_object() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object o;\n" +
-			"  void foo() {\n" +
-			"    X other = new X();\n" +
-			"    other.o = null;\n" +
-			"    other.o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object o;
+				  void foo() {
+				    X other = new X();
+				    other.o = null;
+				    other.o.toString();
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -431,14 +463,16 @@ public void test0017_field_of_another_object() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object o;\n" +
-			"  void foo() {\n" +
-			"    X other = this;\n" +
-			"    o = null;\n" +
-			"    other.o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object o;
+				  void foo() {
+				    X other = this;
+				    o = null;
+				    other.o.toString();
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -473,14 +507,16 @@ public void test0019_field_synchronized() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object o;\n" +
-			"  public synchronized void foo() {\n" +
-			"    o = null;\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"  void bar() {/* */}\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object o;
+				  public synchronized void foo() {
+				    o = null;
+				    o.toString();
+				  }
+				  void bar() {/* */}
+				}
+				"""},
 		""
 //      "----------\n" +
 //      "1. ERROR in X.java (at line 5)\n" +
@@ -498,14 +534,16 @@ public void test0020_final_field() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  final Object o = null;\n" +
-			"  public synchronized void foo() {\n" +
-			"    bar();\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"  void bar() {/* */}\n" +
-			"}\n"},
+			"""
+				public class X {
+				  final Object o = null;
+				  public synchronized void foo() {
+				    bar();
+				    o.toString();
+				  }
+				  void bar() {/* */}
+				}
+				"""},
 		""
 //      "----------\n" +
 //      "1. ERROR in X.java (at line 5)\n" +
@@ -521,14 +559,16 @@ public void test0021_final_field() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  final Object o = null;\n" +
-			"  X () {\n" +
-			"    bar();\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"  void bar() {/* */}\n" +
-			"}\n"},
+			"""
+				public class X {
+				  final Object o = null;
+				  X () {
+				    bar();
+				    o.toString();
+				  }
+				  void bar() {/* */}
+				}
+				"""},
 		""
 //      "----------\n" +
 //      "1. ERROR in X.java (at line 5)\n" +
@@ -544,14 +584,16 @@ public void test0022_final_field() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  final Object o = new Object();\n" +
-			"  X () {\n" +
-			"    bar();\n" +
-			"    if (o == null) { /* empty */ }\n" +
-			"  }\n" +
-			"  void bar() {/* */}\n" +
-			"}\n"},
+			"""
+				public class X {
+				  final Object o = new Object();
+				  X () {
+				    bar();
+				    if (o == null) { /* empty */ }
+				  }
+				  void bar() {/* */}
+				}
+				"""},
 		""
 //      "----------\n" +
 //      "1. ERROR in X.java (at line 5)\n" +
@@ -567,13 +609,15 @@ public void test0023_field_assignment() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m;\n" +
-			"  void foo(X x) {\n" +
-			"    Object o = x.m;\n" +
-			"    if (o == null) { /* */ };\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object m;
+				  void foo(X x) {
+				    Object o = x.m;
+				    if (o == null) { /* */ };
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -582,13 +626,15 @@ public void test0024_field_cast_assignment() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m;\n" +
-			"  void foo(Object x) {\n" +
-			"    Object o = ((X) x).m;\n" +
-			"    if (o == null) { /* */ };\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object m;
+				  void foo(Object x) {
+				    Object o = ((X) x).m;
+				    if (o == null) { /* */ };
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -613,13 +659,15 @@ public void test0026_suppress_warnings() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"@SuppressWarnings(\"null\")\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    Object o = null;\n" +
-				"    o.toString();\n" +
-				"  }\n" +
-				"}\n"},
+				"""
+					@SuppressWarnings("null")
+					public class X {
+					  void foo() {
+					    Object o = null;
+					    o.toString();
+					  }
+					}
+					"""},
 		    "", null, true, null, compilerOptions, null);
 	}
 }
@@ -636,12 +684,14 @@ public void test0027_embedded_comparison() {
 			"    o.toString();\n" + 		// complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -650,13 +700,15 @@ public void test0028_field_as_initializer() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  X f;\n" +
-			"  void foo() {\n" +
-			"    X x = f;\n" +
-			"    if (x == null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  X f;
+				  void foo() {
+				    X x = f;
+				    if (x == null) { /* */ }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -665,19 +717,23 @@ public void test0029_field_assignment() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m;\n" +
-			"  void foo() {\n" +
-			"    X x = null;\n" +
-			"    x.m = new Object();\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	x.m = new Object();\n" +
-		"	^\n" +
-		"Null pointer access: The variable x can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  Object m;
+				  void foo() {
+				    X x = null;
+				    x.m = new Object();
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				x.m = new Object();
+				^
+			Null pointer access: The variable x can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -686,23 +742,27 @@ public void test0030_conditional_expression() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = true ? null : null;\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	Object o = true ? null : null;\n" +
-			"	                         ^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Null pointer access: The variable o can only be null at this location\n" +
-			"----------\n",
+			"""
+				public class X {
+				  void foo() {
+				    Object o = true ? null : null;
+				    o.toString();
+				  }
+				}
+				"""},
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					Object o = true ? null : null;
+					                         ^^^^
+				Dead code
+				----------
+				2. ERROR in X.java (at line 4)
+					o.toString();
+					^
+				Null pointer access: The variable o can only be null at this location
+				----------
+				""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -711,23 +771,27 @@ public void test0031_conditional_expression() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = true ? null : new Object();\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	Object o = true ? null : new Object();\n" +
-			"	                         ^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Null pointer access: The variable o can only be null at this location\n" +
-			"----------\n",
+			"""
+				public class X {
+				  void foo() {
+				    Object o = true ? null : new Object();
+				    o.toString();
+				  }
+				}
+				"""},
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					Object o = true ? null : new Object();
+					                         ^^^^^^^^^^^^
+				Dead code
+				----------
+				2. ERROR in X.java (at line 4)
+					o.toString();
+					^
+				Null pointer access: The variable o can only be null at this location
+				----------
+				""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -736,12 +800,14 @@ public void test0032_conditional_expression() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = false ? null : new Object();\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = false ? null : new Object();
+				    o.toString();
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -750,28 +816,32 @@ public void test0033_conditional_expression() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = (1 == 1) ? null : new Object();\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	Object o = (1 == 1) ? null : new Object();\n" +
-			"	           ^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 3)\n" +
-			"	Object o = (1 == 1) ? null : new Object();\n" +
-			"	                             ^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Null pointer access: The variable o can only be null at this location\n" +
-			"----------\n",
+			"""
+				public class X {
+				  void foo() {
+				    Object o = (1 == 1) ? null : new Object();
+				    o.toString();
+				  }
+				}
+				"""},
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					Object o = (1 == 1) ? null : new Object();
+					           ^^^^^^^^
+				Comparing identical expressions
+				----------
+				2. WARNING in X.java (at line 3)
+					Object o = (1 == 1) ? null : new Object();
+					                             ^^^^^^^^^^^^
+				Dead code
+				----------
+				3. ERROR in X.java (at line 4)
+					o.toString();
+					^
+				Null pointer access: The variable o can only be null at this location
+				----------
+				""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -781,19 +851,23 @@ public void test0034_conditional_expression() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean b;\n" +
-			"  void foo() {\n" +
-			"    Object o = b ? null : new Object();\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Potential null pointer access: The variable o may be null at this location\n" +
-			"----------\n");
+			"""
+				public class X {
+				  boolean b;
+				  void foo() {
+				    Object o = b ? null : new Object();
+				    o.toString();
+				  }
+				}
+				"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					o.toString();
+					^
+				Potential null pointer access: The variable o may be null at this location
+				----------
+				""");
 }
 
 // null analysis -- conditional expression
@@ -803,13 +877,15 @@ public void test0034_conditional_expression_2() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean b;\n" +
-			"  void foo() {\n" +
-			"    Object o = false ? null : new Object();\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  boolean b;
+				  void foo() {
+				    Object o = false ? null : new Object();
+				    o.toString();
+				  }
+				}
+				"""},
 			"");
 }
 
@@ -819,20 +895,24 @@ public void test0034_conditional_expression_3() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean b;\n" +
-			"  void foo(Object a) {\n" +
-			" 	 if (a == null) {}\n" +
-			"    Object o = b ? a : new Object();\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Potential null pointer access: The variable o may be null at this location\n" +
-			"----------\n");
+			"""
+				public class X {
+				  boolean b;
+				  void foo(Object a) {
+				 	 if (a == null) {}
+				    Object o = b ? a : new Object();
+				    o.toString();
+				  }
+				}
+				"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					o.toString();
+					^
+				Potential null pointer access: The variable o may be null at this location
+				----------
+				""");
 }
 
 // null analysis -- conditional expression
@@ -879,13 +959,15 @@ public void test0035_conditional_expression() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean b;\n" +
-			"  void foo() {\n" +
-			"    Object o = b ? null : new Object();\n" +
-			"    if (o == null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  boolean b;
+				  void foo() {
+				    Object o = b ? null : new Object();
+				    if (o == null) { /* */ }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -894,19 +976,23 @@ public void test0036_conditional_expression() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean b;\n" +
-			"  void foo() {\n" +
-			"    Object o = b ? null : null;\n" +
-			"    if (o == null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean b;
+				  void foo() {
+				    Object o = b ? null : null;
+				    if (o == null) { /* */ }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o == null) { /* */ }
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -916,17 +1002,21 @@ public void test0037_conditional_expression_1() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	boolean badFunction(int i) {\n" +
-			"		return i > 0 ? true : null;\n" +
-			"	}\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	return i > 0 ? true : null;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" +
-		"----------\n",
+			"""
+				public class X {
+					boolean badFunction(int i) {
+						return i > 0 ? true : null;
+					}
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				return i > 0 ? true : null;
+				       ^^^^^^^^^^^^^^^^^^^
+			Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
@@ -938,23 +1028,27 @@ public void test0037_conditional_expression_2() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	int badFunction(int i) {\n" +
-			"		return i > 0 ? null : Integer.MIN_VALUE;\n" +
-			"	}\n" +
-			"	@SuppressWarnings(\"null\")\n" +
-			"	int silent(int i) {\n" +
-			"		return i > 0 ? null : Integer.MIN_VALUE;\n" +
-			"	}\n" +
-			"}\n"},
+			"""
+				public class X {
+					int badFunction(int i) {
+						return i > 0 ? null : Integer.MIN_VALUE;
+					}
+					@SuppressWarnings("null")
+					int silent(int i) {
+						return i > 0 ? null : Integer.MIN_VALUE;
+					}
+				}
+				"""},
 		null,
 		options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	return i > 0 ? null : Integer.MIN_VALUE;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				return i > 0 ? null : Integer.MIN_VALUE;
+				       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
@@ -966,20 +1060,24 @@ public void test0037_conditional_expression_3() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	boolean badFunction3(int i) {\n" +
-			"		//expected a potential null problem:\n" +
-			"		return i > 0 ? true : (Boolean) null;\n" +
-			"	}\n" +
-			"}\n"},
+			"""
+				public class X {
+					boolean badFunction3(int i) {
+						//expected a potential null problem:
+						return i > 0 ? true : (Boolean) null;
+					}
+				}
+				"""},
 		null,
 		options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	return i > 0 ? true : (Boolean) null;\n" +
-		"	                      ^^^^^^^^^^^^^^\n" +
-		"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				return i > 0 ? true : (Boolean) null;
+				                      ^^^^^^^^^^^^^^
+			Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
@@ -993,23 +1091,27 @@ public void test0037_conditional_expression_4() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	boolean badFunction4(int i) {\n" +
-			"	if (i > 0)\n" +
-			"		return true;\n" +
-			"	else\n" +
-			"		// expected a null problem:\n" +
-			"		return (Boolean) null;\n" +
-			"	}\n" +
-			"}\n"},
+			"""
+				public class X {
+					boolean badFunction4(int i) {
+					if (i > 0)
+						return true;
+					else
+						// expected a null problem:
+						return (Boolean) null;
+					}
+				}
+				"""},
 		null,
 		options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	return (Boolean) null;\n" +
-		"	       ^^^^^^^^^^^^^^\n" +
-		"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				return (Boolean) null;
+				       ^^^^^^^^^^^^^^
+			Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
@@ -1021,28 +1123,32 @@ public void test0037_conditional_expression_5() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	String badFunction3(int i) {\n" +
-			"		return (i > 0 ? this : null).toString();\n" +
-			"	}\n" +
-			"	String badFunction4(int i) {\n" +
-			"		Object o = null;\n" +
-			"		return (i > 0 ? o : null).toString();\n" +
-			"	}\n" +
-			"}\n"},
+			"""
+				public class X {
+					String badFunction3(int i) {
+						return (i > 0 ? this : null).toString();
+					}
+					String badFunction4(int i) {
+						Object o = null;
+						return (i > 0 ? o : null).toString();
+					}
+				}
+				"""},
 		null,
 		options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	return (i > 0 ? this : null).toString();\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential null pointer access: This expression may be null\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	return (i > 0 ? o : null).toString();\n" +
-		"	       ^^^^^^^^^^^^^^^^^^\n" +
-		"Null pointer access: This expression can only be null\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				return (i > 0 ? this : null).toString();
+				       ^^^^^^^^^^^^^^^^^^^^^
+			Potential null pointer access: This expression may be null
+			----------
+			2. ERROR in X.java (at line 7)
+				return (i > 0 ? o : null).toString();
+				       ^^^^^^^^^^^^^^^^^^
+			Null pointer access: This expression can only be null
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
@@ -1055,43 +1161,47 @@ public void test0037_autounboxing_1() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo1(boolean b) {\n" +
-			"       int j = 0;\n" +
-			"       Integer i = null;\n" +
-			"       while (true) {\n" +
-			"           try {\n" +
-			"               j = 1;\n" +
-			"           } finally {\n" +
-			"               j = (b?i:1)+1;\n" +
-			"               i = 2;\n" +
-			"           }\n" +
-			"       }\n" +
-			"   }\n" +
-			"	void foo2(boolean b) {\n" +
-			"       int j = 0;\n" +
-			"       Integer i = null;\n" +
-			"       try {\n" +
-			"           j = 1;\n" +
-			"       } finally {\n" +
-			"           j = (b?i:1)+1;\n" +
-			"           i = 2;\n" +
-			"       }\n" +
-			"   }\n" +
-			"}\n"},
+			"""
+				public class X {
+					void foo1(boolean b) {
+				       int j = 0;
+				       Integer i = null;
+				       while (true) {
+				           try {
+				               j = 1;
+				           } finally {
+				               j = (b?i:1)+1;
+				               i = 2;
+				           }
+				       }
+				   }
+					void foo2(boolean b) {
+				       int j = 0;
+				       Integer i = null;
+				       try {
+				           j = 1;
+				       } finally {
+				           j = (b?i:1)+1;
+				           i = 2;
+				       }
+				   }
+				}
+				"""},
 		null,
 		options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	j = (b?i:1)+1;\n" +
-		"	       ^\n" +
-		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 20)\n" +
-		"	j = (b?i:1)+1;\n" +
-		"	       ^\n" +
-		"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				j = (b?i:1)+1;
+				       ^
+			Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing
+			----------
+			2. ERROR in X.java (at line 20)
+				j = (b?i:1)+1;
+				       ^
+			Null pointer access: This expression of type Integer is null but requires auto-unboxing
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
@@ -1104,43 +1214,47 @@ public void test0037_autounboxing_2() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo2(boolean b) {\n" +
-			"       int j = 0;\n" +
-			"       Integer i = null;\n" +
-			"       while (true) {\n" +
-			"           try {\n" +
-			"               if (b)\n" +
-			"                   i = 3;\n" +
-			"           } finally {\n" +
-			"               j = (b?i:1)+1;\n" +
-			"           }\n" +
-			"       }\n" +
-			"   }\n" +
-			"	void foo3(boolean b) {\n" +
-			"       int j = 0;\n" +
-			"       Integer i = null;\n" +
-			"       try {\n" +
-			"           if (b)\n" +
-			"               i = 3;\n" +
-			"       } finally {\n" +
-			"           j = (b?i:1)+1;\n" +
-			"       }\n" +
-			"   }\n" +
-			"}\n"},
+			"""
+				public class X {
+					void foo2(boolean b) {
+				       int j = 0;
+				       Integer i = null;
+				       while (true) {
+				           try {
+				               if (b)
+				                   i = 3;
+				           } finally {
+				               j = (b?i:1)+1;
+				           }
+				       }
+				   }
+					void foo3(boolean b) {
+				       int j = 0;
+				       Integer i = null;
+				       try {
+				           if (b)
+				               i = 3;
+				       } finally {
+				           j = (b?i:1)+1;
+				       }
+				   }
+				}
+				"""},
 		null,
 		options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	j = (b?i:1)+1;\n" +
-		"	       ^\n" +
-		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 21)\n" +
-		"	j = (b?i:1)+1;\n" +
-		"	       ^\n" +
-		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				j = (b?i:1)+1;
+				       ^
+			Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing
+			----------
+			2. ERROR in X.java (at line 21)
+				j = (b?i:1)+1;
+				       ^
+			Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
@@ -1153,50 +1267,54 @@ public void test0037_autounboxing_3() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo3(Integer i, boolean b) {\n" +
-			"       int j = 0;\n" +
-			"       while (true) {\n" +
-			"           try {\n" +
-			"               i = null;\n" +
-			"               unsafe();\n" +
-			"           } catch (Exception e) {\n" +
-			"               i = 3;\n" +
-			"           } finally {\n" +
-			"               j = (b?i:1)+1;\n" +
-			"           }\n" +
-			"       }\n" +
-			"   }\n" +
-			"	void foo4(Integer i, boolean b) {\n" +
-			"       int j = 0;\n" +
-			"       try {\n" +
-			"           i = null;\n" +
-			"           unsafe();\n" +
-			"       } catch (Exception e) {\n" +
-			"           i = 3;\n" +
-			"       } finally {\n" +
-			"           while (j < 0)\n" +
-			"               j = (b?i:1)+1;\n" +
-			"       }\n" +
-			"   }\n" +
-			"\n" +
-			"   private void unsafe() throws Exception {\n" +
-			"        throw new Exception();\n" +
-			"   }\n" +
-			"}\n"},
+			"""
+				public class X {
+					void foo3(Integer i, boolean b) {
+				       int j = 0;
+				       while (true) {
+				           try {
+				               i = null;
+				               unsafe();
+				           } catch (Exception e) {
+				               i = 3;
+				           } finally {
+				               j = (b?i:1)+1;
+				           }
+				       }
+				   }
+					void foo4(Integer i, boolean b) {
+				       int j = 0;
+				       try {
+				           i = null;
+				           unsafe();
+				       } catch (Exception e) {
+				           i = 3;
+				       } finally {
+				           while (j < 0)
+				               j = (b?i:1)+1;
+				       }
+				   }
+				
+				   private void unsafe() throws Exception {
+				        throw new Exception();
+				   }
+				}
+				"""},
 		null,
 		options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	j = (b?i:1)+1;\n" +
-		"	       ^\n" +
-		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 24)\n" +
-		"	j = (b?i:1)+1;\n" +
-		"	       ^\n" +
-		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 11)
+				j = (b?i:1)+1;
+				       ^
+			Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing
+			----------
+			2. ERROR in X.java (at line 24)
+				j = (b?i:1)+1;
+				       ^
+			Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
@@ -1208,40 +1326,42 @@ public void test0037_autounboxing_4() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	void foo3(Integer i, boolean b) {\n" +
-			"       int j = 0;\n" +
-			"       while (true) {\n" +
-			"           try {\n" +
-			"               i = null;\n" +
-			"               unsafe();\n" +
-			"           } catch (Exception e) {\n" +
-			"               i = 3;\n" +
-			"           } finally {\n" +
-			"				if (i == null) i = 4;\n" +
-			"               j = (b?i:1)+1;\n" +
-			"           }\n" +
-			"       }\n" +
-			"   }\n" +
-			"	void foo4(Integer i, boolean b) {\n" +
-			"       int j = 0;\n" +
-			"       try {\n" +
-			"           i = null;\n" +
-			"           unsafe();\n" +
-			"       } catch (Exception e) {\n" +
-			"           i = 3;\n" +
-			"       } finally {\n" +
-			"           while (i == null)\n" +
-			"				i = 4;\n" +
-			"           while (j < 4)\n" +
-			"               j = (b?i:1)+1;\n" +
-			"       }\n" +
-			"   }\n" +
-			"\n" +
-			"   private void unsafe() throws Exception {\n" +
-			"        throw new Exception();\n" +
-			"   }\n" +
-			"}\n"},
+			"""
+				public class X {
+					void foo3(Integer i, boolean b) {
+				       int j = 0;
+				       while (true) {
+				           try {
+				               i = null;
+				               unsafe();
+				           } catch (Exception e) {
+				               i = 3;
+				           } finally {
+								if (i == null) i = 4;
+				               j = (b?i:1)+1;
+				           }
+				       }
+				   }
+					void foo4(Integer i, boolean b) {
+				       int j = 0;
+				       try {
+				           i = null;
+				           unsafe();
+				       } catch (Exception e) {
+				           i = 3;
+				       } finally {
+				           while (i == null)
+								i = 4;
+				           while (j < 4)
+				               j = (b?i:1)+1;
+				       }
+				   }
+				
+				   private void unsafe() throws Exception {
+				        throw new Exception();
+				   }
+				}
+				"""},
 		options);
 }
 // https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
@@ -1254,30 +1374,34 @@ public void test0037_autounboxing_5() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		void foo(Object [] o, boolean b, Integer i) {\n" +
-			"		int j = 1;\n" +
-			"		try {\n" +
-			"			if (b) i = null;\n" +
-			"		} catch (RuntimeException r) {\n" +
-			"			i = 3;\n" +
-			"		} finally {\n" +
-			"			try {\n" +
-			"				System.out.println(o[i]);  \n" +
-			"			} finally {\n" +
-			"				System.out.println(j);\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"},
+			"""
+				public class X {
+						void foo(Object [] o, boolean b, Integer i) {
+						int j = 1;
+						try {
+							if (b) i = null;
+						} catch (RuntimeException r) {
+							i = 3;
+						} finally {
+							try {
+								System.out.println(o[i]); \s
+							} finally {
+								System.out.println(j);
+							}
+						}
+					}
+				}
+				"""},
 		null,
 		options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	System.out.println(o[i]);  \n" +
-		"	                     ^\n" +
-		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				System.out.println(o[i]); \s
+				                     ^
+			Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1288,19 +1412,21 @@ public void test0037_autounboxing_6() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	void test(List<String> l1, List<String> l2, int i, Object val) {\n" +
-			"		for (String s1 : l1) {\n" +
-			"			for (String s2 : l2) {\n" +
-			"				switch (i) {\n" +
-			"				case 1: \n" +
-			"					boolean booleanValue = (Boolean)val;\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.List;
+				public class X {
+					void test(List<String> l1, List<String> l2, int i, Object val) {
+						for (String s1 : l1) {
+							for (String s2 : l2) {
+								switch (i) {
+								case 1:\s
+									boolean booleanValue = (Boolean)val;
+								}
+							}
+						}
+					}
+				}
+				"""
 		});
 }
 
@@ -1310,18 +1436,22 @@ public void test0040_autoboxing_compound_assignment() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    Integer i = null;\n" +
-				"    i += 1;\n" +
-				"  }\n" +
-				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	i += 1;\n" +
-			"	^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n",
+				"""
+					public class X {
+					  void foo() {
+					    Integer i = null;
+					    i += 1;
+					  }
+					}
+					"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					i += 1;
+					^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -1339,12 +1469,14 @@ public void test0041_autoboxing_increment_operator() {
 				"    ++i;\n" + // quiet (because previous step guards it)
 				"  }\n" +
 				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	i++;\n" +
-			"	^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					i++;
+					^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -1361,17 +1493,19 @@ public void test0042_autoboxing_literal() {
 				"    if (i == null) {};\n" + // complain: this is non null
 				"  }\n" +
 				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	if (i == null) {};\n" +
-			"	    ^\n" +
-			"Null comparison always yields false: The variable i cannot be null at this location\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	if (i == null) {};\n" +
-			"	               ^^\n" +
-			"Dead code\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					if (i == null) {};
+					    ^
+				Null comparison always yields false: The variable i cannot be null at this location
+				----------
+				2. WARNING in X.java (at line 4)
+					if (i == null) {};
+					               ^^
+				Dead code
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -1388,12 +1522,14 @@ public void test0043_autoboxing_literal() {
 				"    System.out.println(i + 4);\n" + // complain: this is null
 				"  }\n" +
 				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	System.out.println(i + 4);\n" +
-			"	                   ^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					System.out.println(i + 4);
+					                   ^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -1404,12 +1540,14 @@ public void test0044_autoboxing() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    int i = 0;\n" +
-			"    boolean b = i < 10;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo() {
+				    int i = 0;
+				    boolean b = i < 10;
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -1421,24 +1559,28 @@ public void test0045_autoboxing_operator() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    int j = 5;" +
-				"    Integer i = 0 + j;\n" +
-				"    if (i == null) {}\n" +
-				"  }\n" +
-				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	if (i == null) {}\n" +
-			"	    ^\n" +
-			"Null comparison always yields false: The variable i cannot be null at this location\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	if (i == null) {}\n" +
-			"	               ^^\n" +
-			"Dead code\n" +
-			"----------\n",
+				"""
+					public class X {
+					  void foo() {
+					    int j = 5;\
+					    Integer i = 0 + j;
+					    if (i == null) {}
+					  }
+					}
+					"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					if (i == null) {}
+					    ^
+				Null comparison always yields false: The variable i cannot be null at this location
+				----------
+				2. WARNING in X.java (at line 4)
+					if (i == null) {}
+					               ^^
+				Dead code
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -1470,12 +1612,14 @@ public void test0051_array() {
 			"    args[0].toString();\n" + // complain: args is null
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	args[0].toString();\n" +
-		"	^^^^\n" +
-		"Null pointer access: The variable args can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				args[0].toString();
+				^^^^
+			Null pointer access: The variable args can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1499,11 +1643,13 @@ public void test0053_array() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo(String args[]) {\n" +
-			"    for (int i = 0; i < args.length; i++) { /* */}\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  public void foo(String args[]) {
+				    for (int i = 0; i < args.length; i++) { /* */}
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -1518,17 +1664,19 @@ public void test0061_method_call_guard() {
 			"    if (o == null) {};\n" + // complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o == null) {};\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	if (o == null) {};\n" +
-		"	               ^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o == null) {};
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 4)
+				if (o == null) {};
+				               ^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1547,12 +1695,14 @@ public void test0062_method_call_isolation() {
 			"    return true;\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o == null) {/* empty */}\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o == null) {/* empty */}
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1589,17 +1739,19 @@ public void test0064_method_call_isolation() {
 			"    return true;\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o == null) {/* empty */}\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	if (o == null) {/* empty */}\n" +
-		"	               ^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o == null) {/* empty */}
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 4)
+				if (o == null) {/* empty */}
+				               ^^^^^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1628,12 +1780,14 @@ public void test0066_method_call_invocation_target() {
 			"    (o = null).toString();\n" + // complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	(o = null).toString();\n" +
-		"	^^^^^^^^^^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				(o = null).toString();
+				^^^^^^^^^^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1648,17 +1802,19 @@ public void test0067_method_call_invocation_target() {
 			"    if (o == null)  { /* */ }\n" + // complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o == null)  { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	if (o == null)  { /* */ }\n" +
-		"	                ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o == null)  { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 4)
+				if (o == null)  { /* */ }
+				                ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1684,23 +1840,27 @@ public void test0070_type_reference() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static void main(String args[]) {\n" +
-			"    Class c = java.lang.Object.class;\n" +
-			"    if (c == null) {};\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (c == null) {};\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable c cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	if (c == null) {};\n" +
-		"	               ^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				  public static void main(String args[]) {
+				    Class c = java.lang.Object.class;
+				    if (c == null) {};
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (c == null) {};
+				    ^
+			Null comparison always yields false: The variable c cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 4)
+				if (c == null) {};
+				               ^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1708,17 +1868,21 @@ public void test0080_shortcut_boolean_expressions() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o1, Object o2) {\n" +
-			"    if (o1 != null && (o2 = o1) != null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	if (o1 != null && (o2 = o1) != null) { /* */ }\n" +
-		"	                  ^^^^^^^^^\n" +
-		"Redundant null check: The variable o2 cannot be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o1, Object o2) {
+				    if (o1 != null && (o2 = o1) != null) { /* */ }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				if (o1 != null && (o2 = o1) != null) { /* */ }
+				                  ^^^^^^^^^
+			Redundant null check: The variable o2 cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1726,17 +1890,21 @@ public void test0081_shortcut_boolean_expressions() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o1, Object o2) {\n" +
-			"    while (o1 != null && (o2 = o1) != null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	while (o1 != null && (o2 = o1) != null) { /* */ }\n" +
-		"	                     ^^^^^^^^^\n" +
-		"Redundant null check: The variable o2 cannot be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o1, Object o2) {
+				    while (o1 != null && (o2 = o1) != null) { /* */ }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				while (o1 != null && (o2 = o1) != null) { /* */ }
+				                     ^^^^^^^^^
+			Redundant null check: The variable o2 cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1745,30 +1913,33 @@ public void test0082_shortcut_boolean_expression() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o) {\n" +
-			"    if (o == null || o == null) {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    if (o == null) { /* */ }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	if (o == null || o == null) {\n" +
-		"	                 ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 6)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o) {
+				    if (o == null || o == null) {
+				      o = new Object();
+				    }
+				    if (o == null) { /* */ }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				if (o == null || o == null) {
+				                 ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 6)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			3. WARNING in X.java (at line 6)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1777,30 +1948,33 @@ public void test0083_shortcut_boolean_expression() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o) {\n" +
-			"    if (o == null && o == null) {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    if (o == null) { /* */ }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	if (o == null && o == null) {\n" +
-		"	                 ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 6)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o) {
+				    if (o == null && o == null) {
+				      o = new Object();
+				    }
+				    if (o == null) { /* */ }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				if (o == null && o == null) {
+				                 ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			2. ERROR in X.java (at line 6)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			3. WARNING in X.java (at line 6)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1810,18 +1984,21 @@ public void test0084_shortcut_boolean_expression() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean foo(Integer i1, Integer i2) {\n" +
-			"    return (i1 == null && i2 == null)\n" +
-			"      || (i1.byteValue() == i2.byteValue());\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	|| (i1.byteValue() == i2.byteValue());\n" +
-		"	    ^^\n" +
-		"Potential null pointer access: The variable i1 may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean foo(Integer i1, Integer i2) {
+				    return (i1 == null && i2 == null)
+				      || (i1.byteValue() == i2.byteValue());
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				|| (i1.byteValue() == i2.byteValue());
+				    ^^
+			Potential null pointer access: The variable i1 may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1831,23 +2008,26 @@ public void test0085_shortcut_boolean_expression() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean foo(Integer i1, Integer i2) {\n" +
-			"    return (i1 == null & i2 == null)\n" +
-			"      || (i1.byteValue() == i2.byteValue());\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	|| (i1.byteValue() == i2.byteValue());\n" +
-		"	    ^^\n" +
-		"Potential null pointer access: The variable i1 may be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	|| (i1.byteValue() == i2.byteValue());\n" +
-		"	                      ^^\n" +
-		"Potential null pointer access: The variable i2 may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean foo(Integer i1, Integer i2) {
+				    return (i1 == null & i2 == null)
+				      || (i1.byteValue() == i2.byteValue());
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				|| (i1.byteValue() == i2.byteValue());
+				    ^^
+			Potential null pointer access: The variable i1 may be null at this location
+			----------
+			2. ERROR in X.java (at line 4)
+				|| (i1.byteValue() == i2.byteValue());
+				                      ^^
+			Potential null pointer access: The variable i2 may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1857,20 +2037,21 @@ public void test0086_shortcut_boolean_expression() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static int foo(Integer i, Integer j) {\n" +
-			"    if (i == null && j == null) {\n" +
-			"      return 1;\n" +
-			"    }\n" +
-			"    if (i == null) {\n" +
-			"      return j.intValue();\n" +
-			"    }\n" +
-			"    if (j == null) {\n" +
-			"      return i.intValue();\n" +
-			"    }\n" +
-			"    return 0;\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public static int foo(Integer i, Integer j) {
+				    if (i == null && j == null) {
+				      return 1;
+				    }
+				    if (i == null) {
+				      return j.intValue();
+				    }
+				    if (j == null) {
+				      return i.intValue();
+				    }
+				    return 0;
+				  }
+				}"""},
 		"");
 }
 
@@ -1880,20 +2061,21 @@ public void _test0087_shortcut_boolean_expression() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static int foo(Integer i, Integer j) {\n" +
-			"    if (i == null && j == null) {\n" +
-			"      return 1;\n" +
-			"    }\n" +
-			"    if (j == null) {\n" +
-			"      return i.intValue();\n" +
-			"    }\n" +
-			"    if (i == null) {\n" +
-			"      return j.intValue();\n" +
-			"    }\n" +
-			"    return 0;\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public static int foo(Integer i, Integer j) {
+				    if (i == null && j == null) {
+				      return 1;
+				    }
+				    if (j == null) {
+				      return i.intValue();
+				    }
+				    if (i == null) {
+				      return j.intValue();
+				    }
+				    return 0;
+				  }
+				}"""},
 		"");
 }
 
@@ -1903,15 +2085,16 @@ public void test0090_instanceof() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo (Object o) {\n" +
-			"	if (dummy) {\n" +
-			"	  o = null;\n" +
-			"	}\n" +
-			"	if (o instanceof X) { /* */ }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  boolean dummy;
+				  void foo (Object o) {
+					if (dummy) {
+					  o = null;
+					}
+					if (o instanceof X) { /* */ }
+				  }
+				}"""},
 		"");
 }
 
@@ -1920,16 +2103,17 @@ public void test0091_instanceof() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo (Object o) {\n" +
-			"	if (dummy) {\n" +
-			"	  o = null;\n" +
-			"	}\n" +
-			"	if (o instanceof X) { /* */ }\n" +
-			"	if (o == null) { /* */ }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  boolean dummy;
+				  void foo (Object o) {
+					if (dummy) {
+					  o = null;
+					}
+					if (o instanceof X) { /* */ }
+					if (o == null) { /* */ }
+				  }
+				}"""},
 		"");
 }
 
@@ -1939,19 +2123,22 @@ public void test0092_instanceof() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo () {\n" +
-			"	Object o = null;\n" +
-			"	if (o instanceof X) { /* */ }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o instanceof X) { /* */ }\n" +
-		"	    ^\n" +
-		"instanceof always yields false: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				class X {
+				  boolean dummy;
+				  void foo () {
+					Object o = null;
+					if (o instanceof X) { /* */ }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o instanceof X) { /* */ }
+				    ^
+			instanceof always yields false: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -1967,17 +2154,19 @@ public void test0093_instanceof() {
 			"    }\n" +
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (x == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable x cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	if (x == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (x == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable x cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 4)
+				if (x == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2004,20 +2193,23 @@ public void test0095_instanceof_conditional_or() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  void foo(Object x) {\n" +
-			"    if (! (x instanceof String)\n" +
-			"         || x == null) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	|| x == null) {\n" +
-		"	   ^\n" +
-		"Null comparison always yields false: The variable x cannot be null at this location\n" +
-		"----------\n",
+			"""
+				class X {
+				  void foo(Object x) {
+				    if (! (x instanceof String)
+				         || x == null) {
+				      return;
+				    }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				|| x == null) {
+				   ^
+			Null comparison always yields false: The variable x cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2030,12 +2222,14 @@ public void test0120_strings_concatenation() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  String foo(String s1, String s2) {\n" +
-			"    if (s1 == null) { /* */ };\n" +
-			"    return s1 + s2;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  String foo(String s1, String s2) {
+				    if (s1 == null) { /* */ };
+				    return s1 + s2;
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -2044,13 +2238,15 @@ public void test0121_strings_concatenation() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  String foo(String s1, String s2) {\n" +
-			"    if (s1 == null) { /* */ };\n" +
-			"    s1 += s2;\n" +
-			"    return s1;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  String foo(String s1, String s2) {
+				    if (s1 == null) { /* */ };
+				    s1 += s2;
+				    return s1;
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -2059,18 +2255,22 @@ public void test0122_strings_concatenation() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  String foo(String s1) {\n" +
-			"    if (s1 == null) { /* */ };\n" +
-			"    return s1.toString();\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	return s1.toString();\n" +
-		"	       ^^\n" +
-		"Potential null pointer access: The variable s1 may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  String foo(String s1) {
+				    if (s1 == null) { /* */ };
+				    return s1.toString();
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				return s1.toString();
+				       ^^
+			Potential null pointer access: The variable s1 may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2137,12 +2337,14 @@ public void test0126_strings_concatenation() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o) {\n" +
-			"    System.out.println(o + \"\");\n" +
-			"    if (o != null) { /* */ };\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(Object o) {
+				    System.out.println(o + "");
+				    if (o != null) { /* */ };
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -2152,12 +2354,14 @@ public void test0127_strings_concatenation() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    System.out.println(o + \"\");\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = null;
+				    System.out.println(o + "");
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -2186,26 +2390,28 @@ public void test0300_if_else() {
 			"    o.toString();\n" +
 			"  }\n" +
 			"}\n"},
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	if (false) {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 10)\n" +
-			"	else {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 13)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Null pointer access: The variable o can only be null at this location\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 4)
+					if (false) {
+				      o = new Object();
+				    }
+					           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				2. WARNING in X.java (at line 10)
+					else {
+				      o = new Object();
+				    }
+					     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				3. ERROR in X.java (at line 13)
+					o.toString();
+					^
+				Null pointer access: The variable o can only be null at this location
+				----------
+				""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2214,19 +2420,23 @@ public void test0301_if_else() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = new Object();\n" +
-			"    if (o != null) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o != null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo() {
+				    Object o = new Object();
+				    if (o != null) {
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o != null) {
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2244,12 +2454,14 @@ public void test0302_if_else() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o != null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o != null) {
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2258,21 +2470,25 @@ public void test0303_if_else() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o) {\n" +
-			"    if (o == null) {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"    if (o != null) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o != null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o) {
+				    if (o == null) {
+				      return;
+				    }
+				    if (o != null) {
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o != null) {
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2281,19 +2497,23 @@ public void test0304_if_else() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o) {\n" +
-			"    if (o == null) {\n" +
-			"      o.toString();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o) {
+				    if (o == null) {
+				      o.toString();
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2302,20 +2522,24 @@ public void test0305_if_else() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o) {\n" +
-			"    if (o == null) {\n" +
-			"      // do nothing\n" +
-			"    }\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o) {
+				    if (o == null) {
+				      // do nothing
+				    }
+				    o.toString();
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2333,19 +2557,21 @@ public void test0306_if_else() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o == null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	if (o == null) {\n" +
-		"        // do nothing\n" +
-		"      }\n" +
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o == null) {
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 4)
+				if (o == null) {
+			        // do nothing
+			      }
+				               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2385,12 +2611,14 @@ public void test0308_if_else() {
 			"    o.toString();\n" + // complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2411,12 +2639,14 @@ public void test0309_if_else() {
 			"    o.toString();\n" + // complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2438,17 +2668,19 @@ public void test0310_if_else() {
 			"    o.toString();\n" + // complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 11)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			2. ERROR in X.java (at line 11)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2481,22 +2713,24 @@ public void test0312_if_else() {
 			"    o.toString();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 6)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 5)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 6)
+				if (o != null) { /* */ }
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2514,17 +2748,19 @@ public void test0313_if_else() {
 			// complain: o set to non null iff it was null
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 6)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 6)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2541,12 +2777,14 @@ public void test0314_if_else() {
 			"    if (o == null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o == null) { /* */ }
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2563,12 +2801,14 @@ public void test0315_if_else() {
 			"    o.toString();\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2584,12 +2824,14 @@ public void test0316_if_else() {
 			"    o.toString();\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2657,17 +2899,19 @@ public void test0320_if_else() {
 			"    if (o == null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 4)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2700,17 +2944,19 @@ public void test0322_if_else() {
 			"    if (o == null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 5)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2735,26 +2981,27 @@ public void test0324_if_else_nested() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  void foo (boolean b) {\n" +
-			"    String s = null;\n" +
-			"    if (b) {\n" +
-			"      if (b) {\n" +
-			"        s = \"1\";\n" +
-			"      } \n" +
-			"      else {\n" +
-			"        s = \"2\";\n" +
-			"      }\n" +
-			"    } \n" +
-			"    else if (b) {\n" +
-			"      s = \"3\"; \n" +
-			"    } \n" +
-			"    else {\n" +
-			"      s = \"4\";\n" +
-			"    }\n" +
-			"    s.toString();\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  void foo (boolean b) {
+				    String s = null;
+				    if (b) {
+				      if (b) {
+				        s = "1";
+				      }\s
+				      else {
+				        s = "2";
+				      }
+				    }\s
+				    else if (b) {
+				      s = "3";\s
+				    }\s
+				    else {
+				      s = "4";
+				    }
+				    s.toString();
+				  }
+				}"""},
 		"");
 }
 
@@ -2763,34 +3010,37 @@ public void test0325_if_else_nested() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  void foo (boolean b) {\n" +
-			"    String s = null;\n" +
-			"    if (b) {\n" +
-			"      if (b) {\n" +
-			"        s = \"1\";\n" +
-			"      } \n" +
-			"      else {\n" +
-			"        s = \"2\";\n" +
-			"      }\n" +
-			"    } \n" +
-			"    else if (b) {\n" +
-			"      if (b) {\n" +
-			"        s = \"3\"; \n" +
-			"      }\n" +
-			"    } \n" +
-			"    else {\n" +
-			"      s = \"4\";\n" +
-			"    }\n" +
-			"    s.toString();\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 20)\n" +
-		"	s.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n",
+			"""
+				class X {
+				  void foo (boolean b) {
+				    String s = null;
+				    if (b) {
+				      if (b) {
+				        s = "1";
+				      }\s
+				      else {
+				        s = "2";
+				      }
+				    }\s
+				    else if (b) {
+				      if (b) {
+				        s = "3";\s
+				      }
+				    }\s
+				    else {
+				      s = "4";
+				    }
+				    s.toString();
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 20)
+				s.toString();
+				^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2810,12 +3060,14 @@ public void test0326_if_else() {
 			"    s1.toString();\n" + // complain: can't guess if b means anything for s1 init
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	s1.toString();\n" +
-		"	^^\n" +
-		"Potential null pointer access: The variable s1 may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				s1.toString();
+				^^
+			Potential null pointer access: The variable s1 may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2837,12 +3089,14 @@ public void test0327_if_else() {
 			"    s2.toString();\n" + // complain: can't guess whether s2 depends on s1 for init
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	s2.toString();\n" +
-		"	^^\n" +
-		"Potential null pointer access: The variable s2 may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				s2.toString();
+				^^
+			Potential null pointer access: The variable s2 may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2862,12 +3116,14 @@ public void test0328_if_else() {
 			"    o.toString();\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2884,12 +3140,14 @@ public void test0329_if_else_nested() {
 			"    o.toString();\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2916,16 +3174,17 @@ public void test0331_if_else_nested() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o1, Object o2) {\n" +
-			"    Object o3 = o2;\n" +
-			"    if (o1 != null) {\n" +
-			"      o3.toString(); // guards o3\n" +
-			"    }\n" +
-			"    o1 = o3;\n" +
-			"    if (o1 != null) { /* */ }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  void foo(Object o1, Object o2) {
+				    Object o3 = o2;
+				    if (o1 != null) {
+				      o3.toString(); // guards o3
+				    }
+				    o1 = o3;
+				    if (o1 != null) { /* */ }
+				  }
+				}"""},
 		"");
 }
 
@@ -2943,12 +3202,14 @@ public void test0332_if_else() {
 			"    if (o != null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (o != null) { /* */ }
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2968,12 +3229,14 @@ public void test0333_if_else() {
 			"    o.toString();\n" + // quiet asked
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o != null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o != null) {
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -2996,19 +3259,21 @@ public void test0334_if_else() {
 			"    o.toString();\n" + // quiet
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o != null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 7)\n" +
-		"	else {\n" +
-		"      o.toString();\n" +
-		"    }\n" +
-		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o != null) {
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 7)
+				else {
+			      o.toString();
+			    }
+				     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3030,12 +3295,14 @@ public void test0335_if_else() {
 			"    }\n" +
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o != null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o != null) {
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""");
 }
 
 // null analysis - if/else
@@ -3058,19 +3325,21 @@ public void test0336_if_else() {
 			"    }\n" +
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o != null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 7)\n" +
-		"	else {\n" +
-		"        o.toString();\n" +
-		"      }\n" +
-		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o != null) {
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 7)
+				else {
+			        o.toString();
+			      }
+				     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3082,31 +3351,33 @@ public void _test0337_if_else_nested_correlation() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public int foo (Object o1, Object o2) {\n" +
-			"    int result = 0;\n" +
-			"    if (o1 == null && o2 != null) {\n" +
-			"      result = -1;\n" +
-			"    } else {\n" +
-			"      if (o1 == null && o2 == null) {\n" +
-			"        result = 0;\n" +
-			"      } else {\n" +
-			"        if (o1 != null && o2 == null) {\n" +
-			"          result = 1;\n" +
-			"        } else {\n" +
-			"          int lhs = ((Y) o1).foo();  // may be null\n" +
-			"          int rhs = ((Y) o2).foo();\n" +
-			"          result = lhs - rhs;\n" +
-			"        }\n" +
-			"      }\n" +
-			"    }\n" +
-			"    return result;\n" +
-			"  }\n" +
-			"}\n" +
-			"abstract class Y {\n" +
-			"  abstract int foo();\n" +
-			"}\n" +
-			"\n"},
+			"""
+				public class X {
+				  public int foo (Object o1, Object o2) {
+				    int result = 0;
+				    if (o1 == null && o2 != null) {
+				      result = -1;
+				    } else {
+				      if (o1 == null && o2 == null) {
+				        result = 0;
+				      } else {
+				        if (o1 != null && o2 == null) {
+				          result = 1;
+				        } else {
+				          int lhs = ((Y) o1).foo();  // may be null
+				          int rhs = ((Y) o2).foo();
+				          result = lhs - rhs;
+				        }
+				      }
+				    }
+				    return result;
+				  }
+				}
+				abstract class Y {
+				  abstract int foo();
+				}
+				
+				"""},
 		"");
 }
 
@@ -3117,31 +3388,33 @@ public void test0338_if_else_nested() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public int foo (Object o1, Object o2) {\n" +
-			"    int result = 0;\n" +
-			"    if (o1 == null && o2 == null) {\n" +
-			"      result = 0;\n" +
-			"    } else {\n" +
-			"      if (o1 == null) {\n" +
-			"        result = -1;\n" +
-			"      } else {\n" +
-			"        if (o2 == null) {\n" +
-			"          result = 1;\n" +
-			"        } else {\n" +
-			"          int lhs = ((Y) o1).foo();\n" +
-			"          int rhs = ((Y) o2).foo();\n" +
-			"          result = lhs - rhs;\n" +
-			"        }\n" +
-			"      }\n" +
-			"    }\n" +
-			"    return result;\n" +
-			"  }\n" +
-			"}\n" +
-			"abstract class Y {\n" +
-			"  abstract int foo();\n" +
-			"}\n" +
-			"\n"},
+			"""
+				public class X {
+				  public int foo (Object o1, Object o2) {
+				    int result = 0;
+				    if (o1 == null && o2 == null) {
+				      result = 0;
+				    } else {
+				      if (o1 == null) {
+				        result = -1;
+				      } else {
+				        if (o2 == null) {
+				          result = 1;
+				        } else {
+				          int lhs = ((Y) o1).foo();
+				          int rhs = ((Y) o2).foo();
+				          result = lhs - rhs;
+				        }
+				      }
+				    }
+				    return result;
+				  }
+				}
+				abstract class Y {
+				  abstract int foo();
+				}
+				
+				"""},
 		"");
 }
 
@@ -3150,24 +3423,27 @@ public void test0339_if_else_nested() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o, boolean b) {\n" +
-			"    if (o == null || b) {\n" +
-			"      if (bar() == o) {\n" +
-			"        o.toString();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  Object bar() {\n" +
-			"    return new Object();\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o, boolean b) {
+				    if (o == null || b) {
+				      if (bar() == o) {
+				        o.toString();
+				      }
+				    }
+				  }
+				  Object bar() {
+				    return new Object();
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3176,24 +3452,27 @@ public void test0340_if_else_nested() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o) {\n" +
-			"    if (o == null) {\n" +
-			"      if (bar() == o) {\n" +
-			"        o.toString();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  Object bar() {\n" +
-			"    return new Object();\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o) {
+				    if (o == null) {
+				      if (bar() == o) {
+				        o.toString();
+				      }
+				    }
+				  }
+				  Object bar() {
+				    return new Object();
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3202,21 +3481,24 @@ public void test0341_if_else_nested() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o1, Object o2, boolean b) {\n" +
-			"    if (o1 == null || b) {\n" +
-			"      if (o1 == o2) {\n" +
-			"        o1.toString();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	o1.toString();\n" +
-		"	^^\n" +
-		"Potential null pointer access: The variable o1 may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o1, Object o2, boolean b) {
+				    if (o1 == null || b) {
+				      if (o1 == o2) {
+				        o1.toString();
+				      }
+				    }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				o1.toString();
+				^^
+			Potential null pointer access: The variable o1 may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3225,21 +3507,24 @@ public void test0342_if_else_nested() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o1, Object o2, boolean b) {\n" +
-			"    if (o1 == null || b) {\n" +
-			"      if (o2 == o1) {\n" +
-			"        o1.toString();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	o1.toString();\n" +
-		"	^^\n" +
-		"Potential null pointer access: The variable o1 may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o1, Object o2, boolean b) {
+				    if (o1 == null || b) {
+				      if (o2 == o1) {
+				        o1.toString();
+				      }
+				    }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				o1.toString();
+				^^
+			Potential null pointer access: The variable o1 may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3255,12 +3540,14 @@ public void test0401_while() {
 			      // complain: NPE
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	while (o.toString() != null) {/* */}\n" +
-		"	       ^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				while (o.toString() != null) {/* */}
+				       ^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3276,12 +3563,14 @@ public void test0402_while() {
 			  // complain: get o null first time and forever
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	while (o != null) {/* */}\n" +
-		"	       ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				while (o != null) {/* */}
+				       ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3339,12 +3628,14 @@ public void test0405_while() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3360,12 +3651,14 @@ public void test0406_while() {
 			"    while (dummy || o != null) { /* */ }\n" + // o can only be null
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	while (dummy || o != null) { /* */ }\n" +
-		"	                ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				while (dummy || o != null) { /* */ }
+				                ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3384,12 +3677,14 @@ public void test0407_while() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3407,22 +3702,24 @@ public void test0408_while() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null,\n" +
-			"           u = new Object(),\n" +
-			"           v = new Object();\n" +
-			"    while (o == null) {\n" +
-			"      if (v == null) {\n" +
-			"        o = new Object();\n" +
-			"      };\n" +
-			"      if (u == null) {\n" +
-			"        v = null;\n" +
-			"      };\n" +
-			"      u = null;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = null,
+				           u = new Object(),
+				           v = new Object();
+				    while (o == null) {
+				      if (v == null) {
+				        o = new Object();
+				      };
+				      if (u == null) {
+				        v = null;
+				      };
+				      u = null;
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -3431,21 +3728,25 @@ public void test0409_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    while (dummy || (o = new Object()).equals(o)) {\n" +
-			"      o.toString();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean dummy;
+				  void foo() {
+				    Object o = null;
+				    while (dummy || (o = new Object()).equals(o)) {
+				      o.toString();
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3454,20 +3755,22 @@ public void test0410_while_nested() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    while (dummy) {\n" +
-			"      while (o != null) {\n" +
-			"        o.toString();\n" +
-			"      }\n" +
-			"      if (System.currentTimeMillis() > 10L) {\n" +
-			"        o = new Object();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  boolean dummy;
+				  void foo() {
+				    Object o = null;
+				    while (dummy) {
+				      while (o != null) {
+				        o.toString();
+				      }
+				      if (System.currentTimeMillis() > 10L) {
+				        o = new Object();
+				      }
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -3476,24 +3779,26 @@ public void test0411_while_nested() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null,\n" +
-			"           u = new Object(),\n" +
-			"           v = new Object();\n" +
-			"    while (o == null) {\n" +
-			"      if (v == null) {\n" +
-			"        o = new Object();\n" +
-			"      };\n" +
-			"      while (o == null) {\n" +
-			"        if (u == null) {\n" +
-			"          v = null;\n" +
-			"        };\n" +
-			"        u = null;\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = null,
+				           u = new Object(),
+				           v = new Object();
+				    while (o == null) {
+				      if (v == null) {
+				        o = new Object();
+				      };
+				      while (o == null) {
+				        if (u == null) {
+				          v = null;
+				        };
+				        u = null;
+				      }
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -3502,24 +3807,28 @@ public void test0412_while_if_nested() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean dummy, other;\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    while (dummy) {\n" +
-			"      if (other) {\n" +
-			"        o.toString();\n" +
-			"      }\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean dummy, other;
+				  void foo() {
+				    Object o = null;
+				    while (dummy) {
+				      if (other) {
+				        o.toString();
+				      }
+				      o = new Object();
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3528,15 +3837,17 @@ public void test0413_while_unknown_field() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object o;\n" +
-			"  void foo(boolean dummy) {\n" +
-			"    while (dummy) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object o;
+				  void foo(boolean dummy) {
+				    while (dummy) {
+				      o = null;
+				    }
+				    o.toString();
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -3554,12 +3865,14 @@ public void test0414_while_unknown_parameter() {
 			"    o.toString();\n" + // complain: only get out of the loop with null
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3589,22 +3902,26 @@ public void test0416_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    while (dummy) {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean dummy;
+				  void foo() {
+				    Object o = null;
+				    while (dummy) {
+				      o = new Object();
+				    }
+				    o.toString();
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3621,12 +3938,14 @@ public void test0417_while() {
 			"    o.toString();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3636,19 +3955,20 @@ public void test0418_while_try() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean bool() { return true; }\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    while (bool()) {\n" +
-			"      try {\n" +
-			"        if (o == null) {\n" +
-			"          o = new Object();\n" +
-			"        }\n" +
-			"      } finally { /* */ }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  boolean bool() { return true; }
+				  void foo() {
+				    Object o = null;
+				    while (bool()) {
+				      try {
+				        if (o == null) {
+				          o = new Object();
+				        }
+				      } finally { /* */ }
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -3666,12 +3986,14 @@ public void test0419_while() {
 			"    }\n" +
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	o.toString();      o = null;\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				o.toString();      o = null;
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3692,12 +4014,14 @@ public void test0420_while() {
 			"    if (o == null) { /* */ }\n" + // complain can only be null
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				if (o == null) { /* */ }
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3706,16 +4030,17 @@ public void test0421_while() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean bool;\n" +
-			"  void foo(Object compare) {\n" +
-			"    Object o = null;\n" +
-			"    while (bool) {\n" +
-			"      o = new Object();\n" +
-			"      o.toString();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  boolean bool;
+				  void foo(Object compare) {
+				    Object o = null;
+				    while (bool) {
+				      o = new Object();
+				      o.toString();
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -3724,28 +4049,31 @@ public void test0422_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean bool;\n" +
-			"  void foo() {\n" +
-			"    Object o;\n" +
-			"    while (bool) {\n" +
-			"      o = new Object();\n" +
-			"      if (o == null) { /* */ }\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 7)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean bool;
+				  void foo() {
+				    Object o;
+				    while (bool) {
+				      o = new Object();
+				      if (o == null) { /* */ }
+				      o = null;
+				    }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 7)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3754,28 +4082,31 @@ public void test0423_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean bool;\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    while (bool) {\n" +
-			"      o = new Object();\n" +
-			"      if (o == null) { /* */ }\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 7)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean bool;
+				  void foo() {
+				    Object o = null;
+				    while (bool) {
+				      o = new Object();
+				      if (o == null) { /* */ }
+				      o = null;
+				    }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 7)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3807,22 +4138,26 @@ public void test0425_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo(Object u) {\n" +
-			"    Object o = null;\n" +
-			"    while (dummy) {\n" +
-			"      o = u;\n" +
-			"    }\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean dummy;
+				  void foo(Object u) {
+				    Object o = null;
+				    while (dummy) {
+				      o = u;
+				    }
+				    o.toString();
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3839,17 +4174,19 @@ public void test0426_while() {
 			"    if (o == null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 6)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 6)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3858,23 +4195,27 @@ public void test0427_while_return() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    while (dummy) {\n" +
-			"      if (o == null) {\n" +
-			"        return;\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean dummy;
+				  void foo() {
+				    Object o = null;
+				    while (dummy) {
+				      if (o == null) {
+				        return;
+				      }
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o == null) {
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -3883,17 +4224,19 @@ public void test0428_while() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  X bar() {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"  void foo(X x) {\n" +
-			"    x.bar();\n" +
-			"    while (x != null) {\n" +
-			"      x = x.bar();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  X bar() {
+				    return null;
+				  }
+				  void foo(X x) {
+				    x.bar();
+				    while (x != null) {
+				      x = x.bar();
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -3902,24 +4245,25 @@ public void test0429_while_nested() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo (X[] xa) {\n" +
-			"	while (dummy) {\n" +
-			"	  xa = null;\n" +
-			"	  if (dummy) {\n" +
-			"	    xa = new X[5];\n" +
-			"	  }\n" +
-			"	  if (xa != null) {\n" +
-			"		int i = 0;\n" +
-			"		while (dummy) {\n" +
-			"		  X x = xa[i++];\n" +
-			"		  x.toString();\n" +
-			"		}\n" +
-			"	  }\n" +
-			"	}\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  boolean dummy;
+				  void foo (X[] xa) {
+					while (dummy) {
+					  xa = null;
+					  if (dummy) {
+					    xa = new X[5];
+					  }
+					  if (xa != null) {
+						int i = 0;
+						while (dummy) {
+						  X x = xa[i++];
+						  x.toString();
+						}
+					  }
+					}
+				  }
+				}"""},
 		"");
 }
 
@@ -3928,23 +4272,24 @@ public void test0430_while_for_nested() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo (X[] xa) {\n" +
-			"	while (dummy) {\n" +
-			"	  xa = null;\n" +
-			"	  if (dummy) {\n" +
-			"	    xa = new X[5];\n" +
-			"	  }\n" +
-			"	  if (xa != null) {\n" +
-			"		for (int i = 0; i < xa.length; i++) {\n" +
-			"		  X x = xa[i];\n" +
-			"		  x.toString();\n" +
-			"		}\n" +
-			"	  }\n" +
-			"	}\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  boolean dummy;
+				  void foo (X[] xa) {
+					while (dummy) {
+					  xa = null;
+					  if (dummy) {
+					    xa = new X[5];
+					  }
+					  if (xa != null) {
+						for (int i = 0; i < xa.length; i++) {
+						  X x = xa[i];
+						  x.toString();
+						}
+					  }
+					}
+				  }
+				}"""},
 		"");
 }
 
@@ -3953,19 +4298,20 @@ public void test0431_while() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo (X x) {\n" +
-			"	x = null;\n" +
-			"	while (dummy) {\n" +
-			"	  x = bar();\n" +
-			"	  x.toString();\n" +
-			"	}\n" +
-			"  }\n" +
-			"  X bar() {\n" +
-			"	return null;\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  boolean dummy;
+				  void foo (X x) {
+					x = null;
+					while (dummy) {
+					  x = bar();
+					  x.toString();
+					}
+				  }
+				  X bar() {
+					return null;
+				  }
+				}"""},
 		"");
 }
 
@@ -3974,18 +4320,19 @@ public void test0432_while() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo (X x) {\n" +
-			"	while (dummy) {\n" +
-			"	  x = bar();\n" +
-			"	  x.toString();\n" +
-			"	}\n" +
-			"  }\n" +
-			"  X bar() {\n" +
-			"	return null;\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  boolean dummy;
+				  void foo (X x) {
+					while (dummy) {
+					  x = bar();
+					  x.toString();
+					}
+				  }
+				  X bar() {
+					return null;
+				  }
+				}"""},
 		"");
 }
 
@@ -4004,12 +4351,14 @@ public void test0433_while() {
 			"	}\n" +
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	x.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable x can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				x.toString();
+				^
+			Null pointer access: The variable x can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -4019,23 +4368,24 @@ public void test0434_while_switch_nested() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  Object bar() {\n" +
-			"    return new Object();\n" +
-			"  }\n" +
-			"  void foo(boolean b, int selector) {\n" +
-			"    Object o = null;\n" +
-			"    while (b) {\n" +
-			"      switch (selector) {\n" +
-			"      case 0:\n" +
-			"        o = bar();\n" +
-			"        if (o != null) { \n" +
-			"          return;\n" +
-			"        }\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  Object bar() {
+				    return new Object();
+				  }
+				  void foo(boolean b, int selector) {
+				    Object o = null;
+				    while (b) {
+				      switch (selector) {
+				      case 0:
+				        o = bar();
+				        if (o != null) {\s
+				          return;
+				        }
+				      }
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -4065,17 +4415,18 @@ public void test0436_while_init() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  int f1;\n" +
-			"  X f2;\n" +
-			"  void foo(X x1, boolean b) {\n" +
-			"    X x2 = x1;\n" +
-			"    while (b) {\n" +
-			"      if (x2.f1 > 0) { /* */ }\n" +
-			"      x2 = x2.f2;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  int f1;
+				  X f2;
+				  void foo(X x1, boolean b) {
+				    X x2 = x1;
+				    while (b) {
+				      if (x2.f1 > 0) { /* */ }
+				      x2 = x2.f2;
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -4084,19 +4435,20 @@ public void test0437_while_exit() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  void foo(boolean b) {\n" +
-			"    Object o = null;\n" +
-			"    while (b) {\n" +
-			"      if (b) {\n" +
-			"        o = new Object();\n" +
-			"      }\n" +
-			"      if (o != null) {\n" +
-			"        throw new RuntimeException(); \n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  void foo(boolean b) {
+				    Object o = null;
+				    while (b) {
+				      if (b) {
+				        o = new Object();
+				      }
+				      if (o != null) {
+				        throw new RuntimeException();\s
+				      }
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -4113,12 +4465,14 @@ public void test0438_while() {
 			"    if (o != null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o != null) { /* */ }
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -4151,12 +4505,14 @@ public void test0440_while() {
 			"    if (o != null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o != null) { /* */ }
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -4176,12 +4532,14 @@ public void test0441_while() {
 			"    if (o != null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				if (o != null) { /* */ }
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -4199,12 +4557,14 @@ public void test0442_while() {
 			"    o.toString();\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -4213,22 +4573,23 @@ public void test0443_while_nested() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    ext: for (int i = 0; i < 5 ; i++) {\n" +
-			"        if (o != null) {\n" +
-			"          break;\n" +
-			"        }\n" +
-			"        o = new Object();\n" +
-			"        int j = 0;\n" +
-			"        while (j++ < 2) {\n" +
-			"          continue ext;\n" +
-			"        }\n" +
-			"        return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  void foo() {
+				    Object o = null;
+				    ext: for (int i = 0; i < 5 ; i++) {
+				        if (o != null) {
+				          break;
+				        }
+				        o = new Object();
+				        int j = 0;
+				        while (j++ < 2) {
+				          continue ext;
+				        }
+				        return;
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -4237,24 +4598,25 @@ public void test0444_while_deeply_nested() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  void foo(boolean b) {\n" +
-			"    Object o = null;\n" +
-			"    ext: for (int i = 0; i < 5 ; i++) {\n" +
-			"        if (o != null) {\n" +
-			"          break;\n" +
-			"        }\n" +
-			"        do {\n" +
-			"          o = new Object();\n" +
-			"          int j = 0;\n" +
-			"          while (j++ < 2) {\n" +
-			"            continue ext;\n" +
-			"          }\n" +
-			"        } while (b);\n" +
-			"        return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  void foo(boolean b) {
+				    Object o = null;
+				    ext: for (int i = 0; i < 5 ; i++) {
+				        if (o != null) {
+				          break;
+				        }
+				        do {
+				          o = new Object();
+				          int j = 0;
+				          while (j++ < 2) {
+				            continue ext;
+				          }
+				        } while (b);
+				        return;
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -4263,30 +4625,33 @@ public void test0445_while_deeply_nested() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  void foo(boolean b) {\n" +
-			"    Object o = null;\n" +
-			"    ext: for (int i = 0; i < 5 ; i++) {\n" +
-			"        if (o != null) {\n" +
-			"          break;\n" +
-			"        }\n" +
-			"        do {\n" +
-			"          // o = new Object();\n" +
-			"          int j = 0;\n" +
-			"          while (j++ < 2) {\n" +
-			"            continue ext;\n" +
-			"          }\n" +
-			"        } while (b);\n" +
-			"        return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o != null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				class X {
+				  void foo(boolean b) {
+				    Object o = null;
+				    ext: for (int i = 0; i < 5 ; i++) {
+				        if (o != null) {
+				          break;
+				        }
+				        do {
+				          // o = new Object();
+				          int j = 0;
+				          while (j++ < 2) {
+				            continue ext;
+				          }
+				        } while (b);
+				        return;
+				    }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o != null) {
+				    ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -4303,12 +4668,14 @@ public void test0446_while() {
 			"    if (o != null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o != null) { /* */ }
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -4317,14 +4684,15 @@ public void test0447_while() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  void foo(Object o, boolean b) {\n" +
-			"    while (o == null & b) {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    if (o != null) { /* */ }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				class X {
+				  void foo(Object o, boolean b) {
+				    while (o == null & b) {
+				      o = new Object();
+				    }
+				    if (o != null) { /* */ }
+				  }
+				}"""},
 		"");
 }
 
@@ -4333,41 +4701,44 @@ public void test0448_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  void foo(boolean b[]) {\n" +
-			"    Object o = null;\n" +
-			"    ext: for (int i = 0; i < 5 ; i++) {\n" +
-			"        if (o != null) {\n" +
-			"          break;\n" +
-			"        }\n" +
-			"        while (b[1]) {\n" +
-			"          continue ext;\n" +
-			"        }\n" +
-			"        while (b[2]) {\n" +
-			"          continue ext;\n" +
-			"        }\n" +
-			"        while (b[3]) {\n" +
-			"          continue ext;\n" +
-			"        }\n" +
-			"        while (b[4]) {\n" +
-			"          continue ext;\n" +
-			"        }\n" +
-			"        while (b[5]) {\n" +
-			"          continue ext;\n" +
-			"        }\n" +
-			"        while (b[6]) {\n" +
-			"          continue ext;\n" +
-			"        }\n" +
-			"        return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o != null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				class X {
+				  void foo(boolean b[]) {
+				    Object o = null;
+				    ext: for (int i = 0; i < 5 ; i++) {
+				        if (o != null) {
+				          break;
+				        }
+				        while (b[1]) {
+				          continue ext;
+				        }
+				        while (b[2]) {
+				          continue ext;
+				        }
+				        while (b[3]) {
+				          continue ext;
+				        }
+				        while (b[4]) {
+				          continue ext;
+				        }
+				        while (b[5]) {
+				          continue ext;
+				        }
+				        while (b[6]) {
+				          continue ext;
+				        }
+				        return;
+				    }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o != null) {
+				    ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -4408,12 +4779,14 @@ public void test0450_while() {
 			"    if (o != null) { /* */ }\n" +
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (o != null) { /* */ }
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -4434,12 +4807,14 @@ public void test0451_while_nested() {
 			"    if (o != null) { /* */ }\n" +
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				if (o != null) { /* */ }
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -4449,23 +4824,26 @@ public void _test0452_while() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object doubt) {\n" +
-			"    Object o = null;\n" +
-			"    while (true) {\n" +
-			"      if (o == null) {\n" +
-			"        return;\n" +
-			"      }\n" +
-			"      o = doubt;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n"
+			"""
+				public class X {
+				  void foo(Object doubt) {
+				    Object o = null;
+				    while (true) {
+				      if (o == null) {
+				        return;
+				      }
+				      o = doubt;
+				    }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o == null) {
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			"""
 	);
 }
 
@@ -4476,20 +4854,21 @@ public void _test0453_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object doubt, boolean b) {\n" +
-			"    Object o1 = null, o2 = null;\n" +
-			"    while (true) {\n" +
-			"      if (o1 == null) { /* empty */ }\n" +
-			"      if (b) {\n" +
-			"        if (o2 == null) {\n" +
-			"          return;\n" +
-			"        }\n" +
-			"      }\n" +
-			"      o1 = o2 = doubt;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  void foo(Object doubt, boolean b) {
+				    Object o1 = null, o2 = null;
+				    while (true) {
+				      if (o1 == null) { /* empty */ }
+				      if (b) {
+				        if (o2 == null) {
+				          return;
+				        }
+				      }
+				      o1 = o2 = doubt;
+				    }
+				  }
+				}"""},
 		"ERROR: complain on line 7, but not on line 5"
 	);
 }
@@ -4499,21 +4878,22 @@ public void test0454_while() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object bar() {\n" +
-			"    return new Object();\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    while (true) {\n" +
-			"      o = bar();\n" +
-			"      if (o != null) {\n" +
-			"        o = new Object();\n" +
-			"      }\n" +
-			"      o = null; // quiet pls\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  Object bar() {
+				    return new Object();
+				  }
+				  void foo() {
+				    Object o = null;
+				    while (true) {
+				      o = bar();
+				      if (o != null) {
+				        o = new Object();
+				      }
+				      o = null; // quiet pls
+				    }
+				  }
+				}"""},
 		""
 	);
 }
@@ -4534,12 +4914,14 @@ public void test0455_while_nested() {
 			"    if (o != null) { /* */ }\n" +
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (o != null) { /* */ }
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -4623,32 +5005,36 @@ public void test0459_while_nested() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(boolean b) {\n" +
-			"    Object o = b ? null : new Object(),\n" +
-			"           u = new Object(),\n" +
-			"           v = new Object();\n" +
-			"    while (o != null) {\n" +
-			"      while (b) {\n" +
-			"        if (v == null) {\n" +
-			"          o = new Object();\n" +
-			"        };\n" +
-			"        while (o == null) {\n" +
-			"          if (u == null) {\n" +
-			"            v = null;\n" +
-			"          };\n" +
-			"          u = null;\n" +
-			"        }\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	while (o == null) {\n" +
-		"	       ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(boolean b) {
+				    Object o = b ? null : new Object(),
+				           u = new Object(),
+				           v = new Object();
+				    while (o != null) {
+				      while (b) {
+				        if (v == null) {
+				          o = new Object();
+				        };
+				        while (o == null) {
+				          if (u == null) {
+				            v = null;
+				          };
+				          u = null;
+				        }
+				      }
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 11)
+				while (o == null) {
+				       ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -4659,22 +5045,24 @@ public void test0460_while_explicit_label() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(int i) {\n" +
-			"    Object o = null;\n" +
-			"    done: while (true) {\n" +
-			"      switch (i) {\n" +
-			"        case 0:\n" +
-			"          o = new Object();\n" +
-			"          break;\n" +
-			"        case 1:\n" +
-			"          break done;\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (o == null) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(int i) {
+				    Object o = null;
+				    done: while (true) {
+				      switch (i) {
+				        case 0:
+				          o = new Object();
+				          break;
+				        case 1:
+				          break done;
+				      }
+				    }
+				    if (o == null) {
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -4685,22 +5073,24 @@ public void test0461_while_explicit_label() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean test() {\n" +
-			"    return true;\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    done: while (true) {\n" +
-			"      if (test()) {\n" +
-			"        break done;\n" +
-			"      }\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    if (o == null) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  boolean test() {
+				    return true;
+				  }
+				  void foo() {
+				    Object o = null;
+				    done: while (true) {
+				      if (test()) {
+				        break done;
+				      }
+				      o = new Object();
+				    }
+				    if (o == null) {
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -4711,30 +5101,32 @@ public void test0462_while_explicit_label() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean test() {\n" +
-			"    return true;\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    done: while (true) {\n" +
-			"      try {\n" +
-			"        while (true) {\n" +
-			"          if (test()) {\n" +
-			"            break done;\n" +
-			"          }\n" +
-			"        }\n" +
-			"      }\n" +
-			"      finally {\n" +
-			"        if (test()) {\n" +
-			"          o = new Object();\n" +
-			"        }\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (o == null) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  boolean test() {
+				    return true;
+				  }
+				  void foo() {
+				    Object o = null;
+				    done: while (true) {
+				      try {
+				        while (true) {
+				          if (test()) {
+				            break done;
+				          }
+				        }
+				      }
+				      finally {
+				        if (test()) {
+				          o = new Object();
+				        }
+				      }
+				    }
+				    if (o == null) {
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -4745,20 +5137,21 @@ public void test0463_while_infinite() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void test(String[] a) {\n" +
-			"    String key = null;\n" +
-			"    while(true)\n" +
-			"    {\n" +
-			"      if (a[0] == null)\n" +
-			"        break;\n" +
-			"      key = a[0];\n" +
-			"    }\n" +
-			"    if (key != null) {\n" +
-			"      // empty\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public void test(String[] a) {
+				    String key = null;
+				    while(true)
+				    {
+				      if (a[0] == null)
+				        break;
+				      key = a[0];
+				    }
+				    if (key != null) {
+				      // empty
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -4769,20 +5162,21 @@ public void test0464_while_infinite() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void test(String[] a) {\n" +
-			"    String key = null;\n" +
-			"    loop: while(true)\n" +
-			"    {\n" +
-			"      if (a[0] == null)\n" +
-			"        break loop;\n" +
-			"      key = a[0];\n" +
-			"    }\n" +
-			"    if (key != null) {\n" +
-			"      // empty\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public void test(String[] a) {
+				    String key = null;
+				    loop: while(true)
+				    {
+				      if (a[0] == null)
+				        break loop;
+				      key = a[0];
+				    }
+				    if (key != null) {
+				      // empty
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -4793,20 +5187,21 @@ public void test0465_while_infinite() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void test(String[] a) {\n" +
-			"    String key = null;\n" +
-			"    while(true)\n" +
-			"    {\n" +
-			"      if (a[0] == null)\n" +
-			"        break;\n" +
-			"      key = \"non null\";\n" +
-			"    }\n" +
-			"    if (key != null) {\n" +
-			"      // empty\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public void test(String[] a) {
+				    String key = null;
+				    while(true)
+				    {
+				      if (a[0] == null)
+				        break;
+				      key = "non null";
+				    }
+				    if (key != null) {
+				      // empty
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -4817,23 +5212,25 @@ public void test0466_while_infinite() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    while (true) {\n" +
-			"      if (bar()) {\n" +
-			"        break;\n" +
-			"      }\n" +
-			"      if (o == null) {\n" +
-			"        o = new Object();\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (o == null) {}\n" +
-			"  }\n" +
-			"  boolean bar() {\n" +
-			"    return false;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = null;
+				    while (true) {
+				      if (bar()) {
+				        break;
+				      }
+				      if (o == null) {
+				        o = new Object();
+				      }
+				    }
+				    if (o == null) {}
+				  }
+				  boolean bar() {
+				    return false;
+				  }
+				}
+				"""},
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=212283
@@ -4870,25 +5267,26 @@ public void test0468_while_break() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    RuntimeException e = null;\n" +
-			"    while (e != null || bar()) {\n" +
-			"      if (bar()) {\n" +
-			"        break;\n" +
-			"      }\n" +
-			"      if (bar()) {\n" +
-			"        e = new RuntimeException();\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (e != null) {\n" +
-			"      throw e;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  boolean bar() {\n" +
-			"    return false;\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    RuntimeException e = null;
+				    while (e != null || bar()) {
+				      if (bar()) {
+				        break;
+				      }
+				      if (bar()) {
+				        e = new RuntimeException();
+				      }
+				    }
+				    if (e != null) {
+				      throw e;
+				    }
+				  }
+				  boolean bar() {
+				    return false;
+				  }
+				}"""
 		},
 		"");
 }
@@ -4898,25 +5296,26 @@ public void test0469_while_break() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    RuntimeException e = null;\n" +
-			"    while (e != null || bar()) {\n" +
-			"      if (e != null) {\n" +
-			"        break;\n" +
-			"      }\n" +
-			"      if (bar()) {\n" +
-			"        e = new RuntimeException();\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (e != null) {\n" +
-			"      throw e;\n" +
-			"    }\n" +
-			"  }\n" +
-			"  boolean bar() {\n" +
-			"    return false;\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    RuntimeException e = null;
+				    while (e != null || bar()) {
+				      if (e != null) {
+				        break;
+				      }
+				      if (bar()) {
+				        e = new RuntimeException();
+				      }
+				    }
+				    if (e != null) {
+				      throw e;
+				    }
+				  }
+				  boolean bar() {
+				    return false;
+				  }
+				}"""
 		},
 		"");
 }
@@ -4925,44 +5324,49 @@ public void test0470_while() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = new Object();\n" +
-			"    while (bar()) {\n" +
-			"      if (o != null && o.toString().equals(\"o\")) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (o.toString().equals(\"o\")) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"  boolean bar() {\n" +
-			"    return false;\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  void foo() {
+				    Object o = new Object();
+				    while (bar()) {
+				      if (o != null && o.toString().equals("o")) {
+				      }
+				    }
+				    if (o.toString().equals("o")) {
+				    }
+				  }
+				  boolean bar() {
+				    return false;
+				  }
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o != null && o.toString().equals(\"o\")) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o != null && o.toString().equals("o")) {
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""");
 }
 // null analysis -- try/finally
 public void test0500_try_finally() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m;\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    try { /* */ }\n" +
-			"    finally {\n" +
-			"      o = m;\n" +
-			"    }\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object m;
+				  void foo() {
+				    Object o = null;
+				    try { /* */ }
+				    finally {
+				      o = m;
+				    }
+				    o.toString();
+				  }
+				}
+				"""},
 		"" // because finally assigns to unknown value
 	);
 }
@@ -4972,22 +5376,26 @@ public void test0501_try_finally() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = new Object();\n" +
-			"    try { /* */ }\n" +
-			"    finally {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n", // because finally assigns to null
+			"""
+				public class X {
+				  void foo() {
+				    Object o = new Object();
+				    try { /* */ }
+				    finally {
+				      o = null;
+				    }
+				    o.toString();
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""", // because finally assigns to null
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5025,12 +5433,14 @@ public void test0503_try_finally() {
 			"    } finally { /* */ }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	x = null;\n" +
-		"	^\n" +
-		"Redundant assignment: The variable x can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				x = null;
+				^
+			Redundant assignment: The variable x can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5048,12 +5458,14 @@ public void test0504_try_finally() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (x != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable x can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (x != null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable x can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5077,12 +5489,14 @@ public void test0505_try_finally() {
 			"   }\n" +
 			" }\n" +
 			"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	if (x == null) {/* */}\n" +
-			"	    ^\n" +
-			"Redundant null check: The variable x can only be null at this location\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					if (x == null) {/* */}
+					    ^
+				Redundant null check: The variable x can only be null at this location
+				----------
+				""");
 }
 
 // null analysis -- try finally
@@ -5090,26 +5504,30 @@ public void test0506_try_finally() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o) {\n" +
-			"    try { /* */ }\n" +
-			"    finally {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    if (o == null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 7)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o) {
+				    try { /* */ }
+				    finally {
+				      o = new Object();
+				    }
+				    if (o == null) { /* */ }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 7)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5129,19 +5547,21 @@ public void test0507_try_finally() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (o == null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 7)\n" +
-		"	if (o == null) {\n" +
-		"      o = new Object();\n" +
-		"    }\n" +
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (o == null) {
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 7)
+				if (o == null) {
+			      o = new Object();
+			    }
+				               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5161,12 +5581,14 @@ public void test0508_try_finally() {
 			"    o.toString();\n" +  // quiet
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5189,12 +5611,14 @@ public void test0509_try_finally_embedded() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	o2.toString();\n" +
-		"	^^\n" +
-		"Null pointer access: The variable o2 can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				o2.toString();
+				^^
+			Null pointer access: The variable o2 can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5203,24 +5627,26 @@ public void test0510_try_finally() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void bar() throws Exception {\n" +
-			"    // empty\n" +
-			"  }\n" +
-			"  void foo(Object o, boolean b) throws Exception {\n" +
-			"    try {\n" +
-			"      bar();\n" +
-			"      if (b) {\n" +
-			"        o.toString();\n" +
-			"      }\n" +
-			"    }\n" +
-			"    finally {\n" +
-			"      if (o != null) {\n" +
-			"          o.toString();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void bar() throws Exception {
+				    // empty
+				  }
+				  void foo(Object o, boolean b) throws Exception {
+				    try {
+				      bar();
+				      if (b) {
+				        o.toString();
+				      }
+				    }
+				    finally {
+				      if (o != null) {
+				          o.toString();
+				      }
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -5250,22 +5676,26 @@ public void test0512_try_finally() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			" void foo(X x) {\n" +
-			"   x = null;\n" +
-			"   try {\n" +
-			"     x = new X();\n" +
-			"   } finally {\n" +
-			"     x.toString();\n" +
-			"   }\n" +
-			" }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	x.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable x may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				 void foo(X x) {
+				   x = null;
+				   try {
+				     x = new X();
+				   } finally {
+				     x.toString();
+				   }
+				 }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				x.toString();
+				^
+			Potential null pointer access: The variable x may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5275,23 +5705,25 @@ public void test0513_try_finally() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			" X bar() {\n" +
-			"   return null;\n" +
-			" }\n" +
-			" Object foo() {\n" +
-			"   X x = null;\n" +
-			"   try {\n" +
-			"     x = bar();\n" +
-			"     x.toString();\n" +
-			"     return x;\n" +
-			"   } finally {\n" +
-			"     if (x != null) {\n" +
-			"       x.toString();\n" +
-			"     }\n" +
-			"   }\n" +
-			" }\n" +
-			"}\n"},
+			"""
+				public class X {
+				 X bar() {
+				   return null;
+				 }
+				 Object foo() {
+				   X x = null;
+				   try {
+				     x = bar();
+				     x.toString();
+				     return x;
+				   } finally {
+				     if (x != null) {
+				       x.toString();
+				     }
+				   }
+				 }
+				}
+				"""},
 		"");
 }
 
@@ -5302,28 +5734,30 @@ public void test0514_try_finally() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			" X bar() {\n" +
-			"   return null;\n" +
-			" }\n" +
-			" Object foo() {\n" +
-			"   X x = null;\n" +
-			"   try {\n" +
-			"     try {\n" +
-			"       x = bar();\n" +
-			"       x.toString();\n" +
-			"       return x;\n" +
-			"     }\n" +
-			"     finally {\n" +
-			"     }\n" +
-			"   }\n" +
-			"   finally {\n" +
-			"     if (x != null) {\n" +
-			"       x.toString();\n" +
-			"     }\n" +
-			"   }\n" +
-			" }\n" +
-			"}\n"},
+			"""
+				public class X {
+				 X bar() {
+				   return null;
+				 }
+				 Object foo() {
+				   X x = null;
+				   try {
+				     try {
+				       x = bar();
+				       x.toString();
+				       return x;
+				     }
+				     finally {
+				     }
+				   }
+				   finally {
+				     if (x != null) {
+				       x.toString();
+				     }
+				   }
+				 }
+				}
+				"""},
 		"");
 }
 
@@ -5334,29 +5768,31 @@ public void test0515_try_finally() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			" X bar() {\n" +
-			"   return null;\n" +
-			" }\n" +
-			" Object foo() {\n" +
-			"   X x = null;\n" +
-			"   try {\n" +
-			"     try {\n" +
-			"       x = bar();\n" +
-			"       x.toString();\n" +
-			"       return x;\n" +
-			"     }\n" +
-			"     finally {\n" +
-			"       System.out.println();\n" +
-			"     }\n" +
-			"   }\n" +
-			"   finally {\n" +
-			"     if (x != null) {\n" +
-			"       x.toString();\n" +
-			"     }\n" +
-			"   }\n" +
-			" }\n" +
-			"}\n"},
+			"""
+				public class X {
+				 X bar() {
+				   return null;
+				 }
+				 Object foo() {
+				   X x = null;
+				   try {
+				     try {
+				       x = bar();
+				       x.toString();
+				       return x;
+				     }
+				     finally {
+				       System.out.println();
+				     }
+				   }
+				   finally {
+				     if (x != null) {
+				       x.toString();
+				     }
+				   }
+				 }
+				}
+				"""},
 		"");
 }
 
@@ -5369,20 +5805,22 @@ public void test0516_try_finally() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			" Object foo() {\n" +
-			"   X x = null;\n" +
-			"   try {\n" +
-			"     x = new X();\n" +
-			"     return x;\n" +
-			"   }\n" +
-			"   finally {\n" +
-			"     if (x != null) {\n" +
-			"       x.toString();\n" +
-			"     }\n" +
-			"   }\n" +
-			" }\n" +
-			"}\n"},
+			"""
+				public class X {
+				 Object foo() {
+				   X x = null;
+				   try {
+				     x = new X();
+				     return x;
+				   }
+				   finally {
+				     if (x != null) {
+				       x.toString();
+				     }
+				   }
+				 }
+				}
+				"""},
 		"");
 }
 
@@ -5393,37 +5831,39 @@ public void test0517_try_finally() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			" Object foo() {\n" +
-			"   String s00, s01, s02, s03, s04, s05, s06, s07, s08, s09;\n" +
-			"   String s10, s11, s12, s13, s14, s15, s16, s17, s18, s19;\n" +
-			"   String s20, s21, s22, s23, s24, s25, s26, s27, s28, s29;\n" +
-			"   String s30, s31, s32, s33, s34, s35, s36, s37, s38, s39;\n" +
-			"   String s40, s41, s42, s43, s44, s45, s46, s47, s48, s49;\n" +
-			"   String s50, s51, s52, s53, s54, s55, s56, s57, s58, s59;\n" +
-			"   String s60, s61, s62, s63, s64, s65, s66, s67, s68, s69;\n" +
-			"   String s100, s101, s102, s103, s104, s105, s106, s107, s108, s109;\n" +
-			"   String s110, s111, s112, s113, s114, s115, s116, s117, s118, s119;\n" +
-			"   String s120, s121, s122, s123, s124, s125, s126, s127, s128, s129;\n" +
-			"   String s130, s131, s132, s133, s134, s135, s136, s137, s138, s139;\n" +
-			"   String s140, s141, s142, s143, s144, s145, s146, s147, s148, s149;\n" +
-			"   String s150, s151, s152, s153, s154, s155, s156, s157, s158, s159;\n" +
-			"   String s160, s161, s162, s163, s164, s165, s166, s167, s168, s169;\n" +
-			"   String s200, s201, s202, s203, s204, s205, s206, s207, s208, s209;\n" +
-			"   String s210, s211, s212, s213, s214, s215, s216, s217, s218, s219;\n" +
-			"   String s220, s221, s222, s223, s224, s225, s226, s227, s228, s229;\n" +
-			"   String s230, s231, s232, s233, s234, s235, s236, s237, s238, s239;\n" +
-			"   String s240, s241, s242, s243, s244, s245, s246, s247, s248, s249;\n" +
-			"   String s250, s251, s252, s253, s254, s255, s256, s257, s258, s259;\n" +
-			"   String s260, s261, s262, s263, s264, s265, s266, s267, s268, s269;\n" +
-			"   X x = new X();\n" +
-			"   try {\n" +
-			"     return x;\n" +
-			"   }\n" +
-			"   finally {\n" +
-			"   }\n" +
-			" }\n" +
-			"}\n"},
+			"""
+				public class X {
+				 Object foo() {
+				   String s00, s01, s02, s03, s04, s05, s06, s07, s08, s09;
+				   String s10, s11, s12, s13, s14, s15, s16, s17, s18, s19;
+				   String s20, s21, s22, s23, s24, s25, s26, s27, s28, s29;
+				   String s30, s31, s32, s33, s34, s35, s36, s37, s38, s39;
+				   String s40, s41, s42, s43, s44, s45, s46, s47, s48, s49;
+				   String s50, s51, s52, s53, s54, s55, s56, s57, s58, s59;
+				   String s60, s61, s62, s63, s64, s65, s66, s67, s68, s69;
+				   String s100, s101, s102, s103, s104, s105, s106, s107, s108, s109;
+				   String s110, s111, s112, s113, s114, s115, s116, s117, s118, s119;
+				   String s120, s121, s122, s123, s124, s125, s126, s127, s128, s129;
+				   String s130, s131, s132, s133, s134, s135, s136, s137, s138, s139;
+				   String s140, s141, s142, s143, s144, s145, s146, s147, s148, s149;
+				   String s150, s151, s152, s153, s154, s155, s156, s157, s158, s159;
+				   String s160, s161, s162, s163, s164, s165, s166, s167, s168, s169;
+				   String s200, s201, s202, s203, s204, s205, s206, s207, s208, s209;
+				   String s210, s211, s212, s213, s214, s215, s216, s217, s218, s219;
+				   String s220, s221, s222, s223, s224, s225, s226, s227, s228, s229;
+				   String s230, s231, s232, s233, s234, s235, s236, s237, s238, s239;
+				   String s240, s241, s242, s243, s244, s245, s246, s247, s248, s249;
+				   String s250, s251, s252, s253, s254, s255, s256, s257, s258, s259;
+				   String s260, s261, s262, s263, s264, s265, s266, s267, s268, s269;
+				   X x = new X();
+				   try {
+				     return x;
+				   }
+				   finally {
+				   }
+				 }
+				}
+				"""},
 		"");
 }
 
@@ -5434,43 +5874,47 @@ public void test0518_try_finally() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			" void foo() {\n" +
-			"   String s00, s01, s02, s03, s04, s05, s06, s07, s08, s09;\n" +
-			"   String s10, s11, s12, s13, s14, s15, s16, s17, s18, s19;\n" +
-			"   String s20, s21, s22, s23, s24, s25, s26, s27, s28, s29;\n" +
-			"   String s30, s31, s32, s33, s34, s35, s36, s37, s38, s39;\n" +
-			"   String s40, s41, s42, s43, s44, s45, s46, s47, s48, s49;\n" +
-			"   String s50, s51, s52, s53, s54, s55, s56, s57, s58, s59;\n" +
-			"   String s60, s61, s62, s63, s64, s65, s66, s67, s68, s69;\n" +
-			"   String s100, s101, s102, s103, s104, s105, s106, s107, s108, s109;\n" +
-			"   String s110, s111, s112, s113, s114, s115, s116, s117, s118, s119;\n" +
-			"   String s120, s121, s122, s123, s124, s125, s126, s127, s128, s129;\n" +
-			"   String s130, s131, s132, s133, s134, s135, s136, s137, s138, s139;\n" +
-			"   String s140, s141, s142, s143, s144, s145, s146, s147, s148, s149;\n" +
-			"   String s150, s151, s152, s153, s154, s155, s156, s157, s158, s159;\n" +
-			"   String s160, s161, s162, s163, s164, s165, s166, s167, s168, s169;\n" +
-			"   String s200, s201, s202, s203, s204, s205, s206, s207, s208, s209;\n" +
-			"   String s210, s211, s212, s213, s214, s215, s216, s217, s218, s219;\n" +
-			"   String s220, s221, s222, s223, s224, s225, s226, s227, s228, s229;\n" +
-			"   String s230, s231, s232, s233, s234, s235, s236, s237, s238, s239;\n" +
-			"   String s240, s241, s242, s243, s244, s245, s246, s247, s248, s249;\n" +
-			"   String s250, s251, s252, s253, s254, s255, s256, s257, s258, s259;\n" +
-			"   String s260, s261, s262, s263, s264, s265, s266, s267, s268, s269;\n" +
-			"   X x = null;\n" +
-			"   try {\n" +
-			"     x = new X();\n" +
-			"   } finally {\n" +
-			"     x.toString();\n" +
-			"   }\n" +
-			" }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 28)\n" +
-		"	x.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable x may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				 void foo() {
+				   String s00, s01, s02, s03, s04, s05, s06, s07, s08, s09;
+				   String s10, s11, s12, s13, s14, s15, s16, s17, s18, s19;
+				   String s20, s21, s22, s23, s24, s25, s26, s27, s28, s29;
+				   String s30, s31, s32, s33, s34, s35, s36, s37, s38, s39;
+				   String s40, s41, s42, s43, s44, s45, s46, s47, s48, s49;
+				   String s50, s51, s52, s53, s54, s55, s56, s57, s58, s59;
+				   String s60, s61, s62, s63, s64, s65, s66, s67, s68, s69;
+				   String s100, s101, s102, s103, s104, s105, s106, s107, s108, s109;
+				   String s110, s111, s112, s113, s114, s115, s116, s117, s118, s119;
+				   String s120, s121, s122, s123, s124, s125, s126, s127, s128, s129;
+				   String s130, s131, s132, s133, s134, s135, s136, s137, s138, s139;
+				   String s140, s141, s142, s143, s144, s145, s146, s147, s148, s149;
+				   String s150, s151, s152, s153, s154, s155, s156, s157, s158, s159;
+				   String s160, s161, s162, s163, s164, s165, s166, s167, s168, s169;
+				   String s200, s201, s202, s203, s204, s205, s206, s207, s208, s209;
+				   String s210, s211, s212, s213, s214, s215, s216, s217, s218, s219;
+				   String s220, s221, s222, s223, s224, s225, s226, s227, s228, s229;
+				   String s230, s231, s232, s233, s234, s235, s236, s237, s238, s239;
+				   String s240, s241, s242, s243, s244, s245, s246, s247, s248, s249;
+				   String s250, s251, s252, s253, s254, s255, s256, s257, s258, s259;
+				   String s260, s261, s262, s263, s264, s265, s266, s267, s268, s269;
+				   X x = null;
+				   try {
+				     x = new X();
+				   } finally {
+				     x.toString();
+				   }
+				 }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 28)
+				x.toString();
+				^
+			Potential null pointer access: The variable x may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5509,28 +5953,29 @@ public void test0520_try_finally_constructor_exc() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo(Y y) throws E { \n" +
-			"    try { \n" +
-			"      new Y() {\n" +
-			"          void bar() {\n" +
-			"              // do nothing\n" +
-			"          }\n" +
-			"      }; \n" +
-			"      y.toString();\n" +
-			"    } finally { \n" +
-			"      y = null; \n" +
-			"    } \n" +
-			"  } \n" +
-			"}\n" +
-			"abstract class Y {\n" +
-			"  Y() throws E { \n" +
-			"  }\n" +
-			"  abstract void bar();\n" +
-			"} \n" +
-			"class E extends Exception {\n" +
-			"  private static final long serialVersionUID = 1L;\n" +
-			"}"},
+			"""
+				public class X {
+				  public void foo(Y y) throws E {\s
+				    try {\s
+				      new Y() {
+				          void bar() {
+				              // do nothing
+				          }
+				      };\s
+				      y.toString();
+				    } finally {\s
+				      y = null;\s
+				    }\s
+				  }\s
+				}
+				abstract class Y {
+				  Y() throws E {\s
+				  }
+				  abstract void bar();
+				}\s
+				class E extends Exception {
+				  private static final long serialVersionUID = 1L;
+				}"""},
 		"");
 }
 
@@ -5541,24 +5986,25 @@ public void test0521_try_finally() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X\n" +
-			"{\n" +
-			"  X m;\n" +
-			"  public void foo() {\n" +
-			"    for(int j = 0; j < 10; j++) {\n" +
-			"      try {\n" +
-			"        j++;\n" +
-			"      } finally {\n" +
-			"        X t = m;\n" +
-			"        if( t != null && t.bar()) {\n" +
-			"        }\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  boolean bar() {\n" +
-			"    return false;\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X
+				{
+				  X m;
+				  public void foo() {
+				    for(int j = 0; j < 10; j++) {
+				      try {
+				        j++;
+				      } finally {
+				        X t = m;
+				        if( t != null && t.bar()) {
+				        }
+				      }
+				    }
+				  }
+				  boolean bar() {
+				    return false;
+				  }
+				}"""},
 		"");
 }
 
@@ -5569,30 +6015,33 @@ public void test0522_try_finally() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X\n" +
-			"{\n" +
-			"  X m;\n" +
-			"  public void foo() {\n" +
-			"    for(int j = 0; j < 10; j++) {\n" +
-			"      try {\n" +
-			"        j++;\n" +
-			"      } finally {\n" +
-			"        X t = null;\n" +
-			"        if(t.bar()) {\n" +
-			"        }\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  boolean bar() {\n" +
-			"    return false;\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	if(t.bar()) {\n" +
-		"	   ^\n" +
-		"Null pointer access: The variable t can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X
+				{
+				  X m;
+				  public void foo() {
+				    for(int j = 0; j < 10; j++) {
+				      try {
+				        j++;
+				      } finally {
+				        X t = null;
+				        if(t.bar()) {
+				        }
+				      }
+				    }
+				  }
+				  boolean bar() {
+				    return false;
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				if(t.bar()) {
+				   ^
+			Null pointer access: The variable t can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5603,30 +6052,33 @@ public void test0523_try_finally() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X\n" +
-			"{\n" +
-			"  X m;\n" +
-			"  public void foo() {\n" +
-			"    for(int j = 0; j < 10; j++) {\n" +
-			"      try {\n" +
-			"        j++;\n" +
-			"      } finally {\n" +
-			"        X t = m;\n" +
-			"        if(t == null ? false : (t == null ? false : t.bar())) {\n" +
-			"        }\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  boolean bar() {\n" +
-			"    return false;\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	if(t == null ? false : (t == null ? false : t.bar())) {\n" +
-		"	                        ^\n" +
-		"Null comparison always yields false: The variable t cannot be null at this location\n" +
-		"----------\n",
+			"""
+				public class X
+				{
+				  X m;
+				  public void foo() {
+				    for(int j = 0; j < 10; j++) {
+				      try {
+				        j++;
+				      } finally {
+				        X t = m;
+				        if(t == null ? false : (t == null ? false : t.bar())) {
+				        }
+				      }
+				    }
+				  }
+				  boolean bar() {
+				    return false;
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				if(t == null ? false : (t == null ? false : t.bar())) {
+				                        ^
+			Null comparison always yields false: The variable t cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5637,30 +6089,33 @@ public void test0524_try_finally() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X\n" +
-			"{\n" +
-			"  X m;\n" +
-			"  public void foo() {\n" +
-			"    for(int j = 0; j < 10; j++) {\n" +
-			"      try {\n" +
-			"        j++;\n" +
-			"      } finally {\n" +
-			"        X t = m;\n" +
-			"        if(t != null ? false : (t == null ? false : t.bar())) {\n" +
-			"        }\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  boolean bar() {\n" +
-			"    return false;\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	if(t != null ? false : (t == null ? false : t.bar())) {\n" +
-		"	                        ^\n" +
-		"Redundant null check: The variable t can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X
+				{
+				  X m;
+				  public void foo() {
+				    for(int j = 0; j < 10; j++) {
+				      try {
+				        j++;
+				      } finally {
+				        X t = m;
+				        if(t != null ? false : (t == null ? false : t.bar())) {
+				        }
+				      }
+				    }
+				  }
+				  boolean bar() {
+				    return false;
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				if(t != null ? false : (t == null ? false : t.bar())) {
+				                        ^
+			Redundant null check: The variable t can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5670,33 +6125,36 @@ public void _test0525_try_finally_unchecked_exception() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X\n" +
-			"{\n" +
-			"  String foo(Object p) {\n" +
-			"    String s = null;\n" +
-			"    Object o = null;\n" +
-			"    try {\n" +
-			"        o = p;\n" +
-			"        if (o == null) {\n" +
-			"          return null;\n" +
-			"        }\n" +
-			"        s = o.getClass().getName();\n" +
-			"    } catch (RuntimeException e) {\n" +
-			"            o.toString();\n" +
-			"            s = null;\n" +
-			"    } finally {\n" +
-			"      if (o != null) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"    return s;\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 13)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X
+				{
+				  String foo(Object p) {
+				    String s = null;
+				    Object o = null;
+				    try {
+				        o = p;
+				        if (o == null) {
+				          return null;
+				        }
+				        s = o.getClass().getName();
+				    } catch (RuntimeException e) {
+				            o.toString();
+				            s = null;
+				    } finally {
+				      if (o != null) {
+				      }
+				    }
+				    return s;
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 13)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5727,12 +6185,14 @@ public void test0526_try_finally_unchecked_exception() {
 			"    return s;\n" +
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 12)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5760,12 +6220,14 @@ public void test0527_try_finally_unchecked_exception() {
 			"    return s;\n" +
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 12)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5786,17 +6248,19 @@ public void test0528_try_finally() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (x != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable x can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	if (y != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable y can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (x != null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable x can only be null at this location
+			----------
+			2. ERROR in X.java (at line 8)
+				if (y != null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable y can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5817,17 +6281,19 @@ public void test0529_try_finally() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	o2.toString();\n" +
-		"	^^\n" +
-		"Null pointer access: The variable o2 can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			2. ERROR in X.java (at line 8)
+				o2.toString();
+				^^
+			Null pointer access: The variable o2 can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5849,17 +6315,19 @@ public void test0530_try_finally() {
 			"   }\n" +
 			" }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	x.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable x may be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
-		"	y.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable y can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				x.toString();
+				^
+			Potential null pointer access: The variable x may be null at this location
+			----------
+			2. ERROR in X.java (at line 9)
+				y.toString();
+				^
+			Null pointer access: The variable y can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5882,17 +6350,19 @@ public void test0531_try_finally() {
 			"   }\n" +
 			" }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (x != null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable x cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
-		"	y.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable y can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (x != null) {
+				    ^
+			Redundant null check: The variable x cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 10)
+				y.toString();
+				^
+			Null pointer access: The variable y can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -5902,16 +6372,17 @@ public void test0532_try_finally() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() {\n" +
-			"    Object o = null;\n" +
-			"    try {\n" +
-			"    } finally {\n" +
-			"      o = Object.class.getClass();\n" +
-			"      o.getClass();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public void foo() {
+				    Object o = null;
+				    try {
+				    } finally {
+				      o = Object.class.getClass();
+				      o.getClass();
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -5921,21 +6392,23 @@ public void test0533_try_finally_field() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			" static char SHOULD_NOT_MATTER = '?';\n" +
-			" Object foo() {\n" +
-			"   X x = null;\n" +
-			"   try {\n" +
-			"     x = new X();\n" +
-			"     return x;\n" +
-			"   }\n" +
-			"   finally {\n" +
-			"     if (x != null) {\n" +
-			"       x.toString();\n" +
-			"     }\n" +
-			"   }\n" +
-			" }\n" +
-			"}\n"},
+			"""
+				public class X {
+				 static char SHOULD_NOT_MATTER = '?';
+				 Object foo() {
+				   X x = null;
+				   try {
+				     x = new X();
+				     return x;
+				   }
+				   finally {
+				     if (x != null) {
+				       x.toString();
+				     }
+				   }
+				 }
+				}
+				"""},
 		"");
 }
 
@@ -5945,23 +6418,25 @@ public void _test0534_try_finally() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"    String foo = null;\n" +
-			"    boolean a = true;\n" +
-			"    try {\n" +
-			"    }\n" +
-			"    catch(Exception e) {\n" +
-			"    }\n" +
-			"    finally {\n" +
-			"      if (a) {\n" +
-			"        foo = new String();\n" +
-			"      }\n" +
-			"      if (foo != null) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public static void main(String[] args) {
+				    String foo = null;
+				    boolean a = true;
+				    try {
+				    }
+				    catch(Exception e) {
+				    }
+				    finally {
+				      if (a) {
+				        foo = new String();
+				      }
+				      if (foo != null) {
+				      }
+				    }
+				  }
+				}
+				"""
 			},
 		false /* expectingCompilerErrors */,
 		"" /* expectedCompilerLog */,
@@ -6019,12 +6494,14 @@ public void test0536_try_finally() {
 			"   }\n" +
 			" }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	x.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable x may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				x.toString();
+				^
+			Potential null pointer access: The variable x may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6057,17 +6534,19 @@ public void test0537_try_finally() {
 			"   }\n" +
 			" }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 16)\n" +
-		"	x1.toString();\n" +
-		"	^^\n" +
-		"Potential null pointer access: The variable x1 may be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 17)\n" +
-		"	x2.toString();\n" +
-		"	^^\n" +
-		"Potential null pointer access: The variable x2 may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 16)
+				x1.toString();
+				^^
+			Potential null pointer access: The variable x1 may be null at this location
+			----------
+			2. ERROR in X.java (at line 17)
+				x2.toString();
+				^^
+			Potential null pointer access: The variable x2 may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6113,12 +6592,14 @@ public void test0551_try_catch() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 13)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 13)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6174,12 +6655,14 @@ public void test0553_try_catch() {
 			"    private static final long serialVersionUID = 1L;\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 15)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6209,18 +6692,20 @@ public void test0554_try_catch() {
 			"    throw new LocalException();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	if (o != null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 10)\n" +
-		"	if (o != null) {\n" +
-		"    }\n" +
-		"	               ^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				if (o != null) {
+				    ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			2. WARNING in X.java (at line 10)
+				if (o != null) {
+			    }
+				               ^^^^^^^
+			Dead code
+			----------
+			"""
 	);
 }
 
@@ -6244,12 +6729,14 @@ public void test0555_try_catch() {
 			"    throw new Exception();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6273,12 +6760,14 @@ public void test0556_try_catch() {
 			"    throw new Exception();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6302,12 +6791,14 @@ public void test0557_try_catch() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 12)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6335,12 +6826,14 @@ public void test0558_try_catch() {
 			"    private static final long serialVersionUID = 1L;\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 13)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 13)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6370,12 +6863,14 @@ public void test0559_try_catch() {
 			"    private static final long serialVersionUID = 1L;\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 12)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6384,35 +6879,39 @@ public void test0560_try_catch() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Class bar(boolean b) throws ClassNotFoundException {\n" +
-			"    if (b) {\n" +
-			"      throw new ClassNotFoundException();\n" +
-			"    }\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"  public Class foo(Class c, boolean b) {\n" +
-			"    if (c != null)\n" +
-			"      return c;\n" +
-			"    if (b) {\n" +
-			"      try {\n" +
-			"        c = bar(b);\n" +
-			"        return c;\n" +
-			"      } catch (ClassNotFoundException e) {\n" +
-			"      // empty\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (c == null) { // should complain: c can only be null\n" +
-			"    }\n" +
-			"    return c;\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 19)\n" +
-		"	if (c == null) { // should complain: c can only be null\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable c can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  Class bar(boolean b) throws ClassNotFoundException {
+				    if (b) {
+				      throw new ClassNotFoundException();
+				    }
+				    return null;
+				  }
+				  public Class foo(Class c, boolean b) {
+				    if (c != null)
+				      return c;
+				    if (b) {
+				      try {
+				        c = bar(b);
+				        return c;
+				      } catch (ClassNotFoundException e) {
+				      // empty
+				      }
+				    }
+				    if (c == null) { // should complain: c can only be null
+				    }
+				    return c;
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 19)
+				if (c == null) { // should complain: c can only be null
+				    ^
+			Redundant null check: The variable c can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6435,12 +6934,14 @@ public void test0561_try_catch_unchecked_exception() {
 			"    return new Object();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6469,17 +6970,19 @@ public void test0562_try_catch_unchecked_exception() {
 			"}\n"},
 			null,
 			options,
-			"----------\n" +
-			"1. WARNING in X.java (at line 6)\n" +
-			"	o = new LineNumberReader(new FileReader(\"dummy\"));\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Potential resource leak: \'o\' may not be closed\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Potential null pointer access: The variable o may be null at this location\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 6)
+					o = new LineNumberReader(new FileReader("dummy"));
+					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Potential resource leak: 'o' may not be closed
+				----------
+				2. ERROR in X.java (at line 8)
+					o.toString();
+					^
+				Potential null pointer access: The variable o may be null at this location
+				----------
+				""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6512,18 +7015,20 @@ public void test0563_try_catch() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 20)\n" +
-		"	if (ex == null) {\n" +
-		"	    ^^\n" +
-		"Null comparison always yields false: The variable ex cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 20)\n" +
-		"	if (ex == null) {\n" +
-		"    }\n" +
-		"	                ^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 20)
+				if (ex == null) {
+				    ^^
+			Null comparison always yields false: The variable ex cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 20)
+				if (ex == null) {
+			    }
+				                ^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6535,17 +7040,18 @@ public void test0564_try_catch_unchecked_exception() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static Object foo() {\n" +
-			"    Object result = null;\n" +
-			"    try {\n" +
-			"      result = new Object();\n" +
-			"    } catch (Exception e) {\n" +
-			"      result = null;\n" +
-			"    }\n" +
-			"    return result;\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public static Object foo() {
+				    Object result = null;
+				    try {
+				      result = new Object();
+				    } catch (Exception e) {
+				      result = null;
+				    }
+				    return result;
+				  }
+				}"""},
 		"",
 		null /* no extra class libraries */,
 		true /* flush output directory */,
@@ -6564,18 +7070,19 @@ public void test0565_try_catch_unchecked_exception() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static Object foo() {\n" +
-			"    Object result = null;\n" +
-			"    try {\n" +
-			"      result = new Object();\n" +
-			"      result = new Object();\n" +
-			"    } catch (Exception e) {\n" +
-			"      result = null;\n" +
-			"    }\n" +
-			"    return result;\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public static Object foo() {
+				    Object result = null;
+				    try {
+				      result = new Object();
+				      result = new Object();
+				    } catch (Exception e) {
+				      result = null;
+				    }
+				    return result;
+				  }
+				}"""},
 		"",
 		null /* no extra class libraries */,
 		true /* flush output directory */,
@@ -6594,27 +7101,28 @@ public void test0566_try_catch_unchecked_exception() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static Object foo(Y y) {\n" +
-			"    Object result = null;\n" +
-			"    try {\n" +
-			"      while (y.next()) {\n" +
-			"        result = y.getObject();\n" +
-			"      }\n" +
-			"    } catch (Exception e) {\n" +
-			"      result = null;\n" +
-			"    }\n" +
-			"    return result;\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  boolean next() {\n" +
-			"    return false;\n" +
-			"  }\n" +
-			"  Object getObject() {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public static Object foo(Y y) {
+				    Object result = null;
+				    try {
+				      while (y.next()) {
+				        result = y.getObject();
+				      }
+				    } catch (Exception e) {
+				      result = null;
+				    }
+				    return result;
+				  }
+				}
+				class Y {
+				  boolean next() {
+				    return false;
+				  }
+				  Object getObject() {
+				    return null;
+				  }
+				}"""},
 		"",
 		null /* no extra class libraries */,
 		true /* flush output directory */,
@@ -6698,17 +7206,19 @@ public void test0569_try_catch() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o == null)\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	System.out.println(i);\n" +
-		"	                   ^\n" +
-		"The local variable i may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o == null)
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			2. ERROR in X.java (at line 8)
+				System.out.println(i);
+				                   ^
+			The local variable i may not have been initialized
+			----------
+			""");
 }
 // null analysis -- try/catch
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=302446
@@ -6735,22 +7245,24 @@ public void test0570_try_catch() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o == null)\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
-		"	if (o != null)\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 15)\n" +
-		"	if(i == 0)\n" +
-		"	   ^\n" +
-		"The local variable i may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o == null)
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			2. ERROR in X.java (at line 10)
+				if (o != null)
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			3. ERROR in X.java (at line 15)
+				if(i == 0)
+				   ^
+			The local variable i may not have been initialized
+			----------
+			""");
 }
 //null analysis -- try/catch
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=302446
@@ -6782,22 +7294,24 @@ public void test0571_try_catch_finally() {
 			"	 }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o == null)\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 18)\n" +
-		"	if (i==1) {\n" +
-		"	    ^\n" +
-		"The local variable i may not have been initialized\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 20)\n" +
-		"	System.out.println(o.toString());\n" +
-		"	                   ^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o == null)
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			2. ERROR in X.java (at line 18)
+				if (i==1) {
+				    ^
+			The local variable i may not have been initialized
+			----------
+			3. ERROR in X.java (at line 20)
+				System.out.println(o.toString());
+				                   ^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""");
 }
 //null analysis -- if statement
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=302446
@@ -6815,17 +7329,19 @@ public void test0572_if_statement() {
 			"	}\n" +
 			"}\n" +
 			""},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o == null) // redundant check\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	System.out.println(i);\n" +
-		"	                   ^\n" +
-		"The local variable i may not have been initialized\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o == null) // redundant check
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			2. ERROR in X.java (at line 7)
+				System.out.println(i);
+				                   ^
+			The local variable i may not have been initialized
+			----------
+			""");
 }
 
 // take care for Java7 changes
@@ -6850,17 +7366,19 @@ public void test0573_try_catch_unchecked_and_checked_exception() {
 			"    return new Object();\n" +
 			"  }\n" +
 			"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Null pointer access: The variable o can only be null at this location\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Potential null pointer access: The variable o may be null at this location\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 9)
+					o.toString();
+					^
+				Null pointer access: The variable o can only be null at this location
+				----------
+				2. ERROR in X.java (at line 11)
+					o.toString();
+					^
+				Potential null pointer access: The variable o may be null at this location
+				----------
+				""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -6870,27 +7388,31 @@ public void test0574_try_multi_catch_unchecked_and_checked_exception() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.io.IOException;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    Object o = null;\n" +
-				"    try {\n" +
-				"		bar();\n" +
-				"		o = new Object();\n" +
-				"    } catch (IOException | RuntimeException e) {\n" +
-				"		o.toString();\n" +
-				"    }\n" +
-				"  }\n" +
-				"  private Object bar() throws IOException{\n" +
-				"    return new Object();\n" +
-				"  }\n" +
-				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Potential null pointer access: The variable o may be null at this location\n" +
-			"----------\n",
+				"""
+					import java.io.IOException;
+					public class X {
+					  void foo() {
+					    Object o = null;
+					    try {
+							bar();
+							o = new Object();
+					    } catch (IOException | RuntimeException e) {
+							o.toString();
+					    }
+					  }
+					  private Object bar() throws IOException{
+					    return new Object();
+					  }
+					}
+					"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 9)
+					o.toString();
+					^
+				Potential null pointer access: The variable o may be null at this location
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -6914,12 +7436,14 @@ public void test0575_try_multi_catch_finally_unchecked_and_checked_exception() {
 				"    return new Object();\n" +
 				"  }\n" +
 				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Potential null pointer access: The variable o may be null at this location\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 8)
+					o.toString();
+					^
+				Potential null pointer access: The variable o may be null at this location
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -6953,37 +7477,39 @@ public void test0576_try_with_resources() {
 				"    } finally {}\n" +
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	class MyException extends Exception {}\n" +
-		"	      ^^^^^^^^^^^\n" +
-		"The serializable class MyException does not declare a static final serialVersionUID field of type long\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 12)\n" +
-		"	fis = new FileInputStream(\"\");\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \'fis\' is never closed\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 13)\n" +
-		"	fis2.available();\n" +
-		"	^^^^\n" +
-		"Potential null pointer access: The variable fis2 may be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 14)\n" +
-		"	fis3.close();\n" +
-		"	^^^^\n" +
-		"Potential null pointer access: The variable fis3 may be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 15)\n" +
-		"	fis4.available();\n" +
-		"	^^^^\n" +
-		"Null pointer access: The variable fis4 can only be null at this location\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 18)\n" +
-		"	fis.available();\n" +
-		"	^^^\n" +
-		"Potential null pointer access: The variable fis may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				class MyException extends Exception {}
+				      ^^^^^^^^^^^
+			The serializable class MyException does not declare a static final serialVersionUID field of type long
+			----------
+			2. WARNING in X.java (at line 12)
+				fis = new FileInputStream("");
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Resource leak: 'fis' is never closed
+			----------
+			3. ERROR in X.java (at line 13)
+				fis2.available();
+				^^^^
+			Potential null pointer access: The variable fis2 may be null at this location
+			----------
+			4. ERROR in X.java (at line 14)
+				fis3.close();
+				^^^^
+			Potential null pointer access: The variable fis3 may be null at this location
+			----------
+			5. ERROR in X.java (at line 15)
+				fis4.available();
+				^^^^
+			Null pointer access: The variable fis4 can only be null at this location
+			----------
+			6. ERROR in X.java (at line 18)
+				fis.available();
+				^^^
+			Potential null pointer access: The variable fis may be null at this location
+			----------
+			""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -6994,20 +7520,24 @@ public void test0595_throw() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static void main(String[] args) throws Throwable {\n" +
-			"    Throwable t = null;\n" +
-			"    throw t;\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public static void main(String[] args) throws Throwable {
+				    Throwable t = null;
+				    throw t;
+				  }
+				}
+				"""
 			},
 		true /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	throw t;\n" +
-		"	      ^\n" +
-		"Null pointer access: The variable t can only be null at this location\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				throw t;
+				      ^
+			Null pointer access: The variable t can only be null at this location
+			----------
+			""",
 		"" /* expectedOutputString */,
 		"" /* expectedErrorString */,
 		false /* forceExecution */,
@@ -7026,23 +7556,27 @@ public void test0596_throw() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static void main(String[] args) throws Throwable {\n" +
-			"    Throwable t = null;\n" +
-			"    if (args.length > 0) {\n" +
-			"      t = new Throwable();\n" +
-			"    }\n" +
-			"    throw t;\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public static void main(String[] args) throws Throwable {
+				    Throwable t = null;
+				    if (args.length > 0) {
+				      t = new Throwable();
+				    }
+				    throw t;
+				  }
+				}
+				"""
 			},
 		true /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	throw t;\n" +
-		"	      ^\n" +
-		"Potential null pointer access: The variable t may be null at this location\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				throw t;
+				      ^
+			Potential null pointer access: The variable t may be null at this location
+			----------
+			""",
 		"" /* expectedOutputString */,
 		"" /* expectedErrorString */,
 		false /* forceExecution */,
@@ -7062,14 +7596,16 @@ public void test0597_throw() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() throws Throwable {\n" +
-			"    throw t();\n" +
-			"  }\n" +
-			"  Throwable t() {\n" +
-			"    return new Throwable();\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  void foo() throws Throwable {
+				    throw t();
+				  }
+				  Throwable t() {
+				    return new Throwable();
+				  }
+				}
+				"""
 			},
 		false /* expectingCompilerErrors */,
 		"" /* expectedCompilerLog */,
@@ -7097,12 +7633,14 @@ public void test0601_do_while() {
 			      // complain: NPE
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	while (o.toString() != null);\n" +
-		"	       ^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				while (o.toString() != null);
+				       ^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7119,12 +7657,14 @@ public void test0602_do_while() {
 			  // complain: get o null first time and forever
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	while (o != null);\n" +
-		"	       ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				while (o != null);
+				       ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7143,12 +7683,14 @@ public void test0603_do_while() {
 			      // complain: set it to non null before test, for each iteration
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	while (o == null);\n" +
-		"	       ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				while (o == null);
+				       ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7157,17 +7699,19 @@ public void test0604_do_while() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    do {\n" +
-			"      if (System.currentTimeMillis() > 10L) {\n" +
-			"        o = new Object();\n" +
-			"      }\n" +
-			"    }\n" +
-			"    while (o == null);\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = null;
+				    do {
+				      if (System.currentTimeMillis() > 10L) {
+				        o = new Object();
+				      }
+				    }
+				    while (o == null);
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -7176,22 +7720,26 @@ public void test0605_do_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo(Object o) {\n" +
-			"    o = null;\n" +
-			"    do {\n" +
-			"      // do nothing\n" +
-			"    }\n" +
-			"    while (dummy || o != null);\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	while (dummy || o != null);\n" +
-		"	                ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean dummy;
+				  void foo(Object o) {
+				    o = null;
+				    do {
+				      // do nothing
+				    }
+				    while (dummy || o != null);
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				while (dummy || o != null);
+				                ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7200,23 +7748,25 @@ public void test0606_do_while() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null,\n" +
-			"           u = new Object(),\n" +
-			"           v = new Object();\n" +
-			"    do {\n" +
-			"      if (v == null) {\n" +
-			"        o = new Object();\n" +
-			"      };\n" +
-			"      if (u == null) {\n" +
-			"        v = null;\n" +
-			"      };\n" +
-			"      u = null;\n" +
-			"    }\n" +
-			"    while (o == null);\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = null,
+				           u = new Object(),
+				           v = new Object();
+				    do {
+				      if (v == null) {
+				        o = new Object();
+				      };
+				      if (u == null) {
+				        v = null;
+				      };
+				      u = null;
+				    }
+				    while (o == null);
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -7237,12 +7787,14 @@ public void test0607_do_while() {
 			"    while (dummy);\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7251,17 +7803,19 @@ public void test0608_do_while() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    do {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    while (dummy);\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  boolean dummy;
+				  void foo() {
+				    Object o = null;
+				    do {
+				      o = new Object();
+				    }
+				    while (dummy);
+				    o.toString();
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -7270,21 +7824,25 @@ public void test0609_do_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean dummy;\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    do { /* */ }\n" +
-			"    while (dummy);\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean dummy;
+				  void foo() {
+				    Object o = null;
+				    do { /* */ }
+				    while (dummy);
+				    o.toString();
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7323,12 +7881,14 @@ public void test0611_do_while() {
 			"    if (o != null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				if (o != null) { /* */ }
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7341,23 +7901,26 @@ public void _test0612_do_while() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object doubt) {\n" +
-			"    Object o = null;\n" +
-			"    do {\n" +
-			"      if (o == null) {\n" +
-			"        return;\n" +
-			"      }\n" +
-			"      o = doubt;\n" +
-			"    } while (true);\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n"
+			"""
+				public class X {
+				  void foo(Object doubt) {
+				    Object o = null;
+				    do {
+				      if (o == null) {
+				        return;
+				      }
+				      o = doubt;
+				    } while (true);
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o == null) {
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			"""
 	);
 }
 
@@ -7367,18 +7930,20 @@ public void test0613_do_while() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  String f;\n" +
-			"  void foo (boolean b) {\n" +
-			"    X x = new X();\n" +
-			"    do {\n" +
-			"      System.out.println(x.f);\n" +
-			"      if (b) {\n" +
-			"        x = null;\n" +
-			"      }\n" +
-			"    } while (x != null);\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  String f;
+				  void foo (boolean b) {
+				    X x = new X();
+				    do {
+				      System.out.println(x.f);
+				      if (b) {
+				        x = null;
+				      }
+				    } while (x != null);
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -7389,23 +7954,26 @@ public void _test0614_do_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object doubt) {\n" +
-			"    Object o = null;\n" +
-			"    exit: do {\n" +
-			"      if (o == null) {\n" +
-			"        continue exit;\n" +
-			"      }\n" +
-			"      o = doubt;\n" +
-			"    } while (true);\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object doubt) {
+				    Object o = null;
+				    exit: do {
+				      if (o == null) {
+				        continue exit;
+				      }
+				      o = doubt;
+				    } while (true);
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o == null) {
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7415,23 +7983,26 @@ public void _test0615_do_while() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object doubt) {\n" +
-			"    Object o = null;\n" +
-			"    do {\n" +
-			"      if (o == null) {\n" +
-			"        throw new RuntimeException();\n" +
-			"      }\n" +
-			"      o = doubt;\n" +
-			"    } while (true);\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object doubt) {
+				    Object o = null;
+				    do {
+				      if (o == null) {
+				        throw new RuntimeException();
+				      }
+				      o = doubt;
+				    } while (true);
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o == null) {
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7442,22 +8013,24 @@ public void test0616_do_while_explicit_label() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(int i) {\n" +
-			"    Object o = null;\n" +
-			"    done: do {\n" +
-			"      switch (i) {\n" +
-			"        case 0:\n" +
-			"          o = new Object();\n" +
-			"          break;\n" +
-			"        case 1:\n" +
-			"          break done;\n" +
-			"      }\n" +
-			"    } while (true);\n" +
-			"    if (o == null) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(int i) {
+				    Object o = null;
+				    done: do {
+				      switch (i) {
+				        case 0:
+				          o = new Object();
+				          break;
+				        case 1:
+				          break done;
+				      }
+				    } while (true);
+				    if (o == null) {
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -7468,22 +8041,24 @@ public void test0617_do_while_explicit_label() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean test() {\n" +
-			"    return true;\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    done: do {\n" +
-			"      if (test()) {\n" +
-			"        break done;\n" +
-			"      }\n" +
-			"      o = new Object();\n" +
-			"    } while (true);\n" +
-			"    if (o == null) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  boolean test() {
+				    return true;
+				  }
+				  void foo() {
+				    Object o = null;
+				    done: do {
+				      if (test()) {
+				        break done;
+				      }
+				      o = new Object();
+				    } while (true);
+				    if (o == null) {
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -7494,19 +8069,20 @@ public void test0618_do_while_infinite() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void test(String[] a) {\n" +
-			"    String key = null;\n" +
-			"    do {\n" +
-			"      if (a[0] == null)\n" +
-			"        break;\n" +
-			"      key = a[0];\n" +
-			"    } while (true);\n" +
-			"    if (key != null) {\n" +
-			"      // empty\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public void test(String[] a) {
+				    String key = null;
+				    do {
+				      if (a[0] == null)
+				        break;
+				      key = a[0];
+				    } while (true);
+				    if (key != null) {
+				      // empty
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -7517,19 +8093,20 @@ public void test0619_do_while_infinite() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void test(String[] a) {\n" +
-			"    String key = null;\n" +
-			"    loop: do {\n" +
-			"      if (a[0] == null)\n" +
-			"        break loop;\n" +
-			"      key = a[0];\n" +
-			"    } while (true);\n" +
-			"    if (key != null) {\n" +
-			"      // empty\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public void test(String[] a) {
+				    String key = null;
+				    loop: do {
+				      if (a[0] == null)
+				        break loop;
+				      key = a[0];
+				    } while (true);
+				    if (key != null) {
+				      // empty
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -7545,12 +8122,14 @@ public void test0701_for() {
 			      // complain: NPE
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	for (;o.toString() != null;) {/* */}\n" +
-		"	      ^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				for (;o.toString() != null;) {/* */}
+				      ^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7566,12 +8145,14 @@ public void test0702_for() {
 			  // complain: get o null first time and forever
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	for (;o != null;) {/* */}\n" +
-		"	      ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				for (;o != null;) {/* */}
+				      ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7629,12 +8210,14 @@ public void test0705_for() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7643,13 +8226,15 @@ public void test0707_for() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o) {\n" +
-			"    for (;o == null; o.toString()) {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(Object o) {
+				    for (;o == null; o.toString()) {
+				      o = new Object();
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -7658,18 +8243,22 @@ public void test0708_for() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o) {\n" +
-			"    for (;o == null; o.toString()) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	for (;o == null; o.toString()) {\n" +
-		"	                 ^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o) {
+				    for (;o == null; o.toString()) {
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				for (;o == null; o.toString()) {
+				                 ^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7683,12 +8272,14 @@ public void test0709_for() {
 			"    for (o.toString(); o == null;) { /* */ }\n" + // complain: protected then unchanged
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	for (o.toString(); o == null;) { /* */ }\n" +
-		"	                   ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				for (o.toString(); o == null;) { /* */ }
+				                   ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7697,22 +8288,26 @@ public void test0710_for() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean bar() {\n" +
-			"    return true;\n" +
-			"  }\n" +
-			"  void foo(Object o) {\n" +
-			"    o = null;\n" +
-			"    for (o.toString(); bar();) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	for (o.toString(); bar();) {\n" +
-		"	     ^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean bar() {
+				    return true;
+				  }
+				  void foo(Object o) {
+				    o = null;
+				    for (o.toString(); bar();) {
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				for (o.toString(); bar();) {
+				     ^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7729,12 +8324,14 @@ public void test0711_for() {
 				      // complain: NPE
 				"  }\n" +
 				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	for (Object o : t) {/* */}\n" +
-			"	                ^\n" +
-			"Null pointer access: The variable t can only be null at this location\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					for (Object o : t) {/* */}
+					                ^
+				Null pointer access: The variable t can only be null at this location
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -7752,12 +8349,14 @@ public void test0712_for() {
 				      // complain: NPE
 				"  }\n" +
 				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	for (Object o : i) {/* */}\n" +
-			"	                ^\n" +
-			"Null pointer access: The variable i can only be null at this location\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					for (Object o : i) {/* */}
+					                ^
+				Null pointer access: The variable i can only be null at this location
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -7768,12 +8367,14 @@ public void test0713_for() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    Object t[] = new Object[1];\n" +
-				"    for (Object o : t) {/* */}\n" +
-				"  }\n" +
-				"}\n"},
+				"""
+					public class X {
+					  void foo() {
+					    Object t[] = new Object[1];
+					    for (Object o : t) {/* */}
+					  }
+					}
+					"""},
 			"");
 	}
 }
@@ -7784,12 +8385,14 @@ public void test0714_for() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    Iterable i = new java.util.Vector<Object>();\n" +
-				"    for (Object o : i) {/* */}\n" +
-				"  }\n" +
-				"}\n"},
+				"""
+					public class X {
+					  void foo() {
+					    Iterable i = new java.util.Vector<Object>();
+					    for (Object o : i) {/* */}
+					  }
+					}
+					"""},
 			"");
 	}
 }
@@ -7811,12 +8414,14 @@ public void test0715_for() {
 				// complain: cannot know if at least one iteration got executed
 				"  }\n" +
 				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	flag.toString();\n" +
-			"	^^^^\n" +
-			"Potential null pointer access: The variable flag may be null at this location\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 8)
+					flag.toString();
+					^^^^
+				Potential null pointer access: The variable flag may be null at this location
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -7827,20 +8432,24 @@ public void test0716_for() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    Iterable i = new java.util.Vector<Object>();\n" +
-				"    Object flag = null;\n" +
-				"    for (Object o : i) { /* */ }\n" +
-				"    flag.toString();\n" +
-				"  }\n" +
-				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	flag.toString();\n" +
-			"	^^^^\n" +
-			"Null pointer access: The variable flag can only be null at this location\n" +
-			"----------\n",
+				"""
+					public class X {
+					  void foo() {
+					    Iterable i = new java.util.Vector<Object>();
+					    Object flag = null;
+					    for (Object o : i) { /* */ }
+					    flag.toString();
+					  }
+					}
+					"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					flag.toString();
+					^^^^
+				Null pointer access: The variable flag can only be null at this location
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -7851,21 +8460,25 @@ public void test0717_for() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  void foo(boolean dummy) {\n" +
-				"    Object flag = null;\n" +
-				"    for (;dummy;) {\n" +
-				"      flag = new Object();\n" +
-				"    }\n" +
-				"    flag.toString();\n" +
-				"  }\n" +
-				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	flag.toString();\n" +
-			"	^^^^\n" +
-			"Potential null pointer access: The variable flag may be null at this location\n" +
-			"----------\n",
+				"""
+					public class X {
+					  void foo(boolean dummy) {
+					    Object flag = null;
+					    for (;dummy;) {
+					      flag = new Object();
+					    }
+					    flag.toString();
+					  }
+					}
+					"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					flag.toString();
+					^^^^
+				Potential null pointer access: The variable flag may be null at this location
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -7875,19 +8488,23 @@ public void test0718_for() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(boolean dummy) {\n" +
-			"    Object flag = null;\n" +
-			"    for (;dummy;) { /* */ }\n" +
-			"    flag.toString();\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	flag.toString();\n" +
-		"	^^^^\n" +
-		"Null pointer access: The variable flag can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(boolean dummy) {
+				    Object flag = null;
+				    for (;dummy;) { /* */ }
+				    flag.toString();
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				flag.toString();
+				^^^^
+			Null pointer access: The variable flag can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7897,24 +8514,26 @@ public void test0719_for() {
 	this.runConformTest(
 		new String[] {
 			    "X.java",
-			    "public class X {\n" +
-			    "  public static final char[] foo(char[] a, char c1, char c2) {\n" +
-			    "   char[] r = null;\n" +
-			    "   for (int i = 0, length = a.length; i < length; i++) {\n" +
-			    "     char c = a[i];\n" +
-			    "     if (c == c1) {\n" +
-			    "       if (r == null) {\n" +
-			    "         r = new char[length];\n" +
-			    "       }\n" +
-			    "       r[i] = c2;\n" +
-			    "     } else if (r != null) {\n" +
-			    "       r[i] = c;\n" +
-			    "     }\n" +
-			    "   }\n" +
-			    "   if (r == null) return a;\n" +
-			    "   return r;\n" +
-			    " }\n" +
-			    "}\n"},
+			    """
+					public class X {
+					  public static final char[] foo(char[] a, char c1, char c2) {
+					   char[] r = null;
+					   for (int i = 0, length = a.length; i < length; i++) {
+					     char c = a[i];
+					     if (c == c1) {
+					       if (r == null) {
+					         r = new char[length];
+					       }
+					       r[i] = c2;
+					     } else if (r != null) {
+					       r[i] = c;
+					     }
+					   }
+					   if (r == null) return a;
+					   return r;
+					 }
+					}
+					"""},
 		"");
 }
 
@@ -7935,12 +8554,14 @@ public void test0720_for_continue_break() {
 			  "    }\n" +
 			  "  }\n" +
 			  "}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o == null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o == null) {
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7981,12 +8602,14 @@ public void test0722_for_return() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o == null) {
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -7995,16 +8618,18 @@ public void test0723_for() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo () {\n" +
-			"    Object o[] = new Object[1];\n" +
-			"    for (int i = 0; i < 1; i++) {\n" +
-			"      if (i < 1) {\n" +
-			"        o[i].toString();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo () {
+				    Object o[] = new Object[1];
+				    for (int i = 0; i < 1; i++) {
+				      if (i < 1) {
+				        o[i].toString();
+				      }
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -8013,21 +8638,23 @@ public void test0724_for_with_initialization() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  X field;\n" +
-			"  void foo(X x1) {\n" +
-			"    // X x2;\n" +
-			"    outer: for (int i = 0; i < 30; i++) {\n" +
-			"      X x2 = x1;\n" +
-			"      do {\n" +
-			"        if (x2.equals(x1)) {\n" +
-			"          continue outer;\n" +
-			"        }\n" +
-			"        x2 = x2.field;\n" +
-			"      } while (x2 != null);\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  X field;
+				  void foo(X x1) {
+				    // X x2;
+				    outer: for (int i = 0; i < 30; i++) {
+				      X x2 = x1;
+				      do {
+				        if (x2.equals(x1)) {
+				          continue outer;
+				        }
+				        x2 = x2.field;
+				      } while (x2 != null);
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -8036,21 +8663,23 @@ public void test0725_for_with_assignment() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  X field;\n" +
-			"  void foo(X x1) {\n" +
-			"    X x2;\n" +
-			"    outer: for (int i = 0; i < 30; i++) {\n" +
-			"      x2 = x1;\n" +
-			"      do {\n" +
-			"        if (x2.equals(x1)) {\n" +
-			"          continue outer;\n" +
-			"        }\n" +
-			"        x2 = x2.field;\n" +
-			"      } while (x2 != null);\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  X field;
+				  void foo(X x1) {
+				    X x2;
+				    outer: for (int i = 0; i < 30; i++) {
+				      x2 = x1;
+				      do {
+				        if (x2.equals(x1)) {
+				          continue outer;
+				        }
+				        x2 = x2.field;
+				      } while (x2 != null);
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -8061,17 +8690,19 @@ public void test0726_for() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(X x1) {\n" +
-			"    X x2 = null;\n" +
-			"    for (int i = 0; i < 5; i++) {\n" +
-			"      if (x2 == null) {\n" +
-			"        x2 = x1;\n" +
-			"      }\n" +
-			"      x2.toString();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(X x1) {
+				    X x2 = null;
+				    for (int i = 0; i < 5; i++) {
+				      if (x2 == null) {
+				        x2 = x1;
+				      }
+				      x2.toString();
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -8080,11 +8711,13 @@ public void test0727_for() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    for (; true;) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo() {
+				    for (; true;) { /* */ }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -8099,12 +8732,14 @@ public void test0728_for() {
 			"    if (x == null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (x == null) { /* */ }\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Unreachable code\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (x == null) { /* */ }
+				^^^^^^^^^^^^^^^^^^^^^^^^
+			Unreachable code
+			----------
+			""");
 }
 
 // null analysis -- for
@@ -8112,30 +8747,31 @@ public void test0729_for_try_catch_finally() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"class X {\n" +
-			"  X f;\n" +
-			"  void bar() throws IOException {\n" +
-			"    throw new IOException();\n" +
-			"  }\n" +
-			"  void foo(boolean b) {\n" +
-			"    for (int i = 0 ; i < 5 ; i++) {\n" +
-			"      X x = this.f;\n" +
-			"      if (x == null) { \n" +
-			"        continue;\n" +
-			"      }\n" +
-			"      if (b) {\n" +
-			"        try {\n" +
-			"          bar();\n" +
-			"        } \n" +
-			"        catch(IOException e) { /* */ }\n" +
-			"        finally {\n" +
-			"          x.toString();\n" +
-			"        }\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				class X {
+				  X f;
+				  void bar() throws IOException {
+				    throw new IOException();
+				  }
+				  void foo(boolean b) {
+				    for (int i = 0 ; i < 5 ; i++) {
+				      X x = this.f;
+				      if (x == null) {\s
+				        continue;
+				      }
+				      if (b) {
+				        try {
+				          bar();
+				        }\s
+				        catch(IOException e) { /* */ }
+				        finally {
+				          x.toString();
+				        }
+				      }
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -8152,12 +8788,14 @@ public void test0730_for() {
 			"    if (o != null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o != null) { /* */ }
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -8177,12 +8815,14 @@ public void test0731_for() {
 			"    if (o != null) { /* */ }\n" + // complain
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	if (o != null) { /* */ }\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				if (o != null) { /* */ }
+				    ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -8192,20 +8832,22 @@ public void test0732_for_nested_break() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(String doubt) {\n" +
-			"    for(int i = 0; i < 10; i++) {\n" +
-			"      String s = doubt;\n" +
-			"      if(s != null) {\n" +
-			"        for(int j = 0; j < 1; j++) {\n" +
-			"          break;\n" +
-			"        }\n" +
-			"        s.length();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"\n"},
+			"""
+				public class X {
+				  void foo(String doubt) {
+				    for(int i = 0; i < 10; i++) {
+				      String s = doubt;
+				      if(s != null) {
+				        for(int j = 0; j < 1; j++) {
+				          break;
+				        }
+				        s.length();
+				      }
+				    }
+				  }
+				}
+				
+				"""},
 		"");
 }
 
@@ -8216,20 +8858,22 @@ public void test0733_for_while_break() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(String doubt, boolean b) {\n" +
-			"    for(int i = 0; i < 10; i++) {\n" +
-			"      String s = doubt;\n" +
-			"      if (s != null) {\n" +
-			"        while (b) {\n" +
-			"          break;\n" +
-			"        }\n" +
-			"        s.length();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"\n"},
+			"""
+				public class X {
+				  void foo(String doubt, boolean b) {
+				    for(int i = 0; i < 10; i++) {
+				      String s = doubt;
+				      if (s != null) {
+				        while (b) {
+				          break;
+				        }
+				        s.length();
+				      }
+				    }
+				  }
+				}
+				
+				"""},
 		"");
 }
 
@@ -8240,20 +8884,22 @@ public void test0734_for_while_break() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(String doubt, boolean b) {\n" +
-			"    for(int i = 0; i < 10; i++) {\n" +
-			"      String s = doubt;\n" +
-			"      if (s != null) {\n" +
-			"        do {\n" +
-			"          break;\n" +
-			"        } while (b);\n" +
-			"        s.length();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n" +
-			"\n"},
+			"""
+				public class X {
+				  void foo(String doubt, boolean b) {
+				    for(int i = 0; i < 10; i++) {
+				      String s = doubt;
+				      if (s != null) {
+				        do {
+				          break;
+				        } while (b);
+				        s.length();
+				      }
+				    }
+				  }
+				}
+				
+				"""},
 		"");
 }
 
@@ -8265,20 +8911,22 @@ public void test0735_for_nested_break() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  void foo(Object[] a, String doubt) {\n" +
-				"    for(int i = 0; i < 10; i++) {\n" +
-				"      String s = doubt;\n" +
-				"      if(s != null) {\n" +
-				"        for(Object o : a) {\n" +
-				"          break;\n" +
-				"        }\n" +
-				"        s.length();\n" +
-				"      }\n" +
-				"    }\n" +
-				"  }\n" +
-				"}\n" +
-				"\n"},
+				"""
+					public class X {
+					  void foo(Object[] a, String doubt) {
+					    for(int i = 0; i < 10; i++) {
+					      String s = doubt;
+					      if(s != null) {
+					        for(Object o : a) {
+					          break;
+					        }
+					        s.length();
+					      }
+					    }
+					  }
+					}
+					
+					"""},
 			"");
 	}
 }
@@ -8329,12 +8977,14 @@ public void test0737_for_unknown_protection() {
 			"    return false;\n" +
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	if (b.booleanValue()) {\n" +
-		"	    ^\n" +
-		"Null pointer access: The variable b can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 11)
+				if (b.booleanValue()) {
+				    ^
+			Null pointer access: The variable b can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -8374,20 +9024,22 @@ public void test0739_for() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.List;\n" +
-				"public class X {\n" +
-				"  void foo(List<Object> l, boolean b) {\n" +
-				"    for (Object o : l) {\n" +
-				"      if (b) {\n" +
-				"        if (o != null) {\n" +
-				"          return;\n" +
-				"        }\n" +
-				"      } else {\n" +
-				"        o.toString();\n" +
-				"      }\n" +
-				"    }\n" +
-				"  }\n" +
-				"}\n"},
+				"""
+					import java.util.List;
+					public class X {
+					  void foo(List<Object> l, boolean b) {
+					    for (Object o : l) {
+					      if (b) {
+					        if (o != null) {
+					          return;
+					        }
+					      } else {
+					        o.toString();
+					      }
+					    }
+					  }
+					}
+					"""},
 			"");
 	}
 }
@@ -8399,22 +9051,24 @@ public void test0740_for_explicit_label() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(int i) {\n" +
-			"    Object o = null;\n" +
-			"    done: for (;;) {\n" +
-			"      switch (i) {\n" +
-			"        case 0:\n" +
-			"          o = new Object();\n" +
-			"          break;\n" +
-			"        case 1:\n" +
-			"          break done;\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (o == null) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(int i) {
+				    Object o = null;
+				    done: for (;;) {
+				      switch (i) {
+				        case 0:
+				          o = new Object();
+				          break;
+				        case 1:
+				          break done;
+				      }
+				    }
+				    if (o == null) {
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -8425,22 +9079,24 @@ public void test0741_for_explicit_label() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean test() {\n" +
-			"    return true;\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    done: for (;;) {\n" +
-			"      if (test()) {\n" +
-			"        break done;\n" +
-			"      }\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    if (o == null) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  boolean test() {
+				    return true;
+				  }
+				  void foo() {
+				    Object o = null;
+				    done: for (;;) {
+				      if (test()) {
+				        break done;
+				      }
+				      o = new Object();
+				    }
+				    if (o == null) {
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -8452,23 +9108,25 @@ public void test0742_for_explicit_label() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.List;\n" +
-				"public class X {\n" +
-				"  void foo(int i, List<Object> l) {\n" +
-				"    Object o = null;\n" +
-				"    done: for (Object j: l) {\n" +
-				"      switch (i) {\n" +
-				"        case 0:\n" +
-				"          o = new Object();\n" +
-				"          break;\n" +
-				"        case 1:\n" +
-				"          break done;\n" +
-				"      }\n" +
-				"    }\n" +
-				"    if (o == null) {\n" +
-				"    }\n" +
-				"  }\n" +
-				"}\n"},
+				"""
+					import java.util.List;
+					public class X {
+					  void foo(int i, List<Object> l) {
+					    Object o = null;
+					    done: for (Object j: l) {
+					      switch (i) {
+					        case 0:
+					          o = new Object();
+					          break;
+					        case 1:
+					          break done;
+					      }
+					    }
+					    if (o == null) {
+					    }
+					  }
+					}
+					"""},
 			"");
 	}
 }
@@ -8479,20 +9137,21 @@ public void test0743_for_infinite() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void test(String[] a) {\n" +
-			"    String key = null;\n" +
-			"    for( int i = 0; ; i++ )\n" +
-			"    {\n" +
-			"      if (a[i] == null)\n" +
-			"        break;\n" +
-			"      key = a[i];\n" +
-			"    }\n" +
-			"    if (key != null) {\n" +
-			"      // empty\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public void test(String[] a) {
+				    String key = null;
+				    for( int i = 0; ; i++ )
+				    {
+				      if (a[i] == null)
+				        break;
+				      key = a[i];
+				    }
+				    if (key != null) {
+				      // empty
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -8503,20 +9162,21 @@ public void test0744_for_infinite() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void test(String[] a) {\n" +
-			"    String key = null;\n" +
-			"    loop: for( int i = 0; ; i++ )\n" +
-			"    {\n" +
-			"      if (a[i] == null)\n" +
-			"        break loop;\n" +
-			"      key = a[i];\n" +
-			"    }\n" +
-			"    if (key != null) {\n" +
-			"      // empty\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  public void test(String[] a) {
+				    String key = null;
+				    loop: for( int i = 0; ; i++ )
+				    {
+				      if (a[i] == null)
+				        break loop;
+				      key = a[i];
+				    }
+				    if (key != null) {
+				      // empty
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -8526,27 +9186,31 @@ public void test0746_for_try_catch() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    String str = null;\n" +
-			"    for (int i = 0; i < 2; i++) {\n" +
-			"      try {\n" +
-			"        str = new String(\"Test\");\n" +
-			"      } catch (Exception ex) {\n" +
-			"        ex.printStackTrace();\n" +
-			"      }\n" +
-			"      str.charAt(i);\n" +
-			"      str = null;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  void foo() {
+				    String str = null;
+				    for (int i = 0; i < 2; i++) {
+				      try {
+				        str = new String("Test");
+				      } catch (Exception ex) {
+				        ex.printStackTrace();
+				      }
+				      str.charAt(i);
+				      str = null;
+				    }
+				  }
+				}
+				"""
 			},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	str.charAt(i);\n" +
-		"	^^^\n" +
-		"Potential null pointer access: The variable str may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				str.charAt(i);
+				^^^
+			Potential null pointer access: The variable str may be null at this location
+			----------
+			""");
 }
 
 // null analysis - for
@@ -8556,26 +9220,30 @@ public void test0747_for_try_catch() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    String str = null;\n" +
-			"    for (int i = 0; i < 2; i++) {\n" +
-			"      try {\n" +
-			"        str = new String(\"Test\");\n" +
-			"      } catch (Exception ex) {\n" +
-			"        ex.printStackTrace();\n" +
-			"      }\n" +
-			"      str.charAt(i);\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  void foo() {
+				    String str = null;
+				    for (int i = 0; i < 2; i++) {
+				      try {
+				        str = new String("Test");
+				      } catch (Exception ex) {
+				        ex.printStackTrace();
+				      }
+				      str.charAt(i);
+				    }
+				  }
+				}
+				"""
 			},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	str.charAt(i);\n" +
-		"	^^^\n" +
-		"Potential null pointer access: The variable str may be null at this location\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				str.charAt(i);
+				^^^
+			Potential null pointer access: The variable str may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -8620,17 +9288,19 @@ public void test0801_switch() {
 			"   if(o == null) { /* */ }\n" + // complain: only get there through 0, o non null
 			" }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	if(o == null) { /* */ }\n" +
-		"	   ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 12)\n" +
-		"	if(o == null) { /* */ }\n" +
-		"	              ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 12)
+				if(o == null) { /* */ }
+				   ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 12)
+				if(o == null) { /* */ }
+				              ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -8650,12 +9320,14 @@ public void test0802_switch() {
 			"   }\n" +
 			" }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -8677,12 +9349,14 @@ public void test0803_switch() {
 			"   }\n" +
 			" }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -8708,12 +9382,14 @@ public void test0804_switch() {
 			"	 if(o != null) { /* */ }\n" + // complain: all branches allocate a new o
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" +
-		"	if(o != null) { /* */ }\n" +
-		"	   ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 15)
+				if(o != null) { /* */ }
+				   ^
+			Redundant null check: The variable o cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -8722,18 +9398,20 @@ public void test0805_switch() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(X p) {\n" +
-			"    X x = this;\n" +
-			"    for (int i = 0; i < 5; i++) {\n" +
-			"      switch (i) {\n" +
-			"        case 1:\n" +
-			"          x = p;\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (x != null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(X p) {
+				    X x = this;
+				    for (int i = 0; i < 5; i++) {
+				      switch (i) {
+				        case 1:
+				          x = p;
+				      }
+				    }
+				    if (x != null) { /* */ }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -8757,29 +9435,31 @@ public void _test0901_non_null_protection_tag() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o, boolean b) {\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o/*NN*/.toString();\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o/*\n" +
-			"         NN  comment  */.toString();\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o/*  NN\n" +
-			"               */.toString();\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o               //  NN   \n" +
-			"      .toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(Object o, boolean b) {
+				    if (b) {
+				      o = null;
+				    }
+				    o/*NN*/.toString();
+				    if (b) {
+				      o = null;
+				    }
+				    o/*
+				         NN  comment  */.toString();
+				    if (b) {
+				      o = null;
+				    }
+				    o/*  NN
+				               */.toString();
+				    if (b) {
+				      o = null;
+				    }
+				    o               //  NN  \s
+				      .toString();
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -8788,28 +9468,30 @@ public void _test0902_non_null_protection_tag() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o, boolean b) {\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o/*NON-NULL*/.toString();\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o/*  NON-NULL   comment */.toString();\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o/*  NON-NULL   \n" +
-			"               */.toString();\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o               //  NON-NULL   \n" +
-			"      .toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(Object o, boolean b) {
+				    if (b) {
+				      o = null;
+				    }
+				    o/*NON-NULL*/.toString();
+				    if (b) {
+				      o = null;
+				    }
+				    o/*  NON-NULL   comment */.toString();
+				    if (b) {
+				      o = null;
+				    }
+				    o/*  NON-NULL  \s
+				               */.toString();
+				    if (b) {
+				      o = null;
+				    }
+				    o               //  NON-NULL  \s
+				      .toString();
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -8818,65 +9500,69 @@ public void test0903_non_null_protection_tag() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o, boolean b) {\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o/*N N*/.toString();\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o/*NNa*/.toString();\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o/*aNN */.toString();\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o/*NON NULL*/.toString();\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o/*Non-Null*/.toString();\n" +
-			"    if (b) {\n" +
-			"      o = null;\n" +
-			"    }\n" +
-			"    o/*aNON-NULL */.toString();\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	o/*N N*/.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
-		"	o/*NNa*/.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 14)\n" +
-		"	o/*aNN */.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 18)\n" +
-		"	o/*NON NULL*/.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 22)\n" +
-		"	o/*Non-Null*/.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 26)\n" +
-		"	o/*aNON-NULL */.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(Object o, boolean b) {
+				    if (b) {
+				      o = null;
+				    }
+				    o/*N N*/.toString();
+				    if (b) {
+				      o = null;
+				    }
+				    o/*NNa*/.toString();
+				    if (b) {
+				      o = null;
+				    }
+				    o/*aNN */.toString();
+				    if (b) {
+				      o = null;
+				    }
+				    o/*NON NULL*/.toString();
+				    if (b) {
+				      o = null;
+				    }
+				    o/*Non-Null*/.toString();
+				    if (b) {
+				      o = null;
+				    }
+				    o/*aNON-NULL */.toString();
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				o/*N N*/.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			2. ERROR in X.java (at line 10)
+				o/*NNa*/.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			3. ERROR in X.java (at line 14)
+				o/*aNN */.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			4. ERROR in X.java (at line 18)
+				o/*NON NULL*/.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			5. ERROR in X.java (at line 22)
+				o/*Non-Null*/.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			6. ERROR in X.java (at line 26)
+				o/*aNON-NULL */.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -8892,12 +9578,14 @@ public void test0905_non_null_protection_tag() {
 			"    o.toString();/*NN*/\n" + 	// too late to protect => complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	o.toString();/*NN*/\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				o.toString();/*NN*/
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -8912,12 +9600,14 @@ public void test0906_non_null_protection_tag() {
 			"    /*NN*/o.toString();\n" + 	// too soon to protect => complain
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	/*NN*/o.toString();\n" +
-		"	      ^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				/*NN*/o.toString();
+				      ^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -8952,12 +9642,14 @@ public void test0951_assert() {
 				"    o.toString();\n" + 		// can only be null
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -8975,12 +9667,14 @@ public void test0952_assert() {
 				"    o.toString();\n" + 		// complain
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -8999,22 +9693,24 @@ public void test0953_assert_combined() {
 				"    if (o2 == null) { };\n" + 		// complain
 				"  }\n" +
 				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	if (o1 == null) { };\n" +
-			"	    ^^\n" +
-			"Null comparison always yields false: The variable o1 cannot be null at this location\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	if (o1 == null) { };\n" +
-			"	                ^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	if (o2 == null) { };\n" +
-			"	    ^^\n" +
-			"Redundant null check: The variable o2 can only be null at this location\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					if (o1 == null) { };
+					    ^^
+				Null comparison always yields false: The variable o1 cannot be null at this location
+				----------
+				2. WARNING in X.java (at line 4)
+					if (o1 == null) { };
+					                ^^^
+				Dead code
+				----------
+				3. ERROR in X.java (at line 5)
+					if (o2 == null) { };
+					    ^^
+				Redundant null check: The variable o2 can only be null at this location
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -9034,12 +9730,14 @@ public void test0954_assert_fake_reachable() {
 				"  }\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	assert(false && o != null);\n" +
-			"	                ^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					assert(false && o != null);
+					                ^^^^^^^^^
+				Dead code
+				----------
+				""",
 			"",
 			"",
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
@@ -9059,17 +9757,19 @@ public void test0955_assert_combined() {
 				"    if (o == null) { };\n" + 		// complain
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o == null) { };\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	if (o == null) { };\n" +
-		"	               ^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o == null) { };
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 4)
+				if (o == null) { };
+				               ^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -9088,22 +9788,24 @@ public void test0956_assert_combined() {
 				"    if (o == null) { };\n" +   // complain
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	assert(o != null);\n" +
-		"	       ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	if (o == null) { };\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 5)\n" +
-		"	if (o == null) { };\n" +
-		"	               ^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				assert(o != null);
+				       ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			2. ERROR in X.java (at line 5)
+				if (o == null) { };
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			3. WARNING in X.java (at line 5)
+				if (o == null) { };
+				               ^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -9132,47 +9834,49 @@ public void test0957_assert() {
 				"	 if (bar2 == null) {}\n" +
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (foo == null) {}\n" +
-		"	    ^^^\n" +
-		"Null comparison always yields false: The variable foo cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	if (foo == null) {}\n" +
-		"	                 ^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 7)\n" +
-		"	assert (foo2 == null);\n" +
-		"	        ^^^^\n" +
-		"Null comparison always yields false: The variable foo2 cannot be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 8)\n" +
-		"	if (foo2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Redundant null check: The variable foo2 can only be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 11)\n" +
-		"	if (bar == null) {}\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable bar can only be null at this location\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 13)\n" +
-		"	assert (bar2 != null);\n" +
-		"	        ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 can only be null at this location\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 14)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" +
-		"----------\n" +
-		"8. WARNING in X.java (at line 14)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	                  ^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (foo == null) {}
+				    ^^^
+			Null comparison always yields false: The variable foo cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 5)
+				if (foo == null) {}
+				                 ^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 7)
+				assert (foo2 == null);
+				        ^^^^
+			Null comparison always yields false: The variable foo2 cannot be null at this location
+			----------
+			4. ERROR in X.java (at line 8)
+				if (foo2 == null) {}
+				    ^^^^
+			Redundant null check: The variable foo2 can only be null at this location
+			----------
+			5. ERROR in X.java (at line 11)
+				if (bar == null) {}
+				    ^^^
+			Redundant null check: The variable bar can only be null at this location
+			----------
+			6. ERROR in X.java (at line 13)
+				assert (bar2 != null);
+				        ^^^^
+			Null comparison always yields false: The variable bar2 can only be null at this location
+			----------
+			7. ERROR in X.java (at line 14)
+				if (bar2 == null) {}
+				    ^^^^
+			Null comparison always yields false: The variable bar2 cannot be null at this location
+			----------
+			8. WARNING in X.java (at line 14)
+				if (bar2 == null) {}
+				                  ^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -9200,17 +9904,19 @@ public void test0958_assert() {
 				"	 if (bar == null) {}\n" +		// warn
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	if (foo != null) {}\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable foo cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 13)\n" +
-		"	if (bar == null) {}\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable bar can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 12)
+				if (foo != null) {}
+				    ^^^
+			Redundant null check: The variable foo cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 13)
+				if (bar == null) {}
+				    ^^^
+			Redundant null check: The variable bar can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -9241,47 +9947,49 @@ public void test0959a_assert_loop() {
 				"	 }\n" +
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	if (foo == null) {}\n" +
-		"	    ^^^\n" +
-		"Null comparison always yields false: The variable foo cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 9)\n" +
-		"	if (foo == null) {}\n" +
-		"	                 ^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 10)\n" +
-		"	assert (foo2 == null);\n" +
-		"	        ^^^^\n" +
-		"Null comparison always yields false: The variable foo2 cannot be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 11)\n" +
-		"	if (foo2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Redundant null check: The variable foo2 can only be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 13)\n" +
-		"	if (bar == null) {}\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable bar can only be null at this location\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 14)\n" +
-		"	assert (bar2 != null);\n" +
-		"	        ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 can only be null at this location\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 15)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" +
-		"----------\n" +
-		"8. WARNING in X.java (at line 15)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	                  ^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				if (foo == null) {}
+				    ^^^
+			Null comparison always yields false: The variable foo cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 9)
+				if (foo == null) {}
+				                 ^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 10)
+				assert (foo2 == null);
+				        ^^^^
+			Null comparison always yields false: The variable foo2 cannot be null at this location
+			----------
+			4. ERROR in X.java (at line 11)
+				if (foo2 == null) {}
+				    ^^^^
+			Redundant null check: The variable foo2 can only be null at this location
+			----------
+			5. ERROR in X.java (at line 13)
+				if (bar == null) {}
+				    ^^^
+			Redundant null check: The variable bar can only be null at this location
+			----------
+			6. ERROR in X.java (at line 14)
+				assert (bar2 != null);
+				        ^^^^
+			Null comparison always yields false: The variable bar2 can only be null at this location
+			----------
+			7. ERROR in X.java (at line 15)
+				if (bar2 == null) {}
+				    ^^^^
+			Null comparison always yields false: The variable bar2 cannot be null at this location
+			----------
+			8. WARNING in X.java (at line 15)
+				if (bar2 == null) {}
+				                  ^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -9312,47 +10020,49 @@ public void test0959b_assert_loop() {
 				"	 }\n" +
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (foo == null) {}\n" +
-		"	    ^^^\n" +
-		"Null comparison always yields false: The variable foo cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 6)\n" +
-		"	if (foo == null) {}\n" +
-		"	                 ^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 8)\n" +
-		"	assert (foo2 == null);\n" +
-		"	        ^^^^\n" +
-		"Null comparison always yields false: The variable foo2 cannot be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 9)\n" +
-		"	if (foo2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Redundant null check: The variable foo2 can only be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 12)\n" +
-		"	if (bar == null) {}\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable bar can only be null at this location\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 14)\n" +
-		"	assert (bar2 != null);\n" +
-		"	        ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 can only be null at this location\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 15)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" +
-		"----------\n" +
-		"8. WARNING in X.java (at line 15)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	                  ^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (foo == null) {}
+				    ^^^
+			Null comparison always yields false: The variable foo cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 6)
+				if (foo == null) {}
+				                 ^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 8)
+				assert (foo2 == null);
+				        ^^^^
+			Null comparison always yields false: The variable foo2 cannot be null at this location
+			----------
+			4. ERROR in X.java (at line 9)
+				if (foo2 == null) {}
+				    ^^^^
+			Redundant null check: The variable foo2 can only be null at this location
+			----------
+			5. ERROR in X.java (at line 12)
+				if (bar == null) {}
+				    ^^^
+			Redundant null check: The variable bar can only be null at this location
+			----------
+			6. ERROR in X.java (at line 14)
+				assert (bar2 != null);
+				        ^^^^
+			Null comparison always yields false: The variable bar2 can only be null at this location
+			----------
+			7. ERROR in X.java (at line 15)
+				if (bar2 == null) {}
+				    ^^^^
+			Null comparison always yields false: The variable bar2 cannot be null at this location
+			----------
+			8. WARNING in X.java (at line 15)
+				if (bar2 == null) {}
+				                  ^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -9386,47 +10096,49 @@ public void test0960_assert_finally() {
 				"	 }\n" +
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	if (foo == null) {}\n" +
-		"	    ^^^\n" +
-		"Null comparison always yields false: The variable foo cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 12)\n" +
-		"	if (foo == null) {}\n" +
-		"	                 ^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 13)\n" +
-		"	assert (foo2 == null);\n" +
-		"	        ^^^^\n" +
-		"Null comparison always yields false: The variable foo2 cannot be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 14)\n" +
-		"	if (foo2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Redundant null check: The variable foo2 can only be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 16)\n" +
-		"	if (bar == null) {}\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable bar can only be null at this location\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 17)\n" +
-		"	assert (bar2 != null);\n" +
-		"	        ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 can only be null at this location\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 18)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" +
-		"----------\n" +
-		"8. WARNING in X.java (at line 18)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	                  ^^\n" +
-		"Dead code\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 12)
+				if (foo == null) {}
+				    ^^^
+			Null comparison always yields false: The variable foo cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 12)
+				if (foo == null) {}
+				                 ^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 13)
+				assert (foo2 == null);
+				        ^^^^
+			Null comparison always yields false: The variable foo2 cannot be null at this location
+			----------
+			4. ERROR in X.java (at line 14)
+				if (foo2 == null) {}
+				    ^^^^
+			Redundant null check: The variable foo2 can only be null at this location
+			----------
+			5. ERROR in X.java (at line 16)
+				if (bar == null) {}
+				    ^^^
+			Redundant null check: The variable bar can only be null at this location
+			----------
+			6. ERROR in X.java (at line 17)
+				assert (bar2 != null);
+				        ^^^^
+			Null comparison always yields false: The variable bar2 can only be null at this location
+			----------
+			7. ERROR in X.java (at line 18)
+				if (bar2 == null) {}
+				    ^^^^
+			Null comparison always yields false: The variable bar2 cannot be null at this location
+			----------
+			8. WARNING in X.java (at line 18)
+				if (bar2 == null) {}
+				                  ^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -9436,11 +10148,13 @@ public void _test0900_notNull_protection_tag() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(/** @notNull */ Object o) {\n" +
-			"    boolean b = o != null;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(/** @notNull */ Object o) {
+				    boolean b = o != null;
+				  }
+				}
+				"""},
 		"ERR cannot be null");
 }
 
@@ -9449,11 +10163,13 @@ public void _test0901_notNull_protection_tag() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o) {\n" +
-			"    /** @notNull */ Object l = o;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(Object o) {
+				    /** @notNull */ Object l = o;
+				  }
+				}
+				"""},
 		"ERR cannot be null... ou pas ?");
 }
 
@@ -9462,11 +10178,13 @@ public void _test0902_notNull_protection_tag() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(/** @nullable */ Object o) {\n" +
-			"    /** @notNull */ Object l = o;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(/** @nullable */ Object o) {
+				    /** @notNull */ Object l = o;
+				  }
+				}
+				"""},
 		"ERR cannot be null");
 }
 
@@ -9475,14 +10193,16 @@ public void test0903_notNull_protection_tag() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object bar() {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    /** @notNull */ Object l = bar();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object bar() {
+				    return null;
+				  }
+				  void foo() {
+				    /** @notNull */ Object l = bar();
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -9491,16 +10211,18 @@ public void _test0904_notNull_protection_tag() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /** @notNull */\n" +
-			"  Object bar() {\n" +
-			"    return new Object();\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    Object l = bar();\n" +
-			"    if (l == null) { /* empty */ }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  /** @notNull */
+				  Object bar() {
+				    return new Object();
+				  }
+				  void foo() {
+				    Object l = bar();
+				    if (l == null) { /* empty */ }
+				  }
+				}
+				"""},
 		"ERR cannot be null");
 }
 
@@ -9509,12 +10231,14 @@ public void _test0905_notNull_protection_tag() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  /** @notNull */\n" +
-			"  Object bar() {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  /** @notNull */
+				  Object bar() {
+				    return null;
+				  }
+				}
+				"""},
 		"ERR cannot be null");
 }
 
@@ -9523,11 +10247,13 @@ public void _test0950_nullable_tag() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(/** @nullable */ Object o) {\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(/** @nullable */ Object o) {
+				    o.toString();
+				  }
+				}
+				"""},
 		"ERR may be null");
 }
 
@@ -9536,12 +10262,14 @@ public void _test0951_nullable_tag() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(/** @nullable */ Object o) {\n" +
-			"    Object l = o;\n" +
-			"    l.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(/** @nullable */ Object o) {
+				    Object l = o;
+				    l.toString();
+				  }
+				}
+				"""},
 		"ERR may be null");
 }
 
@@ -9550,15 +10278,17 @@ public void _test0952_nullable_tag() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(boolean b) {\n" +
-			"    /** @nullable */ Object o;\n" +
-			"    if (b) {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(boolean b) {
+				    /** @nullable */ Object o;
+				    if (b) {
+				      o = new Object();
+				    }
+				    o.toString();
+				  }
+				}
+				"""},
 		"ERR may be null");
 }
 
@@ -9567,45 +10297,49 @@ public void test1004() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  X foo(X x) {\n" +
-			"    x.foo(null); // 0\n" +
-			"    if (x != null) { // 1\n" +
-			"      if (x == null) { // 2\n" +
-			"        x.foo(null); // 3\n" +
-			"      } else if (x instanceof X) { // 4\n" +
-			"        x.foo(null); // 5 \n" +
-			"      } else if (x != null) { // 6\n" +
-			"        x.foo(null); // 7\n" +
-			"      }\n" +
-			"      x.foo(null); // 8\n" +
-			"    }\n" +
-			"    return this;\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (x != null) { // 1\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable x cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	if (x == null) { // 2\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable x cannot be null at this location\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 5)\n" +
-		"	if (x == null) { // 2\n" +
-		"        x.foo(null); // 3\n" +
-		"      } else if (x instanceof X) { // 4\n" +
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 9)\n" +
-		"	} else if (x != null) { // 6\n" +
-		"	           ^\n" +
-		"Redundant null check: The variable x cannot be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  X foo(X x) {
+				    x.foo(null); // 0
+				    if (x != null) { // 1
+				      if (x == null) { // 2
+				        x.foo(null); // 3
+				      } else if (x instanceof X) { // 4
+				        x.foo(null); // 5\s
+				      } else if (x != null) { // 6
+				        x.foo(null); // 7
+				      }
+				      x.foo(null); // 8
+				    }
+				    return this;
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (x != null) { // 1
+				    ^
+			Redundant null check: The variable x cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 5)
+				if (x == null) { // 2
+				    ^
+			Null comparison always yields false: The variable x cannot be null at this location
+			----------
+			3. WARNING in X.java (at line 5)
+				if (x == null) { // 2
+			        x.foo(null); // 3
+			      } else if (x instanceof X) { // 4
+				               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			4. ERROR in X.java (at line 9)
+				} else if (x != null) { // 6
+				           ^
+			Redundant null check: The variable x cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -9613,13 +10347,15 @@ public void test1005() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Class c) {\n" +
-			"    if (c.isArray() ) {\n" +
-			"    } else if (c == java.lang.String.class ) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(Class c) {
+				    if (c.isArray() ) {
+				    } else if (c == java.lang.String.class ) {
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -9627,13 +10363,15 @@ public void test1006() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(X x) {\n" +
-			"    if (x == this)\n" +
-			"     return;\n" +
-			"    x.foo(this);\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(X x) {
+				    if (x == this)
+				     return;
+				    x.foo(this);
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -9641,15 +10379,17 @@ public void test1007() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(X x, X x2) {\n" +
-			"    if (x != null)\n" +
-			"      return;\n" +
-			"    x = x2;\n" +
-			"    if (x == null) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(X x, X x2) {
+				    if (x != null)
+				      return;
+				    x = x2;
+				    if (x == null) {
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -9657,17 +10397,19 @@ public void test1008() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(X x, X x2) {\n" +
-			"    if (x != null)\n" +
-			"      return;\n" +
-			"    try {\n" +
-			"      x = x2;\n" +
-			"    } catch(Exception e) {}\n" +
-			"    if (x == null) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(X x, X x2) {
+				    if (x != null)
+				      return;
+				    try {
+				      x = x2;
+				    } catch(Exception e) {}
+				    if (x == null) {
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -9675,42 +10417,46 @@ public void test1009() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"\n" +
-			"public class X {\n" +
-			"  boolean check(String name) { return true; }\n" +
-			"  Class bar(String name) throws ClassNotFoundException { return null; }\n" +
-			"  File baz(String name) { return null; }\n" +
-			"  \n" +
-			"  public Class foo(String name, boolean resolve) throws ClassNotFoundException {\n" +
-			"    \n" +
-			"    Class c = bar(name);\n" +
-			"    if (c != null)\n" +
-			"      return c;\n" +
-			"    if (check(name)) {\n" +
-			"      try {\n" +
-			"        c= bar(name);\n" +
-			"          return c;\n" +
-			"      } catch (ClassNotFoundException e) {\n" +
-			"        // keep searching\n" +
-			"        // only path to here left c unassigned from try block, means it was assumed to be null\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (c == null) {// should complain: c can only be null\n" +
-			"      File file= baz(name);\n" +
-			"      if (file == null)\n" +
-			"        throw new ClassNotFoundException();\n" +
-			"    }\n" +
-			"    return c;\n" +
-			"  }\n" +
-			"\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 22)\n" +
-		"	if (c == null) {// should complain: c can only be null\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable c can only be null at this location\n" +
-		"----------\n",
+			"""
+				import java.io.File;
+				
+				public class X {
+				  boolean check(String name) { return true; }
+				  Class bar(String name) throws ClassNotFoundException { return null; }
+				  File baz(String name) { return null; }
+				 \s
+				  public Class foo(String name, boolean resolve) throws ClassNotFoundException {
+				   \s
+				    Class c = bar(name);
+				    if (c != null)
+				      return c;
+				    if (check(name)) {
+				      try {
+				        c= bar(name);
+				          return c;
+				      } catch (ClassNotFoundException e) {
+				        // keep searching
+				        // only path to here left c unassigned from try block, means it was assumed to be null
+				      }
+				    }
+				    if (c == null) {// should complain: c can only be null
+				      File file= baz(name);
+				      if (file == null)
+				        throw new ClassNotFoundException();
+				    }
+				    return c;
+				  }
+				
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 22)
+				if (c == null) {// should complain: c can only be null
+				    ^
+			Redundant null check: The variable c can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -9718,19 +10464,21 @@ public void test1010() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"\n" +
-			"  X itself() { return this; }\n" +
-			"\n" +
-			"  void bar() {\n" +
-			"    X itself = this.itself();\n" +
-			"    if (this == itself) {\n" +
-			"      System.out.println(itself.toString()); //1\n" +
-			"    } else {\n" +
-			"      System.out.println(itself.toString()); //2\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				
+				  X itself() { return this; }
+				
+				  void bar() {
+				    X itself = this.itself();
+				    if (this == itself) {
+				      System.out.println(itself.toString()); //1
+				    } else {
+				      System.out.println(itself.toString()); //2
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -9738,38 +10486,42 @@ public void test1011() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"\n" +
-			"  X itself() { return this; }\n" +
-			"\n" +
-			"  void bar() {\n" +
-			"    X itself = this.itself();\n" +
-			"    if (this == itself) {\n" +
-			"      X other = (X)itself;\n" +
-			"      if (other != null) {\n" +
-			"      }\n" +
-			"      if (other == null) {\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	if (other != null) {\n" +
-		"	    ^^^^^\n" +
-		"Redundant null check: The variable other cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 11)\n" +
-		"	if (other == null) {\n" +
-		"	    ^^^^^\n" +
-		"Null comparison always yields false: The variable other cannot be null at this location\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 11)\n" +
-		"	if (other == null) {\n" +
-		"      }\n" +
-		"	                   ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				
+				  X itself() { return this; }
+				
+				  void bar() {
+				    X itself = this.itself();
+				    if (this == itself) {
+				      X other = (X)itself;
+				      if (other != null) {
+				      }
+				      if (other == null) {
+				      }
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				if (other != null) {
+				    ^^^^^
+			Redundant null check: The variable other cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 11)
+				if (other == null) {
+				    ^^^^^
+			Null comparison always yields false: The variable other cannot be null at this location
+			----------
+			3. WARNING in X.java (at line 11)
+				if (other == null) {
+			      }
+				                   ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -9777,27 +10529,30 @@ public void test1012() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  \n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    do {\n" +
-			"      if (o == null) {\n" +
-			"        return;\n" +
-			"      }\n" +
-			"      // o = bar();\n" +
-			"    } while (true);\n" +
-			"  }\n" +
-			"  X bar() { \n" +
-			"    return null; \n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				 \s
+				  void foo() {
+				    Object o = null;
+				    do {
+				      if (o == null) {
+				        return;
+				      }
+				      // o = bar();
+				    } while (true);
+				  }
+				  X bar() {\s
+				    return null;\s
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o == null) {
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -9807,28 +10562,32 @@ public void test1013() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(X x) {\n" +
-			"    if (x == this) {\n" +
-			"      if (x == null) {\n" +
-			"        x.foo(this);\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (x == null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable x cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	if (x == null) {\n" +
-		"        x.foo(this);\n" +
-		"      }\n" +
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(X x) {
+				    if (x == this) {
+				      if (x == null) {
+				        x.foo(this);
+				      }
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (x == null) {
+				    ^
+			Null comparison always yields false: The variable x cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 4)
+				if (x == null) {
+			        x.foo(this);
+			      }
+				               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -9836,16 +10595,18 @@ public void test1014() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(X x) {\n" +
-			"    x = null;\n" +
-			"    try {\n" +
-			"      x = this;\n" +
-			"    } finally {\n" +
-			"      x.foo(null);\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(X x) {
+				    x = null;
+				    try {
+				      x = this;
+				    } finally {
+				      x.foo(null);
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -9853,19 +10614,21 @@ public void test1015() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    int i = 1;\n" +
-			"    switch (i) {\n" +
-			"      case 1:\n" +
-			"        o = new Object();\n" +
-			"        break;\n" +
-			"    }\n" +
-			"    if (o != null)\n" +
-			"      o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo() {
+				    Object o = null;
+				    int i = 1;
+				    switch (i) {
+				      case 1:
+				        o = new Object();
+				        break;
+				    }
+				    if (o != null)
+				      o.toString();
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -9873,29 +10636,33 @@ public void test1016() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(X x) {\n" +
-			"    x = null;\n" +
-			"    try {\n" +
-			"      x = null;\n" +
-			"    } finally {\n" +
-			"      if (x != null) {\n" +
-			"        x.foo(null);\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	x = null;\n" +
-		"	^\n" +
-		"Redundant assignment: The variable x can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	if (x != null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable x can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(X x) {
+				    x = null;
+				    try {
+				      x = null;
+				    } finally {
+				      if (x != null) {
+				        x.foo(null);
+				      }
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				x = null;
+				^
+			Redundant assignment: The variable x can only be null at this location
+			----------
+			2. ERROR in X.java (at line 7)
+				if (x != null) {
+				    ^
+			Null comparison always yields false: The variable x can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -9903,29 +10670,33 @@ public void test1017() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(X x) {\n" +
-			"    x = this;\n" +
-			"    try {\n" +
-			"      x = null;\n" +
-			"    } finally {\n" +
-			"      if (x == null) {\n" +
-			"        x.foo(null);\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (x == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable x can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	x.foo(null);\n" +
-		"	^\n" +
-		"Null pointer access: The variable x can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo(X x) {
+				    x = this;
+				    try {
+				      x = null;
+				    } finally {
+				      if (x == null) {
+				        x.foo(null);
+				      }
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (x == null) {
+				    ^
+			Redundant null check: The variable x can only be null at this location
+			----------
+			2. ERROR in X.java (at line 8)
+				x.foo(null);
+				^
+			Null pointer access: The variable x can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -9933,30 +10704,33 @@ public void test1018() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  \n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    do {\n" +
-			"      if (o != null) return;\n" +
-			"      o = null;\n" +
-			"    } while (true);\n" +
-			"  }\n" +
-			"  X bar() { \n" +
-			"    return null; \n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o != null) return;\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	o = null;\n" +
-		"	^\n" +
-		"Redundant assignment: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				 \s
+				  void foo() {
+				    Object o = null;
+				    do {
+				      if (o != null) return;
+				      o = null;
+				    } while (true);
+				  }
+				  X bar() {\s
+				    return null;\s
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o != null) return;
+				    ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			2. ERROR in X.java (at line 7)
+				o = null;
+				^
+			Redundant assignment: The variable o can only be null at this location
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -9964,29 +10738,31 @@ public void test1019() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static final char[] replaceOnCopy(\n" +
-			"      char[] array,\n" +
-			"      char toBeReplaced,\n" +
-			"      char replacementChar) {\n" +
-			"      \n" +
-			"    char[] result = null;\n" +
-			"    for (int i = 0, length = array.length; i < length; i++) {\n" +
-			"      char c = array[i];\n" +
-			"      if (c == toBeReplaced) {\n" +
-			"        if (result == null) {\n" +
-			"          result = new char[length];\n" +
-			"          System.arraycopy(array, 0, result, 0, i);\n" +
-			"        }\n" +
-			"        result[i] = replacementChar;\n" +
-			"      } else if (result != null) {\n" +
-			"        result[i] = c;\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (result == null) return array;\n" +
-			"    return result;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  public static final char[] replaceOnCopy(
+				      char[] array,
+				      char toBeReplaced,
+				      char replacementChar) {
+				     \s
+				    char[] result = null;
+				    for (int i = 0, length = array.length; i < length; i++) {
+				      char c = array[i];
+				      if (c == toBeReplaced) {
+				        if (result == null) {
+				          result = new char[length];
+				          System.arraycopy(array, 0, result, 0, i);
+				        }
+				        result[i] = replacementChar;
+				      } else if (result != null) {
+				        result[i] = c;
+				      }
+				    }
+				    if (result == null) return array;
+				    return result;
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -9994,31 +10770,33 @@ public void test1021() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  int kind;\n" +
-			"  X parent;\n" +
-			"  Object[] foo() { return null; }\n" +
-			"  void findTypeParameters(X scope) {\n" +
-			"    Object[] typeParameters = null;\n" +
-			"    while (scope != null) {\n" +
-			"      typeParameters = null;\n" +
-			"      switch (scope.kind) {\n" +
-			"        case 0 :\n" +
-			"          typeParameters = foo();\n" +
-			"          break;\n" +
-			"        case 1 :\n" +
-			"          typeParameters = foo();\n" +
-			"          break;\n" +
-			"        case 2 :\n" +
-			"          return;\n" +
-			"      }\n" +
-			"      if(typeParameters != null) {\n" +
-			"        foo();\n" +
-			"      }\n" +
-			"      scope = scope.parent;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  int kind;
+				  X parent;
+				  Object[] foo() { return null; }
+				  void findTypeParameters(X scope) {
+				    Object[] typeParameters = null;
+				    while (scope != null) {
+				      typeParameters = null;
+				      switch (scope.kind) {
+				        case 0 :
+				          typeParameters = foo();
+				          break;
+				        case 1 :
+				          typeParameters = foo();
+				          break;
+				        case 2 :
+				          return;
+				      }
+				      if(typeParameters != null) {
+				        foo();
+				      }
+				      scope = scope.parent;
+				    }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -10026,28 +10804,29 @@ public void test1022() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean bool() { return true; }\n" +
-			"  void doSomething() {}\n" +
-			"  \n" +
-			"  void foo() {\n" +
-			"    Object progressJob = null;\n" +
-			"    while (bool()) {\n" +
-			"      if (bool()) {\n" +
-			"        if (progressJob != null)\n" +
-			"          progressJob = null;\n" +
-			"        doSomething();\n" +
-			"      }\n" +
-			"      try {\n" +
-			"        if (progressJob == null) {\n" +
-			"          progressJob = new Object();\n" +
-			"        }\n" +
-			"      } finally {\n" +
-			"        doSomething();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				public class X {
+				  boolean bool() { return true; }
+				  void doSomething() {}
+				 \s
+				  void foo() {
+				    Object progressJob = null;
+				    while (bool()) {
+				      if (bool()) {
+				        if (progressJob != null)
+				          progressJob = null;
+				        doSomething();
+				      }
+				      try {
+				        if (progressJob == null) {
+				          progressJob = new Object();
+				        }
+				      } finally {
+				        doSomething();
+				      }
+				    }
+				  }
+				}"""},
 		"");
 }
 
@@ -10055,32 +10834,36 @@ public void test1023() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"\n" +
-			"  void foo(Object that) {\n" +
-			"    Object o = new Object();\n" +
-			"    while (that != null) {\n" +
-			"      try {\n" +
-			"        o = null;\n" +
-			"        break;\n" +
-			"      } finally {\n" +
-			"        o = new Object();\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (o == null) return;\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 13)\n" +
-		"	if (o == null) return;\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 13)\n" +
-		"	if (o == null) return;\n" +
-		"	               ^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				
+				  void foo(Object that) {
+				    Object o = new Object();
+				    while (that != null) {
+				      try {
+				        o = null;
+				        break;
+				      } finally {
+				        o = new Object();
+				      }
+				    }
+				    if (o == null) return;
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 13)
+				if (o == null) return;
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 13)
+				if (o == null) return;
+				               ^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -10088,33 +10871,36 @@ public void test1024() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  \n" +
-			"  boolean bool() { return true; }\n" +
-			"  void doSomething() {}\n" +
-			"  \n" +
-			"  void foo() {\n" +
-			"    Object progressJob = null;\n" +
-			"    while (bool()) {\n" +
-			"      if (progressJob != null)\n" +
-			"        progressJob = null;\n" +
-			"      doSomething();\n" +
-			"      try {\n" +
-			"        if (progressJob == null) {\n" +
-			"          progressJob = new Object();\n" +
-			"        }\n" +
-			"      } finally {\n" +
-			"        doSomething();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 13)\n" +
-		"	if (progressJob == null) {\n" +
-		"	    ^^^^^^^^^^^\n" +
-		"Redundant null check: The variable progressJob can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				 \s
+				  boolean bool() { return true; }
+				  void doSomething() {}
+				 \s
+				  void foo() {
+				    Object progressJob = null;
+				    while (bool()) {
+				      if (progressJob != null)
+				        progressJob = null;
+				      doSomething();
+				      try {
+				        if (progressJob == null) {
+				          progressJob = new Object();
+				        }
+				      } finally {
+				        doSomething();
+				      }
+				    }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 13)
+				if (progressJob == null) {
+				    ^^^^^^^^^^^
+			Redundant null check: The variable progressJob can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -10122,29 +10908,33 @@ public void test1025() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  \n" +
-			"  void foo() {\n" +
-			"    Object o;\n" +
-			"    try {\n" +
-			"      o = null;\n" +
-			"    } finally {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    if (o == null) return;\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	if (o == null) return;\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 10)\n" +
-		"	if (o == null) return;\n" +
-		"	               ^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				 \s
+				  void foo() {
+				    Object o;
+				    try {
+				      o = null;
+				    } finally {
+				      o = new Object();
+				    }
+				    if (o == null) return;
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				if (o == null) return;
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 10)
+				if (o == null) return;
+				               ^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -10153,18 +10943,20 @@ public void _test1026() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  \n" +
-			"  public static void main(String[] args) {\n" +
-			"    Object o;\n" +
-			"    try {\n" +
-			"      o = null;\n" +
-			"    } finally {\n" +
-			"      if (args == null) o = new Object();\n" +
-			"    }\n" +
-			"    if (o == null) System.out.println(\"SUCCESS\");\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				 \s
+				  public static void main(String[] args) {
+				    Object o;
+				    try {
+				      o = null;
+				    } finally {
+				      if (args == null) o = new Object();
+				    }
+				    if (o == null) System.out.println("SUCCESS");
+				  }
+				}
+				"""},
 		"SUCCESS");
 }
 
@@ -10172,27 +10964,31 @@ public void test1027() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean b;\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    while (b) {\n" +
-			"      try {\n" +
-			"        o = null;\n" +
-			"      } finally {\n" +
-			"        if (o == null) \n" +
-			"          o = new Object();\n" +
-			"        }\n" +
-			"      }\n" +
-			"    if (o == null) return;\n" +
-			"  }\n" +
-			"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	if (o == null) \n" +
-			"	    ^\n" +
-			"Redundant null check: The variable o can only be null at this location\n" +
-			"----------\n");
+			"""
+				public class X {
+				  boolean b;
+				  void foo() {
+				    Object o = null;
+				    while (b) {
+				      try {
+				        o = null;
+				      } finally {
+				        if (o == null)\s
+				          o = new Object();
+				        }
+				      }
+				    if (o == null) return;
+				  }
+				}
+				"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 9)
+					if (o == null)\s
+					    ^
+				Redundant null check: The variable o can only be null at this location
+				----------
+				""");
 }
 
 // TODO (philippe) reenable once fixed
@@ -10200,22 +10996,24 @@ public void _test1028() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean b;\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"    while (b) {\n" +
-			"      try {\n" +
-			"        o = null;\n" +
-			"        break;\n" +
-			"      } finally {\n" +
-			"        if (o == null) \n" +
-			"          o = new Object();\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (o == null) return;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  boolean b;
+				  void foo() {
+				    Object o = null;
+				    while (b) {
+				      try {
+				        o = null;
+				        break;
+				      } finally {
+				        if (o == null)\s
+				          o = new Object();
+				      }
+				    }
+				    if (o == null) return;
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -10223,22 +11021,24 @@ public void test1029() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"    Object o = null;\n" +
-			"    int i = 0;\n" +
-			"    while (i++ < 2) {\n" +
-			"      try {\n" +
-			"        if (i == 2) return;\n" +
-			"        o = null;\n" +
-			"      } finally {\n" +
-			"        if (i == 2) System.out.println(o);\n" +
-			"        o = \"SUCCESS\";\n" +
-			"      }\n" +
-			"    }\n" +
-			"    if (o == null) return;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  public static void main(String[] args) {
+				    Object o = null;
+				    int i = 0;
+				    while (i++ < 2) {
+				      try {
+				        if (i == 2) return;
+				        o = null;
+				      } finally {
+				        if (i == 2) System.out.println(o);
+				        o = "SUCCESS";
+				      }
+				    }
+				    if (o == null) return;
+				  }
+				}
+				"""},
 		"SUCCESS");
 }
 
@@ -10246,31 +11046,35 @@ public void test1030() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  \n" +
-			"  void foo() {\n" +
-			"    Object a = null;\n" +
-			"    while (true) {\n" +
-			"      a = null;\n" +
-			"      if (a == null) {\n" +
-			"        System.out.println();\n" +
-			"      }\n" +
-			"      a = new Object();\n" +
-			"      break;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	a = null;\n" +
-		"	^\n" +
-		"Redundant assignment: The variable a can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	if (a == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable a can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				 \s
+				  void foo() {
+				    Object a = null;
+				    while (true) {
+				      a = null;
+				      if (a == null) {
+				        System.out.println();
+				      }
+				      a = new Object();
+				      break;
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				a = null;
+				^
+			Redundant assignment: The variable a can only be null at this location
+			----------
+			2. ERROR in X.java (at line 7)
+				if (a == null) {
+				    ^
+			Redundant null check: The variable a can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -10278,46 +11082,50 @@ public void test1031() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  \n" +
-			"  void foo() {\n" +
-			"    Object a = null;\n" +
-			"    while (true) {\n" +
-			"      a = null;\n" +
-			"      if (a == null) {\n" +
-			"        System.out.println();\n" +
-			"      }\n" +
-			"      a = new Object();\n" +
-			"      break;\n" +
-			"    }\n" +
-			"    if (a == null) {\n" +
-			"      System.out.println();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	a = null;\n" +
-		"	^\n" +
-		"Redundant assignment: The variable a can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	if (a == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable a can only be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 13)\n" +
-		"	if (a == null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable a cannot be null at this location\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 13)\n" +
-		"	if (a == null) {\n" +
-		"      System.out.println();\n" +
-		"    }\n" +
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				 \s
+				  void foo() {
+				    Object a = null;
+				    while (true) {
+				      a = null;
+				      if (a == null) {
+				        System.out.println();
+				      }
+				      a = new Object();
+				      break;
+				    }
+				    if (a == null) {
+				      System.out.println();
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				a = null;
+				^
+			Redundant assignment: The variable a can only be null at this location
+			----------
+			2. ERROR in X.java (at line 7)
+				if (a == null) {
+				    ^
+			Redundant null check: The variable a can only be null at this location
+			----------
+			3. ERROR in X.java (at line 13)
+				if (a == null) {
+				    ^
+			Null comparison always yields false: The variable a cannot be null at this location
+			----------
+			4. WARNING in X.java (at line 13)
+				if (a == null) {
+			      System.out.println();
+			    }
+				               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -10325,26 +11133,30 @@ public void test1032() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    Object o1 = this;\n" +
-			"    Object o3;\n" +
-			"    while (o1 != null && (o3 = o1) != null) {\n" +
-			"      o1 = o3;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	while (o1 != null && (o3 = o1) != null) {\n" +
-		"	       ^^\n" +
-		"Redundant null check: The variable o1 cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	while (o1 != null && (o3 = o1) != null) {\n" +
-		"	                     ^^^^^^^^^\n" +
-		"Redundant null check: The variable o3 cannot be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  void foo() {
+				    Object o1 = this;
+				    Object o3;
+				    while (o1 != null && (o3 = o1) != null) {
+				      o1 = o3;
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				while (o1 != null && (o3 = o1) != null) {
+				       ^^
+			Redundant null check: The variable o1 cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 5)
+				while (o1 != null && (o3 = o1) != null) {
+				                     ^^^^^^^^^
+			Redundant null check: The variable o3 cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -10353,33 +11165,37 @@ public void test1033() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  \n" +
-			"  void foo() {\n" +
-			"    String a,b;\n" +
-			"    do{\n" +
-			"      a=\"Hello \";\n" +
-			"    }while(a!=null);\n" +
-			"    if(a!=null)\n" +
-			"      { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	}while(a!=null);\n" +
-		"	       ^\n" +
-		"Redundant null check: The variable a cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	if(a!=null)\n" +
-		"	   ^\n" +
-		"Null comparison always yields false: The variable a can only be null at this location\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 9)\n" +
-		"	{ /* */ }\n" +
-		"	^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				 \s
+				  void foo() {
+				    String a,b;
+				    do{
+				      a="Hello ";
+				    }while(a!=null);
+				    if(a!=null)
+				      { /* */ }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				}while(a!=null);
+				       ^
+			Redundant null check: The variable a cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 8)
+				if(a!=null)
+				   ^
+			Null comparison always yields false: The variable a can only be null at this location
+			----------
+			3. WARNING in X.java (at line 9)
+				{ /* */ }
+				^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -10388,71 +11204,79 @@ public void test1034() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public final class X \n" +
-			"{\n" +
-			"	void foo()\n" +
-			"	{\n" +
-			"		String rs = null;\n" +
-			"		try\n" +
-			"		{\n" +
-			"			rs = \"\";\n" +
-			"			return;\n" +
-			"		}\n" +
-			"		catch (Exception e)\n" +
-			"		{\n" +
-			"		}\n" +
-			"		finally\n" +
-			"		{\n" +
-			"			if (rs != null)\n" +
-			"			{\n" +
-			"				try\n" +
-			"				{\n" +
-			"					rs.toString();\n" +
-			"				}\n" +
-			"				catch (Exception e)\n" +
-			"				{\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"		return;\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public final class X\s
+				{
+					void foo()
+					{
+						String rs = null;
+						try
+						{
+							rs = "";
+							return;
+						}
+						catch (Exception e)
+						{
+						}
+						finally
+						{
+							if (rs != null)
+							{
+								try
+								{
+									rs.toString();
+								}
+								catch (Exception e)
+								{
+								}
+							}
+						}
+						return;
+					}
+				}
+				""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 16)\n" +
-		"	if (rs != null)\n" +
-		"	    ^^\n" +
-		"Redundant null check: The variable rs cannot be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 16)
+				if (rs != null)
+				    ^^
+			Redundant null check: The variable rs cannot be null at this location
+			----------
+			""");
 }
 
 public void test1036() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"\n" +
-			"  void foo() {\n" +
-			"    Object o = new Object();\n" +
-			"    do {\n" +
-			"      o = null;\n" +
-			"    } while (o != null);\n" +
-			"    if (o == null) {\n" +
-			"      // throw new Exception();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	} while (o != null);\n" +
-		"	         ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	if (o == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				
+				  void foo() {
+				    Object o = new Object();
+				    do {
+				      o = null;
+				    } while (o != null);
+				    if (o == null) {
+				      // throw new Exception();
+				    }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				} while (o != null);
+				         ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			2. ERROR in X.java (at line 8)
+				if (o == null) {
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
@@ -10479,19 +11303,21 @@ public void test1050_options_all_default() {
 				  "  }\n" +
 				  "}\n"
 				  } /* testFiles */,
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	if (o != null) {\n" +
-			"       o = null;\n" +
-			"    }\n" +
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 8)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Null pointer access: The variable o can only be null at this location\n" +
-			"----------\n" /* expectedCompilerLog */,
+			"""
+				----------
+				1. WARNING in X.java (at line 4)
+					if (o != null) {
+				       o = null;
+				    }
+					               ^^^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				2. WARNING in X.java (at line 8)
+					o.toString();
+					^
+				Null pointer access: The variable o can only be null at this location
+				----------
+				""",
 			"" /* expectedOutputString */,
 			"" /* expectedErrorString */,
 		    JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
@@ -10548,29 +11374,31 @@ public void test1052_options_all_error() {
 			  "    p.toString();\n" +
 			  "  }\n" +
 			  "}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o != null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	if (o != null) {\n" +
-		"       o = null;\n" +
-		"    }\n" +
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 8)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 9)\n" +
-		"	p.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable p may be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o != null) {
+				    ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			2. WARNING in X.java (at line 4)
+				if (o != null) {
+			       o = null;
+			    }
+				               ^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 8)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			4. ERROR in X.java (at line 9)
+				p.toString();
+				^
+			Potential null pointer access: The variable p may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
@@ -10780,12 +11608,14 @@ public void test1057_options_instanceof_is_check() {
 			  "    if (p instanceof String) {};\n" +
 			  "  }\n" +
 			  "}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o instanceof String) {};\n" +
-		"	    ^\n" +
-		"instanceof always yields false: The variable o can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (o instanceof String) {};
+				    ^
+			instanceof always yields false: The variable o can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
@@ -10820,12 +11650,14 @@ public void test1059_options_cannot_be_null_check() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			  "public class X {\n" +
-			  "  void foo(Object p) {\n" +
-			  "    Object o = new Object();\n" +
-			  "    if (o == null) {}\n" +
-			  "  }\n" +
-			  "}\n"},
+			  """
+				public class X {
+				  void foo(Object p) {
+				    Object o = new Object();
+				    if (o == null) {}
+				  }
+				}
+				"""},
 		null /* no expected output string */,
 		null /* no extra class libraries */,
 		true /* flush output directory */,
@@ -10839,21 +11671,23 @@ public void test1500() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o, int i, boolean b, Object u) {\n" +
-			"    o.toString();\n" +
-			"    switch (i) {\n" +
-			"      case 0:\n" +
-			"        if (b) {\n" +
-			"          o = u;\n" +
-			"        } else {\n" +
-			"          o = new Object();\n" +
-			"        }\n" +
-			"        break;\n" +
-			"    }\n" +
-			"    if (o == null) { /* empty */ }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(Object o, int i, boolean b, Object u) {
+				    o.toString();
+				    switch (i) {
+				      case 0:
+				        if (b) {
+				          o = u;
+				        } else {
+				          o = new Object();
+				        }
+				        break;
+				    }
+				    if (o == null) { /* empty */ }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -10862,24 +11696,26 @@ public void test1501() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o, int i, boolean b, Object u) {\n" +
-			"    if (b) {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    o.toString();\n" +
-			"    switch (i) {\n" +
-			"      case 0:\n" +
-			"        if (b) {\n" +
-			"          o = u;\n" +
-			"        } else {\n" +
-			"          o = new Object();\n" +
-			"        }\n" +
-			"        break;\n" +
-			"    }\n" +
-			"    if (o == null) { /* empty */ }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(Object o, int i, boolean b, Object u) {
+				    if (b) {
+				      o = new Object();
+				    }
+				    o.toString();
+				    switch (i) {
+				      case 0:
+				        if (b) {
+				          o = u;
+				        } else {
+				          o = new Object();
+				        }
+				        break;
+				    }
+				    if (o == null) { /* empty */ }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -10888,24 +11724,26 @@ public void test1502() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o, int i, boolean b, Object u) {\n" +
-			"    if (b) {\n" +
-			"      o = u;\n" +
-			"    }\n" +
-			"    o.toString();\n" +
-			"    switch (i) {\n" +
-			"      case 0:\n" +
-			"        if (b) {\n" +
-			"          o = u;\n" +
-			"        } else {\n" +
-			"          o = new Object();\n" +
-			"        }\n" +
-			"        break;\n" +
-			"    }\n" +
-			"    if (o == null) { /* empty */ }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(Object o, int i, boolean b, Object u) {
+				    if (b) {
+				      o = u;
+				    }
+				    o.toString();
+				    switch (i) {
+				      case 0:
+				        if (b) {
+				          o = u;
+				        } else {
+				          o = new Object();
+				        }
+				        break;
+				    }
+				    if (o == null) { /* empty */ }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -10914,26 +11752,28 @@ public void test1503() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  void foo(Object o, int i, boolean b, Object u) {\n" +
-			"    if (b) {\n" +
-			"      o = u;\n" +
-			"    } else {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    o.toString();\n" +
-			"    switch (i) {\n" +
-			"      case 0:\n" +
-			"        if (b) {\n" +
-			"          o = u;\n" +
-			"        } else {\n" +
-			"          o = new Object();\n" +
-			"        }\n" +
-			"        break;\n" +
-			"    }\n" +
-			"    if (o == null) { /* empty */ }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  void foo(Object o, int i, boolean b, Object u) {
+				    if (b) {
+				      o = u;
+				    } else {
+				      o = new Object();
+				    }
+				    o.toString();
+				    switch (i) {
+				      case 0:
+				        if (b) {
+				          o = u;
+				        } else {
+				          o = new Object();
+				        }
+				        break;
+				    }
+				    if (o == null) { /* empty */ }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -10963,22 +11803,24 @@ public void test2000_flow_info() {
 			"    if (o65 != null) { /* */ }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 18)\n" +
-		"	if (o65 == null) { /* */ }\n" +
-		"	    ^^^\n" +
-		"Null comparison always yields false: The variable o65 cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 18)\n" +
-		"	if (o65 == null) { /* */ }\n" +
-		"	                 ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 19)\n" +
-		"	if (o65 != null) { /* */ }\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable o65 cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 18)
+				if (o65 == null) { /* */ }
+				    ^^^
+			Null comparison always yields false: The variable o65 cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 18)
+				if (o65 == null) { /* */ }
+				                 ^^^^^^^^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 19)
+				if (o65 != null) { /* */ }
+				    ^^^
+			Redundant null check: The variable o65 cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -10986,27 +11828,29 @@ public void test2001_flow_info() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"\n" +
-			"  void foo(\n" +
-			"    Object o0, Object o1, Object o2, Object o3, Object o4,\n" +
-			"      Object o5, Object o6, Object o7, Object o8, Object o9,\n" +
-			"      Object o10, Object o11, Object o12, Object o13, Object o14,\n" +
-			"      Object o15, Object o16, Object o17, Object o18, Object o19,\n" +
-			"      Object o20, Object o21, Object o22, Object o23, Object o24,\n" +
-			"      Object o25, Object o26, Object o27, Object o28, Object o29,\n" +
-			"      Object o30, Object o31, Object o32, Object o33, Object o34,\n" +
-			"      Object o35, Object o36, Object o37, Object o38, Object o39,\n" +
-			"      Object o40, Object o41, Object o42, Object o43, Object o44,\n" +
-			"      Object o45, Object o46, Object o47, Object o48, Object o49,\n" +
-			"      Object o50, Object o51, Object o52, Object o53, Object o54,\n" +
-			"      Object o55, Object o56, Object o57, Object o58, Object o59,\n" +
-			"      Object o60, Object o61, Object o62, Object o63, Object o64,\n" +
-			"      Object o65, Object o66, Object o67, Object o68, Object o69) {\n" +
-			"    if (o65 == null) { /* */ }\n" +
-			"    if (o65 != null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				
+				  void foo(
+				    Object o0, Object o1, Object o2, Object o3, Object o4,
+				      Object o5, Object o6, Object o7, Object o8, Object o9,
+				      Object o10, Object o11, Object o12, Object o13, Object o14,
+				      Object o15, Object o16, Object o17, Object o18, Object o19,
+				      Object o20, Object o21, Object o22, Object o23, Object o24,
+				      Object o25, Object o26, Object o27, Object o28, Object o29,
+				      Object o30, Object o31, Object o32, Object o33, Object o34,
+				      Object o35, Object o36, Object o37, Object o38, Object o39,
+				      Object o40, Object o41, Object o42, Object o43, Object o44,
+				      Object o45, Object o46, Object o47, Object o48, Object o49,
+				      Object o50, Object o51, Object o52, Object o53, Object o54,
+				      Object o55, Object o56, Object o57, Object o58, Object o59,
+				      Object o60, Object o61, Object o62, Object o63, Object o64,
+				      Object o65, Object o66, Object o67, Object o68, Object o69) {
+				    if (o65 == null) { /* */ }
+				    if (o65 != null) { /* */ }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -11014,25 +11858,27 @@ public void test2002_flow_info() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m0, m1, m2, m3, m4,\n" +
-			"    m5, m6, m7, m8, m9,\n" +
-			"    m10, m11, m12, m13, m14,\n" +
-			"    m15, m16, m17, m18, m19,\n" +
-			"    m20, m21, m22, m23, m24,\n" +
-			"    m25, m26, m27, m28, m29,\n" +
-			"    m30, m31, m32, m33, m34,\n" +
-			"    m35, m36, m37, m38, m39,\n" +
-			"    m40, m41, m42, m43, m44,\n" +
-			"    m45, m46, m47, m48, m49,\n" +
-			"    m50, m51, m52, m53, m54,\n" +
-			"    m55, m56, m57, m58, m59,\n" +
-			"    m60, m61, m62, m63;\n" +
-			"  void foo(Object o) {\n" +
-			"    if (o == null) { /* */ }\n" +
-			"    if (o != null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object m0, m1, m2, m3, m4,
+				    m5, m6, m7, m8, m9,
+				    m10, m11, m12, m13, m14,
+				    m15, m16, m17, m18, m19,
+				    m20, m21, m22, m23, m24,
+				    m25, m26, m27, m28, m29,
+				    m30, m31, m32, m33, m34,
+				    m35, m36, m37, m38, m39,
+				    m40, m41, m42, m43, m44,
+				    m45, m46, m47, m48, m49,
+				    m50, m51, m52, m53, m54,
+				    m55, m56, m57, m58, m59,
+				    m60, m61, m62, m63;
+				  void foo(Object o) {
+				    if (o == null) { /* */ }
+				    if (o != null) { /* */ }
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -11040,24 +11886,26 @@ public void test2003_flow_info() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m0, m1, m2, m3, m4,\n" +
-			"    m5, m6, m7, m8, m9,\n" +
-			"    m10, m11, m12, m13, m14,\n" +
-			"    m15, m16, m17, m18, m19,\n" +
-			"    m20, m21, m22, m23, m24,\n" +
-			"    m25, m26, m27, m28, m29,\n" +
-			"    m30, m31, m32, m33, m34,\n" +
-			"    m35, m36, m37, m38, m39,\n" +
-			"    m40, m41, m42, m43, m44,\n" +
-			"    m45, m46, m47, m48, m49,\n" +
-			"    m50, m51, m52, m53, m54,\n" +
-			"    m55, m56, m57, m58, m59,\n" +
-			"    m60, m61, m62, m63;\n" +
-			"  void foo(Object o) {\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object m0, m1, m2, m3, m4,
+				    m5, m6, m7, m8, m9,
+				    m10, m11, m12, m13, m14,
+				    m15, m16, m17, m18, m19,
+				    m20, m21, m22, m23, m24,
+				    m25, m26, m27, m28, m29,
+				    m30, m31, m32, m33, m34,
+				    m35, m36, m37, m38, m39,
+				    m40, m41, m42, m43, m44,
+				    m45, m46, m47, m48, m49,
+				    m50, m51, m52, m53, m54,
+				    m55, m56, m57, m58, m59,
+				    m60, m61, m62, m63;
+				  void foo(Object o) {
+				    o.toString();
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -11065,55 +11913,61 @@ public void test2004_flow_info() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m0, m1, m2, m3, m4,\n" +
-			"    m5, m6, m7, m8, m9,\n" +
-			"    m10, m11, m12, m13, m14,\n" +
-			"    m15, m16, m17, m18, m19,\n" +
-			"    m20, m21, m22, m23, m24,\n" +
-			"    m25, m26, m27, m28, m29,\n" +
-			"    m30, m31, m32, m33, m34,\n" +
-			"    m35, m36, m37, m38, m39,\n" +
-			"    m40, m41, m42, m43, m44,\n" +
-			"    m45, m46, m47, m48, m49,\n" +
-			"    m50, m51, m52, m53, m54,\n" +
-			"    m55, m56, m57, m58, m59,\n" +
-			"    m60, m61, m62, m63;\n" +
-			"  void foo() {\n" +
-			"    Object o;\n" +
-			"    if (o == null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 17)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"The local variable o may not have been initialized\n" +
-		"----------\n");
+			"""
+				public class X {
+				  Object m0, m1, m2, m3, m4,
+				    m5, m6, m7, m8, m9,
+				    m10, m11, m12, m13, m14,
+				    m15, m16, m17, m18, m19,
+				    m20, m21, m22, m23, m24,
+				    m25, m26, m27, m28, m29,
+				    m30, m31, m32, m33, m34,
+				    m35, m36, m37, m38, m39,
+				    m40, m41, m42, m43, m44,
+				    m45, m46, m47, m48, m49,
+				    m50, m51, m52, m53, m54,
+				    m55, m56, m57, m58, m59,
+				    m60, m61, m62, m63;
+				  void foo() {
+				    Object o;
+				    if (o == null) { /* */ }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 17)
+				if (o == null) { /* */ }
+				    ^
+			The local variable o may not have been initialized
+			----------
+			""");
 }
 
 public void test2005_flow_info() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m0, m1, m2, m3, m4,\n" +
-			"    m5, m6, m7, m8, m9,\n" +
-			"    m10, m11, m12, m13, m14,\n" +
-			"    m15, m16, m17, m18, m19,\n" +
-			"    m20, m21, m22, m23, m24,\n" +
-			"    m25, m26, m27, m28, m29,\n" +
-			"    m30, m31, m32, m33, m34,\n" +
-			"    m35, m36, m37, m38, m39,\n" +
-			"    m40, m41, m42, m43, m44,\n" +
-			"    m45, m46, m47, m48, m49,\n" +
-			"    m50, m51, m52, m53, m54,\n" +
-			"    m55, m56, m57, m58, m59,\n" +
-			"    m60, m61, m62, m63;\n" +
-			"  void foo(Object o) {\n" +
-			"    o = null;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object m0, m1, m2, m3, m4,
+				    m5, m6, m7, m8, m9,
+				    m10, m11, m12, m13, m14,
+				    m15, m16, m17, m18, m19,
+				    m20, m21, m22, m23, m24,
+				    m25, m26, m27, m28, m29,
+				    m30, m31, m32, m33, m34,
+				    m35, m36, m37, m38, m39,
+				    m40, m41, m42, m43, m44,
+				    m45, m46, m47, m48, m49,
+				    m50, m51, m52, m53, m54,
+				    m55, m56, m57, m58, m59,
+				    m60, m61, m62, m63;
+				  void foo(Object o) {
+				    o = null;
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -11121,24 +11975,26 @@ public void test2006_flow_info() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m0, m1, m2, m3, m4,\n" +
-			"    m5, m6, m7, m8, m9,\n" +
-			"    m10, m11, m12, m13, m14,\n" +
-			"    m15, m16, m17, m18, m19,\n" +
-			"    m20, m21, m22, m23, m24,\n" +
-			"    m25, m26, m27, m28, m29,\n" +
-			"    m30, m31, m32, m33, m34,\n" +
-			"    m35, m36, m37, m38, m39,\n" +
-			"    m40, m41, m42, m43, m44,\n" +
-			"    m45, m46, m47, m48, m49,\n" +
-			"    m50, m51, m52, m53, m54,\n" +
-			"    m55, m56, m57, m58, m59,\n" +
-			"    m60, m61, m62, m63;\n" +
-			"  void foo() {\n" +
-			"    Object o = null;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object m0, m1, m2, m3, m4,
+				    m5, m6, m7, m8, m9,
+				    m10, m11, m12, m13, m14,
+				    m15, m16, m17, m18, m19,
+				    m20, m21, m22, m23, m24,
+				    m25, m26, m27, m28, m29,
+				    m30, m31, m32, m33, m34,
+				    m35, m36, m37, m38, m39,
+				    m40, m41, m42, m43, m44,
+				    m45, m46, m47, m48, m49,
+				    m50, m51, m52, m53, m54,
+				    m55, m56, m57, m58, m59,
+				    m60, m61, m62, m63;
+				  void foo() {
+				    Object o = null;
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -11146,24 +12002,26 @@ public void test2007_flow_info() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m0, m1, m2, m3, m4,\n" +
-			"    m5, m6, m7, m8, m9,\n" +
-			"    m10, m11, m12, m13, m14,\n" +
-			"    m15, m16, m17, m18, m19,\n" +
-			"    m20, m21, m22, m23, m24,\n" +
-			"    m25, m26, m27, m28, m29,\n" +
-			"    m30, m31, m32, m33, m34,\n" +
-			"    m35, m36, m37, m38, m39,\n" +
-			"    m40, m41, m42, m43, m44,\n" +
-			"    m45, m46, m47, m48, m49,\n" +
-			"    m50, m51, m52, m53, m54,\n" +
-			"    m55, m56, m57, m58, m59,\n" +
-			"    m60, m61, m62, m63;\n" +
-			"  void foo() {\n" +
-			"    Object o[] = null;\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  Object m0, m1, m2, m3, m4,
+				    m5, m6, m7, m8, m9,
+				    m10, m11, m12, m13, m14,
+				    m15, m16, m17, m18, m19,
+				    m20, m21, m22, m23, m24,
+				    m25, m26, m27, m28, m29,
+				    m30, m31, m32, m33, m34,
+				    m35, m36, m37, m38, m39,
+				    m40, m41, m42, m43, m44,
+				    m45, m46, m47, m48, m49,
+				    m50, m51, m52, m53, m54,
+				    m55, m56, m57, m58, m59,
+				    m60, m61, m62, m63;
+				  void foo() {
+				    Object o[] = null;
+				  }
+				}
+				"""},
 		"");
 }
 
@@ -11208,39 +12066,43 @@ public void test2009_flow_info() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m0, m1, m2, m3, m4,\n" +
-			"    m5, m6, m7, m8, m9,\n" +
-			"    m10, m11, m12, m13, m14,\n" +
-			"    m15, m16, m17, m18, m19,\n" +
-			"    m20, m21, m22, m23, m24,\n" +
-			"    m25, m26, m27, m28, m29,\n" +
-			"    m30, m31, m32, m33, m34,\n" +
-			"    m35, m36, m37, m38, m39,\n" +
-			"    m40, m41, m42, m43, m44,\n" +
-			"    m45, m46, m47, m48, m49,\n" +
-			"    m50, m51, m52, m53, m54,\n" +
-			"    m55, m56, m57, m58, m59,\n" +
-			"    m60, m61, m62, m63;\n" +
-			"  void foo(Object o) {\n" +
-			"    try { /* */ }\n" +
-			"    finally {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    if (o == null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 20)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 20)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				  Object m0, m1, m2, m3, m4,
+				    m5, m6, m7, m8, m9,
+				    m10, m11, m12, m13, m14,
+				    m15, m16, m17, m18, m19,
+				    m20, m21, m22, m23, m24,
+				    m25, m26, m27, m28, m29,
+				    m30, m31, m32, m33, m34,
+				    m35, m36, m37, m38, m39,
+				    m40, m41, m42, m43, m44,
+				    m45, m46, m47, m48, m49,
+				    m50, m51, m52, m53, m54,
+				    m55, m56, m57, m58, m59,
+				    m60, m61, m62, m63;
+				  void foo(Object o) {
+				    try { /* */ }
+				    finally {
+				      o = new Object();
+				    }
+				    if (o == null) { /* */ }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 20)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 20)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -11249,40 +12111,44 @@ public void test2010_flow_info() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m00, m01, m02, m03, m04,\n" +
-			"    m05, m06, m07, m08, m09,\n" +
-			"    m10, m11, m12, m13, m14,\n" +
-			"    m15, m16, m17, m18, m19,\n" +
-			"    m20, m21, m22, m23, m24,\n" +
-			"    m25, m26, m27, m28, m29,\n" +
-			"    m30, m31, m32, m33, m34,\n" +
-			"    m35, m36, m37, m38, m39,\n" +
-			"    m40, m41, m42, m43, m44,\n" +
-			"    m45, m46, m47, m48, m49,\n" +
-			"    m50, m51, m52, m53, m54,\n" +
-			"    m55, m56, m57, m58, m59,\n" +
-			"    m60, m61, m62, m63;\n" +
-			"  void foo() {\n" +
-			"    Object o;\n" +
-			"    try { /* */ }\n" +
-			"    finally {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    if (o == null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 21)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 21)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				  Object m00, m01, m02, m03, m04,
+				    m05, m06, m07, m08, m09,
+				    m10, m11, m12, m13, m14,
+				    m15, m16, m17, m18, m19,
+				    m20, m21, m22, m23, m24,
+				    m25, m26, m27, m28, m29,
+				    m30, m31, m32, m33, m34,
+				    m35, m36, m37, m38, m39,
+				    m40, m41, m42, m43, m44,
+				    m45, m46, m47, m48, m49,
+				    m50, m51, m52, m53, m54,
+				    m55, m56, m57, m58, m59,
+				    m60, m61, m62, m63;
+				  void foo() {
+				    Object o;
+				    try { /* */ }
+				    finally {
+				      o = new Object();
+				    }
+				    if (o == null) { /* */ }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 21)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 21)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -11291,43 +12157,47 @@ public void test2011_flow_info() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,\n" +
-			"    m010, m011, m012, m013, m014, m015, m016, m017, m018, m019,\n" +
-			"    m020, m021, m022, m023, m024, m025, m026, m027, m028, m029,\n" +
-			"    m030, m031, m032, m033, m034, m035, m036, m037, m038, m039,\n" +
-			"    m040, m041, m042, m043, m044, m045, m046, m047, m048, m049,\n" +
-			"    m050, m051, m052, m053, m054, m055, m056, m057, m058, m059,\n" +
-			"    m060, m061, m062, m063;\n" +
-			"  void foo() {\n" +
-			"    Object o000, o001, o002, o003, o004, o005, o006, o007, o008, o009,\n" +
-			"      o010, o011, o012, o013, o014, o015, o016, o017, o018, o019,\n" +
-			"      o020, o021, o022, o023, o024, o025, o026, o027, o028, o029,\n" +
-			"      o030, o031, o032, o033, o034, o035, o036, o037, o038, o039,\n" +
-			"      o040, o041, o042, o043, o044, o045, o046, o047, o048, o049,\n" +
-			"      o050, o051, o052, o053, o054, o055, o056, o057, o058, o059,\n" +
-			"      o060, o061, o062, o063;\n" +
-			"    Object o;\n" +
-			"    try {\n" +
-			"      o000 = new Object();\n" +
-			"    }\n" +
-			"    finally {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    if (o == null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 24)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 24)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				  Object m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,
+				    m010, m011, m012, m013, m014, m015, m016, m017, m018, m019,
+				    m020, m021, m022, m023, m024, m025, m026, m027, m028, m029,
+				    m030, m031, m032, m033, m034, m035, m036, m037, m038, m039,
+				    m040, m041, m042, m043, m044, m045, m046, m047, m048, m049,
+				    m050, m051, m052, m053, m054, m055, m056, m057, m058, m059,
+				    m060, m061, m062, m063;
+				  void foo() {
+				    Object o000, o001, o002, o003, o004, o005, o006, o007, o008, o009,
+				      o010, o011, o012, o013, o014, o015, o016, o017, o018, o019,
+				      o020, o021, o022, o023, o024, o025, o026, o027, o028, o029,
+				      o030, o031, o032, o033, o034, o035, o036, o037, o038, o039,
+				      o040, o041, o042, o043, o044, o045, o046, o047, o048, o049,
+				      o050, o051, o052, o053, o054, o055, o056, o057, o058, o059,
+				      o060, o061, o062, o063;
+				    Object o;
+				    try {
+				      o000 = new Object();
+				    }
+				    finally {
+				      o = new Object();
+				    }
+				    if (o == null) { /* */ }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 24)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 24)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -11336,43 +12206,47 @@ public void test2012_flow_info() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  Object m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,\n" +
-			"    m010, m011, m012, m013, m014, m015, m016, m017, m018, m019,\n" +
-			"    m020, m021, m022, m023, m024, m025, m026, m027, m028, m029,\n" +
-			"    m030, m031, m032, m033, m034, m035, m036, m037, m038, m039,\n" +
-			"    m040, m041, m042, m043, m044, m045, m046, m047, m048, m049,\n" +
-			"    m050, m051, m052, m053, m054, m055, m056, m057, m058, m059,\n" +
-			"    m060, m061, m062, m063;\n" +
-			"  void foo() {\n" +
-			"    Object o000, o001, o002, o003, o004, o005, o006, o007, o008, o009,\n" +
-			"      o010, o011, o012, o013, o014, o015, o016, o017, o018, o019,\n" +
-			"      o020, o021, o022, o023, o024, o025, o026, o027, o028, o029,\n" +
-			"      o030, o031, o032, o033, o034, o035, o036, o037, o038, o039,\n" +
-			"      o040, o041, o042, o043, o044, o045, o046, o047, o048, o049,\n" +
-			"      o050, o051, o052, o053, o054, o055, o056, o057, o058, o059,\n" +
-			"      o060, o061, o062, o063;\n" +
-			"    Object o;\n" +
-			"    try {\n" +
-			"      o = new Object();\n" +
-			"    }\n" +
-			"    finally {\n" +
-			"      o000 = new Object();\n" +
-			"    }\n" +
-			"    if (o == null) { /* */ }\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 24)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 24)\n" +
-		"	if (o == null) { /* */ }\n" +
-		"	               ^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n",
+			"""
+				public class X {
+				  Object m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,
+				    m010, m011, m012, m013, m014, m015, m016, m017, m018, m019,
+				    m020, m021, m022, m023, m024, m025, m026, m027, m028, m029,
+				    m030, m031, m032, m033, m034, m035, m036, m037, m038, m039,
+				    m040, m041, m042, m043, m044, m045, m046, m047, m048, m049,
+				    m050, m051, m052, m053, m054, m055, m056, m057, m058, m059,
+				    m060, m061, m062, m063;
+				  void foo() {
+				    Object o000, o001, o002, o003, o004, o005, o006, o007, o008, o009,
+				      o010, o011, o012, o013, o014, o015, o016, o017, o018, o019,
+				      o020, o021, o022, o023, o024, o025, o026, o027, o028, o029,
+				      o030, o031, o032, o033, o034, o035, o036, o037, o038, o039,
+				      o040, o041, o042, o043, o044, o045, o046, o047, o048, o049,
+				      o050, o051, o052, o053, o054, o055, o056, o057, o058, o059,
+				      o060, o061, o062, o063;
+				    Object o;
+				    try {
+				      o = new Object();
+				    }
+				    finally {
+				      o000 = new Object();
+				    }
+				    if (o == null) { /* */ }
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 24)
+				if (o == null) { /* */ }
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 24)
+				if (o == null) { /* */ }
+				               ^^^^^^^^^
+			Dead code
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -11381,29 +12255,33 @@ public void test2013_flow_info() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  boolean dummy;\n" +
-			"  Object m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,\n" +
-			"    m010, m011, m012, m013, m014, m015, m016, m017, m018, m019,\n" +
-			"    m020, m021, m022, m023, m024, m025, m026, m027, m028, m029,\n" +
-			"    m030, m031, m032, m033, m034, m035, m036, m037, m038, m039,\n" +
-			"    m040, m041, m042, m043, m044, m045, m046, m047, m048, m049,\n" +
-			"    m050, m051, m052, m053, m054, m055, m056, m057, m058, m059,\n" +
-			"    m060, m061, m062, m063;\n" +
-			"  void foo(Object u) {\n" +
-			"    Object o = null;\n" +
-			"    while (dummy) {\n" +
-			"      o = u;\n" +
-			"    }\n" +
-			"    o.toString();\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				  boolean dummy;
+				  Object m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,
+				    m010, m011, m012, m013, m014, m015, m016, m017, m018, m019,
+				    m020, m021, m022, m023, m024, m025, m026, m027, m028, m029,
+				    m030, m031, m032, m033, m034, m035, m036, m037, m038, m039,
+				    m040, m041, m042, m043, m044, m045, m046, m047, m048, m049,
+				    m050, m051, m052, m053, m054, m055, m056, m057, m058, m059,
+				    m060, m061, m062, m063;
+				  void foo(Object u) {
+				    Object o = null;
+				    while (dummy) {
+				      o = u;
+				    }
+				    o.toString();
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 15)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -11412,51 +12290,55 @@ public void test2014_flow_info() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  int m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,\n" +
-			"    m010, m011, m012, m013, m014, m015, m016, m017, m018, m019,\n" +
-			"    m020, m021, m022, m023, m024, m025, m026, m027, m028, m029,\n" +
-			"    m030, m031, m032, m033, m034, m035, m036, m037, m038, m039,\n" +
-			"    m040, m041, m042, m043, m044, m045, m046, m047, m048, m049,\n" +
-			"    m050, m051, m052, m053, m054, m055, m056, m057, m058, m059,\n" +
-			"    m060, m061, m062, m063;\n" +
-			"  final int m064;\n" +
-			"  X() {\n" +
-			"    m064 = 10;\n" +
-			"    class Inner extends X {\n" +
-			"      int m100, m101, m102, m103, m104, m105, m106, m107, m108, m109,\n" +
-			"        m110, m111, m112, m113, m114, m115, m116, m117, m118, m119,\n" +
-			"        m120, m121, m122, m123, m124, m125, m126, m127, m128, m129,\n" +
-			"        m130, m131, m132, m133, m134, m135, m136, m137, m138, m139,\n" +
-			"        m140, m141, m142, m143, m144, m145, m146, m147, m148, m149,\n" +
-			"        m150, m151, m152, m153, m154, m155, m156, m157, m158, m159,\n" +
-			"        m160, m161, m162, m163;\n" +
-			"      final int m164;\n" +
-			"      int bar() {\n" +
-			"        return m100 + m101 + m102 + m103 + m104 +\n" +
-			"               m105 + m106 + m107 + m108 + m109 +\n" +
-			"               m110 + m111 + m112 + m113 + m114 +\n" +
-			"               m115 + m116 + m117 + m118 + m119 +\n" +
-			"               m120 + m121 + m122 + m123 + m124 +\n" +
-			"               m125 + m126 + m127 + m128 + m129 +\n" +
-			"               m130 + m131 + m132 + m133 + m134 +\n" +
-			"               m135 + m136 + m137 + m138 + m139 +\n" +
-			"               m140 + m141 + m142 + m143 + m144 +\n" +
-			"               m145 + m146 + m147 + m148 + m149 +\n" +
-			"               m150 + m151 + m152 + m153 + m154 +\n" +
-			"               m155 + m156 + m157 + m158 + m159 +\n" +
-			"               m160 + m161 + m162 + m163 + m164;\n" +
-			"      }\n" +
-			"    };\n" +
-			"    System.out.println((new Inner()).bar());\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 20)\n" +
-		"	final int m164;\n" +
-		"	          ^^^^\n" +
-		"The blank final field m164 may not have been initialized\n" +
-		"----------\n");
+			"""
+				class X {
+				  int m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,
+				    m010, m011, m012, m013, m014, m015, m016, m017, m018, m019,
+				    m020, m021, m022, m023, m024, m025, m026, m027, m028, m029,
+				    m030, m031, m032, m033, m034, m035, m036, m037, m038, m039,
+				    m040, m041, m042, m043, m044, m045, m046, m047, m048, m049,
+				    m050, m051, m052, m053, m054, m055, m056, m057, m058, m059,
+				    m060, m061, m062, m063;
+				  final int m064;
+				  X() {
+				    m064 = 10;
+				    class Inner extends X {
+				      int m100, m101, m102, m103, m104, m105, m106, m107, m108, m109,
+				        m110, m111, m112, m113, m114, m115, m116, m117, m118, m119,
+				        m120, m121, m122, m123, m124, m125, m126, m127, m128, m129,
+				        m130, m131, m132, m133, m134, m135, m136, m137, m138, m139,
+				        m140, m141, m142, m143, m144, m145, m146, m147, m148, m149,
+				        m150, m151, m152, m153, m154, m155, m156, m157, m158, m159,
+				        m160, m161, m162, m163;
+				      final int m164;
+				      int bar() {
+				        return m100 + m101 + m102 + m103 + m104 +
+				               m105 + m106 + m107 + m108 + m109 +
+				               m110 + m111 + m112 + m113 + m114 +
+				               m115 + m116 + m117 + m118 + m119 +
+				               m120 + m121 + m122 + m123 + m124 +
+				               m125 + m126 + m127 + m128 + m129 +
+				               m130 + m131 + m132 + m133 + m134 +
+				               m135 + m136 + m137 + m138 + m139 +
+				               m140 + m141 + m142 + m143 + m144 +
+				               m145 + m146 + m147 + m148 + m149 +
+				               m150 + m151 + m152 + m153 + m154 +
+				               m155 + m156 + m157 + m158 + m159 +
+				               m160 + m161 + m162 + m163 + m164;
+				      }
+				    };
+				    System.out.println((new Inner()).bar());
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 20)
+				final int m164;
+				          ^^^^
+			The blank final field m164 may not have been initialized
+			----------
+			""");
 }
 
 // null analysis -- flow info
@@ -11464,65 +12346,69 @@ public void test2015_flow_info() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  int m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,\n" +
-			"    m010, m011, m012, m013, m014, m015, m016, m017, m018, m019,\n" +
-			"    m020, m021, m022, m023, m024, m025, m026, m027, m028, m029,\n" +
-			"    m030, m031, m032, m033, m034, m035, m036, m037, m038, m039,\n" +
-			"    m040, m041, m042, m043, m044, m045, m046, m047, m048, m049,\n" +
-			"    m050, m051, m052, m053, m054, m055, m056, m057, m058, m059,\n" +
-			"    m060, m061, m062, m063;\n" +
-			"  final int m200;\n" +
-			"  int m201, m202, m203, m204, m205, m206, m207, m208, m209,\n" +
-			"    m210, m211, m212, m213, m214, m215, m216, m217, m218, m219,\n" +
-			"    m220, m221, m222, m223, m224, m225, m226, m227, m228, m229,\n" +
-			"    m230, m231, m232, m233, m234, m235, m236, m237, m238, m239,\n" +
-			"    m240, m241, m242, m243, m244, m245, m246, m247, m248, m249,\n" +
-			"    m250, m251, m252, m253, m254, m255, m256, m257, m258, m259,\n" +
-			"    m260, m261, m262, m263;\n" +
-			"  int m301, m302, m303, m304, m305, m306, m307, m308, m309,\n" +
-			"    m310, m311, m312, m313, m314, m315, m316, m317, m318, m319,\n" +
-			"    m320, m321, m322, m323, m324, m325, m326, m327, m328, m329,\n" +
-			"    m330, m331, m332, m333, m334, m335, m336, m337, m338, m339,\n" +
-			"    m340, m341, m342, m343, m344, m345, m346, m347, m348, m349,\n" +
-			"    m350, m351, m352, m353, m354, m355, m356, m357, m358, m359,\n" +
-			"    m360, m361, m362, m363;\n" +
-			"  X() {\n" +
-			"    m200 = 10;\n" +
-			"    class Inner extends X {\n" +
-			"      int m100, m101, m102, m103, m104, m105, m106, m107, m108, m109,\n" +
-			"        m110, m111, m112, m113, m114, m115, m116, m117, m118, m119,\n" +
-			"        m120, m121, m122, m123, m124, m125, m126, m127, m128, m129,\n" +
-			"        m130, m131, m132, m133, m134, m135, m136, m137, m138, m139,\n" +
-			"        m140, m141, m142, m143, m144, m145, m146, m147, m148, m149,\n" +
-			"        m150, m151, m152, m153, m154, m155, m156, m157, m158, m159,\n" +
-			"        m160, m161, m162, m163;\n" +
-			"      final int m164;\n" +
-			"      int bar() {\n" +
-			"        return m100 + m101 + m102 + m103 + m104 +\n" +
-			"               m105 + m106 + m107 + m108 + m109 +\n" +
-			"               m110 + m111 + m112 + m113 + m114 +\n" +
-			"               m115 + m116 + m117 + m118 + m119 +\n" +
-			"               m120 + m121 + m122 + m123 + m124 +\n" +
-			"               m125 + m126 + m127 + m128 + m129 +\n" +
-			"               m130 + m131 + m132 + m133 + m134 +\n" +
-			"               m135 + m136 + m137 + m138 + m139 +\n" +
-			"               m140 + m141 + m142 + m143 + m144 +\n" +
-			"               m145 + m146 + m147 + m148 + m149 +\n" +
-			"               m150 + m151 + m152 + m153 + m154 +\n" +
-			"               m155 + m156 + m157 + m158 + m159 +\n" +
-			"               m160 + m161 + m162 + m163 + m164;\n" +
-			"      }\n" +
-			"    };\n" +
-			"    System.out.println((new Inner()).bar());\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 34)\n" +
-		"	final int m164;\n" +
-		"	          ^^^^\n" +
-		"The blank final field m164 may not have been initialized\n" +
-		"----------\n");
+			"""
+				class X {
+				  int m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,
+				    m010, m011, m012, m013, m014, m015, m016, m017, m018, m019,
+				    m020, m021, m022, m023, m024, m025, m026, m027, m028, m029,
+				    m030, m031, m032, m033, m034, m035, m036, m037, m038, m039,
+				    m040, m041, m042, m043, m044, m045, m046, m047, m048, m049,
+				    m050, m051, m052, m053, m054, m055, m056, m057, m058, m059,
+				    m060, m061, m062, m063;
+				  final int m200;
+				  int m201, m202, m203, m204, m205, m206, m207, m208, m209,
+				    m210, m211, m212, m213, m214, m215, m216, m217, m218, m219,
+				    m220, m221, m222, m223, m224, m225, m226, m227, m228, m229,
+				    m230, m231, m232, m233, m234, m235, m236, m237, m238, m239,
+				    m240, m241, m242, m243, m244, m245, m246, m247, m248, m249,
+				    m250, m251, m252, m253, m254, m255, m256, m257, m258, m259,
+				    m260, m261, m262, m263;
+				  int m301, m302, m303, m304, m305, m306, m307, m308, m309,
+				    m310, m311, m312, m313, m314, m315, m316, m317, m318, m319,
+				    m320, m321, m322, m323, m324, m325, m326, m327, m328, m329,
+				    m330, m331, m332, m333, m334, m335, m336, m337, m338, m339,
+				    m340, m341, m342, m343, m344, m345, m346, m347, m348, m349,
+				    m350, m351, m352, m353, m354, m355, m356, m357, m358, m359,
+				    m360, m361, m362, m363;
+				  X() {
+				    m200 = 10;
+				    class Inner extends X {
+				      int m100, m101, m102, m103, m104, m105, m106, m107, m108, m109,
+				        m110, m111, m112, m113, m114, m115, m116, m117, m118, m119,
+				        m120, m121, m122, m123, m124, m125, m126, m127, m128, m129,
+				        m130, m131, m132, m133, m134, m135, m136, m137, m138, m139,
+				        m140, m141, m142, m143, m144, m145, m146, m147, m148, m149,
+				        m150, m151, m152, m153, m154, m155, m156, m157, m158, m159,
+				        m160, m161, m162, m163;
+				      final int m164;
+				      int bar() {
+				        return m100 + m101 + m102 + m103 + m104 +
+				               m105 + m106 + m107 + m108 + m109 +
+				               m110 + m111 + m112 + m113 + m114 +
+				               m115 + m116 + m117 + m118 + m119 +
+				               m120 + m121 + m122 + m123 + m124 +
+				               m125 + m126 + m127 + m128 + m129 +
+				               m130 + m131 + m132 + m133 + m134 +
+				               m135 + m136 + m137 + m138 + m139 +
+				               m140 + m141 + m142 + m143 + m144 +
+				               m145 + m146 + m147 + m148 + m149 +
+				               m150 + m151 + m152 + m153 + m154 +
+				               m155 + m156 + m157 + m158 + m159 +
+				               m160 + m161 + m162 + m163 + m164;
+				      }
+				    };
+				    System.out.println((new Inner()).bar());
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 34)
+				final int m164;
+				          ^^^^
+			The blank final field m164 may not have been initialized
+			----------
+			""");
 }
 
 // null analysis -- flow info
@@ -11530,49 +12416,53 @@ public void test2016_flow_info() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  int m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,\n" +
-			"    m010, m011, m012, m013, m014, m015, m016, m017, m018, m019,\n" +
-			"    m020, m021, m022, m023, m024, m025, m026, m027, m028, m029,\n" +
-			"    m030, m031, m032, m033, m034, m035, m036, m037, m038, m039,\n" +
-			"    m040, m041, m042, m043, m044, m045, m046, m047, m048, m049,\n" +
-			"    m050, m051, m052, m053, m054, m055, m056, m057, m058, m059,\n" +
-			"    m060, m061;\n" +
-			"  final int m062;\n" +
-			"  {\n" +
-			"    int l063, m201 = 0, m202, m203, m204, m205, m206, m207, m208, m209,\n" +
-			"      m210, m211, m212, m213, m214, m215, m216, m217, m218, m219,\n" +
-			"      m220, m221, m222, m223, m224, m225, m226, m227, m228, m229,\n" +
-			"      m230, m231, m232, m233, m234, m235, m236, m237, m238, m239,\n" +
-			"      m240, m241, m242, m243, m244, m245, m246, m247, m248, m249,\n" +
-			"      m250, m251, m252, m253, m254, m255, m256, m257, m258, m259,\n" +
-			"      m260, m261, m262, m263;\n" +
-			"    int m301, m302, m303, m304, m305, m306, m307, m308, m309,\n" +
-			"      m310, m311, m312, m313, m314, m315, m316, m317, m318, m319,\n" +
-			"      m320, m321, m322, m323, m324, m325, m326, m327, m328, m329,\n" +
-			"      m330, m331, m332, m333, m334, m335, m336, m337, m338, m339,\n" +
-			"      m340, m341, m342, m343, m344, m345, m346, m347, m348, m349,\n" +
-			"      m350, m351, m352, m353, m354, m355, m356, m357, m358, m359,\n" +
-			"      m360 = 0, m361 = 0, m362 = 0, m363 = 0;\n" +
-			"    m062 = m360;\n" +
-			"  }\n" +
-			"  X() {\n" +
-			"    int l0, l1;\n" +
-			"    m000 = l1;\n" +
-			"    class Inner extends X {\n" +
-			"      int bar() {\n" +
-			"        return 0;\n" +
-			"      }\n" +
-			"    };\n" +
-			"    System.out.println((new Inner()).bar());\n" +
-			"  }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 29)\n" +
-		"	m000 = l1;\n" +
-		"	       ^^\n" +
-		"The local variable l1 may not have been initialized\n" +
-		"----------\n");
+			"""
+				class X {
+				  int m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,
+				    m010, m011, m012, m013, m014, m015, m016, m017, m018, m019,
+				    m020, m021, m022, m023, m024, m025, m026, m027, m028, m029,
+				    m030, m031, m032, m033, m034, m035, m036, m037, m038, m039,
+				    m040, m041, m042, m043, m044, m045, m046, m047, m048, m049,
+				    m050, m051, m052, m053, m054, m055, m056, m057, m058, m059,
+				    m060, m061;
+				  final int m062;
+				  {
+				    int l063, m201 = 0, m202, m203, m204, m205, m206, m207, m208, m209,
+				      m210, m211, m212, m213, m214, m215, m216, m217, m218, m219,
+				      m220, m221, m222, m223, m224, m225, m226, m227, m228, m229,
+				      m230, m231, m232, m233, m234, m235, m236, m237, m238, m239,
+				      m240, m241, m242, m243, m244, m245, m246, m247, m248, m249,
+				      m250, m251, m252, m253, m254, m255, m256, m257, m258, m259,
+				      m260, m261, m262, m263;
+				    int m301, m302, m303, m304, m305, m306, m307, m308, m309,
+				      m310, m311, m312, m313, m314, m315, m316, m317, m318, m319,
+				      m320, m321, m322, m323, m324, m325, m326, m327, m328, m329,
+				      m330, m331, m332, m333, m334, m335, m336, m337, m338, m339,
+				      m340, m341, m342, m343, m344, m345, m346, m347, m348, m349,
+				      m350, m351, m352, m353, m354, m355, m356, m357, m358, m359,
+				      m360 = 0, m361 = 0, m362 = 0, m363 = 0;
+				    m062 = m360;
+				  }
+				  X() {
+				    int l0, l1;
+				    m000 = l1;
+				    class Inner extends X {
+				      int bar() {
+				        return 0;
+				      }
+				    };
+				    System.out.println((new Inner()).bar());
+				  }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 29)
+				m000 = l1;
+				       ^^
+			The local variable l1 may not have been initialized
+			----------
+			""");
 }
 
 public void test2017_flow_info() {
@@ -11626,17 +12516,19 @@ public void test2018_flow_info() {
 			"    o.toString();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 18)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"The local variable o may not have been initialized\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 18)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 18)
+				o.toString();
+				^
+			The local variable o may not have been initialized
+			----------
+			2. ERROR in X.java (at line 18)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""");
 }
 
 public void test2019_flow_info() {
@@ -11663,17 +12555,19 @@ public void test2019_flow_info() {
 			"    o.toString();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 18)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"The local variable o may not have been initialized\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 18)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 18)
+				o.toString();
+				^
+			The local variable o may not have been initialized
+			----------
+			2. ERROR in X.java (at line 18)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""");
 }
 
 public void test2020_flow_info() {
@@ -11708,17 +12602,19 @@ public void test2020_flow_info() {
 			"    o1.toString();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 26)\n" +
-		"	o1.toString();\n" +
-		"	^^\n" +
-		"The local variable o1 may not have been initialized\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 26)\n" +
-		"	o1.toString();\n" +
-		"	^^\n" +
-		"Potential null pointer access: The variable o1 may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 26)
+				o1.toString();
+				^^
+			The local variable o1 may not have been initialized
+			----------
+			2. ERROR in X.java (at line 26)
+				o1.toString();
+				^^
+			Potential null pointer access: The variable o1 may be null at this location
+			----------
+			""");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=291418
@@ -11756,52 +12652,54 @@ public void testBug291418a() {
 						"    }\n" +
 						"  }\n" +
 						"}"},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	if (collectionVar == null);\n" +
-				"	    ^^^^^^^^^^^^^\n" +
-				"Null comparison always yields false: The variable collectionVar cannot be null at this location\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 8)\n" +
-				"	if (array == null);\n" +
-				"	    ^^^^^\n" +
-				"Null comparison always yields false: The variable array cannot be null at this location\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 9)\n" +
-				"	if (argArray == null);\n" +
-				"	    ^^^^^^^^\n" +
-				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 14)\n" +
-				"	if (array == null);\n" +
-				"	    ^^^^^\n" +
-				"Null comparison always yields false: The variable array cannot be null at this location\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 15)\n" +
-				"	if (argArray == null);\n" +
-				"	    ^^^^^^^^\n" +
-				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 20)\n" +
-				"	if (array == null);\n" +
-				"	    ^^^^^\n" +
-				"Null comparison always yields false: The variable array cannot be null at this location\n" +
-				"----------\n" +
-				"7. ERROR in X.java (at line 21)\n" +
-				"	if (argArray == null);\n" +
-				"	    ^^^^^^^^\n" +
-				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
-				"----------\n" +
-				"8. ERROR in X.java (at line 24)\n" +
-				"	if (array == null);\n" +
-				"	    ^^^^^\n" +
-				"Null comparison always yields false: The variable array cannot be null at this location\n" +
-				"----------\n" +
-				"9. ERROR in X.java (at line 25)\n" +
-				"	if (argArray == null);\n" +
-				"	    ^^^^^^^^\n" +
-				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 7)
+						if (collectionVar == null);
+						    ^^^^^^^^^^^^^
+					Null comparison always yields false: The variable collectionVar cannot be null at this location
+					----------
+					2. ERROR in X.java (at line 8)
+						if (array == null);
+						    ^^^^^
+					Null comparison always yields false: The variable array cannot be null at this location
+					----------
+					3. ERROR in X.java (at line 9)
+						if (argArray == null);
+						    ^^^^^^^^
+					Null comparison always yields false: The variable argArray cannot be null at this location
+					----------
+					4. ERROR in X.java (at line 14)
+						if (array == null);
+						    ^^^^^
+					Null comparison always yields false: The variable array cannot be null at this location
+					----------
+					5. ERROR in X.java (at line 15)
+						if (argArray == null);
+						    ^^^^^^^^
+					Null comparison always yields false: The variable argArray cannot be null at this location
+					----------
+					6. ERROR in X.java (at line 20)
+						if (array == null);
+						    ^^^^^
+					Null comparison always yields false: The variable array cannot be null at this location
+					----------
+					7. ERROR in X.java (at line 21)
+						if (argArray == null);
+						    ^^^^^^^^
+					Null comparison always yields false: The variable argArray cannot be null at this location
+					----------
+					8. ERROR in X.java (at line 24)
+						if (array == null);
+						    ^^^^^
+					Null comparison always yields false: The variable array cannot be null at this location
+					----------
+					9. ERROR in X.java (at line 25)
+						if (argArray == null);
+						    ^^^^^^^^
+					Null comparison always yields false: The variable argArray cannot be null at this location
+					----------
+					""");
 	}
 }
 
@@ -11826,17 +12724,19 @@ public void testBug291418b() {
 						"    }\n" +
 						"  }\n" +
 						"}"},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	if (collectionVar == null);\n" +
-				"	    ^^^^^^^^^^^^^\n" +
-				"Null comparison always yields false: The variable collectionVar cannot be null at this location\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 8)\n" +
-				"	if (argArray == null);\n" +
-				"	    ^^^^^^^^\n" +
-				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 6)
+						if (collectionVar == null);
+						    ^^^^^^^^^^^^^
+					Null comparison always yields false: The variable collectionVar cannot be null at this location
+					----------
+					2. ERROR in X.java (at line 8)
+						if (argArray == null);
+						    ^^^^^^^^
+					Null comparison always yields false: The variable argArray cannot be null at this location
+					----------
+					""");
 	}
 }
 
@@ -11856,17 +12756,19 @@ public void testBug293917a() {
 			"		y.length();\n" +   // shouldn't warn here
 			"	}\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (x == null) x = \"foo\";\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable x can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	if (x != null) y = \"bar\";\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable x cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (x == null) x = "foo";
+				    ^
+			Redundant null check: The variable x can only be null at this location
+			----------
+			2. ERROR in X.java (at line 5)
+				if (x != null) y = "bar";
+				    ^
+			Redundant null check: The variable x cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -11888,12 +12790,14 @@ public void testBug293917b() {
 			"		}\n" +
 			"	}\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (x != null) y = \"bar\";\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable x cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (x != null) y = "bar";
+				    ^
+			Redundant null check: The variable x cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -11916,17 +12820,19 @@ public void testBug293917c() {
 			"		}\n" +
 			"	}\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (x == null) x = \"foo\";\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable x can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	if (x != null) y = \"bar\";\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable x cannot be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (x == null) x = "foo";
+				    ^
+			Redundant null check: The variable x can only be null at this location
+			----------
+			2. ERROR in X.java (at line 6)
+				if (x != null) y = "bar";
+				    ^
+			Redundant null check: The variable x cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -11937,36 +12843,40 @@ public void testBug190623() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        Number n = getNumber();\n" +
-			"        if (n instanceof Double) {\n" +
-			"            Double d= (Double) n;\n" +
-			"            if (d != null && d.isNaN()) {\n" +
-			"                System.out.println(\"outside loop\");\n" +
-			"            }\n" +
-			"            for (int i= 0; i < 10; i++) {\n" +
-			"                if (d != null && d.isNaN()) {\n" +
-			"                    System.out.println(\"inside loop\");\n" +
-			"                }\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"    private static Number getNumber() {\n" +
-			"        return Double.valueOf(Math.sqrt(-1));\n" +
-			"    }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (d != null && d.isNaN()) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable d cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
-		"	if (d != null && d.isNaN()) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable d cannot be null at this location\n" +
-		"----------\n",
+			"""
+				public class X {
+				    public static void main(String[] args) {
+				        Number n = getNumber();
+				        if (n instanceof Double) {
+				            Double d= (Double) n;
+				            if (d != null && d.isNaN()) {
+				                System.out.println("outside loop");
+				            }
+				            for (int i= 0; i < 10; i++) {
+				                if (d != null && d.isNaN()) {
+				                    System.out.println("inside loop");
+				                }
+				            }
+				        }
+				    }
+				    private static Number getNumber() {
+				        return Double.valueOf(Math.sqrt(-1));
+				    }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (d != null && d.isNaN()) {
+				    ^
+			Redundant null check: The variable d cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 10)
+				if (d != null && d.isNaN()) {
+				    ^
+			Redundant null check: The variable d cannot be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -11977,25 +12887,28 @@ public void testBug299900a() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  void foo(Object foo, Object bar) {\n" +
-			"    if(foo == null || bar == null) {\n" +
-			"	 	System.out.println(foo.toString());\n" +
-			"	 	System.out.println(bar.toString());\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	System.out.println(foo.toString());\n" +
-		"	                   ^^^\n" +
-		"Potential null pointer access: The variable foo may be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	System.out.println(bar.toString());\n" +
-		"	                   ^^^\n" +
-		"Potential null pointer access: The variable bar may be null at this location\n" +
-		"----------\n");
+			"""
+				class X {
+				  void foo(Object foo, Object bar) {
+				    if(foo == null || bar == null) {
+					 	System.out.println(foo.toString());
+					 	System.out.println(bar.toString());
+				    }
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				System.out.println(foo.toString());
+				                   ^^^
+			Potential null pointer access: The variable foo may be null at this location
+			----------
+			2. ERROR in X.java (at line 5)
+				System.out.println(bar.toString());
+				                   ^^^
+			Potential null pointer access: The variable bar may be null at this location
+			----------
+			""");
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=299900
@@ -12005,25 +12918,28 @@ public void testBug299900b() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"  void foo(Object foo, Object bar) {\n" +
-			"    if(foo == null || bar == null) {\n" +
-			"    }\n" +
-			"	 System.out.println(foo.toString());\n" +
-			"	 System.out.println(bar.toString());\n" +
-			"  }\n" +
-			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	System.out.println(foo.toString());\n" +
-		"	                   ^^^\n" +
-		"Potential null pointer access: The variable foo may be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	System.out.println(bar.toString());\n" +
-		"	                   ^^^\n" +
-		"Potential null pointer access: The variable bar may be null at this location\n" +
-		"----------\n");
+			"""
+				class X {
+				  void foo(Object foo, Object bar) {
+				    if(foo == null || bar == null) {
+				    }
+					 System.out.println(foo.toString());
+					 System.out.println(bar.toString());
+				  }
+				}"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				System.out.println(foo.toString());
+				                   ^^^
+			Potential null pointer access: The variable foo may be null at this location
+			----------
+			2. ERROR in X.java (at line 6)
+				System.out.println(bar.toString());
+				                   ^^^
+			Potential null pointer access: The variable bar may be null at this location
+			----------
+			""");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=253896
@@ -12033,47 +12949,50 @@ public void testBug253896a() {
 		runNegativeNullTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  public void foo() {\n" +
-				"    Integer f1 = null;\n" +
-				"	 if(f1 == 1)\n" +
-				" 	 	System.out.println(\"f1 is 1\");\n" +
-				"    Integer f2 = null;\n" +
-				"	 int abc = (f2 != 1)? 1 : 0;\n" +
-				"    Float f3 = null;\n" +
-				"	 if(f3 == null)\n" +
-				" 	 	System.out.println(\"f3 is null\");\n" +
-				"    Byte f4 = null;\n" +
-				"	 if(f4 != null)\n" +
-				" 	 	System.out.println(\"f4 is not null\");\n" +
-				"  }\n" +
-				"}"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	if(f1 == 1)\n" +
-			"	   ^^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	int abc = (f2 != 1)? 1 : 0;\n" +
-			"	           ^^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 9)\n" +
-			"	if(f3 == null)\n" +
-			"	   ^^\n" +
-			"Redundant null check: The variable f3 can only be null at this location\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 12)\n" +
-			"	if(f4 != null)\n" +
-			"	   ^^\n" +
-			"Null comparison always yields false: The variable f4 can only be null at this location\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 13)\n" +
-			"	System.out.println(\"f4 is not null\");\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n");
+				"""
+					public class X {
+					  public void foo() {
+					    Integer f1 = null;
+						 if(f1 == 1)
+					 	 	System.out.println("f1 is 1");
+					    Integer f2 = null;
+						 int abc = (f2 != 1)? 1 : 0;
+					    Float f3 = null;
+						 if(f3 == null)
+					 	 	System.out.println("f3 is null");
+					    Byte f4 = null;
+						 if(f4 != null)
+					 	 	System.out.println("f4 is not null");
+					  }
+					}"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					if(f1 == 1)
+					   ^^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				2. ERROR in X.java (at line 7)
+					int abc = (f2 != 1)? 1 : 0;
+					           ^^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				3. ERROR in X.java (at line 9)
+					if(f3 == null)
+					   ^^
+				Redundant null check: The variable f3 can only be null at this location
+				----------
+				4. ERROR in X.java (at line 12)
+					if(f4 != null)
+					   ^^
+				Null comparison always yields false: The variable f4 can only be null at this location
+				----------
+				5. WARNING in X.java (at line 13)
+					System.out.println("f4 is not null");
+					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				""");
 	}
 }
 
@@ -12094,17 +13013,19 @@ public void testBug253896b() {
 				"	 }\n" +
 				"  }\n" +
 				"}"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	if(i1 == 1)\n" +
-			"	   ^^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	if(i1 == 0) {}\n" +
-			"	   ^^\n" +
-			"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					if(i1 == 1)
+					   ^^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				2. ERROR in X.java (at line 7)
+					if(i1 == 0) {}
+					   ^^
+				Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing
+				----------
+				""");
 	}
 }
 
@@ -12137,42 +13058,44 @@ public void testBug253896c() {
 				"	 }\n" +
 				"  }\n" +
 				"}"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	if(f1 == 1)\n" +
-			"	   ^^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
-			"	int abc = (f2 != 1)? 1 : 0;\n" +
-			"	           ^^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 12)\n" +
-			"	if(f3 == null)\n" +
-			"	   ^^\n" +
-			"Redundant null check: The variable f3 can only be null at this location\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 15)\n" +
-			"	if(f4 != null)\n" +
-			"	   ^^\n" +
-			"Null comparison always yields false: The variable f4 can only be null at this location\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 16)\n" +
-			"	System.out.println(\"f4 is not null\");\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 17)\n" +
-			"	if(a == 1) {}\n" +
-			"	   ^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 18)\n" +
-			"	if(outer2 == 1) {}\n" +
-			"	   ^^^^^^\n" +
-			"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					if(f1 == 1)
+					   ^^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				2. ERROR in X.java (at line 10)
+					int abc = (f2 != 1)? 1 : 0;
+					           ^^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				3. ERROR in X.java (at line 12)
+					if(f3 == null)
+					   ^^
+				Redundant null check: The variable f3 can only be null at this location
+				----------
+				4. ERROR in X.java (at line 15)
+					if(f4 != null)
+					   ^^
+				Null comparison always yields false: The variable f4 can only be null at this location
+				----------
+				5. WARNING in X.java (at line 16)
+					System.out.println("f4 is not null");
+					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				6. ERROR in X.java (at line 17)
+					if(a == 1) {}
+					   ^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				7. ERROR in X.java (at line 18)
+					if(outer2 == 1) {}
+					   ^^^^^^
+				Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing
+				----------
+				""");
 	}
 }
 
@@ -12205,42 +13128,44 @@ public void testBug253896d() {
 				"	 }\n" +
 				"  }\n" +
 				"}"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	if(f1 == 1)\n" +
-			"	   ^^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
-			"	int abc = (f2 != 1)? 1 : 0;\n" +
-			"	           ^^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 13)\n" +
-			"	if(f3 == null)\n" +
-			"	   ^^\n" +
-			"Redundant null check: The variable f3 can only be null at this location\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 16)\n" +
-			"	if(f4 != null)\n" +
-			"	   ^^\n" +
-			"Null comparison always yields false: The variable f4 can only be null at this location\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 17)\n" +
-			"	System.out.println(\"f4 is not null\");\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 18)\n" +
-			"	if(outer == 1) {}\n" +
-			"	   ^^^^^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 19)\n" +
-			"	if(param == 1) {}\n" +
-			"	   ^^^^^\n" +
-			"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 8)
+					if(f1 == 1)
+					   ^^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				2. ERROR in X.java (at line 11)
+					int abc = (f2 != 1)? 1 : 0;
+					           ^^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				3. ERROR in X.java (at line 13)
+					if(f3 == null)
+					   ^^
+				Redundant null check: The variable f3 can only be null at this location
+				----------
+				4. ERROR in X.java (at line 16)
+					if(f4 != null)
+					   ^^
+				Null comparison always yields false: The variable f4 can only be null at this location
+				----------
+				5. WARNING in X.java (at line 17)
+					System.out.println("f4 is not null");
+					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				6. ERROR in X.java (at line 18)
+					if(outer == 1) {}
+					   ^^^^^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				7. ERROR in X.java (at line 19)
+					if(param == 1) {}
+					   ^^^^^
+				Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing
+				----------
+				""");
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
@@ -12257,26 +13182,28 @@ public void testBug303448a() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void foo() {\n" +
-				"		Object foo = null;\n" +
-				"		Object foo2 = null;\n" +
-				"		try {} \n" +
-				"		finally {\n" +
-				"		assert (foo != null && foo2 != null);\n" +
-				"		if (foo != null) {\n" +
-				"			System.out.println(\"foo is not null\");\n" +
-				"		} else {\n" +
-				"			System.out.println(\"foo is null\");\n" +
-				"		}\n" +
-				"		if (foo2 != null) {\n" +
-				"			System.out.println(\"foo2 is not null\");\n" +
-				"		} else {\n" +
-				"			System.out.println(\"foo2 is null\");\n" +
-				"		}\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public void foo() {
+							Object foo = null;
+							Object foo2 = null;
+							try {}\s
+							finally {
+							assert (foo != null && foo2 != null);
+							if (foo != null) {
+								System.out.println("foo is not null");
+							} else {
+								System.out.println("foo is null");
+							}
+							if (foo2 != null) {
+								System.out.println("foo2 is not null");
+							} else {
+								System.out.println("foo2 is null");
+							}
+							}
+						}
+					}
+					""",
 			},
 			"",
 			null,
@@ -12286,173 +13213,179 @@ public void testBug303448a() throws Exception {
 			null); // custom requestor
 
 		String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_5?
-				"  // Method descriptor #11 ()V\n" +
-				"  // Stack: 2, Locals: 3\n" +
-				"  public void foo();\n" +
-				"     0  aconst_null\n" +
-				"     1  astore_1 [foo]\n" +
-				"     2  aconst_null\n" +
-				"     3  astore_2 [foo2]\n" +
-				"     4  getstatic X.$assertionsDisabled : boolean [38]\n" +
-				"     7  ifne 26\n" +
-				"    10  aload_1 [foo]\n" +
-				"    11  ifnull 18\n" +
-				"    14  aload_2 [foo2]\n" +
-				"    15  ifnonnull 26\n" +
-				"    18  new java.lang.AssertionError [49]\n" +
-				"    21  dup\n" +
-				"    22  invokespecial java.lang.AssertionError() [51]\n" +
-				"    25  athrow\n" +
-				"    26  aload_1 [foo]\n" +
-				"    27  ifnull 41\n" +
-				"    30  getstatic java.lang.System.out : java.io.PrintStream [52]\n" +
-				"    33  ldc <String \"foo is not null\"> [58]\n" +
-				"    35  invokevirtual java.io.PrintStream.println(java.lang.String) : void [60]\n" +
-				"    38  goto 49\n" +
-				"    41  getstatic java.lang.System.out : java.io.PrintStream [52]\n" +
-				"    44  ldc <String \"foo is null\"> [65]\n" +
-				"    46  invokevirtual java.io.PrintStream.println(java.lang.String) : void [60]\n" +
-				"    49  aload_2 [foo2]\n" +
-				"    50  ifnull 64\n" +
-				"    53  getstatic java.lang.System.out : java.io.PrintStream [52]\n" +
-				"    56  ldc <String \"foo2 is not null\"> [67]\n" +
-				"    58  invokevirtual java.io.PrintStream.println(java.lang.String) : void [60]\n" +
-				"    61  goto 72\n" +
-				"    64  getstatic java.lang.System.out : java.io.PrintStream [52]\n" +
-				"    67  ldc <String \"foo2 is null\"> [69]\n" +
-				"    69  invokevirtual java.io.PrintStream.println(java.lang.String) : void [60]\n" +
-				"    72  return\n" +
-				"      Line numbers:\n" +
-				"        [pc: 0, line: 3]\n" +
-				"        [pc: 2, line: 4]\n" +
-				"        [pc: 4, line: 7]\n" +
-				"        [pc: 26, line: 8]\n" +
-				"        [pc: 30, line: 9]\n" +
-				"        [pc: 38, line: 10]\n" +
-				"        [pc: 41, line: 11]\n" +
-				"        [pc: 49, line: 13]\n" +
-				"        [pc: 53, line: 14]\n" +
-				"        [pc: 61, line: 15]\n" +
-				"        [pc: 64, line: 16]\n" +
-				"        [pc: 72, line: 19]\n" +
-				"      Local variable table:\n" +
-				"        [pc: 0, pc: 73] local: this index: 0 type: X\n" +
-				"        [pc: 2, pc: 73] local: foo index: 1 type: java.lang.Object\n" +
-				"        [pc: 4, pc: 73] local: foo2 index: 2 type: java.lang.Object\n"
+				"""
+					  // Method descriptor #11 ()V
+					  // Stack: 2, Locals: 3
+					  public void foo();
+					     0  aconst_null
+					     1  astore_1 [foo]
+					     2  aconst_null
+					     3  astore_2 [foo2]
+					     4  getstatic X.$assertionsDisabled : boolean [38]
+					     7  ifne 26
+					    10  aload_1 [foo]
+					    11  ifnull 18
+					    14  aload_2 [foo2]
+					    15  ifnonnull 26
+					    18  new java.lang.AssertionError [49]
+					    21  dup
+					    22  invokespecial java.lang.AssertionError() [51]
+					    25  athrow
+					    26  aload_1 [foo]
+					    27  ifnull 41
+					    30  getstatic java.lang.System.out : java.io.PrintStream [52]
+					    33  ldc <String "foo is not null"> [58]
+					    35  invokevirtual java.io.PrintStream.println(java.lang.String) : void [60]
+					    38  goto 49
+					    41  getstatic java.lang.System.out : java.io.PrintStream [52]
+					    44  ldc <String "foo is null"> [65]
+					    46  invokevirtual java.io.PrintStream.println(java.lang.String) : void [60]
+					    49  aload_2 [foo2]
+					    50  ifnull 64
+					    53  getstatic java.lang.System.out : java.io.PrintStream [52]
+					    56  ldc <String "foo2 is not null"> [67]
+					    58  invokevirtual java.io.PrintStream.println(java.lang.String) : void [60]
+					    61  goto 72
+					    64  getstatic java.lang.System.out : java.io.PrintStream [52]
+					    67  ldc <String "foo2 is null"> [69]
+					    69  invokevirtual java.io.PrintStream.println(java.lang.String) : void [60]
+					    72  return
+					      Line numbers:
+					        [pc: 0, line: 3]
+					        [pc: 2, line: 4]
+					        [pc: 4, line: 7]
+					        [pc: 26, line: 8]
+					        [pc: 30, line: 9]
+					        [pc: 38, line: 10]
+					        [pc: 41, line: 11]
+					        [pc: 49, line: 13]
+					        [pc: 53, line: 14]
+					        [pc: 61, line: 15]
+					        [pc: 64, line: 16]
+					        [pc: 72, line: 19]
+					      Local variable table:
+					        [pc: 0, pc: 73] local: this index: 0 type: X
+					        [pc: 2, pc: 73] local: foo index: 1 type: java.lang.Object
+					        [pc: 4, pc: 73] local: foo2 index: 2 type: java.lang.Object
+					"""
 			: 	this.complianceLevel < ClassFileConstants.JDK1_6?
-						"  // Method descriptor #8 ()V\n" +
-						"  // Stack: 2, Locals: 3\n" +
-						"  public void foo();\n" +
-						"     0  aconst_null\n" +
-						"     1  astore_1 [foo]\n" +
-						"     2  aconst_null\n" +
-						"     3  astore_2 [foo2]\n" +
-						"     4  getstatic X.$assertionsDisabled : boolean [16]\n" +
-						"     7  ifne 26\n" +
-						"    10  aload_1 [foo]\n" +
-						"    11  ifnull 18\n" +
-						"    14  aload_2 [foo2]\n" +
-						"    15  ifnonnull 26\n" +
-						"    18  new java.lang.AssertionError [26]\n" +
-						"    21  dup\n" +
-						"    22  invokespecial java.lang.AssertionError() [28]\n" +
-						"    25  athrow\n" +
-						"    26  aload_1 [foo]\n" +
-						"    27  ifnull 41\n" +
-						"    30  getstatic java.lang.System.out : java.io.PrintStream [29]\n" +
-						"    33  ldc <String \"foo is not null\"> [35]\n" +
-						"    35  invokevirtual java.io.PrintStream.println(java.lang.String) : void [37]\n" +
-						"    38  goto 49\n" +
-						"    41  getstatic java.lang.System.out : java.io.PrintStream [29]\n" +
-						"    44  ldc <String \"foo is null\"> [43]\n" +
-						"    46  invokevirtual java.io.PrintStream.println(java.lang.String) : void [37]\n" +
-						"    49  aload_2 [foo2]\n" +
-						"    50  ifnull 64\n" +
-						"    53  getstatic java.lang.System.out : java.io.PrintStream [29]\n" +
-						"    56  ldc <String \"foo2 is not null\"> [45]\n" +
-						"    58  invokevirtual java.io.PrintStream.println(java.lang.String) : void [37]\n" +
-						"    61  goto 72\n" +
-						"    64  getstatic java.lang.System.out : java.io.PrintStream [29]\n" +
-						"    67  ldc <String \"foo2 is null\"> [47]\n" +
-						"    69  invokevirtual java.io.PrintStream.println(java.lang.String) : void [37]\n" +
-						"    72  return\n" +
-						"      Line numbers:\n" +
-						"        [pc: 0, line: 3]\n" +
-						"        [pc: 2, line: 4]\n" +
-						"        [pc: 4, line: 7]\n" +
-						"        [pc: 26, line: 8]\n" +
-						"        [pc: 30, line: 9]\n" +
-						"        [pc: 38, line: 10]\n" +
-						"        [pc: 41, line: 11]\n" +
-						"        [pc: 49, line: 13]\n" +
-						"        [pc: 53, line: 14]\n" +
-						"        [pc: 61, line: 15]\n" +
-						"        [pc: 64, line: 16]\n" +
-						"        [pc: 72, line: 19]\n" +
-						"      Local variable table:\n" +
-						"        [pc: 0, pc: 73] local: this index: 0 type: X\n" +
-						"        [pc: 2, pc: 73] local: foo index: 1 type: java.lang.Object\n" +
-						"        [pc: 4, pc: 73] local: foo2 index: 2 type: java.lang.Object\n"
-					:	"  // Method descriptor #8 ()V\n" +
-						"  // Stack: 2, Locals: 3\n" +
-						"  public void foo();\n" +
-						"     0  aconst_null\n" +
-						"     1  astore_1 [foo]\n" +
-						"     2  aconst_null\n" +
-						"     3  astore_2 [foo2]\n" +
-						"     4  getstatic X.$assertionsDisabled : boolean [16]\n" +
-						"     7  ifne 26\n" +
-						"    10  aload_1 [foo]\n" +
-						"    11  ifnull 18\n" +
-						"    14  aload_2 [foo2]\n" +
-						"    15  ifnonnull 26\n" +
-						"    18  new java.lang.AssertionError [27]\n" +
-						"    21  dup\n" +
-						"    22  invokespecial java.lang.AssertionError() [29]\n" +
-						"    25  athrow\n" +
-						"    26  aload_1 [foo]\n" +
-						"    27  ifnull 41\n" +
-						"    30  getstatic java.lang.System.out : java.io.PrintStream [30]\n" +
-						"    33  ldc <String \"foo is not null\"> [36]\n" +
-						"    35  invokevirtual java.io.PrintStream.println(java.lang.String) : void [38]\n" +
-						"    38  goto 49\n" +
-						"    41  getstatic java.lang.System.out : java.io.PrintStream [30]\n" +
-						"    44  ldc <String \"foo is null\"> [44]\n" +
-						"    46  invokevirtual java.io.PrintStream.println(java.lang.String) : void [38]\n" +
-						"    49  aload_2 [foo2]\n" +
-						"    50  ifnull 64\n" +
-						"    53  getstatic java.lang.System.out : java.io.PrintStream [30]\n" +
-						"    56  ldc <String \"foo2 is not null\"> [46]\n" +
-						"    58  invokevirtual java.io.PrintStream.println(java.lang.String) : void [38]\n" +
-						"    61  goto 72\n" +
-						"    64  getstatic java.lang.System.out : java.io.PrintStream [30]\n" +
-						"    67  ldc <String \"foo2 is null\"> [48]\n" +
-						"    69  invokevirtual java.io.PrintStream.println(java.lang.String) : void [38]\n" +
-						"    72  return\n" +
-						"      Line numbers:\n" +
-						"        [pc: 0, line: 3]\n" +
-						"        [pc: 2, line: 4]\n" +
-						"        [pc: 4, line: 7]\n" +
-						"        [pc: 26, line: 8]\n" +
-						"        [pc: 30, line: 9]\n" +
-						"        [pc: 38, line: 10]\n" +
-						"        [pc: 41, line: 11]\n" +
-						"        [pc: 49, line: 13]\n" +
-						"        [pc: 53, line: 14]\n" +
-						"        [pc: 61, line: 15]\n" +
-						"        [pc: 64, line: 16]\n" +
-						"        [pc: 72, line: 19]\n" +
-						"      Local variable table:\n" +
-						"        [pc: 0, pc: 73] local: this index: 0 type: X\n" +
-						"        [pc: 2, pc: 73] local: foo index: 1 type: java.lang.Object\n" +
-						"        [pc: 4, pc: 73] local: foo2 index: 2 type: java.lang.Object\n" +
-						"      Stack map table: number of frames 6\n" +
-						"        [pc: 18, append: {java.lang.Object, java.lang.Object}]\n" +
-						"        [pc: 26, same]\n" +
-						"        [pc: 41, same]\n" +
-						"        [pc: 49, same]\n" +
-						"        [pc: 64, same]\n" +
-						"        [pc: 72, same]\n";
+						"""
+							  // Method descriptor #8 ()V
+							  // Stack: 2, Locals: 3
+							  public void foo();
+							     0  aconst_null
+							     1  astore_1 [foo]
+							     2  aconst_null
+							     3  astore_2 [foo2]
+							     4  getstatic X.$assertionsDisabled : boolean [16]
+							     7  ifne 26
+							    10  aload_1 [foo]
+							    11  ifnull 18
+							    14  aload_2 [foo2]
+							    15  ifnonnull 26
+							    18  new java.lang.AssertionError [26]
+							    21  dup
+							    22  invokespecial java.lang.AssertionError() [28]
+							    25  athrow
+							    26  aload_1 [foo]
+							    27  ifnull 41
+							    30  getstatic java.lang.System.out : java.io.PrintStream [29]
+							    33  ldc <String "foo is not null"> [35]
+							    35  invokevirtual java.io.PrintStream.println(java.lang.String) : void [37]
+							    38  goto 49
+							    41  getstatic java.lang.System.out : java.io.PrintStream [29]
+							    44  ldc <String "foo is null"> [43]
+							    46  invokevirtual java.io.PrintStream.println(java.lang.String) : void [37]
+							    49  aload_2 [foo2]
+							    50  ifnull 64
+							    53  getstatic java.lang.System.out : java.io.PrintStream [29]
+							    56  ldc <String "foo2 is not null"> [45]
+							    58  invokevirtual java.io.PrintStream.println(java.lang.String) : void [37]
+							    61  goto 72
+							    64  getstatic java.lang.System.out : java.io.PrintStream [29]
+							    67  ldc <String "foo2 is null"> [47]
+							    69  invokevirtual java.io.PrintStream.println(java.lang.String) : void [37]
+							    72  return
+							      Line numbers:
+							        [pc: 0, line: 3]
+							        [pc: 2, line: 4]
+							        [pc: 4, line: 7]
+							        [pc: 26, line: 8]
+							        [pc: 30, line: 9]
+							        [pc: 38, line: 10]
+							        [pc: 41, line: 11]
+							        [pc: 49, line: 13]
+							        [pc: 53, line: 14]
+							        [pc: 61, line: 15]
+							        [pc: 64, line: 16]
+							        [pc: 72, line: 19]
+							      Local variable table:
+							        [pc: 0, pc: 73] local: this index: 0 type: X
+							        [pc: 2, pc: 73] local: foo index: 1 type: java.lang.Object
+							        [pc: 4, pc: 73] local: foo2 index: 2 type: java.lang.Object
+							"""
+					:	"""
+						  // Method descriptor #8 ()V
+						  // Stack: 2, Locals: 3
+						  public void foo();
+						     0  aconst_null
+						     1  astore_1 [foo]
+						     2  aconst_null
+						     3  astore_2 [foo2]
+						     4  getstatic X.$assertionsDisabled : boolean [16]
+						     7  ifne 26
+						    10  aload_1 [foo]
+						    11  ifnull 18
+						    14  aload_2 [foo2]
+						    15  ifnonnull 26
+						    18  new java.lang.AssertionError [27]
+						    21  dup
+						    22  invokespecial java.lang.AssertionError() [29]
+						    25  athrow
+						    26  aload_1 [foo]
+						    27  ifnull 41
+						    30  getstatic java.lang.System.out : java.io.PrintStream [30]
+						    33  ldc <String "foo is not null"> [36]
+						    35  invokevirtual java.io.PrintStream.println(java.lang.String) : void [38]
+						    38  goto 49
+						    41  getstatic java.lang.System.out : java.io.PrintStream [30]
+						    44  ldc <String "foo is null"> [44]
+						    46  invokevirtual java.io.PrintStream.println(java.lang.String) : void [38]
+						    49  aload_2 [foo2]
+						    50  ifnull 64
+						    53  getstatic java.lang.System.out : java.io.PrintStream [30]
+						    56  ldc <String "foo2 is not null"> [46]
+						    58  invokevirtual java.io.PrintStream.println(java.lang.String) : void [38]
+						    61  goto 72
+						    64  getstatic java.lang.System.out : java.io.PrintStream [30]
+						    67  ldc <String "foo2 is null"> [48]
+						    69  invokevirtual java.io.PrintStream.println(java.lang.String) : void [38]
+						    72  return
+						      Line numbers:
+						        [pc: 0, line: 3]
+						        [pc: 2, line: 4]
+						        [pc: 4, line: 7]
+						        [pc: 26, line: 8]
+						        [pc: 30, line: 9]
+						        [pc: 38, line: 10]
+						        [pc: 41, line: 11]
+						        [pc: 49, line: 13]
+						        [pc: 53, line: 14]
+						        [pc: 61, line: 15]
+						        [pc: 64, line: 16]
+						        [pc: 72, line: 19]
+						      Local variable table:
+						        [pc: 0, pc: 73] local: this index: 0 type: X
+						        [pc: 2, pc: 73] local: foo index: 1 type: java.lang.Object
+						        [pc: 4, pc: 73] local: foo2 index: 2 type: java.lang.Object
+						      Stack map table: number of frames 6
+						        [pc: 18, append: {java.lang.Object, java.lang.Object}]
+						        [pc: 26, same]
+						        [pc: 41, same]
+						        [pc: 49, same]
+						        [pc: 64, same]
+						        [pc: 72, same]
+						""";
 
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -12481,17 +13414,19 @@ public void testBug303448b() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.print(\"start\");\n" +
-				"		Object foo = null;\n" +
-				"		assert (foo != null);\n" +
-				"		if (foo != null) {\n" +
-				"			System.out.println(\"foo is not null\");\n" +
-				"		}\n" +
-				"		System.out.print(\"end\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.print("start");
+							Object foo = null;
+							assert (foo != null);
+							if (foo != null) {
+								System.out.println("foo is not null");
+							}
+							System.out.print("end");
+						}
+					}
+					""",
 			},
 			"startend",
 			null,
@@ -12511,16 +13446,17 @@ public void testBug304416() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		String s = null;\n" +
-			"		String s2 = null;\n" +
-			"		if (s != null && s2 != null) {\n" +
-			"			System.out.println(s);\n" +
-			"			System.out.println(s2);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						String s = null;
+						String s2 = null;
+						if (s != null && s2 != null) {
+							System.out.println(s);
+							System.out.println(s2);
+						}
+					}
+				}""",
 		},
 		"",
 		null,
@@ -12529,22 +13465,24 @@ public void testBug304416() throws Exception {
 		options,
 		null);
 	String expectedOutput =
-		"  public static void main(java.lang.String[] args);\n" +
-		"     0  aconst_null\n" +
-		"     1  astore_1 [s]\n" +
-		"     2  aconst_null\n" +
-		"     3  astore_2 [s2]\n" +
-		"     4  aload_1 [s]\n" +
-		"     5  ifnull 26\n" +
-		"     8  aload_2 [s2]\n" +
-		"     9  ifnull 26\n" +
-		"    12  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    15  aload_1 [s]\n" +
-		"    16  invokevirtual java.io.PrintStream.println(java.lang.String) : void [22]\n" +
-		"    19  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    22  aload_2 [s2]\n" +
-		"    23  invokevirtual java.io.PrintStream.println(java.lang.String) : void [22]\n" +
-		"    26  return\n";
+		"""
+		  public static void main(java.lang.String[] args);
+		     0  aconst_null
+		     1  astore_1 [s]
+		     2  aconst_null
+		     3  astore_2 [s2]
+		     4  aload_1 [s]
+		     5  ifnull 26
+		     8  aload_2 [s2]
+		     9  ifnull 26
+		    12  getstatic java.lang.System.out : java.io.PrintStream [16]
+		    15  aload_1 [s]
+		    16  invokevirtual java.io.PrintStream.println(java.lang.String) : void [22]
+		    19  getstatic java.lang.System.out : java.io.PrintStream [16]
+		    22  aload_2 [s2]
+		    23  invokevirtual java.io.PrintStream.println(java.lang.String) : void [22]
+		    26  return
+		""";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 
@@ -12565,12 +13503,14 @@ public void testBug305590() {
 			"	 if (str instanceof String) {}\n" + // should warn
 			"  }\n" +
 			"}"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	if (str instanceof String) {}\n" +
-		"	    ^^^\n" +
-		"instanceof always yields false: The variable str can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				if (str instanceof String) {}
+				    ^^^
+			instanceof always yields false: The variable str can only be null at this location
+			----------
+			""",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
@@ -12588,12 +13528,14 @@ public void testBug319201() {
 				"	 int j = i;\n" + // should warn
 				"  }\n" +
 				"}"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	int j = i;\n" +
-			"	        ^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					int j = i;
+					        ^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
@@ -12612,12 +13554,14 @@ public void testBug319201a() {
 				"	 j = i;\n" + // should warn
 				"  }\n" +
 				"}"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	j = i;\n" +
-			"	    ^\n" +
-			"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					j = i;
+					    ^
+				Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
@@ -12636,12 +13580,14 @@ public void testBug319201b() {
 				"  }\n" +
 				"  void bar(boolean b) {}\n" +
 				"}"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	bar(bo);\n" +
-			"	    ^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					bar(bo);
+					    ^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
@@ -12667,124 +13613,127 @@ public void testBug319201c() {
 	runNegativeTest(
 			new String[] {
               "X.java",
-              "class Y { public Y(boolean b1, boolean b2) {} }\n" +
-              "public class X extends Y {\n" +
-              "  public X(boolean b, Boolean b2) {\n" +
-              "      super(b2 == null, b2);\n" +
-              "  }\n" +
-              "  class Z {\n" +
-              "      public Z(boolean b) {}\n" +
-              "  }\n" +
-              "  boolean fB = (Boolean)null;\n" +
-              "  public boolean foo(boolean inB) {\n" +
-              "      Boolean b1 = null;\n" +
-              "      X x = new X(b1, null);\n" +
-              "      Boolean b2 = null;\n" +
-              "      boolean dontcare = b2 && inB;\n" +
-              "      Boolean b3 = null;\n" +
-              "      dontcare = inB || b3;\n" +
-              "      Integer dims = null;\n" +
-              "      char[] cs = new char[dims];\n" +
-              "      Boolean b5 = null;\n" +
-              "      do {\n" +
-              "          Boolean b4 = null;\n" +
-              "          for (int i=0;b4; i++);\n" +
-              "      } while (b5);\n" +
-              "      Boolean b6 = null;\n" +
-              "      if (b6) { }\n" +
-              "      Boolean b7 = null;\n" +
-              "      Z z = this.new Z(b7);\n" +
-              "      Integer sel = null;\n" +
-              "      switch(sel) {\n" +
-              "          case 1: break;\n" +
-              "          default: break;\n" +
-              "      }\n" +
-              "      Boolean b8 = null;\n" +
-              "      while (b8) {}\n" +
-              "      Boolean b9 = null;\n" +
-              "      dontcare = (boolean)b9;\n" +
-              "      Boolean b10 = null;\n" +
-              "      assert b10 : \"shouldn't happen, but will\";\n" +
-              "      Boolean b11 = null;\n" +
-              "      return b11;\n" +
-              "  }\n" +
-				"}"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	super(b2 == null, b2);\n" +
-			"	                  ^^\n" +
-			"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
-			"	boolean fB = (Boolean)null;\n" +
-			"	             ^^^^^^^^^^^^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 12)\n" +
-			"	X x = new X(b1, null);\n" +
-			"	            ^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 14)\n" +
-			"	boolean dontcare = b2 && inB;\n" +
-			"	                   ^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 16)\n" +
-			"	dontcare = inB || b3;\n" +
-			"	                  ^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 18)\n" +
-			"	char[] cs = new char[dims];\n" +
-			"	                     ^^^^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 22)\n" +
-			"	for (int i=0;b4; i++);\n" +
-			"	             ^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 23)\n" +
-			"	} while (b5);\n" +
-			"	         ^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"9. ERROR in X.java (at line 25)\n" +
-			"	if (b6) { }\n" +
-			"	    ^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"10. ERROR in X.java (at line 27)\n" +
-			"	Z z = this.new Z(b7);\n" +
-			"	                 ^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"11. ERROR in X.java (at line 29)\n" +
-			"	switch(sel) {\n" +
-			"	       ^^^\n" +
-			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"12. ERROR in X.java (at line 34)\n" +
-			"	while (b8) {}\n" +
-			"	       ^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"13. ERROR in X.java (at line 36)\n" +
-			"	dontcare = (boolean)b9;\n" +
-			"	                    ^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"14. ERROR in X.java (at line 38)\n" +
-			"	assert b10 : \"shouldn\'t happen, but will\";\n" +
-			"	       ^^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"15. ERROR in X.java (at line 40)\n" +
-			"	return b11;\n" +
-			"	       ^^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n",
+              """
+				class Y { public Y(boolean b1, boolean b2) {} }
+				public class X extends Y {
+				  public X(boolean b, Boolean b2) {
+				      super(b2 == null, b2);
+				  }
+				  class Z {
+				      public Z(boolean b) {}
+				  }
+				  boolean fB = (Boolean)null;
+				  public boolean foo(boolean inB) {
+				      Boolean b1 = null;
+				      X x = new X(b1, null);
+				      Boolean b2 = null;
+				      boolean dontcare = b2 && inB;
+				      Boolean b3 = null;
+				      dontcare = inB || b3;
+				      Integer dims = null;
+				      char[] cs = new char[dims];
+				      Boolean b5 = null;
+				      do {
+				          Boolean b4 = null;
+				          for (int i=0;b4; i++);
+				      } while (b5);
+				      Boolean b6 = null;
+				      if (b6) { }
+				      Boolean b7 = null;
+				      Z z = this.new Z(b7);
+				      Integer sel = null;
+				      switch(sel) {
+				          case 1: break;
+				          default: break;
+				      }
+				      Boolean b8 = null;
+				      while (b8) {}
+				      Boolean b9 = null;
+				      dontcare = (boolean)b9;
+				      Boolean b10 = null;
+				      assert b10 : "shouldn't happen, but will";
+				      Boolean b11 = null;
+				      return b11;
+				  }
+				}"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					super(b2 == null, b2);
+					                  ^^
+				Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing
+				----------
+				2. ERROR in X.java (at line 9)
+					boolean fB = (Boolean)null;
+					             ^^^^^^^^^^^^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				3. ERROR in X.java (at line 12)
+					X x = new X(b1, null);
+					            ^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				4. ERROR in X.java (at line 14)
+					boolean dontcare = b2 && inB;
+					                   ^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				5. ERROR in X.java (at line 16)
+					dontcare = inB || b3;
+					                  ^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				6. ERROR in X.java (at line 18)
+					char[] cs = new char[dims];
+					                     ^^^^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				7. ERROR in X.java (at line 22)
+					for (int i=0;b4; i++);
+					             ^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				8. ERROR in X.java (at line 23)
+					} while (b5);
+					         ^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				9. ERROR in X.java (at line 25)
+					if (b6) { }
+					    ^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				10. ERROR in X.java (at line 27)
+					Z z = this.new Z(b7);
+					                 ^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				11. ERROR in X.java (at line 29)
+					switch(sel) {
+					       ^^^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				12. ERROR in X.java (at line 34)
+					while (b8) {}
+					       ^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				13. ERROR in X.java (at line 36)
+					dontcare = (boolean)b9;
+					                    ^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				14. ERROR in X.java (at line 38)
+					assert b10 : "shouldn't happen, but will";
+					       ^^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				15. ERROR in X.java (at line 40)
+					return b11;
+					       ^^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				""",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
@@ -12842,22 +13791,24 @@ public void testBug319201d() {
               "      } while (b7);\n" + // complain here: after else branch b7 can still be null
               "  }\n" +
 			  "}"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
-			"	} while (b2);\n" +
-			"	         ^^\n" +
-			"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 15)\n" +
-			"	} while (b3);\n" +
-			"	         ^^\n" +
-			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 42)\n" +
-			"	} while (b7);\n" +
-			"	         ^^\n" +
-			"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 12)
+					} while (b2);
+					         ^^
+				Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing
+				----------
+				2. ERROR in X.java (at line 15)
+					} while (b3);
+					         ^^
+				Null pointer access: This expression of type Boolean is null but requires auto-unboxing
+				----------
+				3. ERROR in X.java (at line 42)
+					} while (b7);
+					         ^^
+				Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions,
@@ -12874,24 +13825,25 @@ public void testBug320414() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static class B {\n" +
-			"		public static final int CONST = 16;\n" +
-			"		int i;\n" +
-			"	}\n" +
-			"	B b;\n" +
-			"	public static void main(String[] args) {\n" +
-			"		new X().foo();\n" +
-			"	}\n" +
-			"	void foo() {\n" +
-			"		B localB = b; \n" +
-			"		int i = localB.CONST;\n" +
-			"		if (localB != null) {\n" +
-			"			i = localB.i;\n" +
-			"		}\n" +
-			"		System.out.println(i);\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					static class B {
+						public static final int CONST = 16;
+						int i;
+					}
+					B b;
+					public static void main(String[] args) {
+						new X().foo();
+					}
+					void foo() {
+						B localB = b;\s
+						int i = localB.CONST;
+						if (localB != null) {
+							i = localB.i;
+						}
+						System.out.println(i);
+					}
+				}""",
 		},
 		"16",
 		null,
@@ -12900,21 +13852,23 @@ public void testBug320414() throws Exception {
 		options,
 		null);
 	String expectedOutput =
-		"  void foo();\n" +
-		"     0  aload_0 [this]\n" +
-		"     1  getfield X.b : X.B [24]\n" +
-		"     4  astore_1 [localB]\n" +
-		"     5  bipush 16\n" +
-		"     7  istore_2 [i]\n" +
-		"     8  aload_1 [localB]\n" +
-		"     9  ifnull 17\n" +
-		"    12  aload_1 [localB]\n" +
-		"    13  getfield X$B.i : int [26]\n" +
-		"    16  istore_2 [i]\n" +
-		"    17  getstatic java.lang.System.out : java.io.PrintStream [32]\n" +
-		"    20  iload_2 [i]\n" +
-		"    21  invokevirtual java.io.PrintStream.println(int) : void [38]\n" +
-		"    24  return\n";
+		"""
+		  void foo();
+		     0  aload_0 [this]
+		     1  getfield X.b : X.B [24]
+		     4  astore_1 [localB]
+		     5  bipush 16
+		     7  istore_2 [i]
+		     8  aload_1 [localB]
+		     9  ifnull 17
+		    12  aload_1 [localB]
+		    13  getfield X$B.i : int [26]
+		    16  istore_2 [i]
+		    17  getstatic java.lang.System.out : java.io.PrintStream [32]
+		    20  iload_2 [i]
+		    21  invokevirtual java.io.PrintStream.println(int) : void [38]
+		    24  return
+		""";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321926
@@ -12924,30 +13878,31 @@ public void testBug321926a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"		while (true) {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+						while (true) {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+						}
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321926
@@ -12995,77 +13950,81 @@ public void testBug321926b() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"		while (true) {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		}\n" +
-			"       System.out.println(\"This is dead code\");\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 15)\n" +
-			"	System.out.println(\"This is dead code\");\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Unreachable code\n" +
-			"----------\n");
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+						while (true) {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+						}
+				       System.out.println("This is dead code");
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
+			"""
+				----------
+				1. ERROR in X.java (at line 15)
+					System.out.println("This is dead code");
+					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Unreachable code
+				----------
+				""");
 }
 // Check nullness in catch block, finally block and downstream code.
 public void testBug321926c() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"		while (true) {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"	 	if (someVariable == null) {\n" +
-			"    		System.out.println(\"Compiler buggy\");\n" +
-			"	 	} else {\n" +
-			"			System.out.print(\"Compiler good \");\n" +
-			"	 	}\n" +
-			"	 } finally {\n" +
-			"	 	if (someVariable == null) {\n" +
-			"    		System.out.println(\"Compiler buggy\");\n" +
-			"	 	} else {\n" +
-			"			System.out.print(\"Compiler good \");\n" +
-			"	 	}\n" +
-            "    }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+						while (true) {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+						}
+					 } catch (IOException e) {
+					 	if (someVariable == null) {
+				    		System.out.println("Compiler buggy");
+					 	} else {
+							System.out.print("Compiler good ");
+					 	}
+					 } finally {
+					 	if (someVariable == null) {
+				    		System.out.println("Compiler buggy");
+					 	} else {
+							System.out.print("Compiler good ");
+					 	}
+				    }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good Compiler good Compiler good");
 }
 // Various nested loops.
@@ -13073,44 +14032,45 @@ public void testBug321926d() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       while (true) {\n" +
-			"           for(;;) { \n" +
-			"				while (true) {\n" +
-			"					if (i == 0){\n" +
-			"						someVariable = \"not null\";\n" +
-			"						i++;\n" +
-			"					}\n" +
-			"					else\n" +
-			"						throw new IOException();\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"	 	if (someVariable == null) {\n" +
-			"    		System.out.println(\"Compiler buggy\");\n" +
-			"	 	} else {\n" +
-			"			System.out.print(\"Compiler good \");\n" +
-			"	 	}\n" +
-			"	 } finally {\n" +
-			"	 	if (someVariable == null) {\n" +
-			"    		System.out.println(\"Compiler buggy\");\n" +
-			"	 	} else {\n" +
-			"			System.out.print(\"Compiler good \");\n" +
-			"	 	}\n" +
-            "    }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       while (true) {
+				           for(;;) {\s
+								while (true) {
+									if (i == 0){
+										someVariable = "not null";
+										i++;
+									}
+									else
+										throw new IOException();
+								}
+							}
+						}
+					 } catch (IOException e) {
+					 	if (someVariable == null) {
+				    		System.out.println("Compiler buggy");
+					 	} else {
+							System.out.print("Compiler good ");
+					 	}
+					 } finally {
+					 	if (someVariable == null) {
+				    		System.out.println("Compiler buggy");
+					 	} else {
+							System.out.print("Compiler good ");
+					 	}
+				    }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good Compiler good Compiler good");
 }
 // Test widening catch.
@@ -13118,30 +14078,31 @@ public void testBug321926e() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"		while (true) {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		}\n" +
-			"	 } catch (Exception e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+						while (true) {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+						}
+					 } catch (Exception e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good");
 }
 // Tested nested try blocks.
@@ -13149,39 +14110,41 @@ public void testBug321926f() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        String someVariable = null;\n" +
-			"        int i = 0;\n" +
-			"        try {\n" +
-			"        	while (true) {\n" +
-			"        		if (i != 0) {\n" +
-			"        			try {\n" +
-			"        				throw new IOException();\n" +
-			"        			} catch (IOException e) {\n" +
-			"        				if (someVariable == null) {\n" +
-			"        					System.out.println(\"The compiler is buggy\");\n" +
-			"        				} else {\n" +
-			"        					System.out.print(\"Compiler good \");\n" +
-			"        				}\n" +
-			"        				throw e;\n" +
-			"        			}\n" +
-			"        		} else {\n" +
-			"        			someVariable = \"not null\";\n" +
-			"        			i++;\n" +
-			"        		}\n" +
-			"        	}\n" +
-			"        } catch (Exception e) {\n" +
-			"            // having broken from loop, continue on\n" +
-			"        }\n" +
-			"        if (someVariable == null) {\n" +
-			"            System.out.println(\"The compiler is buggy\");\n" +
-			"        } else {\n" +
-			"            System.out.println(\"Compiler good\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"},
+			"""
+				import java.io.IOException;
+				public class X {
+				    public static void main(String[] args) {
+				        String someVariable = null;
+				        int i = 0;
+				        try {
+				        	while (true) {
+				        		if (i != 0) {
+				        			try {
+				        				throw new IOException();
+				        			} catch (IOException e) {
+				        				if (someVariable == null) {
+				        					System.out.println("The compiler is buggy");
+				        				} else {
+				        					System.out.print("Compiler good ");
+				        				}
+				        				throw e;
+				        			}
+				        		} else {
+				        			someVariable = "not null";
+				        			i++;
+				        		}
+				        	}
+				        } catch (Exception e) {
+				            // having broken from loop, continue on
+				        }
+				        if (someVariable == null) {
+				            System.out.println("The compiler is buggy");
+				        } else {
+				            System.out.println("Compiler good");
+				        }
+				    }
+				}
+				"""},
 		"Compiler good Compiler good");
 }
 // test for loop
@@ -13189,30 +14152,31 @@ public void testBug321926g() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"		for (int j = 0; true; j++) {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+						for (int j = 0; true; j++) {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+						}
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good");
 }
 // test do while loop
@@ -13220,30 +14184,31 @@ public void testBug321926h() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"		do {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		} while(true);\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+						do {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+						} while(true);
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good");
 }
 // test with while (true) with a break inside. was working already.
@@ -13251,31 +14216,32 @@ public void testBug321926i() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"		while (true) {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"               break;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+						while (true) {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+				               break;
+							}
+							else
+								throw new IOException();
+						}
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good");
 }
 // Test with non-explicit throws, i.e call method which throws rather than an inline throw statement.
@@ -13283,33 +14249,34 @@ public void testBug321926j() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"		while (true) {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				invokeSomeMethod();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"  public static void invokeSomeMethod() throws IOException {\n" +
-			"      throw new IOException();\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+						while (true) {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								invokeSomeMethod();
+						}
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				  public static void invokeSomeMethod() throws IOException {
+				      throw new IOException();
+				  }
+				}"""},
 		"Compiler good");
 }
 // Variation with nested loops
@@ -13317,41 +14284,42 @@ public void testBug321926k() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       while (true) {\n" +
-			"       	try {\n" +
-			"				while (true) {\n" +
-			"					if (i == 0){\n" +
-			"						someVariable = \"not null\";\n" +
-			"						i++;\n" +
-			"					}\n" +
-			"					else\n" +
-			"						throw new IOException();\n" +
-			"				}\n" +
-			"       	} catch (IOException e) {\n" +
-			"           }\n" +
-			"	 		if (someVariable == null) {\n" +
-			"    			System.out.println(\"Compiler buggy\");\n" +
-			"	 		} else {\n" +
-			"				System.out.print(\"Compiler good \");\n" +
-			"	 		}\n" +
-			"           throw new IOException();\n" +
-			"       }\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       while (true) {
+				       	try {
+								while (true) {
+									if (i == 0){
+										someVariable = "not null";
+										i++;
+									}
+									else
+										throw new IOException();
+								}
+				       	} catch (IOException e) {
+				           }
+					 		if (someVariable == null) {
+				    			System.out.println("Compiler buggy");
+					 		} else {
+								System.out.print("Compiler good ");
+					 		}
+				           throw new IOException();
+				       }
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good Compiler good");
 }
 // variation with nested loops.
@@ -13362,49 +14330,52 @@ public void testBug321926l() {
 	this.runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       while (true) {\n" +
-			"           someVariable = null;\n"+
-			"       	try {\n" +
-			"				while (true) {\n" +
-			"					if (i == 0){\n" +
-			"						someVariable = \"not null\";\n" +
-			"						i++;\n" +
-			"					}\n" +
-			"					else\n" +
-			"						throw new IOException();\n" +
-			"				}\n" +
-			"       	} catch (IOException e) {\n" +
-			"           }\n" +
-			"	 		if (someVariable == null) {\n" +
-			"    			System.out.println(\"Compiler buggy\");\n" +
-			"	 		} else {\n" +
-			"				System.out.print(\"Compiler good \");\n" +
-			"	 		}\n" +
-			"           throw new IOException();\n" +
-			"       }\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       while (true) {
+				           someVariable = null;
+				       	try {
+								while (true) {
+									if (i == 0){
+										someVariable = "not null";
+										i++;
+									}
+									else
+										throw new IOException();
+								}
+				       	} catch (IOException e) {
+				           }
+					 		if (someVariable == null) {
+				    			System.out.println("Compiler buggy");
+					 		} else {
+								System.out.print("Compiler good ");
+					 		}
+				           throw new IOException();
+				       }
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		 false,
-		 "----------\n" +
-		"1. WARNING in X.java (at line 8)\n" +
-		"	someVariable = null;\n" +
-		"	^^^^^^^^^^^^\n" +
-		"Redundant assignment: The variable someVariable can only be null at this location\n" +
-		"----------\n",
+		 """
+			----------
+			1. WARNING in X.java (at line 8)
+				someVariable = null;
+				^^^^^^^^^^^^
+			Redundant assignment: The variable someVariable can only be null at this location
+			----------
+			""",
 		"Compiler good Compiler good",
 		"",
 		true, // force execution
@@ -13419,33 +14390,34 @@ public void testBug321926m() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"		while (true) {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"           if (true) {\n" +
-			"               break;\n" +
-			"           }\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+						while (true) {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+				           if (true) {
+				               break;
+				           }
+						}
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good");
 }
 public void testBug321926n() {
@@ -13455,31 +14427,32 @@ public void testBug321926n() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       someVariable = \"not null\";\n" +
-			"		while (true) {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       someVariable = "not null";
+						while (true) {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+						}
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good",
 		options);
 }
@@ -13490,31 +14463,32 @@ public void testBug321926o() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       someVariable = \"not null\";\n" +
-			"		for(;;) {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       someVariable = "not null";
+						for(;;) {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+						}
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good",
 		options);
 }
@@ -13525,31 +14499,32 @@ public void testBug321926p() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       someVariable = \"not null\";\n" +
-			"		do {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		} while (true);\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       someVariable = "not null";
+						do {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+						} while (true);
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good",
 		options);
 }
@@ -13559,31 +14534,32 @@ public void testBug321926q() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       someVariable = \"not null\";\n" +
-			"		do {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		} while ((someVariable = \"not null\") != null);\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       someVariable = "not null";
+						do {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+						} while ((someVariable = "not null") != null);
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good", null, true, null, options, null);
 }
 public void testBug321926r() {
@@ -13592,30 +14568,31 @@ public void testBug321926r() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       while ((someVariable = \"not null\") != null) {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler buggy\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       while ((someVariable = "not null") != null) {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+						}
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler buggy");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 		"Compiler good", null, true, null, options, null
 		);
 }
@@ -13625,31 +14602,32 @@ public void testBug321926s() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       someVariable = \" not null\";\n" +
-			"       while ((someVariable = null) != null) {\n" +
-			"			if (i == 0){\n" +
-			"				someVariable = \"not null\";\n" +
-			"				i++;\n" +
-			"			}\n" +
-			"			else\n" +
-			"				throw new IOException();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"		// broken from loop, continue on\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler good\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler buggy\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       someVariable = " not null";
+				       while ((someVariable = null) != null) {
+							if (i == 0){
+								someVariable = "not null";
+								i++;
+							}
+							else
+								throw new IOException();
+						}
+					 } catch (IOException e) {
+						// broken from loop, continue on
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler good");
+					 } else {
+						System.out.println("Compiler buggy");
+					 }
+				  }
+				}"""},
 		"Compiler good", null, true, null, options, null
 		);
 }
@@ -13657,28 +14635,30 @@ public void testBug321926t() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"	public static void main(String s[]) {\n" +
-			"		String file = \"non null\";\n" +
-			"		int i = 0;\n" +
-			"       try {\n" +
-			"			while (true) {\n" +
-			"			    if (i == 0) {\n" +
-			"					file = null;\n" +
-			"                   i++;\n"+
-			"               }\n" +
-			"               else \n" +
-			"               	throw new IOException();\n" +
-			"			}\n" +
-			"       } catch (IOException e) {\n" +
-			"       }\n" +
-			"		if (file == null)\n" +
-			"		    System.out.println(\"Compiler good\");\n" +
-			"       else \n" +
-			"		    System.out.println(\"Compiler bad\");\n" +
-			"	}\n" +
-			"}\n"},
+			"""
+				import java.io.IOException;
+				public class X {
+					public static void main(String s[]) {
+						String file = "non null";
+						int i = 0;
+				       try {
+							while (true) {
+							    if (i == 0) {
+									file = null;
+				                   i++;
+				               }
+				               else\s
+				               	throw new IOException();
+							}
+				       } catch (IOException e) {
+				       }
+						if (file == null)
+						    System.out.println("Compiler good");
+				       else\s
+						    System.out.println("Compiler bad");
+					}
+				}
+				"""},
 		"Compiler good");
 }
 public void testBug321926u() {
@@ -13687,30 +14667,32 @@ public void testBug321926u() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"	public static void main(String s[]) {\n" +
-			"		String file = \"non null\";\n" +
-			"		int i = 0;\n" +
-			"       try {\n" +
-			"			while (true) {\n" +
-			"			    if (i == 0) {\n" +
-			"					file = null;\n" +
-			"                   i++;\n"+
-			"               }\n" +
-			"               else {\n" +
-			"                   file = null;\n" +
-			"               	throw new IOException();\n" +
-			"               }\n" +
-			"			}\n" +
-			"       } catch (IOException e) {\n" +
-			"       }\n" +
-			"		if (file == null)\n" +
-			"		    System.out.println(\"Compiler good\");\n" +
-			"       else \n" +
-			"		    System.out.println(\"Compiler bad\");\n" +
-			"	}\n" +
-			"}\n"},
+			"""
+				import java.io.IOException;
+				public class X {
+					public static void main(String s[]) {
+						String file = "non null";
+						int i = 0;
+				       try {
+							while (true) {
+							    if (i == 0) {
+									file = null;
+				                   i++;
+				               }
+				               else {
+				                   file = null;
+				               	throw new IOException();
+				               }
+							}
+				       } catch (IOException e) {
+				       }
+						if (file == null)
+						    System.out.println("Compiler good");
+				       else\s
+						    System.out.println("Compiler bad");
+					}
+				}
+				"""},
 		"Compiler good",
 		options);
 }
@@ -13720,30 +14702,32 @@ public void testBug321926v() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"	public static void main(String s[]) {\n" +
-			"		String file = null;\n" +
-			"		int i = 0;\n" +
-			"       try {\n" +
-			"			while (true) {\n" +
-			"			    if (i == 0) {\n" +
-			"					file = \"non null\";\n" +
-			"                   i++;\n"+
-			"               }\n" +
-			"               else {\n" +
-			"                   file = \"non null\";\n" +
-			"               	throw new IOException();\n" +
-			"               }\n" +
-			"			}\n" +
-			"       } catch (IOException e) {\n" +
-			"       }\n" +
-			"		if (file == null)\n" +
-			"		    System.out.println(\"Compiler bad\");\n" +
-			"       else \n" +
-			"		    System.out.println(\"Compiler good\");\n" +
-			"	}\n" +
-			"}\n"},
+			"""
+				import java.io.IOException;
+				public class X {
+					public static void main(String s[]) {
+						String file = null;
+						int i = 0;
+				       try {
+							while (true) {
+							    if (i == 0) {
+									file = "non null";
+				                   i++;
+				               }
+				               else {
+				                   file = "non null";
+				               	throw new IOException();
+				               }
+							}
+				       } catch (IOException e) {
+				       }
+						if (file == null)
+						    System.out.println("Compiler bad");
+				       else\s
+						    System.out.println("Compiler good");
+					}
+				}
+				"""},
 		"Compiler good",
 		options);
 }
@@ -13755,30 +14739,31 @@ public void testBug317829a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       someVariable = \"not null\";\n" +
-			"		while (true) {\n" +
-			"			throw new IOException();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"	 	if (someVariable == null) {\n" +
-			"    		System.out.println(\"Compiler bad\");\n" +
-			"	 	} else {\n" +
-			"			System.out.print(\"Compiler good \");\n" +
-			"	 	}\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler bad\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       someVariable = "not null";
+						while (true) {
+							throw new IOException();
+						}
+					 } catch (IOException e) {
+					 	if (someVariable == null) {
+				    		System.out.println("Compiler bad");
+					 	} else {
+							System.out.print("Compiler good ");
+					 	}
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler bad");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 			"Compiler good Compiler good",
 			options);
 }
@@ -13788,31 +14773,32 @@ public void testBug317829a2() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       someVariable = getString();\n" +
-			"		while (true) {\n" +
-			"			throw new IOException();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"	 	if (someVariable == null) {\n" +
-			"    		System.out.println(\"Compiler bad\");\n" +
-			"	 	} else {\n" +
-			"			System.out.print(\"Compiler good \");\n" +
-			"	 	}\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler bad\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"  static String getString() { return \"\"; }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       someVariable = getString();
+						while (true) {
+							throw new IOException();
+						}
+					 } catch (IOException e) {
+					 	if (someVariable == null) {
+				    		System.out.println("Compiler bad");
+					 	} else {
+							System.out.print("Compiler good ");
+					 	}
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler bad");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				  static String getString() { return ""; }
+				}"""},
 			"Compiler good Compiler good");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
@@ -13823,33 +14809,34 @@ public void testBug317829b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       someVariable = \"not null\";\n" +
-			"		while (true) {\n" +
-			"			someMethod();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"	 	if (someVariable == null) {\n" +
-			"    		System.out.println(\"Compiler bad\");\n" +
-			"	 	} else {\n" +
-			"			System.out.print(\"Compiler good \");\n" +
-			"	 	}\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler bad\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"  public static void someMethod() throws IOException {\n" +
-			"      throw new IOException();\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       someVariable = "not null";
+						while (true) {
+							someMethod();
+						}
+					 } catch (IOException e) {
+					 	if (someVariable == null) {
+				    		System.out.println("Compiler bad");
+					 	} else {
+							System.out.print("Compiler good ");
+					 	}
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler bad");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				  public static void someMethod() throws IOException {
+				      throw new IOException();
+				  }
+				}"""},
 			"Compiler good Compiler good",
 			options);
 }
@@ -13861,30 +14848,31 @@ public void testBug317829c() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       someVariable = \"not null\";\n" +
-			"		for (;;) {\n" +
-			"			throw new IOException();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"	 	if (someVariable == null) {\n" +
-			"    		System.out.println(\"Compiler bad\");\n" +
-			"	 	} else {\n" +
-			"			System.out.print(\"Compiler good \");\n" +
-			"	 	}\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler bad\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       someVariable = "not null";
+						for (;;) {
+							throw new IOException();
+						}
+					 } catch (IOException e) {
+					 	if (someVariable == null) {
+				    		System.out.println("Compiler bad");
+					 	} else {
+							System.out.print("Compiler good ");
+					 	}
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler bad");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 			"Compiler good Compiler good",
 			options);
 }
@@ -13896,33 +14884,34 @@ public void testBug317829d() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       someVariable = \"not null\";\n" +
-			"		for(;;) {\n" +
-			"			someMethod();\n" +
-			"		}\n" +
-			"	 } catch (IOException e) {\n" +
-			"	 	if (someVariable == null) {\n" +
-			"    		System.out.println(\"Compiler bad\");\n" +
-			"	 	} else {\n" +
-			"			System.out.print(\"Compiler good \");\n" +
-			"	 	}\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler bad\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"  public static void someMethod() throws IOException {\n" +
-			"      throw new IOException();\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       someVariable = "not null";
+						for(;;) {
+							someMethod();
+						}
+					 } catch (IOException e) {
+					 	if (someVariable == null) {
+				    		System.out.println("Compiler bad");
+					 	} else {
+							System.out.print("Compiler good ");
+					 	}
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler bad");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				  public static void someMethod() throws IOException {
+				      throw new IOException();
+				  }
+				}"""},
 			"Compiler good Compiler good",
 			options);
 }
@@ -13934,30 +14923,31 @@ public void testBug317829e() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       someVariable = \"not null\";\n" +
-			"		do {\n" +
-			"			throw new IOException();\n" +
-			"		} while (true);\n" +
-			"	 } catch (IOException e) {\n" +
-			"	 	if (someVariable == null) {\n" +
-			"    		System.out.println(\"Compiler bad\");\n" +
-			"	 	} else {\n" +
-			"			System.out.print(\"Compiler good \");\n" +
-			"	 	}\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler bad\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       someVariable = "not null";
+						do {
+							throw new IOException();
+						} while (true);
+					 } catch (IOException e) {
+					 	if (someVariable == null) {
+				    		System.out.println("Compiler bad");
+					 	} else {
+							System.out.print("Compiler good ");
+					 	}
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler bad");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				}"""},
 			"Compiler good Compiler good",
 			options);
 }
@@ -13969,33 +14959,34 @@ public void testBug317829f() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public static void main(String[] args) {\n" +
-			"	 String someVariable = null;\n" +
-			"	 int i = 0;\n" +
-			"	 try {\n" +
-			"       someVariable = \"not null\";\n" +
-			"		do {\n" +
-			"			someMethod();\n" +
-			"		} while (true);\n" +
-			"	 } catch (IOException e) {\n" +
-			"	 	if (someVariable == null) {\n" +
-			"    		System.out.println(\"Compiler bad\");\n" +
-			"	 	} else {\n" +
-			"			System.out.print(\"Compiler good \");\n" +
-			"	 	}\n" +
-			"	 }\n" +
-			"	 if (someVariable == null) {\n" +
-			"    	System.out.println(\"Compiler bad\");\n" +
-			"	 } else {\n" +
-			"		System.out.println(\"Compiler good\");\n" +
-			"	 }\n" +
-			"  }\n" +
-			"  public static void someMethod() throws IOException {\n" +
-			"      throw new IOException();\n" +
-			"  }\n" +
-			"}"},
+			"""
+				import java.io.IOException;
+				public class X {
+				  public static void main(String[] args) {
+					 String someVariable = null;
+					 int i = 0;
+					 try {
+				       someVariable = "not null";
+						do {
+							someMethod();
+						} while (true);
+					 } catch (IOException e) {
+					 	if (someVariable == null) {
+				    		System.out.println("Compiler bad");
+					 	} else {
+							System.out.print("Compiler good ");
+					 	}
+					 }
+					 if (someVariable == null) {
+				    	System.out.println("Compiler bad");
+					 } else {
+						System.out.println("Compiler good");
+					 }
+				  }
+				  public static void someMethod() throws IOException {
+				      throw new IOException();
+				  }
+				}"""},
 			"Compiler good Compiler good",
 			options);
 }
@@ -14013,12 +15004,14 @@ public void testBug292478() {
                 "    p.toString();\n" + // complain here
                 "  }\n" +
                 "}"},
-            "----------\n" +
-            "1. ERROR in X.java (at line 5)\n" +
-            "	p.toString();\n" +
-            "	^\n" +
-            "Potential null pointer access: The variable p may be null at this location\n" +
-            "----------\n",
+            """
+				----------
+				1. ERROR in X.java (at line 5)
+					p.toString();
+					^
+				Potential null pointer access: The variable p may be null at this location
+				----------
+				""",
             JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -14036,12 +15029,14 @@ public void testBug292478a() {
               "    p.toString();\n" + // complain here
               "  }\n" +
               "}"},
-          "----------\n" +
-          "1. ERROR in X.java (at line 5)\n" +
-          "	p.toString();\n" +
-          "	^\n" +
-          "Potential null pointer access: The variable p may be null at this location\n" +
-          "----------\n",
+          """
+			----------
+			1. ERROR in X.java (at line 5)
+				p.toString();
+				^
+			Potential null pointer access: The variable p may be null at this location
+			----------
+			""",
           JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -14059,12 +15054,14 @@ this.runNegativeTest(
             "    p.toString();\n" + // complain here
             "  }\n" +
             "}"},
-        "----------\n" +
-        "1. ERROR in X.java (at line 6)\n" +
-        "	p.toString();\n" +
-        "	^\n" +
-        "Potential null pointer access: The variable p may be null at this location\n" +
-        "----------\n",
+        """
+			----------
+			1. ERROR in X.java (at line 6)
+				p.toString();
+				^
+			Potential null pointer access: The variable p may be null at this location
+			----------
+			""",
         JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -14089,12 +15086,14 @@ this.runNegativeTest(
           "    p.toString();\n" + // complain here
           "  }\n" +
           "}"},
-      "----------\n" +
-      "1. ERROR in X.java (at line 13)\n" +
-      "	p.toString();\n" +
-      "	^\n" +
-      "Potential null pointer access: The variable p may be null at this location\n" +
-      "----------\n",
+      """
+		----------
+		1. ERROR in X.java (at line 13)
+			p.toString();
+			^
+		Potential null pointer access: The variable p may be null at this location
+		----------
+		""",
       JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -14124,12 +15123,14 @@ public void testBug292478d() {
 			"   }\n" +
 			" }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 17)\n" +
-		"	y.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable y may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 17)
+				y.toString();
+				^
+			Potential null pointer access: The variable y may be null at this location
+			----------
+			""");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
@@ -14138,26 +15139,28 @@ public void testBug292478e() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" +
-			"	Object foo(int i, boolean b1, boolean b2) {\n" +
-			"		Object o1 = null;\n" +
-			"		done : while (true) { \n" +
-			"			switch (i) {\n" +
-			"				case 1 :\n" +
-			"					Object o2 = null;\n" +
-			"					if (b2)\n" +
-			"						o2 = new Object();\n" +
-			"					o1 = o2;\n" +
-			"					break;\n" +
-			"				case 2 :\n" +
-			"					break done;\n" +
-			"			}\n" +
-			"		}		\n" +
-			"		if (o1 != null)\n" +
-			"			return o1;\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Test {
+					Object foo(int i, boolean b1, boolean b2) {
+						Object o1 = null;
+						done : while (true) {\s
+							switch (i) {
+								case 1 :
+									Object o2 = null;
+									if (b2)
+										o2 = new Object();
+									o1 = o2;
+									break;
+								case 2 :
+									break done;
+							}
+						}	\t
+						if (o1 != null)
+							return o1;
+						return null;
+					}
+				}
+				"""
 		});
 }
 
@@ -14167,26 +15170,28 @@ public void testBug292478f() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" +
-			"	Object foo(int i, boolean b1, boolean b2) {\n" +
-			"		Object o1 = null;\n" +
-			"		done : while (true) { \n" +
-			"			switch (i) {\n" +
-			"				case 1 :\n" +
-			"					Object o2 = null;\n" +
-			"					if (b2)\n" +
-			"						o2 = new Object();\n" +
-			"					o1 = o2;\n" +
-			"					if (o1 != null)\n" +
-			"						return o1;\n" +
-			"					break;\n" +
-			"				case 2 :\n" +
-			"					break done;\n" +
-			"			}\n" +
-			"		}		\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Test {
+					Object foo(int i, boolean b1, boolean b2) {
+						Object o1 = null;
+						done : while (true) {\s
+							switch (i) {
+								case 1 :
+									Object o2 = null;
+									if (b2)
+										o2 = new Object();
+									o1 = o2;
+									if (o1 != null)
+										return o1;
+									break;
+								case 2 :
+									break done;
+							}
+						}	\t
+						return null;
+					}
+				}
+				"""
 		});
 }
 
@@ -14196,26 +15201,28 @@ public void testBug292478g() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" +
-			"	Object foo(int i, boolean b1, boolean b2, Object o2) {\n" +
-			"		Object o1 = null;\n" +
-			"		done : while (true) { \n" +
-			"			switch (i) {\n" +
-			"				case 1 :\n" +
-			"					if (b2)\n" +
-			"						o2 = bar();\n" +
-			"					o1 = o2;\n" +
-			"					if (o1 != null)\n" +
-			"						return o1;\n" +
-			"					break;\n" +
-			"				case 2 :\n" +
-			"					break done;\n" +
-			"			}\n" +
-			"		}		\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"   Object bar() { return null; }\n" +
-			"}\n"
+			"""
+				public class Test {
+					Object foo(int i, boolean b1, boolean b2, Object o2) {
+						Object o1 = null;
+						done : while (true) {\s
+							switch (i) {
+								case 1 :
+									if (b2)
+										o2 = bar();
+									o1 = o2;
+									if (o1 != null)
+										return o1;
+									break;
+								case 2 :
+									break done;
+							}
+						}	\t
+						return null;
+					}
+				   Object bar() { return null; }
+				}
+				"""
 		});
 }
 
@@ -14226,16 +15233,18 @@ public void testBug324762() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" +
-			"	void zork(boolean b1) {\n" +
-			"		Object satisfied = null;\n" +
-			"		if (b1) {\n" +
-			"			String[] s = new String[] { \"a\", \"b\" };\n" +
-			"			for (int k = 0; k < s.length && satisfied == null; k++)\n" +
-			"				satisfied = s.length > 1 ? new Object() : null;\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Test {
+					void zork(boolean b1) {
+						Object satisfied = null;
+						if (b1) {
+							String[] s = new String[] { "a", "b" };
+							for (int k = 0; k < s.length && satisfied == null; k++)
+								satisfied = s.length > 1 ? new Object() : null;
+						}
+					}
+				}
+				"""
 		});
 }
 
@@ -14246,17 +15255,19 @@ public void testBug324762a() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" +
-			"	void zork(boolean b1) {\n" +
-			"		Object satisfied = null;\n" +
-			"		if (b1) {\n" +
-			"			String[] s = new String[] { \"a\", \"b\" };\n" +
-			"			for (int k = 0; k < s.length && satisfied == null; k++)\n" +
-			"				satisfied = s.length > 1 ? bar() : null;\n" +
-			"		}\n" +
-			"	}\n" +
-			"	Object bar() { return null; }\n" +
-			"}\n"
+			"""
+				public class Test {
+					void zork(boolean b1) {
+						Object satisfied = null;
+						if (b1) {
+							String[] s = new String[] { "a", "b" };
+							for (int k = 0; k < s.length && satisfied == null; k++)
+								satisfied = s.length > 1 ? bar() : null;
+						}
+					}
+					Object bar() { return null; }
+				}
+				"""
 		});
 }
 
@@ -14269,20 +15280,23 @@ public void testBug325229a() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"	void foo(Object a) {\n" +
-				"		assert a instanceof Object;\n " +
-				"		if (a!=null) {\n" +
-				"			System.out.println(\"a is not null\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"a is null\");\n" +
-				"		 }\n" +
-				"	}\n" +
-				"	public static void main(String[] args){\n" +
-				"		Test test = new Test();\n" +
-				"		test.foo(null);\n" +
-				"	}\n" +
-				"}\n"},
+				"""
+					public class Test {
+						void foo(Object a) {
+							assert a instanceof Object;
+					 \
+							if (a!=null) {
+								System.out.println("a is not null");
+							 } else{
+								System.out.println("a is null");
+							 }
+						}
+						public static void main(String[] args){
+							Test test = new Test();
+							test.foo(null);
+						}
+					}
+					"""},
 			"a is null",
 			null,
 			true,
@@ -14301,23 +15315,26 @@ public void testBug325229b() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"	boolean bar() {\n" +
-				"		return false;\n" +
-				"	}" +
-				"	void foo(Test a) {\n" +
-				"		assert a.bar();\n " +
-				"		if (a!=null) {\n" +
-				"			System.out.println(\"a is not null\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"a is null\");\n" +
-				"		 }\n" +
-				"	}\n" +
-				"	public static void main(String[] args){\n" +
-				"		Test test = new Test();\n" +
-				"		test.foo(null);\n" +
-				"	}\n" +
-				"}\n"},
+				"""
+					public class Test {
+						boolean bar() {
+							return false;
+						}\
+						void foo(Test a) {
+							assert a.bar();
+					 \
+							if (a!=null) {
+								System.out.println("a is not null");
+							 } else{
+								System.out.println("a is null");
+							 }
+						}
+						public static void main(String[] args){
+							Test test = new Test();
+							test.foo(null);
+						}
+					}
+					"""},
 			"a is null",
 			null,
 			true,
@@ -14336,24 +15353,27 @@ public void testBug325229c() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"	boolean bar() {\n" +
-				"		return false;\n" +
-				"	}" +
-				"	Test tfield;\n" +
-				"	void foo(Test a) {\n" +
-				"		assert a.tfield.bar();\n " +
-				"		if (a!=null) {\n" +
-				"			System.out.println(\"a is not null\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"a is null\");\n" +
-				"		 }\n" +
-				"	}\n" +
-				"	public static void main(String[] args){\n" +
-				"		Test test = new Test();\n" +
-				"		test.foo(null);\n" +
-				"	}\n" +
-				"}\n"},
+				"""
+					public class Test {
+						boolean bar() {
+							return false;
+						}\
+						Test tfield;
+						void foo(Test a) {
+							assert a.tfield.bar();
+					 \
+							if (a!=null) {
+								System.out.println("a is not null");
+							 } else{
+								System.out.println("a is null");
+							 }
+						}
+						public static void main(String[] args){
+							Test test = new Test();
+							test.foo(null);
+						}
+					}
+					"""},
 			"a is null",
 			null,
 			true,
@@ -14372,27 +15392,31 @@ public void testBug325229d() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"	void foo(Object a) {\n" +
-				"		Object b = null;" +
-				"		assert a == b;\n " +
-				"		if (a!=null) {\n" +
-				"			System.out.println(\"a is not null\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"a is null\");\n" +
-				"		 }\n" +
-				"		assert a != b;\n " +
-				"		if (a!=null) {\n" +
-				"			System.out.println(\"a is not null\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"a is null\");\n" +
-				"		 }\n" +
-				"	}\n" +
-				"	public static void main(String[] args){\n" +
-				"		Test test = new Test();\n" +
-				"		test.foo(null);\n" +
-				"	}\n" +
-				"}\n"},
+				"""
+					public class Test {
+						void foo(Object a) {
+							Object b = null;\
+							assert a == b;
+					 \
+							if (a!=null) {
+								System.out.println("a is not null");
+							 } else{
+								System.out.println("a is null");
+							 }
+							assert a != b;
+					 \
+							if (a!=null) {
+								System.out.println("a is not null");
+							 } else{
+								System.out.println("a is null");
+							 }
+						}
+						public static void main(String[] args){
+							Test test = new Test();
+							test.foo(null);
+						}
+					}
+					"""},
 			"a is null\n" +
 			"a is null",
 			null,
@@ -14413,40 +15437,46 @@ public void testBug325342a() {
 		this.runNegativeTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"	void foo(Object a, Object b, Object c) {\n" +
-				"		assert a == null;\n " +
-				"		if (a!=null) {\n" +
-				"			System.out.println(\"a is not null\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"a is null\");\n" +
-				"		 }\n" +
-				"		a = null;\n" +
-				"		if (a== null) {}\n" +
-				"		assert b != null;\n " +
-				"		if (b!=null) {\n" +
-				"			System.out.println(\"b is not null\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"b is null\");\n" +
-				"		 }\n" +
-				"		assert c == null;\n" +
-				"		if (c.equals(a)) {\n" +
-				"			System.out.println(\"\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"\");\n" +
-				"		 }\n" +
-				"	}\n" +
-				"	public static void main(String[] args){\n" +
-				"		Test test = new Test();\n" +
-				"		test.foo(null,null, null);\n" +
-				"	}\n" +
-				"}\n"},
-			"----------\n" +
-			"1. ERROR in Test.java (at line 10)\n" +
-			"	if (a== null) {}\n" +
-			"	    ^\n" +
-			"Redundant null check: The variable a can only be null at this location\n" +
-			"----------\n",
+				"""
+					public class Test {
+						void foo(Object a, Object b, Object c) {
+							assert a == null;
+					 \
+							if (a!=null) {
+								System.out.println("a is not null");
+							 } else{
+								System.out.println("a is null");
+							 }
+							a = null;
+							if (a== null) {}
+							assert b != null;
+					 \
+							if (b!=null) {
+								System.out.println("b is not null");
+							 } else{
+								System.out.println("b is null");
+							 }
+							assert c == null;
+							if (c.equals(a)) {
+								System.out.println("");
+							 } else{
+								System.out.println("");
+							 }
+						}
+						public static void main(String[] args){
+							Test test = new Test();
+							test.foo(null,null, null);
+						}
+					}
+					"""},
+			"""
+				----------
+				1. ERROR in Test.java (at line 10)
+					if (a== null) {}
+					    ^
+				Redundant null check: The variable a can only be null at this location
+				----------
+				""",
 			null,
 			true,
 			compilerOptions,
@@ -14465,62 +15495,68 @@ public void testBug325342b() {
 		this.runNegativeTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"	void foo(Object a, Object b, Object c) {\n" +
-				"		assert a == null;\n " +
-				"		if (a!=null) {\n" +
-				"			System.out.println(\"a is not null\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"a is null\");\n" +
-				"		 }\n" +
-				"		assert b != null;\n " +
-				"		if (b!=null) {\n" +
-				"			System.out.println(\"a is not null\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"a is null\");\n" +
-				"		 }\n" +
-				"		assert c == null;\n" +
-				"		if (c.equals(a)) {\n" +
-				"			System.out.println(\"\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"\");\n" +
-				"		 }\n" +
-				"	}\n" +
-				"	public static void main(String[] args){\n" +
-				"		Test test = new Test();\n" +
-				"		test.foo(null,null,null);\n" +
-				"	}\n" +
-				"}\n"},
-			"----------\n" +
-			"1. ERROR in Test.java (at line 4)\n" +
-			"	if (a!=null) {\n" +
-			"	    ^\n" +
-			"Null comparison always yields false: The variable a can only be null at this location\n" +
-			"----------\n" +
-			"2. WARNING in Test.java (at line 4)\n" +
-			"	if (a!=null) {\n" +
-			"			System.out.println(\"a is not null\");\n" +
-			"		 } else{\n" +
-			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"3. ERROR in Test.java (at line 10)\n" +
-			"	if (b!=null) {\n" +
-			"	    ^\n" +
-			"Redundant null check: The variable b cannot be null at this location\n" +
-			"----------\n" +
-			"4. WARNING in Test.java (at line 12)\n" +
-			"	} else{\n" +
-			"			System.out.println(\"a is null\");\n" +
-			"		 }\n" +
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"5. ERROR in Test.java (at line 16)\n" +
-			"	if (c.equals(a)) {\n" +
-			"	    ^\n" +
-			"Null pointer access: The variable c can only be null at this location\n" +
-			"----------\n",
+				"""
+					public class Test {
+						void foo(Object a, Object b, Object c) {
+							assert a == null;
+					 \
+							if (a!=null) {
+								System.out.println("a is not null");
+							 } else{
+								System.out.println("a is null");
+							 }
+							assert b != null;
+					 \
+							if (b!=null) {
+								System.out.println("a is not null");
+							 } else{
+								System.out.println("a is null");
+							 }
+							assert c == null;
+							if (c.equals(a)) {
+								System.out.println("");
+							 } else{
+								System.out.println("");
+							 }
+						}
+						public static void main(String[] args){
+							Test test = new Test();
+							test.foo(null,null,null);
+						}
+					}
+					"""},
+			"""
+				----------
+				1. ERROR in Test.java (at line 4)
+					if (a!=null) {
+					    ^
+				Null comparison always yields false: The variable a can only be null at this location
+				----------
+				2. WARNING in Test.java (at line 4)
+					if (a!=null) {
+							System.out.println("a is not null");
+						 } else{
+					             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				3. ERROR in Test.java (at line 10)
+					if (b!=null) {
+					    ^
+				Redundant null check: The variable b cannot be null at this location
+				----------
+				4. WARNING in Test.java (at line 12)
+					} else{
+							System.out.println("a is null");
+						 }
+					      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				5. ERROR in Test.java (at line 16)
+					if (c.equals(a)) {
+					    ^
+				Null pointer access: The variable c can only be null at this location
+				----------
+				""",
 			null, true, compilerOptions, "",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -14532,29 +15568,30 @@ public void testBug325755a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static Object foo(String s1, String s2) {\n" +
-			"		String local1 = s1;\n" +
-			"		String local2 = s2;\n" +
-			"		\n" +
-			"		String local3 = null;\n" +
-			"		if (local1 != null && local2 != null)\n" +
-			"			local3 = \"\"; //$NON-NLS-1$\n" +
-			"		else\n" +
-			"			local3 = local1 != null ? local1 : local2;\n" +
-			"\n" +
-			"		if (local3 != null)\n" +
-			"			return new Integer(local3.length());\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.print(foo(null, null));\n" +
-			"		System.out.print(foo(\"p1\", null));\n" +
-			"		System.out.print(foo(null, \"p2\"));\n" +
-			"		System.out.print(foo(\"p1\", \"p2\"));\n" +
-			"	}\n" +
-			"}"},
+			"""
+				public class X {
+					public static Object foo(String s1, String s2) {
+						String local1 = s1;
+						String local2 = s2;
+					\t
+						String local3 = null;
+						if (local1 != null && local2 != null)
+							local3 = ""; //$NON-NLS-1$
+						else
+							local3 = local1 != null ? local1 : local2;
+				
+						if (local3 != null)
+							return new Integer(local3.length());
+						return null;
+					}
+				\t
+					public static void main(String[] args) {
+						System.out.print(foo(null, null));
+						System.out.print(foo("p1", null));
+						System.out.print(foo(null, "p2"));
+						System.out.print(foo("p1", "p2"));
+					}
+				}"""},
 		"null220");
 }
 
@@ -14564,37 +15601,37 @@ public void testBug325755b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static Object foo(String s1, String s2) {\n" +
-	          "    int i00, i01, i02, i03, i04, i05, i06, i07, i08, i09;\n" +
-	          "    int i10, i11, i12, i13, i14, i15, i16, i17, i18, i19;\n" +
-	          "    int i20, i21, i22, i23, i24, i25, i26, i27, i28, i29;\n" +
-	          "    int i30, i31, i32, i33, i34, i35, i36, i37, i38, i39;\n" +
-	          "    int i40, i41, i42, i43, i44, i45, i46, i47, i48, i49;\n" +
-	          "    int i50, i51, i52, i53, i54, i55, i56, i57, i58, i59;\n" +
-	          "    int i60, i61, i62, i63, i64, i65, i66, i67, i68, i69;\n" +
-
-			"		String local1 = s1;\n" +
-			"		String local2 = s2;\n" +
-			"		\n" +
-			"		String local3 = null;\n" +
-			"		if (local1 != null && local2 != null)\n" +
-			"			local3 = \"\"; //$NON-NLS-1$\n" +
-			"		else\n" +
-			"			local3 = local1 != null ? local1 : local2;\n" +
-			"\n" +
-			"		if (local3 != null)\n" +
-			"			return new Integer(local3.length());\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.print(foo(null, null));\n" +
-			"		System.out.print(foo(\"p1\", null));\n" +
-			"		System.out.print(foo(null, \"p2\"));\n" +
-			"		System.out.print(foo(\"p1\", \"p2\"));\n" +
-			"	}\n" +
-			"}"},
+			"""
+				public class X {
+					public static Object foo(String s1, String s2) {
+				    int i00, i01, i02, i03, i04, i05, i06, i07, i08, i09;
+				    int i10, i11, i12, i13, i14, i15, i16, i17, i18, i19;
+				    int i20, i21, i22, i23, i24, i25, i26, i27, i28, i29;
+				    int i30, i31, i32, i33, i34, i35, i36, i37, i38, i39;
+				    int i40, i41, i42, i43, i44, i45, i46, i47, i48, i49;
+				    int i50, i51, i52, i53, i54, i55, i56, i57, i58, i59;
+				    int i60, i61, i62, i63, i64, i65, i66, i67, i68, i69;
+						String local1 = s1;
+						String local2 = s2;
+					\t
+						String local3 = null;
+						if (local1 != null && local2 != null)
+							local3 = ""; //$NON-NLS-1$
+						else
+							local3 = local1 != null ? local1 : local2;
+				
+						if (local3 != null)
+							return new Integer(local3.length());
+						return null;
+					}
+				\t
+					public static void main(String[] args) {
+						System.out.print(foo(null, null));
+						System.out.print(foo("p1", null));
+						System.out.print(foo(null, "p2"));
+						System.out.print(foo("p1", "p2"));
+					}
+				}"""},
 		"null220");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=332637
@@ -14605,62 +15642,65 @@ public void testBug332637() {
 	this.runConformTest(
 		new String[] {
 			"DeadCodeExample.java",
-			"public class DeadCodeExample {\n" +
-			"\n" +
-			"	private class CanceledException extends Exception {\n" +
-			"	}\n" +
-			"\n" +
-			"	private interface ProgressMonitor {\n" +
-			"		boolean isCanceled();\n" +
-			"	}\n" +
-			"\n" +
-			"	private void checkForCancellation(ProgressMonitor monitor)\n" +
-			"			throws CanceledException {\n" +
-			"		if (monitor.isCanceled()) {\n" +
-			"			throw new CanceledException();\n" +
-			"		}\n" +
-			"	}\n" +
-			"\n" +
-			"	private int run() {\n" +
-			"\n" +
-			"		ProgressMonitor monitor = new ProgressMonitor() {\n" +
-			"			private int i = 0;\n" +
-			"\n" +
-			"			public boolean isCanceled() {\n" +
-			"				return (++i == 5);\n" +
-			"			}\n" +
-			"		};\n" +
-			"\n" +
-			"		Integer number = null;\n" +
-			"\n" +
-			"		try {\n" +
-			"			checkForCancellation(monitor);\n" +
-			"\n" +
-			"			number = Integer.valueOf(0);\n" +
-			"\n" +
-			"			for (String s : new String[10]) {\n" +
-			"				checkForCancellation(monitor);\n" +
-			"				number++;\n" +
-			"			}\n" +
-			"			return 0;\n" +
-			"		} catch (CanceledException e) {\n" +
-			"			System.out.println(\"Canceled after \" + number\n" +
-			"				+ \" times through the loop\");\n" +
-			"			if (number != null) {\n" +
-			"				System.out.println(\"number = \" + number);\n" +
-			"			}\n" +
-			"			return -1;\n" +
-			"		}\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(new DeadCodeExample().run());\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class DeadCodeExample {
+				
+					private class CanceledException extends Exception {
+					}
+				
+					private interface ProgressMonitor {
+						boolean isCanceled();
+					}
+				
+					private void checkForCancellation(ProgressMonitor monitor)
+							throws CanceledException {
+						if (monitor.isCanceled()) {
+							throw new CanceledException();
+						}
+					}
+				
+					private int run() {
+				
+						ProgressMonitor monitor = new ProgressMonitor() {
+							private int i = 0;
+				
+							public boolean isCanceled() {
+								return (++i == 5);
+							}
+						};
+				
+						Integer number = null;
+				
+						try {
+							checkForCancellation(monitor);
+				
+							number = Integer.valueOf(0);
+				
+							for (String s : new String[10]) {
+								checkForCancellation(monitor);
+								number++;
+							}
+							return 0;
+						} catch (CanceledException e) {
+							System.out.println("Canceled after " + number
+								+ " times through the loop");
+							if (number != null) {
+								System.out.println("number = " + number);
+							}
+							return -1;
+						}
+					}
+				
+					public static void main(String[] args) {
+						System.out.println(new DeadCodeExample().run());
+					}
+				}
+				"""
 		},
-		"Canceled after 3 times through the loop\n" +
-		"number = 3\n" +
-		"-1");
+		"""
+			Canceled after 3 times through the loop
+			number = 3
+			-1""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=332637
 // Dead Code detection removing code that isn't dead
@@ -14671,65 +15711,68 @@ public void testBug332637b() {
 	this.runConformTest(
 		new String[] {
 			"DeadCodeExample.java",
-			"public class DeadCodeExample {\n" +
-			"\n" +
-			"	private class CanceledException extends Exception {\n" +
-			"	}\n" +
-			"\n" +
-			"	private interface ProgressMonitor {\n" +
-			"		boolean isCanceled();\n" +
-			"	}\n" +
-			"\n" +
-			"	private void checkForCancellation(ProgressMonitor monitor)\n" +
-			"			throws CanceledException {\n" +
-			"		if (monitor.isCanceled()) {\n" +
-			"			throw new CanceledException();\n" +
-			"		}\n" +
-			"	}\n" +
-			"\n" +
-			"	private int run() {\n" +
-			"\n" +
-			"		ProgressMonitor monitor = new ProgressMonitor() {\n" +
-			"			private int i = 0;\n" +
-			"\n" +
-			"			public boolean isCanceled() {\n" +
-			"				return (++i == 5);\n" +
-			"			}\n" +
-			"		};\n" +
-			"\n" +
-			"		Integer number = null;\n" +
-			"\n" +
-			"		try {\n" +
-			"			checkForCancellation(monitor);\n" +
-			"\n" +
-			"			number = Integer.valueOf(0);\n" +
-			"\n" +
-			"			for (String s : new String[10]) {\n" +
-			"				checkForCancellation(monitor);\n" +
-			"				number++;\n" +
-			"			}\n" +
-			"			return 0;\n" +
-			"		} catch (CanceledException e) {\n" +
-			"			System.out.println(\"Canceled after \" + number\n" +
-			"				+ \" times through the loop\");\n" +
-			"			if (number != null) {\n" +
-			"				System.out.println(\"number = \" + number);\n" +
-			"			}\n" +
-			"			return -1;\n" +
-			"		} finally {\n" +
-			"			System.out.println(\"Done\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(new DeadCodeExample().run());\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class DeadCodeExample {
+				
+					private class CanceledException extends Exception {
+					}
+				
+					private interface ProgressMonitor {
+						boolean isCanceled();
+					}
+				
+					private void checkForCancellation(ProgressMonitor monitor)
+							throws CanceledException {
+						if (monitor.isCanceled()) {
+							throw new CanceledException();
+						}
+					}
+				
+					private int run() {
+				
+						ProgressMonitor monitor = new ProgressMonitor() {
+							private int i = 0;
+				
+							public boolean isCanceled() {
+								return (++i == 5);
+							}
+						};
+				
+						Integer number = null;
+				
+						try {
+							checkForCancellation(monitor);
+				
+							number = Integer.valueOf(0);
+				
+							for (String s : new String[10]) {
+								checkForCancellation(monitor);
+								number++;
+							}
+							return 0;
+						} catch (CanceledException e) {
+							System.out.println("Canceled after " + number
+								+ " times through the loop");
+							if (number != null) {
+								System.out.println("number = " + number);
+							}
+							return -1;
+						} finally {
+							System.out.println("Done");
+						}
+					}
+				
+					public static void main(String[] args) {
+						System.out.println(new DeadCodeExample().run());
+					}
+				}
+				"""
 		},
-		"Canceled after 3 times through the loop\n" +
-		"number = 3\n" +
-		"Done\n" +
-		"-1");
+		"""
+			Canceled after 3 times through the loop
+			number = 3
+			Done
+			-1""");
 }
 
 public void testBug406160a() {
@@ -14738,66 +15781,69 @@ public void testBug406160a() {
 	this.runConformTest(
 		new String[] {
 			"DeadCodeExample.java",
-			"public class DeadCodeExample {\n" +
-			"\n" +
-			"	class CanceledException extends Exception {\n" +
-			"	}\n" +
-			"\n" +
-			"	private interface ProgressMonitor {\n" +
-			"		boolean isCanceled();\n" +
-			"	}\n" +
-			"\n" +
-			"	private void checkForCancellation(ProgressMonitor monitor)\n" +
-			"			throws CanceledException {\n" +
-			"		if (monitor.isCanceled()) {\n" +
-			"			throw new CanceledException();\n" +
-			"		}\n" +
-			"	}\n" +
-			"\n" +
-			"	private int run() {\n" +
-			"\n" +
-			"		ProgressMonitor monitor = new ProgressMonitor() {\n" +
-			"			private int i = 0;\n" +
-			"\n" +
-			"			public boolean isCanceled() {\n" +
-			"				return (++i == 5);\n" +
-			"			}\n" +
-			"		};\n" +
-			"\n" +
-			"		Integer number = null;\n" +
-			"\n" +
-			"		for (int j = 0; j < 1; ) {\n" +
-			"\n" +
-			"			try {\n" +
-			"				checkForCancellation(monitor);\n" +
-			"\n" +
-			"				number = Integer.valueOf(0);\n" +
-			"\n" +
-			"				for (String s : new String[10]) {\n" +
-			"					checkForCancellation(monitor);\n" +
-			"					number++;\n" +
-			"				}\n" +
-			"				return 0;\n" +
-			"			} catch (CanceledException e) {\n" +
-			"				System.out.println(\"Canceled after \" + number\n" +
-			"					+ \" times through the loop\");\n" +
-			"				if (number != null) {\n" +
-			"					System.out.println(\"number = \" + number);\n" +
-			"				}\n" +
-			"				return -1;\n" +
-			"			}\n" +
-			"		}\n" +
-			"		return 13;\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(new DeadCodeExample().run());\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class DeadCodeExample {
+				
+					class CanceledException extends Exception {
+					}
+				
+					private interface ProgressMonitor {
+						boolean isCanceled();
+					}
+				
+					private void checkForCancellation(ProgressMonitor monitor)
+							throws CanceledException {
+						if (monitor.isCanceled()) {
+							throw new CanceledException();
+						}
+					}
+				
+					private int run() {
+				
+						ProgressMonitor monitor = new ProgressMonitor() {
+							private int i = 0;
+				
+							public boolean isCanceled() {
+								return (++i == 5);
+							}
+						};
+				
+						Integer number = null;
+				
+						for (int j = 0; j < 1; ) {
+				
+							try {
+								checkForCancellation(monitor);
+				
+								number = Integer.valueOf(0);
+				
+								for (String s : new String[10]) {
+									checkForCancellation(monitor);
+									number++;
+								}
+								return 0;
+							} catch (CanceledException e) {
+								System.out.println("Canceled after " + number
+									+ " times through the loop");
+								if (number != null) {
+									System.out.println("number = " + number);
+								}
+								return -1;
+							}
+						}
+						return 13;
+					}
+				
+					public static void main(String[] args) {
+						System.out.println(new DeadCodeExample().run());
+					}
+				}
+				"""
 		},
-		"Canceled after 3 times through the loop\n" +
-		"number = 3\n" +
-		"-1");
+		"""
+			Canceled after 3 times through the loop
+			number = 3
+			-1""");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=333089
@@ -14806,23 +15852,24 @@ public void testBug333089() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void foo(Object s1) {\n" +
-	        "    int i00, i01, i02, i03, i04, i05, i06, i07, i08, i09;\n" +
-	        "    int i10, i11, i12, i13, i14, i15, i16, i17, i18, i19;\n" +
-	        "    int i20, i21, i22, i23, i24, i25, i26, i27, i28, i29;\n" +
-	        "    int i30, i31, i32, i33, i34, i35, i36, i37, i38, i39;\n" +
-	        "    int i40, i41, i42, i43, i44, i45, i46, i47, i48, i49;\n" +
-	        "    int i50, i51, i52, i53, i54, i55, i56, i57, i58, i59;\n" +
-	        "    int i60, i61, i62, i63, i64, i65, i66, i67, i68, i69;\n" +
-			"	 Object local1;\n" +
-			"	 if (s1 == null){}\n" +
-			"	 try {" +
-			"		local1 = s1;\n" +
-			"	 } finally {\n" +
-			"	 }\n" +
-			"	}\n" +
-			"}"},
+			"""
+				public class X {
+					public static void foo(Object s1) {
+				    int i00, i01, i02, i03, i04, i05, i06, i07, i08, i09;
+				    int i10, i11, i12, i13, i14, i15, i16, i17, i18, i19;
+				    int i20, i21, i22, i23, i24, i25, i26, i27, i28, i29;
+				    int i30, i31, i32, i33, i34, i35, i36, i37, i38, i39;
+				    int i40, i41, i42, i43, i44, i45, i46, i47, i48, i49;
+				    int i50, i51, i52, i53, i54, i55, i56, i57, i58, i59;
+				    int i60, i61, i62, i63, i64, i65, i66, i67, i68, i69;
+					 Object local1;
+					 if (s1 == null){}
+					 try {\
+						local1 = s1;
+					 } finally {
+					 }
+					}
+				}"""},
 		"");
 }
 
@@ -14832,15 +15879,16 @@ public void testBug336428() {
 	this.runConformTest(
 		new String[] {
 	"DoWhileBug.java",
-			"public class DoWhileBug {\n" +
-			"	void test(boolean b1, Object o1) {\n" +
-			"		Object o2 = new Object();\n" +
-			"		do {\n" +
-			"           if (b1)\n" +
-			"				o1 = null;\n" +
-			"		} while ((o2 = o1) != null);\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class DoWhileBug {
+					void test(boolean b1, Object o1) {
+						Object o2 = new Object();
+						do {
+				           if (b1)
+								o1 = null;
+						} while ((o2 = o1) != null);
+					}
+				}"""
 		},
 		"");
 }
@@ -14851,17 +15899,18 @@ public void _testBug336428a() {
 	this.runConformTest(
 		new String[] {
 	"DoWhileBug.java",
-			"public class DoWhileBug {\n" +
-			"	void test(boolean b1, Object o1) {\n" +
-			"		Object o2 = null;\n" +
-			"		do {\n" +
-			"           if (b1)\n" +
-			"				o1 = null;\n" +
-			"           if ((o2 = o1) != null)\n" +
-			"               break;\n" +
-			"		} while (true);\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class DoWhileBug {
+					void test(boolean b1, Object o1) {
+						Object o2 = null;
+						do {
+				           if (b1)
+								o1 = null;
+				           if ((o2 = o1) != null)
+				               break;
+						} while (true);
+					}
+				}"""
 		},
 		"");
 }
@@ -14872,22 +15921,25 @@ public void _testBug336428b() {
 	runNegativeNullTest(
 		new String[] {
 	"DoWhileBug.java",
-			"public class DoWhileBug {\n" +
-			"	void test(boolean b1) {\n" +
-			"		Object o1 = null;\n" +
-			"		Object o2 = null;\n" +
-			"		do {\n" +
-			"           if ((o2 = o1) == null) break;\n" +
-			"		} while (true);\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class DoWhileBug {
+					void test(boolean b1) {
+						Object o1 = null;
+						Object o2 = null;
+						do {
+				           if ((o2 = o1) == null) break;
+						} while (true);
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in DoWhileBug.java (at line 6)\n" +
-		"	if ((o2 = o1) == null) break;\n" +
-		"	    ^^^^^^^^^\n" +
-		"Redundant null check: The variable o2 can only be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in DoWhileBug.java (at line 6)
+				if ((o2 = o1) == null) break;
+				    ^^^^^^^^^
+			Redundant null check: The variable o2 can only be null at this location
+			----------
+			""");
 }
 
 //Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
@@ -14897,14 +15949,15 @@ public void testBug336428c() {
 		this.runConformTest(
 			new String[] {
 		"DoWhileBug.java",
-				"public class DoWhileBug {\n" +
-				"	void test(boolean b1, Object o1) {\n" +
-				"		Object o2 = null;\n" +
-				"		do {\n" +
-				"           if ((o2 = o1) == null) break;\n" +
-				"		} while (true);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class DoWhileBug {
+						void test(boolean b1, Object o1) {
+							Object o2 = null;
+							do {
+					           if ((o2 = o1) == null) break;
+							} while (true);
+						}
+					}"""
 			},
 			"");
 	}
@@ -14916,17 +15969,18 @@ public void testBug336428d() {
 	runNegativeNullTest(
 		new String[] {
 	"DoWhileBug.java",
-			"public class DoWhileBug {\n" +
-			"	void test(boolean b1) {\n" +
-			"		Object o1 = null;\n" +
-			"		Object o2 = null;\n" +
-			"		do {\n" +
-			"           if (b1)\n" +
-			"				o1 = null;\n" +
-			"           if ((o2 = o1) == null) break;\n" +
-			"		} while (true);\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class DoWhileBug {
+					void test(boolean b1) {
+						Object o1 = null;
+						Object o2 = null;
+						do {
+				           if (b1)
+								o1 = null;
+				           if ((o2 = o1) == null) break;
+						} while (true);
+					}
+				}"""
 		},
 		"----------\n" +
 		"1. ERROR in DoWhileBug.java (at line 7)\n" +
@@ -14952,18 +16006,19 @@ public void testBug336428d2() {
 	this.runConformTest(
 		new String[] {
 	"DoWhileBug.java",
-			"public class DoWhileBug {\n" +
-			"	void test(boolean b1) {\n" +
-			"		Object o1 = null;\n" +
-			"		Object o2 = null;\n" +
-			"		do {\n" +
-			"           if (b1)\n" +
-			"				o1 = null;\n" +
-			"           if ((o2 = o1) == null) System.out.println(\"null\");\n" +
-			"			o1 = new Object();\n" +
-			"		} while (true);\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class DoWhileBug {
+					void test(boolean b1) {
+						Object o1 = null;
+						Object o2 = null;
+						do {
+				           if (b1)
+								o1 = null;
+				           if ((o2 = o1) == null) System.out.println("null");
+							o1 = new Object();
+						} while (true);
+					}
+				}"""
 		});
 }
 
@@ -14974,17 +16029,18 @@ public void testBug336428e() {
 		runNegativeNullTest(
 			new String[] {
 		"DoWhileBug.java",
-				"public class DoWhileBug {\n" +
-				"	void test(boolean b1) {\n" +
-				"		Object o1 = null;\n" +
-				"		Object o2 = null;\n" +
-				"		do {\n" +
-				"           if (b1)\n" +
-				"				o1 = null;\n" +
-				"           assert (o2 = o1) != null : \"bug\";\n" +
-				"		} while (true);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class DoWhileBug {
+						void test(boolean b1) {
+							Object o1 = null;
+							Object o2 = null;
+							do {
+					           if (b1)
+									o1 = null;
+					           assert (o2 = o1) != null : "bug";
+							} while (true);
+						}
+					}"""
 			},
 			"----------\n" +
 			"1. ERROR in DoWhileBug.java (at line 7)\n" +
@@ -15010,24 +16066,27 @@ public void testBug336428f() {
 		runNegativeNullTest(
 			new String[] {
 		"DoWhileBug.java",
-				"public class DoWhileBug {\n" +
-				"	void test(boolean b1) {\n" +
-				"		Object o1 = null;\n" +
-				"		Object o2 = null;\n" +
-				"		do {\n" +
-				"           if (b1)\n" +
-				"				o1 = null;\n" +
-				"           assert (o2 = o1) == null : \"bug\";\n" +
-				"		} while (true);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class DoWhileBug {
+						void test(boolean b1) {
+							Object o1 = null;
+							Object o2 = null;
+							do {
+					           if (b1)
+									o1 = null;
+					           assert (o2 = o1) == null : "bug";
+							} while (true);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in DoWhileBug.java (at line 7)\n" +
-			"	o1 = null;\n" +
-			"	^^\n" +
-			"Redundant assignment: The variable o1 can only be null at this location\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in DoWhileBug.java (at line 7)
+					o1 = null;
+					^^
+				Redundant assignment: The variable o1 can only be null at this location
+				----------
+				""");
 	}
 }
 
@@ -15059,17 +16118,19 @@ public void testBug332838() {
 				"	void doSomething()  {}\n" +
 				"	boolean checkSomething() {return true;}\n" +
 				"}\n"},
-			"----------\n" +
-			"1. ERROR in Info.java (at line 11)\n" +
-			"	assert info.checkSomething();\n" +
-			"	       ^^^^\n" +
-			"Null pointer access: The variable info can only be null at this location\n" +
-			"----------\n" +
-			"2. ERROR in Info.java (at line 12)\n" +
-			"	info.doSomething();\n" +
-			"	^^^^\n" +
-			"Null pointer access: The variable info can only be null at this location\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in Info.java (at line 11)
+					assert info.checkSomething();
+					       ^^^^
+				Null pointer access: The variable info can only be null at this location
+				----------
+				2. ERROR in Info.java (at line 12)
+					info.doSomething();
+					^^^^
+				Null pointer access: The variable info can only be null at this location
+				----------
+				""",
 			null,
 			true,
 			compilerOptions,
@@ -15083,20 +16144,21 @@ public void testBug336544() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Integer i1 = getInt();\n" +
-			"		Integer i2 = i1 == null ? null : i1;\n" +
-			"		if (i2 != null) {\n" +
-			"			System.out.println(\"SUCCESS\");\n" +
-			"			return;\n" +
-			"		}\n" +
-			"		System.out.println(\"FAILURE\");\n" +
-			"	}\n" +
-			"	private static Integer getInt() {\n" +
-			"		return new Integer(0);\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						Integer i1 = getInt();
+						Integer i2 = i1 == null ? null : i1;
+						if (i2 != null) {
+							System.out.println("SUCCESS");
+							return;
+						}
+						System.out.println("FAILURE");
+					}
+					private static Integer getInt() {
+						return new Integer(0);
+					}
+				}"""
 		},
 		"SUCCESS");
 }
@@ -15106,20 +16168,21 @@ public void testBug336544_2() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Integer i1 = null;\n" +
-			"		Integer i2 = (i1 = getInt()) == null ? null : i1;\n" +
-			"		if (i2 != null) {\n" +
-			"			System.out.println(\"SUCCESS\");\n" +
-			"			return;\n" +
-			"		}\n" +
-			"		System.out.println(\"FAILURE\");\n" +
-			"	}\n" +
-			"	private static Integer getInt() {\n" +
-			"		return new Integer(0);\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						Integer i1 = null;
+						Integer i2 = (i1 = getInt()) == null ? null : i1;
+						if (i2 != null) {
+							System.out.println("SUCCESS");
+							return;
+						}
+						System.out.println("FAILURE");
+					}
+					private static Integer getInt() {
+						return new Integer(0);
+					}
+				}"""
 		},
 		"SUCCESS");
 }
@@ -15129,21 +16192,22 @@ public void testBug336544_3() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		Integer i1 = null;\n" +
-			"		Integer i2;\n" +
-			"		i2 = (i1 = getInt()) == null ? null : i1;\n" +
-			"		if (i2 != null) {\n" +
-			"			System.out.println(\"SUCCESS\");\n" +
-			"			return;\n" +
-			"		}\n" +
-			"		System.out.println(\"FAILURE\");\n" +
-			"	}\n" +
-			"	private static Integer getInt() {\n" +
-			"		return new Integer(0);\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						Integer i1 = null;
+						Integer i2;
+						i2 = (i1 = getInt()) == null ? null : i1;
+						if (i2 != null) {
+							System.out.println("SUCCESS");
+							return;
+						}
+						System.out.println("FAILURE");
+					}
+					private static Integer getInt() {
+						return new Integer(0);
+					}
+				}"""
 		},
 		"SUCCESS");
 }
@@ -15153,22 +16217,23 @@ public void testBug313870() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		String s = \"\";\n" +
-			"		for (int i = 0; i < 2; i++) {\n" +
-            "			if (i != 0) { \n" +
-            "    			s = test();\n" +
-            "			}\n" +
-            "			if (s == null) {\n" +
-            "    			System.out.println(\"null\");\n" +
-            "			}\n" +
-            "		}\n" +
-			"	}\n" +
-			"	public static String test() {\n" +
-            "		return null;\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						String s = "";
+						for (int i = 0; i < 2; i++) {
+							if (i != 0) {\s
+				    			s = test();
+							}
+							if (s == null) {
+				    			System.out.println("null");
+							}
+						}
+					}
+					public static String test() {
+						return null;
+					}
+				}"""
 		},
 		"null");
 }
@@ -15178,23 +16243,24 @@ public void testBug313870b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.BufferedReader;\n" +
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"	public void main(BufferedReader bufReader) throws IOException {\n" +
-			"		String line = \"\";\n" +
-			"		boolean doRead = false;\n" +
-			"		while (true) {\n" +
-            "			if (doRead) { \n" +
-            "    		   line = bufReader.readLine();\n" +
-            "			}\n" +
-            "			if (line == null) {\n" +
-            "    			return;\n" +
-            "			}\n" +
-            "			doRead = true;\n" +
-            "		}\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.io.BufferedReader;
+				import java.io.IOException;
+				public class X {
+					public void main(BufferedReader bufReader) throws IOException {
+						String line = "";
+						boolean doRead = false;
+						while (true) {
+							if (doRead) {\s
+				    		   line = bufReader.readLine();
+							}
+							if (line == null) {
+				    			return;
+							}
+							doRead = true;
+						}
+					}
+				}"""
 		},
 		"");
 }
@@ -15204,24 +16270,25 @@ public void testBug313870c() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.File;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		boolean sometimes = (System.currentTimeMillis() & 1L) != 0L;\n" +
-			"		File file = new File(\"myfile\");\n" +
-			"		for (int i = 0; i < 2; i++) {\n" +
-            "			if (sometimes) { \n" +
-            "    		 	file = getNewFile();\n" +
-            "			}\n" +
-            "			if (file == null) { \n" +
-            "    			System.out.println(\"\");\n" +
-            "			}\n" +
-            "		}\n" +
-			"	}\n" +
-			"	private static File getNewFile() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.io.File;
+				public class X {
+					public static void main(String[] args) {
+						boolean sometimes = (System.currentTimeMillis() & 1L) != 0L;
+						File file = new File("myfile");
+						for (int i = 0; i < 2; i++) {
+							if (sometimes) {\s
+				    		 	file = getNewFile();
+							}
+							if (file == null) {\s
+				    			System.out.println("");
+							}
+						}
+					}
+					private static File getNewFile() {
+						return null;
+					}
+				}"""
 		},
 		"");
 }
@@ -15230,27 +16297,29 @@ public void testBug338303() {
 	this.runConformTest(
 		new String[] {
 			"Bug338303.java",
-			"import java.io.File;\n" +
-			"import java.io.IOException;\n" +
-			"\n" +
-			"public class Bug338303 {\n" +
-			"   Object test(Object in, final File f) {\n" +
-			"        Object local;\n" +
-			"        try {\n" +
-			"            local = in;\n" +
-			"            if (local == null)\n" +
-			"                local = loadEntry(f, false);\n" +
-			"        } catch (final IOException e) {\n" +
-			"            e.printStackTrace();\n" +
-			"            local = null;\n" +
-			"        }\n" +
-			"        return local;\n" +
-			"    }\n" +
-			"\n" +
-			"    private Object loadEntry(File f, boolean b)  throws IOException {\n" +
-			"        throw new IOException();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.io.File;
+				import java.io.IOException;
+				
+				public class Bug338303 {
+				   Object test(Object in, final File f) {
+				        Object local;
+				        try {
+				            local = in;
+				            if (local == null)
+				                local = loadEntry(f, false);
+				        } catch (final IOException e) {
+				            e.printStackTrace();
+				            local = null;
+				        }
+				        return local;
+				    }
+				
+				    private Object loadEntry(File f, boolean b)  throws IOException {
+				        throw new IOException();
+				    }
+				}
+				"""
 		},
 		"");
 }
@@ -15260,47 +16329,53 @@ public void testBug338234() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"   static int foo() {\n" +
-			"        Object o = null;\n" +
-			"		 int i = 0;\n" +
-			"        label: {\n" +
-			"            if (o == null)\n" +
-			"                break label;\n" +
-			"			 i++;" +
-			"        }\n" +
-			"         if (i != 0) {\n" +
-			"            System.out.println(i);\n" +
-			"        }\n" +
-			"        return 0;\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				   static int foo() {
+				        Object o = null;
+						 int i = 0;
+				        label: {
+				            if (o == null)
+				                break label;
+							 i++;\
+				        }
+				         if (i != 0) {
+				            System.out.println(i);
+				        }
+				        return 0;
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	if (o == null)\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 8)\n" +
-		"	i++;        }\n" +
-		"	^^^\n" +
-		"Dead code\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				if (o == null)
+				    ^
+			Redundant null check: The variable o can only be null at this location
+			----------
+			2. WARNING in X.java (at line 8)
+				i++;        }
+				^^^
+			Dead code
+			----------
+			""");
 }
 // Bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
 public void testBug324178() {
 	this.runConformTest(
 		new String[] {
 			"Bug324178.java",
-			"public class Bug324178 {\n" +
-			"    boolean b;\n" +
-			"    void foo(Object u) {\n" +
-			"    if (u == null) {}\n" +
-			"        Object o = (u == null) ? new Object() : u;\n" +
-			"        o.toString();   // Incorrect potential NPE\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class Bug324178 {
+				    boolean b;
+				    void foo(Object u) {
+				    if (u == null) {}
+				        Object o = (u == null) ? new Object() : u;
+				        o.toString();   // Incorrect potential NPE
+				    }
+				}
+				"""
 		},
 		"");
 }
@@ -15310,15 +16385,17 @@ public void testBug324178a() {
 	this.runConformTest(
 		new String[] {
 			"Bug324178.java",
-			"public class Bug324178 {\n" +
-			"    boolean b;\n" +
-			"    void foo(Boolean u) {\n" +
-			"    if (u == null) {}\n" +
-			"        Boolean o;\n" +
-			"        o = (u == null) ? Boolean.TRUE : u;\n" +
-			"        o.toString();   // Incorrect potential NPE\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class Bug324178 {
+				    boolean b;
+				    void foo(Boolean u) {
+				    if (u == null) {}
+				        Boolean o;
+				        o = (u == null) ? Boolean.TRUE : u;
+				        o.toString();   // Incorrect potential NPE
+				    }
+				}
+				"""
 		},
 		"");
 }
@@ -15331,16 +16408,17 @@ public void testBug326950a() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		String s = null;\n" +
-			"		if (s == null) {\n" +
-			"			System.out.println(\"SUCCESS\");\n" +
-			"		} else {\n" +
-			"			System.out.println(\"Dead code, but don't optimize me out\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						String s = null;
+						if (s == null) {
+							System.out.println("SUCCESS");
+						} else {
+							System.out.println("Dead code, but don't optimize me out");
+						}
+					}
+				}""",
 		},
 		"SUCCESS",
 		null,
@@ -15349,19 +16427,21 @@ public void testBug326950a() throws Exception {
 		options,
 		null);
 	String expectedOutput =
-		"  public static void main(java.lang.String[] args);\n" +
-		"     0  aconst_null\n" +
-		"     1  astore_1 [s]\n" +
-		"     2  aload_1 [s]\n" +
-		"     3  ifnonnull 17\n" +
-		"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"     9  ldc <String \"SUCCESS\"> [22]\n" +
-		"    11  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" +
-		"    14  goto 25\n" +
-		"    17  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    20  ldc <String \"Dead code, but don\'t optimize me out\"> [30]\n" +
-		"    22  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" +
-		"    25  return\n";
+		"""
+		  public static void main(java.lang.String[] args);
+		     0  aconst_null
+		     1  astore_1 [s]
+		     2  aload_1 [s]
+		     3  ifnonnull 17
+		     6  getstatic java.lang.System.out : java.io.PrintStream [16]
+		     9  ldc <String "SUCCESS"> [22]
+		    11  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]
+		    14  goto 25
+		    17  getstatic java.lang.System.out : java.io.PrintStream [16]
+		    20  ldc <String "Dead code, but don't optimize me out"> [30]
+		    22  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]
+		    25  return
+		""";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
@@ -15374,19 +16454,20 @@ public void testBug326950b() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		int i = 0;\n" +
-			"		if (false) {\n" +
-			"			System.out.println(\"Deadcode and you can optimize me out\");\n" +
-			"		}\n" +
-			"		if (true) {\n" +
-			"			i++;\n" +
-			"		} else {\n" +
-			"			System.out.println(\"Deadcode and you can optimize me out\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public static void main(String[] args) {
+						int i = 0;
+						if (false) {
+							System.out.println("Deadcode and you can optimize me out");
+						}
+						if (true) {
+							i++;
+						} else {
+							System.out.println("Deadcode and you can optimize me out");
+						}
+					}
+				}""",
 		},
 		"",
 		null,
@@ -15395,11 +16476,13 @@ public void testBug326950b() throws Exception {
 		options,
 		null);
 	String expectedOutput =
-		"  public static void main(java.lang.String[] args);\n" +
-		"    0  iconst_0\n" +
-		"    1  istore_1 [i]\n" +
-		"    2  iinc 1 1 [i]\n" +
-		"    5  return\n";
+		"""
+		  public static void main(java.lang.String[] args);
+		    0  iconst_0
+		    1  istore_1 [i]
+		    2  iinc 1 1 [i]
+		    5  return
+		""";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
@@ -15412,16 +16495,17 @@ public void testBug326950c() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public void foo(String[] args) {\n" +
-			"		String s = \"\";\n" +
-			"		int i = 0;\n" +
-			"		if (s != null) {\n" +
-			"			return;\n" +
-			"		}\n" +
-			"		i++;\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					public void foo(String[] args) {
+						String s = "";
+						int i = 0;
+						if (s != null) {
+							return;
+						}
+						i++;
+					}
+				}""",
 		},
 		"",
 		null,
@@ -15430,16 +16514,18 @@ public void testBug326950c() throws Exception {
 		options,
 		null);
 	String expectedOutput =
-		"  public void foo(java.lang.String[] args);\n" +
-		"     0  ldc <String \"\"> [16]\n" +
-		"     2  astore_2 [s]\n" +
-		"     3  iconst_0\n" +
-		"     4  istore_3 [i]\n" +
-		"     5  aload_2 [s]\n" +
-		"     6  ifnull 10\n" +
-		"     9  return\n" +
-		"    10  iinc 3 1 [i]\n" +
-		"    13  return\n";
+		"""
+		  public void foo(java.lang.String[] args);
+		     0  ldc <String ""> [16]
+		     2  astore_2 [s]
+		     3  iconst_0
+		     4  istore_3 [i]
+		     5  aload_2 [s]
+		     6  ifnull 10
+		     9  return
+		    10  iinc 3 1 [i]
+		    13  return
+		""";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
@@ -15452,16 +16538,17 @@ public void testBug326950d() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	X() {\n" +
-			"		String s = \"\";\n" +
-			"		int i = 0;\n" +
-			"		if (s != null) {\n" +
-			"			return;\n" +
-			"		}\n" +
-			"		i++;\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					X() {
+						String s = "";
+						int i = 0;
+						if (s != null) {
+							return;
+						}
+						i++;
+					}
+				}""",
 		},
 		"",
 		null,
@@ -15470,18 +16557,20 @@ public void testBug326950d() throws Exception {
 		options,
 		null);
 	String expectedOutput =
-		"  X();\n" +
-		"     0  aload_0 [this]\n" +
-		"     1  invokespecial java.lang.Object() [8]\n" +
-		"     4  ldc <String \"\"> [10]\n" +
-		"     6  astore_1 [s]\n" +
-		"     7  iconst_0\n" +
-		"     8  istore_2 [i]\n" +
-		"     9  aload_1 [s]\n" +
-		"    10  ifnull 14\n" +
-		"    13  return\n" +
-		"    14  iinc 2 1 [i]\n" +
-		"    17  return\n";
+		"""
+		  X();
+		     0  aload_0 [this]
+		     1  invokespecial java.lang.Object() [8]
+		     4  ldc <String ""> [10]
+		     6  astore_1 [s]
+		     7  iconst_0
+		     8  istore_2 [i]
+		     9  aload_1 [s]
+		    10  ifnull 14
+		    13  return
+		    14  iinc 2 1 [i]
+		    17  return
+		""";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=339250
@@ -15525,12 +16614,14 @@ public void testBug339250a() throws Exception {
 			"	}\n" +
 			"}",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (s != null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable s cannot be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (s != null) {
+				    ^
+			Redundant null check: The variable s cannot be null at this location
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=339250
 // Check that the redundant null check warning is correctly produced
@@ -15554,24 +16645,26 @@ public void testBug339250b() throws Exception {
 			"	}\n" +
 			"}",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (s != null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable s cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
-		"	if (s != null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable s can only be null at this location\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 9)\n" +
-		"	if (s != null) {\n" +
-		"			System.out.println(\"Fails \" + s);\n" +
-		"	    } else {\n" +
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (s != null) {
+				    ^
+			Redundant null check: The variable s cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 9)
+				if (s != null) {
+				    ^
+			Null comparison always yields false: The variable s can only be null at this location
+			----------
+			3. WARNING in X.java (at line 9)
+				if (s != null) {
+						System.out.println("Fails " + s);
+				    } else {
+				               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=342300
 public void testBug342300() throws Exception {
@@ -15613,12 +16706,14 @@ public void testBug342300b() throws Exception {
 				"	}\n" +
 				"}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	if (escapeChar != null && escapeChar != null) {\n" +
-			"	                          ^^^^^^^^^^\n" +
-			"Redundant null check: The variable escapeChar cannot be null at this location\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 6)
+					if (escapeChar != null && escapeChar != null) {
+					                          ^^^^^^^^^^
+				Redundant null check: The variable escapeChar cannot be null at this location
+				----------
+				""");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
@@ -15627,26 +16722,29 @@ public void testBug348379a() throws Exception {
 		runNegativeNullTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void foo() {\n" +
-				"		String s = null;\n" +
-				"		switch(s) {\n" +
-				"		case \"abcd\":\n" +
-				"			System.out.println(\"abcd\");\n" +
-				"			break;\n" +
-				"		default:\n" +
-				"			System.out.println(\"oops\");\n" +
-				"			break;\n" +
-				"	    }\n" +
-				"	}\n" +
-				"}",
+				"""
+					public class X {
+						public void foo() {
+							String s = null;
+							switch(s) {
+							case "abcd":
+								System.out.println("abcd");
+								break;
+							default:
+								System.out.println("oops");
+								break;
+						    }
+						}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	switch(s) {\n" +
-			"	       ^\n" +
-			"Null pointer access: The variable s can only be null at this location\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					switch(s) {
+					       ^
+				Null pointer access: The variable s can only be null at this location
+				----------
+				""");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
@@ -15692,12 +16790,14 @@ public void testBug348379c() throws Exception {
 				"	}\n" +
 				"}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	switch(s) {\n" +
-			"	       ^\n" +
-			"Potential null pointer access: The variable s may be null at this location\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					switch(s) {
+					       ^
+				Potential null pointer access: The variable s may be null at this location
+				----------
+				""");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
@@ -15720,12 +16820,14 @@ public void testBug348379d() throws Exception {
 				"	}\n" +
 				"}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	switch(s) {\n" +
-			"	       ^\n" +
-			"Potential null pointer access: The variable s may be null at this location\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					switch(s) {
+					       ^
+				Potential null pointer access: The variable s may be null at this location
+				----------
+				""");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
@@ -15777,12 +16879,14 @@ public void testBug348379f() throws Exception {
 				"	}\n" +
 				"}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	switch(s) {\n" +
-			"	       ^\n" +
-			"Null pointer access: The variable s can only be null at this location\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					switch(s) {
+					       ^
+				Null pointer access: The variable s can only be null at this location
+				----------
+				""");
 	}
 }
 // Bug 354554 - [null] conditional with redundant condition yields weak error message
@@ -15798,17 +16902,19 @@ public void testBug354554() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in Bug354554.java (at line 4)\n" +
-		"	Object r = (u == null ? u : null);\n" +
-		"	            ^\n" +
-		"Null comparison always yields false: The variable u cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in Bug354554.java (at line 5)\n" +
-		"	System.out.println(r.toString());\n" +
-		"	                   ^\n" +
-		"Null pointer access: The variable r can only be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Bug354554.java (at line 4)
+				Object r = (u == null ? u : null);
+				            ^
+			Null comparison always yields false: The variable u cannot be null at this location
+			----------
+			2. ERROR in Bug354554.java (at line 5)
+				System.out.println(r.toString());
+				                   ^
+			Null pointer access: The variable r can only be null at this location
+			----------
+			""");
 }
 //Bug 354554 - [null] conditional with redundant condition yields weak error message
 public void testBug354554b() {
@@ -15823,12 +16929,14 @@ public void testBug354554b() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in Bug354554.java (at line 4)\n" +
-		"	Object r = (u != null ? u : null);\n" +
-		"	            ^\n" +
-		"Redundant null check: The variable u cannot be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Bug354554.java (at line 4)
+				Object r = (u != null ? u : null);
+				            ^
+			Redundant null check: The variable u cannot be null at this location
+			----------
+			""");
 }
 // Bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
 public void test358827() {
@@ -15836,25 +16944,29 @@ public void test358827() {
 		runNegativeNullTest(
 				new String[] {
 					"Bug358827.java",
-					"import java.io.FileReader;\n" +
-					"public class Bug358827 {\n" +
-					"	Object foo2() throws Exception {\n" +
-					"		String o = null;\n" +
-					"		try (FileReader rf = new FileReader(\"file\")){\n" +
-					"			o = o.toUpperCase();\n" +
-					"		} finally {\n" +
-					"			o = \"OK\";\n" +
-					"		}\n" +
-					"		return o;\n" +
-					"	}\n" +
-					"}\n"
+					"""
+						import java.io.FileReader;
+						public class Bug358827 {
+							Object foo2() throws Exception {
+								String o = null;
+								try (FileReader rf = new FileReader("file")){
+									o = o.toUpperCase();
+								} finally {
+									o = "OK";
+								}
+								return o;
+							}
+						}
+						"""
 				},
-				"----------\n" +
-				"1. ERROR in Bug358827.java (at line 6)\n" +
-				"	o = o.toUpperCase();\n" +
-				"	    ^\n" +
-				"Null pointer access: The variable o can only be null at this location\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in Bug358827.java (at line 6)
+						o = o.toUpperCase();
+						    ^
+					Null pointer access: The variable o can only be null at this location
+					----------
+					""");
 	}
 }
 // Bug 367879 - Incorrect "Potential null pointer access" warning on statement after try-with-resources within try-finally
@@ -15916,17 +17028,19 @@ public void testBug256796() {
 				"	}\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. WARNING in Bug.java (at line 18)\n" +
-			"	if (false) return;\n" +
-			"	           ^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"2. WARNING in Bug.java (at line 21)\n" +
-			"	System.out.println(\"\");\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in Bug.java (at line 18)
+					if (false) return;
+					           ^^^^^^^
+				Dead code
+				----------
+				2. WARNING in Bug.java (at line 21)
+					System.out.println("");
+					^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				""",
 			null,
 			true,
 			compilerOptions,
@@ -15976,57 +17090,59 @@ public void testBug256796a() {
 				"	}\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. WARNING in Bug.java (at line 6)\n" +
-			"	else System.out.println(\"\");\n" +
-			"	     ^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"2. WARNING in Bug.java (at line 7)\n" +
-			"	System.out.println(\"\");\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"3. WARNING in Bug.java (at line 11)\n" +
-			"	System.out.println(\"\");\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"4. WARNING in Bug.java (at line 15)\n" +
-			"	else System.out.println(\"\");\n" +
-			"	     ^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"5. WARNING in Bug.java (at line 16)\n" +
-			"	System.out.println(\"\");\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"6. WARNING in Bug.java (at line 19)\n" +
-			"	if (FALSE) System.out.println(\"\");\n" +
-			"	           ^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"7. WARNING in Bug.java (at line 21)\n" +
-			"	System.out.println(\"\");\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"8. WARNING in Bug.java (at line 24)\n" +
-			"	if (FALSE) return;\n" +
-			"	           ^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"9. WARNING in Bug.java (at line 28)\n" +
-			"	if (false) return;\n" +
-			"	           ^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"10. WARNING in Bug.java (at line 31)\n" +
-			"	System.out.println(\"\");\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in Bug.java (at line 6)
+					else System.out.println("");
+					     ^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				2. WARNING in Bug.java (at line 7)
+					System.out.println("");
+					^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				3. WARNING in Bug.java (at line 11)
+					System.out.println("");
+					^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				4. WARNING in Bug.java (at line 15)
+					else System.out.println("");
+					     ^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				5. WARNING in Bug.java (at line 16)
+					System.out.println("");
+					^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				6. WARNING in Bug.java (at line 19)
+					if (FALSE) System.out.println("");
+					           ^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				7. WARNING in Bug.java (at line 21)
+					System.out.println("");
+					^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				8. WARNING in Bug.java (at line 24)
+					if (FALSE) return;
+					           ^^^^^^^
+				Dead code
+				----------
+				9. WARNING in Bug.java (at line 28)
+					if (false) return;
+					           ^^^^^^^
+				Dead code
+				----------
+				10. WARNING in Bug.java (at line 31)
+					System.out.println("");
+					^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				""",
 			null,
 			true,
 			compilerOptions,
@@ -16042,56 +17158,60 @@ public void testBug360328() {
 		true, /* flushOutputDir */
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void print4() {\n" +
-			"        final String s1 = \"\";\n" +
-			"        for (int i=0; i<4; i++)\n" +
-			"            new Runnable() {\n" +
-			"                public void run() {\n" +
-			"                     if (s1 != null)\n" +
-			"                         s1.toString();\n" +
-			"                }\n" +
-			"            }.run();\n" +
-			"    }\n" +
-			"    void print16(boolean b) {\n" +
-			"        final String s3 = b ? null : \"\";\n" +
-			"        for (int i=0; i<16; i++)\n" +
-			"            new Runnable() {\n" +
-			"                public void run() {\n" +
-			"                     s3.toString();\n" +
-			"                }\n" +
-			"            }.run();\n" +
-			"    }\n" +
-			"    void print23() {\n" +
-			"        final String s23 = null;\n" +
-			"        for (int i=0; i<23; i++)\n" +
-			"            new Runnable() {\n" +
-			"                public void run() {\n" +
-			"                     s23.toString();\n" +
-			"                }\n" +
-			"            }.run();\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+				    void print4() {
+				        final String s1 = "";
+				        for (int i=0; i<4; i++)
+				            new Runnable() {
+				                public void run() {
+				                     if (s1 != null)
+				                         s1.toString();
+				                }
+				            }.run();
+				    }
+				    void print16(boolean b) {
+				        final String s3 = b ? null : "";
+				        for (int i=0; i<16; i++)
+				            new Runnable() {
+				                public void run() {
+				                     s3.toString();
+				                }
+				            }.run();
+				    }
+				    void print23() {
+				        final String s23 = null;
+				        for (int i=0; i<23; i++)
+				            new Runnable() {
+				                public void run() {
+				                     s23.toString();
+				                }
+				            }.run();
+				    }
+				}
+				""",
 
 		},
 		null, /* classLibs */
 		customOptions,
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (s1 != null)\n" +
-		"	    ^^\n" +
-		"Redundant null check: The variable s1 cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 17)\n" +
-		"	s3.toString();\n" +
-		"	^^\n" +
-		"Potential null pointer access: The variable s3 may be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 26)\n" +
-		"	s23.toString();\n" +
-		"	^^^\n" +
-		"Null pointer access: The variable s23 can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (s1 != null)
+				    ^^
+			Redundant null check: The variable s1 cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 17)
+				s3.toString();
+				^^
+			Potential null pointer access: The variable s3 may be null at this location
+			----------
+			3. ERROR in X.java (at line 26)
+				s23.toString();
+				^^^
+			Null pointer access: The variable s23 can only be null at this location
+			----------
+			""",
 		"",/* expected output */
 		"",/* expected error */
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
@@ -16106,62 +17226,66 @@ public void testBug360328b() {
 		true, /* flushOutputDir */
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void print4() {\n" +
-			"        final String s1 = \"\";\n" +
-			"        for (int i=0; i<4; i++) {\n" +
-			"            class R {\n" +
-			"                public R() {\n" +
-			"                     if (s1 != null)\n" +
-			"                         s1.toString();\n" +
-			"                }\n" +
-			"            };\n" +
-			"            new R();\n" +
-			"        }\n" +
-			"    }\n" +
-			"    void print16(boolean b) {\n" +
-			"        final String s3 = b ? null : \"\";\n" +
-			"        int i=0; while (i++<16) {\n" +
-			"            class R {\n" +
-			"                public R() {\n" +
-			"                     s3.toString();\n" +
-			"                }\n" +
-			"            };\n" +
-			"            new R();\n" +
-			"        };\n" +
-			"    }\n" +
-			"    void print23() {\n" +
-			"        final String s23 = null;\n" +
-			"        for (int i=0; i<23; i++) {\n" +
-			"            class R {\n" +
-			"                public R() {\n" +
-			"                     s23.toString();\n" +
-			"                }\n" +
-			"            };\n" +
-			"            new R();\n" +
-			"        };\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+				    void print4() {
+				        final String s1 = "";
+				        for (int i=0; i<4; i++) {
+				            class R {
+				                public R() {
+				                     if (s1 != null)
+				                         s1.toString();
+				                }
+				            };
+				            new R();
+				        }
+				    }
+				    void print16(boolean b) {
+				        final String s3 = b ? null : "";
+				        int i=0; while (i++<16) {
+				            class R {
+				                public R() {
+				                     s3.toString();
+				                }
+				            };
+				            new R();
+				        };
+				    }
+				    void print23() {
+				        final String s23 = null;
+				        for (int i=0; i<23; i++) {
+				            class R {
+				                public R() {
+				                     s23.toString();
+				                }
+				            };
+				            new R();
+				        };
+				    }
+				}
+				""",
 
 		},
 		null, /* classLibs */
 		customOptions,
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (s1 != null)\n" +
-		"	    ^^\n" +
-		"Redundant null check: The variable s1 cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 19)\n" +
-		"	s3.toString();\n" +
-		"	^^\n" +
-		"Potential null pointer access: The variable s3 may be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 30)\n" +
-		"	s23.toString();\n" +
-		"	^^^\n" +
-		"Null pointer access: The variable s23 can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (s1 != null)
+				    ^^
+			Redundant null check: The variable s1 cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 19)
+				s3.toString();
+				^^
+			Potential null pointer access: The variable s3 may be null at this location
+			----------
+			3. ERROR in X.java (at line 30)
+				s23.toString();
+				^^^
+			Null pointer access: The variable s23 can only be null at this location
+			----------
+			""",
 		"",/* expected output */
 		"",/* expected error */
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
@@ -16177,62 +17301,66 @@ public void testBug360328c() {
 		true, /* flushOutputDir */
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void print4() {\n" +
-			"        final String s1 = \"\";\n" +
-			"        for (int i=0; i<4; i++) {\n" +
-			"            class R {\n" +
-			"                String s1R;\n" +
-			"                {\n" +
-			"                    if (s1 != null)\n" +
-			"                         s1R = s1;\n" +
-			"                }\n" +
-			"            };\n" +
-			"            new R();\n" +
-			"        }\n" +
-			"    }\n" +
-			"    void print16(boolean b) {\n" +
-			"        final String s3 = b ? null : \"\";\n" +
-			"        for (int i=0; i<16; i++) {\n" +
-			"            class R {\n" +
-			"                String s3R = s3.toString();\n" +
-			"            };\n" +
-			"            new R();\n" +
-			"        };\n" +
-			"    }\n" +
-			"    void print23() {\n" +
-			"        final String s23 = null;\n" +
-			"        for (int i=0; i<23; i++) {\n" +
-			"            class R {\n" +
-			"                String s23R;\n" +
-			"                {\n" +
-			"                     s23R = s23.toString();\n" +
-			"                }\n" +
-			"            };\n" +
-			"            new R();\n" +
-			"        };\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+				    void print4() {
+				        final String s1 = "";
+				        for (int i=0; i<4; i++) {
+				            class R {
+				                String s1R;
+				                {
+				                    if (s1 != null)
+				                         s1R = s1;
+				                }
+				            };
+				            new R();
+				        }
+				    }
+				    void print16(boolean b) {
+				        final String s3 = b ? null : "";
+				        for (int i=0; i<16; i++) {
+				            class R {
+				                String s3R = s3.toString();
+				            };
+				            new R();
+				        };
+				    }
+				    void print23() {
+				        final String s23 = null;
+				        for (int i=0; i<23; i++) {
+				            class R {
+				                String s23R;
+				                {
+				                     s23R = s23.toString();
+				                }
+				            };
+				            new R();
+				        };
+				    }
+				}
+				""",
 
 		},
 		null, /* classLibs */
 		customOptions,
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	if (s1 != null)\n" +
-		"	    ^^\n" +
-		"Redundant null check: The variable s1 cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 19)\n" +
-		"	String s3R = s3.toString();\n" +
-		"	             ^^\n" +
-		"Potential null pointer access: The variable s3 may be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 30)\n" +
-		"	s23R = s23.toString();\n" +
-		"	       ^^^\n" +
-		"Null pointer access: The variable s23 can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 8)
+				if (s1 != null)
+				    ^^
+			Redundant null check: The variable s1 cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 19)
+				String s3R = s3.toString();
+				             ^^
+			Potential null pointer access: The variable s3 may be null at this location
+			----------
+			3. ERROR in X.java (at line 30)
+				s23R = s23.toString();
+				       ^^^
+			Null pointer access: The variable s23 can only be null at this location
+			----------
+			""",
 		"",/* expected output */
 		"",/* expected error */
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
@@ -16247,59 +17375,63 @@ public void testBug360328d() {
 		true, /* flushOutputDir */
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void print4() {\n" +
-			"        final String s1 = \"\";\n" +
-			"        try { } finally {\n" +
-			"            new Runnable() {\n" +
-			"                public void run() {\n" +
-			"                     if (s1 != null)\n" +
-			"                         s1.toString();\n" +
-			"                }\n" +
-			"            }.run();\n" +
-			"        }\n" +
-			"    }\n" +
-			"    void print16(boolean b) {\n" +
-			"        final String s3 = b ? null : \"\";\n" +
-			"        try { } finally {\n" +
-			"            new Runnable() {\n" +
-			"                public void run() {\n" +
-			"                     s3.toString();\n" +
-			"                }\n" +
-			"            }.run();\n" +
-			"        }\n" +
-			"    }\n" +
-			"    void print23() {\n" +
-			"        final String s23 = null;\n" +
-			"        try { } finally {\n" +
-			"            new Runnable() {\n" +
-			"                public void run() {\n" +
-			"                     s23.toString();\n" +
-			"                }\n" +
-			"            }.run();\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X {
+				    void print4() {
+				        final String s1 = "";
+				        try { } finally {
+				            new Runnable() {
+				                public void run() {
+				                     if (s1 != null)
+				                         s1.toString();
+				                }
+				            }.run();
+				        }
+				    }
+				    void print16(boolean b) {
+				        final String s3 = b ? null : "";
+				        try { } finally {
+				            new Runnable() {
+				                public void run() {
+				                     s3.toString();
+				                }
+				            }.run();
+				        }
+				    }
+				    void print23() {
+				        final String s23 = null;
+				        try { } finally {
+				            new Runnable() {
+				                public void run() {
+				                     s23.toString();
+				                }
+				            }.run();
+				        }
+				    }
+				}
+				""",
 
 		},
 		null, /* classLibs */
 		customOptions,
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (s1 != null)\n" +
-		"	    ^^\n" +
-		"Redundant null check: The variable s1 cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 18)\n" +
-		"	s3.toString();\n" +
-		"	^^\n" +
-		"Potential null pointer access: The variable s3 may be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 28)\n" +
-		"	s23.toString();\n" +
-		"	^^^\n" +
-		"Null pointer access: The variable s23 can only be null at this location\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 7)
+				if (s1 != null)
+				    ^^
+			Redundant null check: The variable s1 cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 18)
+				s3.toString();
+				^^
+			Potential null pointer access: The variable s3 may be null at this location
+			----------
+			3. ERROR in X.java (at line 28)
+				s23.toString();
+				^^^
+			Null pointer access: The variable s23 can only be null at this location
+			----------
+			""",
 		"",/* expected output */
 		"",/* expected error */
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
@@ -16311,32 +17443,34 @@ public void testBug384380() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"	public static class Container{\n" +
-				"		public int property;\n" +
-				"	}\n" +
-				"	public static class CustomException extends Exception {\n" +
-				"		private static final long	 serialVersionUID	= 1L;\n" +
-				"	}\n" +
-				"	public static void anotherMethod() throws CustomException {}\n" +
-				"\n" +
-				"	public static void method(final java.util.List<Container> list) {\n" +
-				"		for (final Container c : list) {\n" +
-				"			if(c == null)\n" +
-				"				continue; // return or break, are fine though\n" +
-				"\n" +
-				"			// without this try-catch+for+exception block it does not fails\n" +
-				"			try {\n" +
-				"				for(int i = 0; i < 10 ; i++) // needs a loop here (a 'while' or a 'for') to fail\n" +
-				"					anotherMethod(); // throwing directly CustomException make it fails too\n" +
-				"			} catch (final CustomException e) {\n" +
-				"				// it fails even if catch is empty\n" +
-				"			}\n" +
-				"			c.property += 1; // \"Potential null pointer access: The variable c may be null at this location\"\n" +
-				"		}\n" +
-				"\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class Test {
+						public static class Container{
+							public int property;
+						}
+						public static class CustomException extends Exception {
+							private static final long	 serialVersionUID	= 1L;
+						}
+						public static void anotherMethod() throws CustomException {}
+					
+						public static void method(final java.util.List<Container> list) {
+							for (final Container c : list) {
+								if(c == null)
+									continue; // return or break, are fine though
+					
+								// without this try-catch+for+exception block it does not fails
+								try {
+									for(int i = 0; i < 10 ; i++) // needs a loop here (a 'while' or a 'for') to fail
+										anotherMethod(); // throwing directly CustomException make it fails too
+								} catch (final CustomException e) {
+									// it fails even if catch is empty
+								}
+								c.property += 1; // "Potential null pointer access: The variable c may be null at this location"
+							}
+					
+						}
+					}
+					"""
 			},
 			"");
 	}
@@ -16348,34 +17482,36 @@ public void testBug384380_a() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"	public static class Container{\n" +
-				"		public int property;\n" +
-				"	}\n" +
-				"	public static class CustomException extends Exception {\n" +
-				"		private static final long	 serialVersionUID	= 1L;\n" +
-				"	}\n" +
-				"	public static void anotherMethod() throws CustomException {}\n" +
-				"\n" +
-				"	public static void method(final java.util.List<Container> list) {\n" +
-				"		for (final Container c : list) {\n" +
-				"			if(c == null)\n" +
-				"				continue; // return or break, are fine though\n" +
-				"\n" +
-				"			// without this try-catch+for+exception block it does not fails\n" +
-				"			try {\n" +
-				"				for(int i = 0; i < 10 ; i++) // needs a loop here (a 'while' or a 'for') to fail\n" +
-				"					anotherMethod(); // throwing directly CustomException make it fails too\n" +
-				"			} catch (final CustomException e) {\n" +
-				"				// it fails even if catch is empty\n" +
-				"			} finally {\n" +
-				"				System.out.print(3);\n" +
-				"			}\n" +
-				"			c.property += 1; // \"Potential null pointer access: The variable c may be null at this location\"\n" +
-				"		}\n" +
-				"\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class Test {
+						public static class Container{
+							public int property;
+						}
+						public static class CustomException extends Exception {
+							private static final long	 serialVersionUID	= 1L;
+						}
+						public static void anotherMethod() throws CustomException {}
+					
+						public static void method(final java.util.List<Container> list) {
+							for (final Container c : list) {
+								if(c == null)
+									continue; // return or break, are fine though
+					
+								// without this try-catch+for+exception block it does not fails
+								try {
+									for(int i = 0; i < 10 ; i++) // needs a loop here (a 'while' or a 'for') to fail
+										anotherMethod(); // throwing directly CustomException make it fails too
+								} catch (final CustomException e) {
+									// it fails even if catch is empty
+								} finally {
+									System.out.print(3);
+								}
+								c.property += 1; // "Potential null pointer access: The variable c may be null at this location"
+							}
+					
+						}
+					}
+					"""
 			},
 			"");
 	}
@@ -16387,34 +17523,36 @@ public void testBug384380_b() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"	public static class Container{\n" +
-				"		public int property;\n" +
-				"	}\n" +
-				"	public static class CustomException extends Exception {\n" +
-				"		private static final long	 serialVersionUID	= 1L;\n" +
-				"	}\n" +
-				"	public static void anotherMethod() throws CustomException {}\n" +
-				"\n" +
-				"	public static void method(final java.util.List<Container> list) {\n" +
-				"		java.util.Iterator<Container> it = list.iterator();\n" +
-				"		while (it.hasNext()) {\n" +
-				"			final Container c = it.next();\n" +
-				"			if(c == null)\n" +
-				"				continue; // return or break, are fine though\n" +
-				"\n" +
-				"			// without this try-catch+for+exception block it does not fails\n" +
-				"			try {\n" +
-				"				for(Container c1 : list) // needs a loop here (a 'while' or a 'for') to fail\n" +
-				"					anotherMethod(); // throwing directly CustomException make it fails too\n" +
-				"			} catch (final CustomException e) {\n" +
-				"				// it fails even if catch is empty\n" +
-				"			}\n" +
-				"			c.property += 1; // \"Potential null pointer access: The variable c may be null at this location\"\n" +
-				"		}\n" +
-				"\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class Test {
+						public static class Container{
+							public int property;
+						}
+						public static class CustomException extends Exception {
+							private static final long	 serialVersionUID	= 1L;
+						}
+						public static void anotherMethod() throws CustomException {}
+					
+						public static void method(final java.util.List<Container> list) {
+							java.util.Iterator<Container> it = list.iterator();
+							while (it.hasNext()) {
+								final Container c = it.next();
+								if(c == null)
+									continue; // return or break, are fine though
+					
+								// without this try-catch+for+exception block it does not fails
+								try {
+									for(Container c1 : list) // needs a loop here (a 'while' or a 'for') to fail
+										anotherMethod(); // throwing directly CustomException make it fails too
+								} catch (final CustomException e) {
+									// it fails even if catch is empty
+								}
+								c.property += 1; // "Potential null pointer access: The variable c may be null at this location"
+							}
+					
+						}
+					}
+					"""
 			},
 			"");
 	}
@@ -16425,27 +17563,28 @@ public void testBug376263() {
 	runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" +
-			"    private int x;\n" +
-			"\n" +
-			"    static void test(Test[] array) {\n" +
-			"        Test elem = null;\n" +
-			"        int i = 0;\n" +
-			"        while (i < array.length) {\n" +
-			"            if (i == 0) {\n" +
-			"                elem = array[0];\n" +
-			"            }\n" +
-			"            if (elem != null) {\n" +
-			"                while (true) {\n" +
-			"                    if (elem.x >= 0 || i >= array.length) { // should not warn here\n" +
-			"                        break;\n" +
-			"                    }\n" +
-			"                    elem = array[i++];\n" +
-			"                }\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class Test {
+				    private int x;
+				
+				    static void test(Test[] array) {
+				        Test elem = null;
+				        int i = 0;
+				        while (i < array.length) {
+				            if (i == 0) {
+				                elem = array[0];
+				            }
+				            if (elem != null) {
+				                while (true) {
+				                    if (elem.x >= 0 || i >= array.length) { // should not warn here
+				                        break;
+				                    }
+				                    elem = array[i++];
+				                }
+				            }
+				        }
+				    }
+				}"""
 		},
 		"",
 		null/*classLibraries*/,
@@ -16459,43 +17598,47 @@ public void testExpressions01() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	 void foo() {\n" +
-			"		if (new Object() == null)\n" +
-			"           System.out.println(\"null\");\n" +
-			"    }\n" +
-			"	 void goo() {\n" +
-			"		if (null != this.new I())\n" +
-			"           System.out.println(\"nonnull\");\n" +
-			"    }\n" +
-			"    void hoo() {\n" +
-			"		if (null != new Object[3])\n" +
-			"           System.out.println(\"nonnull\");\n" +
-			"    }\n" +
-			"    class I {}\n" +
-			"}\n"
+			"""
+				public class X {
+					 void foo() {
+						if (new Object() == null)
+				           System.out.println("null");
+				    }
+					 void goo() {
+						if (null != this.new I())
+				           System.out.println("nonnull");
+				    }
+				    void hoo() {
+						if (null != new Object[3])
+				           System.out.println("nonnull");
+				    }
+				    class I {}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	if (new Object() == null)\n" +
-		"	    ^^^^^^^^^^^^\n" +
-		"Null comparison always yields false: this expression cannot be null\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	System.out.println(\"null\");\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 7)\n" +
-		"	if (null != this.new I())\n" +
-		"	            ^^^^^^^^^^^^\n" +
-		"Redundant null check: this expression cannot be null\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 11)\n" +
-		"	if (null != new Object[3])\n" +
-		"	            ^^^^^^^^^^^^^\n" +
-		"Redundant null check: this expression cannot be null\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				if (new Object() == null)
+				    ^^^^^^^^^^^^
+			Null comparison always yields false: this expression cannot be null
+			----------
+			2. WARNING in X.java (at line 4)
+				System.out.println("null");
+				^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 7)
+				if (null != this.new I())
+				            ^^^^^^^^^^^^
+			Redundant null check: this expression cannot be null
+			----------
+			4. ERROR in X.java (at line 11)
+				if (null != new Object[3])
+				            ^^^^^^^^^^^^^
+			Redundant null check: this expression cannot be null
+			----------
+			"""
 	);
 }
 //'this' expressions (incl. qualif.)
@@ -16503,35 +17646,39 @@ public void testExpressions02() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	 void foo() {\n" +
-			"		if (this == null)\n" +
-			"           System.out.println(\"null\");\n" +
-			"    }\n" +
-			"    class I {\n" +
-			"        void goo() {\n" +
-			"		     if (null != X.this)\n" +
-			"                System.out.println(\"nonnull\");\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+					 void foo() {
+						if (this == null)
+				           System.out.println("null");
+				    }
+				    class I {
+				        void goo() {
+						     if (null != X.this)
+				                System.out.println("nonnull");
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	if (this == null)\n" +
-		"	    ^^^^\n" +
-		"Null comparison always yields false: this expression cannot be null\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	System.out.println(\"null\");\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 8)\n" +
-		"	if (null != X.this)\n" +
-		"	            ^^^^^^\n" +
-		"Redundant null check: this expression cannot be null\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				if (this == null)
+				    ^^^^
+			Null comparison always yields false: this expression cannot be null
+			----------
+			2. WARNING in X.java (at line 4)
+				System.out.println("null");
+				^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 8)
+				if (null != X.this)
+				            ^^^^^^
+			Redundant null check: this expression cannot be null
+			----------
+			"""
 	);
 }
 //various non-null expressions: class-literal, string-literal, casted 'this'
@@ -16539,45 +17686,49 @@ public void testExpressions03() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	 void foo() {\n" +
-			"		if (X.class == null)\n" +
-			"           System.out.println(\"null\");\n" +
-			"    }\n" +
-			"    void goo() {\n" +
-			"        if (null != \"STRING\")\n" +
-			"            System.out.println(\"nonnull\");\n" +
-			"        if (null == (Object)this)\n" +
-			"            System.out.println(\"I'm null\");\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+					 void foo() {
+						if (X.class == null)
+				           System.out.println("null");
+				    }
+				    void goo() {
+				        if (null != "STRING")
+				            System.out.println("nonnull");
+				        if (null == (Object)this)
+				            System.out.println("I'm null");
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	if (X.class == null)\n" +
-		"	    ^^^^^^^\n" +
-		"Null comparison always yields false: this expression cannot be null\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	System.out.println(\"null\");\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 7)\n" +
-		"	if (null != \"STRING\")\n" +
-		"	            ^^^^^^^^\n" +
-		"Redundant null check: this expression cannot be null\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 9)\n" +
-		"	if (null == (Object)this)\n" +
-		"	            ^^^^^^^^^^^^\n" +
-		"Null comparison always yields false: this expression cannot be null\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 10)\n" +
-		"	System.out.println(\"I\'m null\");\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				if (X.class == null)
+				    ^^^^^^^
+			Null comparison always yields false: this expression cannot be null
+			----------
+			2. WARNING in X.java (at line 4)
+				System.out.println("null");
+				^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 7)
+				if (null != "STRING")
+				            ^^^^^^^^
+			Redundant null check: this expression cannot be null
+			----------
+			4. ERROR in X.java (at line 9)
+				if (null == (Object)this)
+				            ^^^^^^^^^^^^
+			Null comparison always yields false: this expression cannot be null
+			----------
+			5. WARNING in X.java (at line 10)
+				System.out.println("I'm null");
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			"""
 	);
 }
 
@@ -16586,21 +17737,25 @@ public void testExpressions04() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo(boolean b) {\n" +
-			"		Object o1 = new Object();\n" +
-			"		Object o2 = new Object();\n" +
-			"		if ((b ? o1 : o2) != null)\n" +
-			"			System.out.println(\"null\");\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo(boolean b) {
+						Object o1 = new Object();
+						Object o2 = new Object();
+						if ((b ? o1 : o2) != null)
+							System.out.println("null");
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if ((b ? o1 : o2) != null)\n" +
-		"	    ^^^^^^^^^^^^^\n" +
-		"Redundant null check: this expression cannot be null\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if ((b ? o1 : o2) != null)
+				    ^^^^^^^^^^^^^
+			Redundant null check: this expression cannot be null
+			----------
+			"""
 	);
 }
 
@@ -16610,17 +17765,19 @@ public void testBug345305_1() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo() {\n" +
-			"        String s = null;\n" +
-			"        try {\n" +
-			"            s = \"hi\";\n" +
-			"        } finally {\n" +
-			"            s.length();\n" +
-			"            s = null;\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo() {
+				        String s = null;
+				        try {
+				            s = "hi";
+				        } finally {
+				            s.length();
+				            s = null;
+				        }
+				    }
+				}
+				"""
 		});
 }
 
@@ -16630,20 +17787,22 @@ public void testBug345305_2() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo() {\n" +
-			"        String s = null;\n" +
-			"        while (true) {\n" +
-			"            try {\n" +
-			"                s = \"hi\";\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length();\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo() {
+				        String s = null;
+				        while (true) {
+				            try {
+				                s = "hi";
+				            }
+				            finally {
+				                s.length();
+				                s = null;
+				            }
+				        }
+				    }
+				}
+				"""
 		});
 }
 
@@ -16653,21 +17812,23 @@ public void testBug345305_3() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo() {\n" +
-			"        String s = null;\n" +
-			"        while (true) {\n" +
-			"            try {\n" +
-			"                check(s = \"hi\");\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length();\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"    void check(String s) {}\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo() {
+				        String s = null;
+				        while (true) {
+				            try {
+				                check(s = "hi");
+				            }
+				            finally {
+				                s.length();
+				                s = null;
+				            }
+				        }
+				    }
+				    void check(String s) {}
+				}
+				"""
 		});
 }
 
@@ -16677,31 +17838,35 @@ public void testBug345305_4() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo() {\n" +
-			"        String s = \"\";\n" +
-			"        String s2 = null;\n" +
-			"        while (true) {\n" +
-			"            try {\n" +
-			"                s = null;\n" +
-			"                bar();\n" +
-			"                s2 = \"world\";\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length();\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"    void bar() {}\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo() {
+				        String s = "";
+				        String s2 = null;
+				        while (true) {
+				            try {
+				                s = null;
+				                bar();
+				                s2 = "world";
+				            }
+				            finally {
+				                s.length();
+				                s = null;
+				            }
+				        }
+				    }
+				    void bar() {}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	s.length();\n" +
-		"	^\n" +
-		"Null pointer access: The variable s can only be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 12)
+				s.length();
+				^
+			Null pointer access: The variable s can only be null at this location
+			----------
+			""");
 }
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
@@ -16710,28 +17875,32 @@ public void testBug345305_6() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo(boolean b) {\n" +
-			"        String s = null;\n" +
-			"        while (true) {\n" +
-			"            try {\n" +
-			"                if (b)\n" +
-			"                    s = \"hi\";\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length();\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo(boolean b) {
+				        String s = null;
+				        while (true) {
+				            try {
+				                if (b)
+				                    s = "hi";
+				            }
+				            finally {
+				                s.length();
+				                s = null;
+				            }
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	s.length();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				s.length();
+				^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			""");
 }
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
@@ -16740,28 +17909,32 @@ public void testBug345305_7() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo(boolean b) {\n" +
-			"        while (true) {\n" +
-			"            String s = null;\n" +
-			"            try {\n" +
-			"                if (b)\n" +
-			"                    s = \"hi\";\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length();\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo(boolean b) {
+				        while (true) {
+				            String s = null;
+				            try {
+				                if (b)
+				                    s = "hi";
+				            }
+				            finally {
+				                s.length();
+				                s = null;
+				            }
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	s.length();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				s.length();
+				^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			""");
 }
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
@@ -16770,27 +17943,31 @@ public void testBug345305_8() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo(Object o) {\n" +
-			"        while (true) {\n" +
-			"            String s = null;\n" +
-			"            try {\n" +
-			"                 s = (String) o;\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length();\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo(Object o) {
+				        while (true) {
+				            String s = null;
+				            try {
+				                 s = (String) o;
+				            }
+				            finally {
+				                s.length();
+				                s = null;
+				            }
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	s.length();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				s.length();
+				^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			""");
 }
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
@@ -16799,27 +17976,31 @@ public void testBug345305_9() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo(int i, int j) {\n" +
-			"        while (true) {\n" +
-			"            String s = null;\n" +
-			"            try {\n" +
-			"                 s = ((i / j) == 3) ? \"3\" : \"not-3\";\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length();\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo(int i, int j) {
+				        while (true) {
+				            String s = null;
+				            try {
+				                 s = ((i / j) == 3) ? "3" : "not-3";
+				            }
+				            finally {
+				                s.length();
+				                s = null;
+				            }
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	s.length();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				s.length();
+				^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			""");
 }
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
@@ -16828,33 +18009,37 @@ public void testBug345305_10() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo(int j) {\n" +
-			"        while (true) {\n" +
-			"            String s = null;\n" +
-			"            try {\n" +
-			"                int i=0;\n" +
-			"                block: {\n" +
-			"                    if (i++ == j)\n" +
-			"                         break block;\n" +
-			"                    s = \"\";\n" +
-			"                    return;\n" +
-			"                }\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length();\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo(int j) {
+				        while (true) {
+				            String s = null;
+				            try {
+				                int i=0;
+				                block: {
+				                    if (i++ == j)
+				                         break block;
+				                    s = "";
+				                    return;
+				                }
+				            }
+				            finally {
+				                s.length();
+				                s = null;
+				            }
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" +
-		"	s.length();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 15)
+				s.length();
+				^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			""");
 }
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
@@ -16863,32 +18048,36 @@ public void testBug345305_11() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo(int j) {\n" +
-			"        while (true) {\n" +
-			"            String s = null;\n" +
-			"            try {\n" +
-			"                switch (j) {\n" +
-			"                    case 3:\n" +
-			"                        s = \"\";\n" +
-			"                        return;\n" +
-			"                    default: return;\n" +
-			"                }\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length();\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo(int j) {
+				        while (true) {
+				            String s = null;
+				            try {
+				                switch (j) {
+				                    case 3:
+				                        s = "";
+				                        return;
+				                    default: return;
+				                }
+				            }
+				            finally {
+				                s.length();
+				                s = null;
+				            }
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 14)\n" +
-		"	s.length();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 14)
+				s.length();
+				^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			""");
 }
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
@@ -16897,27 +18086,31 @@ public void testBug345305_12() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    String foo(boolean b) {\n" +
-			"        while (true) {\n" +
-			"            String s = null;\n" +
-			"            try {\n" +
-			"                 return b ? (s = \"be\") : \"be not\";\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length();\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    String foo(boolean b) {
+				        while (true) {
+				            String s = null;
+				            try {
+				                 return b ? (s = "be") : "be not";
+				            }
+				            finally {
+				                s.length();
+				                s = null;
+				            }
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	s.length();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				s.length();
+				^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			""");
 }
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
@@ -16926,30 +18119,34 @@ public void testBug345305_13() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    String foo(boolean b) {\n" +
-			"        while (true) {\n" +
-			"            String s = null;\n" +
-			"            RuntimeException ex = new RuntimeException();\n" +
-			"            try {\n" +
-			"                 if (b)\n" +
-			"                     throw ex;\n" +
-			"                 s = \"be\";\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length();\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    String foo(boolean b) {
+				        while (true) {
+				            String s = null;
+				            RuntimeException ex = new RuntimeException();
+				            try {
+				                 if (b)
+				                     throw ex;
+				                 s = "be";
+				            }
+				            finally {
+				                s.length();
+				                s = null;
+				            }
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	s.length();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 12)
+				s.length();
+				^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			""");
 }
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
@@ -16958,48 +18155,52 @@ public void testBug345305_14() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    void foo1(boolean b) {\n" +
-			"        while (true) {\n" +
-			"            String s = null;\n" +
-			"            try {\n" +
-			"                 do {\n" +
-			"                     s = \"be\";\n" +
-			"                     if (b)\n" +
-			"                         return;\n" +
-			"                 } while (true);\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length(); // don't complain here\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"    void foo2(boolean b) {\n" +
-			"        while (true) {\n" +
-			"            String s = null;\n" +
-			"            try {\n" +
-			"                 do {\n" +
-			"                     if (b)\n" +
-			"                         continue;\n" +
-			"                     s = \"be\";\n" +
-			"                     b = !b;\n" +
-			"                 } while (b);\n" +
-			"            }\n" +
-			"            finally {\n" +
-			"                s.length();\n" +
-			"                s = null;\n" +
-			"            }\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    void foo1(boolean b) {
+				        while (true) {
+				            String s = null;
+				            try {
+				                 do {
+				                     s = "be";
+				                     if (b)
+				                         return;
+				                 } while (true);
+				            }
+				            finally {
+				                s.length(); // don't complain here
+				                s = null;
+				            }
+				        }
+				    }
+				    void foo2(boolean b) {
+				        while (true) {
+				            String s = null;
+				            try {
+				                 do {
+				                     if (b)
+				                         continue;
+				                     s = "be";
+				                     b = !b;
+				                 } while (b);
+				            }
+				            finally {
+				                s.length();
+				                s = null;
+				            }
+				        }
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 30)\n" +
-		"	s.length();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 30)
+				s.length();
+				^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			""");
 }
 
 // Bug 364326 - [compiler][null] NullPointerException is not found by compiler. FindBugs finds that one
@@ -17008,38 +18209,42 @@ public void testBug364326() {
 	runNegativeNullTest(
 		new String[] {
 			"NPE_OnBoxing.java",
-			"\n" +
-			"public class NPE_OnBoxing\n" +
-			"{\n" +
-			"    private interface IValue\n" +
-			"    {\n" +
-			"        boolean isSomething();\n" +
-			"    }\n" +
-			"\n" +
-			"    private final IValue m_Value;\n" +
-			"\n" +
-			"    public NPE_OnBoxing()\n" +
-			"    {\n" +
-			"        m_Value = null;\n" +
-			"    }\n" +
-			"\n" +
-			"    public boolean isSomething()\n" +
-			"    {\n" +
-			"        return m_Value != null ? m_Value.isSomething() : null;\n" +
-			"    }\n" +
-			"\n" +
-			"    public static void main(final String [] args)\n" +
-			"    {\n" +
-			"        new NPE_OnBoxing().isSomething();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				
+				public class NPE_OnBoxing
+				{
+				    private interface IValue
+				    {
+				        boolean isSomething();
+				    }
+				
+				    private final IValue m_Value;
+				
+				    public NPE_OnBoxing()
+				    {
+				        m_Value = null;
+				    }
+				
+				    public boolean isSomething()
+				    {
+				        return m_Value != null ? m_Value.isSomething() : null;
+				    }
+				
+				    public static void main(final String [] args)
+				    {
+				        new NPE_OnBoxing().isSomething();
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in NPE_OnBoxing.java (at line 18)\n" +
-		"	return m_Value != null ? m_Value.isSomething() : null;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in NPE_OnBoxing.java (at line 18)
+				return m_Value != null ? m_Value.isSomething() : null;
+				       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing
+			----------
+			""");
 }
 
 // Bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
@@ -17047,42 +18252,44 @@ public void testBug401088() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"\n" +
-			"	private static void occasionallyThrowException() throws Exception {\n" +
-			"		throw new Exception();\n" +
-			"	}\n" +
-			"\n" +
-			"	private static void open() throws Exception {\n" +
-			"		occasionallyThrowException();\n" +
-			"	}\n" +
-			"\n" +
-			"	private static void close() throws Exception {\n" +
-			"		occasionallyThrowException();\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(String s[]) {\n" +
-			"		Exception exc = null;\n" +
-			"		try {\n" +
-			"			open();\n" +
-			"			// do more things\n" +
-			"		}\n" +
-			"		catch (Exception e) {\n" +
-			"			exc = e;\n" +
-			"		}\n" +
-			"		finally {\n" +
-			"			try {\n" +
-			"				close();\n" +
-			"			}\n" +
-			"			catch (Exception e) {\n" +
-			"				if (exc == null) // should not warn on this line\n" +
-			"					exc = e;\n" +
-			"			}\n" +
-			"		}\n" +
-			"		if (exc != null)\n" +
-			"			System.out.println(exc);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+				
+					private static void occasionallyThrowException() throws Exception {
+						throw new Exception();
+					}
+				
+					private static void open() throws Exception {
+						occasionallyThrowException();
+					}
+				
+					private static void close() throws Exception {
+						occasionallyThrowException();
+					}
+				
+					public static void main(String s[]) {
+						Exception exc = null;
+						try {
+							open();
+							// do more things
+						}
+						catch (Exception e) {
+							exc = e;
+						}
+						finally {
+							try {
+								close();
+							}
+							catch (Exception e) {
+								if (exc == null) // should not warn on this line
+									exc = e;
+							}
+						}
+						if (exc != null)
+							System.out.println(exc);
+					}
+				}
+				"""
 		},
 		"java.lang.Exception");
 }
@@ -17091,43 +18298,45 @@ public void testBug401088a() {
  runConformTest(
      new String[] {
          "X.java",
-         "public class X {\n" +
-         "\n" +
-         "   private static void occasionallyThrowException() throws Exception {\n" +
-         "       throw new Exception();\n" +
-         "   }\n" +
-         "\n" +
-         "   private static void open() throws Exception {\n" +
-         "       occasionallyThrowException();\n" +
-         "   }\n" +
-         "\n" +
-         "   private static void close() throws Exception {\n" +
-         "       occasionallyThrowException();\n" +
-         "   }\n" +
-         "\n" +
-         "   public static void main(String s[]) {\n" +
-         "       Exception exc = null;\n" +
-         "       try {\n" +
-         "           open();\n" +
-         "           // do more things\n" +
-         "       }\n" +
-         "       catch (Exception e) {\n" +
-         "           exc = e;\n" +
-         "       }\n" +
-         "       finally {\n" +
-         "           try {\n" +
-         "               close();\n" +
-         "           }\n" +
-         "           catch (Exception e) {\n" +
-         "               if (exc == null) // should not warn on this line\n" +
-         "                   exc = e;\n" +
-         "           }\n" +
-         "           finally { System.out.print(1); }\n" +
-         "       }\n" +
-         "       if (exc != null)\n" +
-         "           System.out.println(exc);\n" +
-         "   }\n" +
-         "}\n"
+         """
+			public class X {
+			
+			   private static void occasionallyThrowException() throws Exception {
+			       throw new Exception();
+			   }
+			
+			   private static void open() throws Exception {
+			       occasionallyThrowException();
+			   }
+			
+			   private static void close() throws Exception {
+			       occasionallyThrowException();
+			   }
+			
+			   public static void main(String s[]) {
+			       Exception exc = null;
+			       try {
+			           open();
+			           // do more things
+			       }
+			       catch (Exception e) {
+			           exc = e;
+			       }
+			       finally {
+			           try {
+			               close();
+			           }
+			           catch (Exception e) {
+			               if (exc == null) // should not warn on this line
+			                   exc = e;
+			           }
+			           finally { System.out.print(1); }
+			       }
+			       if (exc != null)
+			           System.out.println(exc);
+			   }
+			}
+			"""
      },
      "1java.lang.Exception");
 }
@@ -17136,36 +18345,38 @@ public void test401092() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.Date;\n" +
-			"\n" +
-			"public class X {\n" +
-			"\n" +
-			"    private static void occasionallyThrowException() throws Exception {\n" +
-			"        throw new Exception();\n" +
-			"    }\n" +
-			"\n" +
-			"    private static Date createDate() throws Exception {\n" +
-			"        occasionallyThrowException();\n" +
-			"        return new Date();\n" +
-			"    }\n" +
-			"\n" +
-			"    public static void main(String s[]) {\n" +
-			"        Date d = null;\n" +
-			"        try {\n" +
-			"            d = createDate();\n" +
-			"            System.out.println(d.toString());\n" +
-			"            try {\n" +
-			"                occasionallyThrowException();\n" +
-			"            }\n" +
-			"            catch (Exception exc) {\n" +
-			"            }\n" +
-			"        }\n" +
-			"        catch (Exception exc) {\n" +
-			"            if (d != null) // should not warn in this line\n" +
-			"                System.out.println(d.toString());\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.util.Date;
+				
+				public class X {
+				
+				    private static void occasionallyThrowException() throws Exception {
+				        throw new Exception();
+				    }
+				
+				    private static Date createDate() throws Exception {
+				        occasionallyThrowException();
+				        return new Date();
+				    }
+				
+				    public static void main(String s[]) {
+				        Date d = null;
+				        try {
+				            d = createDate();
+				            System.out.println(d.toString());
+				            try {
+				                occasionallyThrowException();
+				            }
+				            catch (Exception exc) {
+				            }
+				        }
+				        catch (Exception exc) {
+				            if (d != null) // should not warn in this line
+				                System.out.println(d.toString());
+				        }
+				    }
+				}
+				"""
 		});
 }
 // Bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
@@ -17173,38 +18384,40 @@ public void test401092a() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.Date;\n" +
-			"\n" +
-			"public class X {\n" +
-			"\n" +
-			"    private static void occasionallyThrowException() throws Exception {\n" +
-			"        throw new Exception();\n" +
-			"    }\n" +
-			"\n" +
-			"    private static Date createDate() throws Exception {\n" +
-			"        occasionallyThrowException();\n" +
-			"        return new Date();\n" +
-			"    }\n" +
-			"\n" +
-			"    public static void main(String s[]) {\n" +
-			"        Date d = null;\n" +
-			"        try {\n" +
-			"            d = createDate();\n" +
-			"            System.out.println(d.toString());\n" +
-			"            try {\n" +
-			"                occasionallyThrowException();\n" +
-			"            }\n" +
-			"            catch (Exception exc) {\n" +
-			"            }\n" +
-			"            finally { System.out.println(1); }\n" +
-			"        }\n" +
-			"        catch (Exception exc) {\n" +
-			"            if (d != null) // should not warn in this line\n" +
-			"                System.out.println(d.toString());\n" +
-			"        }\n" +
-			"        finally { System.out.println(2); }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.util.Date;
+				
+				public class X {
+				
+				    private static void occasionallyThrowException() throws Exception {
+				        throw new Exception();
+				    }
+				
+				    private static Date createDate() throws Exception {
+				        occasionallyThrowException();
+				        return new Date();
+				    }
+				
+				    public static void main(String s[]) {
+				        Date d = null;
+				        try {
+				            d = createDate();
+				            System.out.println(d.toString());
+				            try {
+				                occasionallyThrowException();
+				            }
+				            catch (Exception exc) {
+				            }
+				            finally { System.out.println(1); }
+				        }
+				        catch (Exception exc) {
+				            if (d != null) // should not warn in this line
+				                System.out.println(d.toString());
+				        }
+				        finally { System.out.println(2); }
+				    }
+				}
+				"""
 		});
 }
 // Bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
@@ -17212,54 +18425,58 @@ public void testBug402993() {
 	runNegativeNullTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" +
-			"\n" +
-			"	private static void occasionallyThrowException() throws Exception {\n" +
-			"		if ((System.currentTimeMillis() & 1L) != 0L)\n" +
-			"			throw new Exception();\n" +
-			"	}\n" +
-			"\n" +
-			"	private static void open() throws Exception {\n" +
-			"		occasionallyThrowException();\n" +
-			"	}\n" +
-			"\n" +
-			"	private static void close() throws Exception {\n" +
-			"		occasionallyThrowException();\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(String s[]) {\n" +
-			"		Exception exc = null;\n" +
-			"		try {\n" +
-			"			open();\n" +
-			"			// do more things\n" +
-			"		}\n" +
-			"		catch (Exception e) {\n" +
-			"			if (exc == null) // no warning here ??\n" +
-			"				;\n" +
-			"		}\n" +
-			"		finally {\n" +
-			"			try {\n" +
-			"				close();\n" +
-			"			}\n" +
-			"			catch (Exception e) {\n" +
-			"				if (exc == null) // No warning here ??\n" +
-			"					exc = e;\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Test {
+				
+					private static void occasionallyThrowException() throws Exception {
+						if ((System.currentTimeMillis() & 1L) != 0L)
+							throw new Exception();
+					}
+				
+					private static void open() throws Exception {
+						occasionallyThrowException();
+					}
+				
+					private static void close() throws Exception {
+						occasionallyThrowException();
+					}
+				
+					public static void main(String s[]) {
+						Exception exc = null;
+						try {
+							open();
+							// do more things
+						}
+						catch (Exception e) {
+							if (exc == null) // no warning here ??
+								;
+						}
+						finally {
+							try {
+								close();
+							}
+							catch (Exception e) {
+								if (exc == null) // No warning here ??
+									exc = e;
+							}
+						}
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in Test.java (at line 23)\n" +
-		"	if (exc == null) // no warning here ??\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable exc can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in Test.java (at line 31)\n" +
-		"	if (exc == null) // No warning here ??\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable exc can only be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Test.java (at line 23)
+				if (exc == null) // no warning here ??
+				    ^^^
+			Redundant null check: The variable exc can only be null at this location
+			----------
+			2. ERROR in Test.java (at line 31)
+				if (exc == null) // No warning here ??
+				    ^^^
+			Redundant null check: The variable exc can only be null at this location
+			----------
+			""");
 }
 // Bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
 // variant with finally block in inner try
@@ -17267,92 +18484,98 @@ public void testBug402993a() {
 	runNegativeNullTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" +
-			"\n" +
-			"	private static void occasionallyThrowException() throws Exception {\n" +
-			"		if ((System.currentTimeMillis() & 1L) != 0L)\n" +
-			"			throw new Exception();\n" +
-			"	}\n" +
-			"\n" +
-			"	private static void open() throws Exception {\n" +
-			"		occasionallyThrowException();\n" +
-			"	}\n" +
-			"\n" +
-			"	private static void close() throws Exception {\n" +
-			"		occasionallyThrowException();\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(String s[]) {\n" +
-			"		Exception exc = null;\n" +
-			"		try {\n" +
-			"			open();\n" +
-			"			// do more things\n" +
-			"		}\n" +
-			"		catch (Exception e) {\n" +
-			"			if (exc == null) // no warning here ??\n" +
-			"				;\n" +
-			"		}\n" +
-			"		finally {\n" +
-			"			try {\n" +
-			"				close();\n" +
-			"			}\n" +
-			"			catch (Exception e) {\n" +
-			"				if (exc == null) // No warning here ??\n" +
-			"					exc = e;\n" +
-			"			} finally {\n" +
-			"				System.out.print(1);\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Test {
+				
+					private static void occasionallyThrowException() throws Exception {
+						if ((System.currentTimeMillis() & 1L) != 0L)
+							throw new Exception();
+					}
+				
+					private static void open() throws Exception {
+						occasionallyThrowException();
+					}
+				
+					private static void close() throws Exception {
+						occasionallyThrowException();
+					}
+				
+					public static void main(String s[]) {
+						Exception exc = null;
+						try {
+							open();
+							// do more things
+						}
+						catch (Exception e) {
+							if (exc == null) // no warning here ??
+								;
+						}
+						finally {
+							try {
+								close();
+							}
+							catch (Exception e) {
+								if (exc == null) // No warning here ??
+									exc = e;
+							} finally {
+								System.out.print(1);
+							}
+						}
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in Test.java (at line 23)\n" +
-		"	if (exc == null) // no warning here ??\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable exc can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in Test.java (at line 31)\n" +
-		"	if (exc == null) // No warning here ??\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable exc can only be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Test.java (at line 23)
+				if (exc == null) // no warning here ??
+				    ^^^
+			Redundant null check: The variable exc can only be null at this location
+			----------
+			2. ERROR in Test.java (at line 31)
+				if (exc == null) // No warning here ??
+				    ^^^
+			Redundant null check: The variable exc can only be null at this location
+			----------
+			""");
 }
 public void testBug453305() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach loop
 	runConformTest(
 		new String[] {
 			"NullTest.java",
-			"import java.util.*;\n" +
-			"public class NullTest {\n" +
-			"    class SomeOtherClass {\n" +
-			"\n" +
-			"        public SomeOtherClass m() {\n" +
-			"            return new SomeOtherClass();\n" +
-			"        }\n" +
-			"\n" +
-			"        public void doSomething() {\n" +
-			"        }\n" +
-			"    }\n" +
-			"\n" +
-			"    public Object m1() {\n" +
-			"        SomeOtherClass result = null;\n" +
-			"        List<Object> list = new ArrayList<Object>();\n" +
-			"        for (Object next : list) {\n" +
-			"            System.out.println(next);\n" +
-			"            boolean bool = false;\n" +
-			"            if (bool) {\n" +
-			"                SomeOtherClass something = new SomeOtherClass();\n" +
-			"                result = something.m();\n" +
-			"            } else {\n" +
-			"                result = new SomeOtherClass();\n" +
-			"            }\n" +
-			"            result.doSomething(); // warning is here\n" +
-			"            break;\n" +
-			"        }\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				public class NullTest {
+				    class SomeOtherClass {
+				
+				        public SomeOtherClass m() {
+				            return new SomeOtherClass();
+				        }
+				
+				        public void doSomething() {
+				        }
+				    }
+				
+				    public Object m1() {
+				        SomeOtherClass result = null;
+				        List<Object> list = new ArrayList<Object>();
+				        for (Object next : list) {
+				            System.out.println(next);
+				            boolean bool = false;
+				            if (bool) {
+				                SomeOtherClass something = new SomeOtherClass();
+				                result = something.m();
+				            } else {
+				                result = new SomeOtherClass();
+				            }
+				            result.doSomething(); // warning is here
+				            break;
+				        }
+				        return null;
+				    }
+				}
+				"""
 		});
 }
 public void testBug431016() {
@@ -17360,22 +18583,24 @@ public void testBug431016() {
 	runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" +
-			"  void test(Object[] values) {\n" +
-			"    Object first = null;\n" +
-			"    for (Object current : values) {\n" +
-			"        if (first == null) {\n" +
-			"            first = current;\n" +
-			"        }\n" +
-			"\n" +
-			"        if (current.hashCode() > 0) {\n" +
-			"            System.out.println(first.hashCode());\n" +
-			"        }\n" +
-			"\n" +
-			"        System.out.println(first.hashCode());\n" +
-			"      }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class Test {
+				  void test(Object[] values) {
+				    Object first = null;
+				    for (Object current : values) {
+				        if (first == null) {
+				            first = current;
+				        }
+				
+				        if (current.hashCode() > 0) {
+				            System.out.println(first.hashCode());
+				        }
+				
+				        System.out.println(first.hashCode());
+				      }
+				  }
+				}
+				"""
 		});
 }
 // originally created for documentation purpose, see https://bugs.eclipse.org/453483#c9
@@ -17383,18 +18608,20 @@ public void testBug431016_simplified() {
 	runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" +
-			"  void test(Object input, boolean b) {\n" +
-			"    Object o = null;\n" +
-			"    while (true) {\n" +
-			"      if (o == null)\n" +
-			"        o = input;\n" +
-			"      if (b)\n" +
-			"        o.toString();\n" +
-			"      o.toString();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class Test {
+				  void test(Object input, boolean b) {
+				    Object o = null;
+				    while (true) {
+				      if (o == null)
+				        o = input;
+				      if (b)
+				        o.toString();
+				      o.toString();
+				    }
+				  }
+				}
+				"""
 		});
 }
 public void testBug432109() {
@@ -17402,34 +18629,36 @@ public void testBug432109() {
 	runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.util.Collection;\n" +
-			"public class Test {\n" +
-			"  public void test(Collection <Object> values)\n" +
-			"  {\n" +
-			"      boolean condition = false;\n" +
-			"      \n" +
-			"      for(Object value : values)\n" +
-			"      {\n" +
-			"                  \n" +
-			"          if(value == null)\n" +
-			"          {\n" +
-			"              if( condition )\n" +
-			"              {\n" +
-			"                  // without this continue statement, \n" +
-			"                  // there is no warning below\n" +
-			"                  continue; \n" +
-			"              }\n" +
-			"              \n" +
-			"              value = getDefaultValue();\n" +
-			"          }\n" +
-			"          \n" +
-			"          // IDE complains here about potential null pointer access\n" +
-			"          value.toString();\n" +
-			"      }\n" +
-			"  }\n" +
-			"\n" +
-			"  public String getDefaultValue() { return \"<empty>\"; }\n" +
-			"}\n"
+			"""
+				import java.util.Collection;
+				public class Test {
+				  public void test(Collection <Object> values)
+				  {
+				      boolean condition = false;
+				     \s
+				      for(Object value : values)
+				      {
+				                 \s
+				          if(value == null)
+				          {
+				              if( condition )
+				              {
+				                  // without this continue statement,\s
+				                  // there is no warning below
+				                  continue;\s
+				              }
+				             \s
+				              value = getDefaultValue();
+				          }
+				         \s
+				          // IDE complains here about potential null pointer access
+				          value.toString();
+				      }
+				  }
+				
+				  public String getDefaultValue() { return "<empty>"; }
+				}
+				"""
 		});
 }
 public void testBug435528_orig() {
@@ -17437,41 +18666,45 @@ public void testBug435528_orig() {
 	runner.testFiles =
 		new String[] {
 			"Test.java",
-			"public class Test\n" +
-			"{\n" +
-			"   static final String a = \"A\";\n" +
-			"\n" +
-			"   static void main(String args[])\n" +
-			"   {\n" +
-			"      String x = null;\n" +
-			"      while (true) {\n" +
-			"         x = Math.random() < 0.5 ? a : \"BB\";\n" +
-			"         if (a != null) {\n" +
-			"            System.out.println(\"s2 value: \" + x);\n" +
-			"         }\n" +
-			"         if (x.equals(\"A\")) {\n" +
-			"            break;\n" +
-			"         } else {\n" +
-			"            x = null;\n" +
-			"         }\n" +
-			"      }\n" +
-			"   }\n" +
-			"}\n"
+			"""
+				public class Test
+				{
+				   static final String a = "A";
+				
+				   static void main(String args[])
+				   {
+				      String x = null;
+				      while (true) {
+				         x = Math.random() < 0.5 ? a : "BB";
+				         if (a != null) {
+				            System.out.println("s2 value: " + x);
+				         }
+				         if (x.equals("A")) {
+				            break;
+				         } else {
+				            x = null;
+				         }
+				      }
+				   }
+				}
+				"""
 		};
 	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. ERROR in Test.java (at line 10)\n" +
-		"	if (a != null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The field a is a nonnull constant\n" +
-		"----------\n" +
-		"2. WARNING in Test.java (at line 15)\n" +
-		"	} else {\n" +
-		"            x = null;\n" +
-		"         }\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" +
-		"----------\n";
+		"""
+			----------
+			1. ERROR in Test.java (at line 10)
+				if (a != null) {
+				    ^
+			Redundant null check: The field a is a nonnull constant
+			----------
+			2. WARNING in Test.java (at line 15)
+				} else {
+			            x = null;
+			         }
+				       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally
+			----------
+			""";
 	runner.customOptions = getCompilerOptions();
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
@@ -17481,35 +18714,39 @@ public void testBug435528_notaconstant() {
 		true/*flush*/,
 		new String[] {
 			"Test.java",
-			"public class Test\n" +
-			"{\n" +
-			"   static String a	;\n" +
-			"\n" +
-			"   static void main(String args[])\n" +
-			"   {\n" +
-			"      String x = null;\n" +
-			"      while (true) {\n" +
-			"         x = Math.random() < 0.5 ? a : \"BB\";\n" +
-			"         if (a != null) {\n" +
-			"            System.out.println(\"s2 value: \" + x);\n" +
-			"         }\n" +
-			"         if (x.equals(\"A\")) {\n" +
-			"            break;\n" +
-			"         } else {\n" +
-			"            x = null;\n" +
-			"         }\n" +
-			"      }\n" +
-			"   }\n" +
-			"}\n"
+			"""
+				public class Test
+				{
+				   static String a	;
+				
+				   static void main(String args[])
+				   {
+				      String x = null;
+				      while (true) {
+				         x = Math.random() < 0.5 ? a : "BB";
+				         if (a != null) {
+				            System.out.println("s2 value: " + x);
+				         }
+				         if (x.equals("A")) {
+				            break;
+				         } else {
+				            x = null;
+				         }
+				      }
+				   }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in Test.java (at line 15)\n" +
-		"	} else {\n" +
-		"            x = null;\n" +
-		"         }\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in Test.java (at line 15)
+				} else {
+			            x = null;
+			         }
+				       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally
+			----------
+			""",
 		"",
 		"",
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
@@ -17551,31 +18788,33 @@ public void testBug441737() {
 	runConformTest(
 		new String[] {
 			"Bogus.java",
-			"public class Bogus {\n" +
-			"    static boolean ok = true;\n" +
-			"    static int count = 0;\n" +
-			"    public static void main(String[] args) {\n" +
-			"        Thing x = new Thing();\n" +
-			"        // if y is left uninitialized here, the warning below disappears\n" +
-			"        Thing y = null;\n" +
-			"        do {\n" +
-			"            y = x;\n" +
-			"            if (ok) {\n" +
-			"                // if this assignment is moved out of the if statement\n" +
-			"                // or commented out, the warning below disappears\n" +
-			"                x = y.resolve();\n" +
-			"            }\n" +
-			"            // a warning about y being potentially null occurs here:\n" +
-			"            x = y.resolve();\n" +
-			"        } while (x != y);\n" +
-			"    }\n" +
-			"\n" +
-			"    static class Thing {\n" +
-			"        public Thing resolve() {\n" +
-			"            return count++ > 2 ? this : new Thing();\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class Bogus {
+				    static boolean ok = true;
+				    static int count = 0;
+				    public static void main(String[] args) {
+				        Thing x = new Thing();
+				        // if y is left uninitialized here, the warning below disappears
+				        Thing y = null;
+				        do {
+				            y = x;
+				            if (ok) {
+				                // if this assignment is moved out of the if statement
+				                // or commented out, the warning below disappears
+				                x = y.resolve();
+				            }
+				            // a warning about y being potentially null occurs here:
+				            x = y.resolve();
+				        } while (x != y);
+				    }
+				
+				    static class Thing {
+				        public Thing resolve() {
+				            return count++ > 2 ? this : new Thing();
+				        }
+				    }
+				}
+				"""
 		});
 }
 // fixed in 3.6.2, likely via bug 332637.
@@ -17583,76 +18822,82 @@ public void testBug195638_comment3() {
 	runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.sql.Connection;\n" +
-			"import java.sql.SQLException;\n" +
-			"public class Test {\n" +
-			"  void m() throws SQLException\n" +
-			"  {\n" +
-			"    Connection conn = null;\n" +
-			"    try\n" +
-			"    {\n" +
-			"      conn = createConnection();\n" +
-			"\n" +
-			"      for (; ; )\n" +
-			"      {\n" +
-			"        throwSomething();\n" +
-			"      }\n" +
-			"    }\n" +
-			"    catch (MyException e)\n" +
-			"    {\n" +
-			"      conn.rollback(); //The variable can never be null here...\n" +
-			"    }\n" +
-			"  }\n" +
-			"\n" +
-			"  private void throwSomething() throws MyException\n" +
-			"  {\n" +
-			"    throw new MyException();\n" +
-			"  }\n" +
-			"\n" +
-			"  class MyException extends Exception\n" +
-			"  {\n" +
-			"\n" +
-			"  }\n" +
-			"\n" +
-			"  private Connection createConnection()\n" +
-			"  {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.sql.Connection;
+				import java.sql.SQLException;
+				public class Test {
+				  void m() throws SQLException
+				  {
+				    Connection conn = null;
+				    try
+				    {
+				      conn = createConnection();
+				
+				      for (; ; )
+				      {
+				        throwSomething();
+				      }
+				    }
+				    catch (MyException e)
+				    {
+				      conn.rollback(); //The variable can never be null here...
+				    }
+				  }
+				
+				  private void throwSomething() throws MyException
+				  {
+				    throw new MyException();
+				  }
+				
+				  class MyException extends Exception
+				  {
+				
+				  }
+				
+				  private Connection createConnection()
+				  {
+				    return null;
+				  }
+				}
+				"""
 		});
 }
 public void testBug195638_comment6() {
 	runNegativeNullTest(
 		new String[] {
 			"CanOnlyBeNullShouldBeMayBeNull.java",
-			"public class CanOnlyBeNullShouldBeMayBeNull {\n" +
-			"\n" +
-			"	private void method() {\n" +
-			"		String tblVarRpl = null;\n" +
-			"		while (true) {\n" +
-			"			boolean isOpenVariableMortageRateProduct = true;\n" +
-			"			boolean tblVarRplAllElementAddedIndicator = false;\n" +
-			"			if (isOpenVariableMortageRateProduct) {\n" +
-			"				if (tblVarRplAllElementAddedIndicator == false)\n" +
-			"					tblVarRpl = \"\";\n" +
-			"				tblVarRpl.substring(1);	//Can only be null???\n" +
-			"				return; \n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class CanOnlyBeNullShouldBeMayBeNull {
+				
+					private void method() {
+						String tblVarRpl = null;
+						while (true) {
+							boolean isOpenVariableMortageRateProduct = true;
+							boolean tblVarRplAllElementAddedIndicator = false;
+							if (isOpenVariableMortageRateProduct) {
+								if (tblVarRplAllElementAddedIndicator == false)
+									tblVarRpl = "";
+								tblVarRpl.substring(1);	//Can only be null???
+								return;\s
+							}
+						}
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in CanOnlyBeNullShouldBeMayBeNull.java (at line 3)\n" +
-		"	private void method() {\n" +
-		"	             ^^^^^^^^\n" +
-		"The method method() from the type CanOnlyBeNullShouldBeMayBeNull is never used locally\n" +
-		"----------\n" +
-		"2. ERROR in CanOnlyBeNullShouldBeMayBeNull.java (at line 11)\n" +
-		"	tblVarRpl.substring(1);	//Can only be null???\n" +
-		"	^^^^^^^^^\n" +
-		"Potential null pointer access: The variable tblVarRpl may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in CanOnlyBeNullShouldBeMayBeNull.java (at line 3)
+				private void method() {
+				             ^^^^^^^^
+			The method method() from the type CanOnlyBeNullShouldBeMayBeNull is never used locally
+			----------
+			2. ERROR in CanOnlyBeNullShouldBeMayBeNull.java (at line 11)
+				tblVarRpl.substring(1);	//Can only be null???
+				^^^^^^^^^
+			Potential null pointer access: The variable tblVarRpl may be null at this location
+			----------
+			""");
 }
 public void testBug195638_comment14() {
 	runNegativeNullTest(
@@ -17673,109 +18918,121 @@ public void testBug195638_comment14() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. WARNING in Test.java (at line 2)\n" +
-		"	private void test() {\n" +
-		"	             ^^^^^^\n" +
-		"The method test() from the type Test is never used locally\n" +
-		"----------\n" +
-		"2. ERROR in Test.java (at line 9)\n" +
-		"	o.toString(); // warning here\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in Test.java (at line 2)
+				private void test() {
+				             ^^^^^^
+			The method test() from the type Test is never used locally
+			----------
+			2. ERROR in Test.java (at line 9)
+				o.toString(); // warning here
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""");
 }
 public void testBug195638_comment19() {
 	runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" +
-			"    public void testIt() {\n" +
-			"      Object aRole = null;\n" +
-			"      for (;;) {\n" +
-			"        aRole = new Object();\n" +
-			"        if (aRole.toString() == null) {\n" +
-			"          aRole = getObject(); // changing to \"new Object()\" makes warning disappear.\n" +
-			"        }\n" +
-			"        aRole.toString();\n" +
-			"        // above line gets: \"Null pointer access: The variable aRole can only be null at this location\"\n" +
-			"        break;\n" +
-			"      }\n" +
-			"    }\n" +
-			"    private Object getObject() {\n" +
-			"      return new Object();\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class Test {
+				    public void testIt() {
+				      Object aRole = null;
+				      for (;;) {
+				        aRole = new Object();
+				        if (aRole.toString() == null) {
+				          aRole = getObject(); // changing to "new Object()" makes warning disappear.
+				        }
+				        aRole.toString();
+				        // above line gets: "Null pointer access: The variable aRole can only be null at this location"
+				        break;
+				      }
+				    }
+				    private Object getObject() {
+				      return new Object();
+				    }
+				}
+				"""
 		});
 }
 public void testBug454031() {
 	runNegativeNullTest(
 		new String[] {
 			"xy/Try.java",
-			"package xy;\n" +
-			"\n" +
-			"public class Try {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        foo(new Node());\n" +
-			"    }\n" +
-			"    static void foo(Node n) {\n" +
-			"        Node selectedNode= n;\n" +
-			"        if (selectedNode == null) {\n" +
-			"            return;\n" +
-			"        }\n" +
-			"        while (selectedNode != null && !(selectedNode instanceof Cloneable)) {\n" +
-			"            selectedNode= selectedNode.getParent();\n" +
-			"        }\n" +
-			"        if (selectedNode == null) { //wrong problem: Null comparison always yields false: The variable selectedNode cannot be null at this location\n" +
-			"            // wrong problem: dead code\n" +
-			"            System.out.println(selectedNode.hashCode());\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n" +
-			"\n" +
-			"class Node {\n" +
-			"    Node getParent() {\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				package xy;
+				
+				public class Try {
+				    public static void main(String[] args) {
+				        foo(new Node());
+				    }
+				    static void foo(Node n) {
+				        Node selectedNode= n;
+				        if (selectedNode == null) {
+				            return;
+				        }
+				        while (selectedNode != null && !(selectedNode instanceof Cloneable)) {
+				            selectedNode= selectedNode.getParent();
+				        }
+				        if (selectedNode == null) { //wrong problem: Null comparison always yields false: The variable selectedNode cannot be null at this location
+				            // wrong problem: dead code
+				            System.out.println(selectedNode.hashCode());
+				        }
+				    }
+				}
+				
+				class Node {
+				    Node getParent() {
+				        return null;
+				    }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in xy\\Try.java (at line 17)\n" +
-		"	System.out.println(selectedNode.hashCode());\n" +
-		"	                   ^^^^^^^^^^^^\n" +
-		"Null pointer access: The variable selectedNode can only be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in xy\\Try.java (at line 17)
+				System.out.println(selectedNode.hashCode());
+				                   ^^^^^^^^^^^^
+			Null pointer access: The variable selectedNode can only be null at this location
+			----------
+			""");
 }
 // switch with fall-through nested in for:
 public void testBug451660() {
 	runNegativeNullTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"        public static void main(String[] args)\n" +
-			"    {\n" +
-			"        String s = null;\n" +
-			"        for(; true;) // ok with \"while(true)\"\n" +
-			"        {\n" +
-			"            switch(0)\n" +
-			"            {\n" +
-			"            default:\n" +
-			"                s = \"Hello!\";\n" +
-			"            case 1:\n" +
-			"                System.out.println(s.toString());\n" +
-			"            }\n" +
-			"            return;\n" +
-			"        }\n" +
-			"    }\n" +
-			"\n" +
-			"}\n"
+			"""
+				public class X {
+				        public static void main(String[] args)
+				    {
+				        String s = null;
+				        for(; true;) // ok with "while(true)"
+				        {
+				            switch(0)
+				            {
+				            default:
+				                s = "Hello!";
+				            case 1:
+				                System.out.println(s.toString());
+				            }
+				            return;
+				        }
+				    }
+				
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	System.out.println(s.toString());\n" +
-		"	                   ^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 12)
+				System.out.println(s.toString());
+				                   ^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			""");
 }
 public void testBug486912KnownNullInLoop() {
 	runNegativeNullTest(
@@ -17801,17 +19058,19 @@ public void testBug486912KnownNullInLoop() {
 			"}\n" +
 			"",
 		},
-		"----------\n" +
-		"1. ERROR in test\\KnownNullInLoop.java (at line 7)\n" +
-		"	o1.hashCode(); // ERROR1: known null, but no problem reported.\n" +
-		"	^^\n" +
-		"Null pointer access: The variable o1 can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in test\\KnownNullInLoop.java (at line 14)\n" +
-		"	o1.hashCode(); // ERROR2: known null, but no problem reported.\n" +
-		"	^^\n" +
-		"Null pointer access: The variable o1 can only be null at this location\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in test\\KnownNullInLoop.java (at line 7)
+				o1.hashCode(); // ERROR1: known null, but no problem reported.
+				^^
+			Null pointer access: The variable o1 can only be null at this location
+			----------
+			2. ERROR in test\\KnownNullInLoop.java (at line 14)
+				o1.hashCode(); // ERROR2: known null, but no problem reported.
+				^^
+			Null pointer access: The variable o1 can only be null at this location
+			----------
+			"""
 	);
 }
 public void testBug486912PotNullInLoop_orig() {
@@ -17892,57 +19151,59 @@ public void testBug486912PotNullInLoop_orig() {
 			"}\n" +
 			"",
 		},
-		"----------\n" +
-		"1. ERROR in test\\PotNullInLoop.java (at line 14)\n" +
-		"	potNull.hashCode(); // ERROR 1: pot null, but nothing reported\n" +
-		"	^^^^^^^\n" +
-		"Null pointer access: The variable potNull can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in test\\PotNullInLoop.java (at line 15)\n" +
-		"	ponNullOrNonNull.hashCode(); // ERROR 2: pot null, but nothing reported\n" +
-		"	^^^^^^^^^^^^^^^^\n" +
-		"Potential null pointer access: The variable ponNullOrNonNull may be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in test\\PotNullInLoop.java (at line 27)\n" +
-		"	potNull.hashCode(); // ERROR 3 : pot null, but nothing reported\n" +
-		"	^^^^^^^\n" +
-		"Null pointer access: The variable potNull can only be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in test\\PotNullInLoop.java (at line 28)\n" +
-		"	ponNullOrNonNull.hashCode(); // ERROR 4: pot null, but nothing reported\n" +
-		"	^^^^^^^^^^^^^^^^\n" +
-		"Potential null pointer access: The variable ponNullOrNonNull may be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in test\\PotNullInLoop.java (at line 41)\n" +
-		"	potNull.hashCode(); // OK: pot null, is reported\n" +
-		"	^^^^^^^\n" +
-		"Null pointer access: The variable potNull can only be null at this location\n" +
-		"----------\n" +
-		"6. ERROR in test\\PotNullInLoop.java (at line 42)\n" +
-		"	ponNullOrNonNull.hashCode(); // OK: pot null, is reported\n" +
-		"	^^^^^^^^^^^^^^^^\n" +
-		"Potential null pointer access: The variable ponNullOrNonNull may be null at this location\n" +
-		"----------\n" +
-		"7. ERROR in test\\PotNullInLoop.java (at line 54)\n" +
-		"	potNull.hashCode(); // OK: pot null, is reported\n" +
-		"	^^^^^^^\n" +
-		"Null pointer access: The variable potNull can only be null at this location\n" +
-		"----------\n" +
-		"8. ERROR in test\\PotNullInLoop.java (at line 55)\n" +
-		"	ponNullOrNonNull.hashCode(); // OK: pot null, is reported\n" +
-		"	^^^^^^^^^^^^^^^^\n" +
-		"Potential null pointer access: The variable ponNullOrNonNull may be null at this location\n" +
-		"----------\n" +
-		"9. ERROR in test\\PotNullInLoop.java (at line 67)\n" +
-		"	potNull.hashCode(); // OK: pot null, is reported\n" +
-		"	^^^^^^^\n" +
-		"Null pointer access: The variable potNull can only be null at this location\n" +
-		"----------\n" +
-		"10. ERROR in test\\PotNullInLoop.java (at line 68)\n" +
-		"	ponNullOrNonNull.hashCode(); // OK: pot null, is reported\n" +
-		"	^^^^^^^^^^^^^^^^\n" +
-		"Potential null pointer access: The variable ponNullOrNonNull may be null at this location\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in test\\PotNullInLoop.java (at line 14)
+				potNull.hashCode(); // ERROR 1: pot null, but nothing reported
+				^^^^^^^
+			Null pointer access: The variable potNull can only be null at this location
+			----------
+			2. ERROR in test\\PotNullInLoop.java (at line 15)
+				ponNullOrNonNull.hashCode(); // ERROR 2: pot null, but nothing reported
+				^^^^^^^^^^^^^^^^
+			Potential null pointer access: The variable ponNullOrNonNull may be null at this location
+			----------
+			3. ERROR in test\\PotNullInLoop.java (at line 27)
+				potNull.hashCode(); // ERROR 3 : pot null, but nothing reported
+				^^^^^^^
+			Null pointer access: The variable potNull can only be null at this location
+			----------
+			4. ERROR in test\\PotNullInLoop.java (at line 28)
+				ponNullOrNonNull.hashCode(); // ERROR 4: pot null, but nothing reported
+				^^^^^^^^^^^^^^^^
+			Potential null pointer access: The variable ponNullOrNonNull may be null at this location
+			----------
+			5. ERROR in test\\PotNullInLoop.java (at line 41)
+				potNull.hashCode(); // OK: pot null, is reported
+				^^^^^^^
+			Null pointer access: The variable potNull can only be null at this location
+			----------
+			6. ERROR in test\\PotNullInLoop.java (at line 42)
+				ponNullOrNonNull.hashCode(); // OK: pot null, is reported
+				^^^^^^^^^^^^^^^^
+			Potential null pointer access: The variable ponNullOrNonNull may be null at this location
+			----------
+			7. ERROR in test\\PotNullInLoop.java (at line 54)
+				potNull.hashCode(); // OK: pot null, is reported
+				^^^^^^^
+			Null pointer access: The variable potNull can only be null at this location
+			----------
+			8. ERROR in test\\PotNullInLoop.java (at line 55)
+				ponNullOrNonNull.hashCode(); // OK: pot null, is reported
+				^^^^^^^^^^^^^^^^
+			Potential null pointer access: The variable ponNullOrNonNull may be null at this location
+			----------
+			9. ERROR in test\\PotNullInLoop.java (at line 67)
+				potNull.hashCode(); // OK: pot null, is reported
+				^^^^^^^
+			Null pointer access: The variable potNull can only be null at this location
+			----------
+			10. ERROR in test\\PotNullInLoop.java (at line 68)
+				ponNullOrNonNull.hashCode(); // OK: pot null, is reported
+				^^^^^^^^^^^^^^^^
+			Potential null pointer access: The variable ponNullOrNonNull may be null at this location
+			----------
+			"""
 	);
 }
 // variant of testBug486912PotNullInLoop_orig spiced up with potentiality from an 'unknown' o0:
@@ -18014,50 +19275,54 @@ public void testBug486912PotNullInLoop() {
 			"}\n" +
 			"",
 		},
-		"----------\n" +
-		"1. ERROR in test\\PotNullInLoop.java (at line 13)\n" +
-		"	potNull.hashCode(); // ERROR 1: pot null, but nothing reported\n" +
-		"	^^^^^^^\n" +
-		"Potential null pointer access: The variable potNull may be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in test\\PotNullInLoop.java (at line 24)\n" +
-		"	potNull.hashCode(); // ERROR 3 : pot null, but nothing reported\n" +
-		"	^^^^^^^\n" +
-		"Potential null pointer access: The variable potNull may be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in test\\PotNullInLoop.java (at line 36)\n" +
-		"	potNull.hashCode(); // OK: pot null, is reported\n" +
-		"	^^^^^^^\n" +
-		"Potential null pointer access: The variable potNull may be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in test\\PotNullInLoop.java (at line 47)\n" +
-		"	potNull.hashCode(); // OK: pot null, is reported\n" +
-		"	^^^^^^^\n" +
-		"Potential null pointer access: The variable potNull may be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in test\\PotNullInLoop.java (at line 58)\n" +
-		"	potNull.hashCode(); // OK: pot null, is reported\n" +
-		"	^^^^^^^\n" +
-		"Potential null pointer access: The variable potNull may be null at this location\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in test\\PotNullInLoop.java (at line 13)
+				potNull.hashCode(); // ERROR 1: pot null, but nothing reported
+				^^^^^^^
+			Potential null pointer access: The variable potNull may be null at this location
+			----------
+			2. ERROR in test\\PotNullInLoop.java (at line 24)
+				potNull.hashCode(); // ERROR 3 : pot null, but nothing reported
+				^^^^^^^
+			Potential null pointer access: The variable potNull may be null at this location
+			----------
+			3. ERROR in test\\PotNullInLoop.java (at line 36)
+				potNull.hashCode(); // OK: pot null, is reported
+				^^^^^^^
+			Potential null pointer access: The variable potNull may be null at this location
+			----------
+			4. ERROR in test\\PotNullInLoop.java (at line 47)
+				potNull.hashCode(); // OK: pot null, is reported
+				^^^^^^^
+			Potential null pointer access: The variable potNull may be null at this location
+			----------
+			5. ERROR in test\\PotNullInLoop.java (at line 58)
+				potNull.hashCode(); // OK: pot null, is reported
+				^^^^^^^
+			Potential null pointer access: The variable potNull may be null at this location
+			----------
+			"""
 	);
 }
 public void testBug447695() {
 	runConformTest(
 		new String[] {
 		"test/Test447695.java",
-			"package test;\n" +
-			"\n" +
-			"public class Test447695 {\n" +
-			"	public static void f() {\n" +
-			"		int[] array = null;\n" +
-			"		(array = new int[1])[0] = 42;\n" +
-			"	}\n" +
-			"	public static int g() {\n" +
-			"		int[] array = null;\n" +
-			"		return (array = new int[1])[0];\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package test;
+				
+				public class Test447695 {
+					public static void f() {
+						int[] array = null;
+						(array = new int[1])[0] = 42;
+					}
+					public static int g() {
+						int[] array = null;
+						return (array = new int[1])[0];
+					}
+				}
+				"""
 		}
 	);
 }
@@ -18066,14 +19331,16 @@ public void testBug447695b() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"public class X {\n" +
-			"	void test(String[] ss) {\n" +
-			"		List<String> strings = null;\n" +
-			"		for (String s : (strings = Arrays.asList(ss)))\n" +
-			"			System.out.println(s);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				public class X {
+					void test(String[] ss) {
+						List<String> strings = null;
+						for (String s : (strings = Arrays.asList(ss)))
+							System.out.println(s);
+					}
+				}
+				"""
 		});
 }
 public void testBug447695c() {
@@ -18081,15 +19348,17 @@ public void testBug447695c() {
 	runConformTest(
 		new String[] {
 			"test/Test447695.java",
-			"package test;\n" +
-			"\n" +
-			"public class Test447695 {\n" +
-			"	void f() {\n" +
-			"		Integer l1 = null;\n" +
-			"		Integer l2 = null;\n" +
-			"		int b = (l1 = new Integer(2)) + (l2 = new Integer(1));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package test;
+				
+				public class Test447695 {
+					void f() {
+						Integer l1 = null;
+						Integer l2 = null;
+						int b = (l1 = new Integer(2)) + (l2 = new Integer(1));
+					}
+				}
+				"""
 		}
 	);
 }
@@ -18098,16 +19367,18 @@ public void testBug447695d() {
 	runConformTest(
 		new String[] {
 			"test/Test447695.java",
-			"package test;\n" +
-			"\n" +
-			"import java.util.function.Supplier;\n" +
-			"\n" +
-			"public class Test447695 {\n" +
-			"	void f() {\n" +
-			"		String s = null;\n" +
-			"		Supplier<String> l = (s = \"\")::toString;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package test;
+				
+				import java.util.function.Supplier;
+				
+				public class Test447695 {
+					void f() {
+						String s = null;
+						Supplier<String> l = (s = "")::toString;
+					}
+				}
+				"""
 		}
 	);
 }
@@ -18116,16 +19387,18 @@ public void testBug447695e() {
 	runConformTest(
 		new String[] {
 			"test/Test447695.java",
-			"package test;\n" +
-			"\n" +
-			"public class Test447695 {\n" +
-			"	void f() {\n" +
-			"		Integer i = null;\n" +
-			"		int j = -(i = new Integer(1));\n" +
-			"		Boolean b1 = null;\n" +
-			"		boolean b = !(b1 = new Boolean(false));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package test;
+				
+				public class Test447695 {
+					void f() {
+						Integer i = null;
+						int j = -(i = new Integer(1));
+						Boolean b1 = null;
+						boolean b = !(b1 = new Boolean(false));
+					}
+				}
+				"""
 		}
 	);
 }
@@ -18134,20 +19407,22 @@ public void testBug447695f() {
 	runConformTest(
 		new String[] {
 			"test/Test447695.java",
-			"package test;\n" +
-			"\n" +
-			"public class Test447695 {\n" +
-			"	void f() {\n" +
-			"		int i = 0;\n" +
-			"		Integer i1 = null;\n" +
-			"		Integer i2 = null;\n" +
-			"		Integer i3 = null;\n" +
-			"		int j = (i1 = new Integer(1)) \n" +
-			"				+ (i2 = new Integer(1)) \n" +
-			"				+ i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i \n" +
-			"				+ (i3 = new Integer(2)) + i;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package test;
+				
+				public class Test447695 {
+					void f() {
+						int i = 0;
+						Integer i1 = null;
+						Integer i2 = null;
+						Integer i3 = null;
+						int j = (i1 = new Integer(1))\s
+								+ (i2 = new Integer(1))\s
+								+ i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i\s
+								+ (i3 = new Integer(2)) + i;
+					}
+				}
+				"""
 		}
 	);
 }
@@ -18155,68 +19430,72 @@ public void testBug447695g() {
 	runNegativeNullTest(
 		new String[] {
 			"test/Test447695.java",
-			"package test;\n" +
-			"\n" +
-			"class X {\n" +
-			"	int i;\n" +
-			"}\n" +
-			"\n" +
-			"public class Test447695 {\n" +
-			"	void f() {\n" +
-			"		X x1 = null;\n" +
-			"		X x2 = null;\n" +
-			"		X x3 = null;\n" +
-			"		X x4 = null;\n" +
-			"		X x5 = null;\n" +
-			"		X x6 = null;\n" +
-			"		X x7 = null;\n" +
-			"		X x8 = null;\n" +
-			"		X x9 = null;\n" +
-			"		X x10 = null;\n" +
-			"		X x11 = null;\n" +
-			"		x1.i = 1; // error 1 expected\n" +
-			"		x2.i += 1; // error 2 expected\n" +
-			"		(x3).i = 1; // error 3 expected\n" +
-			"		(x4).i += 1; // error 4 expected\n" +
-			"		(x5 = new X()).i = (x6 = new X()).i;\n" +
-			"		(x7 = new X()).i += (x8 = new X()).i;\n" +
-			"		int i1 = x9.i; // error 5 expected\n" +
-			"		int i2 = (x10).i; // error 6 expected\n" +
-			"		int i3 = (x11 = new X()).i;\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package test;
+				
+				class X {
+					int i;
+				}
+				
+				public class Test447695 {
+					void f() {
+						X x1 = null;
+						X x2 = null;
+						X x3 = null;
+						X x4 = null;
+						X x5 = null;
+						X x6 = null;
+						X x7 = null;
+						X x8 = null;
+						X x9 = null;
+						X x10 = null;
+						X x11 = null;
+						x1.i = 1; // error 1 expected
+						x2.i += 1; // error 2 expected
+						(x3).i = 1; // error 3 expected
+						(x4).i += 1; // error 4 expected
+						(x5 = new X()).i = (x6 = new X()).i;
+						(x7 = new X()).i += (x8 = new X()).i;
+						int i1 = x9.i; // error 5 expected
+						int i2 = (x10).i; // error 6 expected
+						int i3 = (x11 = new X()).i;
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in test\\Test447695.java (at line 20)\n" +
-		"	x1.i = 1; // error 1 expected\n" +
-		"	^^\n" +
-		"Null pointer access: The variable x1 can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in test\\Test447695.java (at line 21)\n" +
-		"	x2.i += 1; // error 2 expected\n" +
-		"	^^\n" +
-		"Null pointer access: The variable x2 can only be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in test\\Test447695.java (at line 22)\n" +
-		"	(x3).i = 1; // error 3 expected\n" +
-		"	^^^^\n" +
-		"Null pointer access: The variable x3 can only be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in test\\Test447695.java (at line 23)\n" +
-		"	(x4).i += 1; // error 4 expected\n" +
-		"	^^^^\n" +
-		"Null pointer access: The variable x4 can only be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in test\\Test447695.java (at line 26)\n" +
-		"	int i1 = x9.i; // error 5 expected\n" +
-		"	         ^^\n" +
-		"Null pointer access: The variable x9 can only be null at this location\n" +
-		"----------\n" +
-		"6. ERROR in test\\Test447695.java (at line 27)\n" +
-		"	int i2 = (x10).i; // error 6 expected\n" +
-		"	         ^^^^^\n" +
-		"Null pointer access: The variable x10 can only be null at this location\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in test\\Test447695.java (at line 20)
+				x1.i = 1; // error 1 expected
+				^^
+			Null pointer access: The variable x1 can only be null at this location
+			----------
+			2. ERROR in test\\Test447695.java (at line 21)
+				x2.i += 1; // error 2 expected
+				^^
+			Null pointer access: The variable x2 can only be null at this location
+			----------
+			3. ERROR in test\\Test447695.java (at line 22)
+				(x3).i = 1; // error 3 expected
+				^^^^
+			Null pointer access: The variable x3 can only be null at this location
+			----------
+			4. ERROR in test\\Test447695.java (at line 23)
+				(x4).i += 1; // error 4 expected
+				^^^^
+			Null pointer access: The variable x4 can only be null at this location
+			----------
+			5. ERROR in test\\Test447695.java (at line 26)
+				int i1 = x9.i; // error 5 expected
+				         ^^
+			Null pointer access: The variable x9 can only be null at this location
+			----------
+			6. ERROR in test\\Test447695.java (at line 27)
+				int i2 = (x10).i; // error 6 expected
+				         ^^^^^
+			Null pointer access: The variable x10 can only be null at this location
+			----------
+			"""
 	);
 }
 public void testBug509188() {
@@ -18263,28 +19542,32 @@ public void testBug536408() {
 	runner.testFiles =
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        Long s1 = null;\n" +
-			"        long t = 0;\n" +
-			"        t += s1;\n" +
-			"		 Long s2 = t > 0 ? 1l : null;\n" +
-			"		 t += s2;\n" +
-			"    }\n" +
-			"}\n"
+			"""
+				public class X {
+				    public static void main(String[] args) {
+				        Long s1 = null;
+				        long t = 0;
+				        t += s1;
+						 Long s2 = t > 0 ? 1l : null;
+						 t += s2;
+				    }
+				}
+				"""
 		};
 	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	t += s1;\n" +
-		"	     ^^\n" +
-		"Null pointer access: This expression of type Long is null but requires auto-unboxing\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	t += s2;\n" +
-		"	     ^^\n" +
-		"Potential null pointer access: This expression of type Long may be null but requires auto-unboxing\n" +
-		"----------\n";
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				t += s1;
+				     ^^
+			Null pointer access: This expression of type Long is null but requires auto-unboxing
+			----------
+			2. ERROR in X.java (at line 7)
+				t += s2;
+				     ^^
+			Potential null pointer access: This expression of type Long may be null but requires auto-unboxing
+			----------
+			""";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
@@ -18296,23 +19579,27 @@ public void testBug542707_1() {
 	runner.customOptions.put(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 	runner.testFiles = new String[] {
 		"X.java",
-		"public class X {\n" +
-		"	void test(int i) {\n" +
-		"		String s = switch (i) {\n" +
-		"			case 1 -> \"one\";\n" +
-		"			default -> null;\n" +
-		"		};\n" +
-		"		System.out.println(s.toLowerCase());\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X {
+				void test(int i) {
+					String s = switch (i) {
+						case 1 -> "one";
+						default -> null;
+					};
+					System.out.println(s.toLowerCase());
+				}
+			}
+			"""
 	};
 	runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	System.out.println(s.toLowerCase());\n" +
-			"	                   ^\n" +
-			"Potential null pointer access: The variable s may be null at this location\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					System.out.println(s.toLowerCase());
+					                   ^
+				Potential null pointer access: The variable s may be null at this location
+				----------
+				""";
 	runner.runNegativeTest();
 }
 public void testBug544872() {
@@ -18330,164 +19617,172 @@ public void testBug544872() {
 			"}\n" +
 			""
 		},
-		"----------\n" +
-		"1. ERROR in Test.java (at line 5)\n" +
-		"	synchronized (string) {\n" +
-		"	              ^^^^^^\n" +
-		"Potential null pointer access: The variable string may be null at this location\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in Test.java (at line 5)
+				synchronized (string) {
+				              ^^^^^^
+			Potential null pointer access: The variable string may be null at this location
+			----------
+			"""
 	);
 }
 public void testBug551012() {
 	runNegativeNullTest(
 		new String[] {
 			"NullConstants.java",
-			"public class NullConstants {\n" +
-			"	protected static final String FOO = null;\n" +
-			"\n" +
-			"	protected String foo = FOO;\n" +
-			"\n" +
-			"	protected static final String BAR = \"\";\n" +
-			"\n" +
-			"	protected String bar = BAR;\n" +
-			"\n" +
-			"	public boolean notAProblemButWhyNot() {\n" +
-			"		return FOO == null ? foo != null : !FOO.equals(foo);\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean alsoNotAProblemButThisWillAlwaysNPE() {\n" +
-			"		return FOO != null ? foo != null : !FOO.equals(foo);\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean aProblemButHowToAvoid() {\n" +
-			"		return BAR == null ? bar != null : !BAR.equals(bar);\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean wrongpProblemMessage() {\n" +
-			"		return BAR != null ? !BAR.equals(bar) : bar != null;\n" +
-			"	}\n" +
-			"\n" +
-			"	public boolean howAboutThis() {\n" +
-			"		return bar == null ? BAR != null : bar.equals(BAR);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class NullConstants {
+					protected static final String FOO = null;
+				
+					protected String foo = FOO;
+				
+					protected static final String BAR = "";
+				
+					protected String bar = BAR;
+				
+					public boolean notAProblemButWhyNot() {
+						return FOO == null ? foo != null : !FOO.equals(foo);
+					}
+				
+					public boolean alsoNotAProblemButThisWillAlwaysNPE() {
+						return FOO != null ? foo != null : !FOO.equals(foo);
+					}
+				
+					public boolean aProblemButHowToAvoid() {
+						return BAR == null ? bar != null : !BAR.equals(bar);
+					}
+				
+					public boolean wrongpProblemMessage() {
+						return BAR != null ? !BAR.equals(bar) : bar != null;
+					}
+				
+					public boolean howAboutThis() {
+						return bar == null ? BAR != null : bar.equals(BAR);
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in NullConstants.java (at line 19)\n" +
-		"	return BAR == null ? bar != null : !BAR.equals(bar);\n" +
-		"	       ^^^\n" +
-		"Null comparison always yields false: The field BAR is a nonnull constant\n" +
-		"----------\n" +
-		"2. ERROR in NullConstants.java (at line 23)\n" +
-		"	return BAR != null ? !BAR.equals(bar) : bar != null;\n" +
-		"	       ^^^\n" +
-		"Redundant null check: The field BAR is a nonnull constant\n" +
-		"----------\n" +
-		"3. ERROR in NullConstants.java (at line 27)\n" +
-		"	return bar == null ? BAR != null : bar.equals(BAR);\n" +
-		"	                     ^^^\n" +
-		"Redundant null check: The field BAR is a nonnull constant\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in NullConstants.java (at line 19)
+				return BAR == null ? bar != null : !BAR.equals(bar);
+				       ^^^
+			Null comparison always yields false: The field BAR is a nonnull constant
+			----------
+			2. ERROR in NullConstants.java (at line 23)
+				return BAR != null ? !BAR.equals(bar) : bar != null;
+				       ^^^
+			Redundant null check: The field BAR is a nonnull constant
+			----------
+			3. ERROR in NullConstants.java (at line 27)
+				return bar == null ? BAR != null : bar.equals(BAR);
+				                     ^^^
+			Redundant null check: The field BAR is a nonnull constant
+			----------
+			""");
 }
 public void testBug561280() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses generics
 	runConformTest(
 		new String[] {
 			"test/Test.java",
-			"package test;\n" +
-			"\n" +
-			"import java.util.List;\n" +
-			"import java.util.Set;\n" +
-			"\n" +
-			"public class Test\n" +
-			"{\n" +
-			"  protected static final String ERROR_TYPE = \"error\";\n" +
-			"  protected static final String OBJECT_TYPE = \"object\";\n" +
-			"  protected static final String UNKNOWN_FEATURE_TYPE = \"unknownFeature\";\n" +
-			"  protected static final String DOCUMENT_ROOT_TYPE = \"documentRoot\";\n" +
-			"\n" +
-			"  protected final static String TYPE_ATTRIB = \"\";\n" +
-			"  protected final static String NIL_ATTRIB = \"\";\n" +
-			"  protected final static String SCHEMA_LOCATION_ATTRIB = \"\";\n" +
-			"  protected final static String NO_NAMESPACE_SCHEMA_LOCATION_ATTRIB = \"\";\n" +
-			"\n" +
-			"  protected final static boolean DEBUG_DEMANDED_PACKAGES = false;\n" +
-			"\n" +
-			"\n" +
-			"  protected Object xmlResource;\n" +
-			"  protected Object helper;\n" +
-			"  protected Object elements;\n" +
-			"  protected Object objects;\n" +
-			"  protected Object types;\n" +
-			"  protected Object mixedTargets;\n" +
-			"  protected Object prefixesToFactories;\n" +
-			"  protected Object urisToLocations;\n" +
-			"  protected Object externalURIToLocations;\n" +
-			"  protected boolean processSchemaLocations;\n" +
-			"  protected Object extent;\n" +
-			"  protected Object deferredExtent;\n" +
-			"  protected Object resourceSet;\n" +
-			"  protected Object packageRegistry;\n" +
-			"  protected Object resourceURI;\n" +
-			"  protected boolean resolve;\n" +
-			"  protected boolean oldStyleProxyURIs;\n" +
-			"  protected boolean disableNotify;\n" +
-			"  protected StringBuffer text;\n" +
-			"  protected boolean isIDREF;\n" +
-			"  protected boolean isSimpleFeature;\n" +
-			"  protected Object sameDocumentProxies;\n" +
-			"  protected Object[] identifiers;\n" +
-			"  protected int[] positions;\n" +
-			"  protected static final int ARRAY_SIZE = 64;\n" +
-			"  protected static final int REFERENCE_THRESHOLD = 5;\n" +
-			"  protected int capacity;\n" +
-			"  protected Set<String> notFeatures;\n" +
-			"  protected String idAttribute;\n" +
-			"  protected String hrefAttribute;\n" +
-			"  protected Object xmlMap;\n" +
-			"  protected Object extendedMetaData;\n" +
-			"  protected Object anyType;\n" +
-			"  protected Object anySimpleType;\n" +
-			"  protected boolean recordUnknownFeature;\n" +
-			"  protected boolean useNewMethods;\n" +
-			"  protected boolean recordAnyTypeNSDecls;\n" +
-			"  protected Object eObjectToExtensionMap;\n" +
-			"  protected Object contextFeature;\n" +
-			"  protected Object xmlSchemaTypePackage = null;\n" +
-			"  protected boolean deferIDREFResolution;\n" +
-			"  protected boolean processAnyXML;\n" +
-			"  protected Object ecoreBuilder;\n" +
-			"  protected boolean isRoot;\n" +
-			"  protected Object locator;\n" +
-			"  protected Object attribs;\n" +
-			"  protected boolean useConfigurationCache;\n" +
-			"  protected boolean needsPushContext;\n" +
-			"  protected Object resourceEntityHandler;\n" +
-			"  protected Object uriHandler;\n" +
-			"  protected Object documentRoot;\n" +
-			"  protected boolean usedNullNamespacePackage;\n" +
-			"  protected boolean isNamespaceAware;\n" +
-			"  protected boolean suppressDocumentRoot;\n" +
-			"  protected boolean laxWildcardProcessing;\n" +
-			"\n" +
-			"  protected static void processObjectx(Object object)\n" +
-			"  {\n" +
-			"    if (object instanceof List)\n" +
-			"    {\n" +
-			"      List<?> list = ((List<?>)object);\n" +
-			"      list.size();\n" +
-			"    }\n" +
-			"\n" +
-			"    if (object != null)\n" +
-			"    {\n" +
-			"      object.hashCode();\n" +
-			"    }\n" +
-			"    else\n" +
-			"    {\n" +
-			"      System.err.println(\"#\");\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				package test;
+				
+				import java.util.List;
+				import java.util.Set;
+				
+				public class Test
+				{
+				  protected static final String ERROR_TYPE = "error";
+				  protected static final String OBJECT_TYPE = "object";
+				  protected static final String UNKNOWN_FEATURE_TYPE = "unknownFeature";
+				  protected static final String DOCUMENT_ROOT_TYPE = "documentRoot";
+				
+				  protected final static String TYPE_ATTRIB = "";
+				  protected final static String NIL_ATTRIB = "";
+				  protected final static String SCHEMA_LOCATION_ATTRIB = "";
+				  protected final static String NO_NAMESPACE_SCHEMA_LOCATION_ATTRIB = "";
+				
+				  protected final static boolean DEBUG_DEMANDED_PACKAGES = false;
+				
+				
+				  protected Object xmlResource;
+				  protected Object helper;
+				  protected Object elements;
+				  protected Object objects;
+				  protected Object types;
+				  protected Object mixedTargets;
+				  protected Object prefixesToFactories;
+				  protected Object urisToLocations;
+				  protected Object externalURIToLocations;
+				  protected boolean processSchemaLocations;
+				  protected Object extent;
+				  protected Object deferredExtent;
+				  protected Object resourceSet;
+				  protected Object packageRegistry;
+				  protected Object resourceURI;
+				  protected boolean resolve;
+				  protected boolean oldStyleProxyURIs;
+				  protected boolean disableNotify;
+				  protected StringBuffer text;
+				  protected boolean isIDREF;
+				  protected boolean isSimpleFeature;
+				  protected Object sameDocumentProxies;
+				  protected Object[] identifiers;
+				  protected int[] positions;
+				  protected static final int ARRAY_SIZE = 64;
+				  protected static final int REFERENCE_THRESHOLD = 5;
+				  protected int capacity;
+				  protected Set<String> notFeatures;
+				  protected String idAttribute;
+				  protected String hrefAttribute;
+				  protected Object xmlMap;
+				  protected Object extendedMetaData;
+				  protected Object anyType;
+				  protected Object anySimpleType;
+				  protected boolean recordUnknownFeature;
+				  protected boolean useNewMethods;
+				  protected boolean recordAnyTypeNSDecls;
+				  protected Object eObjectToExtensionMap;
+				  protected Object contextFeature;
+				  protected Object xmlSchemaTypePackage = null;
+				  protected boolean deferIDREFResolution;
+				  protected boolean processAnyXML;
+				  protected Object ecoreBuilder;
+				  protected boolean isRoot;
+				  protected Object locator;
+				  protected Object attribs;
+				  protected boolean useConfigurationCache;
+				  protected boolean needsPushContext;
+				  protected Object resourceEntityHandler;
+				  protected Object uriHandler;
+				  protected Object documentRoot;
+				  protected boolean usedNullNamespacePackage;
+				  protected boolean isNamespaceAware;
+				  protected boolean suppressDocumentRoot;
+				  protected boolean laxWildcardProcessing;
+				
+				  protected static void processObjectx(Object object)
+				  {
+				    if (object instanceof List)
+				    {
+				      List<?> list = ((List<?>)object);
+				      list.size();
+				    }
+				
+				    if (object != null)
+				    {
+				      object.hashCode();
+				    }
+				    else
+				    {
+				      System.err.println("#");
+				    }
+				  }
+				}
+				"""
 		});
 }
 public void testBug380786() {
@@ -18496,37 +19791,41 @@ public void testBug380786() {
 	runNegativeTest(
 		new String[] {
 			"PNA.java",
-			"public class PNA {\n" +
-			"  void missedPNA(String s) {\n" +
-			"    if (s != null)\n" +
-			"      s = \"1,2\";\n" +
-			"    final String[] sa = s.split(\",\");\n" +
-			"    for (final String ss : sa)\n" +
-			"      System.out.println(ss);\n" +
-			"  }\n" +
-			"\n" +
-			"  void detectedPNA(final String ps) {\n" +
-			"    String s = ps;\n" +
-			"    if (s != null)\n" +
-			"      s = \"1,2\";\n" +
-			"    final String[] sa = s.split(\",\");\n" +
-			"    for (final String ss : sa)\n" +
-			"      System.out.println(ss);\n" +
-			"  }\n" +
-			"  \n" +
-			"}\n"
+			"""
+				public class PNA {
+				  void missedPNA(String s) {
+				    if (s != null)
+				      s = "1,2";
+				    final String[] sa = s.split(",");
+				    for (final String ss : sa)
+				      System.out.println(ss);
+				  }
+				
+				  void detectedPNA(final String ps) {
+				    String s = ps;
+				    if (s != null)
+				      s = "1,2";
+				    final String[] sa = s.split(",");
+				    for (final String ss : sa)
+				      System.out.println(ss);
+				  }
+				 \s
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in PNA.java (at line 5)\n" +
-		"	final String[] sa = s.split(\",\");\n" +
-		"	                    ^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in PNA.java (at line 14)\n" +
-		"	final String[] sa = s.split(\",\");\n" +
-		"	                    ^\n" +
-		"Potential null pointer access: The variable s may be null at this location\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in PNA.java (at line 5)
+				final String[] sa = s.split(",");
+				                    ^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			2. ERROR in PNA.java (at line 14)
+				final String[] sa = s.split(",");
+				                    ^
+			Potential null pointer access: The variable s may be null at this location
+			----------
+			"""
 			);
 }
 public void testGH1642_a() {

@@ -4218,17 +4218,19 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		String source = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\n" +
-				"/*\n" +
-				"	\n" +
-				"*/\n" +
-				"}";
-		String expectedResult = "public final void addDefinitelyAssignedVariables(Scope scope,\r\n" +
-				"		int initStateIndex) {\r\n" +
-				"	/*\r\n" +
-				"		\r\n" +
-				"	*/\r\n" +
-				"}";
+		String source = """
+			public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
+			/*
+			\t
+			*/
+			}""";
+		String expectedResult = """
+			public final void addDefinitelyAssignedVariables(Scope scope,\r
+					int initStateIndex) {\r
+				/*\r
+					\r
+				*/\r
+			}""";
 		runTest(source, expectedResult, codeFormatter, CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, 0, -1);
 	}
 
@@ -4236,17 +4238,19 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		String source = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r" +
-				"/*\r" +
-				"	\r" +
-				"*/\r" +
-				"}";
-		String expectedResult = "public final void addDefinitelyAssignedVariables(Scope scope,\r\n" +
-				"		int initStateIndex) {\r\n" +
-				"	/*\r\n" +
-				"		\r\n" +
-				"	*/\r\n" +
-				"}";
+		String source = """
+			public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r\
+			/*\r\
+				\r\
+			*/\r\
+			}""";
+		String expectedResult = """
+			public final void addDefinitelyAssignedVariables(Scope scope,\r
+					int initStateIndex) {\r
+				/*\r
+					\r
+				*/\r
+			}""";
 		runTest(source, expectedResult, codeFormatter, CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, 0, -1);
 	}
 
@@ -4255,17 +4259,19 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
 		preferences.line_separator = "\n";
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		String source = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r\n" +
-				"/*\r\n" +
-				"	\r\n" +
-				"*/\r\n" +
-				"}";
-		String expectedResult = "public final void addDefinitelyAssignedVariables(Scope scope,\n" +
-				"		int initStateIndex) {\n" +
-				"	/*\n" +
-				"		\n" +
-				"	*/\n" +
-				"}";
+		String source = """
+			public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r
+			/*\r
+				\r
+			*/\r
+			}""";
+		String expectedResult = """
+			public final void addDefinitelyAssignedVariables(Scope scope,
+					int initStateIndex) {
+				/*
+				\t
+				*/
+			}""";
 		runTest(source, expectedResult, codeFormatter, CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, 0, -1);
 	}
 
@@ -4274,17 +4280,19 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
 		preferences.line_separator = "\r";
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		String source = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r" +
-				"/*\r" +
-				"	\r" +
-				"*/\r" +
-				"}";
-		String expectedResult = "public final void addDefinitelyAssignedVariables(Scope scope,\r" +
-				"		int initStateIndex) {\r" +
-				"	/*\r" +
-				"		\r" +
-				"	*/\r" +
-				"}";
+		String source = """
+			public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r\
+			/*\r\
+				\r\
+			*/\r\
+			}""";
+		String expectedResult = """
+			public final void addDefinitelyAssignedVariables(Scope scope,\r\
+					int initStateIndex) {\r\
+				/*\r\
+					\r\
+				*/\r\
+			}""";
 		runTest(source, expectedResult, codeFormatter, CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, 0, -1);
 	}
 
@@ -9671,21 +9679,25 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test671", "A.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
 		String source =
-			"public class A {\n" +
-			"	public static void main(String[] args) {\n" +
-			"[#		int a     =     1;#]\n" +
-			"		int b     =     2;\n" +
-			"[#		int c     =     3;#]\n" +
-			"	}\n" +
-			"}\n";
+			"""
+			public class A {
+				public static void main(String[] args) {
+			[#		int a     =     1;#]
+					int b     =     2;
+			[#		int c     =     3;#]
+				}
+			}
+			""";
 		formatSource(source,
-			"public class A {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		int a = 1;\n" +
-			"		int b     =     2;\n" +
-			"		int c = 3;\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class A {
+					public static void main(String[] args) {
+						int a = 1;
+						int b     =     2;
+						int c = 3;
+					}
+				}
+				""",
 			CodeFormatter.K_COMPILATION_UNIT,
 			0 /*no indentation*/,
 			true /*repeat formatting twice*/
@@ -9729,58 +9741,62 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test674", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
 		String source =
-			"public class A {\n" +
-			"	\n" +
-			"	\n" +
-			"	private class Inner1 {[#\n" +
-			"	    	 \n" +
-			"	    	 \n" +
-			"	    	      void    bar () {   }\n" +
-			"	    	      \n" +
-			"	    	   void    i()\n" +
-			"	    	   {\n" +
-			"	    		   \n" +
-			"	    	      }\n" +
-			"	     #]}\n" +
-			"	     \n" +
-			"	     \n" +
-			"	private class Inner2 {\n" +
-			"	    	     void    xy()  {\n" +
-			"	    	    	 \n" +
-			"	    }\n" +
-			"	     }\n" +
-			"}\n" +
-			"class B {[#\n" +
-			"	     private      void foo() {\n" +
-			"	    	 \n" +
-			"	          }\n" +
-			"#]}\n";
+			"""
+			public class A {
+			\t
+			\t
+				private class Inner1 {[#
+				    	\s
+				    	\s
+				    	      void    bar () {   }
+				    	     \s
+				    	   void    i()
+				    	   {
+				    		  \s
+				    	      }
+				     #]}
+				    \s
+				    \s
+				private class Inner2 {
+				    	     void    xy()  {
+				    	    	\s
+				    }
+				     }
+			}
+			class B {[#
+				     private      void foo() {
+				    	\s
+				          }
+			#]}
+			""";
 		formatSource(source,
-			"public class A {\n" +
-			"	\n" +
-			"	\n" +
-			"	private class Inner1 {\n" +
-			"\n" +
-			"		void bar() {\n" +
-			"		}\n" +
-			"\n" +
-			"		void i() {\n" +
-			"\n" +
-			"		}\n" +
-			"	}\n" +
-			"	     \n" +
-			"	     \n" +
-			"	private class Inner2 {\n" +
-			"	    	     void    xy()  {\n" +
-			"	    	    	 \n" +
-			"	    }\n" +
-			"	     }\n" +
-			"}\n" +
-			"class B {\n" +
-			"	private void foo() {\n" +
-			"\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class A {
+				\t
+				\t
+					private class Inner1 {
+				
+						void bar() {
+						}
+				
+						void i() {
+				
+						}
+					}
+					    \s
+					    \s
+					private class Inner2 {
+					    	     void    xy()  {
+					    	    	\s
+					    }
+					     }
+				}
+				class B {
+					private void foo() {
+				
+					}
+				}
+				""",
 			CodeFormatter.K_CLASS_BODY_DECLARATIONS,
 			0 /*no indentation*/,
 			true /*repeat formatting twice*/
@@ -9926,16 +9942,20 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test685", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
 		String source =
-			"public class A {\n" +
-			" [#                       int i=1;    #]           \n" +
-			"}\n";
+			"""
+			public class A {
+			 [#                       int i=1;    #]          \s
+			}
+			""";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"public class A {\n" +
-			" 	int i = 1;           \n" +
-			"}\n",
+			"""
+				public class A {
+				 	int i = 1;          \s
+				}
+				""",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
 			true /*repeat formatting twice*/
@@ -9973,16 +9993,20 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test688", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
 		String source =
-			"public class A {\n" +
-			" [#                       int i=1;               \n" +
-			"}#]\n";
+			"""
+			public class A {
+			 [#                       int i=1;              \s
+			}#]
+			""";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"public class A {\n" +
-			" 	int i = 1;\n" +
-			"}\n",
+			"""
+				public class A {
+				 	int i = 1;
+				}
+				""",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
 			true /*repeat formatting twice*/
@@ -10000,16 +10024,20 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test688", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
 		String source =
-			"public class A {\n" +
-			" [#                       int i=1;               \n" +
-			"}\n#]";
+			"""
+			public class A {
+			 [#                       int i=1;              \s
+			}
+			#]""";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"public class A {\n" +
-			" 	int i = 1;\n" +
-			"}\n"
+			"""
+				public class A {
+				 	int i = 1;
+				}
+				"""
 		);
 	}
 
@@ -10039,20 +10067,24 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		*/
 		this.formatterPrefs.line_separator = "\r";//$NON-NLS-1$
 		String source =
-			"package pkg1;\n" +
-			"public class A {\n" +
-			"[#        int i = 1;     #]\n" +
-			"\n" +
-			"}\n";
+			"""
+			package pkg1;
+			public class A {
+			[#        int i = 1;     #]
+			
+			}
+			""";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"package pkg1;\n" +
-			"public class A {\n" +
-			"	int i = 1;\n" +
-			"\n" +
-			"}\n",
+			"""
+				package pkg1;
+				public class A {
+					int i = 1;
+				
+				}
+				""",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
 			true /*repeat formatting twice*/
@@ -10073,20 +10105,24 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		*/
 		this.formatterPrefs.line_separator = "\r\n";//$NON-NLS-1$
 		String source =
-			"package pkg1;\n" +
-			"public class A {\n" +
-			"[#        int i = 1;    #] \n" +
-			"\n" +
-			"}\n";
+			"""
+			package pkg1;
+			public class A {
+			[#        int i = 1;    #]\s
+			
+			}
+			""";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"package pkg1;\n" +
-			"public class A {\n" +
-			"	int i = 1; \n" +
-			"\n" +
-			"}\n",
+			"""
+				package pkg1;
+				public class A {
+					int i = 1;\s
+				
+				}
+				""",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
 			true /*repeat formatting twice*/
@@ -10162,23 +10198,28 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test695", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 		*/
 		String source =
-			"package test1;\n" +
-			"public class A {\n" +
-			"\n" +
-			"        public int field;\n" +
-			"[#\n#]" +
-			"\n" +
-			"}\r\n";
+			"""
+			package test1;
+			public class A {
+			
+			        public int field;
+			[#
+			#]\
+			
+			}\r
+			""";
 		// Note that whitespaces outside the region are kept after the formatting
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"package test1;\n" +
-			"public class A {\n" +
-			"\n" +
-			"        public int field;\n" +
-			"\n" +
-			"}\r\n",
+			"""
+				package test1;
+				public class A {
+				
+				        public int field;
+				
+				}\r
+				""",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
 			true /*repeat formatting twice*/
@@ -10236,13 +10277,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"public class A {\n" +
-			"\n" +
-			"	int i = 1;\n" +
-			"\n" +
-			"\n" +
-			"\n" +
-			"}\n",
+			"""
+				public class A {
+				
+					int i = 1;
+				
+				
+				
+				}
+				""",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
 			true /*repeat formatting twice*/
@@ -10276,12 +10319,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		// This is intentional since fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		// The formatter should not touch code outside the given region(s)...
 		formatSource(source,
-			"public class A {\n" +
-			"\n" +
-			"	int i = 1;\n" +
-			"\n" +
-			"\n" +
-			"}\n",
+			"""
+				public class A {
+				
+					int i = 1;
+				
+				
+				}
+				""",
 			CodeFormatter.K_UNKNOWN,
 			0 /*no indentation*/,
 			true /*repeat formatting twice*/
@@ -10641,24 +10686,26 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		*/
 		this.formatterPrefs = new DefaultCodeFormatterOptions(options);
 		String source =
-			"package pack;\n" +
-			"\n" +
-			"public class A {\n" +
-			"    /**\n" +
-			"         * @see A.Inner\n" +
-			"         */\n" +
-			"[#    public class Inner { }\n" +
-			"#]}";
+			"""
+			package pack;
+			
+			public class A {
+			    /**
+			         * @see A.Inner
+			         */
+			[#    public class Inner { }
+			#]}""";
 		formatSource(source,
-			"package pack;\n" +
-			"\n" +
-			"public class A {\n" +
-			"    /**\n" +
-			"         * @see A.Inner\n" +
-			"         */\n" +
-			"	public class Inner {\n" +
-			"	}\n" +
-			"}"
+			"""
+				package pack;
+				
+				public class A {
+				    /**
+				         * @see A.Inner
+				         */
+					public class Inner {
+					}
+				}"""
 		);
 	}
 
@@ -10771,14 +10818,16 @@ public void test724() {
 		"}\n" +
 		"";
 	formatSource(source,
-		"public class X {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		LABEL:\n" +
-		"		for (int i = 0; i < 10; i++) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"\n" +
-		"}\n"
+		"""
+			public class X {
+				public static void main(String[] args) {
+					LABEL:
+					for (int i = 0; i < 10; i++) {
+					}
+				}
+			
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=308000
@@ -10788,33 +10837,37 @@ public void test725() {
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
 	String source =
-		"@Deprecated package pack;\n" +
-		"public class Test {\n" +
-		"    @Deprecated Test(String s) {}\n" +
-		"    @Deprecated String label;\n" +
-		"    @Deprecated void foo() {}\n" +
-		"    @Deprecated interface I {}\n" +
-		"}\n";
+		"""
+		@Deprecated package pack;
+		public class Test {
+		    @Deprecated Test(String s) {}
+		    @Deprecated String label;
+		    @Deprecated void foo() {}
+		    @Deprecated interface I {}
+		}
+		""";
 	formatSource(source,
-		"@Deprecated\n" +
-		"package pack;\n" +
-		"\n" +
-		"public class Test {\n" +
-		"	@Deprecated\n" +
-		"	Test(String s) {\n" +
-		"	}\n" +
-		"\n" +
-		"	@Deprecated\n" +
-		"	String label;\n" +
-		"\n" +
-		"	@Deprecated\n" +
-		"	void foo() {\n" +
-		"	}\n" +
-		"\n" +
-		"	@Deprecated\n" +
-		"	interface I {\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			@Deprecated
+			package pack;
+			
+			public class Test {
+				@Deprecated
+				Test(String s) {
+				}
+			
+				@Deprecated
+				String label;
+			
+				@Deprecated
+				void foo() {
+				}
+			
+				@Deprecated
+				interface I {
+				}
+			}
+			"""
 	);
 }
 public void test726() {
@@ -10827,28 +10880,32 @@ public void test726() {
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD, DefaultCodeFormatterConstants.FALSE);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE, DefaultCodeFormatterConstants.FALSE);
 	String source =
-		"@Deprecated package pack;\n" +
-		"public class Test {\n" +
-		"    @Deprecated Test(String s) {}\n" +
-		"    @Deprecated String label;\n" +
-		"    @Deprecated void foo() {}\n" +
-		"    @Deprecated interface I {}\n" +
-		"}\n";
+		"""
+		@Deprecated package pack;
+		public class Test {
+		    @Deprecated Test(String s) {}
+		    @Deprecated String label;
+		    @Deprecated void foo() {}
+		    @Deprecated interface I {}
+		}
+		""";
 	formatSource(source,
-		"@Deprecated package pack;\n" +
-		"\n" +
-		"public class Test {\n" +
-		"	@Deprecated Test(String s) {\n" +
-		"	}\n" +
-		"\n" +
-		"	@Deprecated String label;\n" +
-		"\n" +
-		"	@Deprecated void foo() {\n" +
-		"	}\n" +
-		"\n" +
-		"	@Deprecated interface I {\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			@Deprecated package pack;
+			
+			public class Test {
+				@Deprecated Test(String s) {
+				}
+			
+				@Deprecated String label;
+			
+				@Deprecated void foo() {
+				}
+			
+				@Deprecated interface I {
+				}
+			}
+			"""
 	);
 }
 /**
@@ -10866,28 +10923,32 @@ public void test727() {
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE, DefaultCodeFormatterConstants.FALSE);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER, DefaultCodeFormatterConstants.FALSE);
 	String source =
-		"@Deprecated package pack;\n" +
-		"public class Test {\n" +
-		"    @Deprecated Test(String s) {}\n" +
-		"    @Deprecated String label;\n" +
-		"    @Deprecated void foo() {}\n" +
-		"    @Deprecated interface I {}\n" +
-		"}\n";
+		"""
+		@Deprecated package pack;
+		public class Test {
+		    @Deprecated Test(String s) {}
+		    @Deprecated String label;
+		    @Deprecated void foo() {}
+		    @Deprecated interface I {}
+		}
+		""";
 	formatSource(source,
-		"@Deprecated package pack;\n" +
-		"\n" +
-		"public class Test {\n" +
-		"	@Deprecated Test(String s) {\n" +
-		"	}\n" +
-		"\n" +
-		"	@Deprecated String label;\n" +
-		"\n" +
-		"	@Deprecated void foo() {\n" +
-		"	}\n" +
-		"\n" +
-		"	@Deprecated interface I {\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			@Deprecated package pack;
+			
+			public class Test {
+				@Deprecated Test(String s) {
+				}
+			
+				@Deprecated String label;
+			
+				@Deprecated void foo() {
+				}
+			
+				@Deprecated interface I {
+				}
+			}
+			"""
 	);
 }
 
@@ -10907,28 +10968,32 @@ public void test728() {
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION, DefaultCodeFormatterConstants.FALSE);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER, JavaCore.DO_NOT_INSERT);
 	String source =
-		"@Deprecated package pack;\n" +
-		"public class Test {\n" +
-		"    @Deprecated Test(String s) {}\n" +
-		"    @Deprecated String label;\n" +
-		"    @Deprecated void foo() {}\n" +
-		"    @Deprecated interface I {}\n" +
-		"}\n";
+		"""
+		@Deprecated package pack;
+		public class Test {
+		    @Deprecated Test(String s) {}
+		    @Deprecated String label;
+		    @Deprecated void foo() {}
+		    @Deprecated interface I {}
+		}
+		""";
 	formatSource(source,
-		"@Deprecated package pack;\n" +
-		"\n" +
-		"public class Test {\n" +
-		"	@Deprecated Test(String s) {\n" +
-		"	}\n" +
-		"\n" +
-		"	@Deprecated String label;\n" +
-		"\n" +
-		"	@Deprecated void foo() {\n" +
-		"	}\n" +
-		"\n" +
-		"	@Deprecated interface I {\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			@Deprecated package pack;
+			
+			public class Test {
+				@Deprecated Test(String s) {
+				}
+			
+				@Deprecated String label;
+			
+				@Deprecated void foo() {
+				}
+			
+				@Deprecated interface I {
+				}
+			}
+			"""
 	);
 }
 public void test729() {
@@ -10937,24 +11002,28 @@ public void test729() {
 	this.formatterOptions = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(profilePath, "b308000");
 	assertNotNull("No preferences", this.formatterOptions);
 	String source =
-		"package p;\n" +
-		"\n" +
-		"@Deprecated public class C {\n" +
-		"	@Deprecated public static void main(@Deprecated String[] args) {\n" +
-		"		@Deprecated int i= 2;\n" +
-		"		System.out.println(i);\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package p;
+		
+		@Deprecated public class C {
+			@Deprecated public static void main(@Deprecated String[] args) {
+				@Deprecated int i= 2;
+				System.out.println(i);
+			}
+		}
+		""";
 	formatSource(source,
-		"package p;\n" +
-		"\n" +
-		"@Deprecated public class C {\n" +
-		"	@Deprecated public static void main(@Deprecated String[] args) {\n" +
-		"		@Deprecated\n" +
-		"		int i = 2;\n" +
-		"		System.out.println(i);\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package p;
+			
+			@Deprecated public class C {
+				@Deprecated public static void main(@Deprecated String[] args) {
+					@Deprecated
+					int i = 2;
+					System.out.println(i);
+				}
+			}
+			"""
 	);
 }
 public void test730() {
@@ -10965,13 +11034,14 @@ public void test730() {
 	String source = "enum Fail1 {A;;{}}";
 	formatSource(
 		source,
-		"enum Fail1 {\n" +
-		"	A;\n" +
-		"	;\n" +
-		"\n" +
-		"	{\n" +
-		"	}\n" +
-		"}"
+		"""
+			enum Fail1 {
+				A;
+				;
+			
+				{
+				}
+			}"""
 	);
 }
 public void test731() {
@@ -10982,13 +11052,14 @@ public void test731() {
 	String source = "enum Fail2 {A,B;;{}}";
 	formatSource(
 		source,
-		"enum Fail2 {\n" +
-		"	A, B;\n" +
-		"	;\n" +
-		"\n" +
-		"	{\n" +
-		"	}\n" +
-		"}"
+		"""
+			enum Fail2 {
+				A, B;
+				;
+			
+				{
+				}
+			}"""
 	);
 }
 public void test732() {
@@ -10999,13 +11070,14 @@ public void test732() {
 	String source = "enum Fail3 {A;;public void foo() {}}";
 	formatSource(
 		source,
-		"enum Fail3 {\n" +
-		"	A;\n" +
-		"	;\n" +
-		"\n" +
-		"	public void foo() {\n" +
-		"	}\n" +
-		"}"
+		"""
+			enum Fail3 {
+				A;
+				;
+			
+				public void foo() {
+				}
+			}"""
 	);
 }
 public void test733() {
@@ -11016,12 +11088,13 @@ public void test733() {
 	String source = "enum Fail4 {A;;public int i = 0;}";
 	formatSource(
 		source,
-		"enum Fail4 {\n" +
-		"	A;\n" +
-		"	;\n" +
-		"\n" +
-		"	public int i = 0;\n" +
-		"}"
+		"""
+			enum Fail4 {
+				A;
+				;
+			
+				public int i = 0;
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=282988
@@ -11029,29 +11102,33 @@ public void test734() {
 	this.formatterPrefs = null;
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT, DefaultCodeFormatterConstants.TRUE);
 	String source =
-		"package p;\n" +
-		"\n" +
-		"public class Comment {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		//                         internal indentation\n" +
-		"		int i = 1;				// tabs\n" +
-		"		int j = 2;              // spaces\n" +
-		"		int k = 3;			    // mixed tabs and spaces\n" +
-		"		System.out.print(i);	/* does not affect block comments */\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package p;
+		
+		public class Comment {
+			public static void main(String[] args) {
+				//                         internal indentation
+				int i = 1;				// tabs
+				int j = 2;              // spaces
+				int k = 3;			    // mixed tabs and spaces
+				System.out.print(i);	/* does not affect block comments */
+			}
+		}
+		""";
 	formatSource(source,
-		"package p;\n" +
-		"\n" +
-		"public class Comment {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		// internal indentation\n" +
-		"		int i = 1;				// tabs\n" +
-		"		int j = 2;              // spaces\n" +
-		"		int k = 3;			    // mixed tabs and spaces\n" +
-		"		System.out.print(i); /* does not affect block comments */\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package p;
+			
+			public class Comment {
+				public static void main(String[] args) {
+					// internal indentation
+					int i = 1;				// tabs
+					int j = 2;              // spaces
+					int k = 3;			    // mixed tabs and spaces
+					System.out.print(i); /* does not affect block comments */
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=282988
@@ -11059,29 +11136,33 @@ public void test735() {
 	this.formatterPrefs = null;
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT, DefaultCodeFormatterConstants.FALSE);
 	String source =
-		"package p;\n" +
-		"\n" +
-		"public class Comment {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		//                         internal indentation\n" +
-		"		int i = 1;				// tabs\n" +
-		"		int j = 2;              // spaces\n" +
-		"		int k = 3;			    // mixed tabs and spaces\n" +
-		"		System.out.print(i);	/* does not affect block comments */\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package p;
+		
+		public class Comment {
+			public static void main(String[] args) {
+				//                         internal indentation
+				int i = 1;				// tabs
+				int j = 2;              // spaces
+				int k = 3;			    // mixed tabs and spaces
+				System.out.print(i);	/* does not affect block comments */
+			}
+		}
+		""";
 	formatSource(source,
-		"package p;\n" +
-		"\n" +
-		"public class Comment {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		// internal indentation\n" +
-		"		int i = 1; // tabs\n" +
-		"		int j = 2; // spaces\n" +
-		"		int k = 3; // mixed tabs and spaces\n" +
-		"		System.out.print(i); /* does not affect block comments */\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package p;
+			
+			public class Comment {
+				public static void main(String[] args) {
+					// internal indentation
+					int i = 1; // tabs
+					int j = 2; // spaces
+					int k = 3; // mixed tabs and spaces
+					System.out.print(i); /* does not affect block comments */
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=282988
@@ -11089,29 +11170,33 @@ public void test736() {
 	this.formatterPrefs = null;
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT, DefaultCodeFormatterConstants.TRUE);
 	String source =
-		"package p;\n" +
-		"\n" +
-		"public class Comment {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		//                         internal indentation\n" +
-		"		int i = 1;// tabs\n" +
-		"		int j = 2;// spaces\n" +
-		"		int k = 3;// mixed tabs and spaces\n" +
-		"		System.out.print(i);	/* does not affect block comments */\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package p;
+		
+		public class Comment {
+			public static void main(String[] args) {
+				//                         internal indentation
+				int i = 1;// tabs
+				int j = 2;// spaces
+				int k = 3;// mixed tabs and spaces
+				System.out.print(i);	/* does not affect block comments */
+			}
+		}
+		""";
 	formatSource(source,
-		"package p;\n" +
-		"\n" +
-		"public class Comment {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		// internal indentation\n" +
-		"		int i = 1;// tabs\n" +
-		"		int j = 2;// spaces\n" +
-		"		int k = 3;// mixed tabs and spaces\n" +
-		"		System.out.print(i); /* does not affect block comments */\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package p;
+			
+			public class Comment {
+				public static void main(String[] args) {
+					// internal indentation
+					int i = 1;// tabs
+					int j = 2;// spaces
+					int k = 3;// mixed tabs and spaces
+					System.out.print(i); /* does not affect block comments */
+				}
+			}
+			"""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=282988
@@ -11119,29 +11204,33 @@ public void test737() {
 	this.formatterPrefs = null;
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT, DefaultCodeFormatterConstants.FALSE);
 	String source =
-		"package p;\n" +
-		"\n" +
-		"public class Comment {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		//                         internal indentation\n" +
-		"		int i = 1;// tabs\n" +
-		"		int j = 2;// spaces\n" +
-		"		int k = 3;// mixed tabs and spaces\n" +
-		"		System.out.print(i);	/* does not affect block comments */\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package p;
+		
+		public class Comment {
+			public static void main(String[] args) {
+				//                         internal indentation
+				int i = 1;// tabs
+				int j = 2;// spaces
+				int k = 3;// mixed tabs and spaces
+				System.out.print(i);	/* does not affect block comments */
+			}
+		}
+		""";
 	formatSource(source,
-		"package p;\n" +
-		"\n" +
-		"public class Comment {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		// internal indentation\n" +
-		"		int i = 1;// tabs\n" +
-		"		int j = 2;// spaces\n" +
-		"		int k = 3;// mixed tabs and spaces\n" +
-		"		System.out.print(i); /* does not affect block comments */\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package p;
+			
+			public class Comment {
+				public static void main(String[] args) {
+					// internal indentation
+					int i = 1;// tabs
+					int j = 2;// spaces
+					int k = 3;// mixed tabs and spaces
+					System.out.print(i); /* does not affect block comments */
+				}
+			}
+			"""
 	);
 }
 // binary literals / underscores in literals / multi catch
@@ -11151,30 +11240,34 @@ public void test738() {
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	String source =
-		"public class Test {\n" +
-		"	int i = 0b0001;\n" +
-		"	int j = 0b0_0_0_1;\n" +
-		"	void foo(String s) {\n" +
-		"		try {\n" +
-		"			FileReader reader = new FileReader(s);\n" +
-		"		} catch(FileNotFoundException | IOException | Exception e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			int i = 0b0001;
+			int j = 0b0_0_0_1;
+			void foo(String s) {
+				try {
+					FileReader reader = new FileReader(s);
+				} catch(FileNotFoundException | IOException | Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	int i = 0b0001;\n" +
-		"	int j = 0b0_0_0_1;\n" +
-		"\n" +
-		"	void foo(String s) {\n" +
-		"		try {\n" +
-		"			FileReader reader = new FileReader(s);\n" +
-		"		} catch (FileNotFoundException | IOException | Exception e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class Test {
+				int i = 0b0001;
+				int j = 0b0_0_0_1;
+			
+				void foo(String s) {
+					try {
+						FileReader reader = new FileReader(s);
+					} catch (FileNotFoundException | IOException | Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			"""
 	);
 }
 //try-with-resources
@@ -11184,25 +11277,29 @@ public void test739() {
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	String source =
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s)) {\n" +
-		"			reader.read();\n" +
-		"		} catch(IOException e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo(String s) {
+				try (FileReader reader = new FileReader(s)) {
+					reader.read();
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s)) {\n" +
-		"			reader.read();\n" +
-		"		} catch (IOException e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class Test {
+				void foo(String s) {
+					try (FileReader reader = new FileReader(s)) {
+						reader.read();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			"""
 	);
 }
 //try-with-resources
@@ -11212,25 +11309,29 @@ public void test740() {
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	String source =
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s)) {\n" +
-		"			reader.read();\n" +
-		"		} catch(IOException e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo(String s) {
+				try (FileReader reader = new FileReader(s)) {
+					reader.read();
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s)) {\n" +
-		"			reader.read();\n" +
-		"		} catch (IOException e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class Test {
+				void foo(String s) {
+					try (FileReader reader = new FileReader(s)) {
+						reader.read();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			"""
 	);
 }
 //try-with-resources
@@ -11240,29 +11341,33 @@ public void test741() {
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	String source =
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s)) {\n" +
-		"			reader.read();\n" +
-		"		} catch(IOException e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"finally block\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo(String s) {
+				try (FileReader reader = new FileReader(s)) {
+					reader.read();
+				} catch(IOException e) {
+					e.printStackTrace();
+				} finally {
+					System.out.println("finally block");
+				}
+			}
+		}
+		""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s)) {\n" +
-		"			reader.read();\n" +
-		"		} catch (IOException e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"finally block\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class Test {
+				void foo(String s) {
+					try (FileReader reader = new FileReader(s)) {
+						reader.read();
+					} catch (IOException e) {
+						e.printStackTrace();
+					} finally {
+						System.out.println("finally block");
+					}
+				}
+			}
+			"""
 	);
 }
 //try-with-resources
@@ -11272,29 +11377,33 @@ public void test742() {
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	String source =
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s)) {\n" +
-		"			reader.read();\n" +
-		"		} catch(FileNotFoundException | IOException | Exception e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"finally block\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo(String s) {
+				try (FileReader reader = new FileReader(s)) {
+					reader.read();
+				} catch(FileNotFoundException | IOException | Exception e) {
+					e.printStackTrace();
+				} finally {
+					System.out.println("finally block");
+				}
+			}
+		}
+		""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s)) {\n" +
-		"			reader.read();\n" +
-		"		} catch (FileNotFoundException | IOException | Exception e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"finally block\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class Test {
+				void foo(String s) {
+					try (FileReader reader = new FileReader(s)) {
+						reader.read();
+					} catch (FileNotFoundException | IOException | Exception e) {
+						e.printStackTrace();
+					} finally {
+						System.out.println("finally block");
+					}
+				}
+			}
+			"""
 	);
 }
 //try-with-resources
@@ -11304,29 +11413,33 @@ public void test743() {
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	String source =
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s);) {\n" +
-		"			reader.read();\n" +
-		"		} catch(FileNotFoundException | IOException | Exception e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"finally block\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo(String s) {
+				try (FileReader reader = new FileReader(s);) {
+					reader.read();
+				} catch(FileNotFoundException | IOException | Exception e) {
+					e.printStackTrace();
+				} finally {
+					System.out.println("finally block");
+				}
+			}
+		}
+		""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s);) {\n" +
-		"			reader.read();\n" +
-		"		} catch (FileNotFoundException | IOException | Exception e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"finally block\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class Test {
+				void foo(String s) {
+					try (FileReader reader = new FileReader(s);) {
+						reader.read();
+					} catch (FileNotFoundException | IOException | Exception e) {
+						e.printStackTrace();
+					} finally {
+						System.out.println("finally block");
+					}
+				}
+			}
+			"""
 	);
 }
 //try-with-resources
@@ -11337,32 +11450,36 @@ public void test744() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	setFormatterOptions80();
 	String source =
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s);FileReader reader2 = new FileReader(s)) {\n" +
-		"			reader.read();\n" +
-		"			reader2.read();\n" +
-		"		} catch(FileNotFoundException | IOException | Exception e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"finally block\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo(String s) {
+				try (FileReader reader = new FileReader(s);FileReader reader2 = new FileReader(s)) {
+					reader.read();
+					reader2.read();
+				} catch(FileNotFoundException | IOException | Exception e) {
+					e.printStackTrace();
+				} finally {
+					System.out.println("finally block");
+				}
+			}
+		}
+		""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s);\n" +
-		"				FileReader reader2 = new FileReader(s)) {\n" +
-		"			reader.read();\n" +
-		"			reader2.read();\n" +
-		"		} catch (FileNotFoundException | IOException | Exception e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"finally block\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class Test {
+				void foo(String s) {
+					try (FileReader reader = new FileReader(s);
+							FileReader reader2 = new FileReader(s)) {
+						reader.read();
+						reader2.read();
+					} catch (FileNotFoundException | IOException | Exception e) {
+						e.printStackTrace();
+					} finally {
+						System.out.println("finally block");
+					}
+				}
+			}
+			"""
 	);
 }
 //try-with-resources
@@ -11373,32 +11490,36 @@ public void test745() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	setFormatterOptions80();
 	String source =
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s);FileReader reader2 = new FileReader(s);) {\n" +
-		"			reader.read();\n" +
-		"			reader2.read();\n" +
-		"		} catch(FileNotFoundException | IOException | Exception e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"finally block\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo(String s) {
+				try (FileReader reader = new FileReader(s);FileReader reader2 = new FileReader(s);) {
+					reader.read();
+					reader2.read();
+				} catch(FileNotFoundException | IOException | Exception e) {
+					e.printStackTrace();
+				} finally {
+					System.out.println("finally block");
+				}
+			}
+		}
+		""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	void foo(String s) {\n" +
-		"		try (FileReader reader = new FileReader(s);\n" +
-		"				FileReader reader2 = new FileReader(s);) {\n" +
-		"			reader.read();\n" +
-		"			reader2.read();\n" +
-		"		} catch (FileNotFoundException | IOException | Exception e) {\n" +
-		"			e.printStackTrace();\n" +
-		"		} finally {\n" +
-		"			System.out.println(\"finally block\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class Test {
+				void foo(String s) {
+					try (FileReader reader = new FileReader(s);
+							FileReader reader2 = new FileReader(s);) {
+						reader.read();
+						reader2.read();
+					} catch (FileNotFoundException | IOException | Exception e) {
+						e.printStackTrace();
+					} finally {
+						System.out.println("finally block");
+					}
+				}
+			}
+			"""
 	);
 }
 //diamond
@@ -11408,21 +11529,25 @@ public void test746() {
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	String source =
-		"public class Test {\n" +
-		"	List foo(String s) {\n" +
-		"		List<String> l = new ArrayList<>();\n" +
-		"		l.add(s);\n" +
-		"		return l;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			List foo(String s) {
+				List<String> l = new ArrayList<>();
+				l.add(s);
+				return l;
+			}
+		}
+		""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	List foo(String s) {\n" +
-		"		List<String> l = new ArrayList<>();\n" +
-		"		l.add(s);\n" +
-		"		return l;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class Test {
+				List foo(String s) {
+					List<String> l = new ArrayList<>();
+					l.add(s);
+					return l;
+				}
+			}
+			"""
 	);
 }
 //diamond
@@ -11432,21 +11557,25 @@ public void test747() {
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	String source =
-		"public class Test {\n" +
-		"	List foo(String s) {\n" +
-		"		List<String> l = new java.util.ArrayList<>();\n" +
-		"		l.add(s);\n" +
-		"		return l;\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			List foo(String s) {
+				List<String> l = new java.util.ArrayList<>();
+				l.add(s);
+				return l;
+			}
+		}
+		""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	List foo(String s) {\n" +
-		"		List<String> l = new java.util.ArrayList<>();\n" +
-		"		l.add(s);\n" +
-		"		return l;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class Test {
+				List foo(String s) {
+					List<String> l = new java.util.ArrayList<>();
+					l.add(s);
+					return l;
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=335309
@@ -11466,25 +11595,29 @@ public void test749() throws Exception {
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s)) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try (FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s)) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (FileReader fis = new FileReader(s);\n" +
-		"				FileReader fis2 = new FileReader(s);\n" +
-		"				FileReader fis3 = new FileReader(s)) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (FileReader fis = new FileReader(s);
+							FileReader fis2 = new FileReader(s);
+							FileReader fis3 = new FileReader(s)) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11499,25 +11632,29 @@ public void test750() throws Exception {
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_TRY, JavaCore.INSERT);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON_IN_TRY_RESOURCES, JavaCore.INSERT);
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try( FileReader fis = new FileReader(s) ;\n" +
-		"				FileReader fis2 = new FileReader(s) ;\n" +
-		"				FileReader fis3 = new FileReader(s) ; ) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try( FileReader fis = new FileReader(s) ;
+							FileReader fis2 = new FileReader(s) ;
+							FileReader fis3 = new FileReader(s) ; ) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11532,25 +11669,29 @@ public void test751() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NO_SPLIT, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 	setFormatterOptions80();
 	String source =
-			"package test;\n" +
-			"\n" +
-			"public class FormatterError {\n" +
-			"	public void storeSomething(String s) throws Exception {\n" +
-			"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-			"	}\n" +
-			"	}\n" +
-			"}\n";
+			"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-			"package test;\n" +
-			"\n" +
-			"public class FormatterError {\n" +
-			"	public void storeSomething(String s) throws Exception {\n" +
-			"		try (FileReader fis = new FileReader(\n" +
-			"				s); FileReader fis2 = new FileReader(\n" +
-			"						s); FileReader fis3 = new FileReader(s);) {\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package test;
+				
+				public class FormatterError {
+					public void storeSomething(String s) throws Exception {
+						try (FileReader fis = new FileReader(
+								s); FileReader fis2 = new FileReader(
+										s); FileReader fis3 = new FileReader(s);) {
+						}
+					}
+				}
+				"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11564,25 +11705,29 @@ public void test752() throws Exception {
 			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (	FileReader fis = new FileReader(s);\n" +
-		"				FileReader fis2 = new FileReader(s);\n" +
-		"				FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (	FileReader fis = new FileReader(s);
+							FileReader fis2 = new FileReader(s);
+							FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11596,25 +11741,29 @@ public void test753() throws Exception {
 			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.INDENT_BY_ONE));
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (FileReader fis = new FileReader(s);\n" +
-		"			FileReader fis2 = new FileReader(s);\n" +
-		"			FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (FileReader fis = new FileReader(s);
+						FileReader fis2 = new FileReader(s);
+						FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11629,24 +11778,28 @@ public void test754() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" +
-		"				FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);
+							FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11661,24 +11814,28 @@ public void test755() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (	FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" +
-		"				FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (	FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);
+							FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11693,24 +11850,28 @@ public void test756() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_BY_ONE));
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" +
-		"			FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);
+						FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11725,25 +11886,29 @@ public void test757() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT_FIRST_BREAK, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (\n" +
-		"				FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" +
-		"				FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (
+							FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);
+							FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11758,25 +11923,29 @@ public void test758() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT_FIRST_BREAK, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (\n" +
-		"				FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" +
-		"				FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (
+							FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);
+							FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11791,25 +11960,29 @@ public void test759() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT_FIRST_BREAK, DefaultCodeFormatterConstants.INDENT_BY_ONE));
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (\n" +
-		"			FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" +
-		"			FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (
+						FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);
+						FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11824,26 +11997,30 @@ public void test760() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (\n" +
-		"				FileReader fis = new FileReader(s);\n" +
-		"					FileReader fis2 = new FileReader(s);\n" +
-		"					FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (
+							FileReader fis = new FileReader(s);
+								FileReader fis2 = new FileReader(s);
+								FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11858,26 +12035,30 @@ public void test761() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (\n" +
-		"				FileReader fis = new FileReader(s);\n" +
-		"					FileReader fis2 = new FileReader(s);\n" +
-		"					FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (
+							FileReader fis = new FileReader(s);
+								FileReader fis2 = new FileReader(s);
+								FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11892,26 +12073,30 @@ public void test762() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.INDENT_BY_ONE));
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (\n" +
-		"			FileReader fis = new FileReader(s);\n" +
-		"				FileReader fis2 = new FileReader(s);\n" +
-		"				FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (
+						FileReader fis = new FileReader(s);
+							FileReader fis2 = new FileReader(s);
+							FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11926,26 +12111,30 @@ public void test763() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (\n" +
-		"				FileReader fis = new FileReader(s);\n" +
-		"				FileReader fis2 = new FileReader(s);\n" +
-		"				FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (
+							FileReader fis = new FileReader(s);
+							FileReader fis2 = new FileReader(s);
+							FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11960,26 +12149,30 @@ public void test764() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_BY_ONE));
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (\n" +
-		"			FileReader fis = new FileReader(s);\n" +
-		"			FileReader fis2 = new FileReader(s);\n" +
-		"			FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (
+						FileReader fis = new FileReader(s);
+						FileReader fis2 = new FileReader(s);
+						FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
@@ -11994,26 +12187,30 @@ public void test765() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
-		"	}\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void storeSomething(String s) throws Exception {
+				try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {
+			}
+			}
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void storeSomething(String s) throws Exception {\n" +
-		"		try (\n" +
-		"				FileReader fis = new FileReader(s);\n" +
-		"				FileReader fis2 = new FileReader(s);\n" +
-		"				FileReader fis3 = new FileReader(s);) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void storeSomething(String s) throws Exception {
+					try (
+							FileReader fis = new FileReader(s);
+							FileReader fis2 = new FileReader(s);
+							FileReader fis3 = new FileReader(s);) {
+					}
+				}
+			}
+			"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12027,37 +12224,39 @@ public void test766() throws Exception {
 			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_UNION_TYPE_IN_MULTICATCH,
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NO_SPLIT, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException | IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException | IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12069,38 +12268,40 @@ public void test767() throws Exception {
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException\n" +
-		"				| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException
+							| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12112,39 +12313,41 @@ public void test767a() throws Exception {
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "60");
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE | FileNotFoundException\n" +
-		"				| ArrayIndexOutOfBoundsException\n" +
-		"				| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (MyE | FileNotFoundException
+							| ArrayIndexOutOfBoundsException
+							| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12158,38 +12361,40 @@ public void test767b() throws Exception {
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BITWISE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE |FileNotFoundException |ArrayIndexOutOfBoundsException\n" +
-		"				|IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (MyE |FileNotFoundException |ArrayIndexOutOfBoundsException
+							|IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12204,38 +12409,40 @@ public void test768() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (	MyE | FileNotFoundException | ArrayIndexOutOfBoundsException\n" +
-		"					| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (	MyE | FileNotFoundException | ArrayIndexOutOfBoundsException
+								| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12250,38 +12457,40 @@ public void test769() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_BY_ONE));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException\n" +
-		"			| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException
+						| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12296,39 +12505,41 @@ public void test770() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT_FIRST_BREAK, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (\n" +
-		"				MyE | FileNotFoundException | ArrayIndexOutOfBoundsException\n" +
-		"				| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (
+							MyE | FileNotFoundException | ArrayIndexOutOfBoundsException
+							| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12343,39 +12554,41 @@ public void test771() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT_FIRST_BREAK, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (\n" +
-		"					MyE | FileNotFoundException | ArrayIndexOutOfBoundsException\n" +
-		"					| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (
+								MyE | FileNotFoundException | ArrayIndexOutOfBoundsException
+								| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12390,39 +12603,41 @@ public void test772() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT_FIRST_BREAK, DefaultCodeFormatterConstants.INDENT_BY_ONE));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (\n" +
-		"			MyE | FileNotFoundException | ArrayIndexOutOfBoundsException\n" +
-		"			| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (
+						MyE | FileNotFoundException | ArrayIndexOutOfBoundsException
+						| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 
@@ -12438,40 +12653,42 @@ public void test773() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE\n" +
-		"				| FileNotFoundException\n" +
-		"				| ArrayIndexOutOfBoundsException\n" +
-		"				| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (MyE
+							| FileNotFoundException
+							| ArrayIndexOutOfBoundsException
+							| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12486,40 +12703,42 @@ public void test774() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (	MyE\n" +
-		"					| FileNotFoundException\n" +
-		"					| ArrayIndexOutOfBoundsException\n" +
-		"					| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (	MyE
+								| FileNotFoundException
+								| ArrayIndexOutOfBoundsException
+								| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12534,40 +12753,42 @@ public void test775() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.INDENT_BY_ONE));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE\n" +
-		"			| FileNotFoundException\n" +
-		"			| ArrayIndexOutOfBoundsException\n" +
-		"			| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (MyE
+						| FileNotFoundException
+						| ArrayIndexOutOfBoundsException
+						| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12582,41 +12803,43 @@ public void test776() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (\n" +
-		"				MyE\n" +
-		"					| FileNotFoundException\n" +
-		"					| ArrayIndexOutOfBoundsException\n" +
-		"					| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (
+							MyE
+								| FileNotFoundException
+								| ArrayIndexOutOfBoundsException
+								| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12631,41 +12854,43 @@ public void test777() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (\n" +
-		"					MyE\n" +
-		"						| FileNotFoundException\n" +
-		"						| ArrayIndexOutOfBoundsException\n" +
-		"						| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (
+								MyE
+									| FileNotFoundException
+									| ArrayIndexOutOfBoundsException
+									| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12680,41 +12905,43 @@ public void test778() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.INDENT_BY_ONE));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (\n" +
-		"			MyE\n" +
-		"				| FileNotFoundException\n" +
-		"				| ArrayIndexOutOfBoundsException\n" +
-		"				| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (
+						MyE
+							| FileNotFoundException
+							| ArrayIndexOutOfBoundsException
+							| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12729,41 +12956,43 @@ public void test779() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (\n" +
-		"				MyE\n" +
-		"				| FileNotFoundException\n" +
-		"				| ArrayIndexOutOfBoundsException\n" +
-		"				| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (
+							MyE
+							| FileNotFoundException
+							| ArrayIndexOutOfBoundsException
+							| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12778,41 +13007,43 @@ public void test780() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (\n" +
-		"					MyE\n" +
-		"					| FileNotFoundException\n" +
-		"					| ArrayIndexOutOfBoundsException\n" +
-		"					| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (
+								MyE
+								| FileNotFoundException
+								| ArrayIndexOutOfBoundsException
+								| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=349314
@@ -12827,41 +13058,43 @@ public void test781() throws Exception {
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_BY_ONE));
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (\n" +
-		"			MyE\n" +
-		"			| FileNotFoundException\n" +
-		"			| ArrayIndexOutOfBoundsException\n" +
-		"			| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (
+						MyE
+						| FileNotFoundException
+						| ArrayIndexOutOfBoundsException
+						| IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350895
@@ -12874,56 +13107,60 @@ public void test782() throws Exception {
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_OR_OPERATOR_MULTICATCH, JavaCore.DISABLED);
 	setFormatterOptions80();
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try{\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"class MyE extends Exception {}";
+		"""
+		package test;
+		
+		public class FormatterError {
+			public void foo(boolean a) {
+				try{
+					if (a)
+						throw new FileNotFoundException();
+					else
+						throw new MyE();
+				} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {
+				}
+			}
+		}
+		class MyE extends Exception {}""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"	public void foo(boolean a) {\n" +
-		"		try {\n" +
-		"			if (a)\n" +
-		"				throw new FileNotFoundException();\n" +
-		"			else\n" +
-		"				throw new MyE();\n" +
-		"		} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException |\n" +
-		"				IllegalArgumentException ex) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}\n" +
-		"\n" +
-		"class MyE extends Exception {\n" +
-		"}"
+		"""
+			package test;
+			
+			public class FormatterError {
+				public void foo(boolean a) {
+					try {
+						if (a)
+							throw new FileNotFoundException();
+						else
+							throw new MyE();
+					} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException |
+							IllegalArgumentException ex) {
+					}
+				}
+			}
+			
+			class MyE extends Exception {
+			}"""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=359646
 public void test783() throws Exception {
 	this.formatterPrefs = null;
 	String source =
-		"public class X {public static void main(String[] args) {\n" +
-		"  	long x = 0x8000000000000000L;\n" +
-		"  	System.out.println(x);\n" +
-		"  }\n" +
-		"}";
+		"""
+		public class X {public static void main(String[] args) {
+		  	long x = 0x8000000000000000L;
+		  	System.out.println(x);
+		  }
+		}""";
 	formatSource(source,
-		"public class X {\n" +
-		"	public static void main(String[] args) {\n" +
-		"		long x = 0x8000000000000000L;\n" +
-		"		System.out.println(x);\n" +
-		"	}\n" +
-		"}"
+		"""
+			public class X {
+				public static void main(String[] args) {
+					long x = 0x8000000000000000L;
+					System.out.println(x);
+				}
+			}"""
 	);
 }
 
@@ -12945,45 +13182,49 @@ public void testBug379793() throws Exception {
 			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
 			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 	String source =
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"  void jbtnJDBCTest_actionPerformed(final ActionEvent e) {\n" +
-		"    if ((driverClasses != null) && (JDBCURL != null)) {\n" +
-		"      if (test == true) {\n" +
-		"        try (final Connection connection = DriverManager.getConnection(JDBCURL);) {\n" +
-		"          test = (connection != null);\n" +
-		"          if (test == true) {\n" +
-		"            jTextArea1.setText(\"The test was completeted successfully!\");\n" +
-		"          }\n" +
-		"        } catch (final SQLException sx) {\n" +
-		"          jTextArea1\n" +
-		"            .setText(\"\");\n" +
-		"        }\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package test;
+		
+		public class FormatterError {
+		  void jbtnJDBCTest_actionPerformed(final ActionEvent e) {
+		    if ((driverClasses != null) && (JDBCURL != null)) {
+		      if (test == true) {
+		        try (final Connection connection = DriverManager.getConnection(JDBCURL);) {
+		          test = (connection != null);
+		          if (test == true) {
+		            jTextArea1.setText("The test was completeted successfully!");
+		          }
+		        } catch (final SQLException sx) {
+		          jTextArea1
+		            .setText("");
+		        }
+		      }
+		    }
+		  }
+		}
+		""";
 	formatSource(source,
-		"package test;\n" +
-		"\n" +
-		"public class FormatterError {\n" +
-		"  void jbtnJDBCTest_actionPerformed(final ActionEvent e) {\n" +
-		"    if ((driverClasses != null) && (JDBCURL != null)) {\n" +
-		"      if (test == true) {\n" +
-		"        try (\n" +
-		"          final Connection connection = DriverManager.getConnection(JDBCURL);) {\n" +
-		"          test = (connection != null);\n" +
-		"          if (test == true) {\n" +
-		"            jTextArea1.setText(\"The test was completeted successfully!\");\n" +
-		"          }\n" +
-		"        } catch (final SQLException sx) {\n" +
-		"          jTextArea1.setText(\"\");\n" +
-		"        }\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n"
+		"""
+			package test;
+			
+			public class FormatterError {
+			  void jbtnJDBCTest_actionPerformed(final ActionEvent e) {
+			    if ((driverClasses != null) && (JDBCURL != null)) {
+			      if (test == true) {
+			        try (
+			          final Connection connection = DriverManager.getConnection(JDBCURL);) {
+			          test = (connection != null);
+			          if (test == true) {
+			            jTextArea1.setText("The test was completeted successfully!");
+			          }
+			        } catch (final SQLException sx) {
+			          jTextArea1.setText("");
+			        }
+			      }
+			    }
+			  }
+			}
+			"""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=405038
@@ -12993,17 +13234,21 @@ public void testBug405038() throws Exception {
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	String source =
-		"public class FormatterError {\n" +
-		"  int foo(int a, int b, int c) {\n" +
-		"        return a + b + ++c;\n" +
-		"    }\n" +
-		"}\n";
+		"""
+		public class FormatterError {
+		  int foo(int a, int b, int c) {
+		        return a + b + ++c;
+		    }
+		}
+		""";
 	formatSource(source,
-		"public class FormatterError {\n" +
-		"	int foo(int a, int b, int c) {\n" +
-		"		return a+b+ ++c;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class FormatterError {
+				int foo(int a, int b, int c) {
+					return a+b+ ++c;
+				}
+			}
+			"""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=405038
@@ -13013,17 +13258,21 @@ public void testBug405038_2() throws Exception {
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	String source =
-		"public class FormatterError {\n" +
-		"  int foo(int a, int b, int c) {\n" +
-		"        return a + ++b + c;\n" +
-		"    }\n" +
-		"}\n";
+		"""
+		public class FormatterError {
+		  int foo(int a, int b, int c) {
+		        return a + ++b + c;
+		    }
+		}
+		""";
 	formatSource(source,
-		"public class FormatterError {\n" +
-		"	int foo(int a, int b, int c) {\n" +
-		"		return a+ ++b+c;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class FormatterError {
+				int foo(int a, int b, int c) {
+					return a+ ++b+c;
+				}
+			}
+			"""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=405038
@@ -13033,17 +13282,21 @@ public void testBug405038_3() throws Exception {
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	String source =
-		"public class FormatterError {\n" +
-		"  int foo(int a, int b, int c) {\n" +
-		"        return a - --b + c;\n" +
-		"    }\n" +
-		"}\n";
+		"""
+		public class FormatterError {
+		  int foo(int a, int b, int c) {
+		        return a - --b + c;
+		    }
+		}
+		""";
 	formatSource(source,
-		"public class FormatterError {\n" +
-		"	int foo(int a, int b, int c) {\n" +
-		"		return a- --b+c;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class FormatterError {
+				int foo(int a, int b, int c) {
+					return a- --b+c;
+				}
+			}
+			"""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=405038
@@ -13053,17 +13306,21 @@ public void testBug405038_4() throws Exception {
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	String source =
-		"public class FormatterError {\n" +
-		"  int foo(int a, int b, int c) {\n" +
-		"        return a - -b + c;\n" +
-		"    }\n" +
-		"}\n";
+		"""
+		public class FormatterError {
+		  int foo(int a, int b, int c) {
+		        return a - -b + c;
+		    }
+		}
+		""";
 	formatSource(source,
-		"public class FormatterError {\n" +
-		"	int foo(int a, int b, int c) {\n" +
-		"		return a- -b+c;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class FormatterError {
+				int foo(int a, int b, int c) {
+					return a- -b+c;
+				}
+			}
+			"""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=405038
@@ -13073,17 +13330,21 @@ public void testBug405038_5() throws Exception {
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	String source =
-		"public class FormatterError {\n" +
-		"  int foo(int a, int b, int c) {\n" +
-		"        return a - -b + ++c;\n" +
-		"    }\n" +
-		"}\n";
+		"""
+		public class FormatterError {
+		  int foo(int a, int b, int c) {
+		        return a - -b + ++c;
+		    }
+		}
+		""";
 	formatSource(source,
-		"public class FormatterError {\n" +
-		"	int foo(int a, int b, int c) {\n" +
-		"		return a- -b+ ++c;\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class FormatterError {
+				int foo(int a, int b, int c) {
+					return a- -b+ ++c;
+				}
+			}
+			"""
 	);
 }
 
@@ -13173,50 +13434,51 @@ public void testBug477476b() {
 public void testBug485495() {
 	this.formatterPrefs.insert_space_before_semicolon = true;
 	String source =
-		"package test ;\n" +
-		"\n" +
-		"import java.util.ArrayList ;\n" +
-		"\n" +
-		"public class Test {\n" +
-		"\n" +
-		"	interface I {\n" +
-		"		void method() ;\n" +
-		"	}\n" +
-		"\n" +
-		"	ArrayList<String> e = null ;\n" +
-		"	int i ;\n" +
-		"\n" +
-		"	void foo() {\n" +
-		"		int i = 0 ;\n" +
-		"		String s ;\n" +
-		"		if (i > 0)\n" +
-		"			return ;\n" +
-		"		for (int j = 0; j < 5; j++) {\n" +
-		"			Object o ;\n" +
-		"			while (i < 0)\n" +
-		"				o = new Object() {\n" +
-		"					int f ;\n" +
-		"\n" +
-		"					void bar() {\n" +
-		"						if (f > 0)\n" +
-		"							f = 5 ;\n" +
-		"						else\n" +
-		"							f = 16 ;\n" +
-		"						try {\n" +
-		"							f = 14 ;\n" +
-		"						} catch (Exception e) {\n" +
-		"							bar() ;\n" +
-		"						}\n" +
-		"					}\n" +
-		"				} ;\n" +
-		"			while (i < 0)\n" +
-		"				switch (i) {\n" +
-		"				case 4:\n" +
-		"					foo() ;\n" +
-		"				}\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		package test ;
+		
+		import java.util.ArrayList ;
+		
+		public class Test {
+		
+			interface I {
+				void method() ;
+			}
+		
+			ArrayList<String> e = null ;
+			int i ;
+		
+			void foo() {
+				int i = 0 ;
+				String s ;
+				if (i > 0)
+					return ;
+				for (int j = 0; j < 5; j++) {
+					Object o ;
+					while (i < 0)
+						o = new Object() {
+							int f ;
+		
+							void bar() {
+								if (f > 0)
+									f = 5 ;
+								else
+									f = 16 ;
+								try {
+									f = 14 ;
+								} catch (Exception e) {
+									bar() ;
+								}
+							}
+						} ;
+					while (i < 0)
+						switch (i) {
+						case 4:
+							foo() ;
+						}
+				}
+			}
+		}""";
 	formatSource(source);
 }
 /**
@@ -13226,22 +13488,24 @@ public void testBug479109a() {
 	this.formatterPrefs.align_type_members_on_columns = true;
 	this.formatterPrefs.align_fields_grouping_blank_lines = 1;
 	String source =
-		"public class Test {\n" +
-		"	String field1 = \"1\"; //\n" +
-		"\n" +
-		"	public String field2 = \"2222\"; //\n" +
-		"\n" +
-		"\n" +
-		"	protected final String field3 = \"333333333\"; //\n" +
-		"}";
+		"""
+		public class Test {
+			String field1 = "1"; //
+		
+			public String field2 = "2222"; //
+		
+		
+			protected final String field3 = "333333333"; //
+		}""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	String field1 = \"1\"; //\n" +
-		"\n" +
-		"	public String field2 = \"2222\"; //\n" +
-		"\n" +
-		"	protected final String field3 = \"333333333\"; //\n" +
-		"}"
+		"""
+			public class Test {
+				String field1 = "1"; //
+			
+				public String field2 = "2222"; //
+			
+				protected final String field3 = "333333333"; //
+			}"""
 	);
 }
 /**
@@ -13251,22 +13515,24 @@ public void testBug479109b() {
 	this.formatterPrefs.align_type_members_on_columns = true;
 	this.formatterPrefs.align_fields_grouping_blank_lines = 2;
 	String source =
-		"public class Test {\n" +
-		"	String field1 = \"1\";\n" +
-		"\n" +
-		"	public String field2222 = \"2222\";\n" +
-		"\n" +
-		"\n" +
-		"	protected final String field3 = \"333333333\";\n" +
-		"}";
+		"""
+		public class Test {
+			String field1 = "1";
+		
+			public String field2222 = "2222";
+		
+		
+			protected final String field3 = "333333333";
+		}""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	String					field1		= \"1\";\n" +
-		"\n" +
-		"	public String			field2222	= \"2222\";\n" +
-		"\n" +
-		"	protected final String	field3		= \"333333333\";\n" +
-		"}"
+		"""
+			public class Test {
+				String					field1		= "1";
+			
+				public String			field2222	= "2222";
+			
+				protected final String	field3		= "333333333";
+			}"""
 	);
 }
 /**
@@ -13277,23 +13543,25 @@ public void testBug479109c() {
 	this.formatterPrefs.align_fields_grouping_blank_lines = 2;
 	this.formatterPrefs.number_of_empty_lines_to_preserve = 2;
 	String source =
-		"public class Test {\n" +
-		"	String field1 = \"1\"; //\n" +
-		"\n" +
-		"	public String field2222 = \"2222\"; //\n" +
-		"\n" +
-		"\n" +
-		"	protected final String field3 = \"333333333\"; //\n" +
-		"}";
+		"""
+		public class Test {
+			String field1 = "1"; //
+		
+			public String field2222 = "2222"; //
+		
+		
+			protected final String field3 = "333333333"; //
+		}""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	String			field1		= \"1\";		//\n" +
-		"\n" +
-		"	public String	field2222	= \"2222\";	//\n" +
-		"\n" +
-		"\n" +
-		"	protected final String field3 = \"333333333\"; //\n" +
-		"}"
+		"""
+			public class Test {
+				String			field1		= "1";		//
+			
+				public String	field2222	= "2222";	//
+			
+			
+				protected final String field3 = "333333333"; //
+			}"""
 	);
 }
 /**
@@ -13304,25 +13572,27 @@ public void testBug479109d() {
 	this.formatterPrefs.align_type_members_on_columns = true;
 	this.formatterPrefs.align_fields_grouping_blank_lines = 2;
 	String source =
-		"public class Test {\n" +
-		"	String field1 = \"1\";\n" +
-		"\n" +
-		"	public String field2222 = \"2222\";\n" +
-		"\n" +
-		"// group separator\n" +
-		"\n" +
-		"	protected final String field3 = \"333333333\";\n" +
-		"}";
+		"""
+		public class Test {
+			String field1 = "1";
+		
+			public String field2222 = "2222";
+		
+		// group separator
+		
+			protected final String field3 = "333333333";
+		}""";
 	formatSource(source,
-		"public class Test {\n" +
-		"	String			field1		= \"1\";\n" +
-		"\n" +
-		"	public String	field2222	= \"2222\";\n" +
-		"\n" +
-		"	// group separator\n" +
-		"\n" +
-		"	protected final String field3 = \"333333333\";\n" +
-		"}"
+		"""
+			public class Test {
+				String			field1		= "1";
+			
+				public String	field2222	= "2222";
+			
+				// group separator
+			
+				protected final String field3 = "333333333";
+			}"""
 	);
 }
 /**
@@ -13331,13 +13601,14 @@ public void testBug479109d() {
 public void testBug486719() {
 	this.formatterPrefs.page_width = 80;
 	String source =
-		"public class Example {\n" +
-		"	int foo(Object a, Object b, Object c) {\n" +
-		"		if (a == b) return 1;if (a == c) return 2; //$IDENTITY-COMPARISON$\n" +
-		"		boolean aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = a == b && a == c; //$IDENTITY-COMPARISON$\n" +
-		"		return 3;\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class Example {
+			int foo(Object a, Object b, Object c) {
+				if (a == b) return 1;if (a == c) return 2; //$IDENTITY-COMPARISON$
+				boolean aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = a == b && a == c; //$IDENTITY-COMPARISON$
+				return 3;
+			}
+		}""";
 	formatSource(source);
 }
 /**
@@ -13347,9 +13618,10 @@ public void testBug432628a() {
 	setComplianceLevel(CompilerOptions.VERSION_1_5);
 	this.formatterPrefs.insert_new_line_after_annotation_on_enum_constant = false;
 	String source =
-		"public enum SomeEnum {\n" +
-		"	@XmlEnumValue(\"val1\") VAL_1(\"val1\"), @XmlEnumValue(\"val2\") VAL_2(\"val2\");\n" +
-		"}";
+		"""
+		public enum SomeEnum {
+			@XmlEnumValue("val1") VAL_1("val1"), @XmlEnumValue("val2") VAL_2("val2");
+		}""";
 	formatSource(source);
 }
 /**
@@ -13359,11 +13631,12 @@ public void testBug432628b() {
 	setComplianceLevel(CompilerOptions.VERSION_1_5);
 	this.formatterPrefs.insert_new_line_after_annotation_on_enum_constant = true;
 	String source =
-		"public enum SomeEnum {\n" +
-		"	@XmlEnumValue(\"val1\")\n" +
-		"	VAL_1(\"val1\"), @XmlEnumValue(\"val2\")\n" +
-		"	VAL_2(\"val2\");\n" +
-		"}";
+		"""
+		public enum SomeEnum {
+			@XmlEnumValue("val1")
+			VAL_1("val1"), @XmlEnumValue("val2")
+			VAL_2("val2");
+		}""";
 	formatSource(source);
 }
 /**
@@ -13374,12 +13647,13 @@ public void testBug432628c() {
 	this.formatterPrefs.insert_new_line_after_annotation_on_enum_constant = true;
 	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
 	String source =
-		"public enum SomeEnum {\n" +
-		"	@XmlEnumValue(\"val1\")\n" +
-		"	VAL_1(\"val1\"),\n" +
-		"	@XmlEnumValue(\"val2\")\n" +
-		"	VAL_2(\"val2\");\n" +
-		"}";
+		"""
+		public enum SomeEnum {
+			@XmlEnumValue("val1")
+			VAL_1("val1"),
+			@XmlEnumValue("val2")
+			VAL_2("val2");
+		}""";
 	formatSource(source);
 }
 /**
@@ -13390,10 +13664,11 @@ public void testBug432628d() {
 	this.formatterPrefs.insert_new_line_after_annotation_on_enum_constant = false;
 	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
 	String source =
-		"public enum SomeEnum {\n" +
-		"	@XmlEnumValue(\"val1\") VAL_1(\"val1\"),\n" +
-		"	@XmlEnumValue(\"val2\") VAL_2(\"val2\");\n" +
-		"}";
+		"""
+		public enum SomeEnum {
+			@XmlEnumValue("val1") VAL_1("val1"),
+			@XmlEnumValue("val2") VAL_2("val2");
+		}""";
 	formatSource(source);
 }
 /**
@@ -13402,13 +13677,14 @@ public void testBug432628d() {
 public void testBug118264a() {
 	this.formatterPrefs.page_width = 50;
 	String source =
-		"class Example {\n" +
-		"	int foo(int argument) {\n" +
-		"		for (int counter = 0; counter < argument; counter++) {\n" +
-		"			doSomething(counter);\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		class Example {
+			int foo(int argument) {
+				for (int counter = 0; counter < argument; counter++) {
+					doSomething(counter);
+				}
+			}
+		}""";
 	formatSource(source);
 }
 /**
@@ -13418,22 +13694,24 @@ public void testBug118264b() {
 	this.formatterPrefs.alignment_for_expressions_in_for_loop_header = Alignment.M_COMPACT_SPLIT;
 	this.formatterPrefs.page_width = 50;
 	String source =
-		"class Example {\n" +
-		"	int foo(int argument) {\n" +
-		"		for (int counter = 0; counter < argument; counter++) {\n" +
-		"			doSomething(counter);\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		class Example {
+			int foo(int argument) {
+				for (int counter = 0; counter < argument; counter++) {
+					doSomething(counter);
+				}
+			}
+		}""";
 	formatSource(source,
-		"class Example {\n" +
-		"	int foo(int argument) {\n" +
-		"		for (int counter = 0; counter < argument;\n" +
-		"				counter++) {\n" +
-		"			doSomething(counter);\n" +
-		"		}\n" +
-		"	}\n" +
-		"}"
+		"""
+			class Example {
+				int foo(int argument) {
+					for (int counter = 0; counter < argument;
+							counter++) {
+						doSomething(counter);
+					}
+				}
+			}"""
 	);
 }
 /**
@@ -13442,24 +13720,26 @@ public void testBug118264b() {
 public void testBug118264c() {
 	this.formatterPrefs.alignment_for_expressions_in_for_loop_header = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
 	String source =
-		"class Example {\n" +
-		"	int foo(int argument) {\n" +
-		"		for (int counter = 0; counter < argument; counter++) {\n" +
-		"			doSomething(counter);\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		class Example {
+			int foo(int argument) {
+				for (int counter = 0; counter < argument; counter++) {
+					doSomething(counter);
+				}
+			}
+		}""";
 	formatSource(source,
-		"class Example {\n" +
-		"	int foo(int argument) {\n" +
-		"		for (\n" +
-		"				int counter = 0;\n" +
-		"				counter < argument;\n" +
-		"				counter++) {\n" +
-		"			doSomething(counter);\n" +
-		"		}\n" +
-		"	}\n" +
-		"}"
+		"""
+			class Example {
+				int foo(int argument) {
+					for (
+							int counter = 0;
+							counter < argument;
+							counter++) {
+						doSomething(counter);
+					}
+				}
+			}"""
 	);
 }
 /**
@@ -13468,22 +13748,24 @@ public void testBug118264c() {
 public void testBug118264d() {
 	this.formatterPrefs.alignment_for_expressions_in_for_loop_header = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
 	String source =
-		"class Example {\n" +
-		"	int foo(int argument) {\n" +
-		"		for (int counter = 0; ; ) {\n" +
-		"			doSomething(counter);\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		class Example {
+			int foo(int argument) {
+				for (int counter = 0; ; ) {
+					doSomething(counter);
+				}
+			}
+		}""";
 	formatSource(source,
-		"class Example {\n" +
-		"	int foo(int argument) {\n" +
-		"		for (\n" +
-		"				int counter = 0;;) {\n" +
-		"			doSomething(counter);\n" +
-		"		}\n" +
-		"	}\n" +
-		"}"
+		"""
+			class Example {
+				int foo(int argument) {
+					for (
+							int counter = 0;;) {
+						doSomething(counter);
+					}
+				}
+			}"""
 	);
 }
 /**
@@ -13492,22 +13774,24 @@ public void testBug118264d() {
 public void testBug118264e() {
 	this.formatterPrefs.alignment_for_expressions_in_for_loop_header = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
 	String source =
-		"class Example {\n" +
-		"	int foo(int argument) {\n" +
-		"		for (;;argument--, argument--) {\n" +
-		"			doSomething(counter);\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		class Example {
+			int foo(int argument) {
+				for (;;argument--, argument--) {
+					doSomething(counter);
+				}
+			}
+		}""";
 	formatSource(source,
-		"class Example {\n" +
-		"	int foo(int argument) {\n" +
-		"		for (;;\n" +
-		"				argument--, argument--) {\n" +
-		"			doSomething(counter);\n" +
-		"		}\n" +
-		"	}\n" +
-		"}"
+		"""
+			class Example {
+				int foo(int argument) {
+					for (;;
+							argument--, argument--) {
+						doSomething(counter);
+					}
+				}
+			}"""
 	);
 }
 /**
@@ -13516,13 +13800,14 @@ public void testBug118264e() {
 public void testBug118264f() {
 	this.formatterPrefs.alignment_for_expressions_in_for_loop_header = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
 	String source =
-		"class Example {\n" +
-		"	int foo(int argument) {\n" +
-		"		for (;;) {\n" +
-		"			doSomething(counter);\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		class Example {
+			int foo(int argument) {
+				for (;;) {
+					doSomething(counter);
+				}
+			}
+		}""";
 	formatSource(source);
 }
 /**
@@ -13531,29 +13816,32 @@ public void testBug118264f() {
 public void testBug465910() {
 	this.formatterPrefs.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
 	String source =
-		"class Example {\n" +
-		"	Result foo(boolean argument) {\n" +
-		"		return argument ? doOneThing() : doOtherThing();\n" +
-		"	}\n" +
-		"}";
+		"""
+		class Example {
+			Result foo(boolean argument) {
+				return argument ? doOneThing() : doOtherThing();
+			}
+		}""";
 	formatSource(source,
-		"class Example {\n" +
-		"	Result foo(boolean argument) {\n" +
-		"		return argument\n" +
-		"				? doOneThing()\n" +
-		"				: doOtherThing();\n" +
-		"	}\n" +
-		"}"
+		"""
+			class Example {
+				Result foo(boolean argument) {
+					return argument
+							? doOneThing()
+							: doOtherThing();
+				}
+			}"""
 	);
 	this.formatterPrefs.wrap_before_conditional_operator = false;
 	formatSource(source,
-		"class Example {\n" +
-		"	Result foo(boolean argument) {\n" +
-		"		return argument ?\n" +
-		"				doOneThing() :\n" +
-		"				doOtherThing();\n" +
-		"	}\n" +
-		"}"
+		"""
+			class Example {
+				Result foo(boolean argument) {
+					return argument ?
+							doOneThing() :
+							doOtherThing();
+				}
+			}"""
 	);
 }
 /**
@@ -13562,36 +13850,39 @@ public void testBug465910() {
 public void testBug325631() {
 	this.formatterPrefs.alignment_for_assignment = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
 	String source =
-		"class Example {\n" +
-		"	String value = \"\";\n" +
-		"	void foo(boolean argument) {\n" +
-		"		if (\"test\".equals(value = artument))\n" +
-		"			doSomething();\n" +
-		"	}\n" +
-		"}";
+		"""
+		class Example {
+			String value = "";
+			void foo(boolean argument) {
+				if ("test".equals(value = artument))
+					doSomething();
+			}
+		}""";
 	formatSource(source,
-		"class Example {\n" +
-		"	String value =\n" +
-		"			\"\";\n" +
-		"\n" +
-		"	void foo(boolean argument) {\n" +
-		"		if (\"test\".equals(value =\n" +
-		"				artument))\n" +
-		"			doSomething();\n" +
-		"	}\n" +
-		"}");
+		"""
+			class Example {
+				String value =
+						"";
+			
+				void foo(boolean argument) {
+					if ("test".equals(value =
+							artument))
+						doSomething();
+				}
+			}""");
 	this.formatterPrefs.wrap_before_assignment_operator = true;
 	formatSource(source,
-		"class Example {\n" +
-		"	String value\n" +
-		"			= \"\";\n" +
-		"\n" +
-		"	void foo(boolean argument) {\n" +
-		"		if (\"test\".equals(value\n" +
-		"				= artument))\n" +
-		"			doSomething();\n" +
-		"	}\n" +
-		"}"
+		"""
+			class Example {
+				String value
+						= "";
+			
+				void foo(boolean argument) {
+					if ("test".equals(value
+							= artument))
+						doSomething();
+				}
+			}"""
 	);
 }
 /**
@@ -13752,14 +14043,15 @@ public void testBug370540p() throws JavaModelException {
 public void testBug370540q() throws JavaModelException {
 	this.formatterPrefs.parenthesis_positions_in_for_statement = DefaultCodeFormatterConstants.SEPARATE_LINES;
 	String source =
-		"public class Test {\n" +
-		"	void foo() {\n" +
-		"		for (\n" +
-		"			String s : Arrays.asList(\"aa\")\n" +
-		"		) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class Test {
+			void foo() {
+				for (
+					String s : Arrays.asList("aa")
+				) {
+				}
+			}
+		}""";
 	formatSource(source);
 }
 /**
@@ -13768,28 +14060,29 @@ public void testBug370540q() throws JavaModelException {
 public void testBug370540r() throws JavaModelException {
 	this.formatterPrefs.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.SEPARATE_LINES;
 	String source =
-		"public class Test extends Exception {\n" +
-		"	Test instance = new Test(\n" +
-		"			1\n" +
-		"	);\n" +
-		"\n" +
-		"	Test(int a) {\n" +
-		"		this(\n" +
-		"				a, 0\n" +
-		"		);\n" +
-		"	}\n" +
-		"\n" +
-		"	Test(int a, int b) {\n" +
-		"		super(\n" +
-		"				a + \"=\" + b\n" +
-		"		);\n" +
-		"	}\n" +
-		"\n" +
-		"	public void printStackTrace() {\n" +
-		"		super.printStackTrace(\n" +
-		"		);\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class Test extends Exception {
+			Test instance = new Test(
+					1
+			);
+		
+			Test(int a) {
+				this(
+						a, 0
+				);
+			}
+		
+			Test(int a, int b) {
+				super(
+						a + "=" + b
+				);
+			}
+		
+			public void printStackTrace() {
+				super.printStackTrace(
+				);
+			}
+		}""";
 	formatSource(source);
 }
 /**
@@ -13798,12 +14091,13 @@ public void testBug370540r() throws JavaModelException {
 public void testBug370540s() throws JavaModelException {
 	this.formatterPrefs.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_WRAPPED;
 	String source =
-		"public class Test extends Exception {\n" +
-		"	void foo() {\n" +
-		"		new StringBuilder().append(\"aaaaaaaaa\" + \"bbbbbbbbbbbbbbb\" + \"cccccccccccccc\" + \"dddddddddd\")\n" +
-		"				.append(\"aaaaaaa\" + \"bbbbbbbbbbbbb\" + \"cccccccccccccc\" + \"ddddddddd\");\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class Test extends Exception {
+			void foo() {
+				new StringBuilder().append("aaaaaaaaa" + "bbbbbbbbbbbbbbb" + "cccccccccccccc" + "dddddddddd")
+						.append("aaaaaaa" + "bbbbbbbbbbbbb" + "cccccccccccccc" + "ddddddddd");
+			}
+		}""";
 	formatSource(source);
 }
 /**
@@ -13873,13 +14167,14 @@ public void testBug384959g() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
 	this.formatterPrefs.alignment_for_type_parameters = Alignment.M_COMPACT_SPLIT;
 	String source =
-		"public interface IteratedDescribeLinkList<\n" +
-		"		T extends IteratedDescribeLinkList<T, E, A, B, C, D, F, G, H, I, X, Y, Z, J, K>, E extends IteratedDescribeLink,\n" +
-		"		A extends Iterated, B extends Iterated, C extends IteratedList<C, A, F, H, Y, J>,\n" +
-		"		D extends IteratedList<D, B, G, I, Z, K>, F extends MasteredList<F, H, C, A, J, Y>,\n" +
-		"		G extends MasteredList<G, I, D, B, K, Z>, H extends Mastered, I extends Mastered, X extends T, Y extends C,\n" +
-		"		Z extends D, J extends F, K extends G> extends ObjectToObjectLinkList<T, E, A, B, C, D, X, Y, Z> {\n" +
-		"}";
+		"""
+		public interface IteratedDescribeLinkList<
+				T extends IteratedDescribeLinkList<T, E, A, B, C, D, F, G, H, I, X, Y, Z, J, K>, E extends IteratedDescribeLink,
+				A extends Iterated, B extends Iterated, C extends IteratedList<C, A, F, H, Y, J>,
+				D extends IteratedList<D, B, G, I, Z, K>, F extends MasteredList<F, H, C, A, J, Y>,
+				G extends MasteredList<G, I, D, B, K, Z>, H extends Mastered, I extends Mastered, X extends T, Y extends C,
+				Z extends D, J extends F, K extends G> extends ObjectToObjectLinkList<T, E, A, B, C, D, X, Y, Z> {
+		}""";
 	formatSource(source);
 }
 /**
@@ -13888,21 +14183,22 @@ public void testBug384959g() throws JavaModelException {
 public void testBug488642a() {
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
 	String source =
-		"public class Test {\n" +
-		"	Object o = new Object() {\n" +
-		"		int a = 0;\n" +
-		"		/*\n" +
-		"		 * comment\n" +
-		"		 */\n" +
-		"		int b = 9; /*\n" +
-		"		            * comment\n" +
-		"		            */\n" +
-		"		String ssssssss = \"aaaaaaaaaaaaaaaaaaaaaaaa\" //\n" +
-		"		        + \"ddddddddddddddddddddddd\" /*\n" +
-		"		                                     * comment\n" +
-		"		                                     */;\n" +
-		"	};\n" +
-		"}";
+		"""
+		public class Test {
+			Object o = new Object() {
+				int a = 0;
+				/*
+				 * comment
+				 */
+				int b = 9; /*
+				            * comment
+				            */
+				String ssssssss = "aaaaaaaaaaaaaaaaaaaaaaaa" //
+				        + "ddddddddddddddddddddddd" /*
+				                                     * comment
+				                                     */;
+			};
+		}""";
 	formatSource(source);
 }
 /**
@@ -13912,21 +14208,22 @@ public void testBug488642b() {
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
 	this.formatterPrefs.align_type_members_on_columns = true;
 	String source =
-		"public class Test {\n" +
-		"	Object o = new Object() {\n" +
-		"		int		a			= 0;\n" +
-		"		/*\n" +
-		"		 * comment\n" +
-		"		 */\n" +
-		"		int		b			= 9;							/*\n" +
-		"		                                                     * comment\n" +
-		"		                                                     */\n" +
-		"		String	ssssssss	= \"aaaaaaaaaaaaaaaaaaaaaaaa\"	//\n" +
-		"		        + \"ddddddddddddddddddddddd\" /*\n" +
-		"		                                     * comment\n" +
-		"		                                     */;\n" +
-		"	};\n" +
-		"}";
+		"""
+		public class Test {
+			Object o = new Object() {
+				int		a			= 0;
+				/*
+				 * comment
+				 */
+				int		b			= 9;							/*
+				                                                     * comment
+				                                                     */
+				String	ssssssss	= "aaaaaaaaaaaaaaaaaaaaaaaa"	//
+				        + "ddddddddddddddddddddddd" /*
+				                                     * comment
+				                                     */;
+			};
+		}""";
 	formatSource(source);
 }
 /**
@@ -14061,15 +14358,16 @@ public void testBug506430c() throws JavaModelException {
  */
 public void testBug518235() throws JavaModelException {
 	String source =
-		"public class Base<T> {\n" +
-		"	class Base2 {\n" +
-		"		Base2(Base<T> Base.this) {\n" +
-		"		}\n" +
-		"	}\n" +
-		"\n" +
-		"	T foo(@Deprecated Base<T> this, final Base<T> bar1, final Base<T> bar2) {\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class Base<T> {
+			class Base2 {
+				Base2(Base<T> Base.this) {
+				}
+			}
+		
+			T foo(@Deprecated Base<T> this, final Base<T> bar1, final Base<T> bar2) {
+			}
+		}""";
 	formatSource(source);
 }
 
@@ -14575,25 +14873,27 @@ public void testBug541133a() {
 	this.formatterPrefs.comment_indent_parameter_description = false;
 	this.formatterPrefs.comment_indent_tag_description = true;
 	String source =
-		"class C {\n" +
-		"	/**\n" +
-		"	 * @param bar param description should NOT get additional indentation when it's wrapped\n" +
-		"	 * @return return description should get additional indentation when it's wrapped\n" +
-		"	 */\n" +
-		"	String foo(String bar) {\n" +
-		"	}\n" +
-		"}";
+		"""
+		class C {
+			/**
+			 * @param bar param description should NOT get additional indentation when it's wrapped
+			 * @return return description should get additional indentation when it's wrapped
+			 */
+			String foo(String bar) {
+			}
+		}""";
 	formatSource(source,
-		"class C {\n" +
-		"	/**\n" +
-		"	 * @param bar param description should NOT get additional indentation when it's\n" +
-		"	 * wrapped\n" +
-		"	 * @return return description should get additional indentation when it's\n" +
-		"	 *     wrapped\n" +
-		"	 */\n" +
-		"	String foo(String bar) {\n" +
-		"	}\n" +
-		"}");
+		"""
+			class C {
+				/**
+				 * @param bar param description should NOT get additional indentation when it's
+				 * wrapped
+				 * @return return description should get additional indentation when it's
+				 *     wrapped
+				 */
+				String foo(String bar) {
+				}
+			}""");
 }
 /**
  * https://bugs.eclipse.org/541133 - [formatter] javadoc: no indent of @return description
@@ -14603,22 +14903,24 @@ public void testBug541133b() {
 	this.formatterPrefs.comment_indent_parameter_description = false;
 	this.formatterPrefs.comment_indent_tag_description = true;
 	String source =
-		"class C {\n" +
-		"	/**\n" +
-		"	 * @deprecated Do not use this class, it's only to test formatting on. One two three four five six seven eight nine ten\n" +
-		"	 */\n" +
-		"	void foo() {\n" +
-		"	}\n" +
-		"}";
+		"""
+		class C {
+			/**
+			 * @deprecated Do not use this class, it's only to test formatting on. One two three four five six seven eight nine ten
+			 */
+			void foo() {
+			}
+		}""";
 	formatSource(source,
-		"class C {\n" +
-		"	/**\n" +
-		"	 * @deprecated Do not use this class, it's only to test formatting on. One two\n" +
-		"	 *                 three four five six seven eight nine ten\n" +
-		"	 */\n" +
-		"	void foo() {\n" +
-		"	}\n" +
-		"}");
+		"""
+			class C {
+				/**
+				 * @deprecated Do not use this class, it's only to test formatting on. One two
+				 *                 three four five six seven eight nine ten
+				 */
+				void foo() {
+				}
+			}""");
 }
 /**
  * https://bugs.eclipse.org/541133 - [formatter] javadoc: no indent of @return description
@@ -14626,21 +14928,22 @@ public void testBug541133b() {
 public void testBug541133c() {
 	this.formatterPrefs.comment_indent_tag_description = true;
 	String source =
-		"/**\n" +
-		" * Mensagens SMTP tem o seguinte formato:\n" +
-		" * \n" +
-		" * <pre>\n" +
-		" * resposta de uma linha só:\n" +
-		" * </pre>\n" +
-		" * \n" +
-		" * {@link java.lang.String </code>a simple string<code>}.\n" +
-		" * \n" +
-		" * @deprecated Mensagens SMTP tem o seguinte formato:\n" +
-		" * \n" +
-		" *                 <pre>\n" +
-		" *                 resposta de uma linha só:\n" +
-		" *                 </pre>\n" +
-		" */";
+		"""
+		/**
+		 * Mensagens SMTP tem o seguinte formato:
+		 *\s
+		 * <pre>
+		 * resposta de uma linha só:
+		 * </pre>
+		 *\s
+		 * {@link java.lang.String </code>a simple string<code>}.
+		 *\s
+		 * @deprecated Mensagens SMTP tem o seguinte formato:
+		 *\s
+		 *                 <pre>
+		 *                 resposta de uma linha só:
+		 *                 </pre>
+		 */""";
 	formatSource(source);
 }
 /**
@@ -14648,26 +14951,28 @@ public void testBug541133c() {
  */
 public void testBug541133d() {
 	String source =
-		"/**\n" +
-		" * @return something <pre>\n" +
-		" * class Runnable {\n" +
-		" * 	// Hello really bad Ganymede formatter !!!\n" +
-		" * 	// Shit happens when somebody tries to change a running system\n" +
-		" * }</pre> something\n" +
-		" */";
+		"""
+		/**
+		 * @return something <pre>
+		 * class Runnable {
+		 * 	// Hello really bad Ganymede formatter !!!
+		 * 	// Shit happens when somebody tries to change a running system
+		 * }</pre> something
+		 */""";
 	formatSource(source,
-		"/**\n" +
-		" * @return something\n" +
-		" * \n" +
-		" *         <pre>\n" +
-		" *         class Runnable {\n" +
-		" *         	// Hello really bad Ganymede formatter !!!\n" +
-		" *         	// Shit happens when somebody tries to change a running system\n" +
-		" *         }\n" +
-		" *         </pre>\n" +
-		" * \n" +
-		" *         something\n" +
-		" */");
+		"""
+			/**
+			 * @return something
+			 *\s
+			 *         <pre>
+			 *         class Runnable {
+			 *         	// Hello really bad Ganymede formatter !!!
+			 *         	// Shit happens when somebody tries to change a running system
+			 *         }
+			 *         </pre>
+			 *\s
+			 *         something
+			 */""");
 }
 
 /**
@@ -15077,14 +15382,16 @@ public void testBug169131c() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_9);
 	this.formatterPrefs.blank_lines_after_last_class_body_declaration = 1;
 	String input =
-		"module aaaaaaaaaa.bbbbbbbbbb {\n" +
-		"	requires aaaaaaaaaa.cccccccccc; // a comment\n" +
-		"}";
+		"""
+		module aaaaaaaaaa.bbbbbbbbbb {
+			requires aaaaaaaaaa.cccccccccc; // a comment
+		}""";
 	formatSource(input,
-		"module aaaaaaaaaa.bbbbbbbbbb {\n" +
-		"	requires aaaaaaaaaa.cccccccccc; // a comment\n" +
-		"\n" +
-		"}",
+		"""
+			module aaaaaaaaaa.bbbbbbbbbb {
+				requires aaaaaaaaaa.cccccccccc; // a comment
+			
+			}""",
 		CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
 }
 /**
@@ -15094,14 +15401,16 @@ public void testBug169131d() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_9);
 	this.formatterPrefs.blank_lines_after_last_class_body_declaration = ~0;
 	String input =
-		"module aaaaaaaaaa.bbbbbbbbbb {\n" +
-		"	requires aaaaaaaaaa.cccccccccc;\n" +
-		"\n" +
-		"}";
+		"""
+		module aaaaaaaaaa.bbbbbbbbbb {
+			requires aaaaaaaaaa.cccccccccc;
+		
+		}""";
 	formatSource(input,
-		"module aaaaaaaaaa.bbbbbbbbbb {\n" +
-		"	requires aaaaaaaaaa.cccccccccc;\n" +
-		"}",
+		"""
+			module aaaaaaaaaa.bbbbbbbbbb {
+				requires aaaaaaaaaa.cccccccccc;
+			}""",
 		CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
 }
 /**
@@ -15134,27 +15443,29 @@ public void testBug549774() throws JavaModelException {
 	this.formatterPrefs.blank_lines_before_field = 2;
 	this.formatterPrefs.blank_lines_before_method = 3;
 	String input =
-		"class C {\n" +
-		"	int a;\n" +
-		"	String s;\n" +
-		"	void foo() {}\n" +
-		"	String bar(int a) {}\n" +
-		"}";
+		"""
+		class C {
+			int a;
+			String s;
+			void foo() {}
+			String bar(int a) {}
+		}""";
 	formatSource(input,
-		"class C {\n" +
-		"	int a;\n" +
-		"\n" +
-		"\n" +
-		"	String s;\n" +
-		"\n" +
-		"	void foo() {\n" +
-		"	}\n" +
-		"\n" +
-		"\n" +
-		"\n" +
-		"	String bar(int a) {\n" +
-		"	}\n" +
-		"}");
+		"""
+			class C {
+				int a;
+			
+			
+				String s;
+			
+				void foo() {
+				}
+			
+			
+			
+				String bar(int a) {
+				}
+			}""");
 }
 /**
  * https://bugs.eclipse.org/214283 - [formatter] Blank lines option should consider a virtual/interface method
@@ -15412,50 +15723,52 @@ public void testBug549436k() throws JavaModelException {
 public void testBug54627a() throws JavaModelException {
 	this.formatterPrefs.comment_insert_empty_line_between_different_tags = true;
 	String input =
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.\n" +
-		"	 * @param a Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n" +
-		"	 * @param b Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n" +
-		"	 * @param c Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n" +
-		"	 * @throws IOException Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.\n" +
-		"	 * @throws SQLException Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.\n" +
-		"	 * @return Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.\n" +
-		"	 */\n" +
-		"	public String f(int a, int b, int c) throws IOException, SQLException {\n" +
-		"		return \"\";\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class Test {
+			/**
+			 * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.
+			 * @param a Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+			 * @param b Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+			 * @param c Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			 * @throws IOException Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.
+			 * @throws SQLException Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+			 * @return Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+			 */
+			public String f(int a, int b, int c) throws IOException, SQLException {
+				return "";
+			}
+		}""";
 	formatSource(input,
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\n" +
-		"	 * tempor incididunt ut labore et dolore magna aliqua. Neque porro quisquam est,\n" +
-		"	 * qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia\n" +
-		"	 * non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam\n" +
-		"	 * quaerat voluptatem.\n" +
-		"	 * \n" +
-		"	 * @param a Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris\n" +
-		"	 *          nisi ut aliquip ex ea commodo consequat.\n" +
-		"	 * @param b Duis aute irure dolor in reprehenderit in voluptate velit esse\n" +
-		"	 *          cillum dolore eu fugiat nulla pariatur.\n" +
-		"	 * @param c Excepteur sint occaecat cupidatat non proident, sunt in culpa qui\n" +
-		"	 *          officia deserunt mollit anim id est laborum.\n" +
-		"	 * \n" +
-		"	 * @throws IOException  Sed ut perspiciatis unde omnis iste natus error sit\n" +
-		"	 *                      voluptatem accusantium doloremque laudantium.\n" +
-		"	 * @throws SQLException Totam rem aperiam, eaque ipsa quae ab illo inventore\n" +
-		"	 *                      veritatis et quasi architecto beatae vitae dicta sunt\n" +
-		"	 *                      explicabo.\n" +
-		"	 * \n" +
-		"	 * @return Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut\n" +
-		"	 *         fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem\n" +
-		"	 *         sequi nesciunt.\n" +
-		"	 */\n" +
-		"	public String f(int a, int b, int c) throws IOException, SQLException {\n" +
-		"		return \"\";\n" +
-		"	}\n" +
-		"}");
+		"""
+			public class Test {
+				/**
+				 * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+				 * tempor incididunt ut labore et dolore magna aliqua. Neque porro quisquam est,
+				 * qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia
+				 * non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam
+				 * quaerat voluptatem.
+				 *\s
+				 * @param a Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+				 *          nisi ut aliquip ex ea commodo consequat.
+				 * @param b Duis aute irure dolor in reprehenderit in voluptate velit esse
+				 *          cillum dolore eu fugiat nulla pariatur.
+				 * @param c Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+				 *          officia deserunt mollit anim id est laborum.
+				 *\s
+				 * @throws IOException  Sed ut perspiciatis unde omnis iste natus error sit
+				 *                      voluptatem accusantium doloremque laudantium.
+				 * @throws SQLException Totam rem aperiam, eaque ipsa quae ab illo inventore
+				 *                      veritatis et quasi architecto beatae vitae dicta sunt
+				 *                      explicabo.
+				 *\s
+				 * @return Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut
+				 *         fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem
+				 *         sequi nesciunt.
+				 */
+				public String f(int a, int b, int c) throws IOException, SQLException {
+					return "";
+				}
+			}""");
 }
 /**
  * https://bugs.eclipse.org/54627 - [formatter] Blank lines between Javadoc tags
@@ -15463,48 +15776,50 @@ public void testBug54627a() throws JavaModelException {
 public void testBug54627b() throws JavaModelException {
 	this.formatterPrefs.comment_insert_empty_line_between_different_tags = true;
 	String input =
-		"public class Test {\n" +
-		"	\n" +
-		"	/**\n" +
-		"	 * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.\n" +
-		"	 * @param a Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n" +
-		"	 * @param b Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n" +
-		"	 * @return Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.\n" +
-		"	 * @@org.example.transaction.interceptor.RuleBasedTransactionAttribute()\n" +
-		"	 * @@org.example.transaction.interceptor.RollbackRuleAttribute(Exception.class)\n" +
-		"	 * @@org.example.transaction.interceptor.NoRollbackRuleAttribute(\"ServletException\")\n" +
-		"	 */\n" +
-		"	public String f(int a, int b, int c) {\n" +
-		"		return \"\";\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class Test {
+		\t
+			/**
+			 * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.
+			 * @param a Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+			 * @param b Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+			 * @return Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+			 * @@org.example.transaction.interceptor.RuleBasedTransactionAttribute()
+			 * @@org.example.transaction.interceptor.RollbackRuleAttribute(Exception.class)
+			 * @@org.example.transaction.interceptor.NoRollbackRuleAttribute("ServletException")
+			 */
+			public String f(int a, int b, int c) {
+				return "";
+			}
+		}""";
 	formatSource(input,
-		"public class Test {\n" +
-		"\n" +
-		"	/**\n" +
-		"	 * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\n" +
-		"	 * tempor incididunt ut labore et dolore magna aliqua. Neque porro quisquam est,\n" +
-		"	 * qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia\n" +
-		"	 * non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam\n" +
-		"	 * quaerat voluptatem.\n" +
-		"	 * \n" +
-		"	 * @param a Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris\n" +
-		"	 *          nisi ut aliquip ex ea commodo consequat.\n" +
-		"	 * @param b Duis aute irure dolor in reprehenderit in voluptate velit esse\n" +
-		"	 *          cillum dolore eu fugiat nulla pariatur.\n" +
-		"	 * \n" +
-		"	 * @return Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut\n" +
-		"	 *         fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem\n" +
-		"	 *         sequi nesciunt.\n" +
-		"	 * \n" +
-		"	 * @@org.example.transaction.interceptor.RuleBasedTransactionAttribute()\n" +
-		"	 * @@org.example.transaction.interceptor.RollbackRuleAttribute(Exception.class)\n" +
-		"	 * @@org.example.transaction.interceptor.NoRollbackRuleAttribute(\"ServletException\")\n" +
-		"	 */\n" +
-		"	public String f(int a, int b, int c) {\n" +
-		"		return \"\";\n" +
-		"	}\n" +
-		"}");
+		"""
+			public class Test {
+			
+				/**
+				 * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+				 * tempor incididunt ut labore et dolore magna aliqua. Neque porro quisquam est,
+				 * qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia
+				 * non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam
+				 * quaerat voluptatem.
+				 *\s
+				 * @param a Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+				 *          nisi ut aliquip ex ea commodo consequat.
+				 * @param b Duis aute irure dolor in reprehenderit in voluptate velit esse
+				 *          cillum dolore eu fugiat nulla pariatur.
+				 *\s
+				 * @return Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut
+				 *         fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem
+				 *         sequi nesciunt.
+				 *\s
+				 * @@org.example.transaction.interceptor.RuleBasedTransactionAttribute()
+				 * @@org.example.transaction.interceptor.RollbackRuleAttribute(Exception.class)
+				 * @@org.example.transaction.interceptor.NoRollbackRuleAttribute("ServletException")
+				 */
+				public String f(int a, int b, int c) {
+					return "";
+				}
+			}""");
 }
 /**
  * https://bugs.eclipse.org/547261 - [formatter] Separate option for space after not (!) operator
@@ -15513,9 +15828,10 @@ public void testBug547261() throws JavaModelException {
 	this.formatterPrefs.insert_space_after_not_operator = true;
 	String input = "class C {boolean b=!a&&!(c||d)&&(f!=-5);}";
 	formatSource(input,
-		"class C {\n" +
-		"	boolean b = ! a && ! (c || d) && (f != -5);\n" +
-		"}");
+		"""
+			class C {
+				boolean b = ! a && ! (c || d) && (f != -5);
+			}""");
 }
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
@@ -15636,9 +15952,10 @@ public void testBug553155o() throws JavaModelException {
 	this.formatterPrefs.keep_record_constructor_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
 	String source = "record Range(int lo, int hi) {public Range {foo();}}";
 	formatSource(source,
-		"record Range(int lo, int hi) {\n" +
-		"	public Range { foo(); }\n" +
-		"}");
+		"""
+			record Range(int lo, int hi) {
+				public Range { foo(); }
+			}""");
 }
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
@@ -15660,22 +15977,24 @@ public void testBug118641a() throws JavaModelException {
 	this.formatterPrefs.alignment_for_assertion_message = Alignment.M_NO_ALIGNMENT;
 
 	String input =
-		"public class Test {\n" +
-		"\n" +
-		"	public void f(int a, int b) {\n" +
-		"		assert childElement.getElementsByTagName(FIELD_NAME).getLength() == 1 : \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
-		"		return;\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class Test {
+		
+			public void f(int a, int b) {
+				assert childElement.getElementsByTagName(FIELD_NAME).getLength() == 1 : "XML malformed. No attribute name! Please talk to your sysadmin.";
+				return;
+			}
+		}""";
 	formatSource(input,
-		"public class Test {\n" +
-		"\n" +
-		"	public void f(int a, int b) {\n" +
-		"		assert childElement.getElementsByTagName(FIELD_NAME)\n" +
-		"				.getLength() == 1 : \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
-		"		return;\n" +
-		"	}\n" +
-		"}");
+		"""
+			public class Test {
+			
+				public void f(int a, int b) {
+					assert childElement.getElementsByTagName(FIELD_NAME)
+							.getLength() == 1 : "XML malformed. No attribute name! Please talk to your sysadmin.";
+					return;
+				}
+			}""");
 }
 /**
  * https://bugs.eclipse.org/118641 - [formatter] Formatter does not break line on assert statement
@@ -15687,22 +16006,24 @@ public void testBug118641b() throws JavaModelException {
 	this.formatterPrefs.wrap_before_assertion_message_operator = true;
 
 	String input =
-		"public class Test {\n" +
-		"	\n" +
-		"	public void f(int a, int b) {\n" +
-		"		assert childElement.getElementsByTagName( FIELD_NAME ).getLength() == 1 : \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
-		"		return;\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class Test {
+		\t
+			public void f(int a, int b) {
+				assert childElement.getElementsByTagName( FIELD_NAME ).getLength() == 1 : "XML malformed. No attribute name! Please talk to your sysadmin.";
+				return;
+			}
+		}""";
 	formatSource(input,
-		"public class Test {\n" +
-		"\n" +
-		"	public void f(int a, int b) {\n" +
-		"		assert childElement.getElementsByTagName(FIELD_NAME).getLength() == 1\n" +
-		"				: \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
-		"		return;\n" +
-		"	}\n" +
-		"}");
+		"""
+			public class Test {
+			
+				public void f(int a, int b) {
+					assert childElement.getElementsByTagName(FIELD_NAME).getLength() == 1
+							: "XML malformed. No attribute name! Please talk to your sysadmin.";
+					return;
+				}
+			}""");
 }
 /**
  * https://bugs.eclipse.org/118641 - [formatter] Formatter does not break line on assert statement
@@ -15714,22 +16035,24 @@ public void testBug118641c() throws JavaModelException {
 	this.formatterPrefs.wrap_before_assertion_message_operator = false;
 
 	String input =
-		"public class Test {\n" +
-		"	\n" +
-		"	public void f(int a, int b) {\n" +
-		"		assert childElement.getElementsByTagName( FIELD_NAME ).getLength() == 1 : \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
-		"		return;\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class Test {
+		\t
+			public void f(int a, int b) {
+				assert childElement.getElementsByTagName( FIELD_NAME ).getLength() == 1 : "XML malformed. No attribute name! Please talk to your sysadmin.";
+				return;
+			}
+		}""";
 	formatSource(input,
-		"public class Test {\n" +
-		"\n" +
-		"	public void f(int a, int b) {\n" +
-		"		assert childElement.getElementsByTagName(FIELD_NAME).getLength() == 1 :\n" +
-		"				\"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
-		"		return;\n" +
-		"	}\n" +
-		"}");
+		"""
+			public class Test {
+			
+				public void f(int a, int b) {
+					assert childElement.getElementsByTagName(FIELD_NAME).getLength() == 1 :
+							"XML malformed. No attribute name! Please talk to your sysadmin.";
+					return;
+				}
+			}""");
 }
 /**
  * https://bugs.eclipse.org/118641 - [formatter] Formatter does not break line on assert statement
@@ -15740,23 +16063,25 @@ public void testBug118641d() throws JavaModelException {
 	this.formatterPrefs.page_width = 65;
 
 	String input =
-		"public class Test {\n" +
-		"	\n" +
-		"	public void f(int a, int b) {\n" +
-		"		assert childElement.getElementsByTagName( FIELD_NAME ).getLength() == 1 : \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
-		"		return;\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class Test {
+		\t
+			public void f(int a, int b) {
+				assert childElement.getElementsByTagName( FIELD_NAME ).getLength() == 1 : "XML malformed. No attribute name! Please talk to your sysadmin.";
+				return;
+			}
+		}""";
 	formatSource(input,
-		"public class Test {\n" +
-		"\n" +
-		"	public void f(int a, int b) {\n" +
-		"		assert childElement.getElementsByTagName(FIELD_NAME)\n" +
-		"				.getLength() == 1\n" +
-		"				: \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
-		"		return;\n" +
-		"	}\n" +
-		"}");
+		"""
+			public class Test {
+			
+				public void f(int a, int b) {
+					assert childElement.getElementsByTagName(FIELD_NAME)
+							.getLength() == 1
+							: "XML malformed. No attribute name! Please talk to your sysadmin.";
+					return;
+				}
+			}""");
 }
 /**
  * https://bugs.eclipse.org/118641 - [formatter] Formatter does not break line on assert statement
@@ -15767,22 +16092,24 @@ public void testBug118641e() throws JavaModelException {
 	this.formatterPrefs.alignment_for_assertion_message = Alignment.M_COMPACT_SPLIT | Alignment.M_FORCE;
 
 	String input =
-		"public class Test {\n" +
-		"	\n" +
-		"	public void f(int a, int b) {\n" +
-		"		assert childElement.getElementsByTagName( FIELD_NAME ).getLength() == 1 : \"XML malformed. No attribute name!\";\n" +
-		"		return;\n" +
-		"	}\n" +
-		"}";
+		"""
+		public class Test {
+		\t
+			public void f(int a, int b) {
+				assert childElement.getElementsByTagName( FIELD_NAME ).getLength() == 1 : "XML malformed. No attribute name!";
+				return;
+			}
+		}""";
 	formatSource(input,
-		"public class Test {\n" +
-		"\n" +
-		"	public void f(int a, int b) {\n" +
-		"		assert childElement.getElementsByTagName(FIELD_NAME).getLength() == 1\n" +
-		"				: \"XML malformed. No attribute name!\";\n" +
-		"		return;\n" +
-		"	}\n" +
-		"}");
+		"""
+			public class Test {
+			
+				public void f(int a, int b) {
+					assert childElement.getElementsByTagName(FIELD_NAME).getLength() == 1
+							: "XML malformed. No attribute name!";
+					return;
+				}
+			}""");
 }
 /**
  * https://bugs.eclipse.org/545078 - [formatter] Wrapping settings for annotations
@@ -15897,11 +16224,12 @@ public void testBug545078j() throws JavaModelException {
  */
 public void testBug222083() {
 	String source =
-		"class C {\n" +
-		"	private static native void redirect(String url)/*-{\n" +
-		"		$wnd.location = url;\n" +
-		"	}-*/;\n" +
-		"}";
+		"""
+		class C {
+			private static native void redirect(String url)/*-{
+				$wnd.location = url;
+			}-*/;
+		}""";
 	formatSource(source);
 }
 
@@ -15911,30 +16239,34 @@ public void testBug222083() {
 public void testBug567016() {
 	this.formatterPrefs.use_tags = false;
 	String source =
-		"public class X01 {\n" +
-		"\n" +
-		"/* @formatter:off */\n" +
-		"void     foo(    )      {	\n" +
-		"				//      unformatted       comment\n" +
-		"}\n" +
-		"/* @formatter:on */\n" +
-		"void     bar(    )      {	\n" +
-		"				//      formatted       comment\n" +
-		"}\n" +
-		"}\n";
+		"""
+		public class X01 {
+		
+		/* @formatter:off */
+		void     foo(    )      {\t
+						//      unformatted       comment
+		}
+		/* @formatter:on */
+		void     bar(    )      {\t
+						//      formatted       comment
+		}
+		}
+		""";
 	formatSource(source,
-		"public class X01 {\n" +
-		"\n" +
-		"	/* @formatter:off */\n" +
-		"	void foo() {\n" +
-		"		// unformatted comment\n" +
-		"	}\n" +
-		"\n" +
-		"	/* @formatter:on */\n" +
-		"	void bar() {\n" +
-		"		// formatted comment\n" +
-		"	}\n" +
-		"}\n"
+		"""
+			public class X01 {
+			
+				/* @formatter:off */
+				void foo() {
+					// unformatted comment
+				}
+			
+				/* @formatter:on */
+				void bar() {
+					// formatted comment
+				}
+			}
+			"""
 	);
 }
 
@@ -15945,41 +16277,43 @@ public void testBug573949() {
 	setComplianceLevel(CompilerOptions.VERSION_21);
 	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	String source =
-		"public class X {\n" +
-		" private static void foo(Object o) {\n" +
-		"   switch (o) {\n" +
-		"     case Integer t, String : System.out.println(\"Error should be flagged for Integer and String\");\n" +
-		"     default : System.out.println(\"Object\");\n" +
-		"   }\n" +
-		" }\n" +
-		"\n" +
-		"static void testTriangle(Shape s) {\n" +
-		"    switch (s) {\n" +
-		"        case Triangle t when t.calculateArea() > 100 ->\n" +
-		"            System.out.println(\"Large triangle\");\n" +
-		"        default ->\n" +
-		"            System.out.println(\"A shape, possibly a small triangle\");\n" +
-		"    }\n" +
-		"}\n" +
-		"}";
+		"""
+		public class X {
+		 private static void foo(Object o) {
+		   switch (o) {
+		     case Integer t, String : System.out.println("Error should be flagged for Integer and String");
+		     default : System.out.println("Object");
+		   }
+		 }
+		
+		static void testTriangle(Shape s) {
+		    switch (s) {
+		        case Triangle t when t.calculateArea() > 100 ->
+		            System.out.println("Large triangle");
+		        default ->
+		            System.out.println("A shape, possibly a small triangle");
+		    }
+		}
+		}""";
 	formatSource(source,
-			"public class X {\n" +
-			"	private static void foo(Object o) {\n" +
-			"		switch (o) {\n" +
-			"		case Integer t, String:\n" +
-			"			System.out.println(\"Error should be flagged for Integer and String\");\n" +
-			"		default:\n" +
-			"			System.out.println(\"Object\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"\n" +
-			"	static void testTriangle(Shape s) {\n" +
-			"		switch (s) {\n" +
-			"		case Triangle t when t.calculateArea() > 100 -> System.out.println(\"Large triangle\");\n" +
-			"		default -> System.out.println(\"A shape, possibly a small triangle\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					private static void foo(Object o) {
+						switch (o) {
+						case Integer t, String:
+							System.out.println("Error should be flagged for Integer and String");
+						default:
+							System.out.println("Object");
+						}
+					}
+				
+					static void testTriangle(Shape s) {
+						switch (s) {
+						case Triangle t when t.calculateArea() > 100 -> System.out.println("Large triangle");
+						default -> System.out.println("A shape, possibly a small triangle");
+						}
+					}
+				}"""
 		);
 }
 
@@ -15987,41 +16321,43 @@ public void testBug573949_0() {
 	setComplianceLevel(CompilerOptions.VERSION_21);
 	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	String source =
-		"public class X {\n" +
-		" private static void foo(Object o) {\n" +
-		"   switch (o) {\n" +
-		"     case Integer t, String s : System.out.println(\"Error should be flagged for Integer and String\");\n" +
-		"     default : System.out.println(\"Object\");\n" +
-		"   }\n" +
-		" }\n" +
-		"\n" +
-		"static void testTriangle(Shape s) {\n" +
-		"    switch (s) {\n" +
-		"        case Triangle t when t.calculateArea() > 100 ->\n" +
-		"            System.out.println(\"Large triangle\");\n" +
-		"        default ->\n" +
-		"            System.out.println(\"A shape, possibly a small triangle\");\n" +
-		"    }\n" +
-		"}\n" +
-		"}";
+		"""
+		public class X {
+		 private static void foo(Object o) {
+		   switch (o) {
+		     case Integer t, String s : System.out.println("Error should be flagged for Integer and String");
+		     default : System.out.println("Object");
+		   }
+		 }
+		
+		static void testTriangle(Shape s) {
+		    switch (s) {
+		        case Triangle t when t.calculateArea() > 100 ->
+		            System.out.println("Large triangle");
+		        default ->
+		            System.out.println("A shape, possibly a small triangle");
+		    }
+		}
+		}""";
 	formatSource(source,
-		"public class X {\n" +
-		"	private static void foo(Object o) {\n" +
-		"		switch (o) {\n" +
-		"		case Integer t,String s:\n" +
-		"			System.out.println(\"Error should be flagged for Integer and String\");\n" +
-		"		default:\n" +
-		"			System.out.println(\"Object\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"\n" +
-		"	static void testTriangle(Shape s) {\n" +
-		"		switch (s) {\n" +
-		"		case Triangle t when t.calculateArea() > 100 -> System.out.println(\"Large triangle\");\n" +
-		"		default -> System.out.println(\"A shape, possibly a small triangle\");\n" +
-		"		}\n" +
-		"	}\n" +
-		"}"
+		"""
+			public class X {
+				private static void foo(Object o) {
+					switch (o) {
+					case Integer t,String s:
+						System.out.println("Error should be flagged for Integer and String");
+					default:
+						System.out.println("Object");
+					}
+				}
+			
+				static void testTriangle(Shape s) {
+					switch (s) {
+					case Triangle t when t.calculateArea() > 100 -> System.out.println("Large triangle");
+					default -> System.out.println("A shape, possibly a small triangle");
+					}
+				}
+			}"""
 	);
 }
 
@@ -16043,22 +16379,24 @@ public void testBug577117a() {
 	this.formatterPrefs.page_width = 55;
 	this.formatterPrefs.align_selector_in_method_invocation_on_expression_first_line = false;
 	String source =
-		"class Example {\n" +
-		"	String foo() {\n" +
-		"		return new StringBuilder(Arrays.asList(11111111, 22222222, 3333333, 44444444)).append(\"TextTextText\").append(11111111 + 2222222 + 33333333).toStrinig();\n" +
-		"	}\n" +
-		"}";
+		"""
+		class Example {
+			String foo() {
+				return new StringBuilder(Arrays.asList(11111111, 22222222, 3333333, 44444444)).append("TextTextText").append(11111111 + 2222222 + 33333333).toStrinig();
+			}
+		}""";
 	formatSource(source,
-		"class Example {\n" +
-		"	String foo() {\n" +
-		"		return new StringBuilder(Arrays.asList(\n" +
-		"				11111111, 22222222, 3333333, 44444444))\n" +
-		"						.append(\"TextTextText\")\n" +
-		"						.append(11111111 + 2222222\n" +
-		"								+ 33333333)\n" +
-		"						.toStrinig();\n" +
-		"	}\n" +
-		"}");
+		"""
+			class Example {
+				String foo() {
+					return new StringBuilder(Arrays.asList(
+							11111111, 22222222, 3333333, 44444444))
+									.append("TextTextText")
+									.append(11111111 + 2222222
+											+ 33333333)
+									.toStrinig();
+				}
+			}""");
 }
 /**
  * https://bugs.eclipse.org/577117 - [formatter] Wrong indentation for method invocation on multi-line expression
@@ -16066,22 +16404,24 @@ public void testBug577117a() {
 public void testBug577117b() {
 	this.formatterPrefs.page_width = 53;
 	String source =
-		"class Example {\n" +
-		"	String foo() {\n" +
-		"		return new StringBuilder(Arrays.asList(11111111, 22222222, 3333333, 444444)).append(\"TextTextText\").append(11111111 + 2222222 + 33333333).toStrinig();\n" +
-		"	}\n" +
-		"}";
+		"""
+		class Example {
+			String foo() {
+				return new StringBuilder(Arrays.asList(11111111, 22222222, 3333333, 444444)).append("TextTextText").append(11111111 + 2222222 + 33333333).toStrinig();
+			}
+		}""";
 	formatSource(source,
-		"class Example {\n" +
-		"	String foo() {\n" +
-		"		return new StringBuilder(Arrays.asList(\n" +
-		"				11111111, 22222222, 3333333, 444444))\n" +
-		"				.append(\"TextTextText\")\n" +
-		"				.append(11111111 + 2222222\n" +
-		"						+ 33333333)\n" +
-		"				.toStrinig();\n" +
-		"	}\n" +
-		"}");
+		"""
+			class Example {
+				String foo() {
+					return new StringBuilder(Arrays.asList(
+							11111111, 22222222, 3333333, 444444))
+							.append("TextTextText")
+							.append(11111111 + 2222222
+									+ 33333333)
+							.toStrinig();
+				}
+			}""");
 }
 
 /**
@@ -16207,17 +16547,19 @@ public void testIssue264a() {
 	setComplianceLevel(CompilerOptions.VERSION_21);
 	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	String source =
-		"public class X{int baz(Bar bar){return switch(bar){\n" +
-		"	case Bar(Foo(var a,var b),Foo(var c,var d))->a+b+c+d;\n" +
-		"};}}";
+		"""
+		public class X{int baz(Bar bar){return switch(bar){
+			case Bar(Foo(var a,var b),Foo(var c,var d))->a+b+c+d;
+		};}}""";
 	formatSource(source,
-		"public class X {\n" +
-		"	int baz(Bar bar) {\n" +
-		"		return switch (bar) {\n" +
-		"		case Bar(Foo(var a, var b), Foo(var c, var d)) -> a + b + c + d;\n" +
-		"		};\n" +
-		"	}\n" +
-		"}");
+		"""
+			public class X {
+				int baz(Bar bar) {
+					return switch (bar) {
+					case Bar(Foo(var a, var b), Foo(var c, var d)) -> a + b + c + d;
+					};
+				}
+			}""");
 }
 /**
  * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/264 - [19] Formatter support for JEP 405: Record Patterns
@@ -16231,17 +16573,19 @@ public void testIssue264b() {
 	this.formatterPrefs.insert_space_after_opening_paren_in_record_declaration = true;
 	this.formatterPrefs.insert_space_before_closing_paren_in_record_declaration = true;
 	String source =
-		"public class X{int baz(Bar bar){return switch(bar){\n" +
-		"	case Bar(Foo(var a,var b),Foo(var c,var d))->a+b+c+d;\n" +
-		"};}}";
+		"""
+		public class X{int baz(Bar bar){return switch(bar){
+			case Bar(Foo(var a,var b),Foo(var c,var d))->a+b+c+d;
+		};}}""";
 	formatSource(source,
-		"public class X {\n" +
-		"	int baz(Bar bar) {\n" +
-		"		return switch (bar) {\n" +
-		"		case Bar ( Foo ( var a,var b ),Foo ( var c,var d ) ) -> a + b + c + d;\n" +
-		"		};\n" +
-		"	}\n" +
-		"}");
+		"""
+			public class X {
+				int baz(Bar bar) {
+					return switch (bar) {
+					case Bar ( Foo ( var a,var b ),Foo ( var c,var d ) ) -> a + b + c + d;
+					};
+				}
+			}""");
 }
 /**
  * https://bugs.eclipse.org/564052 - [15] JEP 360 - Sealed Types -Formatter Support
@@ -16252,12 +16596,13 @@ public void testBug564052() {
 	String source =
 		"sealed class Example permits C1, C2, C3 {}";
 	formatSource(source,
-		"sealed class Example\n" +
-		"		permits\n" +
-		"		C1,\n" +
-		"		C2,\n" +
-		"		C3 {\n" +
-		"}");
+		"""
+			sealed class Example
+					permits
+					C1,
+					C2,
+					C3 {
+			}""");
 }
 
 /**

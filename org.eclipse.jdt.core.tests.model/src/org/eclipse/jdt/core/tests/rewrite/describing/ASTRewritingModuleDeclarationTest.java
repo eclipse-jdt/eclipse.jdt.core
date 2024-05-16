@@ -47,20 +47,20 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			javaProject = createProject("P_9", JavaCore.VERSION_9);
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
-			StringBuilder buf= new StringBuilder();
-			buf.append("module first {\n");
-			buf.append("    requires second;\n");
-			buf.append("    requires removeme;\n");
-			buf.append("    exports pack11 to third, fourth;\n");
-			buf.append("    exports pack12 to fifth;\n");
-			buf.append("    exports pack12 to remove.mod1;\n");
-			buf.append("    exports pack13 to well.founded.module2;\n");
-			buf.append("    uses MyType;\n");
-			buf.append("    uses Type.Remove;\n");
-			buf.append("    provides pack22.I22 with pack11.packinternal.Z11;\n");
-			buf.append("    provides pack23.I23 with pack11.Z23, pack12.ZZ23;\n");
-			buf.append("}");
-			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", buf.toString(), false, null);
+			String str = """
+				module first {
+				    requires second;
+				    requires removeme;
+				    exports pack11 to third, fourth;
+				    exports pack12 to fifth;
+				    exports pack12 to remove.mod1;
+				    exports pack13 to well.founded.module2;
+				    uses MyType;
+				    uses Type.Remove;
+				    provides pack22.I22 with pack11.packinternal.Z11;
+				    provides pack23.I23 with pack11.Z23, pack12.ZZ23;
+				}""";
+			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", str, false, null);
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 			AST ast= astRoot.getAST();
@@ -140,20 +140,20 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				pListRewrite.remove((ASTNode) providesStatement.implementations().get(0), null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);
-			buf= new StringBuilder();
-			buf.append("module first {\n");
-			buf.append("    requires newSecond;\n");
-			buf.append("    requires addedme;\n");
-			buf.append("    exports newpack11 to third;\n");
-			buf.append("    exports pack12 to fifth, sixth;\n");
-			buf.append("    exports pack12;\n");
-			buf.append("    uses MyNewType;\n");
-			buf.append("    provides pack22.INew22 with pack11.packinternal.NewZ11, pack11.Y11;\n");
-			buf.append("    provides pack23.I23 with pack12.ZZ23;\n");
-			buf.append("    exports pack12 to well.founded.module3;\n");
-			buf.append("    uses MyNewFoundType;\n");
-			buf.append("}");
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				module first {
+				    requires newSecond;
+				    requires addedme;
+				    exports newpack11 to third;
+				    exports pack12 to fifth, sixth;
+				    exports pack12;
+				    uses MyNewType;
+				    provides pack22.INew22 with pack11.packinternal.NewZ11, pack11.Y11;
+				    provides pack23.I23 with pack12.ZZ23;
+				    exports pack12 to well.founded.module3;
+				    uses MyNewFoundType;
+				}""";
+			assertEqualString(preview, str1);
 		} finally {
 			if (javaProject != null)
 				deleteProject(javaProject);
@@ -165,12 +165,11 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			javaProject = createProject("P_9", JavaCore.VERSION_9);
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
-			StringBuilder buf= new StringBuilder();
-			buf.append("module first {\n");
-			buf.append("    requires existing;\n");
-			buf.append("}");
-
-			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", buf.toString(), false, null);
+			String str = """
+				module first {
+				    requires existing;
+				}""";
+			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", str, false, null);
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 			AST ast= astRoot.getAST();
@@ -183,12 +182,12 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				listRewrite.insertLast(newNode, null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);
-			buf= new StringBuilder();
-			buf.append("module first {\n");
-			buf.append("    requires existing;\n");
-			buf.append("    requires addedme;\n");
-			buf.append("}");
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				module first {
+				    requires existing;
+				    requires addedme;
+				}""";
+			assertEqualString(preview, str1);
 		} finally {
 			if (javaProject != null) deleteProject(javaProject);
 		}
@@ -200,14 +199,14 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			javaProject = createProject("P_9", JavaCore.VERSION_9);
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
-			StringBuilder buf= new StringBuilder();
-			buf.append("module first {\n");
-			buf.append("    requires existing;\n");
-			buf.append("    requires static module1;\n");
-			buf.append("    requires static module2;\n");
-			buf.append("    requires static module3;\n");
-			buf.append("}");
-			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", buf.toString(), false, null);
+			String str = """
+				module first {
+				    requires existing;
+				    requires static module1;
+				    requires static module2;
+				    requires static module3;
+				}""";
+			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", str, false, null);
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 			AST ast= astRoot.getAST();
@@ -236,15 +235,15 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				listRewrite.insertLast(newNode, null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);
-			buf= new StringBuilder();
-			buf.append("module first {\n");
-			buf.append("    requires static existing;\n");
-			buf.append("    requires module1;\n");
-			buf.append("    requires transitive module2;\n");
-			buf.append("    requires static transitive module3;\n");
-			buf.append("    requires transitive addedme;\n");
-		buf.append("}");
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				module first {
+				    requires static existing;
+				    requires module1;
+				    requires transitive module2;
+				    requires static transitive module3;
+				    requires transitive addedme;
+				}""";
+			assertEqualString(preview, str1);
 		} finally {
 			if (javaProject != null) deleteProject(javaProject);
 		}
@@ -255,21 +254,21 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			javaProject = createProject("P_9", JavaCore.VERSION_9);
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
-			StringBuilder buf= new StringBuilder();
-			buf.append("module first {\n");
-			buf.append("    requires existing;\n");
-			buf.append("}");
-			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", buf.toString(), false, null);
+			String str = """
+				module first {
+				    requires existing;
+				}""";
+			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", str, false, null);
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 			ModuleDeclaration moduleDecl = astRoot.getModule();
 			rewrite.set(moduleDecl, ModuleDeclaration.OPEN_PROPERTY, Boolean.TRUE, null);
 			String preview= evaluateRewrite(cu, rewrite);
-			buf= new StringBuilder();
-			buf.append("open module first {\n");
-			buf.append("    requires existing;\n");
-			buf.append("}");
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				open module first {
+				    requires existing;
+				}""";
+			assertEqualString(preview, str1);
 		} finally {
 			if (javaProject != null) deleteProject(javaProject);
 		}
@@ -280,21 +279,21 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			javaProject = createProject("P_9", JavaCore.VERSION_9);
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
-			StringBuilder buf= new StringBuilder();
-			buf.append("open module first {\n");
-			buf.append("    requires existing;\n");
-			buf.append("}");
-			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", buf.toString(), false, null);
+			String str = """
+				open module first {
+				    requires existing;
+				}""";
+			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", str, false, null);
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 			ModuleDeclaration moduleDecl = astRoot.getModule();
 			rewrite.set(moduleDecl, ModuleDeclaration.OPEN_PROPERTY, Boolean.FALSE, null);
 			String preview= evaluateRewrite(cu, rewrite);
-			buf= new StringBuilder();
-			buf.append("module first {\n");
-			buf.append("    requires existing;\n");
-			buf.append("}");
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				module first {
+				    requires existing;
+				}""";
+			assertEqualString(preview, str1);
 		} finally {
 			if (javaProject != null) deleteProject(javaProject);
 		}
@@ -305,15 +304,15 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			javaProject = createProject("P_9", JavaCore.VERSION_9);
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
-			StringBuilder buf= new StringBuilder();
-			buf.append("module first {\n");
-			buf.append("    requires existing;\n");
-			buf.append("    requires static module1;\n");
-			buf.append("    requires static module2;\n");
-			buf.append("    requires static module3;\n");
-			buf.append("    requires static module4;\n");
-			buf.append("}");
-			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", buf.toString(), false, null);
+			String str = """
+				module first {
+				    requires existing;
+				    requires static module1;
+				    requires static module2;
+				    requires static module3;
+				    requires static module4;
+				}""";
+			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", str, false, null);
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 			AST ast= astRoot.getAST();
@@ -349,16 +348,16 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				listRewrite.insertLast(newNode, null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);
-			buf= new StringBuilder();
-			buf.append("module first {\n");
-			buf.append("    requires static transitive existing;\n");
-			buf.append("    requires module1;\n");
-			buf.append("    requires transitive module2;\n");
-			buf.append("    requires static transitive module3;\n");
-			buf.append("    requires transitive static module4;\n");
-			buf.append("    requires transitive addedme;\n");
-		buf.append("}");
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				module first {
+				    requires static transitive existing;
+				    requires module1;
+				    requires transitive module2;
+				    requires static transitive module3;
+				    requires transitive static module4;
+				    requires transitive addedme;
+				}""";
+			assertEqualString(preview, str1);
 		} finally {
 			if (javaProject != null) deleteProject(javaProject);
 		}
@@ -371,10 +370,11 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
 			String content =
-					"import java.util.*;\n" +
-					"import java.util.function.Consumer;\n" +
-					"module first {\n" +
-					"}";
+					"""
+				import java.util.*;
+				import java.util.function.Consumer;
+				module first {
+				}""";
 			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", content, false, null);
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -388,10 +388,11 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			}
 			String preview= evaluateRewrite(cu, rewrite);
 			content =
-					"import java.io.Serializable;\n" +
-					"import java.util.function.Consumer;\n" +
-					"module first {\n" +
-					"}";
+					"""
+						import java.io.Serializable;
+						import java.util.function.Consumer;
+						module first {
+						}""";
 			assertEqualString(preview, content);
 		} finally {
 			if (javaProject != null) deleteProject(javaProject);

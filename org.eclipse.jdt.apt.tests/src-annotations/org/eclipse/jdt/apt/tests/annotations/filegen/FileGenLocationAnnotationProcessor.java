@@ -53,14 +53,22 @@ public class FileGenLocationAnnotationProcessor extends BaseProcessor {
 	}
 
 	protected String CODE_GEN_IN_PKG =
-		"package test;" + "\n" +
-		"public class A" + "\n" +
-		"{" + "\n" +
-		"}";
+		"""
+		package test;\
+		
+		public class A\
+		
+		{\
+		
+		}""";
 
 	protected String CODE_GEN_AT_PROJ_ROOT =
-		"public class B" + "\n" +
-		"{" + "\n" +
-		"    test.A a;" + "\n" +
-		"}";
+		"""
+		public class B\
+		
+		{\
+		
+		    test.A a;\
+		
+		}""";
 }

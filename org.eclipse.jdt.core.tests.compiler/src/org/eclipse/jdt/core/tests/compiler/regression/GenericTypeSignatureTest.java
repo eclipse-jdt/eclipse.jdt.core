@@ -189,25 +189,27 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test001() {
 		final String[] testsSource = new String[] {
 				"X.java",
-				"public class X <T> extends p.A<T> {\n" +
-				"    protected T t;\n" +
-				"    X(T t) {\n" +
-				"        super(t);\n" +
-				"        this.t = t;\n" +
-				"    }\n" +
-				"    public static void main(String[] args) {\n" +
-				"    	X<X<String>> xs = new X<X<String>>(new X<String>(\"SUCCESS\"));\n" +
-				"        System.out.print(xs.t.t);\n" +
-				"    }\n" +
-				"}",
+				"""
+					public class X <T> extends p.A<T> {
+					    protected T t;
+					    X(T t) {
+					        super(t);
+					        this.t = t;
+					    }
+					    public static void main(String[] args) {
+					    	X<X<String>> xs = new X<X<String>>(new X<String>("SUCCESS"));
+					        System.out.print(xs.t.t);
+					    }
+					}""",
 				"p/A.java",
-				"package p;\n" +
-				"public class A<P> {\n" +
-				"    protected P p;\n" +
-				"    protected A(P p) {\n" +
-				"        this.p = p;\n" +
-				"    }\n" +
-				"}"
+				"""
+					package p;
+					public class A<P> {
+					    protected P p;
+					    protected A(P p) {
+					        this.p = p;
+					    }
+					}"""
 			};
 		this.runConformTest(
 			testsSource,
@@ -416,17 +418,19 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test002() {
 		final String[] testsSource = new String[] {
 				"X.java",
-				"class X extends p.A<String> {\n" +
-				"    X() {\n" +
-				"        super(null);\n" +
-				"    }\n" +
-				"}",
+				"""
+					class X extends p.A<String> {
+					    X() {
+					        super(null);
+					    }
+					}""",
 				"p/A.java",
-				"package p;\n" +
-				"public class A<P> {\n" +
-				"    protected A(P p) {\n" +
-				"    }\n" +
-				"}"
+				"""
+					package p;
+					public class A<P> {
+					    protected A(P p) {
+					    }
+					}"""
 			};
 		this.runConformTest(testsSource);
 
@@ -550,25 +554,28 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test003() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X <T extends Object & p.B<? super T>> extends p.A<T> {\n" +
-			"    protected T t;\n" +
-			"    X(T t) {\n" +
-			"        super(t);\n" +
-			"        this.t = t;\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X <T extends Object & p.B<? super T>> extends p.A<T> {
+				    protected T t;
+				    X(T t) {
+				        super(t);
+				        this.t = t;
+				    }
+				}""",
 			"p/A.java",
-			"package p;\n" +
-			"public class A<P> {\n" +
-			"    protected P p;\n" +
-			"    protected A(P p) {\n" +
-			"        this.p = p;\n" +
-			"    }\n" +
-			"}",
+			"""
+				package p;
+				public class A<P> {
+				    protected P p;
+				    protected A(P p) {
+				        this.p = p;
+				    }
+				}""",
 			"p/B.java",
-			"package p;\n" +
-			"public interface B<T> {\n" +
-			"}"
+			"""
+				package p;
+				public interface B<T> {
+				}"""
 		};
 		this.runConformTest(testsSource);
 
@@ -596,25 +603,28 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test004() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X <T extends Object & p.B> extends p.A<T> {\n" +
-			"    protected T t;\n" +
-			"    X(T t) {\n" +
-			"        super(t);\n" +
-			"        this.t = t;\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X <T extends Object & p.B> extends p.A<T> {
+				    protected T t;
+				    X(T t) {
+				        super(t);
+				        this.t = t;
+				    }
+				}""",
 			"p/A.java",
-			"package p;\n" +
-			"public class A<P> {\n" +
-			"    protected P p;\n" +
-			"    protected A(P p) {\n" +
-			"        this.p = p;\n" +
-			"    }\n" +
-			"}",
+			"""
+				package p;
+				public class A<P> {
+				    protected P p;
+				    protected A(P p) {
+				        this.p = p;
+				    }
+				}""",
 			"p/B.java",
-			"package p;\n" +
-			"public interface B<T> {\n" +
-			"}"
+			"""
+				package p;
+				public interface B<T> {
+				}"""
 		};
 		this.runConformTest(testsSource);
 
@@ -642,29 +652,33 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test005() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X <T extends Object & p.B & p.C> extends p.A<T> {\n" +
-			"    protected T t;\n" +
-			"    X(T t) {\n" +
-			"        super(t);\n" +
-			"        this.t = t;\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X <T extends Object & p.B & p.C> extends p.A<T> {
+				    protected T t;
+				    X(T t) {
+				        super(t);
+				        this.t = t;
+				    }
+				}""",
 			"p/A.java",
-			"package p;\n" +
-			"public class A<P> {\n" +
-			"    protected P p;\n" +
-			"    protected A(P p) {\n" +
-			"        this.p = p;\n" +
-			"    }\n" +
-			"}",
+			"""
+				package p;
+				public class A<P> {
+				    protected P p;
+				    protected A(P p) {
+				        this.p = p;
+				    }
+				}""",
 			"p/B.java",
-			"package p;\n" +
-			"public interface B<T> {\n" +
-			"}",
+			"""
+				package p;
+				public interface B<T> {
+				}""",
 			"p/C.java",
-			"package p;\n" +
-			"public interface C<T> {\n" +
-			"}"
+			"""
+				package p;
+				public interface C<T> {
+				}"""
 		};
 		this.runConformTest(testsSource);
 
@@ -696,19 +710,20 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test006() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X <T> {\n" +
-			"    protected T t;\n" +
-			"    X(T t) {\n" +
-			"        this.t = t;\n" +
-			"    }\n" +
-			"	T foo(T t1) {\n" +
-			"		return t1;\n" +
-			"    }\n" +
-			"	T field;\n" +
-			"    public static void main(String[] args) {\n" +
-			"        System.out.print(\"SUCCESS\");\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X <T> {
+				    protected T t;
+				    X(T t) {
+				        this.t = t;
+				    }
+					T foo(T t1) {
+						return t1;
+				    }
+					T field;
+				    public static void main(String[] args) {
+				        System.out.print("SUCCESS");
+				    }
+				}""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -743,19 +758,20 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test007() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X <T> {\n" +
-			"    protected T t;\n" +
-			"    X(T t) {\n" +
-			"        this.t = t;\n" +
-			"    }\n" +
-			"	T foo(X<T> x1) {\n" +
-			"		return x1.t;\n" +
-			"    }\n" +
-			"	X<T> field;\n" +
-			"    public static void main(String[] args) {\n" +
-			"        System.out.print(\"SUCCESS\");\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X <T> {
+				    protected T t;
+				    X(T t) {
+				        this.t = t;
+				    }
+					T foo(X<T> x1) {
+						return x1.t;
+				    }
+					X<T> field;
+				    public static void main(String[] args) {
+				        System.out.print("SUCCESS");
+				    }
+				}""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -790,14 +806,15 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test008() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X  <T> {\n" +
-			"	T newInstance() throws IllegalAccessException {\n" +
-			"	    return null;\n" +
-			"	}\n" +
-			"    public static void main(String[] args) {\n" +
-			"        System.out.print(\"SUCCESS\");\n" +
-			"    }\n" +
-			"}",
+			"""
+				public class X  <T> {
+					T newInstance() throws IllegalAccessException {
+					    return null;
+					}
+				    public static void main(String[] args) {
+				        System.out.print("SUCCESS");
+				    }
+				}""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -822,17 +839,18 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test009() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"class MX<U> {\n" +
-			"}\n" +
-			" \n" +
-			"public static void main(String[] args) {\n" +
-			"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" +
-			"}\n" +
-			"void foo(X<String>.MX<Thread> mx) {\n" +
-			"   System.out.println(\"SUCCESS\");\n" +
-			"}\n" +
-			"}",
+			"""
+				public class X<T> {
+				class MX<U> {
+				}
+				\s
+				public static void main(String[] args) {
+				    new X<Thread>().foo(new X<String>().new MX<Thread>());
+				}
+				void foo(X<String>.MX<Thread> mx) {
+				   System.out.println("SUCCESS");
+				}
+				}""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -857,17 +875,18 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test010() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"class MX<U> {\n" +
-			"}\n" +
-			" \n" +
-			"public static void main(String[] args) {\n" +
-			"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" +
-			"}\n" +
-			"void foo(X.MX mx) {\n" +
-			"   System.out.println(\"SUCCESS\");\n" +
-			"}\n" +
-			"}",
+			"""
+				public class X<T> {
+				class MX<U> {
+				}
+				\s
+				public static void main(String[] args) {
+				    new X<Thread>().foo(new X<String>().new MX<Thread>());
+				}
+				void foo(X.MX mx) {
+				   System.out.println("SUCCESS");
+				}
+				}""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -891,17 +910,18 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test011() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"  class MX<U> {\n" +
-			"  }\n" +
-			"\n" +
-			"  public static void main(String[] args) {\n" +
-			"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" +
-			"  }\n" +
-			"  void foo(X<String>.MX<?> mx) {\n" +
-			"	System.out.println(\"SUCCESS\");\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X<T> {
+				  class MX<U> {
+				  }
+				
+				  public static void main(String[] args) {
+				    new X<Thread>().foo(new X<String>().new MX<Thread>());
+				  }
+				  void foo(X<String>.MX<?> mx) {
+					System.out.println("SUCCESS");
+				  }
+				}""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -957,17 +977,18 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test012() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"  class MX<U> {\n" +
-			"  }\n" +
-			"\n" +
-			"  public static void main(String[] args) {\n" +
-			"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" +
-			"  }\n" +
-			"  void foo(X.MX mx) {			// no signature\n" +
-			"	System.out.println(\"SUCCESS\");\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X<T> {
+				  class MX<U> {
+				  }
+				
+				  public static void main(String[] args) {
+				    new X<Thread>().foo(new X<String>().new MX<Thread>());
+				  }
+				  void foo(X.MX mx) {			// no signature
+					System.out.println("SUCCESS");
+				  }
+				}""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -990,19 +1011,20 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test013() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"\n" +
-			"public class X<T> {\n" +
-			"	\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"	public <U> void foo(ArrayList<U> arr) {\n" +
-			"		for (U e : arr) {\n" +
-			"			System.out.println(e);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
+			"""
+				import java.util.ArrayList;
+				
+				public class X<T> {
+				\t
+					public static void main(String[] args) {
+						System.out.println("SUCCESS");
+					}
+					public <U> void foo(ArrayList<U> arr) {
+						for (U e : arr) {
+							System.out.println(e);
+						}
+					}
+				}""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -1027,14 +1049,15 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test014() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"	private List<X> games = new ArrayList<X>();\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"}",
+			"""
+				import java.util.ArrayList;
+				import java.util.List;
+				public class X {
+					private List<X> games = new ArrayList<X>();
+					public static void main(String[] args) {
+						System.out.println("SUCCESS");
+					}
+				}""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -1081,16 +1104,17 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test016() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"\n" +
-			"public class X<T> {\n" +
-			"	\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"	public <U> void foo(U[] arr) {\n" +
-			"	}\n" +
-			"}",
+			"""
+				import java.util.ArrayList;
+				
+				public class X<T> {
+				\t
+					public static void main(String[] args) {
+						System.out.println("SUCCESS");
+					}
+					public <U> void foo(U[] arr) {
+					}
+				}""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -1114,17 +1138,18 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test017() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"  static class MX<U> {\n" +
-			"  }\n" +
-			"\n" +
-			"  public static void main(String[] args) {\n" +
-			"    new X<Thread>().foo(new MX<Thread>());\n" +
-			"  }\n" +
-			"  void foo(X.MX<?> mx) {\n" +
-			"	System.out.println(\"SUCCESS\");\n" +
-			"  }\n" +
-			"}",
+			"""
+				public class X<T> {
+				  static class MX<U> {
+				  }
+				
+				  public static void main(String[] args) {
+				    new X<Thread>().foo(new MX<Thread>());
+				  }
+				  void foo(X.MX<?> mx) {
+					System.out.println("SUCCESS");
+				  }
+				}""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -1149,16 +1174,18 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test018() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X<K extends X.Key> {\n" +
-			"    public abstract static class Key {\n" +
-			"         public abstract String getName();\n" +
-			"    }\n" +
-			"    public class Holder {}\n" +
-			"    \n" +
-			"    void baz(X<K>.Holder h) {} // (LX<TK;>.Holder;)V\n" +
-			"    void bar(X.Holder h) {} // n/a\n" +
-			"    void foo(X<Key>.Holder h) {} // (LX<LX$Key;>.Holder;)V\n" +
-			"}\n",
+			"""
+				public class X<K extends X.Key> {
+				    public abstract static class Key {
+				         public abstract String getName();
+				    }
+				    public class Holder {}
+				   \s
+				    void baz(X<K>.Holder h) {} // (LX<TK;>.Holder;)V
+				    void bar(X.Holder h) {} // n/a
+				    void foo(X<Key>.Holder h) {} // (LX<LX$Key;>.Holder;)V
+				}
+				""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -1193,24 +1220,26 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test019() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public class X<K extends X.Key> {\n" +
-			"    public abstract static class Key {\n" +
-			"         public abstract String getName();\n" +
-			"    }\n" +
-			"    public class Holder {}\n" +
-			"    \n" +
-			"    X<K>.Holder foo() { return null; }\n" +
-			"    \n" +
-			"    static void bar() {\n" +
-			"    	Object o = new X<Key>().foo();\n" +
-			"    	class Local<U> {\n" +
-			"    		X<Key>.Holder field;\n" +
-			"    		Local<String> foo1() { return null; }\n" +
-			"    		Local<U> foo2() { return null; }\n" +
-			"    		Local foo3() { return null; }\n" +
-			"    	}\n" +
-			"    }\n" +
-			"}\n",
+			"""
+				public class X<K extends X.Key> {
+				    public abstract static class Key {
+				         public abstract String getName();
+				    }
+				    public class Holder {}
+				   \s
+				    X<K>.Holder foo() { return null; }
+				   \s
+				    static void bar() {
+				    	Object o = new X<Key>().foo();
+				    	class Local<U> {
+				    		X<Key>.Holder field;
+				    		Local<String> foo1() { return null; }
+				    		Local<U> foo2() { return null; }
+				    		Local foo3() { return null; }
+				    	}
+				    }
+				}
+				""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -1254,13 +1283,15 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void test020() {
 		final String[] testsSource = new String[] {
 			"X.java",
-			"public interface X<E extends Object & X.Entry> {\n" +
-			"  interface Entry {\n" +
-			"    interface Internal extends Entry {\n" +
-			"      Internal createEntry();\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				public interface X<E extends Object & X.Entry> {
+				  interface Entry {
+				    interface Internal extends Entry {
+				      Internal createEntry();
+				    }
+				  }
+				}
+				""",
 		};
 		this.runConformTest(
 			testsSource,
@@ -1284,14 +1315,16 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void testBug460491() {
 		final String[] testsSource = new String[] {
 				"C.java",
-				"public class C<E> {\n" +
-				"  static class F { }\n" +
-				"  interface G { }\n" +
-				"  class H { }\n" +
-				"  void m1(F f) {}\n" +
-				"  void m2(G g) {}\n" +
-				"  void m3(H h) {}\n" +
-				"}\n"
+				"""
+					public class C<E> {
+					  static class F { }
+					  interface G { }
+					  class H { }
+					  void m1(F f) {}
+					  void m2(G g) {}
+					  void m3(H h) {}
+					}
+					"""
 		};
 		this.runConformTest(
 				testsSource,
@@ -1331,17 +1364,19 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			return;
 		final String[] testsSource = new String[] {
 				"X.java",
-				"import java.util.Optional;\n" +
-				"import java.util.stream.Stream;\n" +
-				"public interface X {\n" +
-				"  static void m1() {\n" +
-				"    Optional.<Stream<String>>empty().orElseGet(Stream::of);\n" +
-				"  }\n" +
-                "\n" +
-				"  static <T> Stream<T> m2() {\n" +
-				"    return Optional.<Stream<T>>empty().orElseGet(Stream::of);\n" +
-				"  }\n" +
-				"}\n",
+				"""
+					import java.util.Optional;
+					import java.util.stream.Stream;
+					public interface X {
+					  static void m1() {
+					    Optional.<Stream<String>>empty().orElseGet(Stream::of);
+					  }
+					
+					  static <T> Stream<T> m2() {
+					    return Optional.<Stream<T>>empty().orElseGet(Stream::of);
+					  }
+					}
+					""",
 			};
 			this.runConformTest(
 				testsSource,

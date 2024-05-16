@@ -57,12 +57,13 @@ public void test001() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.io.Serializable;\n" +
-			"\n" +
-			"public class X implements Serializable {\n" +
-			"	private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException {}\n" +
-			"	private void writeObject(java.io.ObjectOutputStream stream) throws java.io.IOException {}\n" +
-			"}"
+			"""
+				import java.io.Serializable;
+				
+				public class X implements Serializable {
+					private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException {}
+					private void writeObject(java.io.ObjectOutputStream stream) throws java.io.IOException {}
+				}"""
 		},
 		""
 	);
@@ -72,10 +73,11 @@ public void test002() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X implements java.io.Externalizable {\n" +
-			"	public void writeExternal(java.io.ObjectOutput out) throws java.io.IOException {}\n" +
-			"	public void readExternal(java.io.ObjectInput in) throws java.io.IOException, ClassNotFoundException {}\n" +
-			"}"
+			"""
+				public class X implements java.io.Externalizable {
+					public void writeExternal(java.io.ObjectOutput out) throws java.io.IOException {}
+					public void readExternal(java.io.ObjectInput in) throws java.io.IOException, ClassNotFoundException {}
+				}"""
 		},
 		""
 	);
@@ -85,16 +87,19 @@ public void test003() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X implements java.io.Serializable {\n" +
-			"	private void writeObject(java.io.ObjectOutputStream stream) throws java.io.IOException {}\n" +
-			"}"
+			"""
+				public class X implements java.io.Serializable {
+					private void writeObject(java.io.ObjectOutputStream stream) throws java.io.IOException {}
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X implements java.io.Serializable {\n" +
-		"	             ^\n" +
-		"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 1)
+				public class X implements java.io.Serializable {
+				             ^
+			The serializable class X does not declare a static final serialVersionUID field of type long
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
@@ -103,16 +108,19 @@ public void test004() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X implements java.io.Serializable {\n" +
-			"	private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException {}\n" +
-			"}"
+			"""
+				public class X implements java.io.Serializable {
+					private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException {}
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X implements java.io.Serializable {\n" +
-		"	             ^\n" +
-		"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 1)
+				public class X implements java.io.Serializable {
+				             ^
+			The serializable class X does not declare a static final serialVersionUID field of type long
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
@@ -124,12 +132,14 @@ public void test005() {
 			"public class X implements java.io.Serializable {\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X implements java.io.Serializable {\n" +
-		"	             ^\n" +
-		"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 1)
+				public class X implements java.io.Serializable {
+				             ^
+			The serializable class X does not declare a static final serialVersionUID field of type long
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
@@ -138,9 +148,10 @@ public void test006() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X implements java.io.Serializable {\n" +
-			"	Object writeReplace() throws java.io.ObjectStreamException { return null;}\n" +
-			"}"
+			"""
+				public class X implements java.io.Serializable {
+					Object writeReplace() throws java.io.ObjectStreamException { return null;}
+				}"""
 		},
 		""
 	);
@@ -155,17 +166,19 @@ public void test007() {
 			"abstract class A implements java.io.Serializable {}\n" +
 			"public class X extends A {}\n"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	abstract class A implements java.io.Serializable {}\n" +
-		"	               ^\n" +
-		"The serializable class A does not declare a static final serialVersionUID field of type long\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	public class X extends A {}\n" +
-		"	             ^\n" +
-		"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 1)
+				abstract class A implements java.io.Serializable {}
+				               ^
+			The serializable class A does not declare a static final serialVersionUID field of type long
+			----------
+			2. ERROR in X.java (at line 2)
+				public class X extends A {}
+				             ^
+			The serializable class X does not declare a static final serialVersionUID field of type long
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
@@ -174,9 +187,10 @@ public void _test008() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X extends javax.rmi.CORBA.Stub {\n" +
-				"	public String[] _ids() { return null; }\n" +
-				"}"
+				"""
+					public class X extends javax.rmi.CORBA.Stub {
+						public String[] _ids() { return null; }
+					}"""
 			},
 			""
 		);
@@ -186,9 +200,10 @@ public void _test009() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X extends Y {\n" +
-				"	public String[] _ids() { return null; }\n" +
-				"}",
+				"""
+					public class X extends Y {
+						public String[] _ids() { return null; }
+					}""",
 				"Y.java",
 				"public abstract class Y extends javax.rmi.CORBA.Stub {\n" +
 				"}"
@@ -201,9 +216,10 @@ public void _test010() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X extends Y {\n" +
-				"	public String[] _ids() { return null; }\n" +
-				"}",
+				"""
+					public class X extends Y {
+						public String[] _ids() { return null; }
+					}""",
 				"Y.java",
 				"public abstract class Y extends Z {\n" +
 				"}",
@@ -221,16 +237,19 @@ public void test011() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				public class X {
+					private static final long serialVersionUID = 1L;
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	private static final long serialVersionUID = 1L;\n" +
-		"	                          ^^^^^^^^^^^^^^^^\n" +
-		"The value of the field X.serialVersionUID is not used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				private static final long serialVersionUID = 1L;
+				                          ^^^^^^^^^^^^^^^^
+			The value of the field X.serialVersionUID is not used
+			----------
+			""",
 		null,
 		true,
 		options
@@ -244,16 +263,19 @@ public void test012() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	private static final long serialVersionUID = 1L;\n" +
-			"}"
+			"""
+				public class X<T> {
+					private static final long serialVersionUID = 1L;
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	private static final long serialVersionUID = 1L;\n" +
-		"	                          ^^^^^^^^^^^^^^^^\n" +
-		"The value of the field X<T>.serialVersionUID is not used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				private static final long serialVersionUID = 1L;
+				                          ^^^^^^^^^^^^^^^^
+			The value of the field X<T>.serialVersionUID is not used
+			----------
+			""",
 		null,
 		true,
 		options
@@ -267,16 +289,19 @@ public void test013() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" +
-			"	private static final long serialPersistentFields = 1L;\n" +
-			"}"
+			"""
+				public class X<T> {
+					private static final long serialPersistentFields = 1L;
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	private static final long serialPersistentFields = 1L;\n" +
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The value of the field X<T>.serialPersistentFields is not used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				private static final long serialPersistentFields = 1L;
+				                          ^^^^^^^^^^^^^^^^^^^^^^
+			The value of the field X<T>.serialPersistentFields is not used
+			----------
+			""",
 		null,
 		true,
 		options
@@ -289,16 +314,19 @@ public void test014() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	private static final long serialPersistentFields = 1L;\n" +
-			"}"
+			"""
+				public class X {
+					private static final long serialPersistentFields = 1L;
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	private static final long serialPersistentFields = 1L;\n" +
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The value of the field X.serialPersistentFields is not used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				private static final long serialPersistentFields = 1L;
+				                          ^^^^^^^^^^^^^^^^^^^^^^
+			The value of the field X.serialPersistentFields is not used
+			----------
+			""",
 		null,
 		true,
 		options
@@ -312,19 +340,22 @@ public void test015() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.ObjectStreamField;\n" +
-			"public class X<T> implements java.io.Serializable {\n" +
-			"	private static final long serialVersionUID = 1L;\n" +
-			"	private final static ObjectStreamField[] serialPersistentFields = null;\n" +
-			"	private int i;\n" +
-			"}"
+			"""
+				import java.io.ObjectStreamField;
+				public class X<T> implements java.io.Serializable {
+					private static final long serialVersionUID = 1L;
+					private final static ObjectStreamField[] serialPersistentFields = null;
+					private int i;
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	private int i;\n" +
-		"	            ^\n" +
-		"The value of the field X<T>.i is not used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				private int i;
+				            ^
+			The value of the field X<T>.i is not used
+			----------
+			""",
 		null,
 		true,
 		options
@@ -337,19 +368,22 @@ public void test016() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.ObjectStreamField;\n" +
-			"public class X implements java.io.Serializable {\n" +
-			"	private static final long serialVersionUID = 1L;\n" +
-			"	private final static ObjectStreamField[] serialPersistentFields = null;\n" +
-			"	private int i;\n" +
-			"}"
+			"""
+				import java.io.ObjectStreamField;
+				public class X implements java.io.Serializable {
+					private static final long serialVersionUID = 1L;
+					private final static ObjectStreamField[] serialPersistentFields = null;
+					private int i;
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	private int i;\n" +
-		"	            ^\n" +
-		"The value of the field X.i is not used\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				private int i;
+				            ^
+			The value of the field X.i is not used
+			----------
+			""",
 		null,
 		true,
 		options

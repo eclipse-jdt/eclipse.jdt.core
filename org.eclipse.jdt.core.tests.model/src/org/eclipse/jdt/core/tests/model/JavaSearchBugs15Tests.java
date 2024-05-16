@@ -156,10 +156,12 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_001() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	}\n" +
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -176,11 +178,13 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_002() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -197,12 +201,14 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_003() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	  this.comp_=11;\n" +
-						"	}\n" +
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						  this.comp_=11;
+						}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -220,21 +226,24 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_004() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	  this.comp_=comp_;\n" +
-						"	}\n" +
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						  this.comp_=comp_;
+						}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			search("comp_", FIELD, REFERENCES);
-			assertSearchResults("src/X.java Point(int) [comp_] EXACT_MATCH\n" +
-					"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
-					"src/X.java Point(int) [comp_] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java Point(int) [comp_] EXACT_MATCH
+				src/X.java Point(int) [comp_] EXACT_MATCH
+				src/X.java Point(int) [comp_] EXACT_MATCH""");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -244,10 +253,12 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_005() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point (int a) {\n" +
-						"	}\n" +
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point (int a) {
+						}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -264,11 +275,13 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_006() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point (int a) {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point (int a) {
+						  comp_=11;
+						}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -285,12 +298,14 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_007() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point (int a) {\n" +
-						"	 // comp_=11;\n" +
-						"	 this.comp_=a;\n" +
-						"	}\n" +
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point (int a) {
+						 // comp_=11;
+						 this.comp_=a;
+						}
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -307,13 +322,15 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_008() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( int comp_) {	  \n"+
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						}
+					public void method ( int comp_) {	 \s
+					}\s
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -331,14 +348,16 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_009() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int comp_=11;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int comp_=11;
+					}\s
+					}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -357,14 +376,16 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_010() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record /* here*/Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=11;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record /* here*/Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=11;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -381,14 +402,16 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_011() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record /* here*/Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  /* here*/compp_=11;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record /* here*/Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  /* here*/compp_=11;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -406,14 +429,16 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_012() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record /* here*/Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  /* here*/comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int compp_=11;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record /* here*/Point(int comp_) {\s
+						public Point  {
+						  /* here*/comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int compp_=11;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -431,14 +456,16 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_013() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record /* here*/Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  /* here*/this.comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=11;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record /* here*/Point(int comp_) {\s
+						public Point  {
+						  /* here*/this.comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=11;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -456,14 +483,16 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record /* here*/Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  /* here*/comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=/* here*/this.comp_;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record /* here*/Point(int comp_) {\s
+						public Point  {
+						  /* here*/comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=/* here*/this.comp_;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -480,14 +509,16 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_015() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record /* here*/Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=/* here2*/comp_;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record /* here*/Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=/* here2*/comp_;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -507,15 +538,17 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_016() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  /*here2*/comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=comp_;\n" +
-						"	  int  compp2_=comp_;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						  /*here2*/comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=comp_;
+						  int  compp2_=comp_;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -528,22 +561,25 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof LocalVariable);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH");
+				"""
+					src/X.java Point(int) [comp_] EXACT_MATCH
+					src/X.java void Point.method() [comp_] EXACT_MATCH
+					src/X.java void Point.method() [comp_] EXACT_MATCH""");
 	}
 	public void testBug558812_016a() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=comp_;\n" +
-						"	  int  compp2_=comp_;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=comp_;
+						  int  compp2_=comp_;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -556,24 +592,27 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof IField);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH");
+				"""
+					src/X.java Point(int) [comp_] EXACT_MATCH
+					src/X.java void Point.method() [comp_] EXACT_MATCH
+					src/X.java void Point.method() [comp_] EXACT_MATCH""");
 	}
 
 	public void testBug558812_017() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  /*here2*/comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=comp_;\n" +
-						"	  int  compp2_=comp_;\n" +
-						"	  int  compp3_=this.comp_;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						  /*here2*/comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=comp_;
+						  int  compp2_=comp_;
+						  int  compp3_=this.comp_;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -586,24 +625,27 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof LocalVariable);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH");
+				"""
+					src/X.java Point(int) [comp_] EXACT_MATCH
+					src/X.java void Point.method() [comp_] EXACT_MATCH
+					src/X.java void Point.method() [comp_] EXACT_MATCH
+					src/X.java void Point.method() [comp_] EXACT_MATCH""");
 	}
 	public void testBug558812_017a() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=comp_;\n" +
-						"	  int  compp2_=comp_;\n" +
-						"	  int  compp3_=this.comp_;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=comp_;
+						  int  compp2_=comp_;
+						  int  compp3_=this.comp_;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -616,27 +658,30 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof IField);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH");
+				"""
+					src/X.java Point(int) [comp_] EXACT_MATCH
+					src/X.java void Point.method() [comp_] EXACT_MATCH
+					src/X.java void Point.method() [comp_] EXACT_MATCH
+					src/X.java void Point.method() [comp_] EXACT_MATCH""");
 	}
 
 	//
 	public void testBug572467() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Point.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  var1=comp_;\n" +
-						"	  int  var2=comp_;\n" +
-						"	  int  var3=this.comp_;\n" +
-						"	  int  accMethod=this.comp_();\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  var1=comp_;
+						  int  var2=comp_;
+						  int  var3=this.comp_;
+						  int  accMethod=this.comp_();
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -649,27 +694,30 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof IField);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/Point.java Point(int) [comp_] EXACT_MATCH\n" +
-				"src/Point.java void Point.method() [comp_] EXACT_MATCH\n" +
-				"src/Point.java void Point.method() [comp_] EXACT_MATCH\n" +
-				"src/Point.java void Point.method() [comp_] EXACT_MATCH\n" +
-				"src/Point.java void Point.method() [comp_()] EXACT_MATCH");
+				"""
+					src/Point.java Point(int) [comp_] EXACT_MATCH
+					src/Point.java void Point.method() [comp_] EXACT_MATCH
+					src/Point.java void Point.method() [comp_] EXACT_MATCH
+					src/Point.java void Point.method() [comp_] EXACT_MATCH
+					src/Point.java void Point.method() [comp_()] EXACT_MATCH""");
 	}
 	//selection  - select CC type
 	public void testBug558812_018() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public /* here*/Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"	public Point  (int a, int b){\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=11;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public /* here*/Point  {
+						  comp_=11;
+						}
+						public Point  (int a, int b){
+						  comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=11;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -690,18 +738,20 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_019() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public /* here*/Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"	public Point  (int a, int b){\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=11;\n" +
-						"	  Point p = new Point(1) ;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public /* here*/Point  {
+						  comp_=11;
+						}
+						public Point  (int a, int b){
+						  comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=11;
+						  Point p = new Point(1) ;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -721,18 +771,20 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_020() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"	public /* here*/Point  (int a, int b){\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=11;\n" +
-						"	  Point p = new Point(1) ;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						}
+						public /* here*/Point  (int a, int b){
+						  comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=11;
+						  Point p = new Point(1) ;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -751,19 +803,21 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_021() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"	public /* here*/Point  (int a, int b){\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=11;\n" +
-						"	  Point p = new Point(1) ;\n" +
-						"	  Point p = new Point(1,2) ;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public Point  {
+						  comp_=11;
+						}
+						public /* here*/Point  (int a, int b){
+						  comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=11;
+						  Point p = new Point(1) ;
+						  Point p = new Point(1,2) ;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -783,19 +837,21 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_022() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp_) { \n" +
-						"	public /* here*/Point  {\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"	public Point  (int a, int b){\n" +
-						"	  comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int  compp_=11;\n" +
-						"	  Point p = new Point(1) ;\n" +
-						"	  Point p = new Point(1,2) ;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp_) {\s
+						public /* here*/Point  {
+						  comp_=11;
+						}
+						public Point  (int a, int b){
+						  comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int  compp_=11;
+						  Point p = new Point(1) ;
+						  Point p = new Point(1,2) ;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -815,14 +871,16 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_23() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record /* here*/Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  /* here*/comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	  int compp_=11;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record /* here*/Point(int comp_) {\s
+						public Point  {
+						  /* here*/comp_=11;
+						}
+					public void method ( ) {	 \s
+						  int compp_=11;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -842,14 +900,16 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_24() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record /* here*/Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  /* here*/comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	   comp_=11;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record /* here*/Point(int comp_) {\s
+						public Point  {
+						  /* here*/comp_=11;
+						}
+					public void method ( ) {	 \s
+						   comp_=11;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -870,15 +930,17 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_25() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record /* here*/Point(int comp_) { \n" +
-						"	public Point  {\n" +
-						"	  /* here*/comp_=11;\n" +
-						"	}\n" +
-						"public void method ( ) {	  \n"+
-						"	   comp_=11;\n" +
-						"	   int a=this.comp_;\n" +
-						"} \n"+
-						"}\n"
+				"""
+					public record /* here*/Point(int comp_) {\s
+						public Point  {
+						  /* here*/comp_=11;
+						}
+					public void method ( ) {	 \s
+						   comp_=11;
+						   int a=this.comp_;
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -891,9 +953,10 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof LocalVariable);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH\n"+
-				"src/X.java void Point.method() [comp_] EXACT_MATCH");
+				"""
+					src/X.java Point(int) [comp_] EXACT_MATCH
+					src/X.java void Point.method() [comp_] EXACT_MATCH
+					src/X.java void Point.method() [comp_] EXACT_MATCH""");
 	}
 
 	//selection  - select record in another file
@@ -907,13 +970,17 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 			project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			project1.open(null);
 			createFolder("/JavaSearchBugs15/src/pack11");
-			String fileContent = "package pack11;\n" +
-					"public record X11() {\n" +
-					"}\n";
-			String fileContent2 = "package pack11;\n" +
-					"public class X12  {\n" +
-					"/*here*/X11 p =null;\n"+
-					"}\n";
+			String fileContent = """
+				package pack11;
+				public record X11() {
+				}
+				""";
+			String fileContent2 = """
+				package pack11;
+				public class X12  {
+				/*here*/X11 p =null;
+				}
+				""";
 
 			createFile("/JavaSearchBugs15/src/pack11/X11.java", fileContent);
 			createFile("/JavaSearchBugs15/src/pack11/X12.java",fileContent2);
@@ -934,14 +1001,16 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug558812_27() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record X(int a) {\n" +
-						"public X {  \n"+
-						"	this.a = a; \n"+
-						"	}\n"+
-						"public X(int/*here*/a, int b) { // select the a here\n"+
-						"this.a = a;\n"+
-						"}\n"+
-						"}\n"
+				"""
+					public record X(int a) {
+					public X { \s
+						this.a = a;\s
+						}
+					public X(int/*here*/a, int b) { // select the a here
+					this.a = a;
+					}
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -960,11 +1029,13 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug560486_028() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record Point(int comp) { \n" +
-						"public void method ( ) {	  \n"+
-						"/*here*/comp(); \n"+
-						"} \n"+
-						"}\n"
+				"""
+					public record Point(int comp) {\s
+					public void method ( ) {	 \s
+					/*here*/comp();\s
+					}\s
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -982,18 +1053,20 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		public void testBug561048_029() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"public class cl {\n"+
-							"public cl() {\n"+
-							"	method1();\n"+
-							"}\n"+
-							"private void method1() {\n"+
-							"	String y= this.toString();\n"+
-							"	if (y instanceof String /*here*/yz) {\n"+
-							"	      System.out.println(yz.toLowerCase());\n"+
-							"	      System.out.println(yz.charAt(0));\n"+
-							"	}\n"+
-							"}\n"+
-							"}\n"
+					"""
+						public class cl {
+						public cl() {
+							method1();
+						}
+						private void method1() {
+							String y= this.toString();
+							if (y instanceof String /*here*/yz) {
+							      System.out.println(yz.toLowerCase());
+							      System.out.println(yz.charAt(0));
+							}
+						}
+						}
+						"""
 					);
 
 			String str = this.workingCopies[0].getSource();
@@ -1009,17 +1082,19 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		public void testBug561048_030() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"public class cl {\n"+
-							"public cl() {\n"+
-							"	method1();\n"+
-							"}\n"+
-							"private void method1() {\n"+
-							"	String y= this.toString();\n"+
-							"	if (y instanceof String /*here*/yz) {\n"+
-							"	      System.out.println(yz.toLowerCase());\n"+
-							"	}\n"+
-							"}\n"+
-							"}\n"
+					"""
+						public class cl {
+						public cl() {
+							method1();
+						}
+						private void method1() {
+							String y= this.toString();
+							if (y instanceof String /*here*/yz) {
+							      System.out.println(yz.toLowerCase());
+							}
+						}
+						}
+						"""
 					);
 
 			String str = this.workingCopies[0].getSource();
@@ -1038,18 +1113,20 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		public void testBug561048_031() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"public class cl {\n"+
-							"public cl() {\n"+
-							"	method1();\n"+
-							"}\n"+
-							"private void method1() {\n"+
-							"	String y= this.toString();\n"+
-							"	if (y instanceof String /*here*/yz) {\n"+
-							"	      System.out.println(yz.toLowerCase());\n"+
-							"	      System.out.println(yz.charAt(0));\n"+
-							"	}\n"+
-							"}\n"+
-							"}\n"
+					"""
+						public class cl {
+						public cl() {
+							method1();
+						}
+						private void method1() {
+							String y= this.toString();
+							if (y instanceof String /*here*/yz) {
+							      System.out.println(yz.toLowerCase());
+							      System.out.println(yz.charAt(0));
+							}
+						}
+						}
+						"""
 					);
 
 			String str = this.workingCopies[0].getSource();
@@ -1069,17 +1146,19 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		public void testBug561132_033() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"public class cl {\n"+
-							"public cl() {\n"+
-							"	method1();\n"+
-							"}\n"+
-							"private void method1() {\n"+
-							"	String y= this.toString();\n"+
-							"	if (y instanceof String yz) {\n"+
-							"	      System.out.println(/*here*/yz.toLowerCase());\n"+
-							"	}\n"+
-							"}\n"+
-							"}\n"
+					"""
+						public class cl {
+						public cl() {
+							method1();
+						}
+						private void method1() {
+							String y= this.toString();
+							if (y instanceof String yz) {
+							      System.out.println(/*here*/yz.toLowerCase());
+							}
+						}
+						}
+						"""
 					);
 
 			String str = this.workingCopies[0].getSource();
@@ -1097,18 +1176,20 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void testBug561048_032() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public record cl() {\n"+
-						"public cl{\n"+
-						"	method1();\n"+
-						"}\n"+
-						"private void method1() {\n"+
-						"	String y= this.toString();\n"+
-						"	if (y instanceof String /*here*/yz) {\n"+
-						"	      System.out.println(yz.toLowerCase());\n"+
-						"	      System.out.println(yz.charAt(0));\n"+
-						"	}\n"+
-						"}\n"+
-						"}\n"
+				"""
+					public record cl() {
+					public cl{
+						method1();
+					}
+					private void method1() {
+						String y= this.toString();
+						if (y instanceof String /*here*/yz) {
+						      System.out.println(yz.toLowerCase());
+						      System.out.println(yz.charAt(0));
+						}
+					}
+					}
+					"""
 				);
 
 		String str = this.workingCopies[0].getSource();
@@ -1130,9 +1211,11 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void test564049_001() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public sealed class X permits Y{ \n" +
-						"	}\n" +
-						"	final class Y extends X {}\n"
+				"""
+					public sealed class X permits Y{\s
+						}
+						final class Y extends X {}
+					"""
 
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
@@ -1149,9 +1232,11 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void test564049_002() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public sealed class X permits Y{ \n" +
-						"	}\n" +
-						"	final class /*here*/Y extends X {}\n"
+				"""
+					public sealed class X permits Y{\s
+						}
+						final class /*here*/Y extends X {}
+					"""
 
 				);
 		String str = this.workingCopies[0].getSource();
@@ -1171,9 +1256,11 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void test564049_003() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public sealed class X permits /*here*/Y{ \n" +
-						"	}\n" +
-						"	final class Y extends X {}\n"
+				"""
+					public sealed class X permits /*here*/Y{\s
+						}
+						final class Y extends X {}
+					"""
 
 				);
 		String str = this.workingCopies[0].getSource();
@@ -1192,10 +1279,12 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void test564049_004() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public sealed class X permits Y,Q{ \n" +
-						"	}\n" +
-						"	final class Q extends X {}\n" +
-						"	final class Y extends X {}\n"
+				"""
+					public sealed class X permits Y,Q{\s
+						}
+						final class Q extends X {}
+						final class Y extends X {}
+					"""
 
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
@@ -1213,10 +1302,12 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void test564049_005() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public sealed class X permits Y,Q{ \n" +
-						"	}\n" +
-						"	final class /*here*/Q extends X {}\n" +
-						"	final class Y extends X {}\n"
+				"""
+					public sealed class X permits Y,Q{\s
+						}
+						final class /*here*/Q extends X {}
+						final class Y extends X {}
+					"""
 
 				);
 		String str = this.workingCopies[0].getSource();
@@ -1236,9 +1327,11 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void test564049_006() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public sealed class X permits Y{ \n" +
-						"	}\n" +
-						"	final class Y extends X {}\n"
+				"""
+					public sealed class X permits Y{\s
+						}
+						final class Y extends X {}
+					"""
 
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
@@ -1256,9 +1349,11 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void test564049_007() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public sealed class X permits Y{ \n" +
-						"	}\n" +
-						"	final class Y extends X {}\n"
+				"""
+					public sealed class X permits Y{\s
+						}
+						final class Y extends X {}
+					"""
 
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
@@ -1275,9 +1370,11 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		public void test564049_008() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"public sealed class X permits Y{ \n" +
-							"	}\n" +
-							"	final class Y extends X {}\n"
+					"""
+						public sealed class X permits Y{\s
+							}
+							final class Y extends X {}
+						"""
 
 					);
 			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
@@ -1295,17 +1392,18 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		public void test564049_009() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p1/X.java",
-					"package p1;\n"+
-							"public sealed class X permits A.Y {\n" +
-							"	public static void main(String[] args) {}\n" +
-							"}\n" +
-							"class A {\n" +
-							"	sealed class Y extends X {\n" +
-							"		final class SubInnerY extends Y {}\n" +
-							"	} \n" +
-							"	final class Z extends Y {}\n" +
-							"   final class SubY extends Y {}" +
-							"}"
+					"""
+						package p1;
+						public sealed class X permits A.Y {
+							public static void main(String[] args) {}
+						}
+						class A {
+							sealed class Y extends X {
+								final class SubInnerY extends Y {}
+							}\s
+							final class Z extends Y {}
+						   final class SubY extends Y {}\
+						}"""
 
 					);
 			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
@@ -1314,10 +1412,11 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 				search("A.Y", CLASS, REFERENCES);
 				assertSearchResults(
-						"src/p1/X.java p1.X [A.Y] EXACT_MATCH\n" +
-						"src/p1/X.java p1.A$Y$SubInnerY [Y] EXACT_MATCH\n" +
-						"src/p1/X.java p1.A$Z [Y] EXACT_MATCH\n" +
-						"src/p1/X.java p1.A$SubY [Y] EXACT_MATCH");
+						"""
+							src/p1/X.java p1.X [A.Y] EXACT_MATCH
+							src/p1/X.java p1.A$Y$SubInnerY [Y] EXACT_MATCH
+							src/p1/X.java p1.A$Z [Y] EXACT_MATCH
+							src/p1/X.java p1.A$SubY [Y] EXACT_MATCH""");
 			} finally {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 			}
@@ -1328,9 +1427,11 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		public void test564049_010() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"public sealed class X extends Y{ \n" +
-							"	}\n" +
-							"	 class Y {}\n"
+					"""
+						public sealed class X extends Y{\s
+							}
+							 class Y {}
+						"""
 
 					);
 			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
@@ -1353,12 +1454,16 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 				project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 				project1.open(null);
 				createFolder("/JavaSearchBugs15/src/pack11");
-				String fileContent = "package pack11;\n" +
-						"public sealed class X11_ permits X12_{\n" +
-						"}\n";
-				String fileContent2 = "package pack11;\n" +
-						"final public class /*here*/X12_ extends X11_ {\n" +
-						"}\n";
+				String fileContent = """
+					package pack11;
+					public sealed class X11_ permits X12_{
+					}
+					""";
+				String fileContent2 = """
+					package pack11;
+					final public class /*here*/X12_ extends X11_ {
+					}
+					""";
 
 				createFile("/JavaSearchBugs15/src/pack11/X11_.java", fileContent);
 				createFile("/JavaSearchBugs15/src/pack11/X12_.java",fileContent2);
@@ -1398,9 +1503,10 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	 			getJavaSearchScope(),
 	 			this.resultCollector);
 	 		assertSearchResults(
-	 				"lib/record_reference_in_source_jar.jar pack.c1.ob EXACT_MATCH\n" +
-	 				"lib/record_reference_in_source_jar.jar pack.c1.ob EXACT_MATCH\n" +
-	 				"lib/record_reference_in_source_jar.jar pack.rr2 EXACT_MATCH",
+	 				"""
+						lib/record_reference_in_source_jar.jar pack.c1.ob EXACT_MATCH
+						lib/record_reference_in_source_jar.jar pack.c1.ob EXACT_MATCH
+						lib/record_reference_in_source_jar.jar pack.rr2 EXACT_MATCH""",
 	 			this.resultCollector);
 	 	}
 
@@ -1436,16 +1542,17 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	 	public void testAnnotationsInRecords1() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 
-			String contents = "import java.lang.annotation.ElementType;\n" +
-					"import java.lang.annotation.Target;\n" +
-					"record X(@MyAnnot int lo) {\n" +
-					"	public int lo() {\n" +
-					"		return this.lo;\n" +
-					"	}\n" +
-					"\n" +
-					"}\n" +
-					"@Target({ElementType.FIELD})\n" +
-					"@interface MyAnnot {}";
+			String contents = """
+				import java.lang.annotation.ElementType;
+				import java.lang.annotation.Target;
+				record X(@MyAnnot int lo) {
+					public int lo() {
+						return this.lo;
+					}
+				
+				}
+				@Target({ElementType.FIELD})
+				@interface MyAnnot {}""";
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
 			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -1464,16 +1571,17 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	 	public void testAnnotationsInRecords2() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 
-			String contents = "import java.lang.annotation.ElementType;\n" +
-					"import java.lang.annotation.Target;\n" +
-					"record X(@MyAnnot int lo) {\n" +
-					"	public int lo() {\n" +
-					"		return this.lo;\n" +
-					"	}\n" +
-					"\n" +
-					"}\n" +
-					"@Target({ElementType.FIELD})\n" +
-					"@interface MyAnnot {}";
+			String contents = """
+				import java.lang.annotation.ElementType;
+				import java.lang.annotation.Target;
+				record X(@MyAnnot int lo) {
+					public int lo() {
+						return this.lo;
+					}
+				
+				}
+				@Target({ElementType.FIELD})
+				@interface MyAnnot {}""";
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
 			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -1489,17 +1597,18 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	 	public void testAnnotationsInRecords3() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 
-			String contents = "import java.lang.annotation.ElementType;\n" +
-					"import java.lang.annotation.Target;\n" +
-					"record X(@MyAnnot int lo) {\n" +
-					"	public static @MyAnnot int x;\n" +
-					"	public int lo() {\n" +
-					"		return this.lo;\n" +
-					"	}\n" +
-					"\n" +
-					"}\n" +
-					"@Target({ElementType.RECORD_COMPONENT})\n" +
-					"@interface MyAnnot {}";
+			String contents = """
+				import java.lang.annotation.ElementType;
+				import java.lang.annotation.Target;
+				record X(@MyAnnot int lo) {
+					public static @MyAnnot int x;
+					public int lo() {
+						return this.lo;
+					}
+				
+				}
+				@Target({ElementType.RECORD_COMPONENT})
+				@interface MyAnnot {}""";
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
 			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -1550,19 +1659,20 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	 	public void testAnnotationsInRecords5() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 
-			String contents = "package test1;\n" +
-					"import java.lang.annotation.ElementType;\n" +
-					"public record X() {\n" +
-					"	static String myObject = \"Foo\";\n" +
-					"	public void foo() {\n" +
-					"		String myString = (@Annot String) myObject;\n" +
-					"		String myString1 = (@Annot1 @Annot String) myObject;\n" +
-					"	}\n" +
-					"}\n" +
-					"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
-					"@interface Annot {}\n" +
-					"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
-					"@interface Annot1 {}";
+			String contents = """
+				package test1;
+				import java.lang.annotation.ElementType;
+				public record X() {
+					static String myObject = "Foo";
+					public void foo() {
+						String myString = (@Annot String) myObject;
+						String myString1 = (@Annot1 @Annot String) myObject;
+					}
+				}
+				@java.lang.annotation.Target(value = {ElementType.TYPE_USE})
+				@interface Annot {}
+				@java.lang.annotation.Target(value = {ElementType.TYPE_USE})
+				@interface Annot1 {}""";
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
 			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -1580,24 +1690,25 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	 	public void testAnnotationsInRecords6() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 
-			String contents = "package test1;\n" +
-					"\n" +
-					"import java.lang.annotation.ElementType;\n" +
-					"\n" +
-					"public record X2() {\n" +
-					"	public interface Helper<T> {\n" +
-					"	}\n" +
-					"	public class Foo1<T> implements @Annot_ Helper<T> {\n" +
-					"	}\n" +
-					"	public class Foo2<T> implements @Annot_ @Annot1_ Helper<T> {\n" +
-					"	}\n" +
-					"}\n" +
-					"\n" +
-					"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-					"@interface Annot_ {}\n" +
-					"\n" +
-					"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-					"@interface Annot1_ {}";
+			String contents = """
+				package test1;
+				
+				import java.lang.annotation.ElementType;
+				
+				public record X2() {
+					public interface Helper<T> {
+					}
+					public class Foo1<T> implements @Annot_ Helper<T> {
+					}
+					public class Foo2<T> implements @Annot_ @Annot1_ Helper<T> {
+					}
+				}
+				
+				@java.lang.annotation.Target (ElementType.TYPE_USE)
+				@interface Annot_ {}
+				
+				@java.lang.annotation.Target (ElementType.TYPE_USE)
+				@interface Annot1_ {}""";
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
 			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -1643,10 +1754,11 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 				search("Annot__", ANNOTATION_TYPE, REFERENCES);
 				assertSearchResults(
-						"src/X.java void X3.UnboundedWildcard1(Helper<?>) [Annot__] EXACT_MATCH\n" +
-						"src/X.java void X3.UnboundedWildcard2(Helper<?>) [Annot__] EXACT_MATCH\n" +
-						"src/X.java void X3.BoundedWildcard1(Helper<? extends Base>) [Annot__] EXACT_MATCH\n" +
-						"src/X.java void X3.BoundedWildcard2(Helper<? extends Base>) [Annot__] EXACT_MATCH");
+						"""
+							src/X.java void X3.UnboundedWildcard1(Helper<?>) [Annot__] EXACT_MATCH
+							src/X.java void X3.UnboundedWildcard2(Helper<?>) [Annot__] EXACT_MATCH
+							src/X.java void X3.BoundedWildcard1(Helper<? extends Base>) [Annot__] EXACT_MATCH
+							src/X.java void X3.BoundedWildcard2(Helper<? extends Base>) [Annot__] EXACT_MATCH""");
 			} finally {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 			}
@@ -1656,27 +1768,31 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		public void testAnnotationsInRecords8() throws CoreException {
 			this.workingCopies = new ICompilationUnit[1];
 
-			String contents =  "package test1;\n" +
-					 "import java.lang.annotation.Target;\n" +
-					 "public record X() {\n" +
-					 "	public static void main(String[] args) {\n" +
-					 "		Outer outer = new Outer();\n" +
-					 "		Outer.@Marker1 Inner first = outer.new Inner();\n" +
-					 "		Outer.@Marker2 Inner second = outer.new Inner() ;\n" +
-					 "		Outer.Inner.@Marker1 Deeper deeper = second.new Deeper();\n" +
-					 "		Outer.Inner.Deeper deeper2 =  second.new Deeper();\n" +
-					 "	}\n" + "}\n" + "class Outer {\n" +
-					 "	public class Inner {\n" +
-					 "		public class Deeper {\n" +
-					 "		}\n" +
-					 "	}\n" +
-					 "}\n" +
-					 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-					 "@interface Marker {}\n" +
-					 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-					 "@interface Marker1 {}\n" +
-					 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-					 "@interface Marker2 {}\n";
+			String contents =  """
+				package test1;
+				import java.lang.annotation.Target;
+				public record X() {
+					public static void main(String[] args) {
+						Outer outer = new Outer();
+						Outer.@Marker1 Inner first = outer.new Inner();
+						Outer.@Marker2 Inner second = outer.new Inner() ;
+						Outer.Inner.@Marker1 Deeper deeper = second.new Deeper();
+						Outer.Inner.Deeper deeper2 =  second.new Deeper();
+					}
+				}
+				class Outer {
+					public class Inner {
+						public class Deeper {
+						}
+					}
+				}
+				@Target (java.lang.annotation.ElementType.TYPE_USE)
+				@interface Marker {}
+				@Target (java.lang.annotation.ElementType.TYPE_USE)
+				@interface Marker1 {}
+				@Target (java.lang.annotation.ElementType.TYPE_USE)
+				@interface Marker2 {}
+				""";
 			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
 			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -1750,14 +1866,16 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 			public void test566507_componentSelectAndSearch() throws CoreException {
 				this.workingCopies = new ICompilationUnit[1];
 				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-						"public record Point(int /* here*/comp_) { \n" +
-								"	public Point  {\n" +
-								"	  comp_=11;\n" +
-								"	}\n" +
-								"public void method ( ) {	  \n"+
-								"	  int  compp_=11;\n" +
-								"} \n"+
-								"}\n"
+						"""
+							public record Point(int /* here*/comp_) {\s
+								public Point  {
+								  comp_=11;
+								}
+							public void method ( ) {	 \s
+								  int  compp_=11;
+							}\s
+							}
+							"""
 						);
 
 				String str = this.workingCopies[0].getSource();
@@ -1776,16 +1894,18 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 			public void test566507_fieldSelectAndSearch() throws CoreException {
 				this.workingCopies = new ICompilationUnit[1];
 				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-						"public record Point(int /* here*/comp_) { \n" +
-								"	public static int staticF =0;\n" +
-								"	public Point  {\n" +
-								"	  comp_=11;\n" +
-								"	  staticF=11;\n" +
-								"	}\n" +
-								"public void method ( ) {	  \n"+
-								"	  int  compp_=11;\n" +
-								"} \n"+
-								"}\n"
+						"""
+							public record Point(int /* here*/comp_) {\s
+								public static int staticF =0;
+								public Point  {
+								  comp_=11;
+								  staticF=11;
+								}
+							public void method ( ) {	 \s
+								  int  compp_=11;
+							}\s
+							}
+							"""
 						);
 
 				String str = this.workingCopies[0].getSource();
@@ -1806,26 +1926,28 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 			public void test566062_001() throws CoreException {
 				this.workingCopies = new ICompilationUnit[2];
 				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/test.java",
-						"public class /* here*/test { \n" +
-						"	/**\n" +
-						"	 * @see mod.one/pack.test\n" +
-						"	 */\n" +
-						"	public void method ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"	/**\n" +
-						"	 * {@link mod.one/pack.test abc}\n" +
-						"	 */\n" +
-						"	public void apply ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"	/**\n" +
-						"	 * {@linkplain mod.one/pack.test abc}\n" +
-						"	 */\n" +
-						"	public void evaluate ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"}\n"
+						"""
+							public class /* here*/test {\s
+								/**
+								 * @see mod.one/pack.test
+								 */
+								public void method ( ) {	 \s
+									int  compp_=11;
+								}\s
+								/**
+								 * {@link mod.one/pack.test abc}
+								 */
+								public void apply ( ) {	 \s
+									int  compp_=11;
+								}\s
+								/**
+								 * {@linkplain mod.one/pack.test abc}
+								 */
+								public void evaluate ( ) {	 \s
+									int  compp_=11;
+								}\s
+							}
+							"""
 					);
 
 				this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
@@ -1842,36 +1964,39 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 
 				search(elements[0], ALL_OCCURRENCES, EXACT_RULE);
 				assertSearchResults(
-						"src/pack/test.java pack.test [test] EXACT_MATCH\n"+
-						"src/pack/test.java void pack.test.method() [pack.test] EXACT_MATCH\n"+
-						"src/pack/test.java void pack.test.apply() [pack.test] EXACT_MATCH\n"+
-						"src/pack/test.java void pack.test.evaluate() [pack.test] EXACT_MATCH");
+						"""
+							src/pack/test.java pack.test [test] EXACT_MATCH
+							src/pack/test.java void pack.test.method() [pack.test] EXACT_MATCH
+							src/pack/test.java void pack.test.apply() [pack.test] EXACT_MATCH
+							src/pack/test.java void pack.test.evaluate() [pack.test] EXACT_MATCH""");
 			}
 
 			public void test566062_002() throws CoreException {
 				this.workingCopies = new ICompilationUnit[2];
 				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/test.java",
-						"public class test { \n" +
-						"	public int /* here*/val;" +
-						"	/**\n" +
-						"	 * @see mod.one/pack.test#val\n" +
-						"	 */\n" +
-						"	public void method ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"	/**\n" +
-						"	 * {@link mod.one/pack.test#val abc}\n" +
-						"	 */\n" +
-						"	public void apply ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"	/**\n" +
-						"	 * {@linkplain mod.one/pack.test#val abc}\n" +
-						"	 */\n" +
-						"	public void evaluate ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"}\n"
+						"""
+							public class test {\s
+								public int /* here*/val;\
+								/**
+								 * @see mod.one/pack.test#val
+								 */
+								public void method ( ) {	 \s
+									int  compp_=11;
+								}\s
+								/**
+								 * {@link mod.one/pack.test#val abc}
+								 */
+								public void apply ( ) {	 \s
+									int  compp_=11;
+								}\s
+								/**
+								 * {@linkplain mod.one/pack.test#val abc}
+								 */
+								public void evaluate ( ) {	 \s
+									int  compp_=11;
+								}\s
+							}
+							"""
 					);
 
 				this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
@@ -1888,38 +2013,41 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 
 				search(elements[0], ALL_OCCURRENCES, EXACT_RULE);
 				assertSearchResults(
-						"src/pack/test.java pack.test.val [val] EXACT_MATCH\n"+
-						"src/pack/test.java void pack.test.method() [val] EXACT_MATCH\n"+
-						"src/pack/test.java void pack.test.apply() [val] EXACT_MATCH\n"+
-						"src/pack/test.java void pack.test.evaluate() [val] EXACT_MATCH");
+						"""
+							src/pack/test.java pack.test.val [val] EXACT_MATCH
+							src/pack/test.java void pack.test.method() [val] EXACT_MATCH
+							src/pack/test.java void pack.test.apply() [val] EXACT_MATCH
+							src/pack/test.java void pack.test.evaluate() [val] EXACT_MATCH""");
 			}
 
 			public void test566062_003() throws CoreException {
 				this.workingCopies = new ICompilationUnit[2];
 				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/test.java",
-						"public class test { \n" +
-						"	public void /* here*/setComp ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"	/**\n" +
-						"	 * @see mod.one/pack.test#setComp()\n" +
-						"	 */\n" +
-						"	public void method ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"	/**\n" +
-						"	 * {@link mod.one/pack.test#setComp() setComp}\n" +
-						"	 */\n" +
-						"	public void apply ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"	/**\n" +
-						"	 * {@linkplain mod.one/pack.test#setComp() setComp}\n" +
-						"	 */\n" +
-						"	public void evaluate ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"}\n"
+						"""
+							public class test {\s
+								public void /* here*/setComp ( ) {	 \s
+									int  compp_=11;
+								}\s
+								/**
+								 * @see mod.one/pack.test#setComp()
+								 */
+								public void method ( ) {	 \s
+									int  compp_=11;
+								}\s
+								/**
+								 * {@link mod.one/pack.test#setComp() setComp}
+								 */
+								public void apply ( ) {	 \s
+									int  compp_=11;
+								}\s
+								/**
+								 * {@linkplain mod.one/pack.test#setComp() setComp}
+								 */
+								public void evaluate ( ) {	 \s
+									int  compp_=11;
+								}\s
+							}
+							"""
 					);
 
 				this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
@@ -1936,36 +2064,39 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 
 				search(elements[0], ALL_OCCURRENCES, EXACT_RULE);
 				assertSearchResults(
-						"src/pack/test.java void pack.test.setComp() [setComp] EXACT_MATCH\n"+
-						"src/pack/test.java void pack.test.method() [setComp()] EXACT_MATCH\n"+
-						"src/pack/test.java void pack.test.apply() [setComp()] EXACT_MATCH\n"+
-						"src/pack/test.java void pack.test.evaluate() [setComp()] EXACT_MATCH");
+						"""
+							src/pack/test.java void pack.test.setComp() [setComp] EXACT_MATCH
+							src/pack/test.java void pack.test.method() [setComp()] EXACT_MATCH
+							src/pack/test.java void pack.test.apply() [setComp()] EXACT_MATCH
+							src/pack/test.java void pack.test.evaluate() [setComp()] EXACT_MATCH""");
 			}
 
 			public void test566062_004() throws CoreException {
 				this.workingCopies = new ICompilationUnit[2];
 				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/test.java",
-						"public class /* here*/test { \n" +
-						"	public int /* here*/val;" +
-						"	/**\n" +
-						"	 * @see mod.one/pack.test#apply()\n" +
-						"	 */\n" +
-						"	public void method ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"	/**\n" +
-						"	 * {@link mod.one/pack.test abc}\n" +
-						"	 */\n" +
-						"	public void apply ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"	/**\n" +
-						"	 * {@linkplain mod.one/pack.test#val abc}\n" +
-						"	 */\n" +
-						"	public void evaluate ( ) {	  \n"+
-						"		int  compp_=11;\n" +
-						"	} \n"+
-						"}\n"
+						"""
+							public class /* here*/test {\s
+								public int /* here*/val;\
+								/**
+								 * @see mod.one/pack.test#apply()
+								 */
+								public void method ( ) {	 \s
+									int  compp_=11;
+								}\s
+								/**
+								 * {@link mod.one/pack.test abc}
+								 */
+								public void apply ( ) {	 \s
+									int  compp_=11;
+								}\s
+								/**
+								 * {@linkplain mod.one/pack.test#val abc}
+								 */
+								public void evaluate ( ) {	 \s
+									int  compp_=11;
+								}\s
+							}
+							"""
 					);
 
 				this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
@@ -1982,50 +2113,53 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 
 				search(elements[0], ALL_OCCURRENCES, EXACT_RULE);
 				assertSearchResults(
-						"src/pack/test.java pack.test [test] EXACT_MATCH\n"+
-						"src/pack/test.java void pack.test.method() [pack.test] EXACT_MATCH\n"+
-						"src/pack/test.java void pack.test.apply() [pack.test] EXACT_MATCH\n"+
-						"src/pack/test.java void pack.test.evaluate() [pack.test] EXACT_MATCH");
+						"""
+							src/pack/test.java pack.test [test] EXACT_MATCH
+							src/pack/test.java void pack.test.method() [pack.test] EXACT_MATCH
+							src/pack/test.java void pack.test.apply() [pack.test] EXACT_MATCH
+							src/pack/test.java void pack.test.evaluate() [pack.test] EXACT_MATCH""");
 			}
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=572975
 			// An error is occurring that prevents hover to work
 			public void testBug572975() throws JavaModelException {
 				this.workingCopies = new ICompilationUnit[1];
 				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/TestInstanceOf.java",
-						"public class TestInstanceOf {\n" +
-								"	public interface WithValue {\n" +
-								"		String value();\n" +
-								"	}\n" +
-								"\n" +
-								"	public record Key1(String value, int num) implements WithValue {\n" +
-								"	}\n" +
-								"\n" +
-								"	interface TestIt {\n" +
-								"		boolean test(WithValue k1, WithValue k2);\n" +
-								"	}\n" +
-								"	private static final String AAA = \"AAA\";\n" +
-								"\n" +
-								"	private static final TestIt TESTIT_LAMBDA = (o1, o2) -> {\n" +
-								"		if (o1 instanceof Key1 k1 && o2 instanceof Key1 k2) {\n" +
-								"			return k1./*here1*/value().equals(AAA);\n" +
-								"		} else\n" +
-								"			return false;\n" +
-								"	};\n" +
-								"\n" +
-								"	private static final TestIt TESTIT_METHOD = new TestIt() {\n" +
-								"		@Override\n" +
-								"		public boolean test(WithValue o1, WithValue o2) {\n" +
-								"			if (o1 instanceof Key1 k1 && o2 instanceof Key1 k2) {\n" +
-								"				return k1./*here2*/value().equals(AAA);\n" +
-								"			} else\n" +
-								"				return false;\n" +
-								"		}\n" +
-								"	};\n" +
-								"\n" +
-								"	public static void main(String[] args) {\n" +
-								"		System.out.println(AAA);\n" +
-								"	}\n" +
-								"}\n");
+						"""
+							public class TestInstanceOf {
+								public interface WithValue {
+									String value();
+								}
+							
+								public record Key1(String value, int num) implements WithValue {
+								}
+							
+								interface TestIt {
+									boolean test(WithValue k1, WithValue k2);
+								}
+								private static final String AAA = "AAA";
+							
+								private static final TestIt TESTIT_LAMBDA = (o1, o2) -> {
+									if (o1 instanceof Key1 k1 && o2 instanceof Key1 k2) {
+										return k1./*here1*/value().equals(AAA);
+									} else
+										return false;
+								};
+							
+								private static final TestIt TESTIT_METHOD = new TestIt() {
+									@Override
+									public boolean test(WithValue o1, WithValue o2) {
+										if (o1 instanceof Key1 k1 && o2 instanceof Key1 k2) {
+											return k1./*here2*/value().equals(AAA);
+										} else
+											return false;
+									}
+								};
+							
+								public static void main(String[] args) {
+									System.out.println(AAA);
+								}
+							}
+							""");
 				String str = this.workingCopies[0].getSource();
 				String selection = "/*here1*/value";
 				int start = str.indexOf(selection);

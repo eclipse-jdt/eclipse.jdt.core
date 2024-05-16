@@ -53,16 +53,26 @@ public class AptReconcileTests extends ModifyingResourceTests
 			//  first make sure errors are present when the annotation
 			// is commented out
 			//
-			String codeWithErrors = "package test;" + "\n" +
-				"//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
-				"public class A " +  "\n" +
-				"{" +  "\n" +
-				"    //@HelloWorldAnnotation" + "\n" +
-				"    public static void main( String[] argv )" + "\n" +
-				"    {" + "\n" +
-				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
-				"    }" + "\n" +
-				"}";
+			String codeWithErrors = """
+				package test;\
+				
+				//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+				
+				public class A \
+				
+				{\
+				
+				    //@HelloWorldAnnotation\
+				
+				    public static void main( String[] argv )\
+				
+				    {\
+				
+				        generatedfilepackage.GeneratedFileTest.helloWorld();\
+				
+				    }\
+				
+				}""";
 
 			createFile( fname, codeWithErrors );
 			this._problemRequestor = new ProblemRequestor();
@@ -90,16 +100,26 @@ public class AptReconcileTests extends ModifyingResourceTests
 			//
 			// now make sure errors go away when annotations are present
 			//
-			String codeWithOutErrors = "package test;" + "\n" +
-			    "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
-			    "public class A " +  "\n" +
-			    "{" +  "\n" +
-			    "    @HelloWorldAnnotation" + "\n" +
-				"    public static void main( String[] argv )" + "\n" +
-				"    {" + "\n" +
-				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
-				"    }" + "\n" +
-				"}";
+			String codeWithOutErrors = """
+				package test;\
+				
+				import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+				
+				public class A \
+				
+				{\
+				
+				    @HelloWorldAnnotation\
+				
+				    public static void main( String[] argv )\
+				
+				    {\
+				
+				        generatedfilepackage.GeneratedFileTest.helloWorld();\
+				
+				    }\
+				
+				}""";
 
 			setWorkingCopyContents( codeWithOutErrors );
 			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
@@ -135,16 +155,26 @@ public class AptReconcileTests extends ModifyingResourceTests
 			//  first make sure errors are present when the annotation
 			// is commented out
 			//
-			String codeWithErrors = "package test;" + "\n" +
-				"//import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;" + "\n" +
-				"public class A " +  "\n" +
-				"{" +  "\n" +
-				"    //@NestedHelloWorldAnnotation" + "\n" +
-				"    public static void main( String[] argv )" + "\n" +
-				"    {" + "\n" +
-				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
-				"    }" + "\n" +
-				"}";
+			String codeWithErrors = """
+				package test;\
+				
+				//import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;\
+				
+				public class A \
+				
+				{\
+				
+				    //@NestedHelloWorldAnnotation\
+				
+				    public static void main( String[] argv )\
+				
+				    {\
+				
+				        generatedfilepackage.GeneratedFileTest.helloWorld();\
+				
+				    }\
+				
+				}""";
 
 			createFile( fname, codeWithErrors );
 			this._problemRequestor = new ProblemRequestor();
@@ -172,16 +202,26 @@ public class AptReconcileTests extends ModifyingResourceTests
 			//
 			// now make sure errors go away when annotations are present
 			//
-			String codeWithOutErrors = "package test;" + "\n" +
-			    "import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;" + "\n" +
-			    "public class A " +  "\n" +
-			    "{" +  "\n" +
-			    "    @NestedHelloWorldAnnotation" + "\n" +
-				"    public static void main( String[] argv )" + "\n" +
-				"    {" + "\n" +
-				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
-				"    }" + "\n" +
-				"}";
+			String codeWithOutErrors = """
+				package test;\
+				
+				import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;\
+				
+				public class A \
+				
+				{\
+				
+				    @NestedHelloWorldAnnotation\
+				
+				    public static void main( String[] argv )\
+				
+				    {\
+				
+				        generatedfilepackage.GeneratedFileTest.helloWorld();\
+				
+				    }\
+				
+				}""";
 
 			setWorkingCopyContents( codeWithOutErrors );
 			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
@@ -212,16 +252,26 @@ public class AptReconcileTests extends ModifyingResourceTests
 			//  first make sure errors are present when the annotation
 			// is commented out
 			//
-			String codeWithErrors = "package test;" + "\n" +
-				"//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
-				"public class A " +  "\n" +
-				"{" +  "\n" +
-				"    //@HelloWorldAnnotation" + "\n" +
-				"    public static void main( String[] argv )" + "\n" +
-				"    {" + "\n" +
-				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
-				"    }" + "\n" +
-				"}";
+			String codeWithErrors = """
+				package test;\
+				
+				//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+				
+				public class A \
+				
+				{\
+				
+				    //@HelloWorldAnnotation\
+				
+				    public static void main( String[] argv )\
+				
+				    {\
+				
+				        generatedfilepackage.GeneratedFileTest.helloWorld();\
+				
+				    }\
+				
+				}""";
 
 			createFile( fname, codeWithErrors );
 			this._problemRequestor = new ProblemRequestor();
@@ -248,16 +298,26 @@ public class AptReconcileTests extends ModifyingResourceTests
 			//
 			// now make sure errors go away when annotations are present
 			//
-			String codeWithOutErrors = "package test;" + "\n" +
-			    "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
-			    "public class A " +  "\n" +
-			    "{" +  "\n" +
-			    "    @HelloWorldAnnotation" + "\n" +
-				"    public static void main( String[] argv )" + "\n" +
-				"    {" + "\n" +
-				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
-				"    }" + "\n" +
-				"}";
+			String codeWithOutErrors = """
+				package test;\
+				
+				import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+				
+				public class A \
+				
+				{\
+				
+				    @HelloWorldAnnotation\
+				
+				    public static void main( String[] argv )\
+				
+				    {\
+				
+				        generatedfilepackage.GeneratedFileTest.helloWorld();\
+				
+				    }\
+				
+				}""";
 
 			setWorkingCopyContents( codeWithOutErrors );
 			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
@@ -297,16 +357,26 @@ public class AptReconcileTests extends ModifyingResourceTests
 		String fname = _testFolder + "/A.java";
 		try
 		{
-			String codeWithOutErrors = "package test;" + "\n" +
-			    "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
-			    "public class A " +  "\n" +
-			    "{" +  "\n" +
-			    "    @HelloWorldAnnotation" + "\n" +
-				"    public static void main( String[] argv )" + "\n" +
-				"    {" + "\n" +
-				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
-				"    }" + "\n" +
-				"}";
+			String codeWithOutErrors = """
+				package test;\
+				
+				import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+				
+				public class A \
+				
+				{\
+				
+				    @HelloWorldAnnotation\
+				
+				    public static void main( String[] argv )\
+				
+				    {\
+				
+				        generatedfilepackage.GeneratedFileTest.helloWorld();\
+				
+				    }\
+				
+				}""";
 
 			createFile( fname, codeWithOutErrors );
 			this._problemRequestor = new ProblemRequestor();
@@ -341,14 +411,21 @@ public class AptReconcileTests extends ModifyingResourceTests
 		try
 		{
 
-			String code = "package test;" + "\n" +
-			    "@org.eclipse.jdt.apt.tests.annotations.apitest.Common\n" +
-				"public class X " +  "\n" +
-				"{" +  "\n" +
-				"    public static void main( String[] argv )" + "\n" +
-				"    {" + "\n" +
-				"    }" + "\n" +
-				"}";
+			String code = """
+				package test;\
+				
+				@org.eclipse.jdt.apt.tests.annotations.apitest.Common
+				public class X \
+				
+				{\
+				
+				    public static void main( String[] argv )\
+				
+				    {\
+				
+				    }\
+				
+				}""";
 
 			createFile( fname, code );
 			this._problemRequestor = new ProblemRequestor();
@@ -378,16 +455,26 @@ public class AptReconcileTests extends ModifyingResourceTests
 			//  first make sure errors are present when the annotation
 			// is commented out
 			//
-			String codeWithErrors = "package test;" + "\n" +
-				"//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
-				"public class A " +  "\n" +
-				"{" +  "\n" +
-				"    //@HelloWorldAnnotation" + "\n" +
-				"    public static void main( String[] argv )" + "\n" +
-				"    {" + "\n" +
-				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
-				"    }" + "\n" +
-				"}";
+			String codeWithErrors = """
+				package test;\
+				
+				//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+				
+				public class A \
+				
+				{\
+				
+				    //@HelloWorldAnnotation\
+				
+				    public static void main( String[] argv )\
+				
+				    {\
+				
+				        generatedfilepackage.GeneratedFileTest.helloWorld();\
+				
+				    }\
+				
+				}""";
 
 			createFile( fname, codeWithErrors );
 			this._problemRequestor = new ProblemRequestor();
@@ -415,16 +502,26 @@ public class AptReconcileTests extends ModifyingResourceTests
 			//
 			// should still see errors when annotations are present but reconcile is off
 			//
-			String codeWithOutErrors1 = "package test;" + "\n" +
-			    "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
-			    "public class A " +  "\n" +
-			    "{" +  "\n" +
-			    "    @HelloWorldAnnotation" + "\n" +
-				"    public static void main( String[] argv )" + "\n" +
-				"    {" + "\n" +
-				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
-				"    }" + "\n" +
-				"}";
+			String codeWithOutErrors1 = """
+				package test;\
+				
+				import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+				
+				public class A \
+				
+				{\
+				
+				    @HelloWorldAnnotation\
+				
+				    public static void main( String[] argv )\
+				
+				    {\
+				
+				        generatedfilepackage.GeneratedFileTest.helloWorld();\
+				
+				    }\
+				
+				}""";
 
 			setWorkingCopyContents( codeWithOutErrors1 );
 			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
@@ -443,16 +540,27 @@ public class AptReconcileTests extends ModifyingResourceTests
 			// now enable reconcile-time processing and make sure errors go away
 			//
 			AptConfig.setProcessDuringReconcile(_jproject, true);
-			String codeWithOutErrors2 = "package test;" + "\n\n" +
-			    "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
-			    "public class A " +  "\n" +
-			    "{" +  "\n" +
-			    "    @HelloWorldAnnotation" + "\n" +
-				"    public static void main( String[] argv )" + "\n" +
-				"    {" + "\n" +
-				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
-				"    }" + "\n" +
-				"}";
+			String codeWithOutErrors2 = """
+				package test;\
+				
+				
+				import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+				
+				public class A \
+				
+				{\
+				
+				    @HelloWorldAnnotation\
+				
+				    public static void main( String[] argv )\
+				
+				    {\
+				
+				        generatedfilepackage.GeneratedFileTest.helloWorld();\
+				
+				    }\
+				
+				}""";
 
 			setWorkingCopyContents( codeWithOutErrors2 );
 			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,

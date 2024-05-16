@@ -46,13 +46,16 @@ public class SuppressWarningsTest extends AbstractBatchCompilerTest {
 		this.runTest(true,
 			new String[] {
 				"p/SuppressTest.java",
-				"package p;\n" +
-				"public class SuppressTest {\n" +
-				"@SuppressWarnings(\"boxing\")\n" +
-				"public Long get(long l) {\n" +
-				"  Long result = l * 2;\n" +
-				"  return result;\n" +
-				"}\n}\n"
+				"""
+					package p;
+					public class SuppressTest {
+					@SuppressWarnings("boxing")
+					public Long get(long l) {
+					  Long result = l * 2;
+					  return result;
+					}
+					}
+					"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "p/SuppressTest.java\""
 			+ " -warn:+unused -warn:+boxing "
@@ -65,15 +68,18 @@ public class SuppressWarningsTest extends AbstractBatchCompilerTest {
 		this.runTest(true,
 			new String[] {
 				"p/SuppressTest.java",
-				"package p;\n" +
-				"@SuppressWarnings(\"unused\")\n" +
-				"public class SuppressTest {\n" +
-				"private String unused=\"testUnused\";\n" +
-				"@SuppressWarnings(\"boxing\")\n" +
-				"public Long get(long l) {\n" +
-				"  Long result = l * 2;\n" +
-				"  return result;\n" +
-				"}\n}\n"
+				"""
+					package p;
+					@SuppressWarnings("unused")
+					public class SuppressTest {
+					private String unused="testUnused";
+					@SuppressWarnings("boxing")
+					public Long get(long l) {
+					  Long result = l * 2;
+					  return result;
+					}
+					}
+					"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "p/SuppressTest.java\""
 			+ " -warn:+unused -warn:+boxing "
@@ -86,27 +92,32 @@ public class SuppressWarningsTest extends AbstractBatchCompilerTest {
 		this.runTest(true,
 			new String[] {
 				"p/SuppressTest.java",
-				"package p;\n" +
-				"@SuppressWarnings(\"unused\")\n" +
-				"public class SuppressTest {\n" +
-				"private String unused=\"testUnused\";\n" +
-				"public Long get(long l) {\n" +
-				"  Long result = l * 2;\n" +
-				"  return result;\n" +
-				"}\n}\n"
+				"""
+					package p;
+					@SuppressWarnings("unused")
+					public class SuppressTest {
+					private String unused="testUnused";
+					public Long get(long l) {
+					  Long result = l * 2;
+					  return result;
+					}
+					}
+					"""
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "p/SuppressTest.java\""
 			+ " -warn:+unused -warn:+boxing "
 			+ " -1.5 -g -preserveAllLocals"
 			+ " -d \"" + OUTPUT_DIR + "\" ",
 			"",
-			"----------\n" +
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/SuppressTest.java (at line 6)\n" +
-			"	Long result = l * 2;\n" +
-			"	              ^^^^^\n" +
-			"The expression of type long is boxed into Long\n" +
-			"----------\n" +
-			"1 problem (1 warning)\n",
+			"""
+				----------
+				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/SuppressTest.java (at line 6)
+					Long result = l * 2;
+					              ^^^^^
+				The expression of type long is boxed into Long
+				----------
+				1 problem (1 warning)
+				""",
 			true, null);
 	}
 

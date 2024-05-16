@@ -63,23 +63,34 @@ public class MixedModeTesting extends APTTestBase{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 
-		String codeA = "package p1;\n"
-			+ "\n import org.eclipse.jdt.apt.tests.external.annotations.batch.*;"
-			+ "\n@Batch\n"
-			+ "public class A {}\n";
+		String codeA = """
+			package p1;
+			
+			 import org.eclipse.jdt.apt.tests.external.annotations.batch.*;\
+			
+			@Batch
+			public class A {}
+			""";
 
 		env.addClass( srcRoot, "p1", "A", codeA );
 
-		String codeB = "package p1;\n"
-			+ "\n@Deprecated\n"
-			+ "public class B {}\n";
+		String codeB = """
+			package p1;
+			
+			@Deprecated
+			public class B {}
+			""";
 
 		env.addClass( srcRoot, "p1", "B", codeB );
 
-		String codeC = "package p1;\n"
-			+ "\n import org.eclipse.jdt.apt.tests.external.annotations.batch.*;"
-			+ "\n@Batch\n"
-			+ "public class C {}\n";
+		String codeC = """
+			package p1;
+			
+			 import org.eclipse.jdt.apt.tests.external.annotations.batch.*;\
+			
+			@Batch
+			public class C {}
+			""";
 
 		env.addClass( srcRoot, "p1", "C", codeC );
 
@@ -101,36 +112,54 @@ public class MixedModeTesting extends APTTestBase{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 
-		String codeX = "package p1;\n"
-			+ "\n import org.eclipse.jdt.apt.tests.annotations.aptrounding.*;"
-			+ "\n@GenBean\n"
-			+ "public class X {}\n";
+		String codeX = """
+			package p1;
+			
+			 import org.eclipse.jdt.apt.tests.annotations.aptrounding.*;\
+			
+			@GenBean
+			public class X {}
+			""";
 
 		env.addClass( srcRoot, "p1", "X", codeX );
 
-		String codeY = "package p1;\n"
-			+ "\n import org.eclipse.jdt.apt.tests.annotations.aptrounding.*;"
-			+ "public class Y { @GenBean2 test.Bean _bean = null; }\n";
+		String codeY = """
+			package p1;
+			
+			 import org.eclipse.jdt.apt.tests.annotations.aptrounding.*;\
+			public class Y { @GenBean2 test.Bean _bean = null; }
+			""";
 
 		env.addClass( srcRoot, "p1", "Y", codeY );
 
-		String codeA = "package p1;\n"
-			+ "\n import org.eclipse.jdt.apt.tests.external.annotations.batch.*;"
-			+ "\n@Batch\n"
-			+ "public class A {}\n";
+		String codeA = """
+			package p1;
+			
+			 import org.eclipse.jdt.apt.tests.external.annotations.batch.*;\
+			
+			@Batch
+			public class A {}
+			""";
 
 		env.addClass( srcRoot, "p1", "A", codeA );
 
-		String codeB = "package p1;\n"
-			+ "\n@Deprecated\n"
-			+ "public class B {}\n";
+		String codeB = """
+			package p1;
+			
+			@Deprecated
+			public class B {}
+			""";
 
 		env.addClass( srcRoot, "p1", "B", codeB );
 
-		String codeC = "package p1;\n"
-			+ "\n import org.eclipse.jdt.apt.tests.external.annotations.batch.*;"
-			+ "\n@Batch\n"
-			+ "public class C {}\n";
+		String codeC = """
+			package p1;
+			
+			 import org.eclipse.jdt.apt.tests.external.annotations.batch.*;\
+			
+			@Batch
+			public class C {}
+			""";
 
 		env.addClass( srcRoot, "p1", "C", codeC );
 
@@ -167,14 +196,19 @@ public class MixedModeTesting extends APTTestBase{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 
-		String codeA = "package p1;\n"
-			+ "\n import org.eclipse.jdt.apt.tests.external.annotations.batch.*;"
-			+ "\n import gen.*;"
-			+ "\n@BatchGen\n"
-			+ "public class A {"
-			+ "   Class0 clazz0;\n"
-			+ "   Class1 clazz1;\n"
-			+ "}\n";
+		String codeA = """
+			package p1;
+			
+			 import org.eclipse.jdt.apt.tests.external.annotations.batch.*;\
+			
+			 import gen.*;\
+			
+			@BatchGen
+			public class A {\
+			   Class0 clazz0;
+			   Class1 clazz1;
+			}
+			""";
 
 		env.addClass( srcRoot, "p1", "A", codeA );
 

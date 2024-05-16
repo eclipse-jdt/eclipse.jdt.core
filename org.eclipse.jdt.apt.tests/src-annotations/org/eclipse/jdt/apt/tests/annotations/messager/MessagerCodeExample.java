@@ -33,29 +33,53 @@ public class MessagerCodeExample {
 	public static final int ERROR_END = 421;
 
 	private static final String HEADER_CHUNK =
-		"package messagertestpackage;\n" +
-		"import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotation;" + "\n" +
-		"public class MessagerTestClass {" + "\n";
+		"""
+		package messagertestpackage;
+		import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotation;\
+		
+		public class MessagerTestClass {\
+		
+		""";
 
 	private static final String INFO_CHUNK =
-		"    @MessagerAnnotation(severity=MessagerAnnotation.Severity.INFO)" + "\n" +
-		"    public void Foo() {" + "\n" +
-		"    }" + "\n";
+		"""
+		    @MessagerAnnotation(severity=MessagerAnnotation.Severity.INFO)\
+		
+		    public void Foo() {\
+		
+		    }\
+		
+		""";
 
 	private static final String WARNING_CHUNK =
-		"    @MessagerAnnotation(severity=MessagerAnnotation.Severity.WARNING)" + "\n" +
-		"    public void Bar() {" + "\n" +
-		"    }" + "\n";
+		"""
+		    @MessagerAnnotation(severity=MessagerAnnotation.Severity.WARNING)\
+		
+		    public void Bar() {\
+		
+		    }\
+		
+		""";
 
 	private static final String ERROR_CHUNK =
-		"    @MessagerAnnotation(severity=MessagerAnnotation.Severity.ERROR)" + "\n" +
-		"    public void Quux() {" + "\n" +
-		"    }" + "\n";
+		"""
+		    @MessagerAnnotation(severity=MessagerAnnotation.Severity.ERROR)\
+		
+		    public void Quux() {\
+		
+		    }\
+		
+		""";
 
 	private static final String OK_CHUNK =
-		"    @MessagerAnnotation(severity=MessagerAnnotation.Severity.OK)" + "\n" +
-		"    public void Foo() {" + "\n" +
-		"    }" + "\n";
+		"""
+		    @MessagerAnnotation(severity=MessagerAnnotation.Severity.OK)\
+		
+		    public void Foo() {\
+		
+		    }\
+		
+		""";
 
 	/** Code example with INFO, WARNING, and ERROR severities */
 	public static final String CODE1 =

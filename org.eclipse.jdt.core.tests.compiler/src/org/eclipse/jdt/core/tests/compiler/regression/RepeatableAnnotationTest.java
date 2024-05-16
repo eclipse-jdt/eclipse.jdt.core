@@ -74,40 +74,48 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public @Foo @Foo class X {\n" +
-				"}\n" +
-				"\n",
+				"""
+					public @Foo @Foo class X {
+					}
+					
+					""",
 				"Foo.java",
 				"public @interface Foo {\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public @Foo @Foo class X {\n" +
-			"	       ^^^^\n" +
-			"Duplicate annotation of non-repeatable type @Foo. Only annotation types marked @Repeatable can be used multiple times at one target.\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	public @Foo @Foo class X {\n" +
-			"	            ^^^^\n" +
-			"Duplicate annotation of non-repeatable type @Foo. Only annotation types marked @Repeatable can be used multiple times at one target.\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public @Foo @Foo class X {
+					       ^^^^
+				Duplicate annotation of non-repeatable type @Foo. Only annotation types marked @Repeatable can be used multiple times at one target.
+				----------
+				2. ERROR in X.java (at line 1)
+					public @Foo @Foo class X {
+					            ^^^^
+				Duplicate annotation of non-repeatable type @Foo. Only annotation types marked @Repeatable can be used multiple times at one target.
+				----------
+				""");
 	}
 
 	public void test002() {
 		this.runConformTest(
 				new String[] {
 						"X.java",
-						"@Foo @Foo public class X {\n" +
-								"}\n" +
-								"\n",
+						"""
+							@Foo @Foo public class X {
+							}
+							
+							""",
 								"Foo.java",
 								"@java.lang.annotation.Repeatable(FooContainer.class) public @interface Foo {\n" +
 										"}\n",
 										"FooContainer.java",
-										"public @interface FooContainer {\n" +
-												"	Foo[] value();\n" +
-												"}\n"
+										"""
+											public @interface FooContainer {
+												Foo[] value();
+											}
+											"""
 				},
 				"");
 	}
@@ -117,35 +125,40 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"FooContainer.java",
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"@Target({ElementType.METHOD, ElementType.FIELD}) public @interface FooContainer {\n" +
-
-				"	Foo[] value();\n" +
-				"}\n",
+				"""
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Target;
+					@Target({ElementType.METHOD, ElementType.FIELD}) public @interface FooContainer {
+						Foo[] value();
+					}
+					""",
 				"Foo.java",
 				"@java.lang.annotation.Repeatable(FooContainer.class) public @interface Foo {\n" +
 				"}\n",
 				"X.java",
-				"@Foo @Foo public class X { /* Problem */\n" +
-				"  @Foo @Foo void okHere() { /* No problem */\n" +
-				"    @Foo @Foo int local = 0; /* Problem! */\n" +
-				"  }\n" +
-				"  @Foo @Foo int alsoFoo = 0; /* No problem */\n" +
-				"  @Foo class Y {} /* No problem since not repeated */\n" +
-				"}\n"
+				"""
+					@Foo @Foo public class X { /* Problem */
+					  @Foo @Foo void okHere() { /* No problem */
+					    @Foo @Foo int local = 0; /* Problem! */
+					  }
+					  @Foo @Foo int alsoFoo = 0; /* No problem */
+					  @Foo class Y {} /* No problem since not repeated */
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	@Foo @Foo public class X { /* Problem */\n" +
-			"	^^^^\n" +
-			"The annotation @Foo cannot be repeated at this location since its container annotation type @FooContainer is disallowed at this location\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	@Foo @Foo int local = 0; /* Problem! */\n" +
-			"	^^^^\n" +
-			"The annotation @Foo cannot be repeated at this location since its container annotation type @FooContainer is disallowed at this location\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					@Foo @Foo public class X { /* Problem */
+					^^^^
+				The annotation @Foo cannot be repeated at this location since its container annotation type @FooContainer is disallowed at this location
+				----------
+				2. ERROR in X.java (at line 3)
+					@Foo @Foo int local = 0; /* Problem! */
+					^^^^
+				The annotation @Foo cannot be repeated at this location since its container annotation type @FooContainer is disallowed at this location
+				----------
+				""");
 	}
 
 	// This is the same test as test003, only where the annotation info for Foo is from a class file, not from the compiler
@@ -153,11 +166,13 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 					"FooContainer.java",
-					"import java.lang.annotation.ElementType;\n" +
-					"import java.lang.annotation.Target;\n" +
-					"@Target({ElementType.METHOD, ElementType.FIELD}) public @interface FooContainer {\n" +
-					"	Foo[] value();\n" +
-					"}\n",
+					"""
+						import java.lang.annotation.ElementType;
+						import java.lang.annotation.Target;
+						@Target({ElementType.METHOD, ElementType.FIELD}) public @interface FooContainer {
+							Foo[] value();
+						}
+						""",
 					"Foo.java",
 					"@java.lang.annotation.Repeatable(FooContainer.class) public @interface Foo {\n" +
 					"}\n"
@@ -171,12 +186,14 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"}\n"
 			};
 		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	@Foo @Foo public class X { /* Problem */\n" +
-			"	^^^^\n" +
-			"The annotation @Foo cannot be repeated at this location since its container annotation type @FooContainer is disallowed at this location\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					@Foo @Foo public class X { /* Problem */
+					^^^^
+				The annotation @Foo cannot be repeated at this location since its container annotation type @FooContainer is disallowed at this location
+				----------
+				""";
 		runner.shouldFlushOutputDirectory = false;
 		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8044196;
 		runner.runNegativeTest();
@@ -187,9 +204,11 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo {}\n" +
-				"@interface FooContainer { Foo[] value(); }\n" +
-				"@Foo @FooContainer({@Foo, @Foo}) public class X { /* Not a problem */ }\n"
+				"""
+					@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo {}
+					@interface FooContainer { Foo[] value(); }
+					@Foo @FooContainer({@Foo, @Foo}) public class X { /* Not a problem */ }
+					"""
 			},
 			"");
 	}
@@ -199,16 +218,20 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"@interface FooContainer { Foo[] value(); }\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo {}\n" +
-				"@Foo @Foo @FooContainer({@Foo, @Foo}) public class X { /* A problem */ }\n"
+				"""
+					@interface FooContainer { Foo[] value(); }
+					@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo {}
+					@Foo @Foo @FooContainer({@Foo, @Foo}) public class X { /* A problem */ }
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	@Foo @Foo @FooContainer({@Foo, @Foo}) public class X { /* A problem */ }\n" +
-			"	^^^^\n" +
-			"The repeatable annotation @Foo may not be repeated where its container annotation type @FooContainer is also used directly\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					@Foo @Foo @FooContainer({@Foo, @Foo}) public class X { /* A problem */ }
+					^^^^
+				The repeatable annotation @Foo may not be repeated where its container annotation type @FooContainer is also used directly
+				----------
+				""");
 	}
 
 	// Test that an repeated annotation can't occur together with its container annotation, even if it itself is repeatable.
@@ -216,17 +239,21 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"@interface FooContainerContainer { FooContainer[] value(); }\n" +
-				"@java.lang.annotation.Repeatable(FooContainerContainer.class) @interface FooContainer { Foo[] value(); }\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo {}\n" +
-				"@Foo @Foo @FooContainer({@Foo, @Foo}) public class X { /* Still a problem */ }\n"
+				"""
+					@interface FooContainerContainer { FooContainer[] value(); }
+					@java.lang.annotation.Repeatable(FooContainerContainer.class) @interface FooContainer { Foo[] value(); }
+					@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo {}
+					@Foo @Foo @FooContainer({@Foo, @Foo}) public class X { /* Still a problem */ }
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	@Foo @Foo @FooContainer({@Foo, @Foo}) public class X { /* Still a problem */ }\n" +
-			"	^^^^\n" +
-			"The repeatable annotation @Foo may not be repeated where its container annotation type @FooContainer is also used directly\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					@Foo @Foo @FooContainer({@Foo, @Foo}) public class X { /* Still a problem */ }
+					^^^^
+				The repeatable annotation @Foo may not be repeated where its container annotation type @FooContainer is also used directly
+				----------
+				""");
 	}
 
 	// Test that an repeated annotation can't occur together with its container annotation, even if it itself is repeatable.
@@ -234,28 +261,32 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"@interface FooContainerContainer { FooContainer[] value(); }\n" +
-				"@java.lang.annotation.Repeatable(FooContainerContainer.class) @interface FooContainer { Foo[] value(); }\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo {}\n" +
-				"@interface Bar {}\n" +
-				"@Foo @Foo @Bar @Bar @FooContainer({@Foo, @Foo}) public class X { /* Still a problem */ }\n"
+				"""
+					@interface FooContainerContainer { FooContainer[] value(); }
+					@java.lang.annotation.Repeatable(FooContainerContainer.class) @interface FooContainer { Foo[] value(); }
+					@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo {}
+					@interface Bar {}
+					@Foo @Foo @Bar @Bar @FooContainer({@Foo, @Foo}) public class X { /* Still a problem */ }
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	@Foo @Foo @Bar @Bar @FooContainer({@Foo, @Foo}) public class X { /* Still a problem */ }\n" +
-			"	^^^^\n" +
-			"The repeatable annotation @Foo may not be repeated where its container annotation type @FooContainer is also used directly\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	@Foo @Foo @Bar @Bar @FooContainer({@Foo, @Foo}) public class X { /* Still a problem */ }\n" +
-			"	          ^^^^\n" +
-			"Duplicate annotation of non-repeatable type @Bar. Only annotation types marked @Repeatable can be used multiple times at one target.\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	@Foo @Foo @Bar @Bar @FooContainer({@Foo, @Foo}) public class X { /* Still a problem */ }\n" +
-			"	               ^^^^\n" +
-			"Duplicate annotation of non-repeatable type @Bar. Only annotation types marked @Repeatable can be used multiple times at one target.\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					@Foo @Foo @Bar @Bar @FooContainer({@Foo, @Foo}) public class X { /* Still a problem */ }
+					^^^^
+				The repeatable annotation @Foo may not be repeated where its container annotation type @FooContainer is also used directly
+				----------
+				2. ERROR in X.java (at line 5)
+					@Foo @Foo @Bar @Bar @FooContainer({@Foo, @Foo}) public class X { /* Still a problem */ }
+					          ^^^^
+				Duplicate annotation of non-repeatable type @Bar. Only annotation types marked @Repeatable can be used multiple times at one target.
+				----------
+				3. ERROR in X.java (at line 5)
+					@Foo @Foo @Bar @Bar @FooContainer({@Foo, @Foo}) public class X { /* Still a problem */ }
+					               ^^^^
+				Duplicate annotation of non-repeatable type @Bar. Only annotation types marked @Repeatable can be used multiple times at one target.
+				----------
+				""");
 	}
 
 	// Test that repeated annotations should be contiguous (raises a warning if not) -- not yet in BETA_JAVA8
@@ -263,28 +294,34 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"@interface Bar {}\n" +
-				"@interface Baz {}\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo {}\n" +
-				"@interface FooContainer { Foo[] value(); }\n" +
-				"@Foo @Bar @Foo /* just lexical */ @Foo public class X { /* Gives a warning */ }\n"
+				"""
+					@interface Bar {}
+					@interface Baz {}
+					@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo {}
+					@interface FooContainer { Foo[] value(); }
+					@Foo @Bar @Foo /* just lexical */ @Foo public class X { /* Gives a warning */ }
+					"""
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 5)\n" +
-			"	@Foo @Bar @Foo /* just lexical */ @Foo public class X { /* Gives a warning */ }\n" +
-			"	          ^^^^\n" +
-			"Repeated @Foo annotations are not grouped together\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 5)
+					@Foo @Bar @Foo /* just lexical */ @Foo public class X { /* Gives a warning */ }
+					          ^^^^
+				Repeated @Foo annotations are not grouped together
+				----------
+				""");
 	}
 	// Test that deprecation of container annotation is reflected in the repeated annotation (disabled until specification clarification is available)
 	public void _test009() {
 		this.runConformTest(
 			new String[] {
 				"Y.java",
-				"@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo { int value(); }\n" +
-				"@Deprecated @interface FooContainer { Foo[] value(); }\n" +
-				"@Foo(0) class X { /* Gives a warning */ }\n" +
-				"@Foo(1) @Foo(2) public class Y { /* Gives a warning */ }\n"
+				"""
+					@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo { int value(); }
+					@Deprecated @interface FooContainer { Foo[] value(); }
+					@Foo(0) class X { /* Gives a warning */ }
+					@Foo(1) @Foo(2) public class Y { /* Gives a warning */ }
+					"""
 			},
 			new ASTVisitor() {
 				public boolean visit(
@@ -309,58 +346,70 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 			"Foo.java",
-			"@interface FooContainer {\n" +
-			"}\n" +
-			"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-			"@interface Foo {}\n"
+			"""
+				@interface FooContainer {
+				}
+				@java.lang.annotation.Repeatable(FooContainer.class)
+				@interface Foo {}
+				"""
 			},
-		"----------\n" +
-		"1. ERROR in Foo.java (at line 3)\n" +
-		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-		"	                                 ^^^^^^^^^^^^^^^^^^\n" +
-		"The container annotation type @FooContainer must declare a member value()\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Foo.java (at line 3)
+				@java.lang.annotation.Repeatable(FooContainer.class)
+				                                 ^^^^^^^^^^^^^^^^^^
+			The container annotation type @FooContainer must declare a member value()
+			----------
+			""");
 	}
 	// 412151: The collections type's (TC) declaration must have a array of Ts as its value() - with Foo and FooContainer in same compilation round
 	public void test011() {
 		this.runNegativeTest(
 			new String[] {
 			"Foo.java",
-			"@interface FooContainer {\n" +
-			"    int[] value();\n" +
-			"}\n" +
-			"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-			"@interface Foo {}\n"
+			"""
+				@interface FooContainer {
+				    int[] value();
+				}
+				@java.lang.annotation.Repeatable(FooContainer.class)
+				@interface Foo {}
+				"""
 			},
-		"----------\n" +
-		"1. ERROR in Foo.java (at line 4)\n" +
-		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-		"	                                 ^^^^^^^^^^^^^^^^^^\n" +
-		"The value method in the container annotation type @FooContainer must be of type Foo[] but is int[]\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Foo.java (at line 4)
+				@java.lang.annotation.Repeatable(FooContainer.class)
+				                                 ^^^^^^^^^^^^^^^^^^
+			The value method in the container annotation type @FooContainer must be of type Foo[] but is int[]
+			----------
+			""");
 	}
 	// 412151: The collections type's (TC) declaration must have a array of Ts as its value() - with Foo and FooContainer in same compilation round
 	public void test012() {
 		this.runNegativeTest(
 			new String[] {
 				"Foo.java",
-				"@interface FooContainer {\n" +
-				"    Foo[][] value();\n" +
-				"}\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@interface Foo {}\n"
+				"""
+					@interface FooContainer {
+					    Foo[][] value();
+					}
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@interface Foo {}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in Foo.java (at line 2)\n" +
-			"	Foo[][] value();\n" +
-			"	^^^^^^^\n" +
-			"Invalid type Foo[][] for the annotation attribute FooContainer.value; only primitive type, String, Class, annotation, enumeration are permitted or 1-dimensional arrays thereof\n" +
-			"----------\n" +
-			"2. ERROR in Foo.java (at line 4)\n" +
-			"	@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-			"	                                 ^^^^^^^^^^^^^^^^^^\n" +
-			"The value method in the container annotation type @FooContainer must be of type Foo[] but is Foo[][]\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in Foo.java (at line 2)
+					Foo[][] value();
+					^^^^^^^
+				Invalid type Foo[][] for the annotation attribute FooContainer.value; only primitive type, String, Class, annotation, enumeration are permitted or 1-dimensional arrays thereof
+				----------
+				2. ERROR in Foo.java (at line 4)
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					                                 ^^^^^^^^^^^^^^^^^^
+				The value method in the container annotation type @FooContainer must be of type Foo[] but is Foo[][]
+				----------
+				"""
 		);
 	}
 	// 412151: Any methods declared by TC other than value() have a default value (JLS 9.6.2).
@@ -368,36 +417,42 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"Foo.java",
-				"@interface FooContainer {\n" +
-				"    Foo[] value();\n" +
-				"    int hasDefaultValue() default 1337;\n" +
-				"    int doesntHaveDefaultValue();\n" +
-				"}\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@interface Foo {}\n"
+				"""
+					@interface FooContainer {
+					    Foo[] value();
+					    int hasDefaultValue() default 1337;
+					    int doesntHaveDefaultValue();
+					}
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@interface Foo {}
+					"""
 			},
-		"----------\n" +
-		"1. ERROR in Foo.java (at line 6)\n" +
-		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-		"	                                 ^^^^^^^^^^^^^^^^^^\n" +
-		"The container annotation type @FooContainer must declare a default value for the annotation attribute \'doesntHaveDefaultValue\'\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Foo.java (at line 6)
+				@java.lang.annotation.Repeatable(FooContainer.class)
+				                                 ^^^^^^^^^^^^^^^^^^
+			The container annotation type @FooContainer must declare a default value for the annotation attribute 'doesntHaveDefaultValue'
+			----------
+			""");
 	}
 	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
 	public void test014() {
 		this.runConformTest(
 			new String[] {
 				"Foo.java",
-				"import java.lang.annotation.Retention;\n" +
-				"import java.lang.annotation.RetentionPolicy;\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@interface FooContainer {\n" +
-				"    Foo[] value();\n" +
-				"}\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@interface Foo {\n" +
-				"}\n"
+				"""
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					@Retention(RetentionPolicy.CLASS)
+					@interface FooContainer {
+					    Foo[] value();
+					}
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@Retention(RetentionPolicy.CLASS)
+					@interface Foo {
+					}
+					"""
 			},
 		"");
 	}
@@ -408,9 +463,11 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 					"FooContainer.java",
-					"public @interface FooContainer {\n" +
-					"	Foo[] value();\n" +
-					"}\n",
+					"""
+						public @interface FooContainer {
+							Foo[] value();
+						}
+						""",
 					"Foo.java",
 					"@java.lang.annotation.Repeatable(FooContainer.class) public @interface Foo {\n" +
 					"}\n"
@@ -420,9 +477,11 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 				new String[] {
 						"FooContainer.java",
-						"public @interface FooContainer {\n" +
-						"	int[] value();\n" +
-						"}\n"
+						"""
+							public @interface FooContainer {
+								int[] value();
+							}
+							"""
 					},
 					"",
 					null,
@@ -434,12 +493,14 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"@Foo @Foo public class X { /* Problem since Foo now uses FooContainer which doesn't work anymore*/\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	@Foo @Foo public class X { /* Problem since Foo now uses FooContainer which doesn\'t work anymore*/\n" +
-			"	^^^^\n" +
-			"The value method in the container annotation type @FooContainer must be of type Foo[] but is int[]\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					@Foo @Foo public class X { /* Problem since Foo now uses FooContainer which doesn't work anymore*/
+					^^^^
+				The value method in the container annotation type @FooContainer must be of type Foo[] but is int[]
+				----------
+				""",
 			null, false /* don't flush*/);
 	}
 
@@ -449,20 +510,24 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"Foo.java",
-				"import java.lang.annotation.Retention;\n" +
-				"import java.lang.annotation.RetentionPolicy;\n" +
-				"@Retention(RetentionPolicy.SOURCE)\n" +
-				"@interface FooContainer { Foo[] value(); }\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@Retention(RetentionPolicy.RUNTIME)\n" +
-				"@interface Foo { }\n"
+				"""
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					@Retention(RetentionPolicy.SOURCE)
+					@interface FooContainer { Foo[] value(); }
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@Retention(RetentionPolicy.RUNTIME)
+					@interface Foo { }
+					"""
 			},
-		"----------\n" +
-		"1. ERROR in Foo.java (at line 5)\n" +
-		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-		"	                                 ^^^^^^^^^^^^^^^^^^\n" +
-		"Retention \'RUNTIME\' of @Foo is longer than the retention of its container annotation type @FooContainer, which is \'SOURCE\'\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Foo.java (at line 5)
+				@java.lang.annotation.Repeatable(FooContainer.class)
+				                                 ^^^^^^^^^^^^^^^^^^
+			Retention 'RUNTIME' of @Foo is longer than the retention of its container annotation type @FooContainer, which is 'SOURCE'
+			----------
+			""");
 	}
 
 	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
@@ -471,19 +536,23 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"Foo.java",
-				"import java.lang.annotation.Retention;\n" +
-				"import java.lang.annotation.RetentionPolicy;\n" +
-				"@Retention(RetentionPolicy.SOURCE)\n" +
-				"@interface FooContainer { Foo[] value(); }\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@interface Foo { }\n"
+				"""
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					@Retention(RetentionPolicy.SOURCE)
+					@interface FooContainer { Foo[] value(); }
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@interface Foo { }
+					"""
 			},
-		"----------\n" +
-		"1. ERROR in Foo.java (at line 5)\n" +
-		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-		"	                                 ^^^^^^^^^^^^^^^^^^\n" +
-		"Retention \'CLASS\' of @Foo is longer than the retention of its container annotation type @FooContainer, which is \'SOURCE\'\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Foo.java (at line 5)
+				@java.lang.annotation.Repeatable(FooContainer.class)
+				                                 ^^^^^^^^^^^^^^^^^^
+			Retention 'CLASS' of @Foo is longer than the retention of its container annotation type @FooContainer, which is 'SOURCE'
+			----------
+			""");
 	}
 
 	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
@@ -492,19 +561,23 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"Foo.java",
-				"import java.lang.annotation.Retention;\n" +
-				"import java.lang.annotation.RetentionPolicy;\n" +
-				"@interface FooContainer { Foo[] value(); }\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@Retention(RetentionPolicy.RUNTIME)\n" +
-				"@interface Foo { }\n"
+				"""
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					@interface FooContainer { Foo[] value(); }
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@Retention(RetentionPolicy.RUNTIME)
+					@interface Foo { }
+					"""
 			},
-		"----------\n" +
-		"1. ERROR in Foo.java (at line 4)\n" +
-		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-		"	                                 ^^^^^^^^^^^^^^^^^^\n" +
-		"Retention \'RUNTIME\' of @Foo is longer than the retention of its container annotation type @FooContainer, which is \'CLASS\'\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Foo.java (at line 4)
+				@java.lang.annotation.Repeatable(FooContainer.class)
+				                                 ^^^^^^^^^^^^^^^^^^
+			Retention 'RUNTIME' of @Foo is longer than the retention of its container annotation type @FooContainer, which is 'CLASS'
+			----------
+			""");
 	}
 
 	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
@@ -513,12 +586,14 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"Foo.java",
-				"import java.lang.annotation.Retention;\n" +
-				"import java.lang.annotation.RetentionPolicy;\n" +
-				"@interface FooContainer { Foo[] value(); }\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@Retention(RetentionPolicy.SOURCE)\n" +
-				"@interface Foo { }\n"
+				"""
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					@interface FooContainer { Foo[] value(); }
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@Retention(RetentionPolicy.SOURCE)
+					@interface Foo { }
+					"""
 			});
 	}
 
@@ -528,16 +603,20 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 					"FooContainer.java",
-					"import java.lang.annotation.Retention;\n" +
-					"import java.lang.annotation.RetentionPolicy;\n" +
-					"@Retention(RetentionPolicy.SOURCE)\n" +
-					"public @interface FooContainer { Foo[] value(); }\n",
+					"""
+						import java.lang.annotation.Retention;
+						import java.lang.annotation.RetentionPolicy;
+						@Retention(RetentionPolicy.SOURCE)
+						public @interface FooContainer { Foo[] value(); }
+						""",
 					"Foo.java",
-					"import java.lang.annotation.Retention;\n" +
-					"import java.lang.annotation.RetentionPolicy;\n" +
-					"@Retention(RetentionPolicy.SOURCE)\n" +
-					"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-					"public @interface Foo { }\n"
+					"""
+						import java.lang.annotation.Retention;
+						import java.lang.annotation.RetentionPolicy;
+						@Retention(RetentionPolicy.SOURCE)
+						@java.lang.annotation.Repeatable(FooContainer.class)
+						public @interface Foo { }
+						"""
 				});
 		this.runNegativeTest(
 			new String[] {
@@ -545,12 +624,14 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
 				"public @interface Foo { } // If omitted, retention is class\n"
 			},
-		"----------\n" +
-		"1. ERROR in Foo.java (at line 1)\n" +
-		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-		"	                                 ^^^^^^^^^^^^^^^^^^\n" +
-		"Retention \'CLASS\' of @Foo is longer than the retention of its container annotation type @FooContainer, which is \'SOURCE\'\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in Foo.java (at line 1)
+				@java.lang.annotation.Repeatable(FooContainer.class)
+				                                 ^^^^^^^^^^^^^^^^^^
+			Retention 'CLASS' of @Foo is longer than the retention of its container annotation type @FooContainer, which is 'SOURCE'
+			----------
+			""",
 		null, false /* don't flush*/);
 	}
 
@@ -560,30 +641,38 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"FooContainer.java",
-				"import java.lang.annotation.Retention;\n" +
-				"import java.lang.annotation.RetentionPolicy;\n" +
-				"public @interface FooContainer { Foo[] value(); }\n",
+				"""
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					public @interface FooContainer { Foo[] value(); }
+					""",
 				"Foo.java",
-				"import java.lang.annotation.Retention;\n" +
-				"import java.lang.annotation.RetentionPolicy;\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"public @interface Foo { }\n"
+				"""
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					public @interface Foo { }
+					"""
 			});
 		this.runNegativeTest(
 			new String[] {
 				"Foo.java",
-				"import java.lang.annotation.Retention;\n" +
-				"import java.lang.annotation.RetentionPolicy;\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@Retention(RetentionPolicy.RUNTIME)\n" +
-				"@interface Foo { }\n"
+				"""
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@Retention(RetentionPolicy.RUNTIME)
+					@interface Foo { }
+					"""
 			},
-		"----------\n" +
-		"1. ERROR in Foo.java (at line 3)\n" +
-		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-		"	                                 ^^^^^^^^^^^^^^^^^^\n" +
-		"Retention \'RUNTIME\' of @Foo is longer than the retention of its container annotation type @FooContainer, which is \'CLASS\'\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in Foo.java (at line 3)
+				@java.lang.annotation.Repeatable(FooContainer.class)
+				                                 ^^^^^^^^^^^^^^^^^^
+			Retention 'RUNTIME' of @Foo is longer than the retention of its container annotation type @FooContainer, which is 'CLASS'
+			----------
+			""",
 		null, false /* don't flush*/);
 	}
 
@@ -593,23 +682,29 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"FooContainer.java",
-				"import java.lang.annotation.Target;\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"public @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})\n" +
-				"@interface FooContainer { Foo[] value(); }\n",
+				"""
+					import java.lang.annotation.Target;
+					import java.lang.annotation.ElementType;
+					public @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
+					@interface FooContainer { Foo[] value(); }
+					""",
 				"Foo.java",
-				"import java.lang.annotation.Target;\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"public @java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@Target({ElementType.FIELD})\n" +
-				"@interface Foo { }\n"
+				"""
+					import java.lang.annotation.Target;
+					import java.lang.annotation.ElementType;
+					public @java.lang.annotation.Repeatable(FooContainer.class)
+					@Target({ElementType.FIELD})
+					@interface Foo { }
+					"""
 			},
-		"----------\n" +
-		"1. ERROR in Foo.java (at line 3)\n" +
-		"	public @java.lang.annotation.Repeatable(FooContainer.class)\n" +
-		"	                                        ^^^^^^^^^^^^^^^^^^\n" +
-		"The container annotation type @FooContainer is allowed at targets where the repeatable annotation type @Foo is not: TYPE, METHOD\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Foo.java (at line 3)
+				public @java.lang.annotation.Repeatable(FooContainer.class)
+				                                        ^^^^^^^^^^^^^^^^^^
+			The container annotation type @FooContainer is allowed at targets where the repeatable annotation type @Foo is not: TYPE, METHOD
+			----------
+			""");
 	}
 
 	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
@@ -619,31 +714,39 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"FooContainer.java",
-				"import java.lang.annotation.Target;\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"public @Target({ElementType.METHOD})\n" +
-				"@interface FooContainer { Foo[] value(); }\n",
+				"""
+					import java.lang.annotation.Target;
+					import java.lang.annotation.ElementType;
+					public @Target({ElementType.METHOD})
+					@interface FooContainer { Foo[] value(); }
+					""",
 				"Foo.java",
-				"import java.lang.annotation.Target;\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"public @Target({ElementType.METHOD})\n" +
-				"@interface Foo { }\n"
+				"""
+					import java.lang.annotation.Target;
+					import java.lang.annotation.ElementType;
+					public @Target({ElementType.METHOD})
+					@interface Foo { }
+					"""
 			});
 		this.runNegativeTest(
 			new String[] {
 				"Foo.java",
-				"import java.lang.annotation.Target;\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"public @java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@java.lang.annotation.Target({ElementType.FIELD})\n" +
-				"@interface Foo { }\n"
+				"""
+					import java.lang.annotation.Target;
+					import java.lang.annotation.ElementType;
+					public @java.lang.annotation.Repeatable(FooContainer.class)
+					@java.lang.annotation.Target({ElementType.FIELD})
+					@interface Foo { }
+					"""
 			},
-		"----------\n" +
-		"1. ERROR in Foo.java (at line 3)\n" +
-		"	public @java.lang.annotation.Repeatable(FooContainer.class)\n" +
-		"	                                        ^^^^^^^^^^^^^^^^^^\n" +
-		"The container annotation type @FooContainer is allowed at targets where the repeatable annotation type @Foo is not: METHOD\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in Foo.java (at line 3)
+				public @java.lang.annotation.Repeatable(FooContainer.class)
+				                                        ^^^^^^^^^^^^^^^^^^
+			The container annotation type @FooContainer is allowed at targets where the repeatable annotation type @Foo is not: METHOD
+			----------
+			""",
 		null, false /* don't flush*/);
 	}
 
@@ -653,14 +756,18 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"FooContainer.java",
-				"import java.lang.annotation.ElementType;\n" +
-				"@java.lang.annotation.Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})\n" +
-				"@interface FooContainer { Foo[] value(); }\n",
+				"""
+					import java.lang.annotation.ElementType;
+					@java.lang.annotation.Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
+					@interface FooContainer { Foo[] value(); }
+					""",
 				"Foo.java",
-				"import java.lang.annotation.ElementType;\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@java.lang.annotation.Target({ElementType.METHOD, ElementType.TYPE})\n" +
-				"@interface Foo { }\n"
+				"""
+					import java.lang.annotation.ElementType;
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@java.lang.annotation.Target({ElementType.METHOD, ElementType.TYPE})
+					@interface Foo { }
+					"""
 			});
 	}
 
@@ -670,23 +777,29 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"FooContainer.java",
-				"import java.lang.annotation.Target;\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"public @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.LOCAL_VARIABLE, ElementType.ANNOTATION_TYPE, ElementType.PACKAGE, ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})\n" +
-				"@interface FooContainer { Foo[] value(); }\n",
+				"""
+					import java.lang.annotation.Target;
+					import java.lang.annotation.ElementType;
+					public @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.LOCAL_VARIABLE, ElementType.ANNOTATION_TYPE, ElementType.PACKAGE, ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
+					@interface FooContainer { Foo[] value(); }
+					""",
 				"Foo.java",
-				"import java.lang.annotation.Target;\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"public @java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@Target({})\n" +
-				"@interface Foo { }\n"
+				"""
+					import java.lang.annotation.Target;
+					import java.lang.annotation.ElementType;
+					public @java.lang.annotation.Repeatable(FooContainer.class)
+					@Target({})
+					@interface Foo { }
+					"""
 			},
-		"----------\n" +
-		"1. ERROR in Foo.java (at line 3)\n" +
-		"	public @java.lang.annotation.Repeatable(FooContainer.class)\n" +
-		"	                                        ^^^^^^^^^^^^^^^^^^\n" +
-		"The container annotation type @FooContainer is allowed at targets where the repeatable annotation type @Foo is not: TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE, ANNOTATION_TYPE, PACKAGE, TYPE_PARAMETER, TYPE_USE\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Foo.java (at line 3)
+				public @java.lang.annotation.Repeatable(FooContainer.class)
+				                                        ^^^^^^^^^^^^^^^^^^
+			The container annotation type @FooContainer is allowed at targets where the repeatable annotation type @Foo is not: TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE, ANNOTATION_TYPE, PACKAGE, TYPE_PARAMETER, TYPE_USE
+			----------
+			""");
 	}
 
 	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
@@ -702,18 +815,22 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"Foo.java",
-				"import java.lang.annotation.Target;\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@java.lang.annotation.Target({ElementType.FIELD})\n" +
-				"@interface Foo { }\n"
+				"""
+					import java.lang.annotation.Target;
+					import java.lang.annotation.ElementType;
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@java.lang.annotation.Target({ElementType.FIELD})
+					@interface Foo { }
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in Foo.java (at line 3)\n" +
-			"	@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-			"	                                 ^^^^^^^^^^^^^^^^^^\n" +
-			"The container annotation type @FooContainer is allowed at targets where the repeatable annotation type @Foo is not: TYPE, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE, ANNOTATION_TYPE, PACKAGE, TYPE_PARAMETER, MODULE, RECORD_COMPONENT\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in Foo.java (at line 3)
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					                                 ^^^^^^^^^^^^^^^^^^
+				The container annotation type @FooContainer is allowed at targets where the repeatable annotation type @Foo is not: TYPE, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE, ANNOTATION_TYPE, PACKAGE, TYPE_PARAMETER, MODULE, RECORD_COMPONENT
+				----------
+				""",
 		null, false /* don't flush*/);
 	}
 
@@ -747,12 +864,14 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"@java.lang.annotation.Repeatable(FooContainer.class) @java.lang.annotation.Documented\n" +
 				"@interface Foo { }\n"
 			},
-			"----------\n" +
-			"1. ERROR in Foo.java (at line 1)\n" +
-			"	@java.lang.annotation.Repeatable(FooContainer.class) @java.lang.annotation.Documented\n" +
-			"	                                 ^^^^^^^^^^^^^^^^^^\n" +
-			"The repeatable annotation type @Foo is marked @Documented, but its container annotation type @FooContainer is not\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in Foo.java (at line 1)
+					@java.lang.annotation.Repeatable(FooContainer.class) @java.lang.annotation.Documented
+					                                 ^^^^^^^^^^^^^^^^^^
+				The repeatable annotation type @Foo is marked @Documented, but its container annotation type @FooContainer is not
+				----------
+				""");
 	}
 
 	// 412151: If T is @Documented, then TC should also be Documented - check from previous compilation
@@ -805,12 +924,14 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"@java.lang.annotation.Repeatable(FooContainer.class) @java.lang.annotation.Inherited\n" +
 				"@interface Foo { }\n"
 			},
-			"----------\n" +
-			"1. ERROR in Foo.java (at line 1)\n" +
-			"	@java.lang.annotation.Repeatable(FooContainer.class) @java.lang.annotation.Inherited\n" +
-			"	                                 ^^^^^^^^^^^^^^^^^^\n" +
-			"The repeatable annotation type @Foo is marked @Inherited, but its container annotation type @FooContainer is not\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in Foo.java (at line 1)
+					@java.lang.annotation.Repeatable(FooContainer.class) @java.lang.annotation.Inherited
+					                                 ^^^^^^^^^^^^^^^^^^
+				The repeatable annotation type @Foo is marked @Inherited, but its container annotation type @FooContainer is not
+				----------
+				""");
 	}
 
 	// 412151: If T is @Inherited, then TC should also be Inherited - check from previous compilation
@@ -838,60 +959,65 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Repeatable;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"@Target(ElementType.FIELD)\n" +
-				"@interface TC {\n" +
-				"	T [] value();\n" +
-				"}\n" +
-				"@Target(ElementType.TYPE)\n" +
-				"@Repeatable(TC.class)\n" +
-				"@interface T {\n" +
-				"}\n" +
-				"@T @T // we used to double report here.\n" +
-				"public class X { \n" +
-				"	X f;\n" +
-				"}\n"
+				"""
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Repeatable;
+					import java.lang.annotation.Target;
+					@Target(ElementType.FIELD)
+					@interface TC {
+						T [] value();
+					}
+					@Target(ElementType.TYPE)
+					@Repeatable(TC.class)
+					@interface T {
+					}
+					@T @T // we used to double report here.
+					public class X {\s
+						X f;
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	@Repeatable(TC.class)\n" +
-			"	            ^^^^^^^^\n" +
-			"The container annotation type @TC is allowed at targets where the repeatable annotation type @T is not: FIELD\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 12)\n" +
-			"	@T @T // we used to double report here.\n" +
-			"	^^\n" +
-			"The annotation @T cannot be repeated at this location since its container annotation type @TC is disallowed at this location\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 9)
+					@Repeatable(TC.class)
+					            ^^^^^^^^
+				The container annotation type @TC is allowed at targets where the repeatable annotation type @T is not: FIELD
+				----------
+				2. ERROR in X.java (at line 12)
+					@T @T // we used to double report here.
+					^^
+				The annotation @T cannot be repeated at this location since its container annotation type @TC is disallowed at this location
+				----------
+				""");
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
 	public void test036() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.annotation.Repeatable;\n" +
-				"import java.lang.annotation.Retention;\n" +
-				"import static java.lang.annotation.RetentionPolicy.*;\n" +
-				"\n" +
-				"@Retention(RUNTIME)\n" +
-				"@interface AttrContainer {\n" +
-				"  public Attr[] value();\n" +
-				"}\n" +
-				"@Retention(RUNTIME)\n" +
-				"@Repeatable(AttrContainer.class)\n" +
-				"@interface Attr {\n" +
-				"  public int value() default -1;\n" +
-				"}\n" +
-				"\n" +
-				"@Attr(1) @Attr(2)\n" +
-				"public class X {\n" +
-				"  public static void main(String args[]) {\n" +
-				"  	Object e[] = X.class.getAnnotationsByType(Attr.class);\n" +
-				"  	for (int i=0; i<e.length;++i) System.out.print(e[i] + \" \");\n" +
-				"  }\n" +
-				"}"
+				"""
+					import java.lang.annotation.Repeatable;
+					import java.lang.annotation.Retention;
+					import static java.lang.annotation.RetentionPolicy.*;
+					
+					@Retention(RUNTIME)
+					@interface AttrContainer {
+					  public Attr[] value();
+					}
+					@Retention(RUNTIME)
+					@Repeatable(AttrContainer.class)
+					@interface Attr {
+					  public int value() default -1;
+					}
+					
+					@Attr(1) @Attr(2)
+					public class X {
+					  public static void main(String args[]) {
+					  	Object e[] = X.class.getAnnotationsByType(Attr.class);
+					  	for (int i=0; i<e.length;++i) System.out.print(e[i] + " ");
+					  }
+					}"""
 			},
 			normalizeAnnotationString("@Attr(value=1) @Attr(value=2)"));
 
@@ -902,43 +1028,45 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.annotation.Annotation;\n" +
-				"import java.lang.annotation.Repeatable;\n" +
-				"import java.lang.annotation.Retention;\n" +
-				"import static java.lang.annotation.RetentionPolicy.*;\n" +
-				"\n" +
-				"@Retention(RUNTIME)\n" +
-				"@interface AttrContainer {\n" +
-				"  public Attr[] value();\n" +
-				"}\n" +
-				"@Retention(RUNTIME)\n" +
-				"@Repeatable(AttrContainer.class)\n" +
-				"@interface Attr {\n" +
-				"  public int value() default -1;\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"  @Attr(1) class Y1 {}\n" +
-				"  @Attr(1) @Attr(2) class Y2 {} \n" +
-				"  public static void main(String args[]) {\n" +
-				"  	System.out.print(\"Y1: \" + normalizeAnnotation(Y1.class.getAnnotation(Attr.class)) + \"\\n\");\n" +
-				"  	System.out.print(\"Y2: \" + normalizeAnnotation(Y2.class.getAnnotation(Attr.class)) + \"\\n\");\n" +
-				"  	System.out.print(\"Y1: \" + normalizeAnnotation(Y1.class.getAnnotation(AttrContainer.class)) + \"\\n\");\n" +
-				"  	System.out.print(\"Y2: \" + normalizeAnnotation(Y2.class.getAnnotation(AttrContainer.class)) + \"\\n\");\n" +
-				"  }\n" +
-				"  static String normalizeAnnotation(Annotation a) {\n" +
-				" 		if (a == null) return null;\n" +
-				"	  String str = a.toString();\n" +
-				"	  str = str.replace(\"value={@\", \"value=[@\");\n" +
-				"	  str = str.replace(\")}\", \")]\");\n" +
-				"	  return str;\n" +
-				"  }\n" +
-				"}"
+				"""
+					import java.lang.annotation.Annotation;
+					import java.lang.annotation.Repeatable;
+					import java.lang.annotation.Retention;
+					import static java.lang.annotation.RetentionPolicy.*;
+					
+					@Retention(RUNTIME)
+					@interface AttrContainer {
+					  public Attr[] value();
+					}
+					@Retention(RUNTIME)
+					@Repeatable(AttrContainer.class)
+					@interface Attr {
+					  public int value() default -1;
+					}
+					
+					public class X {
+					  @Attr(1) class Y1 {}
+					  @Attr(1) @Attr(2) class Y2 {}\s
+					  public static void main(String args[]) {
+					  	System.out.print("Y1: " + normalizeAnnotation(Y1.class.getAnnotation(Attr.class)) + "\\n");
+					  	System.out.print("Y2: " + normalizeAnnotation(Y2.class.getAnnotation(Attr.class)) + "\\n");
+					  	System.out.print("Y1: " + normalizeAnnotation(Y1.class.getAnnotation(AttrContainer.class)) + "\\n");
+					  	System.out.print("Y2: " + normalizeAnnotation(Y2.class.getAnnotation(AttrContainer.class)) + "\\n");
+					  }
+					  static String normalizeAnnotation(Annotation a) {
+					 		if (a == null) return null;
+						  String str = a.toString();
+						  str = str.replace("value={@", "value=[@");
+						  str = str.replace(")}", ")]");
+						  return str;
+					  }
+					}"""
 			},
-			normalizeAnnotationString("Y1: @Attr(value=1)\n" +
-			"Y2: null\n" +
-			"Y1: null\n" +
-			"Y2: @AttrContainer(value=[@Attr(value=1), @Attr(value=2)])"));
+			normalizeAnnotationString("""
+				Y1: @Attr(value=1)
+				Y2: null
+				Y1: null
+				Y2: @AttrContainer(value=[@Attr(value=1), @Attr(value=2)])"""));
 
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
@@ -947,28 +1075,29 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.annotation.Repeatable;\n" +
-				"import java.lang.annotation.Retention;\n" +
-				"import static java.lang.annotation.RetentionPolicy.*;\n" +
-				"\n" +
-				"@Retention(RUNTIME)\n" +
-				"@interface AttrContainer {\n" +
-				"  public Attr[] value();\n" +
-				"}\n" +
-				"@Retention(SOURCE)\n" +
-				"@Repeatable(AttrContainer.class)\n" +
-				"@interface Attr {\n" +
-				"  public int value() default -1;\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"  @Attr(1) class Y1 {}\n" +
-				"  @Attr(1) @Attr(2) class Y2 {} \n" +
-				"  public static void main(String args[]) {\n" +
-				"  	System.out.println(\"Y1 has \" + Y1.class.getAnnotationsByType(Attr.class).length);\n" +
-				"  	System.out.println(\"Y2 has \" + Y2.class.getAnnotationsByType(Attr.class).length);\n" +
-				"  }\n" +
-				"}"
+				"""
+					import java.lang.annotation.Repeatable;
+					import java.lang.annotation.Retention;
+					import static java.lang.annotation.RetentionPolicy.*;
+					
+					@Retention(RUNTIME)
+					@interface AttrContainer {
+					  public Attr[] value();
+					}
+					@Retention(SOURCE)
+					@Repeatable(AttrContainer.class)
+					@interface Attr {
+					  public int value() default -1;
+					}
+					
+					public class X {
+					  @Attr(1) class Y1 {}
+					  @Attr(1) @Attr(2) class Y2 {}\s
+					  public static void main(String args[]) {
+					  	System.out.println("Y1 has " + Y1.class.getAnnotationsByType(Attr.class).length);
+					  	System.out.println("Y2 has " + Y2.class.getAnnotationsByType(Attr.class).length);
+					  }
+					}"""
 			},
 			"Y1 has 0\n" +
 			"Y2 has 2");
@@ -979,43 +1108,51 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	public void test039() throws Exception {
 		String[] testFiles = {
 				"repeatable/Main.java",
-				"package repeatable;\n" +
-				"public class Main {\n" +
-				"    public static void main (String[] argv) {\n" +
-				"    };\n" +
-				"}",
+				"""
+					package repeatable;
+					public class Main {
+					    public static void main (String[] argv) {
+					    };
+					}""",
 
 			"repeatable/FooContainer.java",
-			"package repeatable;\n" +
-			"@java.lang.annotation.Target(java.lang.annotation.ElementType.PACKAGE)\n" +
-			"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)\n" +
-			"public @interface FooContainer {\n" +
-			"	Foo[] value();\n" +
-			"}\n",
+			"""
+				package repeatable;
+				@java.lang.annotation.Target(java.lang.annotation.ElementType.PACKAGE)
+				@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+				public @interface FooContainer {
+					Foo[] value();
+				}
+				""",
 
 			"repeatable/Foo.java",
-			"package repeatable;\n" +
-			"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-			"public @interface Foo {}\n",
+			"""
+				package repeatable;
+				@java.lang.annotation.Repeatable(FooContainer.class)
+				public @interface Foo {}
+				""",
 
 			"repeatable/package-info.java",
-			"@Foo @Foo\n" +
-			"package repeatable;\n" +
-			"import repeatable.Foo;",
+			"""
+				@Foo @Foo
+				package repeatable;
+				import repeatable.Foo;""",
 		};
 		runConformTest(testFiles, "");
 		String expectedOutout =
-				"  RuntimeVisibleAnnotations: \n" +
-				"    #8 @repeatable.FooContainer(\n" +
-				"      #9 value=[\n" +
-				"        annotation value =\n" +
-				"            #10 @repeatable.Foo(\n" +
-				"            )\n" +
-				"        annotation value =\n" +
-				"            #10 @repeatable.Foo(\n" +
-				"            )\n" +
-				"        ]\n" +
-				"    )\n";
+				"""
+			  RuntimeVisibleAnnotations:\s
+			    #8 @repeatable.FooContainer(
+			      #9 value=[
+			        annotation value =
+			            #10 @repeatable.Foo(
+			            )
+			        annotation value =
+			            #10 @repeatable.Foo(
+			            )
+			        ]
+			    )
+			""";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "repeatable" + File.separator + "package-info.class", "package-info", expectedOutout, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
@@ -1024,39 +1161,40 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.reflect.Field;\n" +
-				"import java.lang.reflect.Method;\n" +
-				"import java.lang.reflect.Parameter;\n" +
-				"import java.lang.annotation.Repeatable;\n" +
-				"import java.lang.annotation.Retention;\n" +
-				"import static java.lang.annotation.RetentionPolicy.*;\n" +
-				"\n" +
-				"@Retention(RUNTIME)\n" +
-				"@interface AttrContainer {\n" +
-				"  public Attr[] value();\n" +
-				"}\n" +
-				"@Retention(RUNTIME)\n" +
-				"@Repeatable(AttrContainer.class)\n" +
-				"@interface Attr {\n" +
-				"  public int value() default -1;\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"   @Attr(1) @Attr(2) public int field;\n" +
-				"\n" +
-				"   @Attr(3) @Attr(4)\n" +
-				"   public static void main(@Attr(5) @Attr(6) String args[]) throws Exception {\n" +
-				"    Field fieldField = X.class.getField(\"field\");\n" +
-				"    dump(fieldField.getAnnotationsByType(Attr.class));\n" +
-				"    Method mainMethod = X.class.getMethod(\"main\", (new String[0]).getClass());\n" +
-				"    dump(mainMethod.getAnnotationsByType(Attr.class));\n" +
-				"    Parameter argvParameter = mainMethod.getParameters()[0];\n" +
-				"    dump(argvParameter.getAnnotationsByType(Attr.class));\n" +
-				"   }\n" +
-				"   static void dump(Attr[] attrs) {\n" +
-				"    for (int i=0; i<attrs.length;++i) System.out.print(attrs[i] + \" \");\n" +
-				"   }\n" +
-				"}"
+				"""
+					import java.lang.reflect.Field;
+					import java.lang.reflect.Method;
+					import java.lang.reflect.Parameter;
+					import java.lang.annotation.Repeatable;
+					import java.lang.annotation.Retention;
+					import static java.lang.annotation.RetentionPolicy.*;
+					
+					@Retention(RUNTIME)
+					@interface AttrContainer {
+					  public Attr[] value();
+					}
+					@Retention(RUNTIME)
+					@Repeatable(AttrContainer.class)
+					@interface Attr {
+					  public int value() default -1;
+					}
+					
+					public class X {
+					   @Attr(1) @Attr(2) public int field;
+					
+					   @Attr(3) @Attr(4)
+					   public static void main(@Attr(5) @Attr(6) String args[]) throws Exception {
+					    Field fieldField = X.class.getField("field");
+					    dump(fieldField.getAnnotationsByType(Attr.class));
+					    Method mainMethod = X.class.getMethod("main", (new String[0]).getClass());
+					    dump(mainMethod.getAnnotationsByType(Attr.class));
+					    Parameter argvParameter = mainMethod.getParameters()[0];
+					    dump(argvParameter.getAnnotationsByType(Attr.class));
+					   }
+					   static void dump(Attr[] attrs) {
+					    for (int i=0; i<attrs.length;++i) System.out.print(attrs[i] + " ");
+					   }
+					}"""
 			},
 			normalizeAnnotationString(
 					"@Attr(value=1) @Attr(value=2) @Attr(value=3) @Attr(value=4) @Attr(value=5) @Attr(value=6)"));
@@ -1066,84 +1204,87 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.annotation.Annotation;\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Repeatable;\n" +
-				"import java.lang.annotation.Retention;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"import java.lang.reflect.AnnotatedElement;\n" +
-				"import java.lang.reflect.AnnotatedType;\n" +
-				"import java.lang.reflect.Field;\n" +
-				"import java.lang.reflect.Method;\n" +
-				"import java.lang.reflect.Type;\n" +
-				"import java.lang.reflect.TypeVariable;\n" +
-				"\n" +
-				"import static java.lang.annotation.RetentionPolicy.*;\n" +
-				"\n" +
-				"@Retention(RUNTIME)\n" +
-				"@Target({ElementType.TYPE_USE, ElementType.TYPE, ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER,})\n" +
-				"@interface TC {\n" +
-				"  public T[] value();\n" +
-				"}\n" +
-				"@Retention(RUNTIME)\n" +
-				"@Repeatable(TC.class)\n" +
-				"@Target({ElementType.TYPE_USE, ElementType.TYPE, ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.METHOD})\n" +
-				"@interface T {\n" +
-				"  public int value() default -1;\n" +
-				"}\n" +
-				"\n" +
-				"interface I<@T(1) @T(2) K extends @T(3) @T(4) Object & java.lang.@T(5) @T(6) Comparable<?>> {\n" +
-				"}\n" +
-				"\n" +
-				"\n" +
-				"public class X {\n" +
-				"  public static void main(String args[]) {\n" +
-				"	Class<I> ci = I.class;  \n" +
-				"  	printAnnotations(\"I.class\", ci);\n" +
-				"  	TypeVariable<Class<I>>[] typeParameters = ci.getTypeParameters();\n" +
-				"  	for (TypeVariable<?> t: typeParameters) {\n" +
-				"  		printAnnotations(t.getName(), t);\n" +
-				"  		AnnotatedType[] bounds = t.getAnnotatedBounds();\n" +
-				"  		for (AnnotatedType bound : bounds) {\n" +
-				"  			printAnnotations(bound.getType().getTypeName(), bound);\n" +
-				"  		}\n" +
-				"  	}\n" +
-				"  }\n" +
-				"  \n" +
-				"  static void printAnnotations(String name, AnnotatedElement element) {\n" +
-				"	  int [] iterations = { 0, 1 };\n" +
-				"	  for (int i : iterations) {\n" +
-				"		  Class<? extends Annotation> annotation = i == 0 ? T.class : TC.class;\n" +
-				"		  for (int j: iterations) {\n" +
-				"			  Annotation [] annotations = j == 0 ? new Annotation [] { element.getAnnotation(annotation) } : element.getAnnotationsByType(annotation);\n" +
-				"			  if (annotations.length == 0 || (annotations.length == 1 && annotations[0] == null)) continue;\n" +
-				"			  System.out.print(name + (j == 0 ? \".getAnnotation(\" : \".getAnnotationByType(\") + annotation.getName() + \".class): \");\n" +
-				"			  for (Annotation a : annotations) {\n" +
-				"				  System.out.print(normalizeAnnotation(a) + \" \");\n" +
-				"			  }\n" +
-				"			  System.out.print(\"\\n\");\n" +
-				"		  }\n" +
-				"	  }\n" +
-				"  }\n" +
-				"  static String normalizeAnnotation(Annotation a) {\n" +
-				" 		if (a == null) return null;\n" +
-				"	  String str = a.toString();\n" +
-				"	  str = str.replace(\"value={@\", \"value=[@\");\n" +
-				"	  str = str.replace(\")}\", \")]\");\n" +
-				"	  return str;\n" +
-				"  }\n" +
-				"}\n"
+				"""
+					import java.lang.annotation.Annotation;
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Repeatable;
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.Target;
+					import java.lang.reflect.AnnotatedElement;
+					import java.lang.reflect.AnnotatedType;
+					import java.lang.reflect.Field;
+					import java.lang.reflect.Method;
+					import java.lang.reflect.Type;
+					import java.lang.reflect.TypeVariable;
+					
+					import static java.lang.annotation.RetentionPolicy.*;
+					
+					@Retention(RUNTIME)
+					@Target({ElementType.TYPE_USE, ElementType.TYPE, ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER,})
+					@interface TC {
+					  public T[] value();
+					}
+					@Retention(RUNTIME)
+					@Repeatable(TC.class)
+					@Target({ElementType.TYPE_USE, ElementType.TYPE, ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.METHOD})
+					@interface T {
+					  public int value() default -1;
+					}
+					
+					interface I<@T(1) @T(2) K extends @T(3) @T(4) Object & java.lang.@T(5) @T(6) Comparable<?>> {
+					}
+					
+					
+					public class X {
+					  public static void main(String args[]) {
+						Class<I> ci = I.class; \s
+					  	printAnnotations("I.class", ci);
+					  	TypeVariable<Class<I>>[] typeParameters = ci.getTypeParameters();
+					  	for (TypeVariable<?> t: typeParameters) {
+					  		printAnnotations(t.getName(), t);
+					  		AnnotatedType[] bounds = t.getAnnotatedBounds();
+					  		for (AnnotatedType bound : bounds) {
+					  			printAnnotations(bound.getType().getTypeName(), bound);
+					  		}
+					  	}
+					  }
+					 \s
+					  static void printAnnotations(String name, AnnotatedElement element) {
+						  int [] iterations = { 0, 1 };
+						  for (int i : iterations) {
+							  Class<? extends Annotation> annotation = i == 0 ? T.class : TC.class;
+							  for (int j: iterations) {
+								  Annotation [] annotations = j == 0 ? new Annotation [] { element.getAnnotation(annotation) } : element.getAnnotationsByType(annotation);
+								  if (annotations.length == 0 || (annotations.length == 1 && annotations[0] == null)) continue;
+								  System.out.print(name + (j == 0 ? ".getAnnotation(" : ".getAnnotationByType(") + annotation.getName() + ".class): ");
+								  for (Annotation a : annotations) {
+									  System.out.print(normalizeAnnotation(a) + " ");
+								  }
+								  System.out.print("\\n");
+							  }
+						  }
+					  }
+					  static String normalizeAnnotation(Annotation a) {
+					 		if (a == null) return null;
+						  String str = a.toString();
+						  str = str.replace("value={@", "value=[@");
+						  str = str.replace(")}", ")]");
+						  return str;
+					  }
+					}
+					"""
 
 			},
-			normalizeAnnotationString("K.getAnnotationByType(T.class): @T(value=1) @T(value=2) \n" +
-			"K.getAnnotation(TC.class): @TC(value=[@T(value=1), @T(value=2)]) \n" +
-			"K.getAnnotationByType(TC.class): @TC(value=[@T(value=1), @T(value=2)]) \n" +
-			"java.lang.Object.getAnnotationByType(T.class): @T(value=3) @T(value=4) \n" +
-			"java.lang.Object.getAnnotation(TC.class): @TC(value=[@T(value=3), @T(value=4)]) \n" +
-			"java.lang.Object.getAnnotationByType(TC.class): @TC(value=[@T(value=3), @T(value=4)]) \n" +
-			"java.lang.Comparable<?>.getAnnotationByType(T.class): @T(value=5) @T(value=6) \n" +
-			"java.lang.Comparable<?>.getAnnotation(TC.class): @TC(value=[@T(value=5), @T(value=6)]) \n" +
-			"java.lang.Comparable<?>.getAnnotationByType(TC.class): @TC(value=[@T(value=5), @T(value=6)])"),
+			normalizeAnnotationString("""
+				K.getAnnotationByType(T.class): @T(value=1) @T(value=2)\s
+				K.getAnnotation(TC.class): @TC(value=[@T(value=1), @T(value=2)])\s
+				K.getAnnotationByType(TC.class): @TC(value=[@T(value=1), @T(value=2)])\s
+				java.lang.Object.getAnnotationByType(T.class): @T(value=3) @T(value=4)\s
+				java.lang.Object.getAnnotation(TC.class): @TC(value=[@T(value=3), @T(value=4)])\s
+				java.lang.Object.getAnnotationByType(TC.class): @TC(value=[@T(value=3), @T(value=4)])\s
+				java.lang.Comparable<?>.getAnnotationByType(T.class): @T(value=5) @T(value=6)\s
+				java.lang.Comparable<?>.getAnnotation(TC.class): @TC(value=[@T(value=5), @T(value=6)])\s
+				java.lang.Comparable<?>.getAnnotationByType(TC.class): @TC(value=[@T(value=5), @T(value=6)])"""),
 			null,
 			true,
 			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
@@ -1153,188 +1294,191 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.annotation.Annotation;\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Repeatable;\n" +
-				"import java.lang.annotation.Retention;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"import java.lang.reflect.AnnotatedArrayType;\n" +
-				"import java.lang.reflect.AnnotatedElement;\n" +
-				"import java.lang.reflect.AnnotatedParameterizedType;\n" +
-				"import java.lang.reflect.AnnotatedType;\n" +
-				"import java.lang.reflect.Constructor;\n" +
-				"import java.lang.reflect.Field;\n" +
-				"import java.lang.reflect.Method;\n" +
-				"import java.lang.reflect.TypeVariable;\n" +
-				"\n" +
-				"import static java.lang.annotation.RetentionPolicy.*;\n" +
-				"\n" +
-				"@Retention(RUNTIME)\n" +
-				"@Target({ElementType.TYPE_USE, ElementType.TYPE, ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.METHOD})\n" +
-				"@interface TC {\n" +
-				"  public T[] value();\n" +
-				"}\n" +
-				"@Retention(RUNTIME)\n" +
-				"@Repeatable(TC.class)\n" +
-				"@Target({ElementType.TYPE_USE, ElementType.TYPE, ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.METHOD})\n" +
-				"@interface T {\n" +
-				"  public int value() default -1;\n" +
-				"}\n" +
-				"\n" +
-				"interface I {\n" +
-				"}\n" +
-				"\n" +
-				"@T(1) @T(2)\n" +
-				"public class X<@T(3) @T(4) K extends @T(5) @T(6) Object & java.lang.@T(7) @T(8) Comparable<?>, @T(9) @T(10) V> extends @T(11) @T(12) Object implements @T(13) @T(14) I {\n" +
-				"  public @T(15) @T(16) X<@T(17) @T(18) String, @T(19) @T(20) Integer> field;\n" +
-				"  @T(21) @T(22)\n" +
-				"  public <@T(23) @T(24) Q> X @T(25) @T(26) [] method(@T(27) @T(28) X<K, V> this, \n" +
-				"		                                             @T(29) @T(30) X<@T(31) @T(32) String, String> that) throws @T(33) @T(34) NullPointerException {\n" +
-				"	  return null;\n" +
-				"  }\n" +
-				"  @T(35) @T(36)\n" +
-				"  public X() {\n" +
-				"	  \n" +
-				"  }\n" +
-				"  @T(37) @T(48)\n" +
-				"  public class MemberType {\n" +
-				"	  \n" +
-				"  }\n" +
-				"  \n" +
-				"  public static void main(String args[]) {\n" +
-				"	Class<X> xc = X.class;  \n" +
-				"  	printAnnotations(\"Class: \" + \"X.class\", xc);\n" +
-				"  	TypeVariable<Class<X>>[] typeParameters = xc.getTypeParameters();\n" +
-				"  	for (TypeVariable<?> t: typeParameters) {\n" +
-				"  		printAnnotations(\"Type Parameter: \" + t.getName(), t);\n" +
-				"  		AnnotatedType[] bounds = t.getAnnotatedBounds();\n" +
-				"  		for (AnnotatedType bound : bounds) {\n" +
-				"  			printAnnotations(\"Type parameter bound: \" + bound.getType().getTypeName(), bound);\n" +
-				"  		}\n" +
-				"  	}\n" +
-				"  	AnnotatedType annotatedSuperclass = xc.getAnnotatedSuperclass();\n" +
-				"  	printAnnotations(\"Superclass: \" + annotatedSuperclass.getType().getTypeName(), annotatedSuperclass);\n" +
-				"  	\n" +
-				"  	AnnotatedType [] annotatedSuperInterfaces = xc.getAnnotatedInterfaces();\n" +
-				"  	printAnnotations(\"Superinterface: \" + annotatedSuperInterfaces[0].getType().getTypeName(), annotatedSuperInterfaces[0]);\n" +
-				"  	\n" +
-				"  	for (Field field: xc.getFields()) {\n" +
-				"  		printAnnotations(\"Field: \" + field.getName(), field);\n" +
-				"  		AnnotatedParameterizedType fType = (AnnotatedParameterizedType) field.getAnnotatedType();\n" +
-				"  		for (AnnotatedType typeArgumentType : fType.getAnnotatedActualTypeArguments())\n" +
-				"  			printAnnotations(\"Field Type argument: \" + typeArgumentType.getType().getTypeName(), typeArgumentType);\n" +
-				"  			\n" +
-				"  	}\n" +
-				"  	for (Method method: xc.getMethods()) {\n" +
-				"  		switch (method.getName()) {\n" +
-				"  		case \"method\"  :\n" +
-				"  			printAnnotations(method.getName(), method);\n" +
-				"  			AnnotatedArrayType mType = (AnnotatedArrayType) method.getAnnotatedReturnType();\n" +
-				"  			printAnnotations(\"Method return type: \" + mType.getType().getTypeName(), mType);\n" +
-				"  			AnnotatedType mTypeEtype = mType.getAnnotatedGenericComponentType();\n" +
-				"  			printAnnotations(\"Method return type, element type: \" + mTypeEtype.getType().getTypeName(), mTypeEtype);\n" +
-				"  			TypeVariable<Method>[] typeParameters2 = method.getTypeParameters();\n" +
-				"  		  	for (TypeVariable<?> t: typeParameters2) {\n" +
-				"  		  		printAnnotations(\"Method Type Parameter: \" + t.getName(), t);\n" +
-				"  		  	}\n" +
-				"  		  	AnnotatedType annotatedReceiverType = method.getAnnotatedReceiverType();\n" +
-				"  		  	printAnnotations(\"Receiver: \", annotatedReceiverType);\n" +
-				"  		  	AnnotatedType[] annotatedParameterTypes = method.getAnnotatedParameterTypes();\n" +
-				"  		  	for (AnnotatedType annotatedParameterType : annotatedParameterTypes) {\n" +
-				"  		  		printAnnotations(\"Parameter: \", annotatedParameterType);\n" +
-				"  		  	}\n" +
-				"  		  	AnnotatedType[] annotatedExceptionTypes = method.getAnnotatedExceptionTypes();\n" +
-				"  		  	for (AnnotatedType annotatedType : annotatedExceptionTypes) {\n" +
-				"				printAnnotations(\"Exception type: \", annotatedType);\n" +
-				"			}\n" +
-				"  			break;\n" +
-				"  		}\n" +
-				"  	}\n" +
-				"  	for (Constructor<?> constructor : xc.getConstructors()) {\n" +
-				"  		printAnnotations(\"Constructor: \", constructor);\n" +
-				"  	}\n" +
-				"  	// don't know how to get member classes.\n" +
-				"  }\n" +
-				"  \n" +
-				"  static void printAnnotations(String name, AnnotatedElement element) {\n" +
-				"	  int [] iterations = { 0, 1 };\n" +
-				"	  for (int i : iterations) {\n" +
-				"		  Class<? extends Annotation> annotation = i == 0 ? T.class : TC.class;\n" +
-				"		  for (int j: iterations) {\n" +
-				"			  Annotation [] annotations = j == 0 ? new Annotation [] { element.getAnnotation(annotation) } : element.getAnnotationsByType(annotation);\n" +
-				"			  if (annotations.length == 0 || (annotations.length == 1 && annotations[0] == null)) continue;\n" +
-				"			  System.out.print(name + (j == 0 ? \".getAnnotation(\" : \".getAnnotationByType(\") + annotation.getName() + \".class): \");\n" +
-				"			  for (Annotation a : annotations) {\n" +
-				"				  System.out.print(normalizeAnnotation(a) + \" \");\n" +
-				"			  }\n" +
-				"			  System.out.print(\"\\n\");\n" +
-				"		  }\n" +
-				"	  }\n" +
-				"  }\n" +
-				"  static String normalizeAnnotation(Annotation a) {\n" +
-				" 		if (a == null) return null;\n" +
-				"	  String str = a.toString();\n" +
-				"	  str = str.replace(\"value={@\", \"value=[@\");\n" +
-				"	  str = str.replace(\")}\", \")]\");\n" +
-				"	  return str;\n" +
-				"  }\n" +
-				"}\n"
+				"""
+					import java.lang.annotation.Annotation;
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Repeatable;
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.Target;
+					import java.lang.reflect.AnnotatedArrayType;
+					import java.lang.reflect.AnnotatedElement;
+					import java.lang.reflect.AnnotatedParameterizedType;
+					import java.lang.reflect.AnnotatedType;
+					import java.lang.reflect.Constructor;
+					import java.lang.reflect.Field;
+					import java.lang.reflect.Method;
+					import java.lang.reflect.TypeVariable;
+					
+					import static java.lang.annotation.RetentionPolicy.*;
+					
+					@Retention(RUNTIME)
+					@Target({ElementType.TYPE_USE, ElementType.TYPE, ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.METHOD})
+					@interface TC {
+					  public T[] value();
+					}
+					@Retention(RUNTIME)
+					@Repeatable(TC.class)
+					@Target({ElementType.TYPE_USE, ElementType.TYPE, ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.METHOD})
+					@interface T {
+					  public int value() default -1;
+					}
+					
+					interface I {
+					}
+					
+					@T(1) @T(2)
+					public class X<@T(3) @T(4) K extends @T(5) @T(6) Object & java.lang.@T(7) @T(8) Comparable<?>, @T(9) @T(10) V> extends @T(11) @T(12) Object implements @T(13) @T(14) I {
+					  public @T(15) @T(16) X<@T(17) @T(18) String, @T(19) @T(20) Integer> field;
+					  @T(21) @T(22)
+					  public <@T(23) @T(24) Q> X @T(25) @T(26) [] method(@T(27) @T(28) X<K, V> this,\s
+							                                             @T(29) @T(30) X<@T(31) @T(32) String, String> that) throws @T(33) @T(34) NullPointerException {
+						  return null;
+					  }
+					  @T(35) @T(36)
+					  public X() {
+						 \s
+					  }
+					  @T(37) @T(48)
+					  public class MemberType {
+						 \s
+					  }
+					 \s
+					  public static void main(String args[]) {
+						Class<X> xc = X.class; \s
+					  	printAnnotations("Class: " + "X.class", xc);
+					  	TypeVariable<Class<X>>[] typeParameters = xc.getTypeParameters();
+					  	for (TypeVariable<?> t: typeParameters) {
+					  		printAnnotations("Type Parameter: " + t.getName(), t);
+					  		AnnotatedType[] bounds = t.getAnnotatedBounds();
+					  		for (AnnotatedType bound : bounds) {
+					  			printAnnotations("Type parameter bound: " + bound.getType().getTypeName(), bound);
+					  		}
+					  	}
+					  	AnnotatedType annotatedSuperclass = xc.getAnnotatedSuperclass();
+					  	printAnnotations("Superclass: " + annotatedSuperclass.getType().getTypeName(), annotatedSuperclass);
+					  \t
+					  	AnnotatedType [] annotatedSuperInterfaces = xc.getAnnotatedInterfaces();
+					  	printAnnotations("Superinterface: " + annotatedSuperInterfaces[0].getType().getTypeName(), annotatedSuperInterfaces[0]);
+					  \t
+					  	for (Field field: xc.getFields()) {
+					  		printAnnotations("Field: " + field.getName(), field);
+					  		AnnotatedParameterizedType fType = (AnnotatedParameterizedType) field.getAnnotatedType();
+					  		for (AnnotatedType typeArgumentType : fType.getAnnotatedActualTypeArguments())
+					  			printAnnotations("Field Type argument: " + typeArgumentType.getType().getTypeName(), typeArgumentType);
+					  		\t
+					  	}
+					  	for (Method method: xc.getMethods()) {
+					  		switch (method.getName()) {
+					  		case "method"  :
+					  			printAnnotations(method.getName(), method);
+					  			AnnotatedArrayType mType = (AnnotatedArrayType) method.getAnnotatedReturnType();
+					  			printAnnotations("Method return type: " + mType.getType().getTypeName(), mType);
+					  			AnnotatedType mTypeEtype = mType.getAnnotatedGenericComponentType();
+					  			printAnnotations("Method return type, element type: " + mTypeEtype.getType().getTypeName(), mTypeEtype);
+					  			TypeVariable<Method>[] typeParameters2 = method.getTypeParameters();
+					  		  	for (TypeVariable<?> t: typeParameters2) {
+					  		  		printAnnotations("Method Type Parameter: " + t.getName(), t);
+					  		  	}
+					  		  	AnnotatedType annotatedReceiverType = method.getAnnotatedReceiverType();
+					  		  	printAnnotations("Receiver: ", annotatedReceiverType);
+					  		  	AnnotatedType[] annotatedParameterTypes = method.getAnnotatedParameterTypes();
+					  		  	for (AnnotatedType annotatedParameterType : annotatedParameterTypes) {
+					  		  		printAnnotations("Parameter: ", annotatedParameterType);
+					  		  	}
+					  		  	AnnotatedType[] annotatedExceptionTypes = method.getAnnotatedExceptionTypes();
+					  		  	for (AnnotatedType annotatedType : annotatedExceptionTypes) {
+									printAnnotations("Exception type: ", annotatedType);
+								}
+					  			break;
+					  		}
+					  	}
+					  	for (Constructor<?> constructor : xc.getConstructors()) {
+					  		printAnnotations("Constructor: ", constructor);
+					  	}
+					  	// don't know how to get member classes.
+					  }
+					 \s
+					  static void printAnnotations(String name, AnnotatedElement element) {
+						  int [] iterations = { 0, 1 };
+						  for (int i : iterations) {
+							  Class<? extends Annotation> annotation = i == 0 ? T.class : TC.class;
+							  for (int j: iterations) {
+								  Annotation [] annotations = j == 0 ? new Annotation [] { element.getAnnotation(annotation) } : element.getAnnotationsByType(annotation);
+								  if (annotations.length == 0 || (annotations.length == 1 && annotations[0] == null)) continue;
+								  System.out.print(name + (j == 0 ? ".getAnnotation(" : ".getAnnotationByType(") + annotation.getName() + ".class): ");
+								  for (Annotation a : annotations) {
+									  System.out.print(normalizeAnnotation(a) + " ");
+								  }
+								  System.out.print("\\n");
+							  }
+						  }
+					  }
+					  static String normalizeAnnotation(Annotation a) {
+					 		if (a == null) return null;
+						  String str = a.toString();
+						  str = str.replace("value={@", "value=[@");
+						  str = str.replace(")}", ")]");
+						  return str;
+					  }
+					}
+					"""
 
 			},
-			normalizeAnnotationString("Class: X.class.getAnnotationByType(T.class): @T(value=1) @T(value=2) \n" +
-			"Class: X.class.getAnnotation(TC.class): @TC(value=[@T(value=1), @T(value=2)]) \n" +
-			"Class: X.class.getAnnotationByType(TC.class): @TC(value=[@T(value=1), @T(value=2)]) \n" +
-			"Type Parameter: K.getAnnotationByType(T.class): @T(value=3) @T(value=4) \n" +
-			"Type Parameter: K.getAnnotation(TC.class): @TC(value=[@T(value=3), @T(value=4)]) \n" +
-			"Type Parameter: K.getAnnotationByType(TC.class): @TC(value=[@T(value=3), @T(value=4)]) \n" +
-			"Type parameter bound: java.lang.Object.getAnnotationByType(T.class): @T(value=5) @T(value=6) \n" +
-			"Type parameter bound: java.lang.Object.getAnnotation(TC.class): @TC(value=[@T(value=5), @T(value=6)]) \n" +
-			"Type parameter bound: java.lang.Object.getAnnotationByType(TC.class): @TC(value=[@T(value=5), @T(value=6)]) \n" +
-			"Type parameter bound: java.lang.Comparable<?>.getAnnotationByType(T.class): @T(value=7) @T(value=8) \n" +
-			"Type parameter bound: java.lang.Comparable<?>.getAnnotation(TC.class): @TC(value=[@T(value=7), @T(value=8)]) \n" +
-			"Type parameter bound: java.lang.Comparable<?>.getAnnotationByType(TC.class): @TC(value=[@T(value=7), @T(value=8)]) \n" +
-			"Type Parameter: V.getAnnotationByType(T.class): @T(value=9) @T(value=10) \n" +
-			"Type Parameter: V.getAnnotation(TC.class): @TC(value=[@T(value=9), @T(value=10)]) \n" +
-			"Type Parameter: V.getAnnotationByType(TC.class): @TC(value=[@T(value=9), @T(value=10)]) \n" +
-			"Superclass: java.lang.Object.getAnnotationByType(T.class): @T(value=11) @T(value=12) \n" +
-			"Superclass: java.lang.Object.getAnnotation(TC.class): @TC(value=[@T(value=11), @T(value=12)]) \n" +
-			"Superclass: java.lang.Object.getAnnotationByType(TC.class): @TC(value=[@T(value=11), @T(value=12)]) \n" +
-			"Superinterface: I.getAnnotationByType(T.class): @T(value=13) @T(value=14) \n" +
-			"Superinterface: I.getAnnotation(TC.class): @TC(value=[@T(value=13), @T(value=14)]) \n" +
-			"Superinterface: I.getAnnotationByType(TC.class): @TC(value=[@T(value=13), @T(value=14)]) \n" +
-			"Field: field.getAnnotationByType(T.class): @T(value=15) @T(value=16) \n" +
-			"Field: field.getAnnotation(TC.class): @TC(value=[@T(value=15), @T(value=16)]) \n" +
-			"Field: field.getAnnotationByType(TC.class): @TC(value=[@T(value=15), @T(value=16)]) \n" +
-			"Field Type argument: java.lang.String.getAnnotationByType(T.class): @T(value=17) @T(value=18) \n" +
-			"Field Type argument: java.lang.String.getAnnotation(TC.class): @TC(value=[@T(value=17), @T(value=18)]) \n" +
-			"Field Type argument: java.lang.String.getAnnotationByType(TC.class): @TC(value=[@T(value=17), @T(value=18)]) \n" +
-			"Field Type argument: java.lang.Integer.getAnnotationByType(T.class): @T(value=19) @T(value=20) \n" +
-			"Field Type argument: java.lang.Integer.getAnnotation(TC.class): @TC(value=[@T(value=19), @T(value=20)]) \n" +
-			"Field Type argument: java.lang.Integer.getAnnotationByType(TC.class): @TC(value=[@T(value=19), @T(value=20)]) \n" +
-			"method.getAnnotationByType(T.class): @T(value=21) @T(value=22) \n" +
-			"method.getAnnotation(TC.class): @TC(value=[@T(value=21), @T(value=22)]) \n" +
-			"method.getAnnotationByType(TC.class): @TC(value=[@T(value=21), @T(value=22)]) \n" +
-			"Method return type: X[].getAnnotationByType(T.class): @T(value=25) @T(value=26) \n" +
-			"Method return type: X[].getAnnotation(TC.class): @TC(value=[@T(value=25), @T(value=26)]) \n" +
-			"Method return type: X[].getAnnotationByType(TC.class): @TC(value=[@T(value=25), @T(value=26)]) \n" +
-			"Method return type, element type: X.getAnnotationByType(T.class): @T(value=21) @T(value=22) \n" +
-			"Method return type, element type: X.getAnnotation(TC.class): @TC(value=[@T(value=21), @T(value=22)]) \n" +
-			"Method return type, element type: X.getAnnotationByType(TC.class): @TC(value=[@T(value=21), @T(value=22)]) \n" +
-			"Method Type Parameter: Q.getAnnotationByType(T.class): @T(value=23) @T(value=24) \n" +
-			"Method Type Parameter: Q.getAnnotation(TC.class): @TC(value=[@T(value=23), @T(value=24)]) \n" +
-			"Method Type Parameter: Q.getAnnotationByType(TC.class): @TC(value=[@T(value=23), @T(value=24)]) \n" +
-			"Receiver: .getAnnotationByType(T.class): @T(value=27) @T(value=28) \n" +
-			"Receiver: .getAnnotation(TC.class): @TC(value=[@T(value=27), @T(value=28)]) \n" +
-			"Receiver: .getAnnotationByType(TC.class): @TC(value=[@T(value=27), @T(value=28)]) \n" +
-			"Parameter: .getAnnotationByType(T.class): @T(value=29) @T(value=30) \n" +
-			"Parameter: .getAnnotation(TC.class): @TC(value=[@T(value=29), @T(value=30)]) \n" +
-			"Parameter: .getAnnotationByType(TC.class): @TC(value=[@T(value=29), @T(value=30)]) \n" +
-			"Exception type: .getAnnotationByType(T.class): @T(value=33) @T(value=34) \n" +
-			"Exception type: .getAnnotation(TC.class): @TC(value=[@T(value=33), @T(value=34)]) \n" +
-			"Exception type: .getAnnotationByType(TC.class): @TC(value=[@T(value=33), @T(value=34)]) \n" +
-			"Constructor: .getAnnotationByType(T.class): @T(value=35) @T(value=36) \n" +
-			"Constructor: .getAnnotation(TC.class): @TC(value=[@T(value=35), @T(value=36)]) \n" +
-			"Constructor: .getAnnotationByType(TC.class): @TC(value=[@T(value=35), @T(value=36)])"),
+			normalizeAnnotationString("""
+				Class: X.class.getAnnotationByType(T.class): @T(value=1) @T(value=2)\s
+				Class: X.class.getAnnotation(TC.class): @TC(value=[@T(value=1), @T(value=2)])\s
+				Class: X.class.getAnnotationByType(TC.class): @TC(value=[@T(value=1), @T(value=2)])\s
+				Type Parameter: K.getAnnotationByType(T.class): @T(value=3) @T(value=4)\s
+				Type Parameter: K.getAnnotation(TC.class): @TC(value=[@T(value=3), @T(value=4)])\s
+				Type Parameter: K.getAnnotationByType(TC.class): @TC(value=[@T(value=3), @T(value=4)])\s
+				Type parameter bound: java.lang.Object.getAnnotationByType(T.class): @T(value=5) @T(value=6)\s
+				Type parameter bound: java.lang.Object.getAnnotation(TC.class): @TC(value=[@T(value=5), @T(value=6)])\s
+				Type parameter bound: java.lang.Object.getAnnotationByType(TC.class): @TC(value=[@T(value=5), @T(value=6)])\s
+				Type parameter bound: java.lang.Comparable<?>.getAnnotationByType(T.class): @T(value=7) @T(value=8)\s
+				Type parameter bound: java.lang.Comparable<?>.getAnnotation(TC.class): @TC(value=[@T(value=7), @T(value=8)])\s
+				Type parameter bound: java.lang.Comparable<?>.getAnnotationByType(TC.class): @TC(value=[@T(value=7), @T(value=8)])\s
+				Type Parameter: V.getAnnotationByType(T.class): @T(value=9) @T(value=10)\s
+				Type Parameter: V.getAnnotation(TC.class): @TC(value=[@T(value=9), @T(value=10)])\s
+				Type Parameter: V.getAnnotationByType(TC.class): @TC(value=[@T(value=9), @T(value=10)])\s
+				Superclass: java.lang.Object.getAnnotationByType(T.class): @T(value=11) @T(value=12)\s
+				Superclass: java.lang.Object.getAnnotation(TC.class): @TC(value=[@T(value=11), @T(value=12)])\s
+				Superclass: java.lang.Object.getAnnotationByType(TC.class): @TC(value=[@T(value=11), @T(value=12)])\s
+				Superinterface: I.getAnnotationByType(T.class): @T(value=13) @T(value=14)\s
+				Superinterface: I.getAnnotation(TC.class): @TC(value=[@T(value=13), @T(value=14)])\s
+				Superinterface: I.getAnnotationByType(TC.class): @TC(value=[@T(value=13), @T(value=14)])\s
+				Field: field.getAnnotationByType(T.class): @T(value=15) @T(value=16)\s
+				Field: field.getAnnotation(TC.class): @TC(value=[@T(value=15), @T(value=16)])\s
+				Field: field.getAnnotationByType(TC.class): @TC(value=[@T(value=15), @T(value=16)])\s
+				Field Type argument: java.lang.String.getAnnotationByType(T.class): @T(value=17) @T(value=18)\s
+				Field Type argument: java.lang.String.getAnnotation(TC.class): @TC(value=[@T(value=17), @T(value=18)])\s
+				Field Type argument: java.lang.String.getAnnotationByType(TC.class): @TC(value=[@T(value=17), @T(value=18)])\s
+				Field Type argument: java.lang.Integer.getAnnotationByType(T.class): @T(value=19) @T(value=20)\s
+				Field Type argument: java.lang.Integer.getAnnotation(TC.class): @TC(value=[@T(value=19), @T(value=20)])\s
+				Field Type argument: java.lang.Integer.getAnnotationByType(TC.class): @TC(value=[@T(value=19), @T(value=20)])\s
+				method.getAnnotationByType(T.class): @T(value=21) @T(value=22)\s
+				method.getAnnotation(TC.class): @TC(value=[@T(value=21), @T(value=22)])\s
+				method.getAnnotationByType(TC.class): @TC(value=[@T(value=21), @T(value=22)])\s
+				Method return type: X[].getAnnotationByType(T.class): @T(value=25) @T(value=26)\s
+				Method return type: X[].getAnnotation(TC.class): @TC(value=[@T(value=25), @T(value=26)])\s
+				Method return type: X[].getAnnotationByType(TC.class): @TC(value=[@T(value=25), @T(value=26)])\s
+				Method return type, element type: X.getAnnotationByType(T.class): @T(value=21) @T(value=22)\s
+				Method return type, element type: X.getAnnotation(TC.class): @TC(value=[@T(value=21), @T(value=22)])\s
+				Method return type, element type: X.getAnnotationByType(TC.class): @TC(value=[@T(value=21), @T(value=22)])\s
+				Method Type Parameter: Q.getAnnotationByType(T.class): @T(value=23) @T(value=24)\s
+				Method Type Parameter: Q.getAnnotation(TC.class): @TC(value=[@T(value=23), @T(value=24)])\s
+				Method Type Parameter: Q.getAnnotationByType(TC.class): @TC(value=[@T(value=23), @T(value=24)])\s
+				Receiver: .getAnnotationByType(T.class): @T(value=27) @T(value=28)\s
+				Receiver: .getAnnotation(TC.class): @TC(value=[@T(value=27), @T(value=28)])\s
+				Receiver: .getAnnotationByType(TC.class): @TC(value=[@T(value=27), @T(value=28)])\s
+				Parameter: .getAnnotationByType(T.class): @T(value=29) @T(value=30)\s
+				Parameter: .getAnnotation(TC.class): @TC(value=[@T(value=29), @T(value=30)])\s
+				Parameter: .getAnnotationByType(TC.class): @TC(value=[@T(value=29), @T(value=30)])\s
+				Exception type: .getAnnotationByType(T.class): @T(value=33) @T(value=34)\s
+				Exception type: .getAnnotation(TC.class): @TC(value=[@T(value=33), @T(value=34)])\s
+				Exception type: .getAnnotationByType(TC.class): @TC(value=[@T(value=33), @T(value=34)])\s
+				Constructor: .getAnnotationByType(T.class): @T(value=35) @T(value=36)\s
+				Constructor: .getAnnotation(TC.class): @TC(value=[@T(value=35), @T(value=36)])\s
+				Constructor: .getAnnotationByType(TC.class): @TC(value=[@T(value=35), @T(value=36)])"""),
 			null,
 			true,
 			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
@@ -1345,50 +1489,58 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.lang.annotation.Repeatable;\n" +
-				"@Repeatable(X.class)\n" +
-				"@interface T {\n" +
-				"  public int value() default -1;\n" +
-				"}\n" +
-				"public class X {\n" +
-				"}\n"
+				"""
+					import java.lang.annotation.Repeatable;
+					@Repeatable(X.class)
+					@interface T {
+					  public int value() default -1;
+					}
+					public class X {
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	@Repeatable(X.class)\n" +
-			"	            ^^^^^^^\n" +
-			"Type mismatch: cannot convert from Class<X> to Class<? extends Annotation>\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 2)
+					@Repeatable(X.class)
+					            ^^^^^^^
+				Type mismatch: cannot convert from Class<X> to Class<? extends Annotation>
+				----------
+				""");
 	}
 	// Test unspecified target.
 	public void testUnspecifiedTarget() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.lang.annotation.ElementType;\n" +
-				"import java.lang.annotation.Repeatable;\n" +
-				"import java.lang.annotation.Target;\n" +
-				"\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"@interface TC {\n" +
-				"	T [] value();\n" +
-				"}\n" +
-				"\n" +
-				"@Repeatable(TC.class)\n" +
-				"@interface T {\n" +
-				"}\n" +
-				"\n" +
-				"@T @T\n" +
-				"public class X { \n" +
-				"	X f;\n" +
-				"}\n"
+				"""
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Repeatable;
+					import java.lang.annotation.Target;
+					
+					@Target(ElementType.TYPE_USE)
+					@interface TC {
+						T [] value();
+					}
+					
+					@Repeatable(TC.class)
+					@interface T {
+					}
+					
+					@T @T
+					public class X {\s
+						X f;
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 10)\n" +
-			"	@Repeatable(TC.class)\n" +
-			"	            ^^^^^^^^\n" +
-			"The container annotation type @TC is allowed at targets where the repeatable annotation type @T is not: TYPE_USE\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 10)
+					@Repeatable(TC.class)
+					            ^^^^^^^^
+				The container annotation type @TC is allowed at targets where the repeatable annotation type @T is not: TYPE_USE
+				----------
+				""");
 	}
 	// Test unspecified target.
 	public void testUnspecifiedTarget2() {
@@ -1413,61 +1565,73 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"	X f;\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 14)\n" +
-			"	@T @T\n" +
-			"	^^\n" +
-			"The annotation @T cannot be repeated at this location since its container annotation type @TC is disallowed at this location\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 14)
+					@T @T
+					^^
+				The annotation @T cannot be repeated at this location since its container annotation type @TC is disallowed at this location
+				----------
+				""");
 	}
 	public void testDeprecation() {
 		this.runNegativeTest(
 			new String[] {
 				"TC.java",
-				"@Deprecated\n" +
-				"public @interface TC {\n" +
-				"  public T[] value();\n" +
-				"}\n",
+				"""
+					@Deprecated
+					public @interface TC {
+					  public T[] value();
+					}
+					""",
 				"T.java",
-				"@java.lang.annotation.Repeatable(TC.class)\n" +
-				"@interface T {\n" +
-				"  public int value() default -1;\n" +
-				"}\n" +
-				"interface I<@T(1) @T(2) K> {\n" +
-				"}\n"
+				"""
+					@java.lang.annotation.Repeatable(TC.class)
+					@interface T {
+					  public int value() default -1;
+					}
+					interface I<@T(1) @T(2) K> {
+					}
+					"""
 			},
-			"----------\n" +
-			"1. WARNING in T.java (at line 1)\n" +
-			"	@java.lang.annotation.Repeatable(TC.class)\n" +
-			"	                                 ^^\n" +
-			"The type TC is deprecated\n" +
-			"----------\n" +
-			"2. WARNING in T.java (at line 5)\n" +
-			"	interface I<@T(1) @T(2) K> {\n" +
-			"	            ^^\n" +
-			"The type TC is deprecated\n");
+			"""
+				----------
+				1. WARNING in T.java (at line 1)
+					@java.lang.annotation.Repeatable(TC.class)
+					                                 ^^
+				The type TC is deprecated
+				----------
+				2. WARNING in T.java (at line 5)
+					interface I<@T(1) @T(2) K> {
+					            ^^
+				The type TC is deprecated
+				""");
 	}
 	public void testDeprecation2() { // verify that deprecation warning does not show up when the deprecated element is used in the same file defining it.
 		this.runNegativeTest(
 			new String[] {
 				"T.java",
-				"@Deprecated\n" +
-				"@interface TC {\n" +
-				"  public T[] value();\n" +
-				"}\n" +
-				"@java.lang.annotation.Repeatable(TC.class)\n" +
-				"@interface T {\n" +
-				"  public int value() default -1;\n" +
-				"}\n" +
-				"interface I extends @T(1) Runnable {\n" +
-				"}\n"
+				"""
+					@Deprecated
+					@interface TC {
+					  public T[] value();
+					}
+					@java.lang.annotation.Repeatable(TC.class)
+					@interface T {
+					  public int value() default -1;
+					}
+					interface I extends @T(1) Runnable {
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in T.java (at line 9)\n" +
-			"	interface I extends @T(1) Runnable {\n" +
-			"	                    ^^\n" +
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in T.java (at line 9)
+					interface I extends @T(1) Runnable {
+					                    ^^
+				Annotation types that do not specify explicit target element types cannot be applied here
+				----------
+				""");
 	}
 
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
@@ -1477,25 +1641,29 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"A.java",
-				"@interface FooContainerContainer {\n" +
-				"  public FooContainer[] value();\n" +
-				"}\n" +
-				"@java.lang.annotation.Repeatable(FooContainerContainer.class)\n" +
-				"@interface FooContainer {\n" +
-				"  public Foo[] value();\n" +
-				"}\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@interface Foo {\n" +
-				"  public int value() default -1;\n" +
-				"}\n" +
-				"@FooContainer({@Foo(1)}) @FooContainer({@Foo(2)}) @Foo(3) class A {}\n"
+				"""
+					@interface FooContainerContainer {
+					  public FooContainer[] value();
+					}
+					@java.lang.annotation.Repeatable(FooContainerContainer.class)
+					@interface FooContainer {
+					  public Foo[] value();
+					}
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@interface Foo {
+					  public int value() default -1;
+					}
+					@FooContainer({@Foo(1)}) @FooContainer({@Foo(2)}) @Foo(3) class A {}
+					"""
 			},
-			"----------\n" +
-			"1. WARNING in A.java (at line 12)\n" +
-			"	@FooContainer({@Foo(1)}) @FooContainer({@Foo(2)}) @Foo(3) class A {}\n" +
-			"	                                                  ^^^^\n" +
-			"The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in A.java (at line 12)
+					@FooContainer({@Foo(1)}) @FooContainer({@Foo(2)}) @Foo(3) class A {}
+					                                                  ^^^^
+				The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated
+				----------
+				""");
 	}
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
 	public void testRepeatableWithContaining2() {
@@ -1504,25 +1672,29 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"A.java",
-				"@interface FooContainerContainer {\n" +
-				"  public FooContainer[] value();\n" +
-				"}\n" +
-				"@java.lang.annotation.Repeatable(FooContainerContainer.class)\n" +
-				"@interface FooContainer {\n" +
-				"  public Foo[] value();\n" +
-				"}\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@interface Foo {\n" +
-				"  public int value() default -1;\n" +
-				"}\n" +
-				"@Foo(1) @FooContainer({@Foo(2)}) @FooContainer({@Foo(3)}) class A {}\n"
+				"""
+					@interface FooContainerContainer {
+					  public FooContainer[] value();
+					}
+					@java.lang.annotation.Repeatable(FooContainerContainer.class)
+					@interface FooContainer {
+					  public Foo[] value();
+					}
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@interface Foo {
+					  public int value() default -1;
+					}
+					@Foo(1) @FooContainer({@Foo(2)}) @FooContainer({@Foo(3)}) class A {}
+					"""
 			},
-			"----------\n" +
-			"1. WARNING in A.java (at line 12)\n" +
-			"	@Foo(1) @FooContainer({@Foo(2)}) @FooContainer({@Foo(3)}) class A {}\n" +
-			"	^^^^\n" +
-			"The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in A.java (at line 12)
+					@Foo(1) @FooContainer({@Foo(2)}) @FooContainer({@Foo(3)}) class A {}
+					^^^^
+				The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated
+				----------
+				""");
 	}
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
 	public void testRepeatableWithContaining3() {
@@ -1531,34 +1703,40 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"A.java",
-				"@interface FooContainerContainer {\n" +
-				"  public FooContainer[] value();\n" +
-				"}\n" +
-				"@java.lang.annotation.Repeatable(FooContainerContainer.class)\n" +
-				"@interface FooContainer {\n" +
-				"  public Foo[] value();\n" +
-				"}\n" +
-				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
-				"@interface Foo {\n" +
-				"  public int value() default -1;\n" +
-				"}\n" +
-				"@FooContainer({@Foo(2)}) @Foo(1) @FooContainer({@Foo(3)}) class A {}\n"
+				"""
+					@interface FooContainerContainer {
+					  public FooContainer[] value();
+					}
+					@java.lang.annotation.Repeatable(FooContainerContainer.class)
+					@interface FooContainer {
+					  public Foo[] value();
+					}
+					@java.lang.annotation.Repeatable(FooContainer.class)
+					@interface Foo {
+					  public int value() default -1;
+					}
+					@FooContainer({@Foo(2)}) @Foo(1) @FooContainer({@Foo(3)}) class A {}
+					"""
 			},
-			"----------\n" +
-			"1. WARNING in A.java (at line 12)\n" +
-			"	@FooContainer({@Foo(2)}) @Foo(1) @FooContainer({@Foo(3)}) class A {}\n" +
-			"	                         ^^^^\n" +
-			"The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in A.java (at line 12)
+					@FooContainer({@Foo(2)}) @Foo(1) @FooContainer({@Foo(3)}) class A {}
+					                         ^^^^
+				The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated
+				----------
+				""");
 	}
 	// check repeated occurrence of annotation where annotation container is not valid for the target
 	public void testRepeatingAnnotationsWithoutTarget() {
 		this.runNegativeTest(
 			new String[] {
 				"FooContainer.java",
-				"public @interface FooContainer {\n" +
-				"	Foo[] value();\n" +
-				"}\n",
+				"""
+					public @interface FooContainer {
+						Foo[] value();
+					}
+					""",
 				"Foo.java",
 				"@java.lang.annotation.Repeatable(FooContainer.class) public @interface Foo {\n" +
 				"}\n",
@@ -1566,21 +1744,23 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"public class X<@Foo @Foo T> extends @Foo @Foo Object {\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public class X<@Foo @Foo T> extends @Foo @Foo Object {\n" +
-			"	                                    ^^^^\n" +
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	public class X<@Foo @Foo T> extends @Foo @Foo Object {\n" +
-			"	                                    ^^^^\n" +
-			"The annotation @Foo cannot be repeated at this location since its container annotation type @FooContainer is disallowed at this location\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 1)\n" +
-			"	public class X<@Foo @Foo T> extends @Foo @Foo Object {\n" +
-			"	                                         ^^^^\n" +
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 1)
+					public class X<@Foo @Foo T> extends @Foo @Foo Object {
+					                                    ^^^^
+				Annotation types that do not specify explicit target element types cannot be applied here
+				----------
+				2. ERROR in X.java (at line 1)
+					public class X<@Foo @Foo T> extends @Foo @Foo Object {
+					                                    ^^^^
+				The annotation @Foo cannot be repeated at this location since its container annotation type @FooContainer is disallowed at this location
+				----------
+				3. ERROR in X.java (at line 1)
+					public class X<@Foo @Foo T> extends @Foo @Foo Object {
+					                                         ^^^^
+				Annotation types that do not specify explicit target element types cannot be applied here
+				----------
+				""");
 	}
 }

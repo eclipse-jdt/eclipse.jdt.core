@@ -72,23 +72,24 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo(int i) {\n");
-		buf.append("        switch (i) {\n");
-		buf.append("        }\n");
-		buf.append("        switch (i) {\n");
-		buf.append("            case 1, 2 ->\n");
-		buf.append("                i= 1;\n");
-		buf.append("            case 3 -> \n");
-		buf.append("                i= 3;\n");
-		buf.append("            default -> \n");
-		buf.append("                i= 4;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    public void foo(int i) {
+			        switch (i) {
+			        }
+			        switch (i) {
+			            case 1, 2 ->
+			                i= 1;
+			            case 3 ->\s
+			                i= 3;
+			            default ->\s
+			                i= 4;
+			        }
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -154,23 +155,24 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo(int i) {\n");
-		buf.append("        switch (x) {\n");
-		buf.append("            case 1, 2 -> return;\n");
-		buf.append("            default ->\n");
-		buf.append("        }\n");
-		buf.append("        switch (i) {\n");
-		buf.append("            case 10, 3, 12 -> \n");
-		buf.append("                i= 3;\n");
-		buf.append("            default -> \n");
-		buf.append("                i= 4;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			    public void foo(int i) {
+			        switch (x) {
+			            case 1, 2 -> return;
+			            default ->
+			        }
+			        switch (i) {
+			            case 10, 3, 12 ->\s
+			                i= 3;
+			            default ->\s
+			                i= 4;
+			        }
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_02_since_12() throws Exception {
@@ -178,18 +180,19 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo(int i) {\n");
-		buf.append("        switch (i) {\n");
-		buf.append("            case 1, 2 -> i= 1;\n");
-		buf.append("            case 3 -> i= 3;\n");
-		buf.append("            default -> i= 4;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    public void foo(int i) {
+			        switch (i) {
+			            case 1, 2 -> i= 1;
+			            case 3 -> i= 3;
+			            default -> i= 4;
+			        }
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -219,19 +222,20 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo(int i) {\n");
-		buf.append("        switch (i) {\n");
-		buf.append("            case 1, 2 -> i= 1;\n");
-		buf.append("            case 3 -> i= 3;\n");
-		buf.append("            case 1024 -> yield 2048;\n");
-		buf.append("            default -> i= 4;\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			    public void foo(int i) {
+			        switch (i) {
+			            case 1, 2 -> i= 1;
+			            case 3 -> i= 3;
+			            case 1024 -> yield 2048;
+			            default -> i= 4;
+			        }
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -241,25 +245,27 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
-				"package test1;\n"+
-				"public class X {\n"+
-				"	static int foo(int i) {\n"+
-				"		int tw = \n"+
-				"		switch (i) {\n"+
-				"			case 1 -> {\n"+
-				" 				int z = 100;\n"+
-				" 				yield z;\n"+
-				"			}\n"+
-				"			default -> {\n"+
-				"				yield 12;\n"+
-				"			}\n"+
-				"		};\n"+
-				"		return tw;\n"+
-				"	}\n"+
-				"	public static void main(String[] args) {\n"+
-				"		System.out.print(foo(1));\n"+
-				"	}\n"+
-				"}\n";
+				"""
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw =\s
+					switch (i) {
+						case 1 -> {
+			 				int z = 100;
+			 				yield z;
+						}
+						default -> {
+							yield 12;
+						}
+					};
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
 		StringBuilder buf = new StringBuilder(s);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
@@ -299,30 +305,31 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("	static int foo(int i) {\n");
-		buf.append("		int tw = \n");
-		buf.append("		switch (i) {\n");
-		buf.append("			case 1 -> {\n");
-		buf.append(" 				int z = 100;\n");
-		buf.append(" 				yield z;\n");
-		buf.append("			}\n");
-		buf.append("			case 100, 200 -> {\n");
-		buf.append("    yield 2048;\n");
-		buf.append("}\n");
-		buf.append("            default -> {\n");
-		buf.append("				yield 12;\n");
-		buf.append("			}\n");
-		buf.append("		};\n");
-		buf.append("		return tw;\n");
-		buf.append("	}\n");
-		buf.append("	public static void main(String[] args) {\n");
-		buf.append("		System.out.print(foo(1));\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str = """
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw =\s
+					switch (i) {
+						case 1 -> {
+			 				int z = 100;
+			 				yield z;
+						}
+						case 100, 200 -> {
+			    yield 2048;
+			}
+			            default -> {
+							yield 12;
+						}
+					};
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
+		assertEqualString(preview, str);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -332,25 +339,27 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
-				"package test1;\n"+
-				"public class X {\n"+
-				"	static int foo(int i) {\n"+
-				"		int tw = 0;\n"+
-				"		switch (i) {\n"+
-				"			case 1 : {\n"+
-				" 				int z = 100;\n"+
-				" 				break;\n"+
-				"			}\n"+
-				"			default : {\n"+
-				"				break;\n"+
-				"			}\n"+
-				"		}\n"+
-				"		return tw;\n"+
-				"	}\n"+
-				"	public static void main(String[] args) {\n"+
-				"		System.out.print(foo(1));\n"+
-				"	}\n"+
-				"}\n";
+				"""
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw = 0;
+					switch (i) {
+						case 1 : {
+			 				int z = 100;
+			 				break;
+						}
+						default : {
+							break;
+						}
+					}
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
 		StringBuilder buf = new StringBuilder(s);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
@@ -383,31 +392,32 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("	static int foo(int i) {\n");
-		buf.append("		int tw = 0;\n");
-		buf.append("		switch (i) {\n");
-		buf.append("			case 1 : {\n");
-		buf.append(" 				int z = 100;\n");
-		buf.append(" 				break;\n");
-		buf.append("			}\n");
-		buf.append("			case 100:\n");
-		buf.append("                {\n");
-		buf.append("                    break;\n");
-		buf.append("                }\n");
-		buf.append("            default : {\n");
-		buf.append("				break;\n");
-		buf.append("			}\n");
-		buf.append("		}\n");
-		buf.append("		return tw;\n");
-		buf.append("	}\n");
-		buf.append("	public static void main(String[] args) {\n");
-		buf.append("		System.out.print(foo(1));\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str = """
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw = 0;
+					switch (i) {
+						case 1 : {
+			 				int z = 100;
+			 				break;
+						}
+						case 100:
+			                {
+			                    break;
+			                }
+			            default : {
+							break;
+						}
+					}
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
+		assertEqualString(preview, str);
 	}
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_04_since_12() throws Exception {
@@ -415,26 +425,28 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		String s	= "package test1;\n"+
-				"public class X {\n"+
-				"	static int foo(int i) {\n"+
-				"		int tw =\n"+
-				"		switch (i) {\n"+
-				"			case 1 -> \n"+
-				"			 {\n"+
-				" 				int z = 100;\n"+
-				" 				yield z;\n"+
-				"			}\n"+
-				"			default -> {\n"+
-				"				yield 12;\n"+
-				"			}\n"+
-				"		};\n"+
-				"		return tw;\n"+
-				"	}\n"+
-				"	public static void main(String[] args) {\n"+
-				"		System.out.print(foo(1));\n"+
-				"	}\n"+
-				"}\n";
+		String s	= """
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw =
+					switch (i) {
+						case 1 ->\s
+						 {
+			 				int z = 100;
+			 				yield z;
+						}
+						default -> {
+							yield 12;
+						}
+					};
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
 		StringBuilder buf = new StringBuilder(s);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
@@ -464,23 +476,24 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("	static int foo(int i) {\n");
-		buf.append("		int tw =\n");
-		buf.append("		switch (x) {\n");
-		buf.append("			default -> {\n");
-		buf.append("				yield 12;\n");
-		buf.append("			}\n");
-		buf.append("		};\n");
-		buf.append("		return tw;\n");
-		buf.append("	}\n");
-		buf.append("	public static void main(String[] args) {\n");
-		buf.append("		System.out.print(foo(1));\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str = """
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw =
+					switch (x) {
+						default -> {
+							yield 12;
+						}
+					};
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
+		assertEqualString(preview, str);
 	}
 	//Note: complete removal of statements under switch statements now added in ASTRSTest and hence not repeated here.
 
@@ -492,28 +505,30 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
-				"package test1;\n"+
-				"public class X {\n"+
-				"	static int foo(int i) {\n"+
-				"		int tw = 0;\n"+
-				"		switch (i) {\n"+
-				"			case 1 : {\n"+
-				" 				int z = 100;\n"+
-				" 				break;\n"+
-				"			}\n"+
-				"			case 2 : {\n"+
-				" 				break;\n"+
-				"			}\n"+
-				"			default : {\n"+
-				"				break;\n"+
-				"			}\n"+
-				"		}\n"+
-				"		return tw;\n"+
-				"	}\n"+
-				"	public static void main(String[] args) {\n"+
-				"		System.out.print(foo(1));\n"+
-				"	}\n"+
-				"}\n";
+				"""
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw = 0;
+					switch (i) {
+						case 1 : {
+			 				int z = 100;
+			 				break;
+						}
+						case 2 : {
+			 				break;
+						}
+						default : {
+							break;
+						}
+					}
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
 		StringBuilder buf = new StringBuilder(s);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
@@ -539,30 +554,31 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("	static int foo(int i) {\n");
-		buf.append("		int tw = 0;\n");
-		buf.append("		switch (i) {\n");
-		buf.append("			case 1 -> {\n");
-		buf.append(" 				int z = 100;\n");
-		buf.append(" 				break;\n");
-		buf.append("			}\n");
-		buf.append("			case 2 -> {\n");
-		buf.append(" 				break;\n");
-		buf.append("			}\n");
-		buf.append("			default -> {\n");
-		buf.append("				break;\n");
-		buf.append("			}\n");
-		buf.append("		}\n");
-		buf.append("		return tw;\n");
-		buf.append("	}\n");
-		buf.append("	public static void main(String[] args) {\n");
-		buf.append("		System.out.print(foo(1));\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str = """
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw = 0;
+					switch (i) {
+						case 1 -> {
+			 				int z = 100;
+			 				break;
+						}
+						case 2 -> {
+			 				break;
+						}
+						default -> {
+							break;
+						}
+					}
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
+		assertEqualString(preview, str);
 	}
 
 	// replacing colon by ->
@@ -573,28 +589,30 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
-				"package test1;\n"+
-				"public class X {\n"+
-				"	static int foo(int i) {\n"+
-				"		int tw = 0;\n"+
-				"		switch (i) {\n"+
-				"			case 1 -> {\n"+
-				" 				int z = 100;\n"+
-				" 				break;\n"+
-				"			}\n"+
-				"			case 2 -> {\n"+
-				" 				break;\n"+
-				"			}\n"+
-				"			default -> {\n"+
-				"				break;\n"+
-				"			}\n"+
-				"		}\n"+
-				"		return tw;\n"+
-				"	}\n"+
-				"	public static void main(String[] args) {\n"+
-				"		System.out.print(foo(1));\n"+
-				"	}\n"+
-				"}\n";
+				"""
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw = 0;
+					switch (i) {
+						case 1 -> {
+			 				int z = 100;
+			 				break;
+						}
+						case 2 -> {
+			 				break;
+						}
+						default -> {
+							break;
+						}
+					}
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
 		StringBuilder buf = new StringBuilder(s);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
@@ -620,30 +638,31 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("	static int foo(int i) {\n");
-		buf.append("		int tw = 0;\n");
-		buf.append("		switch (i) {\n");
-		buf.append("			case 1 : {\n");
-		buf.append(" 				int z = 100;\n");
-		buf.append(" 				break;\n");
-		buf.append("			}\n");
-		buf.append("			case 2 : {\n");
-		buf.append(" 				break;\n");
-		buf.append("			}\n");
-		buf.append("			default : {\n");
-		buf.append("				break;\n");
-		buf.append("			}\n");
-		buf.append("		}\n");
-		buf.append("		return tw;\n");
-		buf.append("	}\n");
-		buf.append("	public static void main(String[] args) {\n");
-		buf.append("		System.out.print(foo(1));\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str = """
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw = 0;
+					switch (i) {
+						case 1 : {
+			 				int z = 100;
+			 				break;
+						}
+						case 2 : {
+			 				break;
+						}
+						default : {
+							break;
+						}
+					}
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
+		assertEqualString(preview, str);
 	}
 	// replacing colon by ->
 	@SuppressWarnings("rawtypes")
@@ -653,28 +672,30 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
-				"package test1;\n"+
-				"public class X {\n"+
-				"	static int foo(int i) {\n"+
-				"		int tw =\n"+
-				"		switch (i) {\n"+
-				"			case 1 : {\n"+
-				" 				int z = 100;\n"+
-				" 				break;\n"+
-				"			}\n"+
-				"			case 2 : {\n"+
-				" 				break;\n"+
-				"			}\n"+
-				"			default : {\n"+
-				"				break;\n"+
-				"			}\n"+
-				"		};\n"+
-				"		return tw;\n"+
-				"	}\n"+
-				"	public static void main(String[] args) {\n"+
-				"		System.out.print(foo(1));\n"+
-				"	}\n"+
-				"}\n";
+				"""
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw =
+					switch (i) {
+						case 1 : {
+			 				int z = 100;
+			 				break;
+						}
+						case 2 : {
+			 				break;
+						}
+						default : {
+							break;
+						}
+					};
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
 		StringBuilder buf = new StringBuilder(s);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
@@ -701,30 +722,31 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("	static int foo(int i) {\n");
-		buf.append("		int tw =\n");
-		buf.append("		switch (i) {\n");
-		buf.append("			case 1 -> {\n");
-		buf.append(" 				int z = 100;\n");
-		buf.append(" 				break;\n");
-		buf.append("			}\n");
-		buf.append("			case 2 -> {\n");
-		buf.append(" 				break;\n");
-		buf.append("			}\n");
-		buf.append("			default -> {\n");
-		buf.append("				break;\n");
-		buf.append("			}\n");
-		buf.append("		};\n");
-		buf.append("		return tw;\n");
-		buf.append("	}\n");
-		buf.append("	public static void main(String[] args) {\n");
-		buf.append("		System.out.print(foo(1));\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str = """
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw =
+					switch (i) {
+						case 1 -> {
+			 				int z = 100;
+			 				break;
+						}
+						case 2 -> {
+			 				break;
+						}
+						default -> {
+							break;
+						}
+					};
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
+		assertEqualString(preview, str);
 	}
 
 	// replacing colon by ->
@@ -735,28 +757,30 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
-				"package test1;\n"+
-				"public class X {\n"+
-				"	static int foo(int i) {\n"+
-				"		int tw =\n"+
-				"		switch (i) {\n"+
-				"			case 1 -> {\n"+
-				" 				int z = 100;\n"+
-				" 				break;\n"+
-				"			}\n"+
-				"			case 2 -> {\n"+
-				" 				break;\n"+
-				"			}\n"+
-				"			default -> {\n"+
-				"				break;\n"+
-				"			}\n"+
-				"		};\n"+
-				"		return tw;\n"+
-				"	}\n"+
-				"	public static void main(String[] args) {\n"+
-				"		System.out.print(foo(1));\n"+
-				"	}\n"+
-				"}\n";
+				"""
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw =
+					switch (i) {
+						case 1 -> {
+			 				int z = 100;
+			 				break;
+						}
+						case 2 -> {
+			 				break;
+						}
+						default -> {
+							break;
+						}
+					};
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
 		StringBuilder buf = new StringBuilder(s);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
@@ -783,30 +807,31 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X {\n");
-		buf.append("	static int foo(int i) {\n");
-		buf.append("		int tw =\n");
-		buf.append("		switch (i) {\n");
-		buf.append("			case 1 : {\n");
-		buf.append(" 				int z = 100;\n");
-		buf.append(" 				break;\n");
-		buf.append("			}\n");
-		buf.append("			case 2 : {\n");
-		buf.append(" 				break;\n");
-		buf.append("			}\n");
-		buf.append("			default : {\n");
-		buf.append("				break;\n");
-		buf.append("			}\n");
-		buf.append("		};\n");
-		buf.append("		return tw;\n");
-		buf.append("	}\n");
-		buf.append("	public static void main(String[] args) {\n");
-		buf.append("		System.out.print(foo(1));\n");
-		buf.append("	}\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str = """
+			package test1;
+			public class X {
+				static int foo(int i) {
+					int tw =
+					switch (i) {
+						case 1 : {
+			 				int z = 100;
+			 				break;
+						}
+						case 2 : {
+			 				break;
+						}
+						default : {
+							break;
+						}
+					};
+					return tw;
+				}
+				public static void main(String[] args) {
+					System.out.print(foo(1));
+				}
+			}
+			""";
+		assertEqualString(preview, str);
 	}
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_05_since_12() throws Exception {
@@ -814,18 +839,19 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder builder= new StringBuilder();
-		builder.append("package test1;\n");
-		builder.append("public class X {\n");
-		builder.append("    public String foo(int i) {\n" +
-				"		String ret = switch(i%2) {\n" +
-				"		case 0 -> \"even\";\n" +
-				"		default -> \"\";\n" +
-				"		};\n" +
-				"		return ret;");
-		builder.append("    }\n");
-		builder.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", builder.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			    public String foo(int i) {
+					String ret = switch(i%2) {
+					case 0 -> "even";
+					default -> "";
+					};
+					return ret;\
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -864,20 +890,21 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 		// Expected output is not ideal due to formatting issue Bug 545439
 		String preview= evaluateRewrite(cu, rewrite);
-		builder= new StringBuilder();
-		builder.append("package test1;\n");
-		builder.append("public class X {\n");
-		builder.append("    public String foo(int i) {\n" +
-				"		String ret = switch(i%2) {\n" +
-				"		case 0 : \"even\";\n" +
-				"            case 1:\n" +
-				"                \"odd\";\n" +
-				"		default : \"\";\n" +
-				"		};\n" +
-				"		return ret;");
-		builder.append("    }\n");
-		builder.append("}\n");
-		assertEqualString(preview, builder.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			    public String foo(int i) {
+					String ret = switch(i%2) {
+					case 0 : "even";
+			            case 1:
+			                "odd";
+					default : "";
+					};
+					return ret;\
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -887,21 +914,21 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		}
 		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1508
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder builder= new StringBuilder();
-		builder.append(
-				"package test1;\n" +
-				"public class X {\n" +
-				"    public String foo(int i) {\n" +
-				"		String ret = switch(i) {\n" +
-				"		case 0 -> {\n" +
-				"           yield \"abc\";\n" +
-				"       }\n" +
-				"		default -> \"\";\n" +
-				"		};\n" +
-				"		return ret;" +
-				"    }\n" +
-				"}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", builder.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			    public String foo(int i) {
+					String ret = switch(i) {
+					case 0 -> {
+			           yield "abc";
+			       }
+					default -> "";
+					};
+					return ret;\
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -929,21 +956,21 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 			rewrite.replace(exp, newLiteral, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		builder= new StringBuilder();
-		builder.append(
-				"package test1;\n" +
-				"public class X {\n" +
-				"    public String foo(int i) {\n" +
-				"		String ret = switch(i) {\n" +
-				"		case 0 -> {\n" +
-				"           yield \"def\";\n" +
-				"       }\n" +
-				"		default -> \"\";\n" +
-				"		};\n" +
-				"		return ret;" +
-				"    }\n" +
-				"}\n");
-		assertEqualString(preview, builder.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			    public String foo(int i) {
+					String ret = switch(i) {
+					case 0 -> {
+			           yield "def";
+			       }
+					default -> "";
+					};
+					return ret;\
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -953,19 +980,19 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		}
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=567975
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder builder= new StringBuilder();
-		builder.append(
-				"package test1;\n" +
-				"public class X {\n" +
-				"    public String foo(int i) {\n" +
-				"		String ret = switch(i) {\n" +
-				"		case 0 -> \"abc\";\n" +
-				"		default -> \"\";\n" +
-				"		};\n" +
-				"		return ret;" +
-				"    }\n" +
-				"}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", builder.toString(), false, null);
+		String str = """
+			package test1;
+			public class X {
+			    public String foo(int i) {
+					String ret = switch(i) {
+					case 0 -> "abc";
+					default -> "";
+					};
+					return ret;\
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(this.apiLevel, cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -991,19 +1018,19 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 			rewrite.replace(exp, newLiteral, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		builder= new StringBuilder();
-		builder.append(
-				"package test1;\n" +
-				"public class X {\n" +
-				"    public String foo(int i) {\n" +
-				"		String ret = switch(i) {\n" +
-				"		case 0 -> \"def\";\n" +
-				"		default -> \"\";\n" +
-				"		};\n" +
-				"		return ret;" +
-				"    }\n" +
-				"}\n");
-		assertEqualString(preview, builder.toString());
+		String str1 = """
+			package test1;
+			public class X {
+			    public String foo(int i) {
+					String ret = switch(i) {
+					case 0 -> "def";
+					default -> "";
+					};
+					return ret;\
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 }

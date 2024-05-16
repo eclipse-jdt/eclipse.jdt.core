@@ -88,27 +88,33 @@ public class ErrorsTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "Indicted", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public abstract class Indicted {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public abstract class Indicted {
+			}
+			""" //$NON-NLS-1$
+					);
 
 		IPath collaboratorPath =  env.addClass(root, "p2", "Collaborator", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.*;\n"+ //$NON-NLS-1$
-			"public class Collaborator extends Indicted{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public class Collaborator extends Indicted{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
 
 		env.addClass(root, "p1", "Indicted", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public abstract class Indicted {\n"+ //$NON-NLS-1$
-			"   public abstract void foo();\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public abstract class Indicted {
+			   public abstract void foo();
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(projectPath);
 
@@ -130,10 +136,12 @@ public class ErrorsTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		IPath cuPath = env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X extends Y {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X extends Y {
+			}
+			""" //$NON-NLS-1$
+					);
 
 		fullBuild(projectPath);
 		expectingOnlyProblemsFor(cuPath);
@@ -187,14 +195,16 @@ public void test0102() throws JavaModelException {
 	env.removePackageFragmentRoot(projectPath, "");
 	IPath root = env.addPackageFragmentRoot(projectPath, "src");
 	IPath classTest1 = env.addClass(root, "p1", "Test1",
-		"package p1;\n" +
-		"public class Test1 {\n" +
-		"  private static int i;\n" +
-		"  int j = i;\n" +
-		"}\n" +
-		"class Test2 {\n" +
-		"  static int i = Test1.i;\n" +
-		"}\n"
+		"""
+			package p1;
+			public class Test1 {
+			  private static int i;
+			  int j = i;
+			}
+			class Test2 {
+			  static int i = Test1.i;
+			}
+			"""
 	);
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
@@ -210,10 +220,12 @@ public void test0103() throws JavaModelException {
 	env.removePackageFragmentRoot(projectPath, "");
 	IPath root = env.addPackageFragmentRoot(projectPath, "src");
 	IPath classTest1 = env.addClass(root, "p1", "Test1",
-		"package p1;\n" +
-		"public class Test1 {\n" +
-		"  // TODO: marker only\n" +
-		"}\n"
+		"""
+			package p1;
+			public class Test1 {
+			  // TODO: marker only
+			}
+			"""
 	);
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
@@ -251,9 +263,11 @@ public void _test0105() throws JavaModelException, CoreException, IOException { 
 		File outputFolder = env.getWorkspaceRootPath().append(outputFolderPath).toFile();
 		env.addClass(root, "p1",
 				"X",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}\n"
+				"""
+					package p1;
+					public class X {
+					}
+					"""
 			);
 		try {
 			fullBuild(projectPath);
@@ -471,12 +485,13 @@ public void test0108() throws JavaModelException {
 			null, new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE }));
 
 	env.addClass(root, "p", "X",
-			"package p;\n" +
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"		int i;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package p;
+				public class X {
+					public void foo() {
+						int i;
+					}
+				}""");
 
 	fullBuild(projectPath);
 	expectingNoProblems();
@@ -506,20 +521,22 @@ public void test0109() throws JavaModelException {
 	env.addEntry(projectPath, JavaCore.newSourceEntry(src2));
 
 	env.addClass(src, "p", "X",
-			"package p;\n" +
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"		int i;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package p;
+				public class X {
+					public void foo() {
+						int i;
+					}
+				}""");
 
 	IPath classY = env.addClass(src2, "q", "Y",
-			"package q;\n" +
-			"public class Y {\n" +
-			"	public void foo() {\n" +
-			"		int i;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package q;
+				public class Y {
+					public void foo() {
+						int i;
+					}
+				}""");
 
 	fullBuild(projectPath);
 	expectingNoProblemsFor(src);
@@ -551,20 +568,22 @@ public void test0110() throws JavaModelException {
 			null, new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE }));
 
 	env.addClass(src, "p", "X",
-			"package p;\n" +
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"		int i;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package p;
+				public class X {
+					public void foo() {
+						int i;
+					}
+				}""");
 
 	env.addClass(src2, "q", "Y",
-			"package q;\n" +
-			"public class Y {\n" +
-			"	public void foo() {\n" +
-			"		int i;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package q;
+				public class Y {
+					public void foo() {
+						int i;
+					}
+				}""");
 
 	fullBuild(projectPath);
 	expectingNoProblems();
@@ -592,15 +611,16 @@ public void test0111() throws JavaModelException {
 			null, new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE }));
 
 	IPath classX = env.addClass(root, "p", "X",
-			"package p;\n" +
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"		int i;\n" +
-			"	}\n" +
-			"	public void bar() {\n" +
-			"		a++;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package p;
+				public class X {
+					public void foo() {
+						int i;
+					}
+					public void bar() {
+						a++;
+					}
+				}""");
 
 	fullBuild(projectPath);
 	expectingOnlySpecificProblemFor(classX, new Problem("p", "a cannot be resolved to a variable", classX, 84, 85, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR));
@@ -630,15 +650,16 @@ public void test0112() throws JavaModelException {
 			null, new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE }));
 
 	IPath classX = env.addClass(root, "p", "X",
-			"package p;\n" +
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"		int i;\n" +
-			"	}\n" +
-			"	public void bar() {\n" +
-			"		// TODO nothing\n" +
-			"	}\n" +
-			"}");
+			"""
+				package p;
+				public class X {
+					public void foo() {
+						int i;
+					}
+					public void bar() {
+						// TODO nothing
+					}
+				}""");
 
 	fullBuild(projectPath);
 	expectingOnlySpecificProblemFor(classX, new Problem("p", "TODO nothing", classX, 87, 99, -1, IMarker.SEVERITY_ERROR));

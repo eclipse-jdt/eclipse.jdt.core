@@ -68,12 +68,14 @@ public class ASTConverter_17Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 17");
 			return;
 		}
-		String contents = "public sealed class X permits X1{\n" +
-				"\n" +
-				"}\n" +
-				"non-sealed class X1 extends X {\n" +
-				"\n" +
-				"}\n";
+		String contents = """
+			public sealed class X permits X1{
+			
+			}
+			non-sealed class X1 extends X {
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
@@ -106,12 +108,14 @@ public class ASTConverter_17Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 17");
 			return;
 		}
-		String contents = "public sealed interface X permits X1{\n" +
-				"\n" +
-				"}\n" +
-				"non-sealed interface X1 extends X {\n" +
-				"\n" +
-				"}\n";
+		String contents = """
+			public sealed interface X permits X1{
+			
+			}
+			non-sealed interface X1 extends X {
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
@@ -134,12 +138,14 @@ public class ASTConverter_17Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 17");
 			return;
 		}
-		String contents = "public sealed interface X permits X1{\n" +
-				"\n" +
-				"}\n" +
-				"non-sealed interface X1 extends X {\n" +
-				"\n" +
-				"}\n";
+		String contents = """
+			public sealed interface X permits X1{
+			
+			}
+			non-sealed interface X1 extends X {
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
@@ -171,12 +177,14 @@ public class ASTConverter_17Test extends ConverterTestSetup {
 			System.err.println("Test "+getName()+" requires a JRE 17");
 			return;
 		}
-		String contents = "public sealed class X permits X1{\n" +
-				"\n" +
-				"}\n" +
-				"non-sealed class X1 extends X {\n" +
-				"\n" +
-				"}\n";
+		String contents = """
+			public sealed class X permits X1{
+			
+			}
+			non-sealed class X1 extends X {
+			
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,

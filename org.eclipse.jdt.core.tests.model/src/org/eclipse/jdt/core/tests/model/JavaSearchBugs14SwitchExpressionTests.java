@@ -132,20 +132,22 @@ protected void setUp () throws Exception {
 public void testBug542559_001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n" +
-			"	int switch_expr_field = 10;\n" +
-			"	int twice(int i) {\n" +
-			"		int tw = switch (i) {\n" +
-			"			case 0 -> switch_expr_field * 0;\n" +
-			"			case 1 -> 2;\n" +
-			"			default -> 3;\n" +
-			"		};\n" +
-			"		return tw;\n" +
-			"	}\n" +
-			"	public static void main(String... args) {\n" +
-			"		System.out.print(new X().twice(3));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					int switch_expr_field = 10;
+					int twice(int i) {
+						int tw = switch (i) {
+							case 0 -> switch_expr_field * 0;
+							case 1 -> 2;
+							default -> 3;
+						};
+						return tw;
+					}
+					public static void main(String... args) {
+						System.out.print(new X().twice(3));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -165,21 +167,23 @@ public void testBug542559_001() throws CoreException {
 public void testBug542559_004() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n" +
-			"	int switch_expr_field = 10;\n" +
-			"	int twice(int i) {\n" +
-			"		int tw = switch (i) {\n" +
-			"			case 0 -> switch_expr_field * 0;\n" +
-			"			case 1 -> 2;\n" +
-			"			default ->{ \n" +
-			"			switch_expr_field*9; \n" +
-			"		}};\n" +
-			"		return tw;\n" +
-			"	}\n" +
-			"	public static void main(String... args) {\n" +
-			"		System.out.print(new X().twice(3));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					int switch_expr_field = 10;
+					int twice(int i) {
+						int tw = switch (i) {
+							case 0 -> switch_expr_field * 0;
+							case 1 -> 2;
+							default ->{\s
+							switch_expr_field*9;\s
+						}};
+						return tw;
+					}
+					public static void main(String... args) {
+						System.out.print(new X().twice(3));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -201,20 +205,22 @@ public void testBug542559_004() throws CoreException {
 public void testBug542559_005() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n" +
-			"	int switch_expr_field = 10;\n" +
-			"	int twice(int i) {\n" +
-			"		int tw = switch (i) {\n" +
-			"			case 0 -> switch_expr_field * 0;\n" +
-			"			case 1 -> 2;\n" +
-			"			default -> switch_expr_field*9;\n" +
-			"		};\n" +
-			"		return tw;\n" +
-			"	}\n" +
-			"	public static void main(String... args) {\n" +
-			"		System.out.print(new X().twice(3));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					int switch_expr_field = 10;
+					int twice(int i) {
+						int tw = switch (i) {
+							case 0 -> switch_expr_field * 0;
+							case 1 -> 2;
+							default -> switch_expr_field*9;
+						};
+						return tw;
+					}
+					public static void main(String... args) {
+						System.out.print(new X().twice(3));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -236,22 +242,23 @@ public void testBug542559_005() throws CoreException {
 public void testBug542559_006() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n" +
-					"enum Day { SATURDAY, SUNDAY, MONDAY;}\n" +
-					"public static void bar(Day day) {\n" +
-					"		switch (day) {\n" +
-					"		case SATURDAY, SUNDAY: \n" +
-					"			System.out.println(Day.SUNDAY);\n" +
-					"			break;\n" +
-					"		case MONDAY : System.out.println(Day.MONDAY);\n" +
-					"					break;\n" +
-					"		}\n" +
-					"	}" +
-					"	public static void main(String[] args) {\n" +
-					"		bar(Day.SATURDAY);\n" +
-					"	}\n"
-					+
-					"}\n"
+			"""
+				public class X {
+				enum Day { SATURDAY, SUNDAY, MONDAY;}
+				public static void bar(Day day) {
+						switch (day) {
+						case SATURDAY, SUNDAY:\s
+							System.out.println(Day.SUNDAY);
+							break;
+						case MONDAY : System.out.println(Day.MONDAY);
+									break;
+						}
+					}\
+					public static void main(String[] args) {
+						bar(Day.SATURDAY);
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -272,22 +279,23 @@ public void testBug542559_006() throws CoreException {
 public void testBug542559_007() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n" +
-					"enum Day { SATURDAY, SUNDAY, MONDAY;}\n" +
-					"public static void bar(Day day) {\n" +
-					"		switch (day) {\n" +
-					"		case SATURDAY, SUNDAY: \n" +
-					"			System.out.println(Day.SUNDAY);\n" +
-					"			break;\n" +
-					"		case MONDAY : System.out.println(Day.MONDAY);\n" +
-					"					break;\n" +
-					"		}\n" +
-					"	}" +
-					"	public static void main(String[] args) {\n" +
-					"		bar(Day.SATURDAY);\n" +
-					"	}\n"
-					+
-					"}\n"
+			"""
+				public class X {
+				enum Day { SATURDAY, SUNDAY, MONDAY;}
+				public static void bar(Day day) {
+						switch (day) {
+						case SATURDAY, SUNDAY:\s
+							System.out.println(Day.SUNDAY);
+							break;
+						case MONDAY : System.out.println(Day.MONDAY);
+									break;
+						}
+					}\
+					public static void main(String[] args) {
+						bar(Day.SATURDAY);
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -309,21 +317,23 @@ public void testBug542559_007() throws CoreException {
 public void testBug542559_008() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X2.java",
-			"public class X2 {\n" +
-			"   String s = new String();        \n" +
-			"	int switch_expr_field = 10;\n" +
-			"	int twice(int i) {\n" +
-			"		int tw = switch (i) {\n" +
-			"			case 0 -> switch_expr_field * 0;\n" +
-			"			case 1 -> 2;\n" +
-			"			default -> new X2().toString().length();\n" +
-			"		};\n" +
-			"		return tw;\n" +
-			"	}\n" +
-			"	public static void main(String... args) {\n" +
-			"		System.out.print(new X2().twice(3));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X2 {
+				   String s = new String();       \s
+					int switch_expr_field = 10;
+					int twice(int i) {
+						int tw = switch (i) {
+							case 0 -> switch_expr_field * 0;
+							case 1 -> 2;
+							default -> new X2().toString().length();
+						};
+						return tw;
+					}
+					public static void main(String... args) {
+						System.out.print(new X2().twice(3));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -346,28 +356,30 @@ public void testBug542559_008() throws CoreException {
 public void testBug542559_0012() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"import java.util.function.Supplier;\n" +
-			"interface I0 { void i(); }\n" +
-			"interface I1 extends I0 {}\n" +
-			"interface I2 extends I0 {}\n" +
-			"public class X {\n" +
-			"	I1 n1() { return null; }\n" +
-			"	<I extends I2> I n2() { return null; }\n" +
-			"	<M> M m(Supplier<M> m) { return m.get(); }\n" +
-			"	void test(int i, boolean b) {\n" +
-			"		m(switch (i) {\n" +
-			"			case 1 -> this::n1;\n" +
-			"			default -> this::n2;\n" +
-			"		}).i(); \n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		try {\n" +
-			"			new X().test(1, true);\n" +
-			"		} catch (NullPointerException e) {\n" +
-			"			System.out.println(\"NPE as expected\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.function.Supplier;
+				interface I0 { void i(); }
+				interface I1 extends I0 {}
+				interface I2 extends I0 {}
+				public class X {
+					I1 n1() { return null; }
+					<I extends I2> I n2() { return null; }
+					<M> M m(Supplier<M> m) { return m.get(); }
+					void test(int i, boolean b) {
+						m(switch (i) {
+							case 1 -> this::n1;
+							default -> this::n2;
+						}).i();\s
+					}
+					public static void main(String[] args) {
+						try {
+							new X().test(1, true);
+						} catch (NullPointerException e) {
+							System.out.println("NPE as expected");
+						}
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject();//assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -386,19 +398,21 @@ public void testBug549413_001() throws CoreException {
 	// field reference in yield
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n" +
-			"int switch_expr_field = 10; \n" +
-			"public static int foo(int val) {\n" +
-			"int k = switch (val) {\n" +
-			"case 1 -> { yield switch_expr_field; }\n" +
-			"default -> { yield 2; }\n" +
-			"};\n" +
-			"return k;\n" +
-			"}\n" +
-			"	public static void main(String... args) {\n" +
-			"		System.out.println(X.foo(2));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+				int switch_expr_field = 10;\s
+				public static int foo(int val) {
+				int k = switch (val) {
+				case 1 -> { yield switch_expr_field; }
+				default -> { yield 2; }
+				};
+				return k;
+				}
+					public static void main(String... args) {
+						System.out.println(X.foo(2));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -415,19 +429,21 @@ public void testBug549413_002() throws CoreException {
 	//field all occurrences in yield
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n" +
-			"int switch_expr_field = 10; \n" +
-			"public static int foo(int val) {\n" +
-			"int k = switch (val) {\n" +
-			"case 1 -> { yield switch_expr_field; }\n" +
-			"default -> { yield 2; }\n" +
-			"};\n" +
-			"return k;\n" +
-			"}\n" +
-			"	public static void main(String... args) {\n" +
-			"		System.out.println(X.foo(2));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+				int switch_expr_field = 10;\s
+				public static int foo(int val) {
+				int k = switch (val) {
+				case 1 -> { yield switch_expr_field; }
+				default -> { yield 2; }
+				};
+				return k;
+				}
+					public static void main(String... args) {
+						System.out.println(X.foo(2));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -446,23 +462,25 @@ public void testBug549413_003() throws CoreException {
 	//METHOD named yield -  all occurrences in yield
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"\n"+
-					"	public static int yield() {\n"+
-					"		return 1;\n"+
-					"	}\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public static int foo(int val) {\n"+
-					"		int k = switch (val) {\n"+
-					"		case 1 -> { yield 1; }\n"+
-					"		default -> { yield 2; }\n"+
-					"		};\n"+
-					"		return k;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(1));\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+				
+					public static int yield() {
+						return 1;
+					}
+					@SuppressWarnings("preview")
+					public static int foo(int val) {
+						int k = switch (val) {
+						case 1 -> { yield 1; }
+						default -> { yield 2; }
+						};
+						return k;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo(1));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -479,23 +497,25 @@ public void testBug549413_004() throws CoreException {
 	//METHOD yield - references in yield
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"\n"+
-					"	public static int yield() {\n"+
-					"		return 1;\n"+
-					"	}\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public static int foo(int val) {\n"+
-					"		int k = switch (val) {\n"+
-					"		case 1 -> { yield X.yield(); }\n"+
-					"		default -> { yield 2; }\n"+
-					"		};\n"+
-					"		return k;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(1));\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+				
+					public static int yield() {
+						return 1;
+					}
+					@SuppressWarnings("preview")
+					public static int foo(int val) {
+						int k = switch (val) {
+						case 1 -> { yield X.yield(); }
+						default -> { yield 2; }
+						};
+						return k;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo(1));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -513,20 +533,22 @@ public void testBug549413_005() throws CoreException {
 	//field yield - references in yield
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"	public static int yield;\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public static int foo(int val) {\n"+
-					"		int k = switch (val) {\n"+
-					"		case 1 -> { yield yield; }\n"+
-					"		default -> { yield 2; }\n"+
-					"		};\n"+
-					"		return k;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(1));\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+					public static int yield;
+					@SuppressWarnings("preview")
+					public static int foo(int val) {
+						int k = switch (val) {
+						case 1 -> { yield yield; }
+						default -> { yield 2; }
+						};
+						return k;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo(1));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -543,20 +565,22 @@ public void testBug549413_006() throws CoreException {
 	//field yield - all occurrence in yield
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"	public static int yield;\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public static int foo(int val) {\n"+
-					"		int k = switch (val) {\n"+
-					"		case 1 -> { yield yield; }\n"+
-					"		default -> { yield 2; }\n"+
-					"		};\n"+
-					"		return k;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(1));\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+					public static int yield;
+					@SuppressWarnings("preview")
+					public static int foo(int val) {
+						int k = switch (val) {
+						case 1 -> { yield yield; }
+						default -> { yield 2; }
+						};
+						return k;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo(1));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -574,21 +598,23 @@ public void testBug549413_007() throws CoreException {
 	//field yield - all reference of identifier in yield statement
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"	public static int yield;\n"+
-					"	public static int abc;\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public static int foo(int val) {\n"+
-					"		int k = switch (val) {\n"+
-					"		case 1 -> { abc=0;yield yield; }\n"+
-					"		default -> { yield 2; }\n"+
-					"		};\n"+
-					"		return k;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(1));\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+					public static int yield;
+					public static int abc;
+					@SuppressWarnings("preview")
+					public static int foo(int val) {
+						int k = switch (val) {
+						case 1 -> { abc=0;yield yield; }
+						default -> { yield 2; }
+						};
+						return k;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo(1));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -606,22 +632,24 @@ public void testBug549413_008() throws CoreException {
 	//field yield - all reference of identifier in yield statement ( yield -1 without braces)
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"	static int yield = 100;\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public  static int foo(int i) {\n"+
-					"		int r = switch(i) {\n"+
-					"			default -> yield - 1;\n"+
-					"		};\n"+
-					"		return r;\n"+
-					"	}\n"+
-					"	public  int yield() {\n"+
-					"		return 0;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(0));\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+					static int yield = 100;
+					@SuppressWarnings("preview")
+					public  static int foo(int i) {
+						int r = switch(i) {
+							default -> yield - 1;
+						};
+						return r;
+					}
+					public  int yield() {
+						return 0;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo(0));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -639,22 +667,24 @@ public void testBug549413_009() throws CoreException {
 	//field yield - all reference of identifier in yield statement ( yield -1 with braces)
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"	int yield = 100;\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public  static int foo(int i) {\n"+
-					"		int r = switch(i) {\n"+
-					"			default ->{ yield - 1;}\n"+
-					"		};\n"+
-					"		return r;\n"+
-					"	}\n"+
-					"	public  int yield() {\n"+
-					"		return 0;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(0));\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+					int yield = 100;
+					@SuppressWarnings("preview")
+					public  static int foo(int i) {
+						int r = switch(i) {
+							default ->{ yield - 1;}
+						};
+						return r;
+					}
+					public  int yield() {
+						return 0;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo(0));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -672,27 +702,29 @@ public void testBug549413_010() throws CoreException {
 	//method - break label
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"\n"+
-					"	static int yield = 100;\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public  static int foo(int i) {\n"+
-					"	int r = switch(i) {\n"+
-					"			default -> X.yield();\n"+
-					"		};\n"+
-					"		return r;\n"+
-					"	}\n"+
-					"	public static  int yield() {\n"+
-					"		yield: while (X.yield == 100) {\n"+
-					"			yield = 256;\n"+
-					"			break yield;\n"+
-					"		}\n"+
-					"		return yield;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(0));\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+				
+					static int yield = 100;
+					@SuppressWarnings("preview")
+					public  static int foo(int i) {
+					int r = switch(i) {
+							default -> X.yield();
+						};
+						return r;
+					}
+					public static  int yield() {
+						yield: while (X.yield == 100) {
+							yield = 256;
+							break yield;
+						}
+						return yield;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo(0));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -709,36 +741,39 @@ public void testBug549413_011() throws CoreException {
 	//break label in combination with yield field
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"\n"+
-					"	static int yield = 100;\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public  static int foo(int i) {\n"+
-					"	int r = switch(i) {\n"+
-					"			default -> X.yield();\n"+
-					"		};\n"+
-					"		return r;\n"+
-					"	}\n"+
-					"	public static  int yield() {\n"+
-					"		yield: while (X.yield == 100) {\n"+
-					"			yield = 256;\n"+
-					"			break yield;\n"+
-					"		}\n"+
-					"		return yield;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(0));\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+				
+					static int yield = 100;
+					@SuppressWarnings("preview")
+					public  static int foo(int i) {
+					int r = switch(i) {
+							default -> X.yield();
+						};
+						return r;
+					}
+					public static  int yield() {
+						yield: while (X.yield == 100) {
+							yield = 256;
+							break yield;
+						}
+						return yield;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo(0));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 	try {
 		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 		search("yield", FIELD, REFERENCES);
-		assertSearchResults("src/X.java int X.yield() [yield] EXACT_MATCH\n" +
-				"src/X.java int X.yield() [yield] EXACT_MATCH\n" +
-				"src/X.java int X.yield() [yield] EXACT_MATCH");
+		assertSearchResults("""
+			src/X.java int X.yield() [yield] EXACT_MATCH
+			src/X.java int X.yield() [yield] EXACT_MATCH
+			src/X.java int X.yield() [yield] EXACT_MATCH""");
 	} finally {
 		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 	}
@@ -749,30 +784,33 @@ public void testBug549413_012() throws CoreException {
 	//field yield - multiple yield references
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"\n"+
-					"	static	int yield = 100;\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public  static int foo(int i) {\n"+
-					"		int r = switch(i) {\n"+
-					"			default -> {yield yield + yield + yield * yield;}\n"+
-					"		};\n"+
-					"		return r;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(0));\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+				
+					static	int yield = 100;
+					@SuppressWarnings("preview")
+					public  static int foo(int i) {
+						int r = switch(i) {
+							default -> {yield yield + yield + yield * yield;}
+						};
+						return r;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo(0));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 	try {
 		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 		search("yield", FIELD, REFERENCES);
-		assertSearchResults("src/X.java int X.foo(int) [yield] EXACT_MATCH\n" +
-				"src/X.java int X.foo(int) [yield] EXACT_MATCH\n" +
-				"src/X.java int X.foo(int) [yield] EXACT_MATCH\n" +
-				"src/X.java int X.foo(int) [yield] EXACT_MATCH");
+		assertSearchResults("""
+			src/X.java int X.foo(int) [yield] EXACT_MATCH
+			src/X.java int X.foo(int) [yield] EXACT_MATCH
+			src/X.java int X.foo(int) [yield] EXACT_MATCH
+			src/X.java int X.foo(int) [yield] EXACT_MATCH""");
 	} finally {
 		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 	}
@@ -783,20 +821,22 @@ public void testBug549413_013() throws CoreException {
 	//field yield -another yield field test
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"\n"+
-					"	static	int yield = 100;\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public  static int foo(int i) {\n"+
-					"		int r = switch(i) {\n"+
-					"			default ->0 + yield + 10;\n"+
-					"		};\n"+
-					"		return r;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(0));\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+				
+					static	int yield = 100;
+					@SuppressWarnings("preview")
+					public  static int foo(int i) {
+						int r = switch(i) {
+							default ->0 + yield + 10;
+						};
+						return r;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo(0));
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -814,29 +854,32 @@ public void testBug549413_014() throws CoreException {
 	//field yield - ternary operator
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"	int yield = 100;\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public   int foo(int i) {\n"+
-					"		int r = switch(i) {\n"+
-					"			 case 0 : yield 100;\n"+
-					"			 case 1 : yield yield;\n"+
-					"			 default: yield 0;\n"+
-					"		};\n"+
-					"		return r > 100 ? yield + 1 : yield + 200;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+					int yield = 100;
+					@SuppressWarnings("preview")
+					public   int foo(int i) {
+						int r = switch(i) {
+							 case 0 : yield 100;
+							 case 1 : yield yield;
+							 default: yield 0;
+						};
+						return r > 100 ? yield + 1 : yield + 200;
+					}
+					public static void main(String[] args) {
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 	try {
 		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 		search("yield", FIELD, REFERENCES);
-		assertSearchResults("src/X.java int X.foo(int) [yield] EXACT_MATCH\n" +
-				"src/X.java int X.foo(int) [yield] EXACT_MATCH\n" +
-				"src/X.java int X.foo(int) [yield] EXACT_MATCH");
+		assertSearchResults("""
+			src/X.java int X.foo(int) [yield] EXACT_MATCH
+			src/X.java int X.foo(int) [yield] EXACT_MATCH
+			src/X.java int X.foo(int) [yield] EXACT_MATCH""");
 	} finally {
 		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 	}
@@ -847,23 +890,25 @@ public void testBug549413_015() throws CoreException {
 	//field yield - another test case
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"	int yield = 100;\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public   int foo(int i) {\n"+
-					"		int r = switch(i) {\n"+
-					"			 case 0 : yield 100;\n"+
-					"			 case 1 : yield yield;\n"+
-					"			 default: yield 0;\n"+
-					"		};\n"+
-					"		return r > 100 ? yield() + 1 : yield + 200;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"	}\n"+
-					"	public static int yield() {\n"+
-					"		return 1;\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+					int yield = 100;
+					@SuppressWarnings("preview")
+					public   int foo(int i) {
+						int r = switch(i) {
+							 case 0 : yield 100;
+							 case 1 : yield yield;
+							 default: yield 0;
+						};
+						return r > 100 ? yield() + 1 : yield + 200;
+					}
+					public static void main(String[] args) {
+					}
+					public static int yield() {
+						return 1;
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -882,23 +927,25 @@ public void testBug549413_016() throws CoreException {
 	//method yield -method references
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"public class X {\n"+
-					"	int yield = 100;\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public   int foo(int i) {\n"+
-					"		int r = switch(i) {\n"+
-					"			 case 0 : yield 100;\n"+
-					"			 case 1 : yield yield;\n"+
-					"			 default: yield 0;\n"+
-					"		};\n"+
-					"		return r > 100 ? yield() + 1 : yield + 200;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"	}\n"+
-					"	public static int yield() {\n"+
-					"		return 1;\n"+
-					"	}\n"+
-					"}\n"
+			"""
+				public class X {
+					int yield = 100;
+					@SuppressWarnings("preview")
+					public   int foo(int i) {
+						int r = switch(i) {
+							 case 0 : yield 100;
+							 case 1 : yield yield;
+							 default: yield 0;
+						};
+						return r > 100 ? yield() + 1 : yield + 200;
+					}
+					public static void main(String[] args) {
+					}
+					public static int yield() {
+						return 1;
+					}
+				}
+				"""
 			);
 	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -915,20 +962,22 @@ public void testBug549413_017() throws CoreException {
 	//select local variable and find the declaration
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"public class X {\n"+
-					"\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public  static int foo(int i) {\n"+
-					"		int yield = 100;\n"+
-					"		int r = switch(i) {\n"+
-					"			default -> {yield /* here*/ yield + yield + yield * yield;}\n"+
-					"		};\n"+
-					"		return r;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(0));\n"+
-					"	}\n"+
-					"}\n"
+					"""
+						public class X {
+						
+							@SuppressWarnings("preview")
+							public  static int foo(int i) {
+								int yield = 100;
+								int r = switch(i) {
+									default -> {yield /* here*/ yield + yield + yield * yield;}
+								};
+								return r;
+							}
+							public static void main(String[] args) {
+								System.out.println(X.foo(0));
+							}
+						}
+						"""
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -948,19 +997,21 @@ public void testBug549413_018() throws CoreException {
 	//select local variable and find the declaration
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"public class X {\n"+
-					"	@SuppressWarnings(\"preview\")\n"+
-					"	public  static int foo(int i) {\n"+
-					"		int localVar = 100;\n"+
-					"		int r = switch(i) {\n"+
-					"			default -> {yield /* here*/ localVar + localVar + localVar * localVar;}\n"+
-					"		};\n"+
-					"		return r;\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		System.out.println(X.foo(0));\n"+
-					"	}\n"+
-					"}\n"
+					"""
+						public class X {
+							@SuppressWarnings("preview")
+							public  static int foo(int i) {
+								int localVar = 100;
+								int r = switch(i) {
+									default -> {yield /* here*/ localVar + localVar + localVar * localVar;}
+								};
+								return r;
+							}
+							public static void main(String[] args) {
+								System.out.println(X.foo(0));
+							}
+						}
+						"""
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -980,36 +1031,39 @@ public void testBug549413_019() throws CoreException {
 	//old style switch case without preview search for yield field.
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-		"public class X {\n"+
-		 " static int  yield;\n"+
-		 " public static int   yield() { \n"+
-		 "	  return 7; \n"+
-		 " } \n"+
-		 "  public static void main(String[] args) { \n"+
-		 "     int week = 1;	\n"+
-		 "    switch (week) { \n"+
-		 "      case 1:       \n"+
-		 "     	 yield = 88; \n"+
-		 "    	 break; \n"+
-		 "     case 2:  \n"+
-		 "   	 yield = yield();\n"+
-		 "   	 break; \n"+
-		 "    default:  \n"+
-		 "  	 yield = 88; \n"+
-		 "     break; \n" +
-		 " } \n" +
-		 " System.out.println(yield); \n"+
-		 "	}\n"+
-		 "}\n"
+		"""
+			public class X {
+			 static int  yield;
+			 public static int   yield() {\s
+				  return 7;\s
+			 }\s
+			  public static void main(String[] args) {\s
+			     int week = 1;\t
+			    switch (week) {\s
+			      case 1:      \s
+			     	 yield = 88;\s
+			    	 break;\s
+			     case 2: \s
+			   	 yield = yield();
+			   	 break;\s
+			    default: \s
+			  	 yield = 88;\s
+			     break;\s
+			 }\s
+			 System.out.println(yield);\s
+				}
+			}
+			"""
 );
 
 
 	try {
 		search("yield", FIELD, REFERENCES);
-		assertSearchResults("src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" +
-				"src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" +
-				"src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" +
-				"src/X.java void X.main(String[]) [yield] EXACT_MATCH");
+		assertSearchResults("""
+			src/X.java void X.main(String[]) [yield] EXACT_MATCH
+			src/X.java void X.main(String[]) [yield] EXACT_MATCH
+			src/X.java void X.main(String[]) [yield] EXACT_MATCH
+			src/X.java void X.main(String[]) [yield] EXACT_MATCH""");
 	} finally {
 	}
 }
@@ -1018,27 +1072,29 @@ public void testBug549413_020() throws CoreException {
 	//old style switch case without preview search for yield method.
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-		"public class X {\n"+
-		 " static int  yield;\n"+
-		 " public static int   yield() { \n"+
-		 "	  return 7; \n"+
-		 " } \n"+
-		 "  public static void main(String[] args) { \n"+
-		 "     int week = 1;	\n"+
-		 "    switch (week) { \n"+
-		 "      case 1:       \n"+
-		 "     	 yield = 88; \n"+
-		 "    	 break; \n"+
-		 "     case 2:  \n"+
-		 "   	 yield = yield();\n"+
-		 "   	 break; \n"+
-		 "    default:  \n"+
-		 "  	 yield = 88; \n"+
-		 "     break; \n" +
-		 " } \n" +
-		 " System.out.println(yield); \n"+
-		 "	}\n"+
-		 "}\n"
+		"""
+			public class X {
+			 static int  yield;
+			 public static int   yield() {\s
+				  return 7;\s
+			 }\s
+			  public static void main(String[] args) {\s
+			     int week = 1;\t
+			    switch (week) {\s
+			      case 1:      \s
+			     	 yield = 88;\s
+			    	 break;\s
+			     case 2: \s
+			   	 yield = yield();
+			   	 break;\s
+			    default: \s
+			  	 yield = 88;\s
+			     break;\s
+			 }\s
+			 System.out.println(yield);\s
+				}
+			}
+			"""
 );
 
 

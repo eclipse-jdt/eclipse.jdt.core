@@ -596,15 +596,16 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 	public void test001() {
 		runConformTest(new String[] {
 				"X.java",
-				"public class X {\n"+
-				" public static int foo() {\n"+
-				"   int _ = 1;\n"+
-				"   return 0;\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(X.foo());\n"+
-				" }\n"+
-				"}"
+				"""
+					public class X {
+					 public static int foo() {
+					   int _ = 1;
+					   return 0;
+					 }
+					 public static void main(String[] args) {
+					   System.out.println(X.foo());
+					 }
+					}"""
 			},
 			"0");
 	}
@@ -613,19 +614,20 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 	public void test002() {
 		runConformTest(new String[] {
 				"X.java",
-				"@SuppressWarnings(\"preview\")\n" +
-				"public class X {\n"+
-				" public static int foo() {\n"+
-				"   int _ = bar();\n"+
-				"   return 0;\n"+
-				" }\n"+
-				" public static int bar() {\n"+
-				"   return 0;\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(X.foo());\n"+
-				" }\n"+
-				"}"
+				"""
+					@SuppressWarnings("preview")
+					public class X {
+					 public static int foo() {
+					   int _ = bar();
+					   return 0;
+					 }
+					 public static int bar() {
+					   return 0;
+					 }
+					 public static void main(String[] args) {
+					   System.out.println(X.foo());
+					 }
+					}"""
 			},
 			"0");
 	}
@@ -644,12 +646,14 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				" }\n"+
 				"}"
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	int _;\n" +
-				"	    ^\n" +
-				"Unnamed variables must have an initializer\n" +
-				"----------\n");
+				"""
+					----------
+					1. ERROR in X.java (at line 4)
+						int _;
+						    ^
+					Unnamed variables must have an initializer
+					----------
+					""");
 	}
 
 	public void test004() {
@@ -779,57 +783,59 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				}
     			""";
     	String expectedOutput =
-    			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-				"  // Stack: 5, Locals: 3\n" +
-				"  public static void main(String[] args);\n" +
-				"     0  new X$Point3D [16]\n" +
-				"     3  dup\n" +
-				"     4  iconst_1\n" +
-				"     5  iconst_2\n" +
-				"     6  iconst_3\n" +
-				"     7  invokespecial X$Point3D(int, int, int) [18]\n" +
-				"    10  astore_1 [o]\n" +
-				"    11  aload_1 [o]\n" +
-				"    12  instanceof X$Point3D [16]\n" +
-				"    15  ifeq 43\n" +
-				"    18  aload_1 [o]\n" +
-				"    19  checkcast X$Point3D [16]\n" +
-				"    22  dup\n" +
-				"    23  invokevirtual X$Point3D.x() : int [21]\n" +
-				"    26  pop\n" +
-				"    27  dup\n" +
-				"    28  invokevirtual X$Point3D.y() : int [25]\n" +
-				"    31  istore_2 [y]\n" +
-				"    32  invokevirtual X$Point3D.z() : int [28]\n" +
-				"    35  pop\n" +
-				"    36  getstatic System.out : PrintStream [31]\n" +
-				"    39  iload_2 [y]\n" +
-				"    40  invokevirtual PrintStream.println(int) : void [37]\n" +
-				"    43  return\n" +
-				"    44  new MatchException [43]\n" +
-				"    47  dup_x1\n" +
-				"    48  swap\n" +
-				"    49  dup\n" +
-				"    50  invokevirtual Throwable.toString() : String [45]\n" +
-				"    53  swap\n" +
-				"    54  invokespecial MatchException(String, Throwable) [51]\n" +
-				"    57  athrow\n" +
-				"      Exception Table:\n" +
-				"        [pc: 23, pc: 26] -> 44 when : Throwable\n" +
-				"        [pc: 28, pc: 31] -> 44 when : Throwable\n" +
-				"        [pc: 32, pc: 35] -> 44 when : Throwable\n" +
-				"      Line numbers:\n" +
-				"        [pc: 0, line: 7]\n" +
-				"        [pc: 11, line: 8]\n" +
-				"        [pc: 36, line: 9]\n" +
-				"        [pc: 43, line: 11]\n" +
-				"      Local variable table:\n" +
-				"        [pc: 0, pc: 58] local: args index: 0 type: String[]\n" +
-				"        [pc: 11, pc: 44] local: o index: 1 type: Object\n" +
-				"        [pc: 32, pc: 43] local: y index: 2 type: int\n" +
-				"      Stack map table: number of frames 2\n" +
-				"        [pc: 43, append: {Object}]\n" +
-				"        [pc: 44, full, stack: {Throwable}, locals: {String[]}]\n";
+    			"""
+			  // Method descriptor #15 ([Ljava/lang/String;)V
+			  // Stack: 5, Locals: 3
+			  public static void main(String[] args);
+			     0  new X$Point3D [16]
+			     3  dup
+			     4  iconst_1
+			     5  iconst_2
+			     6  iconst_3
+			     7  invokespecial X$Point3D(int, int, int) [18]
+			    10  astore_1 [o]
+			    11  aload_1 [o]
+			    12  instanceof X$Point3D [16]
+			    15  ifeq 43
+			    18  aload_1 [o]
+			    19  checkcast X$Point3D [16]
+			    22  dup
+			    23  invokevirtual X$Point3D.x() : int [21]
+			    26  pop
+			    27  dup
+			    28  invokevirtual X$Point3D.y() : int [25]
+			    31  istore_2 [y]
+			    32  invokevirtual X$Point3D.z() : int [28]
+			    35  pop
+			    36  getstatic System.out : PrintStream [31]
+			    39  iload_2 [y]
+			    40  invokevirtual PrintStream.println(int) : void [37]
+			    43  return
+			    44  new MatchException [43]
+			    47  dup_x1
+			    48  swap
+			    49  dup
+			    50  invokevirtual Throwable.toString() : String [45]
+			    53  swap
+			    54  invokespecial MatchException(String, Throwable) [51]
+			    57  athrow
+			      Exception Table:
+			        [pc: 23, pc: 26] -> 44 when : Throwable
+			        [pc: 28, pc: 31] -> 44 when : Throwable
+			        [pc: 32, pc: 35] -> 44 when : Throwable
+			      Line numbers:
+			        [pc: 0, line: 7]
+			        [pc: 11, line: 8]
+			        [pc: 36, line: 9]
+			        [pc: 43, line: 11]
+			      Local variable table:
+			        [pc: 0, pc: 58] local: args index: 0 type: String[]
+			        [pc: 11, pc: 44] local: o index: 1 type: Object
+			        [pc: 32, pc: 43] local: y index: 2 type: int
+			      Stack map table: number of frames 2
+			        [pc: 43, append: {Object}]
+			        [pc: 44, full, stack: {Throwable}, locals: {String[]}]
+			""";
 
 
     	boolean savedPreview = this.enablePreview;
@@ -865,57 +871,59 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				}
     			""";
     	String expectedOutput =
-    			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-				"  // Stack: 8, Locals: 4\n" +
-				"  public static void main(String[] args);\n" +
-				"     0  new X$Point3D [16]\n" +
-				"     3  dup\n" +
-				"     4  lconst_1\n" +
-				"     5  ldc2_w <Long 2> [18]\n" +
-				"     8  ldc2_w <Long 3> [20]\n" +
-				"    11  invokespecial X$Point3D(long, long, long) [22]\n" +
-				"    14  astore_1 [o]\n" +
-				"    15  aload_1 [o]\n" +
-				"    16  instanceof X$Point3D [16]\n" +
-				"    19  ifeq 47\n" +
-				"    22  aload_1 [o]\n" +
-				"    23  checkcast X$Point3D [16]\n" +
-				"    26  dup\n" +
-				"    27  invokevirtual X$Point3D.x() : long [25]\n" +
-				"    30  pop2\n" +
-				"    31  dup\n" +
-				"    32  invokevirtual X$Point3D.y() : long [29]\n" +
-				"    35  lstore_2 [y]\n" +
-				"    36  invokevirtual X$Point3D.z() : long [32]\n" +
-				"    39  pop2\n" +
-				"    40  getstatic System.out : PrintStream [35]\n" +
-				"    43  lload_2 [y]\n" +
-				"    44  invokevirtual PrintStream.println(long) : void [41]\n" +
-				"    47  return\n" +
-				"    48  new MatchException [47]\n" +
-				"    51  dup_x1\n" +
-				"    52  swap\n" +
-				"    53  dup\n" +
-				"    54  invokevirtual Throwable.toString() : String [49]\n" +
-				"    57  swap\n" +
-				"    58  invokespecial MatchException(String, Throwable) [55]\n" +
-				"    61  athrow\n" +
-				"      Exception Table:\n" +
-				"        [pc: 27, pc: 30] -> 48 when : Throwable\n" +
-				"        [pc: 32, pc: 35] -> 48 when : Throwable\n" +
-				"        [pc: 36, pc: 39] -> 48 when : Throwable\n" +
-				"      Line numbers:\n" +
-				"        [pc: 0, line: 7]\n" +
-				"        [pc: 15, line: 8]\n" +
-				"        [pc: 40, line: 9]\n" +
-				"        [pc: 47, line: 11]\n" +
-				"      Local variable table:\n" +
-				"        [pc: 0, pc: 62] local: args index: 0 type: String[]\n" +
-				"        [pc: 15, pc: 48] local: o index: 1 type: Object\n" +
-				"        [pc: 36, pc: 47] local: y index: 2 type: long\n" +
-				"      Stack map table: number of frames 2\n" +
-				"        [pc: 47, append: {Object}]\n" +
-				"        [pc: 48, full, stack: {Throwable}, locals: {String[]}]\n";
+    			"""
+			  // Method descriptor #15 ([Ljava/lang/String;)V
+			  // Stack: 8, Locals: 4
+			  public static void main(String[] args);
+			     0  new X$Point3D [16]
+			     3  dup
+			     4  lconst_1
+			     5  ldc2_w <Long 2> [18]
+			     8  ldc2_w <Long 3> [20]
+			    11  invokespecial X$Point3D(long, long, long) [22]
+			    14  astore_1 [o]
+			    15  aload_1 [o]
+			    16  instanceof X$Point3D [16]
+			    19  ifeq 47
+			    22  aload_1 [o]
+			    23  checkcast X$Point3D [16]
+			    26  dup
+			    27  invokevirtual X$Point3D.x() : long [25]
+			    30  pop2
+			    31  dup
+			    32  invokevirtual X$Point3D.y() : long [29]
+			    35  lstore_2 [y]
+			    36  invokevirtual X$Point3D.z() : long [32]
+			    39  pop2
+			    40  getstatic System.out : PrintStream [35]
+			    43  lload_2 [y]
+			    44  invokevirtual PrintStream.println(long) : void [41]
+			    47  return
+			    48  new MatchException [47]
+			    51  dup_x1
+			    52  swap
+			    53  dup
+			    54  invokevirtual Throwable.toString() : String [49]
+			    57  swap
+			    58  invokespecial MatchException(String, Throwable) [55]
+			    61  athrow
+			      Exception Table:
+			        [pc: 27, pc: 30] -> 48 when : Throwable
+			        [pc: 32, pc: 35] -> 48 when : Throwable
+			        [pc: 36, pc: 39] -> 48 when : Throwable
+			      Line numbers:
+			        [pc: 0, line: 7]
+			        [pc: 15, line: 8]
+			        [pc: 40, line: 9]
+			        [pc: 47, line: 11]
+			      Local variable table:
+			        [pc: 0, pc: 62] local: args index: 0 type: String[]
+			        [pc: 15, pc: 48] local: o index: 1 type: Object
+			        [pc: 36, pc: 47] local: y index: 2 type: long
+			      Stack map table: number of frames 2
+			        [pc: 47, append: {Object}]
+			        [pc: 48, full, stack: {Throwable}, locals: {String[]}]
+			""";
 
 
     	boolean savedPreview = this.enablePreview;
@@ -951,57 +959,59 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				}
     			""";
     	String expectedOutput =
-    			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-				"  // Stack: 5, Locals: 3\n" +
-				"  public static void main(String[] args);\n" +
-				"     0  new X$Point3D [16]\n" +
-				"     3  dup\n" +
-				"     4  ldc <String \"1\"> [18]\n" +
-				"     6  ldc <String \"2\"> [20]\n" +
-				"     8  ldc <String \"3\"> [22]\n" +
-				"    10  invokespecial X$Point3D(String, String, String) [24]\n" +
-				"    13  astore_1 [o]\n" +
-				"    14  aload_1 [o]\n" +
-				"    15  instanceof X$Point3D [16]\n" +
-				"    18  ifeq 46\n" +
-				"    21  aload_1 [o]\n" +
-				"    22  checkcast X$Point3D [16]\n" +
-				"    25  dup\n" +
-				"    26  invokevirtual X$Point3D.x() : String [27]\n" +
-				"    29  pop\n" +
-				"    30  dup\n" +
-				"    31  invokevirtual X$Point3D.y() : String [31]\n" +
-				"    34  astore_2 [y]\n" +
-				"    35  invokevirtual X$Point3D.z() : String [34]\n" +
-				"    38  pop\n" +
-				"    39  getstatic System.out : PrintStream [37]\n" +
-				"    42  aload_2 [y]\n" +
-				"    43  invokevirtual PrintStream.println(String) : void [43]\n" +
-				"    46  return\n" +
-				"    47  new MatchException [49]\n" +
-				"    50  dup_x1\n" +
-				"    51  swap\n" +
-				"    52  dup\n" +
-				"    53  invokevirtual Throwable.toString() : String [51]\n" +
-				"    56  swap\n" +
-				"    57  invokespecial MatchException(String, Throwable) [56]\n" +
-				"    60  athrow\n" +
-				"      Exception Table:\n" +
-				"        [pc: 26, pc: 29] -> 47 when : Throwable\n" +
-				"        [pc: 31, pc: 34] -> 47 when : Throwable\n" +
-				"        [pc: 35, pc: 38] -> 47 when : Throwable\n" +
-				"      Line numbers:\n" +
-				"        [pc: 0, line: 7]\n" +
-				"        [pc: 14, line: 8]\n" +
-				"        [pc: 39, line: 9]\n" +
-				"        [pc: 46, line: 11]\n" +
-				"      Local variable table:\n" +
-				"        [pc: 0, pc: 61] local: args index: 0 type: String[]\n" +
-				"        [pc: 14, pc: 47] local: o index: 1 type: Object\n" +
-				"        [pc: 35, pc: 46] local: y index: 2 type: String\n" +
-				"      Stack map table: number of frames 2\n" +
-				"        [pc: 46, append: {Object}]\n" +
-				"        [pc: 47, full, stack: {Throwable}, locals: {String[]}]\n";
+    			"""
+			  // Method descriptor #15 ([Ljava/lang/String;)V
+			  // Stack: 5, Locals: 3
+			  public static void main(String[] args);
+			     0  new X$Point3D [16]
+			     3  dup
+			     4  ldc <String "1"> [18]
+			     6  ldc <String "2"> [20]
+			     8  ldc <String "3"> [22]
+			    10  invokespecial X$Point3D(String, String, String) [24]
+			    13  astore_1 [o]
+			    14  aload_1 [o]
+			    15  instanceof X$Point3D [16]
+			    18  ifeq 46
+			    21  aload_1 [o]
+			    22  checkcast X$Point3D [16]
+			    25  dup
+			    26  invokevirtual X$Point3D.x() : String [27]
+			    29  pop
+			    30  dup
+			    31  invokevirtual X$Point3D.y() : String [31]
+			    34  astore_2 [y]
+			    35  invokevirtual X$Point3D.z() : String [34]
+			    38  pop
+			    39  getstatic System.out : PrintStream [37]
+			    42  aload_2 [y]
+			    43  invokevirtual PrintStream.println(String) : void [43]
+			    46  return
+			    47  new MatchException [49]
+			    50  dup_x1
+			    51  swap
+			    52  dup
+			    53  invokevirtual Throwable.toString() : String [51]
+			    56  swap
+			    57  invokespecial MatchException(String, Throwable) [56]
+			    60  athrow
+			      Exception Table:
+			        [pc: 26, pc: 29] -> 47 when : Throwable
+			        [pc: 31, pc: 34] -> 47 when : Throwable
+			        [pc: 35, pc: 38] -> 47 when : Throwable
+			      Line numbers:
+			        [pc: 0, line: 7]
+			        [pc: 14, line: 8]
+			        [pc: 39, line: 9]
+			        [pc: 46, line: 11]
+			      Local variable table:
+			        [pc: 0, pc: 61] local: args index: 0 type: String[]
+			        [pc: 14, pc: 47] local: o index: 1 type: Object
+			        [pc: 35, pc: 46] local: y index: 2 type: String
+			      Stack map table: number of frames 2
+			        [pc: 46, append: {Object}]
+			        [pc: 47, full, stack: {Throwable}, locals: {String[]}]
+			""";
 
     	boolean savedPreview = this.enablePreview;
     	try {
@@ -1038,69 +1048,71 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				}
     			""";
     	String expectedOutput =
-    			"  // Method descriptor #17 ([Ljava/lang/String;)V\n" +
-				"  // Stack: 5, Locals: 3\n" +
-				"  public static void main(String[] args);\n" +
-				"     0  new X$Point3D [18]\n" +
-				"     3  dup\n" +
-				"     4  aconst_null\n" +
-				"     5  new X [1]\n" +
-				"     8  dup\n" +
-				"     9  invokespecial X() [20]\n" +
-				"    12  aconst_null\n" +
-				"    13  invokespecial X$Point3D(I, I, I) [21]\n" +
-				"    16  astore_1 [o]\n" +
-				"    17  aload_1 [o]\n" +
-				"    18  instanceof X$Point3D [18]\n" +
-				"    21  ifeq 74\n" +
-				"    24  aload_1 [o]\n" +
-				"    25  checkcast X$Point3D [18]\n" +
-				"    28  dup\n" +
-				"    29  invokevirtual X$Point3D.x() : I [24]\n" +
-				"    32  pop\n" +
-				"    33  dup\n" +
-				"    34  invokevirtual X$Point3D.y() : I [28]\n" +
-				"    37  dup\n" +
-				"    38  instanceof X [1]\n" +
-				"    41  ifne 48\n" +
-				"    44  pop2\n" +
-				"    45  goto 74\n" +
-				"    48  checkcast X [1]\n" +
-				"    51  astore_2 [y]\n" +
-				"    52  invokevirtual X$Point3D.z() : I [31]\n" +
-				"    55  pop\n" +
-				"    56  getstatic System.out : PrintStream [34]\n" +
-				"    59  aload_2 [y]\n" +
-				"    60  invokevirtual Object.getClass() : Class [40]\n" +
-				"    63  invokestatic String.valueOf(Object) : String [44]\n" +
-				"    66  invokedynamic 0 makeConcatWithConstants(String) : String [50]\n" +
-				"    71  invokevirtual PrintStream.println(String) : void [54]\n" +
-				"    74  return\n" +
-				"    75  new MatchException [60]\n" +
-				"    78  dup_x1\n" +
-				"    79  swap\n" +
-				"    80  dup\n" +
-				"    81  invokevirtual Throwable.toString() : String [62]\n" +
-				"    84  swap\n" +
-				"    85  invokespecial MatchException(String, Throwable) [68]\n" +
-				"    88  athrow\n" +
-				"      Exception Table:\n" +
-				"        [pc: 29, pc: 32] -> 75 when : Throwable\n" +
-				"        [pc: 34, pc: 37] -> 75 when : Throwable\n" +
-				"        [pc: 52, pc: 55] -> 75 when : Throwable\n" +
-				"      Line numbers:\n" +
-				"        [pc: 0, line: 9]\n" +
-				"        [pc: 17, line: 10]\n" +
-				"        [pc: 56, line: 11]\n" +
-				"        [pc: 74, line: 13]\n" +
-				"      Local variable table:\n" +
-				"        [pc: 0, pc: 89] local: args index: 0 type: String[]\n" +
-				"        [pc: 17, pc: 75] local: o index: 1 type: Object\n" +
-				"        [pc: 52, pc: 74] local: y index: 2 type: X\n" +
-				"      Stack map table: number of frames 3\n" +
-				"        [pc: 48, full, stack: {X$Point3D, I}, locals: {String[], Object}]\n" +
-				"        [pc: 74, same]\n" +
-				"        [pc: 75, full, stack: {Throwable}, locals: {String[]}]\n";
+    			"""
+			  // Method descriptor #17 ([Ljava/lang/String;)V
+			  // Stack: 5, Locals: 3
+			  public static void main(String[] args);
+			     0  new X$Point3D [18]
+			     3  dup
+			     4  aconst_null
+			     5  new X [1]
+			     8  dup
+			     9  invokespecial X() [20]
+			    12  aconst_null
+			    13  invokespecial X$Point3D(I, I, I) [21]
+			    16  astore_1 [o]
+			    17  aload_1 [o]
+			    18  instanceof X$Point3D [18]
+			    21  ifeq 74
+			    24  aload_1 [o]
+			    25  checkcast X$Point3D [18]
+			    28  dup
+			    29  invokevirtual X$Point3D.x() : I [24]
+			    32  pop
+			    33  dup
+			    34  invokevirtual X$Point3D.y() : I [28]
+			    37  dup
+			    38  instanceof X [1]
+			    41  ifne 48
+			    44  pop2
+			    45  goto 74
+			    48  checkcast X [1]
+			    51  astore_2 [y]
+			    52  invokevirtual X$Point3D.z() : I [31]
+			    55  pop
+			    56  getstatic System.out : PrintStream [34]
+			    59  aload_2 [y]
+			    60  invokevirtual Object.getClass() : Class [40]
+			    63  invokestatic String.valueOf(Object) : String [44]
+			    66  invokedynamic 0 makeConcatWithConstants(String) : String [50]
+			    71  invokevirtual PrintStream.println(String) : void [54]
+			    74  return
+			    75  new MatchException [60]
+			    78  dup_x1
+			    79  swap
+			    80  dup
+			    81  invokevirtual Throwable.toString() : String [62]
+			    84  swap
+			    85  invokespecial MatchException(String, Throwable) [68]
+			    88  athrow
+			      Exception Table:
+			        [pc: 29, pc: 32] -> 75 when : Throwable
+			        [pc: 34, pc: 37] -> 75 when : Throwable
+			        [pc: 52, pc: 55] -> 75 when : Throwable
+			      Line numbers:
+			        [pc: 0, line: 9]
+			        [pc: 17, line: 10]
+			        [pc: 56, line: 11]
+			        [pc: 74, line: 13]
+			      Local variable table:
+			        [pc: 0, pc: 89] local: args index: 0 type: String[]
+			        [pc: 17, pc: 75] local: o index: 1 type: Object
+			        [pc: 52, pc: 74] local: y index: 2 type: X
+			      Stack map table: number of frames 3
+			        [pc: 48, full, stack: {X$Point3D, I}, locals: {String[], Object}]
+			        [pc: 74, same]
+			        [pc: 75, full, stack: {Throwable}, locals: {String[]}]
+			""";
 
     	boolean savedPreview = this.enablePreview;
     	try {

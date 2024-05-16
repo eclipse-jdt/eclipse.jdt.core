@@ -58,32 +58,34 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 			Util.createJar(
 				new String[] {
 						"jdk/internal/javac/PreviewFeature.java",
-						"package jdk.internal.javac;\n"
-						+ "import java.lang.annotation.*;\n"
-						+ "@Target({ElementType.METHOD,\n"
-						+ "         ElementType.CONSTRUCTOR,\n"
-						+ "         ElementType.FIELD,\n"
-						+ "         ElementType.PACKAGE,\n"
-						+ "         ElementType.MODULE,\n"
-						+ "         ElementType.TYPE})\n"
-						+ "@Retention(RetentionPolicy.CLASS)\n"
-						+ "public @interface PreviewFeature {\n"
-						+ "    public Feature feature();\n"
-						+ "    public enum Feature {\n"
-						+ "        /**\n"
-						+ "         * A key for testing.\n"
-						+ "         */\n"
-						+ "        TEST;\n"
-						+ "    }\n"
-						+ "}",
+						"""
+							package jdk.internal.javac;
+							import java.lang.annotation.*;
+							@Target({ElementType.METHOD,
+							         ElementType.CONSTRUCTOR,
+							         ElementType.FIELD,
+							         ElementType.PACKAGE,
+							         ElementType.MODULE,
+							         ElementType.TYPE})
+							@Retention(RetentionPolicy.CLASS)
+							public @interface PreviewFeature {
+							    public Feature feature();
+							    public enum Feature {
+							        /**
+							         * A key for testing.
+							         */
+							        TEST;
+							    }
+							}""",
 						"p/ABC.java",
-						"package p;\n"
-						+ "import jdk.internal.javac.PreviewFeature;\n"
-						+ "@PreviewFeature(feature=PreviewFeature.Feature.TEST)\n"
-						+ "public class ABC {\n"
-						+ "  @PreviewFeature(feature=PreviewFeature.Feature.TEST)\n"
-						+ "  public void doSomething() {}\n"
-						+ "}"
+						"""
+							package p;
+							import jdk.internal.javac.PreviewFeature;
+							@PreviewFeature(feature=PreviewFeature.Feature.TEST)
+							public class ABC {
+							  @PreviewFeature(feature=PreviewFeature.Feature.TEST)
+							  public void doSomething() {}
+							}"""
 				},
 				jarPath,
 				JavaCore.VERSION_9);
@@ -112,26 +114,30 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 			runNegativeTest(
 					new String[] {
 							"X.java",
-							"import p.*;\n"+
-							"public class X {\n"+
-							"    Zork z = null;\n" +
-							"    ABC abc = null;\n" +
-							"   public void foo () {\n"+
-							"      (new ABC()).doSomething();\n"+
-							"   }\n"+
-							"}\n",
+							"""
+								import p.*;
+								public class X {
+								    Zork z = null;
+								    ABC abc = null;
+								   public void foo () {
+								      (new ABC()).doSomething();
+								   }
+								}
+								""",
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 3)\n" +
-					"	Zork z = null;\n" +
-					"	^^^^\n" +
-					"Zork cannot be resolved to a type\n" +
-					"----------\n" +
-					"2. WARNING in X.java (at line 6)\n" +
-					"	(new ABC()).doSomething();\n" +
-					"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"You are using an API that is part of a preview feature and may be removed in future\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in X.java (at line 3)
+							Zork z = null;
+							^^^^
+						Zork cannot be resolved to a type
+						----------
+						2. WARNING in X.java (at line 6)
+							(new ABC()).doSomething();
+							^^^^^^^^^^^^^^^^^^^^^^^^^
+						You are using an API that is part of a preview feature and may be removed in future
+						----------
+						""",
 					classLibs,
 					true,
 					options);
@@ -154,22 +160,26 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 			runNegativeTest(
 					new String[] {
 							"X.java",
-							"import p.*;\n"+
-							"@SuppressWarnings(\"preview\")\n"+
-							"public class X {\n"+
-									"    Zork z = null;\n" +
-									"    ABC abc = null;\n" +
-									"   public void foo () {\n"+
-									"      (new ABC()).doSomething();\n"+
-									"   }\n"+
-									"}\n",
+							"""
+								import p.*;
+								@SuppressWarnings("preview")
+								public class X {
+								    Zork z = null;
+								    ABC abc = null;
+								   public void foo () {
+								      (new ABC()).doSomething();
+								   }
+								}
+								""",
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 4)\n" +
-					"	Zork z = null;\n" +
-					"	^^^^\n" +
-					"Zork cannot be resolved to a type\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in X.java (at line 4)
+							Zork z = null;
+							^^^^
+						Zork cannot be resolved to a type
+						----------
+						""",
 					classLibs,
 					true,
 					options);
@@ -191,21 +201,25 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 			runNegativeTest(
 					new String[] {
 							"X.java",
-							"import p.*;\n"+
-							"public class X {\n"+
-									"    Zork z = null;\n" +
-									"    ABC abc = null;\n" +
-									"   public void foo () {\n"+
-									"      (new ABC()).doSomething();\n"+
-									"   }\n"+
-									"}\n",
+							"""
+								import p.*;
+								public class X {
+								    Zork z = null;
+								    ABC abc = null;
+								   public void foo () {
+								      (new ABC()).doSomething();
+								   }
+								}
+								""",
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 3)\n" +
-					"	Zork z = null;\n" +
-					"	^^^^\n" +
-					"Zork cannot be resolved to a type\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in X.java (at line 3)
+							Zork z = null;
+							^^^^
+						Zork cannot be resolved to a type
+						----------
+						""",
 					classLibs,
 					true,
 					options);
@@ -227,22 +241,26 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 			runNegativeTest(
 					new String[] {
 							"X.java",
-							"import p.*;\n"+
-							"@SuppressWarnings(\"preview\")\n"+
-							"public class X {\n"+
-									"    Zork z = null;\n" +
-									"    ABC abc = null;\n" +
-									"   public void foo () {\n"+
-									"      (new ABC()).doSomething();\n"+
-									"   }\n"+
-									"}\n",
+							"""
+								import p.*;
+								@SuppressWarnings("preview")
+								public class X {
+								    Zork z = null;
+								    ABC abc = null;
+								   public void foo () {
+								      (new ABC()).doSomething();
+								   }
+								}
+								""",
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 4)\n" +
-					"	Zork z = null;\n" +
-					"	^^^^\n" +
-					"Zork cannot be resolved to a type\n" +
-					"----------\n",
+					"""
+						----------
+						1. ERROR in X.java (at line 4)
+							Zork z = null;
+							^^^^
+						Zork cannot be resolved to a type
+						----------
+						""",
 					classLibs,
 					true,
 					options);

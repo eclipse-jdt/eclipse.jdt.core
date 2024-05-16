@@ -55,321 +55,361 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 	// Test QualifiedTypeReference
 	public void test0001() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-		    "    class Y {\n" +
-			"        class Z {\n" +
-		    "        }\n" +
-			"    }\n" +
-			"    Object o = (@Marker X. @Marker Y.@Marker Z) null;\n" +
-
-			"    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"    @interface Marker {\n" +
-			"    }\n" +
-			"}\n";
+			"""
+			public class X {
+			    class Y {
+			        class Z {
+			        }
+			    }
+			    Object o = (@Marker X. @Marker Y.@Marker Z) null;
+			    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			    @interface Marker {
+			    }
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
 		String expectedOutput =
-				"public class X {\n" +
-				"class Y {\n" +
-				"class Z {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  Object o=(@Marker X.@Marker Y.@Marker Z)null;\n" +
-				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" +
-				"}\n";
+				"""
+			public class X {
+			class Y {
+			class Z {
+			    }
+			  }
+			  Object o=(@Marker X.@Marker Y.@Marker Z)null;
+			  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}
+			}
+			""";
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test ParameterizedQualifiedTypeReference
 	public void test0002() throws JavaModelException {
 		String contents =
-			"public class X {\n" +
-		    "    class Y {\n" +
-			"        class Z<T> {\n" +
-		    "        }\n" +
-			"    }\n" +
-			"    Object o = (@Marker X. @Marker Y.@Marker Z<String>) null;\n" +
-
-			"    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"    @interface Marker {\n" +
-			"    }\n" +
-			"}\n";
+			"""
+			public class X {
+			    class Y {
+			        class Z<T> {
+			        }
+			    }
+			    Object o = (@Marker X. @Marker Y.@Marker Z<String>) null;
+			    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			    @interface Marker {
+			    }
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
 		String expectedOutput =
-				"public class X {\n" +
-				"class Y {\n" +
-				"class Z<T> {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  Object o=(@Marker X.@Marker Y.@Marker Z<String>)null;\n" +
-				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" +
-				"}\n";
+				"""
+			public class X {
+			class Y {
+			class Z<T> {
+			    }
+			  }
+			  Object o=(@Marker X.@Marker Y.@Marker Z<String>)null;
+			  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}
+			}
+			""";
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test ParameterizedQualifiedReference
 	public void test0003() throws JavaModelException {
 		String contents =
-			"public class X<T> {\n" +
-		    "    class Y<R> {\n" +
-			"        class Z<Q> {\n" +
-		    "        }\n" +
-			"    }\n" +
-			"    Object o = (@Marker X<String>. @Marker Y<Integer>.@Marker Z<Object>) null;\n" +
-
-			"    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"    @interface Marker {\n" +
-			"    }\n" +
-			"}\n";
+			"""
+			public class X<T> {
+			    class Y<R> {
+			        class Z<Q> {
+			        }
+			    }
+			    Object o = (@Marker X<String>. @Marker Y<Integer>.@Marker Z<Object>) null;
+			    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			    @interface Marker {
+			    }
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
 		String expectedOutput =
-				"public class X<T> {\n" +
-				"class Y<R> {\n" +
-				"class Z<Q> {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  Object o=(@Marker X<String>.@Marker Y<Integer>.@Marker Z<Object>)null;\n" +
-				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" +
-				"}\n";
+				"""
+			public class X<T> {
+			class Y<R> {
+			class Z<Q> {
+			    }
+			  }
+			  Object o=(@Marker X<String>.@Marker Y<Integer>.@Marker Z<Object>)null;
+			  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}
+			}
+			""";
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test ParameterizedQualifiedReference with arrays.
 	public void test0004() throws JavaModelException {
 		String contents =
-			"public class X<T> {\n" +
-		    "    class Y<R> {\n" +
-			"        class Z<Q> {\n" +
-		    "        }\n" +
-			"    }\n" +
-			"    Object o = (@Marker X<@Marker String>. @Marker Y<@Marker Integer>.@Marker Z<@Marker Object> @Marker [] [] @Marker [] []) null;\n" +
-
-			"    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"    @interface Marker {\n" +
-			"    }\n" +
-			"}\n";
+			"""
+			public class X<T> {
+			    class Y<R> {
+			        class Z<Q> {
+			        }
+			    }
+			    Object o = (@Marker X<@Marker String>. @Marker Y<@Marker Integer>.@Marker Z<@Marker Object> @Marker [] [] @Marker [] []) null;
+			    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			    @interface Marker {
+			    }
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
 		String expectedOutput =
-				"public class X<T> {\n" +
-				"class Y<R> {\n" +
-				"class Z<Q> {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  Object o=(@Marker X<@Marker String>.@Marker Y<@Marker Integer>.@Marker Z<@Marker Object> @Marker [][] @Marker [][])null;\n" +
-				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" +
-				"}\n";
+				"""
+			public class X<T> {
+			class Y<R> {
+			class Z<Q> {
+			    }
+			  }
+			  Object o=(@Marker X<@Marker String>.@Marker Y<@Marker Integer>.@Marker Z<@Marker Object> @Marker [][] @Marker [][])null;
+			  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}
+			}
+			""";
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test ParameterizedQualifiedReference with arrays.
 	public void test0005() throws JavaModelException {
 		String contents =
-			"public class X<T> {\n" +
-		    "    class Y<R> {\n" +
-			"        class Z<Q> {\n" +
-		    "        }\n" +
-			"    }\n" +
-			"    Object o = (@Marker X<@Marker String>. @Marker Y<@Marker Integer>.@Marker Z<@Marker Object> [] @Marker [] [] @Marker []) null;\n" +
-
-			"    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"    @interface Marker {\n" +
-			"    }\n" +
-			"}\n";
+			"""
+			public class X<T> {
+			    class Y<R> {
+			        class Z<Q> {
+			        }
+			    }
+			    Object o = (@Marker X<@Marker String>. @Marker Y<@Marker Integer>.@Marker Z<@Marker Object> [] @Marker [] [] @Marker []) null;
+			    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			    @interface Marker {
+			    }
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
 		String expectedOutput =
-				"public class X<T> {\n" +
-				"class Y<R> {\n" +
-				"class Z<Q> {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  Object o=(@Marker X<@Marker String>.@Marker Y<@Marker Integer>.@Marker Z<@Marker Object>[] @Marker [][] @Marker [])null;\n" +
-				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" +
-				"}\n";
+				"""
+			public class X<T> {
+			class Y<R> {
+			class Z<Q> {
+			    }
+			  }
+			  Object o=(@Marker X<@Marker String>.@Marker Y<@Marker Integer>.@Marker Z<@Marker Object>[] @Marker [][] @Marker [])null;
+			  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}
+			}
+			""";
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test PrimitiveType with arrays
 	public void test0006() throws JavaModelException {
 		String contents =
-			"public class X<T> {\n" +
-		    "    class Y<R> {\n" +
-			"        class Z<Q> {\n" +
-		    "        }\n" +
-			"    }\n" +
-			"    int[][][][] o = (@One int[] @Two [][] @Three []) null;\n" +
-
-			"    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"    @interface Marker {\n" +
-			"    }\n" +
-			"}\n";
+			"""
+			public class X<T> {
+			    class Y<R> {
+			        class Z<Q> {
+			        }
+			    }
+			    int[][][][] o = (@One int[] @Two [][] @Three []) null;
+			    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			    @interface Marker {
+			    }
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy, false);
 		String expectedOutput =
-				"public class X<T> {\n" +
-				"class Y<R> {\n" +
-				"class Z<Q> {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  int[][][][] o=(@One int[] @Two [][] @Three [])null;\n" +
-				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" +
-				"}\n";
+				"""
+			public class X<T> {
+			class Y<R> {
+			class Z<Q> {
+			    }
+			  }
+			  int[][][][] o=(@One int[] @Two [][] @Three [])null;
+			  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}
+			}
+			""";
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test SingleTypeReference with arrays.
 	public void test0007() throws JavaModelException {
 		String contents =
-			"public class X<T> {\n" +
-		    "    class Y<R> {\n" +
-			"        class Z<Q> {\n" +
-		    "        }\n" +
-			"    }\n" +
-			"    String [][][][] o = (@One String[]@Two [][]@Three []) null;\n" +
-
-			"    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"    @interface Marker {\n" +
-			"    }\n" +
-			"}\n";
+			"""
+			public class X<T> {
+			    class Y<R> {
+			        class Z<Q> {
+			        }
+			    }
+			    String [][][][] o = (@One String[]@Two [][]@Three []) null;
+			    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			    @interface Marker {
+			    }
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy, false);
 		String expectedOutput =
-				"public class X<T> {\n" +
-				"class Y<R> {\n" +
-				"class Z<Q> {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  String[][][][] o=(@One String[] @Two [][] @Three [])null;\n" +
-				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" +
-				"}\n";
+				"""
+			public class X<T> {
+			class Y<R> {
+			class Z<Q> {
+			    }
+			  }
+			  String[][][][] o=(@One String[] @Two [][] @Three [])null;
+			  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}
+			}
+			""";
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test ParameterizedSingleTypeReference with arrays.
 	public void test0008() throws JavaModelException {
 		String contents =
-			"public class X<T> {\n" +
-		    "    class Y<R> {\n" +
-			"        class Z<Q> {\n" +
-		    "        }\n" +
-			"    }\n" +
-			"    Object o = (@One X<String> [] @Two [][]@Three []) null;\n" +
-
-			"    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"    @interface Marker {\n" +
-			"    }\n" +
-			"}\n";
+			"""
+			public class X<T> {
+			    class Y<R> {
+			        class Z<Q> {
+			        }
+			    }
+			    Object o = (@One X<String> [] @Two [][]@Three []) null;
+			    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			    @interface Marker {
+			    }
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy, false);
 		String expectedOutput =
-				"public class X<T> {\n" +
-				"class Y<R> {\n" +
-				"class Z<Q> {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  Object o=(@One X<String>[] @Two [][] @Three [])null;\n" +
-				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" +
-				"}\n";
+				"""
+			public class X<T> {
+			class Y<R> {
+			class Z<Q> {
+			    }
+			  }
+			  Object o=(@One X<String>[] @Two [][] @Three [])null;
+			  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}
+			}
+			""";
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test type parameters.
 	public void test0009() throws JavaModelException {
 		String contents =
-			"public class X<@NonNull T> {\n" +
-		    "    class Y<@Nullable R> {\n" +
-			"        class Z<@Readonly Q> {\n" +
-		    "        }\n" +
-			"    }\n" +
-			"}\n";
+			"""
+			public class X<@NonNull T> {
+			    class Y<@Nullable R> {
+			        class Z<@Readonly Q> {
+			        }
+			    }
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy, false);
 		String expectedOutput =
-				"public class X<@NonNull T> {\n" +
-				"class Y<@Nullable R> {\n" +
-				"class Z<@Readonly Q> {\n" +
-				"    }\n" +
-				"  }\n" +
-				"}\n";
+				"""
+			public class X<@NonNull T> {
+			class Y<@Nullable R> {
+			class Z<@Readonly Q> {
+			    }
+			  }
+			}
+			""";
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test wildcard types.
 	public void test0010() throws JavaModelException {
 		String contents =
-			"public class X<@NonNull T> {\n" +
-		    "    X<@NonNull ? extends @Nullable String> x;\n" +
-			"}\n";
+			"""
+			public class X<@NonNull T> {
+			    X<@NonNull ? extends @Nullable String> x;
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy, false);
 		String expectedOutput =
-				"public class X<@NonNull T> {\n" +
-				"  X<@NonNull ? extends @Nullable String> x;\n" +
-				"}\n";
+				"""
+			public class X<@NonNull T> {
+			  X<@NonNull ? extends @Nullable String> x;
+			}
+			""";
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test union types.
 	public void test0011() throws JavaModelException {
 		String contents =
-			"public class X<@NonNull T> {\n" +
-		    "    void foo() {\n" +
-		    "        try {\n" +
-		    "        } catch (@NonNull NullPointerException | @Nullable ArrayIndexOutOfBoundsException e) {\n" +
-		    "        }\n" +
-		    "    }\n" +
-			"}\n";
+			"""
+			public class X<@NonNull T> {
+			    void foo() {
+			        try {
+			        } catch (@NonNull NullPointerException | @Nullable ArrayIndexOutOfBoundsException e) {
+			        }
+			    }
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy, false);
 		String expectedOutput =
-				"public class X<@NonNull T> {\n" +
-				"  void foo(){\n" +
-				"    try {\n" +
-				"    }\n" +
-				" catch (    @NonNull NullPointerException|@Nullable ArrayIndexOutOfBoundsException e) {\n" +
-				"    }\n" +
-				"  }\n" +
-				"}\n";
+				"""
+			public class X<@NonNull T> {
+			  void foo(){
+			    try {
+			    }
+			 catch (    @NonNull NullPointerException|@Nullable ArrayIndexOutOfBoundsException e) {
+			    }
+			  }
+			}
+			""";
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test thrown types.
 	public void test0012() throws JavaModelException {
 		String contents =
-			"public class X<@NonNull T> {\n" +
-		    "    void foo() throws @NonNull NullPointerException, @Nullable ArrayIndexOutOfBoundsException {\n" +
-		    "        try {\n" +
-		    "        } catch (@NonNull NullPointerException | @Nullable ArrayIndexOutOfBoundsException e) {\n" +
-		    "        }\n" +
-		    "    }\n" +
-			"}\n";
+			"""
+			public class X<@NonNull T> {
+			    void foo() throws @NonNull NullPointerException, @Nullable ArrayIndexOutOfBoundsException {
+			        try {
+			        } catch (@NonNull NullPointerException | @Nullable ArrayIndexOutOfBoundsException e) {
+			        }
+			    }
+			}
+			""";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy, false);
 		String expectedOutput =
-				"public class X<@NonNull T> {\n" +
-				"  void foo() throws @NonNull NullPointerException, @Nullable ArrayIndexOutOfBoundsException {\n" +
-				"    try {\n" +
-				"    }\n" +
-				" catch (    @NonNull NullPointerException|@Nullable ArrayIndexOutOfBoundsException e) {\n" +
-				"    }\n" +
-				"  }\n" +
-				"}\n";
+				"""
+			public class X<@NonNull T> {
+			  void foo() throws @NonNull NullPointerException, @Nullable ArrayIndexOutOfBoundsException {
+			    try {
+			    }
+			 catch (    @NonNull NullPointerException|@Nullable ArrayIndexOutOfBoundsException e) {
+			    }
+			  }
+			}
+			""";
 		assertASTNodeEquals(expectedOutput, node);
 	}
 }

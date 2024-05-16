@@ -132,9 +132,10 @@ private void setupExternalLibrary() throws IOException {
 	String[] pathsAndContents =
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				}"""
 		};
 	org.eclipse.jdt.core.tests.util.Util.createClassFolder(pathsAndContents, externalFolder + "/lib", "1.4");
 	org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "/src");
@@ -174,54 +175,56 @@ private void setUpGenericJar() throws IOException, CoreException {
 		"class AType<E> {\n" + // type name containing character 'T'
 		"}",
 		"Container.java",
-		"public class Container {\n" +
-		"	class Inner<S> {\n" +
-		"		Inner(String st, Class<S> s) {\n" +
-		"			super();\n" +
-		"		}\n" +
-		"	}\n" +
-		"}"
+		"""
+			public class Container {
+				class Inner<S> {
+					Inner(String st, Class<S> s) {
+						super();
+					}
+				}
+			}"""
 	};
 	addLibrary("generic.jar", "genericsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
 }
 private void setUpInnerClassesJar() throws IOException, CoreException {
 	String[] pathAndContents = new String[] {
 		"inner/X.java",
-		"package inner;\n" +
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    new X() {};\n" +
-		"    class Y {}\n" +
-		"    new Y() {\n" +
-		"      class Z {}\n" +
-		"    };\n" +
-		"    class W {\n" +
-		"      void bar() {\n" +
-		"        new W() {};\n" +
-		"      }\n" +
-		"    }\n" +
-		"    new Object() {\n" +
-		"      class U {\n" +
-		"        U(String s) {\n" +
-		"        }\n" +
-		"      }\n" +
-		"    };\n" +
-		"  }\n" +
-		"  class V {\n" +
-		"    V(String s) {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  class Inner {\n" +
-		"    Inner() {\n" +
-		"    }\n" +
-		"    class WW {\n" +
-		"      WW() {}\n" +
-		"      class WWW {\n" +
-		"        WWW() {}\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}"
+		"""
+			package inner;
+			public class X {
+			  void foo() {
+			    new X() {};
+			    class Y {}
+			    new Y() {
+			      class Z {}
+			    };
+			    class W {
+			      void bar() {
+			        new W() {};
+			      }
+			    }
+			    new Object() {
+			      class U {
+			        U(String s) {
+			        }
+			      }
+			    };
+			  }
+			  class V {
+			    V(String s) {
+			    }
+			  }
+			  class Inner {
+			    Inner() {
+			    }
+			    class WW {
+			      WW() {}
+			      class WWW {
+			        WWW() {}
+			      }
+			    }
+			  }
+			}"""
 	};
 	addLibrary("innerClasses.jar", "innerClassessrc.zip", pathAndContents, JavaCore.VERSION_1_4);
 }
@@ -302,9 +305,10 @@ public void testChangeSourceAttachmentFile() throws CoreException {
 	swapFiles("AttachSourceTests/attachsrc.zip", "AttachSourceTests/attachsrc.new.zip");
 	assertSourceEquals(
 		"unexpected source for foo() after replacement",
-		"public void foo() {\n" +
-		"		System.out.println(\"foo\");\n" +
-		"	}",
+		"""
+			public void foo() {
+					System.out.println("foo");
+				}""",
 		method.getSource());
 
 	// delete source attachment file
@@ -486,17 +490,19 @@ public void testExternalFolder4() throws Exception {
 		String[] pathsAndContents =
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					}"""
 			};
 		org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "/src227813/root1/subroot");
 		pathsAndContents =
 			new String[] {
 				"q/X.java",
-				"package q;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package q;
+					public class X {
+					}"""
 			};
 		org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "/src227813/root2/subroot");
 
@@ -525,9 +531,10 @@ public void testExternalFolder5() throws Exception {
 		String[] pathsAndContents =
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					}"""
 			};
 		org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "/src228639/src");
 
@@ -681,9 +688,10 @@ public void test264301() throws CoreException {
 		IJavaProject javaProject = createJavaProject("Test", new String[]{""}, new String[]{"/AttachSourceTests/test.jar"}, "");
 		createFolder("/Test/test1");
 		createFile("/Test/test1/Test.java",
-			"package test1;\n" +
-			"\n" +
-			"public class Test {}");
+			"""
+				package test1;
+				
+				public class Test {}""");
 		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(getFile("/AttachSourceTests/test.jar"));
 		String dev = ResourcesPlugin.getWorkspace().getRoot().getLocation().getDevice() + IPath.SEPARATOR;
 		try {
@@ -723,9 +731,10 @@ public void testGeneric2() throws JavaModelException {
 	IMethod method = type.getMethod("foo", new String[] {"QK;", "QV;"});
 	assertSourceEquals(
 		"Unexpected source",
-		"<K, V> V foo(K key, V value) {\n" +
-		"    return value;\n" +
-		"  }",
+		"""
+			<K, V> V foo(K key, V value) {
+			    return value;
+			  }""",
 		method.getSource());
 	attachSource(root, null, null); // detach source
 }
@@ -904,40 +913,41 @@ public void testInnerClass1() throws JavaModelException {
 	IType type = fragment.getOrdinaryClassFile("X.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    new X() {};\n" +
-		"    class Y {}\n" +
-		"    new Y() {\n" +
-		"      class Z {}\n" +
-		"    };\n" +
-		"    class W {\n" +
-		"      void bar() {\n" +
-		"        new W() {};\n" +
-		"      }\n" +
-		"    }\n" +
-		"    new Object() {\n" +
-		"      class U {\n" +
-		"        U(String s) {\n" +
-		"        }\n" +
-		"      }\n" +
-		"    };\n" +
-		"  }\n" +
-		"  class V {\n" +
-		"    V(String s) {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  class Inner {\n" +
-		"    Inner() {\n" +
-		"    }\n" +
-		"    class WW {\n" +
-		"      WW() {}\n" +
-		"      class WWW {\n" +
-		"        WWW() {}\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}",
+		"""
+			public class X {
+			  void foo() {
+			    new X() {};
+			    class Y {}
+			    new Y() {
+			      class Z {}
+			    };
+			    class W {
+			      void bar() {
+			        new W() {};
+			      }
+			    }
+			    new Object() {
+			      class U {
+			        U(String s) {
+			        }
+			      }
+			    };
+			  }
+			  class V {
+			    V(String s) {
+			    }
+			  }
+			  class Inner {
+			    Inner() {
+			    }
+			    class WW {
+			      WW() {}
+			      class WWW {
+			        WWW() {}
+			      }
+			    }
+			  }
+			}""",
 		type.getSource());
 	attachSource(root, null, null); // detach source
 }
@@ -969,9 +979,10 @@ public void testInnerClass3() throws JavaModelException {
 	IType type = fragment.getOrdinaryClassFile("X$2.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
-		"new Y() {\n" +
-		"      class Z {}\n" +
-		"    }",
+		"""
+			new Y() {
+			      class Z {}
+			    }""",
 		type.getSource());
 	attachSource(root, null, null); // detach source
 }
@@ -1019,11 +1030,12 @@ public void testInnerClass6() throws JavaModelException {
 	IType type = fragment.getOrdinaryClassFile("X$1$W.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
-		"class W {\n" +
-		"      void bar() {\n" +
-		"        new W() {};\n" +
-		"      }\n" +
-		"    }",
+		"""
+			class W {
+			      void bar() {
+			        new W() {};
+			      }
+			    }""",
 		type.getSource());
 	attachSource(root, null, null); // detach source
 }
@@ -1055,10 +1067,11 @@ public void testInnerClass8() throws JavaModelException {
 	IType type = fragment.getOrdinaryClassFile("X$V.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
-		"class V {\n" +
-		"    V(String s) {\n" +
-		"    }\n" +
-		"  }",
+		"""
+			class V {
+			    V(String s) {
+			    }
+			  }""",
 		type.getSource());
 	attachSource(root, null, null); // detach source
 }
@@ -1075,10 +1088,11 @@ public void testInnerClass9() throws JavaModelException {
 	IType type = fragment.getOrdinaryClassFile("X$4$U.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
-		"class U {\n" +
-		"        U(String s) {\n" +
-		"        }\n" +
-		"      }",
+		"""
+			class U {
+			        U(String s) {
+			        }
+			      }""",
 		type.getSource());
 	attachSource(root, null, null); // detach source
 }
@@ -1092,19 +1106,21 @@ public void testInnerClass10() throws JavaModelException {
 	IType type = fragment.getOrdinaryClassFile("X$Inner$WW.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
-		"class WW {\n" +
-		"      WW() {}\n" +
-		"      class WWW {\n" +
-		"        WWW() {}\n" +
-		"      }\n" +
-		"    }",
+		"""
+			class WW {
+			      WW() {}
+			      class WWW {
+			        WWW() {}
+			      }
+			    }""",
 		type.getSource());
 	type = fragment.getOrdinaryClassFile("X$Inner$WW$WWW.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
-		"class WWW {\n" +
-		"        WWW() {}\n" +
-		"      }",
+		"""
+			class WWW {
+			        WWW() {}
+			      }""",
 		type.getSource());
 	attachSource(root, null, null); // detach source
 }
@@ -1118,11 +1134,12 @@ public void testLibFolder() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("p").getOrdinaryClassFile("X.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package p;\n" +
-		"public class X {\n" +
-		"	public void foo() {\n" +
-		"	}\n" +
-		"}",
+		"""
+			package p;
+			public class X {
+				public void foo() {
+				}
+			}""",
 		cf.getSource());
 }
 /**
@@ -1158,9 +1175,10 @@ public void testProjectAsClassFolder1() throws CoreException {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				}"""
 		);
 		IProject p1 = getProject("P1");
 		p1.build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1170,9 +1188,10 @@ public void testProjectAsClassFolder1() throws CoreException {
 		IOrdinaryClassFile cf = root.getPackageFragment("p").getOrdinaryClassFile("X.class");
 		assertSourceEquals(
 			"Unexpected source for class file P1/p/X.class",
-			"package p;\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				package p;
+				public class X {
+				}""",
 			cf.getSource());
 	} finally {
 		deleteProject("P1");
@@ -1219,17 +1238,19 @@ public void testProjectAsSourceAttachment() throws CoreException {
 		IJavaProject javaProject = createJavaProject("Test", new String[]{""}, new String[]{"/AttachSourceTests/test.jar"}, "");
 		createFolder("/Test/test1");
 		createFile("/Test/test1/Test.java",
-			"package test1;\n" +
-			"\n" +
-			"public class Test {}");
+			"""
+				package test1;
+				
+				public class Test {}""");
 		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(getFile("/AttachSourceTests/test.jar"));
 		attachSource(root, "/Test", null);
 		IOrdinaryClassFile cf = root.getPackageFragment("test1").getOrdinaryClassFile("Test.class");
 		assertSourceEquals(
 			"Unexpected source for class file test1/Test.class",
-			"package test1;\n" +
-			"\n" +
-			"public class Test {}",
+			"""
+				package test1;
+				
+				public class Test {}""",
 			cf.getSource());
 	} finally {
 		deleteProject("Test");
@@ -1313,11 +1334,12 @@ public void testRootPath3() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("p").getOrdinaryClassFile("X.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package p;\n" +
-		"public class X {\n" +
-		"	public void foo() {\n" +
-		"	}\n" +
-		"}",
+		"""
+			package p;
+			public class X {
+				public void foo() {
+				}
+			}""",
 		cf.getSource());
 	root.close();
 }
@@ -1332,9 +1354,10 @@ public void testRootPath4() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("test1").getOrdinaryClassFile("Test.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package test1;\n" +
-		"\n" +
-		"public class Test {}",
+		"""
+			package test1;
+			
+			public class Test {}""",
 		cf.getSource());
 	root.close();
 }
@@ -1349,9 +1372,10 @@ public void testRootPath5() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("p1.p2").getOrdinaryClassFile("A.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package p1.p2;\n" +
-		"\n" +
-		"public class A {}",
+		"""
+			package p1.p2;
+			
+			public class A {}""",
 		cf.getSource());
 
 	cf = root.getPackageFragment("").getOrdinaryClassFile("B.class");
@@ -1373,9 +1397,10 @@ public void testRootPath6() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("p1.p2").getOrdinaryClassFile("A.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package p1.p2;\n" +
-		"\n" +
-		"public class A {}",
+		"""
+			package p1.p2;
+			
+			public class A {}""",
 		cf.getSource());
 
 	cf = root.getPackageFragment("").getOrdinaryClassFile("B.class");
@@ -1397,9 +1422,10 @@ public void testRootPath7() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("p1.p2").getOrdinaryClassFile("A.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package p1.p2;\n" +
-		"\n" +
-		"public class A {}",
+		"""
+			package p1.p2;
+			
+			public class A {}""",
 		cf.getSource());
 
 	cf = root.getPackageFragment("").getOrdinaryClassFile("B.class");
@@ -1411,9 +1437,10 @@ public void testRootPath7() throws JavaModelException {
 	cf = root.getPackageFragment("test1").getOrdinaryClassFile("Test.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package test1;\n" +
-		"\n" +
-		"public class Test {}",
+		"""
+			package test1;
+			
+			public class Test {}""",
 		cf.getSource());
 
 	attachSource(root, null, null); // detach source
@@ -1429,9 +1456,10 @@ public void testRootPath8() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("p1.p2").getOrdinaryClassFile("A.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package p1.p2;\n" +
-		"\n" +
-		"public class A {}",
+		"""
+			package p1.p2;
+			
+			public class A {}""",
 		cf.getSource());
 
 	cf = root.getPackageFragment("").getOrdinaryClassFile("B.class");
@@ -1443,9 +1471,10 @@ public void testRootPath8() throws JavaModelException {
 	cf = root.getPackageFragment("test1").getOrdinaryClassFile("Test.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package test1;\n" +
-		"\n" +
-		"public class Test {}",
+		"""
+			package test1;
+			
+			public class Test {}""",
 		cf.getSource());
 
 	attachSource(root, null, null); // detach source
@@ -1461,9 +1490,10 @@ public void testRootPath9() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("p1.p2").getOrdinaryClassFile("A.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package p1.p2;\n" +
-		"\n" +
-		"public class A {}",
+		"""
+			package p1.p2;
+			
+			public class A {}""",
 		cf.getSource());
 
 	cf = root.getPackageFragment("").getOrdinaryClassFile("B.class");
@@ -1475,9 +1505,10 @@ public void testRootPath9() throws JavaModelException {
 	cf = root.getPackageFragment("test1").getOrdinaryClassFile("Test.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package test1;\n" +
-		"\n" +
-		"public class Test {}",
+		"""
+			package test1;
+			
+			public class Test {}""",
 		cf.getSource());
 
 	attachSource(root, null, null); // detach source
@@ -1493,13 +1524,14 @@ public void testRootPath10() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("p").getOrdinaryClassFile("X.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package p;\n" +
-		"\n" +
-		"public class X {\n" +
-		"\n" +
-		"	public static void main(String[] args) {\n" +
-		"	}\n" +
-		"}",
+		"""
+			package p;
+			
+			public class X {
+			
+				public static void main(String[] args) {
+				}
+			}""",
 		cf.getSource());
 	attachSource(root, null, null); // detach source
 }
@@ -1514,17 +1546,19 @@ public void testRootPath11() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("P1").getOrdinaryClassFile("D.class");
 	assertSourceEquals(
 		"Unexpected source for class file P1.D",
-		"package P1;\n" +
-		"\n" +
-		"public class D {}",
+		"""
+			package P1;
+			
+			public class D {}""",
 		cf.getSource());
 
 	cf = root.getPackageFragment("P1.p2").getOrdinaryClassFile("A.class");
 	assertSourceEquals(
 		"Unexpected source for class file P1.p2.A",
-		"package P1.p2;\n" +
-		"\n" +
-		"public class A {}",
+		"""
+			package P1.p2;
+			
+			public class A {}""",
 		cf.getSource());
 
 	assertTrue("Not a binary root", root.getKind() == IPackageFragmentRoot.K_BINARY);
@@ -1543,9 +1577,11 @@ public void testRootPath12() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("p1.p2").getOrdinaryClassFile("X.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package p1.p2;\n" +
-		"public class X {\n" +
-		"}\n",
+		"""
+			package p1.p2;
+			public class X {
+			}
+			""",
 		cf.getSource());
 	attachSource(root, null, null); // detach source
 }
@@ -1639,16 +1675,18 @@ public void testRootPath13() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("p1.p2").getOrdinaryClassFile("X.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package p1.p2;\n" +
-		"public class X {\n" +
-		"}",
+		"""
+			package p1.p2;
+			public class X {
+			}""",
 		cf.getSource());
 	cf = root.getPackageFragment("tests.p1").getOrdinaryClassFile("TestforX.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package tests.p1;\n" +
-		"public class TestforX {\n" +
-		"}",
+		"""
+			package tests.p1;
+			public class TestforX {
+			}""",
 		cf.getSource());
 	attachSource(root, null, null); // detach source
 }
@@ -1704,29 +1742,31 @@ public void test267046() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("test").getOrdinaryClassFile("Foo.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package test;\n" +
-		"\n" +
-		"public class Foo {\n" +
-		"	public static class Bar<A, B> {\n" +
-		"	}\n" +
-		"\n" +
-		"	public static void gotchaFunc1(Bar<byte[], Object> bar) {\n" +
-		"	}\n" +
-		"	public static void gotchaFunc2(Bar<boolean[], Object> bar) {\n" +
-		"	}\n" +
-		"	public static void gotchaFunc3(Bar<char[], Object> bar) {\n" +
-		"	}\n" +
-		"	public static void gotchaFunc4(Bar<double[], Object> bar) {\n" +
-		"	}\n" +
-		"	public static void gotchaFunc5(Bar<float[], Object> bar) {\n" +
-		"	}\n" +
-		"	public static void gotchaFunc6(Bar<int[], Object> bar) {\n" +
-		"	}\n" +
-		"	public static void gotchaFunc7(Bar<long[], Object> bar) {\n" +
-		"	}\n" +
-		"	public static void gotchaFunc8(Bar<short[], Object> bar) {\n" +
-		"	}\n" +
-		"}\n",
+		"""
+			package test;
+			
+			public class Foo {
+				public static class Bar<A, B> {
+				}
+			
+				public static void gotchaFunc1(Bar<byte[], Object> bar) {
+				}
+				public static void gotchaFunc2(Bar<boolean[], Object> bar) {
+				}
+				public static void gotchaFunc3(Bar<char[], Object> bar) {
+				}
+				public static void gotchaFunc4(Bar<double[], Object> bar) {
+				}
+				public static void gotchaFunc5(Bar<float[], Object> bar) {
+				}
+				public static void gotchaFunc6(Bar<int[], Object> bar) {
+				}
+				public static void gotchaFunc7(Bar<long[], Object> bar) {
+				}
+				public static void gotchaFunc8(Bar<short[], Object> bar) {
+				}
+			}
+			""",
 		cf.getSource());
 	IType type = cf.getType();
 	IMethod[] methods = type.getMethods();
@@ -1783,9 +1823,10 @@ public void testConstructorAccess() throws JavaModelException {
 	assertTrue("Not a constructor", methods[0].isConstructor());
 	assertSourceEquals(
 		"Unexpected source for generic constructor",
-		"Inner(String st, Class<S> s) {\n" +
-		"			super();\n" +
-		"		}",
+		"""
+			Inner(String st, Class<S> s) {
+						super();
+					}""",
 		methods[0].getSource());
 	attachSource(root, null, null); // detach source
 }
@@ -1863,28 +1904,34 @@ public void testModule1() throws CoreException, IOException {
 		IJavaProject javaProject = createJavaProject("Test", new String[]{"src"}, null, "bin", JavaCore.VERSION_9);
 		createFolder("/Test/src/test1");
 		createFile("/Test/src/test1/Test.java",
-			"package test1;\n" +
-			"\n" +
-			"public class Test {}");
+			"""
+				package test1;
+				
+				public class Test {}""");
 		createFile("/Test/src/module-info.java",
-			"module test {\n" +
-			"	requires mod.one;\n" +
-			"	exports test1;\n" +
-			"}\n");
+			"""
+				module test {
+					requires mod.one;
+					exports test1;
+				}
+				""");
 
 		String modOneSrc =
-			"\n" +
-			"/** The no. one module. */\n" +
-			"module mod.one {\n" +
-			"  exports m.o.p;\n" +
-			"}\n";
+			"""
+			
+			/** The no. one module. */
+			module mod.one {
+			  exports m.o.p;
+			}
+			""";
 		String[] pathAndContents = new String[] {
 			"module-info.java",
 			modOneSrc,
 			"m/o/p/C.java",
-			"package m.o.p;\n" +
-			"public class C {\n" +
-			"}"
+			"""
+				package m.o.p;
+				public class C {
+				}"""
 		};
 		addLibrary(javaProject, "mod.one.jar", "mod.onesrc.zip", pathAndContents, JavaCore.VERSION_9);
 		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(getFile("/Test/mod.one.jar"));
@@ -1913,9 +1960,11 @@ public void testModule2() throws CoreException, IOException {
 	try {
 		IJavaProject prj = createJava9Project("Test", new String[]{"src"});
 		String moduleSrc =
-			"module test {\n" +
-			"	requires oracle.net;\n" +
-			"}\n";
+			"""
+			module test {
+				requires oracle.net;
+			}
+			""";
 		createFile("/Test/src/module-info.java", moduleSrc);
 		prj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IMarker[] markers = prj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -1970,9 +2019,11 @@ public void testModule2b() throws CoreException, IOException {
 		project.setRawClasspath(newPath, null);
 		//
 		String moduleSrc =
-			"module test {\n" +
-			"	requires java.desktop;\n" +
-			"}\n";
+			"""
+			module test {
+				requires java.desktop;
+			}
+			""";
 		createFile("/Test/src/module-info.java", moduleSrc);
 		ICompilationUnit unit = getCompilationUnit("/Test/src/module-info.java");
 		int start = moduleSrc.indexOf("java.desktop");

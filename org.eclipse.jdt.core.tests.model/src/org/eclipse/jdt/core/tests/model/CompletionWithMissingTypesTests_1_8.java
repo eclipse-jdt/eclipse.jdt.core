@@ -53,20 +53,24 @@ public void testStaticInterfaceMethod() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
-				"package test;"+
-				"public class Test {\n" +
-				"  void foo() {\n" +
-				"    MissingType.foo\n" +
-				"  }\n" +
-				"}\n");
+				"""
+					package test;\
+					public class Test {
+					  void foo() {
+					    MissingType.foo
+					  }
+					}
+					""");
 
 			this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/missing/MissingType.java",
-				"package missing;"+
-				"public interface MissingType {\n" +
-				"  void foo1()\n" +
-				"  static void foo2() {}\n" +
-				"}\n");
+				"""
+					package missing;\
+					public interface MissingType {
+					  void foo1()
+					  static void foo2() {}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
 		requestor.allowAllRequiredProposals();

@@ -162,18 +162,19 @@ public void testBug30946() {
 			@Override
 			public void run(){
 				String str =
-					"public class A {\n" +
-					"	void foo() {\n" +
-					"		if (true) {\n" +
-					"			if()\n" +
-					"			switch (1) {\n" +
-					"				case A.B:\n" +
-					"					C d= (C) s;\n" +
-					"					here\n" +
-					"			}\n" +
-					"		}\n" +
-					"	}\n" +
-					"}n";
+					"""
+					public class A {
+						void foo() {
+							if (true) {
+								if()
+								switch (1) {
+									case A.B:
+										C d= (C) s;
+										here
+								}
+							}
+						}
+					}n""";
 
 				String selection = "here";
 
@@ -181,18 +182,20 @@ public void testBug30946() {
 
 				String completionIdentifier = "here";
 				String expectedUnitDisplayString =
-					"public class A {\n" +
-					"  public A() {\n" +
-					"  }\n" +
-					"  void foo() {\n" +
-					"    {\n" +
-					"      {\n" +
-					"        C d;\n" +
-					"        <SelectOnName:here>;\n" +
-					"      }\n" +
-					"    }\n" +
-					"  }\n" +
-					"}\n";
+					"""
+					public class A {
+					  public A() {
+					  }
+					  void foo() {
+					    {
+					      {
+					        C d;
+					        <SelectOnName:here>;
+					      }
+					    }
+					  }
+					}
+					""";
 				String expectedReplacedSource = "here";
 				String testName = "<inifinite loop test>";
 

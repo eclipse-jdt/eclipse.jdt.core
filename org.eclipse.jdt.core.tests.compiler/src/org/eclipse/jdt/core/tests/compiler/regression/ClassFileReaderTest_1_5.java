@@ -85,25 +85,27 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 */
 	public void test001() throws Exception {
 		String source =
-			"public class X {\n" +
-			"	X(String s) {\n" +
-			"	}\n" +
-			"	public void foo(int i, long l, String[][]... args) {\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X {
+				X(String s) {
+				}
+				public void foo(int i, long l, String[][]... args) {
+				}
+			}""";
 		String expectedOutput =
-			"  // Method descriptor #18 (IJ[[[Ljava/lang/String;)V\n" +
-			"  // Stack: 0, Locals: 5\n" +
-			"  public void foo(int i, long l, java.lang.String[][]... args);\n" +
-			"    0  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 5]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-			"        [pc: 0, pc: 1] local: i index: 1 type: int\n" +
-			"        [pc: 0, pc: 1] local: l index: 2 type: long\n" +
-			"        [pc: 0, pc: 1] local: args index: 4 type: java.lang.String[][][]\n" +
-			"}";
+			"""
+			  // Method descriptor #18 (IJ[[[Ljava/lang/String;)V
+			  // Stack: 0, Locals: 5
+			  public void foo(int i, long l, java.lang.String[][]... args);
+			    0  return
+			      Line numbers:
+			        [pc: 0, line: 5]
+			      Local variable table:
+			        [pc: 0, pc: 1] local: this index: 0 type: X
+			        [pc: 0, pc: 1] local: i index: 1 type: int
+			        [pc: 0, pc: 1] local: l index: 2 type: long
+			        [pc: 0, pc: 1] local: args index: 4 type: java.lang.String[][][]
+			}""";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -112,85 +114,92 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 */
 	public void test002() throws Exception {
 		String source =
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		long[] tab = new long[] {};\n" +
-			"		System.out.println(tab.clone());\n" +
-			"		System.out.println(tab.clone());\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X {
+				public static void main(String[] args) {
+					long[] tab = new long[] {};
+					System.out.println(tab.clone());
+					System.out.println(tab.clone());
+				}
+			}""";
 		String expectedOutput =
-			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-			"  // Stack: 2, Locals: 2\n" +
-			"  public static void main(java.lang.String[] args);\n" +
-			"     0  iconst_0\n" +
-			"     1  newarray long [11]\n" +
-			"     3  astore_1 [tab]\n" +
-			"     4  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-			"     7  aload_1 [tab]\n" +
-			"     8  invokevirtual long[].clone() : java.lang.Object [22]\n" +
-			"    11  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [28]\n" +
-			"    14  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-			"    17  aload_1 [tab]\n" +
-			"    18  invokevirtual long[].clone() : java.lang.Object [22]\n" +
-			"    21  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [28]\n" +
-			"    24  return\n";
+			"""
+			  // Method descriptor #15 ([Ljava/lang/String;)V
+			  // Stack: 2, Locals: 2
+			  public static void main(java.lang.String[] args);
+			     0  iconst_0
+			     1  newarray long [11]
+			     3  astore_1 [tab]
+			     4  getstatic java.lang.System.out : java.io.PrintStream [16]
+			     7  aload_1 [tab]
+			     8  invokevirtual long[].clone() : java.lang.Object [22]
+			    11  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [28]
+			    14  getstatic java.lang.System.out : java.io.PrintStream [16]
+			    17  aload_1 [tab]
+			    18  invokevirtual long[].clone() : java.lang.Object [22]
+			    21  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [28]
+			    24  return
+			""";
 		checkClassFile("X", source, expectedOutput);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
 	public void test003() throws Exception {
 		String source =
-			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" +
-			"  U field;\n" +
-			"  String field2;\n" +
-			"  <T> Y(T t) {}\n" +
-			"  <T> T foo(T t, String... s) {\n" +
-			"    return t;\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class Y<W, U extends java.io.Reader & java.io.Serializable> {
+			  U field;
+			  String field2;
+			  <T> Y(T t) {}
+			  <T> T foo(T t, String... s) {
+			    return t;
+			  }
+			}""";
 		String expectedOutput =
-			"public class Y<W,U extends Reader & Serializable> {\n" +
-			"  \n" +
-			"  U field;\n" +
-			"  \n" +
-			"  String field2;\n" +
-			"  \n" +
-			"  <T> Y(T t) {\n" +
-			"  }\n" +
-			"  \n" +
-			"  <T> T foo(T t, String... s) {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class Y<W,U extends Reader & Serializable> {
+			 \s
+			  U field;
+			 \s
+			  String field2;
+			 \s
+			  <T> Y(T t) {
+			  }
+			 \s
+			  <T> T foo(T t, String... s) {
+			    return null;
+			  }
+			}""";
 		checkClassFile("", "Y", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
 	public void test004() throws Exception {
 		String source =
-			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" +
-			"  U field;\n" +
-			"  String field2;\n" +
-			"  <T> Y(T t) {}\n" +
-			"  <T> T foo(T t, String... s) {\n" +
-			"    return t;\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class Y<W, U extends java.io.Reader & java.io.Serializable> {
+			  U field;
+			  String field2;
+			  <T> Y(T t) {}
+			  <T> T foo(T t, String... s) {
+			    return t;
+			  }
+			}""";
 		String expectedOutput =
-			"public class Y<W,U extends java.io.Reader & java.io.Serializable> {\n" +
-			"  \n" +
-			"  U field;\n" +
-			"  \n" +
-			"  java.lang.String field2;\n" +
-			"  \n" +
-			"  <T> Y(T t) {\n" +
-			"  }\n" +
-			"  \n" +
-			"  <T> T foo(T t, java.lang.String... s) {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class Y<W,U extends java.io.Reader & java.io.Serializable> {
+			 \s
+			  U field;
+			 \s
+			  java.lang.String field2;
+			 \s
+			  <T> Y(T t) {
+			  }
+			 \s
+			  <T> T foo(T t, java.lang.String... s) {
+			    return null;
+			  }
+			}""";
 		checkClassFile("", "Y", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 
@@ -199,24 +208,26 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 */
 	public void test005() throws Exception {
 		String source =
-			"public class X {\n" +
-			"	X(String s) {\n" +
-			"	}\n" +
-			"	public static void foo(int i, long l, String[][]... args) {\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X {
+				X(String s) {
+				}
+				public static void foo(int i, long l, String[][]... args) {
+				}
+			}""";
 		String expectedOutput =
-			"  // Method descriptor #18 (IJ[[[Ljava/lang/String;)V\n" +
-			"  // Stack: 0, Locals: 4\n" +
-			"  public static void foo(int i, long l, java.lang.String[][]... args);\n" +
-			"    0  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 5]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 1] local: i index: 0 type: int\n" +
-			"        [pc: 0, pc: 1] local: l index: 1 type: long\n" +
-			"        [pc: 0, pc: 1] local: args index: 3 type: java.lang.String[][][]\n" +
-			"}";
+			"""
+			  // Method descriptor #18 (IJ[[[Ljava/lang/String;)V
+			  // Stack: 0, Locals: 4
+			  public static void foo(int i, long l, java.lang.String[][]... args);
+			    0  return
+			      Line numbers:
+			        [pc: 0, line: 5]
+			      Local variable table:
+			        [pc: 0, pc: 1] local: i index: 0 type: int
+			        [pc: 0, pc: 1] local: l index: 1 type: long
+			        [pc: 0, pc: 1] local: args index: 3 type: java.lang.String[][][]
+			}""";
 		checkClassFile("X", source, expectedOutput);
 	}
 	/**
@@ -224,25 +235,28 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 */
 	public void test006() throws Exception {
 		String source =
-			"public enum X { \n" +
-			"	\n" +
-			"	BLEU(10),\n" +
-			"	BLANC(20),\n" +
-			"	ROUGE(30);\n" +
-			"	X(int i) {}\n" +
-			"}\n";
+			"""
+			public enum X {\s
+			\t
+				BLEU(10),
+				BLANC(20),
+				ROUGE(30);
+				X(int i) {}
+			}
+			""";
 		String expectedOutput =
-			"public enum X {\n" +
-			"  \n" +
-			"  BLEU(0),\n" +
-			"  \n" +
-			"  BLANC(0),\n" +
-			"  \n" +
-			"  ROUGE(0),;\n" +
-			"  \n" +
-			"  private X(int i) {\n" +
-			"  }\n" +
-			"}";
+			"""
+			public enum X {
+			 \s
+			  BLEU(0),
+			 \s
+			  BLANC(0),
+			 \s
+			  ROUGE(0),;
+			 \s
+			  private X(int i) {
+			  }
+			}""";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 
@@ -252,41 +266,43 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 */
 	public void test007() throws Exception {
 		String source =
-			"public enum X {\n" +
-			"	BLEU(0) {\n" +
-			"		public String colorName() {\n" +
-			"			return \"BLEU\";\n" +
-			"		}\n" +
-			"	},\n" +
-			"	BLANC(1) {\n" +
-			"		public String colorName() {\n" +
-			"			return \"BLANC\";\n" +
-			"		}\n" +
-			"	},\n" +
-			"	ROUGE(2) {\n" +
-			"		public String colorName() {\n" +
-			"			return \"ROUGE\";\n" +
-			"		}\n" +
-			"	},;\n" +
-			"	\n" +
-			"	X(int i) {\n" +
-			"	}\n" +
-			"	abstract public String colorName();\n" +
-			"}";
+			"""
+			public enum X {
+				BLEU(0) {
+					public String colorName() {
+						return "BLEU";
+					}
+				},
+				BLANC(1) {
+					public String colorName() {
+						return "BLANC";
+					}
+				},
+				ROUGE(2) {
+					public String colorName() {
+						return "ROUGE";
+					}
+				},;
+			\t
+				X(int i) {
+				}
+				abstract public String colorName();
+			}""";
 		String expectedOutput =
-			"public enum X {\n" +
-			"  \n" +
-			"  BLEU(0),\n" +
-			"  \n" +
-			"  BLANC(0),\n" +
-			"  \n" +
-			"  ROUGE(0),;\n" +
-			"  \n" +
-			"  private X(int i) {\n" +
-			"  }\n" +
-			"  \n" +
-			"  public abstract java.lang.String colorName();\n" +
-			"}";
+			"""
+			public enum X {
+			 \s
+			  BLEU(0),
+			 \s
+			  BLANC(0),
+			 \s
+			  ROUGE(0),;
+			 \s
+			  private X(int i) {
+			  }
+			 \s
+			  public abstract java.lang.String colorName();
+			}""";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 
@@ -296,41 +312,43 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 */
 	public void test008() throws Exception {
 		String source =
-			"interface I {\n" +
-			"	String colorName();\n" +
-			"}\n" +
-			"public enum X implements I {\n" +
-			"	BLEU(0) {\n" +
-			"		public String colorName() {\n" +
-			"			return \"BLEU\";\n" +
-			"		}\n" +
-			"	},\n" +
-			"	BLANC(1) {\n" +
-			"		public String colorName() {\n" +
-			"			return \"BLANC\";\n" +
-			"		}\n" +
-			"	},\n" +
-			"	ROUGE(2) {\n" +
-			"		public String colorName() {\n" +
-			"			return \"ROUGE\";\n" +
-			"		}\n" +
-			"	},;\n" +
-			"	\n" +
-			"	X(int i) {\n" +
-			"	}\n" +
-			"}";
+			"""
+			interface I {
+				String colorName();
+			}
+			public enum X implements I {
+				BLEU(0) {
+					public String colorName() {
+						return "BLEU";
+					}
+				},
+				BLANC(1) {
+					public String colorName() {
+						return "BLANC";
+					}
+				},
+				ROUGE(2) {
+					public String colorName() {
+						return "ROUGE";
+					}
+				},;
+			\t
+				X(int i) {
+				}
+			}""";
 		String expectedOutput =
-			"public enum X implements I {\n" +
-			"  \n" +
-			"  BLEU(0),\n" +
-			"  \n" +
-			"  BLANC(0),\n" +
-			"  \n" +
-			"  ROUGE(0),;\n" +
-			"  \n" +
-			"  private X(int i) {\n" +
-			"  }\n" +
-			"}";
+			"""
+			public enum X implements I {
+			 \s
+			  BLEU(0),
+			 \s
+			  BLANC(0),
+			 \s
+			  ROUGE(0),;
+			 \s
+			  private X(int i) {
+			  }
+			}""";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 
@@ -339,17 +357,20 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 */
 	public void test009() throws Exception {
 		String source =
-			"@interface X {\n" +
-			"	String firstName();\n" +
-			"	String lastName() default \"Smith\";\n" +
-			"}\n";
+			"""
+			@interface X {
+				String firstName();
+				String lastName() default "Smith";
+			}
+			""";
 		String expectedOutput =
-			"abstract @interface X {\n" +
-			"  \n" +
-			"  public abstract java.lang.String firstName();\n" +
-			"  \n" +
-			"  public abstract java.lang.String lastName() default \"Smith\";\n" +
-			"}";
+			"""
+			abstract @interface X {
+			 \s
+			  public abstract java.lang.String firstName();
+			 \s
+			  public abstract java.lang.String lastName() default "Smith";
+			}""";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 
@@ -359,17 +380,20 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 */
 	public void test010() throws Exception {
 		String source =
-			"@interface X {\n" +
-			"	String firstName();\n" +
-			"	String lastName() default \"Smith\";\n" +
-			"}\n";
+			"""
+			@interface X {
+				String firstName();
+				String lastName() default "Smith";
+			}
+			""";
 		String expectedOutput =
-			"abstract @interface X {\n" +
-			"  \n" +
-			"  public abstract java.lang.String firstName();\n" +
-			"  \n" +
-			"  public abstract java.lang.String lastName() default \"Smith\";\n" +
-			"}";
+			"""
+			abstract @interface X {
+			 \s
+			  public abstract java.lang.String firstName();
+			 \s
+			  public abstract java.lang.String lastName() default "Smith";
+			}""";
 		checkClassFileUsingInputStream("", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 
@@ -378,40 +402,42 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 */
 	public void test011() throws Exception {
 		String source =
-			"import java.lang.annotation.Retention;\n" +
-			"import java.lang.annotation.RetentionPolicy;\n" +
-			"import java.lang.annotation.Target;\n" +
-			"\n" +
-			"@Target(value={})\n" +
-			"@Retention(value=RetentionPolicy.RUNTIME)\n" +
-			"public @interface X {}";
+			"""
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.RetentionPolicy;
+			import java.lang.annotation.Target;
+			
+			@Target(value={})
+			@Retention(value=RetentionPolicy.RUNTIME)
+			public @interface X {}""";
 		String expectedOutput =
-			"public abstract @interface X extends java.lang.annotation.Annotation {\n" +
-			"  Constant pool:\n" +
-			"    constant #1 class: #2 X\n" +
-			"    constant #2 utf8: \"X\"\n" +
-			"    constant #3 class: #4 java/lang/Object\n" +
-			"    constant #4 utf8: \"java/lang/Object\"\n" +
-			"    constant #5 class: #6 java/lang/annotation/Annotation\n" +
-			"    constant #6 utf8: \"java/lang/annotation/Annotation\"\n" +
-			"    constant #7 utf8: \"SourceFile\"\n" +
-			"    constant #8 utf8: \"X.java\"\n" +
-			"    constant #9 utf8: \"RuntimeVisibleAnnotations\"\n" +
-			"    constant #10 utf8: \"Ljava/lang/annotation/Target;\"\n" +
-			"    constant #11 utf8: \"value\"\n" +
-			"    constant #12 utf8: \"Ljava/lang/annotation/Retention;\"\n" +
-			"    constant #13 utf8: \"Ljava/lang/annotation/RetentionPolicy;\"\n" +
-			"    constant #14 utf8: \"RUNTIME\"\n" +
-			"\n" +
-			"  RuntimeVisibleAnnotations: \n" +
-			"    #10 @java.lang.annotation.Target(\n" +
-			"      #11 value=[\n" +
-			"        ]\n" +
-			"    )\n" +
-			"    #12 @java.lang.annotation.Retention(\n" +
-			"      #11 value=java.lang.annotation.RetentionPolicy.RUNTIME(enum type #13.#14)\n" +
-			"    )\n" +
-			"}";
+			"""
+			public abstract @interface X extends java.lang.annotation.Annotation {
+			  Constant pool:
+			    constant #1 class: #2 X
+			    constant #2 utf8: "X"
+			    constant #3 class: #4 java/lang/Object
+			    constant #4 utf8: "java/lang/Object"
+			    constant #5 class: #6 java/lang/annotation/Annotation
+			    constant #6 utf8: "java/lang/annotation/Annotation"
+			    constant #7 utf8: "SourceFile"
+			    constant #8 utf8: "X.java"
+			    constant #9 utf8: "RuntimeVisibleAnnotations"
+			    constant #10 utf8: "Ljava/lang/annotation/Target;"
+			    constant #11 utf8: "value"
+			    constant #12 utf8: "Ljava/lang/annotation/Retention;"
+			    constant #13 utf8: "Ljava/lang/annotation/RetentionPolicy;"
+			    constant #14 utf8: "RUNTIME"
+			
+			  RuntimeVisibleAnnotations:\s
+			    #10 @java.lang.annotation.Target(
+			      #11 value=[
+			        ]
+			    )
+			    #12 @java.lang.annotation.Retention(
+			      #11 value=java.lang.annotation.RetentionPolicy.RUNTIME(enum type #13.#14)
+			    )
+			}""";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	/**
@@ -435,40 +461,42 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 */
 	public void test013() throws Exception {
 		String source =
-			"import java.lang.annotation.Retention;\n" +
-			"import java.lang.annotation.RetentionPolicy;\n" +
-			"import java.lang.annotation.Target;\n" +
-			"\n" +
-			"@Target(value={})\n" +
-			"@Retention(value=RetentionPolicy.RUNTIME)\n" +
-			"public @interface X {}";
+			"""
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.RetentionPolicy;
+			import java.lang.annotation.Target;
+			
+			@Target(value={})
+			@Retention(value=RetentionPolicy.RUNTIME)
+			public @interface X {}""";
 		String expectedOutput =
-			"public abstract @interface X extends Annotation {\n" +
-			"  Constant pool:\n" +
-			"    constant #1 class: #2 X\n" +
-			"    constant #2 utf8: \"X\"\n" +
-			"    constant #3 class: #4 java/lang/Object\n" +
-			"    constant #4 utf8: \"java/lang/Object\"\n" +
-			"    constant #5 class: #6 java/lang/annotation/Annotation\n" +
-			"    constant #6 utf8: \"java/lang/annotation/Annotation\"\n" +
-			"    constant #7 utf8: \"SourceFile\"\n" +
-			"    constant #8 utf8: \"X.java\"\n" +
-			"    constant #9 utf8: \"RuntimeVisibleAnnotations\"\n" +
-			"    constant #10 utf8: \"Ljava/lang/annotation/Target;\"\n" +
-			"    constant #11 utf8: \"value\"\n" +
-			"    constant #12 utf8: \"Ljava/lang/annotation/Retention;\"\n" +
-			"    constant #13 utf8: \"Ljava/lang/annotation/RetentionPolicy;\"\n" +
-			"    constant #14 utf8: \"RUNTIME\"\n" +
-			"\n" +
-			"  RuntimeVisibleAnnotations: \n" +
-			"    #10 @Target(\n" +
-			"      #11 value=[\n" +
-			"        ]\n" +
-			"    )\n" +
-			"    #12 @Retention(\n" +
-			"      #11 value=RetentionPolicy.RUNTIME(enum type #13.#14)\n" +
-			"    )\n" +
-			"}";
+			"""
+			public abstract @interface X extends Annotation {
+			  Constant pool:
+			    constant #1 class: #2 X
+			    constant #2 utf8: "X"
+			    constant #3 class: #4 java/lang/Object
+			    constant #4 utf8: "java/lang/Object"
+			    constant #5 class: #6 java/lang/annotation/Annotation
+			    constant #6 utf8: "java/lang/annotation/Annotation"
+			    constant #7 utf8: "SourceFile"
+			    constant #8 utf8: "X.java"
+			    constant #9 utf8: "RuntimeVisibleAnnotations"
+			    constant #10 utf8: "Ljava/lang/annotation/Target;"
+			    constant #11 utf8: "value"
+			    constant #12 utf8: "Ljava/lang/annotation/Retention;"
+			    constant #13 utf8: "Ljava/lang/annotation/RetentionPolicy;"
+			    constant #14 utf8: "RUNTIME"
+			
+			  RuntimeVisibleAnnotations:\s
+			    #10 @Target(
+			      #11 value=[
+			        ]
+			    )
+			    #12 @Retention(
+			      #11 value=RetentionPolicy.RUNTIME(enum type #13.#14)
+			    )
+			}""";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.SYSTEM | ClassFileBytesDisassembler.COMPACT);
 	}
 	/**
@@ -476,19 +504,21 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 */
 	public void test014() throws Exception {
 		String source =
-			"import java.lang.annotation.Retention;\n" +
-			"import java.lang.annotation.RetentionPolicy;\n" +
-			"import java.lang.annotation.Target;\n" +
-			"\n" +
-			"@Target(value={})\n" +
-			"@Retention(value=RetentionPolicy.RUNTIME)\n" +
-			"public @interface X {}";
+			"""
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.RetentionPolicy;
+			import java.lang.annotation.Target;
+			
+			@Target(value={})
+			@Retention(value=RetentionPolicy.RUNTIME)
+			public @interface X {}""";
 		String expectedOutput =
-			"@Target(value={})\n" +
-			"@Retention(value=RetentionPolicy.RUNTIME)\n" +
-			"public abstract @interface X extends Annotation {\n" +
-			"\n" +
-			"}";
+			"""
+			@Target(value={})
+			@Retention(value=RetentionPolicy.RUNTIME)
+			public abstract @interface X extends Annotation {
+			
+			}""";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	}
 	/**
@@ -496,15 +526,16 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 */
 	public void test015() throws Exception {
 		String source =
-			"import java.lang.annotation.Retention;\n" +
-			"import static java.lang.annotation.RetentionPolicy.*;\n" +
-			"public class X {\n" +
-			"        public void foo(@Deprecated @Annot(2) int i) {}\n" +
-			"}\n" +
-			"@Retention(CLASS)\n" +
-			"@interface Annot {\n" +
-			"        int value() default -1;\n" +
-			"}";
+			"""
+			import java.lang.annotation.Retention;
+			import static java.lang.annotation.RetentionPolicy.*;
+			public class X {
+			        public void foo(@Deprecated @Annot(2) int i) {}
+			}
+			@Retention(CLASS)
+			@interface Annot {
+			        int value() default -1;
+			}""";
 		String expectedOutput =
 			"  public void foo(@Deprecated @Annot(value=(int) 2) int i);";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
@@ -526,24 +557,26 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 
 	public void testBug504031() throws Exception {
 		String source =
-				"package test;\n" +
-				"@RunWith(JUnitPlatform.class)\n" +
-				"@SelectPackages(\"test.dynamic.TODO\")\n" +
-				"public class AllTests {\n" +
-				"	@Test\n" +
-				"	void test1() {\n" +
-				"	}\n" +
-				"} \n" +
-				"\n" +
-				"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)\n" +
-				"@interface RunWith {\n" +
-				"    Class<? extends Runner> value();\n" +
-				"}\n" +
-				"@interface SelectPackages {\n" +
-				"}\n" +
-				"class Runner {}\n" +
-				"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)\n" +
-				"@interface Test {}\n";
+				"""
+			package test;
+			@RunWith(JUnitPlatform.class)
+			@SelectPackages("test.dynamic.TODO")
+			public class AllTests {
+				@Test
+				void test1() {
+				}
+			}\s
+			
+			@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+			@interface RunWith {
+			    Class<? extends Runner> value();
+			}
+			@interface SelectPackages {
+			}
+			class Runner {}
+			@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+			@interface Test {}
+			""";
 
 		String expectedOutput =
 				"@RunWith(value=JUnitPlatform)\n" +

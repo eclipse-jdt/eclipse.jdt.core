@@ -96,10 +96,12 @@ public class ImportRewrite_RecordTest extends AbstractJavaModelTests {
 	 * typeBinding shows "int value" rather than "@MyAnnotation int value"
 	 */
 	public void test001() throws Exception {
-		String contents = "package pack1;\n" +
-				"import pack2.MyAnnotation;\n" +
-				"public record X(@MyAnnotation int value){\n" +
-				"}\n";
+		String contents = """
+			package pack1;
+			import pack2.MyAnnotation;
+			public record X(@MyAnnotation int value){
+			}
+			""";
 		createFolder("/" + PROJECT + "/src/pack1");
 		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
 		contents = "package pack2;\n" +
@@ -132,10 +134,12 @@ public class ImportRewrite_RecordTest extends AbstractJavaModelTests {
 		assertEquals("int", actualType.toString());
 		assertTrue(actualType.isPrimitiveType());
 		apply(rewrite);
-		String contentsA = "package pack1;\n" +
-				"import pack2.MyAnnotation;\n" +
-				"public record X(@MyAnnotation int value){\n"+
-				"}\n";
+		String contentsA = """
+			package pack1;
+			import pack2.MyAnnotation;
+			public record X(@MyAnnotation int value){
+			}
+			""";
 		assertEqualStringIgnoreDelim(cu.getSource(), contentsA);
 	}
 
@@ -143,19 +147,19 @@ public class ImportRewrite_RecordTest extends AbstractJavaModelTests {
 	 * Import should not be added in the default package
 	 */
 	public void testBug563375_2() throws Exception {
-		String contents = ""+
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		var i_S = i_s();\n" +
-			"		System.out.println(i_S.i + i_S.s);\n" +
-			"		}\n" +
-			"	\n" +
-			"	static record I_S(int i, String s) {}\n" +
-			"	\n" +
-			"	private static I_S i_s() {\n" +
-			"		return new I_S(1, \"abc\");\n" +
-			"	}\n" +
-			"}";
+		String contents = """
+			public class X {
+				public static void main(String[] args) {
+					var i_S = i_s();
+					System.out.println(i_S.i + i_S.s);
+					}
+			\t
+				static record I_S(int i, String s) {}
+			\t
+				private static I_S i_s() {
+					return new I_S(1, "abc");
+				}
+			}""";
 		createFile("/" + PROJECT + "/src/X.java", contents);
 
 		ICompilationUnit cu= getCompilationUnit("/" + PROJECT + "/src/X.java");

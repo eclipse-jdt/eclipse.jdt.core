@@ -36,26 +36,29 @@ public class Java50Tests extends BuilderTests {
 		env.setOutputFolder(projectPath, "");
 
 		IPath usePath = env.addClass(projectPath, "p", "Use",
-			"package p;\n" +
-			"@q.Ann\n" +
-			"public class Use {\n" +
-			"}"
+			"""
+				package p;
+				@q.Ann
+				public class Use {
+				}"""
 		);
 		env.addClass(projectPath, "q", "Ann",
-			"package q;\n" +
-			"public @interface Ann {\n" +
-			"}"
+			"""
+				package q;
+				public @interface Ann {
+				}"""
 		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
 
 		env.addClass(projectPath, "q", "Ann",
-			"package q;\n" +
-			"import java.lang.annotation.*;\n" +
-			"@Target(ElementType.METHOD)\n" +
-			"public @interface Ann {\n" +
-			"}"
+			"""
+				package q;
+				import java.lang.annotation.*;
+				@Target(ElementType.METHOD)
+				public @interface Ann {
+				}"""
 		);
 
 		incrementalBuild(projectPath);
@@ -71,9 +74,10 @@ public class Java50Tests extends BuilderTests {
 		env.setOutputFolder(projectPath, "");
 
 		env.addClass(projectPath, "", "A",
-			"interface A<T extends C> {}\n" +
-			"interface B extends A<D> {}\n" +
-			"interface D extends C {}"
+			"""
+				interface A<T extends C> {}
+				interface B extends A<D> {}
+				interface D extends C {}"""
 		);
 		env.addClass(projectPath, "", "C",
 			"interface C extends B {}"
@@ -102,9 +106,11 @@ public class Java50Tests extends BuilderTests {
 			"final class D extends C {}\n"
 		);
 		env.addClass(projectPath, "", "C",
-			"public abstract class C extends B {\n" +
-			"  boolean isD() {return this instanceof D;}\n" +
-			"}\n"
+			"""
+				public abstract class C extends B {
+				  boolean isD() {return this instanceof D;}
+				}
+				"""
 		);
 
 		fullBuild(projectPath);
@@ -130,13 +136,14 @@ public class Java50Tests extends BuilderTests {
 		IPath p2bin = env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
 
 		env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"public class Y {\n"+ //$NON-NLS-1$
-			"	public void foo(int i) {}\n"+ //$NON-NLS-1$
-			"	public void foo(int i, Z z) {}\n"+ //$NON-NLS-1$
-			"}\n"+ //$NON-NLS-1$
-			"class Z {}" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			public class Y {
+				public void foo(int i) {}
+				public void foo(int i, Z z) {}
+			}
+			class Z {}""" //$NON-NLS-1$
+					);
 
 		fullBuild();
 		expectingNoProblems();
@@ -145,21 +152,25 @@ public class Java50Tests extends BuilderTests {
 		env.removeFile(p2bin.append("p2/Z.class")); //$NON-NLS-1$
 
 		env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void test(p2.Y y) { y.foo(1); }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void test(p2.Y y) { y.foo(1); }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(p1);
 		expectingNoProblems();
 
 		IPath xx = env.addClass(root1, "p1", "XX", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class XX {\n"+ //$NON-NLS-1$
-			"	void test(p2.Y y) { y.foo('c', null); }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class XX {
+				void test(p2.Y y) { y.foo('c', null); }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(p1);
 		expectingOnlySpecificProblemsFor(p1,new Problem[]{
@@ -182,19 +193,21 @@ public class Java50Tests extends BuilderTests {
 		);
 
 		IPath bPath = env.addClass(projectPath, "", "B",
-			"class B<T> extends Missing<T> {\n" +
-			"	class M{}\n" +
-			"}\n" +
-			"class Missing<T> {}"
+			"""
+				class B<T> extends Missing<T> {
+					class M{}
+				}
+				class Missing<T> {}"""
 		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
 
 		env.addClass(projectPath, "", "B",
-			"class B<T> extends Missing<T> {\n" +
-			"	class M{}\n" +
-			"}"
+			"""
+				class B<T> extends Missing<T> {
+					class M{}
+				}"""
 		);
 
 		incrementalBuild(projectPath);
@@ -212,9 +225,10 @@ public class Java50Tests extends BuilderTests {
 		expectingSpecificProblemFor(bPath, new Problem("B", "Missing cannot be resolved to a type", bPath, 19, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(projectPath, "", "B",
-			"class B<T> extends Missing<T> {\n" +
-			"	class M{}\n" +
-			"}"
+			"""
+				class B<T> extends Missing<T> {
+					class M{}
+				}"""
 		);
 
 		incrementalBuild(projectPath);
@@ -223,10 +237,11 @@ public class Java50Tests extends BuilderTests {
 		expectingSpecificProblemFor(bPath, new Problem("B", "Missing cannot be resolved to a type", bPath, 19, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(projectPath, "", "B",
-			"class B<T> extends Missing<T> {\n" +
-			"	class M{}\n" +
-			"}\n" +
-			"class Missing<T> {}"
+			"""
+				class B<T> extends Missing<T> {
+					class M{}
+				}
+				class Missing<T> {}"""
 		);
 
 		incrementalBuild(projectPath);
@@ -239,32 +254,35 @@ public class Java50Tests extends BuilderTests {
 		env.setOutputFolder(projectPath, "");
 
 		IPath usePath = env.addClass(projectPath, "p", "Use",
-			"package p;\n" +
-			"import java.util.ArrayList;\n" +
-			"import q.Other;\n" +
-			"public class Use {\n" +
-			"	public Use() {\n" +
-			"		new Other().foo(new ArrayList<String>());\n" +
-			"	}\n" +
-			"}"
+			"""
+				package p;
+				import java.util.ArrayList;
+				import q.Other;
+				public class Use {
+					public Use() {
+						new Other().foo(new ArrayList<String>());
+					}
+				}"""
 		);
 		env.addClass(projectPath, "q", "Other",
-			"package q;\n" +
-			"import java.util.List;\n" +
-			"public class Other {\n" +
-			"	public void foo(List<String> ls) {}\n" +
-			"}"
+			"""
+				package q;
+				import java.util.List;
+				public class Other {
+					public void foo(List<String> ls) {}
+				}"""
 		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
 
 		env.addClass(projectPath, "q", "Other",
-			"package q;\n" +
-			"import java.util.List;\n" +
-			"public class Other {\n" +
-			"	public void foo(List<Object> ls) {}\n" +
-			"}"
+			"""
+				package q;
+				import java.util.List;
+				public class Other {
+					public void foo(List<Object> ls) {}
+				}"""
 		);
 
 		incrementalBuild(projectPath);
@@ -280,32 +298,35 @@ public class Java50Tests extends BuilderTests {
 		env.setOutputFolder(projectPath, "");
 
 		IPath usePath = env.addClass(projectPath, "p", "Use",
-			"package p;\n" +
-			"import java.util.ArrayList;\n" +
-			"import q.Other;\n" +
-			"public class Use {\n" +
-			"	public Use() {\n" +
-			"		new Other().foo(new ArrayList<String>());\n" +
-			"	}\n" +
-			"}"
+			"""
+				package p;
+				import java.util.ArrayList;
+				import q.Other;
+				public class Use {
+					public Use() {
+						new Other().foo(new ArrayList<String>());
+					}
+				}"""
 		);
 		env.addClass(projectPath, "q", "Other",
-			"package q;\n" +
-			"import java.util.List;\n" +
-			"public class Other {\n" +
-			"	public void foo(List<String> ls) {}\n" +
-			"}"
+			"""
+				package q;
+				import java.util.List;
+				public class Other {
+					public void foo(List<String> ls) {}
+				}"""
 		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
 
 		env.addClass(projectPath, "q", "Other",
-			"package q;\n" +
-			"import java.util.List;\n" +
-			"public class Other {\n" +
-			"	public void foo(List<String> ls) throws Exception {}\n" +
-			"}"
+			"""
+				package q;
+				import java.util.List;
+				public class Other {
+					public void foo(List<String> ls) throws Exception {}
+				}"""
 		);
 
 		incrementalBuild(projectPath);
@@ -321,31 +342,36 @@ public class Java50Tests extends BuilderTests {
 		env.setOutputFolder(projectPath, "");
 
 		env.addClass(projectPath, "superint", "SuperInterface",
-				"package superint;\n" +
-				"public interface SuperInterface<G extends SuperInterface.SuperInterfaceGetter,\n" +
-				"								 S extends SuperInterface.SuperInterfaceSetter> {\n" +
-				"    public interface SuperInterfaceGetter {}\n" +
-				"    public interface SuperInterfaceSetter {}\n" +
-				"}\n"
+				"""
+					package superint;
+					public interface SuperInterface<G extends SuperInterface.SuperInterfaceGetter,
+													 S extends SuperInterface.SuperInterfaceSetter> {
+					    public interface SuperInterfaceGetter {}
+					    public interface SuperInterfaceSetter {}
+					}
+					"""
 		);
 		env.addClass(projectPath, "subint", "SubInterface",
-				"package subint;\n" +
-				"import superint.SuperInterface;\n" +
-				"public interface SubInterface extends\n" +
-				"    SuperInterface<SubInterface.SubInterfaceGetter,\n" +
-				"                   SubInterface.SubInterfaceSetter> {\n" +
-				"        public interface SubInterfaceGetter extends SuperInterfaceGetter {}\n" +
-				"        public interface SubInterfaceSetter extends SuperInterfaceSetter {}\n" +
-				"}\n"
+				"""
+					package subint;
+					import superint.SuperInterface;
+					public interface SubInterface extends
+					    SuperInterface<SubInterface.SubInterfaceGetter,
+					                   SubInterface.SubInterfaceSetter> {
+					        public interface SubInterfaceGetter extends SuperInterfaceGetter {}
+					        public interface SubInterfaceSetter extends SuperInterfaceSetter {}
+					}
+					"""
 		);
 
 		fullBuild(projectPath);
 		expectingProblemsFor(
 				projectPath,
-				"Problem : Bound mismatch: The type SubInterface.SubInterfaceGetter is not a valid substitute for the bounded parameter <G extends SuperInterface.SuperInterfaceGetter> of the type SuperInterface<G,S> [ resource : </Project/subint/SubInterface.java> range : <105,136> category : <40> severity : <2>]\n" +
-				"Problem : Bound mismatch: The type SubInterface.SubInterfaceSetter is not a valid substitute for the bounded parameter <S extends SuperInterface.SuperInterfaceSetter> of the type SuperInterface<G,S> [ resource : </Project/subint/SubInterface.java> range : <157,188> category : <40> severity : <2>]\n" +
-				"Problem : SuperInterfaceGetter cannot be resolved to a type [ resource : </Project/subint/SubInterface.java> range : <244,264> category : <40> severity : <2>]\n" +
-				"Problem : SuperInterfaceSetter cannot be resolved to a type [ resource : </Project/subint/SubInterface.java> range : <320,340> category : <40> severity : <2>]"
+				"""
+					Problem : Bound mismatch: The type SubInterface.SubInterfaceGetter is not a valid substitute for the bounded parameter <G extends SuperInterface.SuperInterfaceGetter> of the type SuperInterface<G,S> [ resource : </Project/subint/SubInterface.java> range : <105,136> category : <40> severity : <2>]
+					Problem : Bound mismatch: The type SubInterface.SubInterfaceSetter is not a valid substitute for the bounded parameter <S extends SuperInterface.SuperInterfaceSetter> of the type SuperInterface<G,S> [ resource : </Project/subint/SubInterface.java> range : <157,188> category : <40> severity : <2>]
+					Problem : SuperInterfaceGetter cannot be resolved to a type [ resource : </Project/subint/SubInterface.java> range : <244,264> category : <40> severity : <2>]
+					Problem : SuperInterfaceSetter cannot be resolved to a type [ resource : </Project/subint/SubInterface.java> range : <320,340> category : <40> severity : <2>]"""
 			);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=294057 (variation)
@@ -355,24 +381,28 @@ public class Java50Tests extends BuilderTests {
 		env.setOutputFolder(projectPath, "");
 
 		env.addClass(projectPath, "superint", "SuperInterface",
-				"package superint;\n" +
-				"public interface SuperInterface<G extends SuperInterface.SuperInterfaceGetter,\n" +
-				"								 S extends SuperInterface.SuperInterfaceSetter> {\n" +
-				"    public interface SuperInterfaceGetter {}\n" +
-				"    public interface SuperInterfaceSetter {}\n" +
-				"}\n"
+				"""
+					package superint;
+					public interface SuperInterface<G extends SuperInterface.SuperInterfaceGetter,
+													 S extends SuperInterface.SuperInterfaceSetter> {
+					    public interface SuperInterfaceGetter {}
+					    public interface SuperInterfaceSetter {}
+					}
+					"""
 		);
 		env.addClass(projectPath, "subint", "SubInterface",
-				"package subint;\n" +
-				"import superint.SuperInterface;\n" +
-				"import superint.SuperInterface.SuperInterfaceGetter;\n" +
-				"import superint.SuperInterface.SuperInterfaceSetter;\n" +
-				"public interface SubInterface extends\n" +
-				"    SuperInterface<SubInterface.SubInterfaceGetter,\n" +
-				"                   SubInterface.SubInterfaceSetter> {\n" +
-				"        public interface SubInterfaceGetter extends SuperInterfaceGetter {}\n" +
-				"        public interface SubInterfaceSetter extends SuperInterfaceSetter {}\n" +
-				"}\n"
+				"""
+					package subint;
+					import superint.SuperInterface;
+					import superint.SuperInterface.SuperInterfaceGetter;
+					import superint.SuperInterface.SuperInterfaceSetter;
+					public interface SubInterface extends
+					    SuperInterface<SubInterface.SubInterfaceGetter,
+					                   SubInterface.SubInterfaceSetter> {
+					        public interface SubInterfaceGetter extends SuperInterfaceGetter {}
+					        public interface SubInterfaceSetter extends SuperInterfaceSetter {}
+					}
+					"""
 		);
 
 		fullBuild(projectPath);

@@ -94,10 +94,11 @@ public class CreateImportsTests extends AbstractJavaModelTests {
 		String actualSource = createImport("java.lang.Math.*", Flags.AccStatic);
 		assertSourceEquals(
 			"Unexpected source",
-			"import static java.lang.Math.*;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				import static java.lang.Math.*;
+				
+				public class X {
+				}""",
 			actualSource);
 	}
 
@@ -108,10 +109,11 @@ public class CreateImportsTests extends AbstractJavaModelTests {
 		String actualSource = createImport("java.util.ZipFile", Flags.AccDefault);
 		assertSourceEquals(
 			"Unexpected source",
-			"import java.util.ZipFile;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				import java.util.ZipFile;
+				
+				public class X {
+				}""",
 			actualSource);
 	}
 
@@ -120,18 +122,20 @@ public class CreateImportsTests extends AbstractJavaModelTests {
 	 */
 	public void test003() throws JavaModelException {
 		setContents(
-			"import static java.lang.Math.*;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				import static java.lang.Math.*;
+				
+				public class X {
+				}"""
 		);
 		String actualSource = createImport("java.lang.Math.*", Flags.AccStatic);
 		assertSourceEquals(
 			"Unexpected source",
-			"import static java.lang.Math.*;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				import static java.lang.Math.*;
+				
+				public class X {
+				}""",
 			actualSource);
 	}
 
@@ -140,18 +144,20 @@ public class CreateImportsTests extends AbstractJavaModelTests {
 	 */
 	public void test004() throws JavaModelException {
 		setContents(
-			"import java.util.ZipFile;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				import java.util.ZipFile;
+				
+				public class X {
+				}"""
 		);
 		String actualSource = createImport("java.util.ZipFile", Flags.AccDefault);
 		assertSourceEquals(
 			"Unexpected source",
-			"import java.util.ZipFile;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				import java.util.ZipFile;
+				
+				public class X {
+				}""",
 			actualSource);
 	}
 
@@ -161,19 +167,21 @@ public class CreateImportsTests extends AbstractJavaModelTests {
 	 */
 	public void test005() throws JavaModelException {
 		setContents(
-			"import java.util.ZipFile;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				import java.util.ZipFile;
+				
+				public class X {
+				}"""
 		);
 		String actualSource = createImport("java.util.ZipFile.*", Flags.AccStatic);
 		assertSourceEquals(
 			"Unexpected source",
-			"import java.util.ZipFile;\n" +
-			"import static java.util.ZipFile.*;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				import java.util.ZipFile;
+				import static java.util.ZipFile.*;
+				
+				public class X {
+				}""",
 			actualSource);
 	}
 
@@ -183,21 +191,23 @@ public class CreateImportsTests extends AbstractJavaModelTests {
 	 */
 	public void test006() throws JavaModelException {
 		setContents(
-			"import java.util.ZipFile;\n" +
-			"import static java.util.ZipFile.*;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				import java.util.ZipFile;
+				import static java.util.ZipFile.*;
+				
+				public class X {
+				}"""
 		);
 		String actualSource = createImport("java.util.ZipFile.*", Flags.AccDefault);
 		assertSourceEquals(
 			"Unexpected source",
-			"import java.util.ZipFile;\n" +
-			"import static java.util.ZipFile.*;\n" +
-			"import java.util.ZipFile.*;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				import java.util.ZipFile;
+				import static java.util.ZipFile.*;
+				import java.util.ZipFile.*;
+				
+				public class X {
+				}""",
 			actualSource);
 	}
 
@@ -222,10 +232,11 @@ public class CreateImportsTests extends AbstractJavaModelTests {
 	 */
 	public void test008() throws JavaModelException {
 		setContents(
-			"import static java.lang.Math.*;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				import static java.lang.Math.*;
+				
+				public class X {
+				}"""
 		);
 		try {
 			startDeltas();
@@ -245,20 +256,22 @@ public class CreateImportsTests extends AbstractJavaModelTests {
 	 */
 	public void test009() throws JavaModelException {
 		setContents(
-			"import static java.lang.Math.*;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				import static java.lang.Math.*;
+				
+				public class X {
+				}"""
 		);
 		IJavaElement sibling = this.workingCopies[0].getImport("java.lang.Math.*");
 		String actualSource = createImport("java.util.ZipFile", Flags.AccDefault, sibling);
 		assertSourceEquals(
 			"Unexpected source",
-			"import java.util.ZipFile;\n" +
-			"import static java.lang.Math.*;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				import java.util.ZipFile;
+				import static java.lang.Math.*;
+				
+				public class X {
+				}""",
 			actualSource);
 	}
 

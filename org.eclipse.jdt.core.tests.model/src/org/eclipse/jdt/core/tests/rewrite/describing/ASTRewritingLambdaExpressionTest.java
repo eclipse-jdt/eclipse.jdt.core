@@ -39,19 +39,20 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 
 	public void testLambdaExpressions_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("interface I {\n");
-		buf.append("	int foo(int x);\n");
-		buf.append("}\n");
-		buf.append("interface J {\n");
-		buf.append("	int foo();\n");
-		buf.append("}\n");
-		buf.append("public class X {\n");
-		buf.append(" I i =  vlambda -> {return 200;};\n");
-		buf.append(" J j =  () -> 1729;\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			interface I {
+				int foo(int x);
+			}
+			interface J {
+				int foo();
+			}
+			public class X {
+			 I i =  vlambda -> {return 200;};
+			 J j =  () -> 1729;
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -127,46 +128,48 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("interface I {\n");
-		buf.append("	float foo(int x, int y);\n");
-		buf.append("}\n");
-		buf.append("interface J {\n");
-		buf.append("	int foo(int x);\n");
-		buf.append("}\n");
-		buf.append("public class X {\n");
-		buf.append(" I i =  (vlambda, wlambda) -> 3.14;\n");
-		buf.append(" J j =  (vlambda) -> 1729;\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			interface I {
+				float foo(int x, int y);
+			}
+			interface J {
+				int foo(int x);
+			}
+			public class X {
+			 I i =  (vlambda, wlambda) -> 3.14;
+			 J j =  (vlambda) -> 1729;
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testLambdaExpressions_Parentheses_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("interface I {\n");
-		buf.append("	int foo(int x);\n");
-		buf.append("}\n");
-		buf.append("interface J {\n");
-		buf.append("	int foo();\n");
-		buf.append("}\n");
-		buf.append("interface K {\n");
-		buf.append("	int foo(int x, int y);\n");
-		buf.append("}\n");
-		buf.append("interface L {\n");
-		buf.append("	int foo(int x);\n");
-		buf.append("}\n");
-		buf.append("public class X {\n");
-		buf.append(" I i =  vlambda -> 22121887;\n");
-		buf.append(" I idash =  (vlambda) -> 1729;\n");
-		buf.append(" J j =  () -> 26041920;\n");
-		buf.append(" K k =  (x, y) -> 1729;\n");
-		buf.append(" K kdash =  (int x, int y) -> 1729;\n");
-		buf.append(" L l =  vlambda -> 1729;\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			interface I {
+				int foo(int x);
+			}
+			interface J {
+				int foo();
+			}
+			interface K {
+				int foo(int x, int y);
+			}
+			interface L {
+				int foo(int x);
+			}
+			public class X {
+			 I i =  vlambda -> 22121887;
+			 I idash =  (vlambda) -> 1729;
+			 J j =  () -> 26041920;
+			 K k =  (x, y) -> 1729;
+			 K kdash =  (int x, int y) -> 1729;
+			 L l =  vlambda -> 1729;
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -262,28 +265,29 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("interface I {\n");
-		buf.append("	int foo(int x);\n");
-		buf.append("}\n");
-		buf.append("interface J {\n");
-		buf.append("	int foo();\n");
-		buf.append("}\n");
-		buf.append("interface K {\n");
-		buf.append("	int foo(int x, int y);\n");
-		buf.append("}\n");
-		buf.append("interface L {\n");
-		buf.append("	int foo();\n");
-		buf.append("}\n");
-		buf.append("public class X {\n");
-		buf.append(" I i =  (vlambda) -> 22121887;\n");
-		buf.append(" I idash =  vlambda -> 1729;\n");
-		buf.append(" J j =  () -> 26041920;\n");
-		buf.append(" K k =  (int x, int y) -> 1729;\n");
-		buf.append(" K kdash =  (x, y) -> 1729;\n");
-		buf.append(" L l =  () -> 1729;\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			interface I {
+				int foo(int x);
+			}
+			interface J {
+				int foo();
+			}
+			interface K {
+				int foo(int x, int y);
+			}
+			interface L {
+				int foo();
+			}
+			public class X {
+			 I i =  (vlambda) -> 22121887;
+			 I idash =  vlambda -> 1729;
+			 J j =  () -> 26041920;
+			 K k =  (int x, int y) -> 1729;
+			 K kdash =  (x, y) -> 1729;
+			 L l =  () -> 1729;
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 }

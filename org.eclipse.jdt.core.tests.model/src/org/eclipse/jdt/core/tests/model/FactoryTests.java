@@ -55,15 +55,17 @@ public void testCreateCompilationUnits() throws CoreException {
 		this.createFolder("/P/src/x/y/z");
 		IFile fileA = this.createFile(
 			"/P/src/x/y/z/A.java",
-			"package x.y.z;\n" +
-			"public class A {\n" +
-			"}"
+			"""
+				package x.y.z;
+				public class A {
+				}"""
 		);
 		IFile fileB = this.createFile(
 			"/P/src/x/y/B.java",
-			"package x.y;\n" +
-			"public class B {\n" +
-			"}"
+			"""
+				package x.y;
+				public class B {
+				}"""
 		);
 
 		IJavaElement objectA = JavaCore.create(fileA);

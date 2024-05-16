@@ -40,14 +40,15 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=272711
 	public void testBug272711_01_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        this.foo#3);\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    public void foo() {
+			        this.foo#3);
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu, true);
 		AST ast= astRoot.getAST();
@@ -69,28 +70,30 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        this.foo#0);\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			    public void foo() {
+			        this.foo#0);
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=272711
 	public void testBug272711_02_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        throws new UnsupportedOperationException();\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    public void foo() {
+			        throws new UnsupportedOperationException();
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu, true);
 		AST ast= astRoot.getAST();
@@ -111,31 +114,33 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    Object field;\n");
-		buf.append("\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        throws new UnsupportedOperationException();\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			    Object field;
+			
+			    public void foo() {
+			        throws new UnsupportedOperationException();
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=272711
 	public void testBug272711_03_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        do {\n");
-		buf.append("        } (a);\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    public void foo() {
+			        do {
+			        } (a);
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu, true);
 		AST ast= astRoot.getAST();
@@ -155,15 +160,16 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        do\n");
-		buf.append("            ;  (a);\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			    public void foo() {
+			        do
+			            ;  (a);
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 

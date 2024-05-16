@@ -268,10 +268,12 @@ public class FilerTesterProc extends AbstractProcessor {
 			if (roundNo == 2) {
 				JavaFileObject jfo = filer.createSourceFile("p/Test", e.getEnclosingElement());
 				try (PrintWriter pw = new PrintWriter(jfo.openWriter())) {
-					pw.write("package p;\n " +
-							"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-							"@FilerTestTrigger(test = \"testCreateClass1\", arg0 = \"p\", arg1 = \"Test.java\")" +
-							"public class Test {}");
+					pw.write("""
+						package p;
+						 \
+						import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+						@FilerTestTrigger(test = "testCreateClass1", arg0 = "p", arg1 = "Test.java")\
+						public class Test {}""");
 				}
 			} else if(roundNo == 3) {
 					if (classContent == null) {
@@ -294,10 +296,12 @@ public class FilerTesterProc extends AbstractProcessor {
 			if (roundNo == 2) {
 				JavaFileObject jfo = filer.createSourceFile("p/Test", e.getEnclosingElement());
 				try (PrintWriter pw = new PrintWriter(jfo.openWriter())) {
-					pw.write("package p;\n " +
-							"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-							"@FilerTestTrigger(test = \"testCreateClass1\", arg0 = \"p\", arg1 = \"Test.java\")" +
-							"public class Test {}");
+					pw.write("""
+						package p;
+						 \
+						import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+						@FilerTestTrigger(test = "testCreateClass1", arg0 = "p", arg1 = "Test.java")\
+						public class Test {}""");
 				}
 			} else if(roundNo == 3) {
 					if (classContent == null) {

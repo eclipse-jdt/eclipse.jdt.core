@@ -168,11 +168,12 @@ public void testSuggestFieldName003() {
 			true);
 
 	assumeEquals(
-		"fOneName\n" + //$NON-NLS-1$
-		"fName\n" + //$NON-NLS-1$
-		"oneName\n" + //$NON-NLS-1$
-		"name", //$NON-NLS-1$
-		toString(suggestions));
+			"""
+		fOneName
+		fName
+		oneName
+		name""", //$NON-NLS-1$
+			toString(suggestions));
 }
 public void testSuggestFieldName004() {
 	Hashtable options = JavaCore.getOptions();
@@ -189,11 +190,12 @@ public void testSuggestFieldName004() {
 			true);
 
 	assumeEquals(
-		"_oneName\n" + //$NON-NLS-1$
-		"_name\n" + //$NON-NLS-1$
-		"oneName\n" + //$NON-NLS-1$
-		"name", //$NON-NLS-1$
-		toString(suggestions));
+			"""
+		_oneName
+		_name
+		oneName
+		name""", //$NON-NLS-1$
+			toString(suggestions));
 }
 public void testSuggestFieldName005() {
 	Hashtable options = JavaCore.getOptions();
@@ -211,11 +213,12 @@ public void testSuggestFieldName005() {
 			true);
 
 	assumeEquals(
-		"fgOneName\n" + //$NON-NLS-1$
-		"fgName\n" + //$NON-NLS-1$
-		"oneName\n" + //$NON-NLS-1$
-		"name", //$NON-NLS-1$
-		toString(suggestions));
+			"""
+		fgOneName
+		fgName
+		oneName
+		name""", //$NON-NLS-1$
+			toString(suggestions));
 }
 public void testSuggestFieldName006() {
 	Hashtable options = JavaCore.getOptions();
@@ -233,15 +236,16 @@ public void testSuggestFieldName006() {
 			true);
 
 	assumeEquals(
-		"preOneNamesuf\n" + //$NON-NLS-1$
-		"preNamesuf\n" + //$NON-NLS-1$
-		"preOneName\n" + //$NON-NLS-1$
-		"preName\n" + //$NON-NLS-1$
-		"oneNamesuf\n" + //$NON-NLS-1$
-		"namesuf\n" + //$NON-NLS-1$
-		"oneName\n" + //$NON-NLS-1$
-		"name", //$NON-NLS-1$
-		toString(suggestions));
+			"""
+		preOneNamesuf
+		preNamesuf
+		preOneName
+		preName
+		oneNamesuf
+		namesuf
+		oneName
+		name""", //$NON-NLS-1$
+			toString(suggestions));
 }
 public void testSuggestFieldName007() {
 	Hashtable options = JavaCore.getOptions();
@@ -259,11 +263,12 @@ public void testSuggestFieldName007() {
 			true);
 
 	assumeEquals(
-		"preIsuf\n" + //$NON-NLS-1$
-		"preI\n" + //$NON-NLS-1$
-		"isuf\n" + //$NON-NLS-1$
-		"i", //$NON-NLS-1$
-		toString(suggestions));
+			"""
+		preIsuf
+		preI
+		isuf
+		i""", //$NON-NLS-1$
+			toString(suggestions));
 }
 public void testSuggestFieldName008() {
 	String[] suggestions = NamingConventions.suggestVariableNames(
@@ -296,15 +301,16 @@ public void testSuggestFieldName009() {
 			true);
 
 	assumeEquals(
-		"preOneNamesuf\n" + //$NON-NLS-1$
-		"preName2suf\n" + //$NON-NLS-1$
-		"preOneName\n" + //$NON-NLS-1$
-		"preName\n" + //$NON-NLS-1$
-		"oneNamesuf\n" + //$NON-NLS-1$
-		"namesuf\n" + //$NON-NLS-1$
-		"oneName\n" + //$NON-NLS-1$
-		"name", //$NON-NLS-1$
-		toString(suggestions));
+			"""
+		preOneNamesuf
+		preName2suf
+		preOneName
+		preName
+		oneNamesuf
+		namesuf
+		oneName
+		name""", //$NON-NLS-1$
+			toString(suggestions));
 }
 public void testSuggestFieldName010() {
 	Hashtable options = JavaCore.getOptions();
@@ -322,15 +328,16 @@ public void testSuggestFieldName010() {
 			true);
 
 	assumeEquals(
-		"preOneNamessuf\n" + //$NON-NLS-1$
-		"preNamessuf\n" + //$NON-NLS-1$
-		"preOneNames\n" + //$NON-NLS-1$
-		"preNames\n" + //$NON-NLS-1$
-		"oneNamessuf\n" + //$NON-NLS-1$
-		"namessuf\n" + //$NON-NLS-1$
-		"oneNames\n" + //$NON-NLS-1$
-		"names", //$NON-NLS-1$
-		toString(suggestions));
+			"""
+		preOneNamessuf
+		preNamessuf
+		preOneNames
+		preNames
+		oneNamessuf
+		namessuf
+		oneNames
+		names""", //$NON-NLS-1$
+			toString(suggestions));
 }
 public void testSuggestFieldName011() {
 
@@ -525,15 +532,16 @@ public void testSuggestFieldName022() {
 			true);
 
 	assumeEquals(
-		"preMY_TYPEsuf\n" + //$NON-NLS-1$
-		"preTYPEsuf\n" + //$NON-NLS-1$
-		"preMY_TYPE\n" + //$NON-NLS-1$
-		"preTYPE\n" + //$NON-NLS-1$
-		"MY_TYPEsuf\n" + //$NON-NLS-1$
-		"TYPEsuf\n" + //$NON-NLS-1$
-		"MY_TYPE\n" + //$NON-NLS-1$
-		"TYPE", //$NON-NLS-1$
-		toString(suggestions));
+			"""
+		preMY_TYPEsuf
+		preTYPEsuf
+		preMY_TYPE
+		preTYPE
+		MY_TYPEsuf
+		TYPEsuf
+		MY_TYPE
+		TYPE""", //$NON-NLS-1$
+			toString(suggestions));
 }
 /*
  * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
@@ -571,11 +579,12 @@ public void testSuggestFieldName024() {
 			true);
 
 	assumeEquals(
-		"preOneNamesuf\n" + //$NON-NLS-1$
-		"preOneName\n" + //$NON-NLS-1$
-		"oneNamesuf\n" + //$NON-NLS-1$
-		"oneName", //$NON-NLS-1$
-		toString(suggestions));
+			"""
+		preOneNamesuf
+		preOneName
+		oneNamesuf
+		oneName""", //$NON-NLS-1$
+			toString(suggestions));
 }
 /*
  * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
@@ -645,10 +654,11 @@ public void testSuggestFieldName028() {
 			true);
 
 	assumeEquals(
-		"MY_TYP_E\n" + //$NON-NLS-1$
-		"TYP_E\n" + //$NON-NLS-1$
-		"E", //$NON-NLS-1$
-		toString(suggestions));
+			"""
+		MY_TYP_E
+		TYP_E
+		E""", //$NON-NLS-1$
+			toString(suggestions));
 }
 /*
  * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
@@ -1397,11 +1407,12 @@ public void testSuggestConstantFieldName002() {
 		true);
 
 	assumeEquals(
-		"PRE__SUF\n" + //$NON-NLS-1$
-		"PRE__\n" + //$NON-NLS-1$
-		"__SUF\n" + //$NON-NLS-1$
-		"__", //$NON-NLS-1$
-		toString(suggestions));
+			"""
+		PRE__SUF
+		PRE__
+		__SUF
+		__""", //$NON-NLS-1$
+			toString(suggestions));
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=283539

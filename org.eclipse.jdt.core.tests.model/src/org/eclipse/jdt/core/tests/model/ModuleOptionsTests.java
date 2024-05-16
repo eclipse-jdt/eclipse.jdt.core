@@ -68,22 +68,28 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 
 			String[] sources = {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	requires java.base;\n" +
-				"	requires java.desktop;\n" +
-				"	requires java.datatransfer;\n" +
-				"	requires java.sql;\n" +
-				"}\n",
+				"""
+					module org.astro {
+						requires java.base;
+						requires java.desktop;
+						requires java.datatransfer;
+						requires java.sql;
+					}
+					""",
 				"src/org/astro/Test2.java",
-				"package org.astro;\n" +
-				"class Test2 {\n" +
-				"	java.awt.Window window;\n" +
-				"}\n",
+				"""
+					package org.astro;
+					class Test2 {
+						java.awt.Window window;
+					}
+					""",
 				"src2/org/astro/Test3.java",
-				"package org.astro;\n" +
-				"class Test3 {\n" +
-				"	java.awt.datatransfer.Clipboard clippy;\n" +
-				"}\n"
+				"""
+					package org.astro;
+					class Test3 {
+						java.awt.datatransfer.Clipboard clippy;
+					}
+					"""
 			};
 			createSourceFiles(project, sources);
 
@@ -104,10 +110,11 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 			markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			Arrays.sort(markers, (a,b) -> a.getAttribute(IMarker.CHAR_START, 0) - b.getAttribute(IMarker.CHAR_START, 0));
 			assertMarkers("Unexpected markers",
-					"java.awt cannot be resolved to a type\n" +
-					"java.awt cannot be resolved to a type\n" +
-					"java.desktop cannot be resolved to a module\n" +
-					"java.datatransfer cannot be resolved to a module",
+					"""
+						java.awt cannot be resolved to a type
+						java.awt cannot be resolved to a type
+						java.desktop cannot be resolved to a module
+						java.datatransfer cannot be resolved to a module""",
 					markers);
 		} finally {
 			this.deleteProject("org.astro");
@@ -118,35 +125,45 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 		try {
 			String[] sources = {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	requires java.base;\n" +
-				"	requires java.desktop;\n" +
-				"	requires java.datatransfer;\n" +
-				"	requires java.sql;\n" +
-				"}\n",
+				"""
+					module org.astro {
+						requires java.base;
+						requires java.desktop;
+						requires java.datatransfer;
+						requires java.sql;
+					}
+					""",
 				"src/org/astro/Test2.java",
-				"package org.astro;\n" +
-				"public class Test2 {\n" +
-				"	java.awt.Window window;\n" +
-				"}\n",
+				"""
+					package org.astro;
+					public class Test2 {
+						java.awt.Window window;
+					}
+					""",
 				"src2/org/astro/Test3.java",
-				"package org.astro;\n" +
-				"class Test3 {\n" +
-				"	java.awt.datatransfer.Clipboard clippy;\n" +
-				"}\n"
+				"""
+					package org.astro;
+					class Test3 {
+						java.awt.datatransfer.Clipboard clippy;
+					}
+					"""
 			};
 			IJavaProject project = setupModuleProject("org.astro", new String[] {"src", "src2"}, sources, null);
 
 			sources = new String[] {
 					"src/module-info.java",
-					"module test {\n" +
-					"	requires org.astro;\n" +
-					"}\n",
+					"""
+						module test {
+							requires org.astro;
+						}
+						""",
 					"src/test/Test.java",
-					"package test;\n" +
-					"class Test {\n" +
-					"	org.astro.Test2 t;\n" +
-					"}\n"
+					"""
+						package test;
+						class Test {
+							org.astro.Test2 t;
+						}
+						"""
 				};
 			IClasspathAttribute[] attributes = {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
@@ -182,19 +199,23 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 		try {
 			String[] sources = {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	requires java.base;\n" +
-				"	requires java.desktop;\n" +
-				"	requires java.datatransfer;\n" +
-				"	requires java.sql;\n" +
-				"}\n",
+				"""
+					module org.astro {
+						requires java.base;
+						requires java.desktop;
+						requires java.datatransfer;
+						requires java.sql;
+					}
+					""",
 				"src/org/astro/Test2.java",
-				"package org.astro;\n" +
-				"public class Test2 {\n" +
-				"	int test(jdk.internal.misc.Unsafe unsafe) {\n" +
-				"		return unsafe.addressSize();\n" +
-				"	}" +
-				"}\n",
+				"""
+					package org.astro;
+					public class Test2 {
+						int test(jdk.internal.misc.Unsafe unsafe) {
+							return unsafe.addressSize();
+						}\
+					}
+					""",
 			};
 			IClasspathAttribute[] attrs = new IClasspathAttribute[] {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
@@ -228,36 +249,46 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 		try {
 			String[] sources = {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	requires java.base;\n" +
-				"	requires java.desktop;\n" +
-				"	requires java.datatransfer;\n" +
-				"	requires java.sql;\n" +
-				"}\n",
+				"""
+					module org.astro {
+						requires java.base;
+						requires java.desktop;
+						requires java.datatransfer;
+						requires java.sql;
+					}
+					""",
 				"src/org/astro/Test2.java",
-				"package org.astro;\n" +
-				"public class Test2 {\n" +
-				"	java.awt.Window window;\n" +
-				"}\n",
+				"""
+					package org.astro;
+					public class Test2 {
+						java.awt.Window window;
+					}
+					""",
 				"src2/org/astro/sub/Test3.java",
-				"package org.astro.sub;\n" +
-				"public class Test3 {\n" +
-				"	java.awt.datatransfer.Clipboard clippy;\n" +
-				"}\n"
+				"""
+					package org.astro.sub;
+					public class Test3 {
+						java.awt.datatransfer.Clipboard clippy;
+					}
+					"""
 			};
 			IJavaProject project = setupModuleProject("org.astro", new String[] {"src", "src2"}, sources, null);
 
 			sources = new String[] {
 					"src/module-info.java",
-					"module test {\n" +
-					"	requires org.astro;\n" +
-					"}\n",
+					"""
+						module test {
+							requires org.astro;
+						}
+						""",
 					"src/test/Test.java",
-					"package test;\n" +
-					"class Test {\n" +
-					"	org.astro.Test2 t;\n" +
-					"	org.astro.sub.Test3 t3;\n" +
-					"}\n"
+					"""
+						package test;
+						class Test {
+							org.astro.Test2 t;
+							org.astro.sub.Test3 t3;
+						}
+						"""
 				};
 			IClasspathAttribute[] attributes = {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
@@ -293,36 +324,46 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 		try {
 			String[] sources = {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	requires java.base;\n" +
-				"	requires java.desktop;\n" +
-				"	requires java.datatransfer;\n" +
-				"	requires java.sql;\n" +
-				"}\n",
+				"""
+					module org.astro {
+						requires java.base;
+						requires java.desktop;
+						requires java.datatransfer;
+						requires java.sql;
+					}
+					""",
 				"src/org/astro/Test2.java",
-				"package org.astro;\n" +
-				"public class Test2 {\n" +
-				"	java.awt.Window window;\n" +
-				"}\n",
+				"""
+					package org.astro;
+					public class Test2 {
+						java.awt.Window window;
+					}
+					""",
 				"src2/org/astro/sub/Test3.java",
-				"package org.astro.sub;\n" +
-				"public class Test3 {\n" +
-				"	java.awt.datatransfer.Clipboard clippy;\n" +
-				"}\n"
+				"""
+					package org.astro.sub;
+					public class Test3 {
+						java.awt.datatransfer.Clipboard clippy;
+					}
+					"""
 			};
 			IJavaProject project = setupModuleProject("org.astro", new String[] {"src", "src2"}, sources, null);
 
 			sources = new String[] {
 					"src/module-info.java",
-					"module test {\n" +
-					"	requires org.astro;\n" +
-					"}\n",
+					"""
+						module test {
+							requires org.astro;
+						}
+						""",
 					"src/test/Test.java",
-					"package test;\n" +
-					"class Test {\n" +
-					"	org.astro.Test2 t;\n" +
-					"	org.astro.sub.Test3 t3;\n" +
-					"}\n"
+					"""
+						package test;
+						class Test {
+							org.astro.Test2 t;
+							org.astro.sub.Test3 t3;
+						}
+						"""
 				};
 			IClasspathAttribute[] attributes = {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
@@ -360,32 +401,38 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p = setupModuleProject("org.astro", sources);
 
 			String[] src1 = new String[] {
 					"src/module-info.java",
-					"module mod.one {\n" +
-					"	exports one.p;\n" +
-					"}\n",
+					"""
+						module mod.one {
+							exports one.p;
+						}
+						""",
 					"src/org/astro/World.java",
 					"package org.astro;\n" +
 					"public interface World { public String name(); }\n",
 					"src/one/p/C.java",
-					"package one.p;\n" +
-					"public class C implements org.astro.World {\n" +
-					"	public String name() {\n" +
-					"		return \"C\";\n" +
-					"	}\n" +
-					"}\n"
+					"""
+						package one.p;
+						public class C implements org.astro.World {
+							public String name() {
+								return "C";
+							}
+						}
+						"""
 			};
 			IJavaProject p1 = setupModuleProject("mod.one", src1);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -397,9 +444,10 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 
 			String[] src2 = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires mod.one;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires mod.one;
+					}""",
 				"src/com/greetings/MyTest.java",
 				"package com.greetings;\n" +
 				"public class MyTest extends one.p.C {}"
@@ -440,32 +488,38 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
-					"module org.astro {\n" +
-					"	exports org.astro;\n" +
-					"}",
+					"""
+						module org.astro {
+							exports org.astro;
+						}""",
 					"src/org/astro/World.java",
-					"package org.astro;\n" +
-					"public interface World {\n" +
-					"	public String name();\n" +
-					"}"
+					"""
+						package org.astro;
+						public interface World {
+							public String name();
+						}"""
 			};
 			IJavaProject p = setupModuleProject("org.astro", sources);
 
 			String[] src1 = new String[] {
 					"src/module-info.java",
-					"module mod.one {\n" +
-					"	exports one.p;\n" +
-					"}\n",
+					"""
+						module mod.one {
+							exports one.p;
+						}
+						""",
 					"src/org/astro/World.java",
 					"package org.astro;\n" +
 					"public interface World { public String name(); }\n",
 					"src/one/p/C.java",
-					"package one.p;\n" +
-					"public class C implements org.astro.World {\n" +
-					"	public String name() {\n" +
-					"		return \"C\";\n" +
-					"	}\n" +
-					"}\n"
+					"""
+						package one.p;
+						public class C implements org.astro.World {
+							public String name() {
+								return "C";
+							}
+						}
+						"""
 			};
 			IJavaProject p1 = setupModuleProject("mod.one", src1);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -477,9 +531,10 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 
 			String[] src2 = new String[] {
 				"src/module-info.java",
-				"module com.greetings {\n" +
-				"	requires mod.one;\n" +
-				"}",
+				"""
+					module com.greetings {
+						requires mod.one;
+					}""",
 				"src/com/greetings/MyTest.java",
 				"package com.greetings;\n" +
 				"public class MyTest extends one.p.C {}"
@@ -519,26 +574,32 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 		try {
 			String[] sources = {
 				"src/module-info.java",
-				"module org.astro {\n" +
-				"	requires java.base;\n" +
-				"	requires java.desktop;\n" +
-				"	requires java.datatransfer;\n" +
-				"	requires java.sql;\n" +
-				"	exports org.astro;\n" +
-				"}\n",
+				"""
+					module org.astro {
+						requires java.base;
+						requires java.desktop;
+						requires java.datatransfer;
+						requires java.sql;
+						exports org.astro;
+					}
+					""",
 				"src/org/astro/Test2.java",
-				"package org.astro;\n" +
-				"public class Test2 {\n" +
-				"	java.awt.Window window;\n" +
-				"}\n"
+				"""
+					package org.astro;
+					public class Test2 {
+						java.awt.Window window;
+					}
+					"""
 			};
 			IJavaProject project = setupModuleProject("org.astro", sources);
 
 			sources = new String[] {
 					"src/code/Code.java",
-					"package code;\n" +
-					"class Code {\n" +
-					"}\n",
+					"""
+						package code;
+						class Code {
+						}
+						""",
 					"src2/org/astro/Galaxy.java",
 					"package org.astro;\n" +
 					"public class Galaxy { }\n"
@@ -555,15 +616,19 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 			IClasspathEntry cp2 = JavaCore.newProjectEntry(p2.getPath(), null, false, attributes, false);
 			sources = new String[] {
 					"src/module-info.java",
-					"module test {\n" +
-					"	requires org.astro;\n" +
-					"}\n",
+					"""
+						module test {
+							requires org.astro;
+						}
+						""",
 					"src/test/Test.java",
-					"package test;\n" +
-					"class Test {\n" +
-					"	org.astro.World w = null;\n" +
-					"	org.astro.Galaxy g = null;\n" +
-					"}\n",
+					"""
+						package test;
+						class Test {
+							org.astro.World w = null;
+							org.astro.Galaxy g = null;
+						}
+						""",
 			};
 			IJavaProject p3 = setupModuleProject("test", sources, new IClasspathEntry[] {cp, cp2});
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -588,12 +653,14 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 
 			String[] patchSources = {
 				"src/org/astro/Test2.java",
-				"package org.astro;\n" +
-				"class Test2 {\n" +
-				"	int test(jdk.internal.misc.Unsafe unsafe) {\n" +
-				"		return unsafe.addressSize();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package org.astro;
+					class Test2 {
+						int test(jdk.internal.misc.Unsafe unsafe) {
+							return unsafe.addressSize();
+						}
+					}
+					""",
 				"src2/jdk/internal/misc/Test3.java",
 				"package jdk.internal.misc;\n" +
 				"class Test3 {\n" +
@@ -636,12 +703,14 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 
 			String[] patchSources = {
 				"src/org/astro/Test2.java",
-				"package org.astro;\n" +
-				"class Test2 {\n" +
-				"	int test(jdk.internal.misc.Unsafe unsafe) {\n" +
-				"		return unsafe.addressSize();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package org.astro;
+					class Test2 {
+						int test(jdk.internal.misc.Unsafe unsafe) {
+							return unsafe.addressSize();
+						}
+					}
+					""",
 				"src2/jdk/internal/misc/Test3.java",
 				"package jdk.internal.misc;\n" +
 				"class Test3 {\n" +

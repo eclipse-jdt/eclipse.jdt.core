@@ -64,10 +64,11 @@ public class ScalingTests extends TestBase
 		IPath srcRoot = srcFolder.getFullPath();
 
 		String template =
-			"package p;\n" +
-			"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
-			"@GenClass6(pkg=\"g\", name=\"Generated%05d\")\n" +
-			"public class Test%05d {}";
+			"""
+			package p;
+			import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;
+			@GenClass6(pkg="g", name="Generated%05d")
+			public class Test%05d {}""";
 		for (int i = 1; i <= FILES_TO_GENERATE; ++i) {
 			String name = String.format("Test%05d", i);
 			String contents = String.format(template, i, i);

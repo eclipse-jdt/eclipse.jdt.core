@@ -490,18 +490,22 @@ public class ElementUtilsProc extends BaseProcessor
 		nameToDoc.put("FChild", " Javadoc on nested element FChild\n");
 		nameToDoc.put("FEnum", " Javadoc on nested enum FEnum\n Two lines long\n");
 		nameToDoc.put("FChildI",
-				" Javadoc on nested interface FChildI\n" +
-				"\tthis line has tab after asterisk and ends with another tab\t\n" +
-				"\tthis one too\t\n" +
-				"   this line has three spaces after asterisk and ends with three spaces   \n" +
-				" this line has only one space before the asterisk\n");
+				"""
+					 Javadoc on nested interface FChildI
+						this line has tab after asterisk and ends with another tab\t
+						this one too\t
+					   this line has three spaces after asterisk and ends with three spaces  \s
+					 this line has only one space before the asterisk
+					""");
 		nameToDoc.put("_fieldT1_protected", "Javadoc on field _fieldT1_protected, inline format ");
 		nameToDoc.put("_fieldT1_private",
-				"\n" +
-				" Javadoc on _fieldT1_private\n" +
-				"  this line starts with two spaces, no asterisk\n" +
-				"\tThis line starts, contains\tand ends with a tab\t\n" +
-				" \t \t This line starts with a space, tab, space, tab, space\n");
+				"""
+					
+					 Javadoc on _fieldT1_private
+					  this line starts with two spaces, no asterisk
+						This line starts, contains	and ends with a tab\t
+					 	 	 This line starts with a space, tab, space, tab, space
+					""");
 		nameToDoc.put("fieldInt", null);
 		nameToDoc.put("method_T1", " Javadoc on F.method_T1\n");
 		nameToDoc.put("method_String", null);
@@ -515,13 +519,15 @@ public class ElementUtilsProc extends BaseProcessor
 				"  it is on two lines\n");
 		nameToDoc.put("m2", "Another comment - starts on first line and\n" +
 				"    continue on the second line ");
-		nameToDoc.put("m3", " One more test case that.\n" +
-				" needs\n" +
-				" to be verified.\n" +
-				"\n" +
-				" An empty line with no spaces need to be seen as an empty line.\n" +
-				"\n" +
-				" End of the comment.\n");
+		nameToDoc.put("m3", """
+			 One more test case that.
+			 needs
+			 to be verified.
+			
+			 An empty line with no spaces need to be seen as an empty line.
+			
+			 End of the comment.
+			""");
 
 		String actual = _elementUtils.getDocComment(_elementF);
 		String expected = nameToDoc.get("F");
