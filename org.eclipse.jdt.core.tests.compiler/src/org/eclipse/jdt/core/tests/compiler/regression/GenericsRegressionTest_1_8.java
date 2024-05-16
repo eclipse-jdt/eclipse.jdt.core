@@ -10864,4 +10864,31 @@ public void testBug508834_comment0() {
 			""";
 		runner.runNegativeTest();
 	}
+	public void testGH2413() {
+		runConformTest(
+			new String[] {
+				"EjcBug2413.java",
+				"""
+				public class EjcBug2413 {
+
+					public interface EventSource<L> { }
+
+					public interface ObservableEventListener<V> { }
+
+					public interface WritableProperty<V> extends EventSource<ObservableEventListener<V>> {
+						static <P extends WritableProperty<?>> P getReadOnly(P property) {
+							return null;
+						}
+					}
+
+					public static class Property<V> implements EventSource<ObservableEventListener<V>>, WritableProperty<V> { }
+
+					public static abstract class Bug2413<V, P extends Property<V>> {
+						public void foo(P property) {
+							P readOnly = WritableProperty.getReadOnly(property);
+						}
+					}
+				}
+				"""});
+	}
 }

@@ -975,13 +975,32 @@ class BoundSet {
 		for (int i = 0; i < sis.length; i++) {
 			TypeBinding si = sis[i];
 			TypeBinding ti = tis[i];
-			if (si.isWildcard() || ti.isWildcard() || TypeBinding.equalsEquals(si, ti))
+			if (isOrContainsWildcard(si) || isOrContainsWildcard(ti) || TypeBinding.equalsEquals(si, ti))
 				continue;
 			result.add(ConstraintTypeFormula.create(si, ti, ReductionResult.SAME, isSoft));
 		}
 		if (result.size() > 0)
 			return result.toArray(new ConstraintTypeFormula[result.size()]);
 		return null;
+	}
+
+	boolean isOrContainsWildcard(TypeBinding t) {
+		if (t.isWildcard()) return true;
+		class FindWildcard extends TypeBindingVisitor {
+			boolean found;
+
+			@Override
+			public boolean visit(ParameterizedTypeBinding parameterizedTypeBinding) {
+				if ((parameterizedTypeBinding.tagBits & TagBits.HasDirectWildcard) != 0) {
+					this.found = true;
+					return false;
+				}
+				return true;
+			}
+		}
+		FindWildcard visitor = new FindWildcard();
+		TypeBindingVisitor.visit(visitor, t);
+		return visitor.found;
 	}
 
 	/**
