@@ -186,11 +186,12 @@ public class MultiSourceFolderAndOutputFolderTests extends BuilderTests {
 			);
 
 		env.addClass(srcF1, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;"+ //$NON-NLS-1$
-			"public abstract class Y {"+ //$NON-NLS-1$
-			"  abstract void foo();"+ //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-			);
+					"""
+			package p2;\
+			public abstract class Y {\
+			  abstract void foo();\
+			}""" //$NON-NLS-1$
+					);
 
 		fullBuild();
 		expectingOnlyProblemsFor(xPath);

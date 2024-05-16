@@ -47,8 +47,13 @@ public class CompletionTests16_1 extends AbstractJavaModelCompletionTests {
 	public void test001() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/X.java",
-				"public seal class X permits Y{\n" + " public static void main(String[] args){\n"
-						+ "    System.out.println(100);\n}\n}\n" + "	final class Y extends X {}");
+				"""
+					public seal class X permits Y{
+					 public static void main(String[] args){
+					    System.out.println(100);
+					}
+					}
+						final class Y extends X {}""");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -64,8 +69,13 @@ public class CompletionTests16_1 extends AbstractJavaModelCompletionTests {
 	public void test002() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/X.java",
-				"public non class X {\n" + " public static void main(String[] args){\n"
-						+ "    System.out.println(100);\n}\n}\n" + "	final class Y extends X {}");
+				"""
+					public non class X {
+					 public static void main(String[] args){
+					    System.out.println(100);
+					}
+					}
+						final class Y extends X {}""");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -82,8 +92,13 @@ public class CompletionTests16_1 extends AbstractJavaModelCompletionTests {
 	public void test003() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/X.java",
-				"public sealed /*here*/seal class X permits Y{\n" + " public static void main(String[] args){\n"
-						+ "    System.out.println(100);\n}\n}\n" + "	final class Y extends X {}");
+				"""
+					public sealed /*here*/seal class X permits Y{
+					 public static void main(String[] args){
+					    System.out.println(100);
+					}
+					}
+						final class Y extends X {}""");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -99,8 +114,13 @@ public class CompletionTests16_1 extends AbstractJavaModelCompletionTests {
 	public void test004() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/X.java",
-				"public non-sealed /*here*/non class X {\n" + " public static void main(String[] args){\n"
-						+ "    System.out.println(100);\n}\n}\n" + "	final class Y extends X {}");
+				"""
+					public non-sealed /*here*/non class X {
+					 public static void main(String[] args){
+					    System.out.println(100);
+					}
+					}
+						final class Y extends X {}""");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -116,8 +136,13 @@ public class CompletionTests16_1 extends AbstractJavaModelCompletionTests {
 	public void test005() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/X.java",
-				"public non-sealed /*here*/seal class X permits Y{\n" + " public static void main(String[] args){\n"
-						+ "    System.out.println(100);\n}\n}\n" + "	final class Y extends X {}");
+				"""
+					public non-sealed /*here*/seal class X permits Y{
+					 public static void main(String[] args){
+					    System.out.println(100);
+					}
+					}
+						final class Y extends X {}""");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -133,8 +158,13 @@ public class CompletionTests16_1 extends AbstractJavaModelCompletionTests {
 	public void test006() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/X.java",
-				"public sealed /*here*/non class X {\n" + " public static void main(String[] args){\n"
-						+ "    System.out.println(100);\n}\n}\n" + "	final class Y extends X {}");
+				"""
+					public sealed /*here*/non class X {
+					 public static void main(String[] args){
+					    System.out.println(100);
+					}
+					}
+						final class Y extends X {}""");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -150,10 +180,15 @@ public class CompletionTests16_1 extends AbstractJavaModelCompletionTests {
 	// variable name
 	public void test007() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Completion/src/Point.java", "public class Point {\n"
-				+ "private void method(){\n" + "int sealed;\n" + "{\n" + " /*here*/sea\n" + "}\n" + "}\n" +
-
-				"}");
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/Point.java", """
+			public class Point {
+			private void method(){
+			int sealed;
+			{
+			 /*here*/sea
+			}
+			}
+			}""");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -203,8 +238,13 @@ public class CompletionTests16_1 extends AbstractJavaModelCompletionTests {
 	public void test010() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/X.java",
-				"public sealed  class X extends Object per Y{\n" + " public static void main(String[] args){\n"
-						+ "    System.out.println(100);\n}\n}\n" + "	final class Y extends X {}");
+				"""
+					public sealed  class X extends Object per Y{
+					 public static void main(String[] args){
+					    System.out.println(100);
+					}
+					}
+						final class Y extends X {}""");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();

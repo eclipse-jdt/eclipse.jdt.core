@@ -695,9 +695,10 @@ public void _test013_files_access_read() throws IOException {
 		true /* shouldCompileOK */,
 		new String [] { /* sourceFiles */
 			"src1/X.java",
-			"public class X {\n" +
-			"  Y y;\n" +
-			"}",
+			"""
+				public class X {
+				  Y y;
+				}""",
 			"src2/Y.java",
 			"public class Y {}",
 		},
@@ -754,9 +755,10 @@ public void _test014_files_access_read() throws IOException {
 		true /* shouldCompileOK */,
 		new String [] { /* sourceFiles */
 			"src1/X.java",
-			"public class X {\n" +
-			"  Y y;\n" +
-			"}",
+			"""
+				public class X {
+				  Y y;
+				}""",
 		},
 		customJavaFileManager /* standardJavaFileManager */,
 		options /* options */,
@@ -832,9 +834,10 @@ public void test016_files_access_write() throws IOException {
 		true /* shouldCompileOK */,
 		new String [] { /* sourceFiles */
 			"src/X.java",
-			"public class X {\n" +
-			"  Y y;\n" +
-			"}",
+			"""
+				public class X {
+				  Y y;
+				}""",
 			"src2/Y.java",
 			"public class Y {\n" +
 			"}",
@@ -866,9 +869,10 @@ public void test017_sourcepath_without_destination() throws IOException {
 		true /* shouldCompileOK */,
 		new String [] { /* sourceFiles */
 			"src1/X.java",
-			"public class X {\n" +
-			"  Y y;\n" +
-			"}",
+			"""
+				public class X {
+				  Y y;
+				}""",
 			"src2/Y.java",
 			"public class Y {}",
 		},
@@ -895,9 +899,10 @@ public void _test018_sourcepath_with_destination() throws IOException {
 		true /* shouldCompileOK */,
 		new String [] { /* sourceFiles */
 			"src1/X.java",
-			"public class X {\n" +
-			"  Y y;\n" +
-			"}",
+			"""
+				public class X {
+				  Y y;
+				}""",
 			"src2/Y.java",
 			"public class Y {}",
 		},
@@ -935,9 +940,10 @@ public void test019_sourcepath_without_destination() throws IOException {
 		true /* shouldCompileOK */,
 		new String [] { /* sourceFiles */
 			"src1/X.java",
-			"public class X {\n" +
-			"  Y y;\n" +
-			"}",
+			"""
+				public class X {
+				  Y y;
+				}""",
 			"src2/Y.java",
 			"public class Y {}",
 		},
@@ -965,9 +971,10 @@ public void _test020_sourcepath_with_destination() throws IOException {
 		true /* shouldCompileOK */,
 		new String [] { /* sourceFiles */
 			"src1/X.java",
-			"public class X {\n" +
-			"  Y y;\n" +
-			"}",
+			"""
+				public class X {
+				  Y y;
+				}""",
 			"src2/Y.java",
 			"public class Y {}",
 		},

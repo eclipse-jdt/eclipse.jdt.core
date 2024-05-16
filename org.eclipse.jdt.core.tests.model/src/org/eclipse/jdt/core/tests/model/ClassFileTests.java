@@ -56,176 +56,194 @@ public void setUpSuite() throws Exception {
 	IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {"JCL15_LIB", "/P/lib"}, "", JavaCore.VERSION_9);
 	String[] pathAndContents = new String[] {
 		"nongeneric/A.java",
-		"package nongeneric;\n" +
-		"public class A {\n" +
-		"}",
+		"""
+			package nongeneric;
+			public class A {
+			}""",
 		"generic/X.java",
-		"package generic;\n" +
-		"public class X<T> {\n" +
-		"  <U extends Exception> X<T> foo(X<T> x) throws RuntimeException, U {\n" +
-		"    return null;\n" +
-		"  }\n" +
-		"  <K, V extends T> V foo(K key, V value) throws Exception {\n" +
-		"    return value;\n" +
-		"  }\n" +
-		"}",
+		"""
+			package generic;
+			public class X<T> {
+			  <U extends Exception> X<T> foo(X<T> x) throws RuntimeException, U {
+			    return null;
+			  }
+			  <K, V extends T> V foo(K key, V value) throws Exception {
+			    return value;
+			  }
+			}""",
 		"generic/Y.java",
-		"package generic;\n" +
-		"public class Y<K, L> {\n" +
-		"}",
+		"""
+			package generic;
+			public class Y<K, L> {
+			}""",
 		"generic/Z.java",
-		"package generic;\n" +
-		"public class Z<T extends Object & I<? super T>> {\n" +
-		"}",
+		"""
+			package generic;
+			public class Z<T extends Object & I<? super T>> {
+			}""",
 		"generic/I.java",
-		"package generic;\n" +
-		"public interface I<T> {\n" +
-		"}",
+		"""
+			package generic;
+			public interface I<T> {
+			}""",
 		"generic/W.java",
-		"package generic;\n" +
-		"public class W<T extends X<T> , U extends T> {\n" +
-		"}",
+		"""
+			package generic;
+			public class W<T extends X<T> , U extends T> {
+			}""",
 		"generic/V.java",
-		"package generic;\n" +
-		"public class V extends X<Thread> implements I<String> {\n" +
-		"}",
+		"""
+			package generic;
+			public class V extends X<Thread> implements I<String> {
+			}""",
 		"generic/GenericField.java",
-		"package generic;\n" +
-		"import java.util.Collection;\n" +
-		"public class GenericField {\n" +
-		"	protected Collection<String> myField;\n" +
-		"}",
+		"""
+			package generic;
+			import java.util.Collection;
+			public class GenericField {
+				protected Collection<String> myField;
+			}""",
 		"annotated/X.java",
-		"package annotated;\n" +
-		"@MyOtherAnnot\n" +
-		"public class X {\n" +
-		"  @MyOtherAnnot\n" +
-		"  Object field;\n" +
-		"  @MyOtherAnnot\n" +
-		"  void method() {}\n" +
-		"  @MyAnnot(_int=1)\n" +
-		"  void foo01() {}\n" +
-		"  @MyAnnot(_byte=(byte)2)\n" +
-		"  void foo02() {}\n" +
-		"  @MyAnnot(_short=(short)3)\n" +
-		"  void foo03() {}\n" +
-		"  @MyAnnot(_char='a')\n" +
-		"  void foo04() {}\n" +
-		"  @MyAnnot(_float=1.2f)\n" +
-		"  void foo05() {}\n" +
-		"  @MyAnnot(_double=3.4)\n" +
-		"  void foo06() {}\n" +
-		"  @MyAnnot(_boolean=true)\n" +
-		"  void foo07() {}\n" +
-		"  @MyAnnot(_long=123456789L)\n" +
-		"  void foo08() {}\n" +
-		"  @MyAnnot(_string=\"abc\")\n" +
-		"  void foo09() {}\n" +
-		"  @MyAnnot(_annot=@MyOtherAnnot)\n" +
-		"  void foo10() {}\n" +
-		"  @MyAnnot(_class=String.class)\n" +
-		"  void foo11() {}\n" +
-		"  @MyAnnot(_enum=MyEnum.SECOND)\n" +
-		"  void foo12() {}\n" +
-		"  @MyAnnot(_array={1, 2, 3})\n" +
-		"  void foo13() {}\n" +
-		"  @MyAnnot(_neg_int = -2)\n" +
-		"  void foo14() {}\n" +
-		"  @MyAnnot(_neg_float=-2.0f)\n" +
-		"  void foo15() {}\n" +
-		"  @MyAnnot(_neg_double=-2.0)\n" +
-		"  void foo16() {}\n" +
-		"  @MyAnnot(_neg_long=-2L)\n" +
-		"  void foo17() {}\n" +
-		"}\n" +
-		"@interface MyAnnot {\n" +
-		"  int _int() default 0;\n" +
-		"  byte _byte() default 0;\n" +
-		"  short _short() default 0;\n" +
-		"  char _char() default ' ';\n" +
-		"  float _float() default 0.0f;\n" +
-		"  double _double() default 0.0;\n" +
-		"  boolean _boolean() default false;\n" +
-		"  long _long() default 0L;\n" +
-		"  String _string() default \"   \";\n" +
-		"  MyOtherAnnot _annot() default @MyOtherAnnot;\n" +
-		"  Class _class() default Object.class;\n" +
-		"  MyEnum _enum() default MyEnum.FIRST;\n" +
-		"  int[] _array() default {};\n" +
-		"  int _neg_int() default -1;\n" +
-		"  float _neg_float() default -1.0f;\n" +
-		"  double _neg_double() default -1.0;\n" +
-		"  long _neg_long() default -1L;\n" +
-		"}\n" +
-		"@interface MyOtherAnnot {\n" +
-		"}\n" +
-		"enum MyEnum {\n" +
-		"  FIRST, SECOND;\n" +
-		"}",
+		"""
+			package annotated;
+			@MyOtherAnnot
+			public class X {
+			  @MyOtherAnnot
+			  Object field;
+			  @MyOtherAnnot
+			  void method() {}
+			  @MyAnnot(_int=1)
+			  void foo01() {}
+			  @MyAnnot(_byte=(byte)2)
+			  void foo02() {}
+			  @MyAnnot(_short=(short)3)
+			  void foo03() {}
+			  @MyAnnot(_char='a')
+			  void foo04() {}
+			  @MyAnnot(_float=1.2f)
+			  void foo05() {}
+			  @MyAnnot(_double=3.4)
+			  void foo06() {}
+			  @MyAnnot(_boolean=true)
+			  void foo07() {}
+			  @MyAnnot(_long=123456789L)
+			  void foo08() {}
+			  @MyAnnot(_string="abc")
+			  void foo09() {}
+			  @MyAnnot(_annot=@MyOtherAnnot)
+			  void foo10() {}
+			  @MyAnnot(_class=String.class)
+			  void foo11() {}
+			  @MyAnnot(_enum=MyEnum.SECOND)
+			  void foo12() {}
+			  @MyAnnot(_array={1, 2, 3})
+			  void foo13() {}
+			  @MyAnnot(_neg_int = -2)
+			  void foo14() {}
+			  @MyAnnot(_neg_float=-2.0f)
+			  void foo15() {}
+			  @MyAnnot(_neg_double=-2.0)
+			  void foo16() {}
+			  @MyAnnot(_neg_long=-2L)
+			  void foo17() {}
+			}
+			@interface MyAnnot {
+			  int _int() default 0;
+			  byte _byte() default 0;
+			  short _short() default 0;
+			  char _char() default ' ';
+			  float _float() default 0.0f;
+			  double _double() default 0.0;
+			  boolean _boolean() default false;
+			  long _long() default 0L;
+			  String _string() default "   ";
+			  MyOtherAnnot _annot() default @MyOtherAnnot;
+			  Class _class() default Object.class;
+			  MyEnum _enum() default MyEnum.FIRST;
+			  int[] _array() default {};
+			  int _neg_int() default -1;
+			  float _neg_float() default -1.0f;
+			  double _neg_double() default -1.0;
+			  long _neg_long() default -1L;
+			}
+			@interface MyOtherAnnot {
+			}
+			enum MyEnum {
+			  FIRST, SECOND;
+			}""",
 		"annotated/Y.java",
-		"package annotated;\n" +
-		"import java.lang.annotation.*;\n" +
-		"import static java.lang.annotation.ElementType.*;\n" +
-		"import static java.lang.annotation.RetentionPolicy.*;\n" +
-		"@Deprecated\n" +
-		"@Documented\n" +
-		"@Inherited\n" +
-		"@Retention(SOURCE)\n" +
-		"@Target({PACKAGE, TYPE, ANNOTATION_TYPE, METHOD, CONSTRUCTOR, FIELD, LOCAL_VARIABLE, PARAMETER})\n" +
-		"public @interface Y {\n" +
-		"}",
+		"""
+			package annotated;
+			import java.lang.annotation.*;
+			import static java.lang.annotation.ElementType.*;
+			import static java.lang.annotation.RetentionPolicy.*;
+			@Deprecated
+			@Documented
+			@Inherited
+			@Retention(SOURCE)
+			@Target({PACKAGE, TYPE, ANNOTATION_TYPE, METHOD, CONSTRUCTOR, FIELD, LOCAL_VARIABLE, PARAMETER})
+			public @interface Y {
+			}""",
 		"varargs/X.java",
-		"package varargs;\n" +
-		"public class X {\n" +
-		"  void foo(String s, Object ... others) {\n" +
-		"  }\n" +
-		"}",
+		"""
+			package varargs;
+			public class X {
+			  void foo(String s, Object ... others) {
+			  }
+			}""",
 		"workingcopy/X.java",
-		"package workingcopy;\n" +
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    System.out.println();\n" +
-		"  }\n" +
-		"}",
+		"""
+			package workingcopy;
+			public class X {
+			  void foo() {
+			    System.out.println();
+			  }
+			}""",
 		"workingcopy/Y.java",
-		"package workingcopy;\n" +
-		"public class Y<W> {\n" +
-		"  <T> T foo(T t, String... args) {\n" +
-		"    return t;\n" +
-		"  }\n" +
-		"}",
+		"""
+			package workingcopy;
+			public class Y<W> {
+			  <T> T foo(T t, String... args) {
+			    return t;
+			  }
+			}""",
 		"annotated/MyAnnotation.java",
-		"package annotated;\n" +
-		"import java.lang.annotation.Retention;\n" +
-		"import java.lang.annotation.RetentionPolicy;\n" +
-		"@Retention(value = RetentionPolicy.RUNTIME)\n" +
-		"public @interface MyAnnotation {}",
+		"""
+			package annotated;
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.RetentionPolicy;
+			@Retention(value = RetentionPolicy.RUNTIME)
+			public @interface MyAnnotation {}""",
 		"annotated/MyAnnotation2.java",
-		"package annotated;\n" +
-		"import java.lang.annotation.Retention;\n" +
-		"import java.lang.annotation.RetentionPolicy;\n" +
-		"@Retention(value = RetentionPolicy.SOURCE)\n" +
-		"public @interface MyAnnotation2 {}",
+		"""
+			package annotated;
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.RetentionPolicy;
+			@Retention(value = RetentionPolicy.SOURCE)
+			public @interface MyAnnotation2 {}""",
 		"annotated/MyAnnotation3.java",
-		"package annotated;\n" +
-		"import java.lang.annotation.Retention;\n" +
-		"import java.lang.annotation.RetentionPolicy;\n" +
-		"@Retention(value = RetentionPolicy.CLASS)\n" +
-		"public @interface MyAnnotation3 {}",
+		"""
+			package annotated;
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.RetentionPolicy;
+			@Retention(value = RetentionPolicy.CLASS)
+			public @interface MyAnnotation3 {}""",
 		"test342757/X.java",
-		"package test342757;\n" +
-		"public class X {\n" +
-		"	class B {\n" +
-		"		public B(@Deprecated @Annot String s) {}\n" +
-		"		public void foo(@Deprecated @Annot int j) {}\n" +
-		"	}\n" +
-		"}",
+		"""
+			package test342757;
+			public class X {
+				class B {
+					public B(@Deprecated @Annot String s) {}
+					public void foo(@Deprecated @Annot int j) {}
+				}
+			}""",
 		"test342757/Annot.java",
-		"package test342757;\n" +
-		"import java.lang.annotation.Retention;\n" +
-		"import static java.lang.annotation.RetentionPolicy.*;\n" +
-		"@Retention(CLASS)\n" +
-		"@interface Annot {}",
+		"""
+			package test342757;
+			import java.lang.annotation.Retention;
+			import static java.lang.annotation.RetentionPolicy.*;
+			@Retention(CLASS)
+			@interface Annot {}""",
 	};
 	addLibrary(javaProject, "lib.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
 	this.jarRoot = javaProject.getPackageFragmentRoot(getFile("/P/lib.jar"));
@@ -437,11 +455,13 @@ public void testAnnotations16() throws JavaModelException {
 public void testAnnotations17() throws JavaModelException {
 	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("Y.class").getType();
 	assertAnnotationsEqual(
-		"@java.lang.annotation.Target({java.lang.annotation.ElementType.PACKAGE, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.PARAMETER})\n" +
-		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)\n" +
-		"@java.lang.Deprecated\n" +
-		"@java.lang.annotation.Documented\n" +
-		"@java.lang.annotation.Inherited\n",
+		"""
+			@java.lang.annotation.Target({java.lang.annotation.ElementType.PACKAGE, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.PARAMETER})
+			@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)
+			@java.lang.Deprecated
+			@java.lang.annotation.Documented
+			@java.lang.annotation.Inherited
+			""",
 		type.getAnnotations());
 }
 
@@ -542,10 +562,12 @@ public void testAnnotations26() throws JavaModelException {
 	IType type = this.jarRoot.getPackageFragment("test342757").getOrdinaryClassFile("X$B.class").getType();
 	IMethod[] methods = type.getMethods();
 	String expected =
-			"@test342757.Annot\n" +
-			"@java.lang.Deprecated\n" +
-			"@test342757.Annot\n" +
-			"@java.lang.Deprecated\n";
+			"""
+		@test342757.Annot
+		@java.lang.Deprecated
+		@test342757.Annot
+		@java.lang.Deprecated
+		""";
 	StringBuilder buffer = new StringBuilder();
 	for (int i = 0, max = methods.length; i < max; i++) {
 		ILocalVariable[] parameters = methods[i].getParameters();
@@ -604,12 +626,13 @@ public void testExceptionTypes2() throws JavaModelException {
  */
 public void testGetCategories01() throws CoreException, IOException {
 	createClassFile(
-		"package p;\n" +
-		"/**\n" +
-		" * @category test\n" +
-		" */\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p;
+			/**
+			 * @category test
+			 */
+			public class X {
+			}"""
 	);
 	String[] categories = this.classFile.getType().getCategories();
 	assertStringsEqual(
@@ -619,12 +642,13 @@ public void testGetCategories01() throws CoreException, IOException {
 }
 public void testGetCategories02() throws CoreException, IOException {
 	createClassFile(
-		"package p;\n" +
-		"/**\n" +
-		" * @category test1 test2 test3 test4 test5 test6 test7 test8 test9 test10\n" +
-		" */\n" +
-		"public class X {\n" +
-		"}"
+		"""
+			package p;
+			/**
+			 * @category test1 test2 test3 test4 test5 test6 test7 test8 test9 test10
+			 */
+			public class X {
+			}"""
 	);
 	String[] categories = this.classFile.getType().getCategories();
 	assertStringsEqual(
@@ -638,13 +662,14 @@ public void testGetCategories02() throws CoreException, IOException {
  */
 public void testGetCategories03() throws CoreException, IOException {
 	createClassFile(
-		"package p;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		"   * @category test\n" +
-		"   */\n" +
-		"  int field;\n" +
-		"}"
+		"""
+			package p;
+			public class X {
+			  /**
+			   * @category test
+			   */
+			  int field;
+			}"""
 	);
 	String[] categories = this.classFile.getType().getField("field").getCategories();
 	assertStringsEqual(
@@ -654,13 +679,14 @@ public void testGetCategories03() throws CoreException, IOException {
 }
 public void testGetCategories04() throws CoreException, IOException {
 	createClassFile(
-		"package p;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		"   * @category test1 test2\n" +
-		"   */\n" +
-		"  int field;\n" +
-		"}"
+		"""
+			package p;
+			public class X {
+			  /**
+			   * @category test1 test2
+			   */
+			  int field;
+			}"""
 	);
 	String[] categories = this.classFile.getType().getField("field").getCategories();
 	assertStringsEqual(
@@ -674,13 +700,14 @@ public void testGetCategories04() throws CoreException, IOException {
  */
 public void testGetCategories05() throws CoreException, IOException {
 	createClassFile(
-		"package p;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		" * @category test\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class X {
+			  /**
+			 * @category test
+			   */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.classFile.getType().getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -690,13 +717,14 @@ public void testGetCategories05() throws CoreException, IOException {
 }
 public void testGetCategories06() throws CoreException, IOException {
 	createClassFile(
-		"package p;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		" * @category test1 test2 test3 test4 test5\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class X {
+			  /**
+			 * @category test1 test2 test3 test4 test5
+			   */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.classFile.getType().getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -707,14 +735,15 @@ public void testGetCategories06() throws CoreException, IOException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=125676
 public void testGetCategories07() throws CoreException, IOException {
 	createClassFile(
-		"package p;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		"   * @category " +
-		"	 *		test\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class X {
+			  /**
+			   * @category \
+				 *		test
+			   */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.classFile.getType().getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -724,14 +753,15 @@ public void testGetCategories07() throws CoreException, IOException {
 }
 public void testGetCategories08() throws CoreException, IOException {
 	createClassFile(
-		"package p;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		"   * @category" +
-		"	 *		test\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class X {
+			  /**
+			   * @category\
+				 *		test
+			   */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.classFile.getType().getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -741,14 +771,15 @@ public void testGetCategories08() throws CoreException, IOException {
 }
 public void testGetCategories09() throws CoreException, IOException {
 	createClassFile(
-		"package p;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		"   * @category test1" +
-		"	 *		test2\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class X {
+			  /**
+			   * @category test1\
+				 *		test2
+			   */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.classFile.getType().getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -762,14 +793,15 @@ public void testGetCategories09() throws CoreException, IOException {
  */
 public void testGetCategories10() throws CoreException, IOException {
 	createClassFile(
-		"package p;\n" +
-		"public class X {\n" +
-		"  int field1;\n" +
-		"  /**\n" +
-		"   * @category test\n" +
-		"   */\n" +
-		"  int field2;\n" +
-		"}"
+		"""
+			package p;
+			public class X {
+			  int field1;
+			  /**
+			   * @category test
+			   */
+			  int field2;
+			}"""
 	);
 	String[] categories = this.classFile.getType().getField("field1").getCategories();
 	assertStringsEqual(
@@ -783,69 +815,74 @@ public void testGetCategories10() throws CoreException, IOException {
  */
 public void testGetChildrenForCategory01() throws CoreException, IOException {
 	createClassFile(
-		"package p;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		"   * @category test\n" +
-		"   */\n" +
-		"  int field;\n" +
-		"  /**\n" +
-		"   * @category test\n" +
-		"   */\n" +
-		"  void foo1() {}\n" +
-		"  /**\n" +
-		"   * @category test\n" +
-		"   */\n" +
-		"  void foo2() {}\n" +
-		"  /**\n" +
-		"   * @category other\n" +
-		"   */\n" +
-		"  void foo3() {}\n" +
-		"}"
+		"""
+			package p;
+			public class X {
+			  /**
+			   * @category test
+			   */
+			  int field;
+			  /**
+			   * @category test
+			   */
+			  void foo1() {}
+			  /**
+			   * @category test
+			   */
+			  void foo2() {}
+			  /**
+			   * @category other
+			   */
+			  void foo3() {}
+			}"""
 	);
 	IJavaElement[] children = this.classFile.getType().getChildrenForCategory("test");
 	assertElementsEqual(
 		"Unexpected children",
-		"field [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
-		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
-		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
+		"""
+			field [in X [in X.class [in p [in lib2.jar [in P]]]]]
+			foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]
+			foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]""",
 		children);
 }
 public void testGetChildrenForCategory02() throws CoreException, IOException {
 	createClassFile(
-		"package p;\n" +
-		"public class X {\n" +
-		"  /**\n" +
-		"   * @category fields test all\n" +
-		"   */\n" +
-		"  int field;\n" +
-		"  /**\n" +
-		"   * @category methods test all\n" +
-		"   */\n" +
-		"  void foo1() {}\n" +
-		"  /**\n" +
-		"   * @category methods test all\n" +
-		"   */\n" +
-		"  void foo2() {}\n" +
-		"  /**\n" +
-		"   * @category methods other all\n" +
-		"   */\n" +
-		"  void foo3() {}\n" +
-		"}"
+		"""
+			package p;
+			public class X {
+			  /**
+			   * @category fields test all
+			   */
+			  int field;
+			  /**
+			   * @category methods test all
+			   */
+			  void foo1() {}
+			  /**
+			   * @category methods test all
+			   */
+			  void foo2() {}
+			  /**
+			   * @category methods other all
+			   */
+			  void foo3() {}
+			}"""
 	);
 	IJavaElement[] tests  = this.classFile.getType().getChildrenForCategory("test");
 	assertElementsEqual(
 		"Unexpected children",
-		"field [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
-		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
-		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
+		"""
+			field [in X [in X.class [in p [in lib2.jar [in P]]]]]
+			foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]
+			foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]""",
 		tests);
 	IJavaElement[] methods = this.classFile.getType().getChildrenForCategory("methods");
 	assertElementsEqual(
 		"Unexpected children",
-		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
-		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
-		"foo3() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
+		"""
+			foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]
+			foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]
+			foo3() [in X [in X.class [in p [in lib2.jar [in P]]]]]""",
 		methods);
 	IJavaElement[] others = this.classFile.getType().getChildrenForCategory("other");
 	assertElementsEqual(
@@ -855,10 +892,11 @@ public void testGetChildrenForCategory02() throws CoreException, IOException {
 	IJavaElement[] all = this.classFile.getType().getChildrenForCategory("all");
 	assertElementsEqual(
 		"Unexpected children",
-		"field [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
-		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
-		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
-		"foo3() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
+		"""
+			field [in X [in X.class [in p [in lib2.jar [in P]]]]]
+			foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]
+			foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]
+			foo3() [in X [in X.class [in p [in lib2.jar [in P]]]]]""",
 		all);
 }
 
@@ -1288,10 +1326,11 @@ public void testWorkingCopy01() throws CoreException {
 	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	assertElementDescendants(
 		"Unexpected children",
-		"[Working copy] X.class\n" +
-		"  package workingcopy\n" +
-		"  class X\n" +
-		"    void foo()",
+		"""
+			[Working copy] X.class
+			  package workingcopy
+			  class X
+			    void foo()""",
 		this.workingCopy);
 }
 
@@ -1307,11 +1346,12 @@ public void testWorkingCopy02() throws CoreException {
 		this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 		assertElementDescendants(
 			"Unexpected children",
-			"[Working copy] X.class\n" +
-			"  package workingcopy\n" +
-			"  class X\n" +
-			"    X()\n" +
-			"    void foo()",
+			"""
+				[Working copy] X.class
+				  package workingcopy
+				  class X
+				    X()
+				    void foo()""",
 			this.workingCopy);
 	} finally {
 		attachSource(this.jarRoot, sourceAttachmentPath.toString(), null);
@@ -1325,19 +1365,21 @@ public void testWorkingCopy03() throws CoreException {
 	IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
-		"package workingcopy;\n" +
-		"public class X {\n" +
-		"  void bar() {\n" +
-		"  }\n" +
-		"}"
+		"""
+			package workingcopy;
+			public class X {
+			  void bar() {
+			  }
+			}"""
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false/*don't force problems*/, null/*primary owner*/, null/*no progress*/);
 	assertElementDescendants(
 		"Unexpected children",
-		"[Working copy] X.class\n" +
-		"  package workingcopy\n" +
-		"  class X\n" +
-		"    void bar()",
+		"""
+			[Working copy] X.class
+			  package workingcopy
+			  class X
+			    void bar()""",
 		this.workingCopy);
 }
 
@@ -1348,11 +1390,12 @@ public void testWorkingCopy04() throws CoreException {
 	IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
-		"package workingcopy;\n" +
-		"public class X {\n" +
-		"  void bar() {\n" +
-		"  }\n" +
-		"}"
+		"""
+			package workingcopy;
+			public class X {
+			  void bar() {
+			  }
+			}"""
 	);
 	JavaModelException exception = null;
 	try {
@@ -1380,11 +1423,12 @@ public void testWorkingCopy05() throws CoreException {
 		null);
 	assertElementDescendants(
 		"Unexpected children",
-		"[Working copy] X.class\n" +
-		"  package workingcopy\n" +
-		"  class X\n" +
-		"    void foo()\n" +
-		"  class Y",
+		"""
+			[Working copy] X.class
+			  package workingcopy
+			  class X
+			    void foo()
+			  class Y""",
 		this.workingCopy);
 }
 
@@ -1407,20 +1451,22 @@ public void testWorkingCopy07() throws CoreException {
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	this.workingCopy = clazz.getWorkingCopy(owner, null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
-		"package workingcopy;\n" +
-		"public class X {\n" +
-		"  void bar() {\n" +
-		"  }\n" +
-		"}"
+		"""
+			package workingcopy;
+			public class X {
+			  void bar() {
+			  }
+			}"""
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false/*don't force problems*/, null/*primary owner*/, null/*no progress*/);
 	this.workingCopy.restore();
 	assertElementDescendants(
 		"Unexpected children",
-		"[Working copy] X.class\n" +
-		"  package workingcopy\n" +
-		"  class X\n" +
-		"    void foo()",
+		"""
+			[Working copy] X.class
+			  package workingcopy
+			  class X
+			    void foo()""",
 		this.workingCopy);
 }
 
@@ -1433,11 +1479,12 @@ public void testWorkingCopy08() throws CoreException {
 	WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
 	this.workingCopy = clazz.getWorkingCopy(owner, null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
-		"package workingcopy;\n" +
-		"public class X {\n" +
-		"  public void bar() {\n" +
-		"  }\n" +
-		"}"
+		"""
+			package workingcopy;
+			public class X {
+			  public void bar() {
+			  }
+			}"""
 	);
 	this.workingCopy.makeConsistent(null);
 
@@ -1446,11 +1493,12 @@ public void testWorkingCopy08() throws CoreException {
 	try {
 		copy = cu.getWorkingCopy(owner, null/*no progress*/);
 		copy.getBuffer().setContents(
-			"public class Y {\n" +
-			"  void foo(workingcopy.X x) {\n" +
-			"    x.bar();\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class Y {
+				  void foo(workingcopy.X x) {
+				    x.bar();
+				  }
+				}"""
 		);
 		problemRequestor.problems = new StringBuilder();
 		problemRequestor.problemCount = 0;
@@ -1482,19 +1530,22 @@ public void testWorkingCopy09() throws CoreException {
 	try {
 		copy = cu.getWorkingCopy(owner, /*problemRequestor, */null/*no prpgress*/);
 		copy.getBuffer().setContents(
-			"public class Y {\n" +
-			"  workingcopy.X x;\n" +
-			"}"
+			"""
+				public class Y {
+				  workingcopy.X x;
+				}"""
 		);
 		problemRequestor.problems = new StringBuilder();
 		problemRequestor.problemCount = 0;
 		copy.reconcile(ICompilationUnit.NO_AST, false/*don't force problems*/, owner, null/*no progress*/);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" +
-			"1. ERROR in /P/Y.java\n" +
-			"workingcopy.X cannot be resolved to a type\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in /P/Y.java
+				workingcopy.X cannot be resolved to a type
+				----------
+				""",
 			problemRequestor);
 	} finally {
 		if (copy != null)
@@ -1514,16 +1565,17 @@ public void testWorkingCopy10() throws CoreException {
 		this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 		assertSourceEquals(
 			"Unexpected source",
-			"package workingcopy;\n" +
-			"public class Y<W> {\n" +
-			"  \n" +
-			"  public Y() {\n" +
-			"  }\n" +
-			"  \n" +
-			"  <T> T foo(T t, java.lang.String... args) {\n" +
-			"    return null;\n" +
-			"  }\n" +
-			"}",
+			"""
+				package workingcopy;
+				public class Y<W> {
+				 \s
+				  public Y() {
+				  }
+				 \s
+				  <T> T foo(T t, java.lang.String... args) {
+				    return null;
+				  }
+				}""",
 			this.workingCopy.getSource());
 	} finally {
 		attachSource(this.jarRoot, sourceAttachmentPath.toString(), null);
@@ -1600,10 +1652,14 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 			IJavaProject project = getJavaProject("P");
 			String[] pathAndContents = new String[] {
 					"bug316937/Foo.java",
-					"package bug316937;\n" + "public class Foo {\n"
-							+ "	class Bar {\n"
-							+ "		public Bar(int a, int b) {}\n" + "	}\n"
-							+ "}\n" };
+					"""
+						package bug316937;
+						public class Foo {
+							class Bar {
+								public Bar(int a, int b) {}
+							}
+						}
+						""" };
 			addLibrary(project, "lib316937.jar", "src316937.zip",
 					pathAndContents, JavaCore.VERSION_1_5);
 			IPackageFragmentRoot packageFragRoot = project
@@ -1649,10 +1705,11 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 	 * Ensures that if more than one thread try to open a class file at the same time, the children are correct.
 	 */
 	public void testBug372687() throws CoreException {
-		String expected = "X.class\n" +
-						  "  class X\n" +
-						  "    X()\n" +
-						  "    void foo()";
+		String expected = """
+			X.class
+			  class X
+			    X()
+			    void foo()""";
 		class GetClassThread extends Thread {
 			public String childString;
 			@Override

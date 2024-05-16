@@ -62,13 +62,15 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -84,9 +86,10 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -101,13 +104,15 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -123,13 +128,15 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -171,13 +178,15 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -193,9 +202,10 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -210,13 +220,15 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -232,13 +244,15 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -286,13 +300,15 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -308,9 +324,10 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -325,13 +342,15 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -347,13 +366,15 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"}",
+				"""
+					package p1;
+					public class Y {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;",
@@ -395,17 +416,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					  }
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X {
+					  void foo() {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/Y;.foo()V",
@@ -421,17 +444,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					  }
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X {
+					  void foo() {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/X;.foo()V",
@@ -447,17 +472,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					  }
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class Y {
+					  void foo() {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/X;.foo()V",
@@ -476,11 +503,12 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		try {
 			workingCopy = getWorkingCopy("/P/p1/X.java", true/*compute problems to get bindings*/);
 			ASTNode node = buildAST(
-				"package p1;\n" +
-				"public class X {\n" +
-				"  /*start*/void foo() {\n" +
-				"  }/*end*/\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  /*start*/void foo() {
+					  }/*end*/
+					}""",
 				workingCopy);
 			IMethodBinding methodBinding = ((MethodDeclaration) node).resolveBinding();
 			assertTrue("X#foo() should not override itself", !methodBinding.overrides(methodBinding));
@@ -498,9 +526,10 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/java/lang/Integer.java",
-				"package java.lang;\n" +
-				"public class Integer {\n" +
-				"}",
+				"""
+					package java.lang;
+					public class Integer {
+					}""",
 			},
 			new String[] {
 				"I",
@@ -529,11 +558,12 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/X;.foo()V"
@@ -548,17 +578,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  String foo(Object o) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  String foo(Object o) {
+					  }
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X {\n" +
-				"  String foo(Object o) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X {
+					  String foo(Object o) {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/X;.foo(Ljava/lang/Object;)Ljava/lang/String;",
@@ -574,21 +606,24 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T>  {\n" +
-				"  Z<T> foo(Z<T> o) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T>  {
+					  Z<T> foo(Z<T> o) {
+					  }
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X {\n" +
-				"  Z foo(Z o) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X {
+					  Z foo(Z o) {
+					  }
+					}""",
 				"/P/p1/Z.java",
-				"package p1;\n" +
-				"public class Z<T> {\n" +
-				"}",
+				"""
+					package p1;
+					public class Z<T> {
+					}""",
 			},
 			new String[] {
 				"Lp1/X;.foo(Lp1/Z<TT;>;)Lp1/Z<TT;>;",
@@ -604,17 +639,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					  }
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"  void bar() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class Y {
+					  void bar() {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/X;.foo()V",
@@ -630,17 +667,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					  }
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X {\n" +
-				"  void bar() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X {
+					  void bar() {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/Y;.bar()V",
@@ -657,17 +696,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X<T> {\n" +
-				"  void foo(T t) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X<T> {
+					  void foo(T t) {
+					  }
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X<String> {\n" +
-				"  void foo(String s) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X<String> {
+					  void foo(String s) {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/Y;.foo(Ljava/lang/String;)V",
@@ -684,15 +725,16 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}\n" +
-				"class Y extends X {\n" +
-				"  <T> void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					  }
+					}
+					class Y extends X {
+					  <T> void foo() {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/X;.foo()V",
@@ -712,17 +754,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 			IMethodBinding[] bindings = createMethodBindings(
 				new String[] {
 					"/P2/p1/X.java",
-					"package p1;\n" +
-					"public class X {\n" +
-					"  Object foo() {\n" +
-					"  }\n" +
-					"}",
+					"""
+						package p1;
+						public class X {
+						  Object foo() {
+						  }
+						}""",
 					"/P2/p1/Y.java",
-					"package p1;\n" +
-					"public class Y extends X {\n" +
-					"  String foo() {\n" +
-					"  }\n" +
-					"}",
+					"""
+						package p1;
+						public class Y extends X {
+						  String foo() {
+						  }
+						}""",
 				},
 				new String[] {
 					"Lp1/Y;.foo()Ljava/lang/String;",
@@ -743,17 +787,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  private void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  private void foo() {
+					  }
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y extends X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class Y extends X {
+					  void foo() {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/Y;.foo()V",
@@ -770,17 +816,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					  }
+					}""",
 				"/P/p2/Y.java",
-				"package p2;\n" +
-				"public class Y extends p1.X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p2;
+					public class Y extends p1.X {
+					  void foo() {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp2/Y;.foo()V",
@@ -797,16 +845,17 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/A.java",
-				"package p1;\n" +
-				"public class A<T> {\n" +
-				"  public void o1_xoo2(A<?> s) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class B<S> extends A<S> {\n" +
-				"  @Override\n" +
-				"  public void o1_xoo2(A<Object> s) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class A<T> {
+					  public void o1_xoo2(A<?> s) {
+					  }
+					}
+					class B<S> extends A<S> {
+					  @Override
+					  public void o1_xoo2(A<Object> s) {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/A;.o1_xoo2(Lp1/A<*>;)V",
@@ -823,16 +872,17 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/A.java",
-				"package p1;\n" +
-				"public class A<T> {\n" +
-				"  public void o1_xoo3(A<? extends T> s) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class B<S> extends A<S> {\n" +
-				"  @Override\n" +
-				"  public void o1_xoo3(A<? super S> s) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class A<T> {
+					  public void o1_xoo3(A<? extends T> s) {
+					  }
+					}
+					class B<S> extends A<S> {
+					  @Override
+					  public void o1_xoo3(A<? super S> s) {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/A;.o1_xoo3(Lp1/A<+TT;>;)V",
@@ -849,18 +899,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/A.java",
-				"package p1;\n" +
-				"public class A<S, T> {\n" +
-				"  public void o2_xoo1(List<? extends T> t) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class B<V, W> extends A<W, V> {\n" +
-				"  @Override\n" +
-				"  public void o2_xoo1(List<? extends W> t) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class List<T> {\n" +
-				"}",
+				"""
+					package p1;
+					public class A<S, T> {
+					  public void o2_xoo1(List<? extends T> t) {
+					  }
+					}
+					class B<V, W> extends A<W, V> {
+					  @Override
+					  public void o2_xoo1(List<? extends W> t) {
+					  }
+					}
+					class List<T> {
+					}""",
 			},
 			new String[] {
 				"Lp1/A;.o2_xoo1(Lp1/List<+TT;>;)V",
@@ -877,18 +928,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/A.java",
-				"package p1;\n" +
-				"public class A {\n" +
-				"  public void o3_xoo1(List t) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class B extends A {\n" +
-				"  @Override\n" +
-				"  public void o3_xoo1(List<Object> t) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class List<T> {\n" +
-				"}",
+				"""
+					package p1;
+					public class A {
+					  public void o3_xoo1(List t) {
+					  }
+					}
+					class B extends A {
+					  @Override
+					  public void o3_xoo1(List<Object> t) {
+					  }
+					}
+					class List<T> {
+					}""",
 			},
 			new String[] {
 				"Lp1/A;.o3_xoo1(Lp1/List;)V",
@@ -905,18 +957,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/A.java",
-				"package p1;\n" +
-				"public class A<T> {\n" +
-				"  public void o4_xoo1(T t) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class B extends A<List<String>> {\n" +
-				"  @Override\n" +
-				"  public void o4_xoo1(List<?> t) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class List<T> {\n" +
-				"}",
+				"""
+					package p1;
+					public class A<T> {
+					  public void o4_xoo1(T t) {
+					  }
+					}
+					class B extends A<List<String>> {
+					  @Override
+					  public void o4_xoo1(List<?> t) {
+					  }
+					}
+					class List<T> {
+					}""",
 			},
 			new String[] {
 				"Lp1/A;.o4_xoo1(TT;)V",
@@ -933,16 +986,17 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/A.java",
-				"package p1;\n" +
-				"public class A<S> {\n" +
-				"  public <X, Y> void tp1_xoo3(X x, Y y) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class B extends A<String> {\n" +
-				"  @Override\n" +
-				"  public <W, V> void tp1_xoo3(V x, W y) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class A<S> {
+					  public <X, Y> void tp1_xoo3(X x, Y y) {
+					  }
+					}
+					class B extends A<String> {
+					  @Override
+					  public <W, V> void tp1_xoo3(V x, W y) {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/A;.tp1_xoo3<X:Ljava/lang/Object;Y:Ljava/lang/Object;>(TX;TY;)V",
@@ -959,16 +1013,17 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/A.java",
-				"package p1;\n" +
-				"public class A<S> {\n" +
-				"  public <X, Y> void tp1_foo2(S s, X x, Y y) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class B extends A<String> {\n" +
-				"  @Override\n" +
-				"  public void tp1_foo2(String s, Object x, Object y) {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class A<S> {
+					  public <X, Y> void tp1_foo2(S s, X x, Y y) {
+					  }
+					}
+					class B extends A<String> {
+					  @Override
+					  public void tp1_foo2(String s, Object x, Object y) {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/A;.tp1_foo2<X:Ljava/lang/Object;Y:Ljava/lang/Object;>(TS;TX;TY;)V",
@@ -985,19 +1040,20 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/A.java",
-				"package p1;\n" +
-				"public abstract class A<T> {\n" +
-				"  void g2 (T t) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class B extends A<List<Number>> {\n" +
-				"  void g2 (List<Number> t) {\n" +
-				"  }\n" +
-				"}\n" +
-				"class List<T> {\n" +
-				"}\n" +
-				"class Number {\n" +
-				"}",
+				"""
+					package p1;
+					public abstract class A<T> {
+					  void g2 (T t) {
+					  }
+					}
+					class B extends A<List<Number>> {
+					  void g2 (List<Number> t) {
+					  }
+					}
+					class List<T> {
+					}
+					class Number {
+					}""",
 			},
 			new String[] {
 				"Lp1/A~B;.g2(Lp1/List<Lp1/Number;>;)V"
@@ -1014,17 +1070,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					  }
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class Y {
+					  void foo() {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/X;.foo()V",
@@ -1040,17 +1098,19 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		IMethodBinding[] bindings = createMethodBindings(
 			new String[] {
 				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class X {
+					  void foo() {
+					  }
+					}""",
 				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"}",
+				"""
+					package p1;
+					public class Y {
+					  void foo() {
+					  }
+					}""",
 			},
 			new String[] {
 				"Lp1/X;.foo()V",

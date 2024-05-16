@@ -66,26 +66,30 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    bar(0)\n"+
-			"	    baz(1);\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    bar(0)
+					    baz(1);
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    bar(0);\n" +
-			"    baz(1);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    bar(0);
+				    baz(1);
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -133,26 +137,30 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    baz(0);\n"+
-			"	    bar(1,\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    baz(0);
+					    bar(1,
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    baz(0);\n" +
-			"    bar(1);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    baz(0);
+				    bar(1);
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -200,27 +208,31 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    baz(0);\n"+
-			"	    bar(1,\n"+
-			"	    foo(3);\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    baz(0);
+					    bar(1,
+					    foo(3);
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    baz(0);\n" +
-			"    bar(1,foo(3));\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    baz(0);
+				    bar(1,foo(3));
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -269,26 +281,30 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    int var= 123\n"+
-			"	    System.out.println(var);\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    int var= 123
+					    System.out.println(var);
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    int var=123;\n" +
-			"    System.out.println(var);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    int var=123;
+				    System.out.println(var);
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -312,24 +328,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    String[] s =  {\"\",,,};\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    String[] s =  {"",,,};
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    String[] s={\"\",$missing$};\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    String[] s={"",$missing$};
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -369,24 +389,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    bar()\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    bar()
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    bar();\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    bar();
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -415,24 +439,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    bar(baz()\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    bar(baz()
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    bar(baz());\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    bar(baz());
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -468,24 +496,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    for(int i\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    for(int i
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    for (int i; ; )     ;\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    for (int i; ; )     ;
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -530,24 +562,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    bar(baz());#\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    bar(baz());#
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    bar(baz());\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    bar(baz());
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -583,24 +619,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    bar(baz())#;\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    bar(baz())#;
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    bar(baz());\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    bar(baz());
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -636,24 +676,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    bar(baz()#);\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    bar(baz()#);
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    bar(baz());\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    bar(baz());
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -689,24 +733,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    bar()#\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    bar()#
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    bar();\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    bar();
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -735,24 +783,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    a[0]\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    a[0]
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    a[0]=$missing$;\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    a[0]=$missing$;
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -785,24 +837,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    int[] = a[0];\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    int[] = a[0];
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    int[] $missing$=a[0];\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    int[] $missing$=a[0];
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -830,24 +886,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    assert 0 == 0 : a[0;\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    assert 0 == 0 : a[0;
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    assert 0 == 0 : a[0];\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    assert 0 == 0 : a[0];
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -875,24 +935,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    assert 0 == 0 : foo(;\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    assert 0 == 0 : foo(;
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    assert 0 == 0 : foo();\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    assert 0 == 0 : foo();
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -919,24 +983,28 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"\n"+
-			"public class X {\n"+
-			"	void foo() {\n"+
-			"	    assert 0 == 0 : (\"aa\";\n"+
-			"	}\n"+
-			"}\n");
+			"""
+				package test;
+				
+				public class X {
+					void foo() {
+					    assert 0 == 0 : ("aa";
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    assert 0 == 0 : (\"aa\");\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    assert 0 == 0 : ("aa");
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -964,38 +1032,41 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 
 		ASTResult result = this.buildMarkedAST(
 				"/Converter/src/p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"	void m(Object var) {\n" +
-				"		if (1==1 && var.equals(1)[*1*][*1*] {\n" +
-				"		}\n" +
-				"	}\n" +
-				"}");
+				"""
+					package p;
+					public class X {
+						void m(Object var) {
+							if (1==1 && var.equals(1)[*1*][*1*] {
+							}
+						}
+					}""");
 
 		assertASTResult(
-				"===== AST =====\n" +
-				"package p;\n" +
-				"public class X {\n" +
-				"  void m(  Object var){\n" +
-				"    if (1 == 1 && var.equals(1))     [*1*];[*1*]\n" +
-				"  }\n" +
-				"}\n" +
-				"\n" +
-				"===== Details =====\n" +
-				"1:EMPTY_STATEMENT,[77,0],,RECOVERED,[N/A]\n" +
-				"===== Problems =====\n" +
-				"1. WARNING in /Converter/src/p/X.java (at line 4)\n" +
-				"	if (1==1 && var.equals(1) {\n" +
-				"	    ^^^^\n" +
-				"Comparing identical expressions\n" +
-				"2. ERROR in /Converter/src/p/X.java (at line 4)\n" +
-				"	if (1==1 && var.equals(1) {\n" +
-				"	                ^^^^^^\n" +
-				"The method equals(Object) in the type Object is not applicable for the arguments (int)\n" +
-				"3. ERROR in /Converter/src/p/X.java (at line 4)\n" +
-				"	if (1==1 && var.equals(1) {\n" +
-				"	                        ^\n" +
-				"Syntax error, insert \") Statement\" to complete BlockStatements\n",
+				"""
+					===== AST =====
+					package p;
+					public class X {
+					  void m(  Object var){
+					    if (1 == 1 && var.equals(1))     [*1*];[*1*]
+					  }
+					}
+					
+					===== Details =====
+					1:EMPTY_STATEMENT,[77,0],,RECOVERED,[N/A]
+					===== Problems =====
+					1. WARNING in /Converter/src/p/X.java (at line 4)
+						if (1==1 && var.equals(1) {
+						    ^^^^
+					Comparing identical expressions
+					2. ERROR in /Converter/src/p/X.java (at line 4)
+						if (1==1 && var.equals(1) {
+						                ^^^^^^
+					The method equals(Object) in the type Object is not applicable for the arguments (int)
+					3. ERROR in /Converter/src/p/X.java (at line 4)
+						if (1==1 && var.equals(1) {
+						                        ^
+					Syntax error, insert ") Statement" to complete BlockStatements
+					""",
 				result);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=329998
@@ -1003,25 +1074,29 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"public class X {\n"+
-			"	void foo() {\n" +
-			"		return new Object() {hash};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;
+				public class X {
+					void foo() {
+						return new Object() {hash};
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    return new Object(){\n" +
-			"    }\n" +
-			";\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    return new Object(){
+				    }
+				;
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -1043,25 +1118,29 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Converter/src/test/X.java",
-			"package test;\n"+
-			"public class X {\n"+
-			"	void foo() {\n" +
-			"		field= new Object() {hash};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package test;
+				public class X {
+					void foo() {
+						field= new Object() {hash};
+					}
+				}
+				""");
 
 		char[] source = this.workingCopies[0].getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
-			"package test;\n" +
-			"public class X {\n" +
-			"  void foo(){\n" +
-			"    field=new Object(){\n" +
-			"    }\n" +
-			";\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test;
+				public class X {
+				  void foo(){
+				    field=new Object(){
+				    }
+				;
+				  }
+				}
+				""",
 			result);
 
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -1088,20 +1167,24 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 				"/Converter/src/test/X.java",
-				"package test;\n"+
-				"public class X {\n"+
-				"	void foo() {\n" +
-				"		synchronized new Object();\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					package test;
+					public class X {
+						void foo() {
+							synchronized new Object();
+						}
+					}
+					""");
 			ASTNode result = runConversion(getJLS3(), this.workingCopies[0], true, true);
 
 			assertASTNodeEquals(
-				"package test;\n" +
-				"public class X {\n" +
-				"  void foo(){\n" +
-				"  }\n" +
-				"}\n",
+				"""
+					package test;
+					public class X {
+					  void foo(){
+					  }
+					}
+					""",
 				result);
 
 			ASTNode node = getASTNode((CompilationUnit) result, 0, 0);

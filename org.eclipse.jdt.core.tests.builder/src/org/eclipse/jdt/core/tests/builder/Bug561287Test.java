@@ -40,25 +40,31 @@ public class Bug561287Test extends BuilderTests {
 
 			env.addExternalJars(projectPath, Util.getJavaClassLibs());
 			env.addClass(src, "bug561287", "A0",
-					"package bug561287;\n" +
-					"import bug561287.sub.B0;\n" +
-					"\n" +
-					"public class A0 {\n" +
-					"    B0 b;\n" +
-					"}\n");
+					"""
+						package bug561287;
+						import bug561287.sub.B0;
+						
+						public class A0 {
+						    B0 b;
+						}
+						""");
 			env.addClass(src, "bug561287", "A1",
-					"package bug561287;\n" +
-					"\n" +
-					"public class A1 {\n" +
-					"\n" +
-					"}\n");
+					"""
+						package bug561287;
+						
+						public class A1 {
+						
+						}
+						""");
 			env.addClass(src, "bug561287/sub", "B0",
-					"package bug561287.sub;\n" +
-					"\n" +
-					"public class B0 {\n" +
-					"\n" +
-					"}\n" +
-					"\n");
+					"""
+						package bug561287.sub;
+						
+						public class B0 {
+						
+						}
+						
+						""");
 			env.addFolder(src, "bug561287/sub/directory");
 			env.addFile(src, "bug561287/sub/directory/test.txt", "");
 			fullBuild();

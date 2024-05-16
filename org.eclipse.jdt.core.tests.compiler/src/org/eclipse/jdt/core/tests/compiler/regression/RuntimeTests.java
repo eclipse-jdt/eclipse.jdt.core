@@ -54,24 +54,26 @@ public void _test0001_memory_exhaustion() {
 	runTest(
 		new String[] { /* testFiles */
 			"X.java",
-			"public class X {\n" +
-			"  public static void main(String args[]) {\n" +
-			"    try {" +
-			"      Y y = new Y(Integer.MAX_VALUE);\n" +
-			"    }" +
-			"    catch (OutOfMemoryError e) {\n" +
-			"      System.out.println(\"SUCCESS\");\n" +
-			"      return;\n" +
-			"    }\n" +
-			"    System.out.println(\"FAILURE\");\n" +
-			"  }\n" +
-			"}\n" +
-			"class Y {\n" +
-			"  long storage[];\n" +
-			"  Y(int itemsNb) {\n" +
-			"    storage = new long[itemsNb];\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				public class X {
+				  public static void main(String args[]) {
+				    try {\
+				      Y y = new Y(Integer.MAX_VALUE);
+				    }\
+				    catch (OutOfMemoryError e) {
+				      System.out.println("SUCCESS");
+				      return;
+				    }
+				    System.out.println("FAILURE");
+				  }
+				}
+				class Y {
+				  long storage[];
+				  Y(int itemsNb) {
+				    storage = new long[itemsNb];
+				  }
+				}
+				"""},
 		false /* expectingCompilerErrors */,
 		"" /* expectedCompilerLog */,
 		"SUCCESS" /* expectedOutputString */,
@@ -91,53 +93,56 @@ public void test0500_synchronization() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"static public void main (String args[]) {\n" +
-			"  new Lock().implicitLock();\n" +
-			"}\n" +
-			"}\n" +
-			"class Lock extends Thread {\n" +
-			"  byte step = 0;\n" +
-			"  void logStep(String start) {\n" +
-			"    System.out.println(start + \" \" + this.step); //$NON-NLS-1$\n" +
-			"  }\n" +
-			"  public void run() {\n" +
-			"    for (int i = 1; i < 3; i++) {\n" +
-			"      logStep(\"explicit lock\"); //$NON-NLS-1$\n" +
-			"      synchronized (this) {\n" +
-			"        this.step++;\n" +
-			"        notify();\n" +
-			"        while(this.step < 2 * i) {\n" +
-			"          try {\n" +
-			"            wait();\n" +
-			"          } catch (InterruptedException e) {\n" +
-			"            System.out.println(\"EXCEPTION\"); //$NON-NLS-1$\n" +
-			"          }\n" +
-			"        }\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"  synchronized void implicitLock() {\n" +
-			"      this.start();\n" +
-			"      for (int i = 0; i < 2; i++) {\n" +
-			"        while (this.step < 1 + i * 2) {\n" +
-			"          try {\n" +
-			"            wait();\n" +
-			"          } catch (InterruptedException e) {\n" +
-			"            System.out.println(\"EXCEPTION\"); //$NON-NLS-1$\n" +
-			"          }\n" +
-			"        }\n" +
-			"        logStep(\"implicit lock\"); //$NON-NLS-1$\n" +
-			"        this.step++;\n" +
-			"        notify();\n" +
-			"      }\n" +
-			"      return;\n" +
-			"  }\n" +
-			"}\n"},
-		"explicit lock 0\n" +
-		"implicit lock 1\n" +
-		"explicit lock 2\n" +
-		"implicit lock 3"
+			"""
+				public class X {
+				static public void main (String args[]) {
+				  new Lock().implicitLock();
+				}
+				}
+				class Lock extends Thread {
+				  byte step = 0;
+				  void logStep(String start) {
+				    System.out.println(start + " " + this.step); //$NON-NLS-1$
+				  }
+				  public void run() {
+				    for (int i = 1; i < 3; i++) {
+				      logStep("explicit lock"); //$NON-NLS-1$
+				      synchronized (this) {
+				        this.step++;
+				        notify();
+				        while(this.step < 2 * i) {
+				          try {
+				            wait();
+				          } catch (InterruptedException e) {
+				            System.out.println("EXCEPTION"); //$NON-NLS-1$
+				          }
+				        }
+				      }
+				    }
+				  }
+				  synchronized void implicitLock() {
+				      this.start();
+				      for (int i = 0; i < 2; i++) {
+				        while (this.step < 1 + i * 2) {
+				          try {
+				            wait();
+				          } catch (InterruptedException e) {
+				            System.out.println("EXCEPTION"); //$NON-NLS-1$
+				          }
+				        }
+				        logStep("implicit lock"); //$NON-NLS-1$
+				        this.step++;
+				        notify();
+				      }
+				      return;
+				  }
+				}
+				"""},
+		"""
+			explicit lock 0
+			implicit lock 1
+			explicit lock 2
+			implicit lock 3"""
 	);
 }
 
@@ -149,36 +154,41 @@ public void test0600_reflection() {
 		true,
 		new String[] {
 			"X.java",
-			"import java.lang.reflect.*;\n" +
-			"import p.*;\n" +
-			"public class X {\n" +
-			"static public void main (String args[]) {\n" +
-			"  Y y = new Y();\n" +
-			"  try {\n" +
-			"    Method foo = Y.class.getMethod(\"foo\", (Class []) null);\n" +
-			"    y.foo();\n" +
-			"    foo.invoke(y, (Object []) null);\n" +
-			"  } catch (NoSuchMethodException e) {\n" +
-			"      //ignore\n" +
-			"  } catch (InvocationTargetException e) {\n" +
-			"      //ignore\n" +
-			"  } catch (IllegalAccessException e) {\n" +
-			"    System.out.print(\"FAILURE: IllegalAccessException\");\n" +
-			"  }\n" +
-			"}\n" +
-			"}",
+			"""
+				import java.lang.reflect.*;
+				import p.*;
+				public class X {
+				static public void main (String args[]) {
+				  Y y = new Y();
+				  try {
+				    Method foo = Y.class.getMethod("foo", (Class []) null);
+				    y.foo();
+				    foo.invoke(y, (Object []) null);
+				  } catch (NoSuchMethodException e) {
+				      //ignore
+				  } catch (InvocationTargetException e) {
+				      //ignore
+				  } catch (IllegalAccessException e) {
+				    System.out.print("FAILURE: IllegalAccessException");
+				  }
+				}
+				}""",
 			"p/Y.java",
-			"package p;\n" +
-			"public class Y extends Z {\n" +
-			"  /* empty */\n" +
-			"}\n",
+			"""
+				package p;
+				public class Y extends Z {
+				  /* empty */
+				}
+				""",
 			"p/Z.java",
-			"package p;\n" +
-			"class Z {\n" +
-			"  public void foo() {\n" +
-			"  System.out.println(\"SUCCESS\"); //$NON-NLS-1$\n" +
-			"  }\n" +
-			"}\n"},
+			"""
+				package p;
+				class Z {
+				  public void foo() {
+				  System.out.println("SUCCESS"); //$NON-NLS-1$
+				  }
+				}
+				"""},
 		"",
 		this.complianceLevel <= ClassFileConstants.JDK1_5 ? "SUCCESS\n" + "FAILURE: IllegalAccessException" : "SUCCESS\n" + "SUCCESS",
 		"",
@@ -193,32 +203,37 @@ public void test0601_reflection() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.lang.reflect.*;\n" +
-			"import p.*;\n" +
-			"public class X {\n" +
-			"static public void main (String args[]) {\n" +
-			"  Y y = new Y();\n" +
-			"  try {\n" +
-			"    Field f = Y.class.getField(\"m\");\n" +
-			"    System.out.println(y.m);\n" +
-			"    System.out.println(f.get(y));\n" +
-			"  } catch (NoSuchFieldException e) {\n" +
-			"      //ignore\n" +
-			"  } catch (IllegalAccessException e) {\n" +
-			"    System.out.print(\"FAILURE: IllegalAccessException\");\n" +
-			"  }\n" +
-			"}\n" +
-			"}",
+			"""
+				import java.lang.reflect.*;
+				import p.*;
+				public class X {
+				static public void main (String args[]) {
+				  Y y = new Y();
+				  try {
+				    Field f = Y.class.getField("m");
+				    System.out.println(y.m);
+				    System.out.println(f.get(y));
+				  } catch (NoSuchFieldException e) {
+				      //ignore
+				  } catch (IllegalAccessException e) {
+				    System.out.print("FAILURE: IllegalAccessException");
+				  }
+				}
+				}""",
 			"p/Y.java",
-			"package p;\n" +
-			"public class Y extends Z {\n" +
-			"  /* empty */\n" +
-			"}\n",
+			"""
+				package p;
+				public class Y extends Z {
+				  /* empty */
+				}
+				""",
 			"p/Z.java",
-			"package p;\n" +
-			"class Z {\n" +
-			"  public String m = \"SUCCESS\";\n" +
-			"}\n"},
+			"""
+				package p;
+				class Z {
+				  public String m = "SUCCESS";
+				}
+				"""},
 		"SUCCESS\n" +
 		"FAILURE: IllegalAccessException"
 	);
@@ -229,45 +244,53 @@ public void test1000_partial_rebuild() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"static public void main(String args[]) {\n" +
-			"  Z.go();\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class X {
+				static public void main(String args[]) {
+				  Z.go();
+				}
+				}
+				""",
 			"Z.java",
-			"public class Z {\n" +
-			"static public void go() {\n" +
-			"  int flag = 0;\n" +
-			"  try {\n" +
-			"    new Y().random();\n" +
-			"    flag = 1;\n" +
-			"  }\n" +
-			"  catch (NoSuchMethodError e) {\n" +
-			"    flag = 2;\n" +
-			"  }\n" +
-			"  catch (Throwable t) {\n" +
-			"    flag = 3;\n" +
-			"  }\n" +
-			"  System.out.println(flag);\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class Z {
+				static public void go() {
+				  int flag = 0;
+				  try {
+				    new Y().random();
+				    flag = 1;
+				  }
+				  catch (NoSuchMethodError e) {
+				    flag = 2;
+				  }
+				  catch (Throwable t) {
+				    flag = 3;
+				  }
+				  System.out.println(flag);
+				}
+				}
+				""",
 			"Y.java",
-			"public class Y {\n" +
-			"java.util.Random generator = new java.util.Random();" +
-			"public byte random() {\n" +
-			"  return (byte) (generator.nextInt() % Byte.MAX_VALUE);\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class Y {
+				java.util.Random generator = new java.util.Random();\
+				public byte random() {
+				  return (byte) (generator.nextInt() % Byte.MAX_VALUE);
+				}
+				}
+				""",
 			},
 		"1");
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"static public void main(String args[]) {\n" +
-			"  Z.go();\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class X {
+				static public void main(String args[]) {
+				  Z.go();
+				}
+				}
+				""",
 			"Y.java",
 			"public class Y {\n" +
 			"java.util.Random generator = new java.util.Random();" +
@@ -287,44 +310,52 @@ public void test1001_partial_rebuild() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"static public void main(String args[]) {\n" +
-			"  Z.go();\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class X {
+				static public void main(String args[]) {
+				  Z.go();
+				}
+				}
+				""",
 			"Z.java",
-			"public class Z {\n" +
-			"static public void go() {\n" +
-			"  byte flag = 0;\n" +
-			"  try {\n" +
-			"    new Y().random(flag);\n" +
-			"    flag = 1;\n" +
-			"  }\n" +
-			"  catch (NoSuchMethodError e) {\n" +
-			"    flag = 2;\n" +
-			"  }\n" +
-			"  catch (Throwable t) {\n" +
-			"    flag = 3;\n" +
-			"  }\n" +
-			"  System.out.println(flag);\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class Z {
+				static public void go() {
+				  byte flag = 0;
+				  try {
+				    new Y().random(flag);
+				    flag = 1;
+				  }
+				  catch (NoSuchMethodError e) {
+				    flag = 2;
+				  }
+				  catch (Throwable t) {
+				    flag = 3;
+				  }
+				  System.out.println(flag);
+				}
+				}
+				""",
 			"Y.java",
-			"public class Y {\n" +
-			"public int random(byte seed) {\n" +
-			"  return seed++;\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class Y {
+				public int random(byte seed) {
+				  return seed++;
+				}
+				}
+				""",
 			},
 		"1");
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"static public void main(String args[]) {\n" +
-			"  Z.go();\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class X {
+				static public void main(String args[]) {
+				  Z.go();
+				}
+				}
+				""",
 			"Y.java",
 			"public class Y {\n" +
 			"public int random(int seed) {\n" + // seed now of type int
@@ -343,51 +374,59 @@ public void test1002_partial_rebuild() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"static public void main(String args[]) {\n" +
-			"  new Z().go();\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class X {
+				static public void main(String args[]) {
+				  new Z().go();
+				}
+				}
+				""",
 			"Z.java",
-			"public class Z extends p.Y {\n" +
-			"  class ZInner extends YInner {\n" +
-			"    // empty\n" +
-			"  }\n" +
-			"public void go() {\n" +
-			"  byte flag = 0;\n" +
-			"  try {\n" +
-			"    new ZInner().foo();\n" +
-			"    flag = 1;\n" +
-			"  }\n" +
-			"  catch (IllegalAccessError e) {\n" +
-			"    flag = 2;\n" +
-			"  }\n" +
-			"  catch (Throwable t) {\n" +
-			"    flag = 3;\n" +
-			"  }\n" +
-			"  System.out.println(flag);\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class Z extends p.Y {
+				  class ZInner extends YInner {
+				    // empty
+				  }
+				public void go() {
+				  byte flag = 0;
+				  try {
+				    new ZInner().foo();
+				    flag = 1;
+				  }
+				  catch (IllegalAccessError e) {
+				    flag = 2;
+				  }
+				  catch (Throwable t) {
+				    flag = 3;
+				  }
+				  System.out.println(flag);
+				}
+				}
+				""",
 			"p/Y.java",
-			"package p;\n" +
-			"public class Y {\n" +
-			"  public class YInner {\n" +
-			"    public void foo() {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package p;
+				public class Y {
+				  public class YInner {
+				    public void foo() {
+				      return;
+				    }
+				  }
+				}
+				""",
 			},
 		"1");
 	this.runConformTest(
 		false,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"static public void main(String args[]) {\n" +
-			"  new Z().go();\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class X {
+				static public void main(String args[]) {
+				  new Z().go();
+				}
+				}
+				""",
 			"p/Y.java",
 			"package p;\n" +
 			"public class Y {\n" +
@@ -409,51 +448,59 @@ public void test1003_partial_rebuild() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"static public void main(String args[]) {\n" +
-			"  new Z().go();\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class X {
+				static public void main(String args[]) {
+				  new Z().go();
+				}
+				}
+				""",
 			"Z.java",
-			"public class Z extends p.Y {\n" +
-			"  class ZInner extends YInner {\n" +
-			"    // empty\n" +
-			"  }\n" +
-			"public void go() {\n" +
-			"  byte flag = 0;\n" +
-			"  try {\n" +
-			"    new ZInner().foo();\n" +
-			"    flag = 1;\n" +
-			"  }\n" +
-			"  catch (IllegalAccessError e) {\n" +
-			"    flag = 2;\n" +
-			"  }\n" +
-			"  catch (Throwable t) {\n" +
-			"    flag = 3;\n" +
-			"  }\n" +
-			"  System.out.println(flag);\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class Z extends p.Y {
+				  class ZInner extends YInner {
+				    // empty
+				  }
+				public void go() {
+				  byte flag = 0;
+				  try {
+				    new ZInner().foo();
+				    flag = 1;
+				  }
+				  catch (IllegalAccessError e) {
+				    flag = 2;
+				  }
+				  catch (Throwable t) {
+				    flag = 3;
+				  }
+				  System.out.println(flag);
+				}
+				}
+				""",
 			"p/Y.java",
-			"package p;\n" +
-			"public class Y {\n" +
-			"  public class YInner {\n" +
-			"    public void foo() {\n" +
-			"      return;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package p;
+				public class Y {
+				  public class YInner {
+				    public void foo() {
+				      return;
+				    }
+				  }
+				}
+				""",
 			},
 		"1");
 	this.runConformTest(
 		false, // do not purge output directory - pick old version of Z.class
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"static public void main(String args[]) {\n" +
-			"  new Z().go();\n" +
-			"}\n" +
-			"}\n",
+			"""
+				public class X {
+				static public void main(String args[]) {
+				  new Z().go();
+				}
+				}
+				""",
 			"p/Y.java",
 			"package p;\n" +
 			"public class Y {\n" +
@@ -478,28 +525,34 @@ public void test1004_partial_rebuild() {
 	this.runConformTest(
 		new String[] {
 			"p1/Z.java",
-			"package p1; \n"+
-			"public class Z {	\n" +
-			"	public static void main(String[] arguments) { \n"+
-			"		Y y = new Y();	\n" +
-			"		System.out.print(y.field);	\n"	+
-			"		System.out.print(y.staticField);	\n"	+
-			"		System.out.print(y.method());	\n"	+
-			"		System.out.println(y.staticMethod());	\n"	+
-			"	} \n"+
-			"} \n",
+			"""
+				package p1;\s
+				public class Z {\t
+					public static void main(String[] arguments) {\s
+						Y y = new Y();\t
+						System.out.print(y.field);\t
+						System.out.print(y.staticField);\t
+						System.out.print(y.method());\t
+						System.out.println(y.staticMethod());\t
+					}\s
+				}\s
+				""",
 			"p1/X.java",
-			"package p1; \n"+
-			"public class X { \n"+
-			"	public String field = \"X.field-\";	\n" +
-			"	public static String staticField = \"X.staticField-\";	\n" +
-			"	public String method(){ return \"X.method()-\";	}	\n" +
-			"	public static String staticMethod(){ return \"X.staticMethod()-\";	}	\n" +
-			"} \n",
+			"""
+				package p1;\s
+				public class X {\s
+					public String field = "X.field-";\t
+					public static String staticField = "X.staticField-";\t
+					public String method(){ return "X.method()-";	}\t
+					public static String staticMethod(){ return "X.staticMethod()-";	}\t
+				}\s
+				""",
 			"p1/Y.java",
-			"package p1; \n"+
-			"public class Y extends X { \n"+
-			"} \n"
+			"""
+				package p1;\s
+				public class Y extends X {\s
+				}\s
+				"""
 		},
 		"X.field-X.staticField-X.method()-X.staticMethod()-");
 	String expectedOutput =
@@ -509,16 +562,18 @@ public void test1004_partial_rebuild() {
 	this.runConformTest(
 		new String[] {
 			"p1/Y.java",
-			"package p1; \n"+
-			"public class Y extends X { \n"+
-			"	public static void main(String[] arguments) { \n"+
-			"		Z.main(arguments);	\n" +
-			"	}	\n" +
-			"	public String field = \"Y.field-\";	\n" +
-			"	public static String staticField = \"Y.staticField-\";	\n" +
-			"	public String method(){ return \"Y.method()-\";	}	\n" +
-			"	public static String staticMethod(){ return \"Y.staticMethod()-\";	}	\n" +
-			"} \n"
+			"""
+				package p1;\s
+				public class Y extends X {\s
+					public static void main(String[] arguments) {\s
+						Z.main(arguments);\t
+					}\t
+					public String field = "Y.field-";\t
+					public static String staticField = "Y.staticField-";\t
+					public String method(){ return "Y.method()-";	}\t
+					public static String staticMethod(){ return "Y.staticMethod()-";	}\t
+				}\s
+				"""
 		},
 		expectedOutput, // expected output
 		null, // use default class-path

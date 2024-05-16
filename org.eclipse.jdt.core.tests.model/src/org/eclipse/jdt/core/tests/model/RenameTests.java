@@ -144,19 +144,20 @@ public void setUp() throws Exception {
 	this.createJavaProject("P", new String[] {"src"}, "bin");
 	this.createFile(
 		"/P/src/X.java",
-		"public class X {\n" +
-		"  boolean other;\n" +
-		"  int bar;\n" +
-		"  {\n" +
-		"    bar = 1;\n" +
-		"  }\n" +
-		"  X(int i) {\n" +
-		"  }\n" +
-		"  void otherMethod(String s) {\n" +
-		"  }\n" +
-		"  void foo(String s) {\n" +
-		"  }\n" +
-		"}"
+		"""
+			public class X {
+			  boolean other;
+			  int bar;
+			  {
+			    bar = 1;
+			  }
+			  X(int i) {
+			  }
+			  void otherMethod(String s) {
+			  }
+			  void foo(String s) {
+			  }
+			}"""
 	);
 	this.cu = getCompilationUnit("/P/src/X.java");
 
@@ -169,11 +170,12 @@ public void setUpSuite() throws Exception {
 	IJavaProject project = this.createJavaProject("BinaryProject", new String[] {"src"}, new String[] {"JCL_LIB"}, "lib");
 	this.createFile(
 		"/BinaryProject/src/X.java",
-		"public class X {\n" +
-		"  int bar;\n" +
-		"  public void foo() {\n" +
-		"  }\n" +
-		"}"
+		"""
+			public class X {
+			  int bar;
+			  public void foo() {
+			  }
+			}"""
 	);
 	project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 	waitForAutoBuild();
@@ -282,13 +284,14 @@ public void testRenameCompilationUnitsCheckingDeltas() throws CoreException{
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		<default>[*]: {CHILDREN}\n" +
-		"			NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}\n" +
-		"			NewY.java[+]: {MOVED_FROM(Y.java [in <default> [in src [in P]]])}\n" +
-		"			X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}\n" +
-		"			Y.java[-]: {MOVED_TO(NewY.java [in <default> [in src [in P]]])}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					<default>[*]: {CHILDREN}
+						NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}
+						NewY.java[+]: {MOVED_FROM(Y.java [in <default> [in src [in P]]])}
+						X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}
+						Y.java[-]: {MOVED_TO(NewY.java [in <default> [in src [in P]]])}"""
 	);
 }
 /**
@@ -334,11 +337,12 @@ public void testRenameCU1() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		<default>[*]: {CHILDREN}\n" +
-		"			NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}\n" +
-		"			X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					<default>[*]: {CHILDREN}
+						NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}
+						X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}"""
 	);
 }
 public void testRenameCU2() throws CoreException {
@@ -367,12 +371,13 @@ public void testRenameCU2() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-				"	src[*]: {CHILDREN}\n" +
-				"		<default>[*]: {CHILDREN}\n" +
-				"			X.java[-]: {MOVED_TO(Y.java [in <default> [in src [in P]]])}\n" +
-				"			Y.java[*]: {CHILDREN | CONTENT | FINE GRAINED | PRIMARY RESOURCE}\n" +
-				"				Y[+]: {MOVED_FROM(X [in X.java [in <default> [in src [in P]]]])}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					<default>[*]: {CHILDREN}
+						X.java[-]: {MOVED_TO(Y.java [in <default> [in src [in P]]])}
+						Y.java[*]: {CHILDREN | CONTENT | FINE GRAINED | PRIMARY RESOURCE}
+							Y[+]: {MOVED_FROM(X [in X.java [in <default> [in src [in P]]]])}"""
 	);
 }
 /*
@@ -418,10 +423,11 @@ public void testRenameEmptyPF() throws CoreException {
 	assertTrue("New package should exist", newFrag.exists());
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		x.y.z[-]: {MOVED_TO(x.y [in src [in P]])}\n" +
-		"		x.y[+]: {MOVED_FROM(x.y.z [in src [in P]])}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					x.y.z[-]: {MOVED_TO(x.y [in src [in P]])}
+					x.y[+]: {MOVED_FROM(x.y.z [in src [in P]])}"""
 	);
 }
 /*
@@ -433,22 +439,24 @@ public void testRenameEnum() throws CoreException {
 		createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
 		createFile(
 			"/P15/En.java",
-			"public enum En {\n" +
-			"  ;\n" +
-			"  En() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				public enum En {
+				  ;
+				  En() {
+				  }
+				}"""
 		);
 		ICompilationUnit enumCU = getCompilationUnit("/P15/En.java");
 		enumCU.rename("OtherEnum.java", false, null);
 		ICompilationUnit renamedCu = getCompilationUnit("/P15/OtherEnum.java");
 		assertSourceEquals(
 			"Unexpected source after rename",
-			"public enum OtherEnum {\n" +
-			"  ;\n" +
-			"  OtherEnum() {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public enum OtherEnum {
+				  ;
+				  OtherEnum() {
+				  }
+				}""",
 			renamedCu.getSource()
 		);
 	} finally {
@@ -464,20 +472,22 @@ public void testRenameEnum2() throws CoreException {
 		createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
 		createFile(
 			"/P15/En.java",
-			"public enum En {\n" +
-			"  CONST() {\n" +
-			"  }\n" +
-			"}"
+			"""
+				public enum En {
+				  CONST() {
+				  }
+				}"""
 		);
 		ICompilationUnit enumCU = getCompilationUnit("/P15/En.java");
 		enumCU.rename("OtherEnum.java", false, null);
 		ICompilationUnit renamedCu = getCompilationUnit("/P15/OtherEnum.java");
 		assertSourceEquals(
 			"Unexpected source after rename",
-			"public enum OtherEnum {\n" +
-			"  CONST() {\n" +
-			"  }\n" +
-			"}",
+			"""
+				public enum OtherEnum {
+				  CONST() {
+				  }
+				}""",
 			renamedCu.getSource()
 		);
 	} finally {
@@ -497,13 +507,14 @@ public void testRenameFieldsCheckingDeltasAndPositions() throws JavaModelExcepti
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		<default>[*]: {CHILDREN}\n" +
-		"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-		"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"					bar[-]: {}\n" +
-		"					fred[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					<default>[*]: {CHILDREN}
+						X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+							X[*]: {CHILDREN | FINE GRAINED}
+								bar[-]: {}
+								fred[+]: {}"""
 	);
 	ensureCorrectPositioning(type, type.getField("fred"), type.getField("other"));
 }
@@ -514,9 +525,10 @@ public void testRenameFieldsCheckingDeltasAndPositions() throws JavaModelExcepti
 public void testRenameFieldFragment() throws Exception {
      this.createFile(
             "/P/src/Y.java",
-            "public class Y {\n" +
-            "  int int1, int2, int3;\n" +
-            "}"
+            """
+				public class Y {
+				  int int1, int2, int3;
+				}"""
     );
     ICompilationUnit c = getCompilationUnit("/P/src/Y.java");
     IType type = c.getType("Y");
@@ -550,13 +562,14 @@ public void testRenameFieldsMultiStatus() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		<default>[*]: {CHILDREN}\n" +
-		"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-		"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"					multiStatusother[+]: {}\n" +
-		"					other[-]: {}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					<default>[*]: {CHILDREN}
+						X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}
+							X[*]: {CHILDREN | FINE GRAINED}
+								multiStatusother[+]: {}
+								other[-]: {}"""
 	);
 
 	IJavaElement copy = generateHandle(iFields[0], newNames[0], type);
@@ -620,10 +633,11 @@ public void testRenameInitializer() {
 public void testRenameMainTypes() throws CoreException {
 	this.createFile(
 		"/P/src/Y.java",
-		"public class Y {\n" +
-		"  public Y() {\n" +
-		"  }\n" +
-		"}"
+		"""
+			public class Y {
+			  public Y() {
+			  }
+			}"""
 	);
 	ICompilationUnit cu2 = getCompilationUnit("/P/src/Y.java");
 	IPackageFragment pkg = (IPackageFragment) this.cu.getParent();
@@ -666,10 +680,11 @@ public void testRenameMainTypes() throws CoreException {
 public void testRenameMainTypesAndAChild() throws CoreException {
 	this.createFile(
 		"/P/src/Y.java",
-		"public class Y {\n" +
-		"  public Y() {\n" +
-		"  }\n" +
-		"}"
+		"""
+			public class Y {
+			  public Y() {
+			  }
+			}"""
 	);
 	ICompilationUnit cu2 = getCompilationUnit("/P/src/Y.java");
 
@@ -736,9 +751,10 @@ public void testRenamePF() throws CoreException {
 	this.createFolder("/P/src/x/y/z");
 	this.createFile(
 		"/P/src/x/y/z/A.java",
-		"package x.y.z;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package x.y.z;
+			public class A {
+			}"""
 	);
 
 	IPackageFragment frag = getPackage("/P/src/x/y/z");
@@ -762,10 +778,11 @@ public void testRenamePF() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		x.y.newZ[+]: {MOVED_FROM(x.y.z [in src [in P]])}\n" +
-		"		x.y.z[-]: {MOVED_TO(x.y.newZ [in src [in P]])}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					x.y.newZ[+]: {MOVED_FROM(x.y.z [in src [in P]])}
+					x.y.z[-]: {MOVED_TO(x.y.newZ [in src [in P]])}"""
 	);
 }
 /*
@@ -776,9 +793,10 @@ public void testRenamePF2() throws CoreException {
 	this.createFolder("/P/src/x/y/z");
 	this.createFile(
 		"/P/src/x/y/z/A.java",
-		"package x.y.z;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package x.y.z;
+			public class A {
+			}"""
 	);
 
 	IPackageFragment frag = getPackage("/P/src/x/y/z");
@@ -802,10 +820,11 @@ public void testRenamePF2() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		x.y.z2[+]: {MOVED_FROM(x.y.z [in src [in P]])}\n" +
-		"		x.y.z[-]: {MOVED_TO(x.y.z2 [in src [in P]])}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					x.y.z2[+]: {MOVED_FROM(x.y.z [in src [in P]])}
+					x.y.z[-]: {MOVED_TO(x.y.z2 [in src [in P]])}"""
 	);
 }
 /*
@@ -817,9 +836,10 @@ public void testRenamePF3() throws CoreException {
 	createFolder("/P/src/x");
 	createFile(
 		"/P/src/x/A.java",
-		"package x;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package x;
+			public class A {
+			}"""
 	);
 	IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
 		public void run(IProgressMonitor monitor) throws CoreException {
@@ -837,9 +857,10 @@ public void testRenamePFWithSubPackages() throws CoreException {
 	this.createFolder("/P/src/x/y/z");
 	this.createFile(
 		"/P/src/x/y/z/A.java",
-		"package x.y.z;\n" +
-		"public class A {\n" +
-		"}"
+		"""
+			package x.y.z;
+			public class A {
+			}"""
 	);
 
 	clearDeltas();
@@ -856,9 +877,10 @@ public void testRenamePFWithSubPackages() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		newX[+]: {}"
+		"""
+			P[*]: {CHILDREN}
+				src[*]: {CHILDREN}
+					newX[+]: {}"""
 	);
 }
 /**

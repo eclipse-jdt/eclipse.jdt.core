@@ -143,23 +143,25 @@ public class XMLComparer implements IXMLNames {
 	 */
 	public static boolean test() throws Exception {
 		final String XML_FRAMEWORK_TEST_MODEL =
-			"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-			"<model>\n" +
-			" <type-element kind=\"CLASS\" qname=\"pa.A\" sname=\"A\">\n" +
-			"  <superclass>\n" +
-			"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" +
-			"  </superclass>\n" +
-			"  <variable-element kind=\"FIELD\" sname=\"f\" type=\"java.lang.String\">\n" +
-			"   <annotations>\n" +
-			"    <annotation sname=\"Anno1\">\n" +
-			"     <annotation-values>\n" +
-			"      <annotation-value member=\"value\" type=\"java.lang.String\" value=\"spud\"/>\n" +
-			"     </annotation-values>\n" +
-			"    </annotation>\n" +
-			"   </annotations>\n" +
-			"  </variable-element>\n" +
-			" </type-element>\n" +
-			"</model>\n";
+			"""
+			<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+			<model>
+			 <type-element kind="CLASS" qname="pa.A" sname="A">
+			  <superclass>
+			   <type-mirror kind="DECLARED" to-string="java.lang.Object"/>
+			  </superclass>
+			  <variable-element kind="FIELD" sname="f" type="java.lang.String">
+			   <annotations>
+			    <annotation sname="Anno1">
+			     <annotation-values>
+			      <annotation-value member="value" type="java.lang.String" value="spud"/>
+			     </annotation-values>
+			    </annotation>
+			   </annotations>
+			  </variable-element>
+			 </type-element>
+			</model>
+			""";
 
 		// create "actual" model
 		Document actualModel = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE().newDocument();

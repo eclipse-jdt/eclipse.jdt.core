@@ -32,9 +32,10 @@ public void test1() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		public int a\u0860; // new unicode character in unicode 10.0 \n" +
-			"}",
+			"""
+				public class X {
+						public int a\u0860; // new unicode character in unicode 10.0\s
+				}""",
 		},
 		"",
 		options);

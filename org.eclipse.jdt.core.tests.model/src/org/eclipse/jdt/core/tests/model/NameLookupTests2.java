@@ -156,24 +156,27 @@ public void testDuplicateTypesInWorkingCopies() throws CoreException {
 		JavaProject project = (JavaProject)createJavaProject("P");
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/X.java",
-			"public class X {\n" +
-			"}\n" +
-			"class Other {\n" +
-			"}"
+			"""
+				public class X {
+				}
+				class Other {
+				}"""
 		);
 		this.workingCopies[1] = getWorkingCopy(
 			"/P/Y.java",
-			"public class Y {\n" +
-			"}\n" +
-			"class Other {\n" +
-			"}"
+			"""
+				public class Y {
+				}
+				class Other {
+				}"""
 		);
 		this.workingCopies[2] = getWorkingCopy(
 			"/P/Z.java",
-			"public class Z {\n" +
-			"}\n" +
-			"class Other {\n" +
-			"}"
+			"""
+				public class Z {
+				}
+				class Other {
+				}"""
 		);
 		NameLookup nameLookup = project.newNameLookup(this.workingCopies);
 		IType type = nameLookup.findType("Other", false, NameLookup.ACCEPT_ALL); // TODO (jerome) should use seekTypes
@@ -244,9 +247,10 @@ public void testFindPackageFragmentWithWorkingCopy() throws CoreException {
 		createFolder("/P/p1");
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p1;
+				public class X {
+				}"""
 		);
 		NameLookup nameLookup = project.newNameLookup(this.workingCopies);
 		IJavaElement[] pkgs = nameLookup.findPackageFragments("p1", false/*not a partial match*/);
@@ -288,13 +292,14 @@ public void testFindBinaryTypeWithDollarName() throws CoreException, IOException
 		addLibrary(project, "lib.jar", "libsrc.zip",
 			new String[] {
 				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"  public class $1 {\n" +
-				"    public class $2 {\n" +
-				"    }\n" +
-				"  }\n" +
-				"}"
+				"""
+					package p;
+					public class X {
+					  public class $1 {
+					    public class $2 {
+					    }
+					  }
+					}"""
 			},
 			"1.4");
 		IType type = getNameLookup((JavaProject) project).findType("p.X$$1", false, NameLookup.ACCEPT_ALL);
@@ -336,9 +341,10 @@ public void testFindTypeWithUnrelatedWorkingCopy() throws Exception {
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				}"""
 		);
 		workingCopy = getCompilationUnit("/P1/p/X.java");
 		workingCopy.becomeWorkingCopy(null);
@@ -366,18 +372,19 @@ public void testTransitionFromInvalidToValidJar() throws CoreException, IOExcept
 
 	try {
 		Util.createJar(
-				new String[] {
-						"test1/IResource.java", //$NON-NLS-1$
-						"package test1;\n" + //$NON-NLS-1$
-						"public class IResource {\n" + //$NON-NLS-1$
-						"}" //$NON-NLS-1$
-					},
-				new String[] {
-					"META-INF/MANIFEST.MF",
-					"Manifest-Version: 1.0\n"
-				},
-				transitioningJar,
-				JavaCore.VERSION_1_4);
+						new String[] {
+								"test1/IResource.java", //$NON-NLS-1$
+								"""
+			package test1;
+			public class IResource {
+			}""" //$NON-NLS-1$
+							},
+						new String[] {
+							"META-INF/MANIFEST.MF",
+							"Manifest-Version: 1.0\n"
+						},
+						transitioningJar,
+						JavaCore.VERSION_1_4);
 
 		// Set up the project with the invalid jar and allow all of the classpath validation
 		// and delta processing to complete.

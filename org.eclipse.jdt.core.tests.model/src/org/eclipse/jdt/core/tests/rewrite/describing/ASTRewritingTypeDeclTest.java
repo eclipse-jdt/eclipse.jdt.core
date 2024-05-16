@@ -99,29 +99,30 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	/** @deprecated using deprecated code */
 	public void testTypeDeclChanges_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
-		buf.append("    public static class EInner {\n");
-		buf.append("        public void xee() {\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("    private int i;\n");
-		buf.append("    private int k;\n");
-		buf.append("    public E() {\n");
-		buf.append("    }\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("class F implements Runnable {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("interface G {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E extends Exception implements Runnable, Serializable {
+			    public static class EInner {
+			        public void xee() {
+			        }
+			    }
+			    private int i;
+			    private int k;
+			    public E() {
+			    }
+			    public void gee() {
+			    }
+			    public void hee() {
+			    }
+			}
+			class F implements Runnable {
+			    public void foo() {
+			    }
+			}
+			interface G {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -189,34 +190,35 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X extends Object implements Cloneable, Serializable {\n");
-		buf.append("    private double fCount;\n");
-		buf.append("    private int i;\n");
-		buf.append("    private int k;\n");
-		buf.append("    public E() {\n");
-		buf.append("    }\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("interface F extends Runnable {\n");
-		buf.append("    private abstract void newFoo(String str);\n");
-		buf.append("}\n");
-		buf.append("class G extends Object {\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X extends Object implements Cloneable, Serializable {
+			    private double fCount;
+			    private int i;
+			    private int k;
+			    public E() {
+			    }
+			    public void gee() {
+			    }
+			    public void hee() {
+			    }
+			}
+			interface F extends Runnable {
+			    private abstract void newFoo(String str);
+			}
+			class G extends Object {
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=308754
 	public void testTypeDeclarationChange() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {}");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {}""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -230,18 +232,18 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public interface C {}");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public interface C {}""";
+		assertEqualString(preview, str1);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=308754
 	public void testTypeDeclarationChange2_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("@A(X.class) public class C {}");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			@A(X.class) public class C {}""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -255,36 +257,37 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("@A(X.class) public interface C {}");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			@A(X.class) public interface C {}""";
+		assertEqualString(preview, str1);
 	}
 	public void testTypeDeclChanges2_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
-		buf.append("    public static class EInner {\n");
-		buf.append("        public void xee() {\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("    private int i;\n");
-		buf.append("    private int k;\n");
-		buf.append("    public E() {\n");
-		buf.append("    }\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("final class F implements Runnable {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("interface G {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E extends Exception implements Runnable, Serializable {
+			    public static class EInner {
+			        public void xee() {
+			        }
+			    }
+			    private int i;
+			    private int k;
+			    public E() {
+			    }
+			    public void gee() {
+			    }
+			    public void hee() {
+			    }
+			}
+			final class F implements Runnable {
+			    public void foo() {
+			    }
+			}
+			interface G {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -348,54 +351,56 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class X extends Object implements Cloneable, Serializable {\n");
-		buf.append("    private double fCount;\n");
-		buf.append("    private int i;\n");
-		buf.append("    private int k;\n");
-		buf.append("    public E() {\n");
-		buf.append("    }\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("interface F extends Runnable {\n");
-		buf.append("    private abstract void newFoo(String str);\n");
-		buf.append("}\n");
-		buf.append("final class G extends Object {\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class X extends Object implements Cloneable, Serializable {
+			    private double fCount;
+			    private int i;
+			    private int k;
+			    public E() {
+			    }
+			    public void gee() {
+			    }
+			    public void hee() {
+			    }
+			}
+			interface F extends Runnable {
+			    private abstract void newFoo(String str);
+			}
+			final class G extends Object {
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	/** @deprecated using deprecated code */
 	public void testTypeDeclRemoves_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
-		buf.append("    public static class EInner {\n");
-		buf.append("        public void xee() {\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("    private int i;\n");
-		buf.append("    private int k;\n");
-		buf.append("    public E() {\n");
-		buf.append("    }\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("class F implements Runnable {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("interface G {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E extends Exception implements Runnable, Serializable {
+			    public static class EInner {
+			        public void xee() {
+			        }
+			    }
+			    private int i;
+			    private int k;
+			    public E() {
+			    }
+			    public void gee() {
+			    }
+			    public void hee() {
+			    }
+			}
+			class F implements Runnable {
+			    public void foo() {
+			    }
+			}
+			interface G {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -453,50 +458,52 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("interface E extends Serializable {\n");
-		buf.append("    public static class EInner {\n");
-		buf.append("        public void xee() {\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("    private int k;\n");
-		buf.append("    public E() {\n");
-		buf.append("    }\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("final interface F {\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			interface E extends Serializable {
+			    public static class EInner {
+			        public void xee() {
+			        }
+			    }
+			    private int k;
+			    public E() {
+			    }
+			    public void gee() {
+			    }
+			}
+			final interface F {
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	public void testTypeDeclInserts_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
-		buf.append("    public static class EInner {\n");
-		buf.append("        public void xee() {\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("    private int i;\n");
-		buf.append("    private int k;\n");
-		buf.append("    public E() {\n");
-		buf.append("    }\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("class F implements Runnable {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("interface G {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E extends Exception implements Runnable, Serializable {
+			    public static class EInner {
+			        public void xee() {
+			        }
+			    }
+			    private int i;
+			    private int k;
+			    public E() {
+			    }
+			    public void gee() {
+			    }
+			    public void hee() {
+			    }
+			}
+			class F implements Runnable {
+			    public void foo() {
+			    }
+			}
+			interface G {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -553,50 +560,52 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public final class E extends Exception implements Cloneable, Runnable, Serializable {\n");
-		buf.append("    public static class EInner {\n");
-		buf.append("        private double fCount;\n");
-		buf.append("\n");
-		buf.append("        public void xee() {\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("    private int i;\n");
-		buf.append("    private int k;\n");
-		buf.append("    public E() {\n");
-		buf.append("    }\n");
-		buf.append("    private void newMethod(String str) {\n");
-		buf.append("    }\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("class F extends Exception implements Runnable {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("    private void newMethod(String str) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("interface G extends Runnable {\n");
-		buf.append("\n");
-		buf.append("    private abstract void newMethod(String str);\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public final class E extends Exception implements Cloneable, Runnable, Serializable {
+			    public static class EInner {
+			        private double fCount;
+			
+			        public void xee() {
+			        }
+			    }
+			    private int i;
+			    private int k;
+			    public E() {
+			    }
+			    private void newMethod(String str) {
+			    }
+			    public void gee() {
+			    }
+			    public void hee() {
+			    }
+			}
+			class F extends Exception implements Runnable {
+			    public void foo() {
+			    }
+			
+			    private void newMethod(String str) {
+			    }
+			}
+			interface G extends Runnable {
+			
+			    private abstract void newMethod(String str);
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	public void testTypeDeclInsertFields1_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("}\n");
-		buf.append("class F {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			}
+			class F {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -636,33 +645,35 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("\n");
-		buf.append("    int x;\n");
-		buf.append("}\n");
-		buf.append("class F {\n");
-		buf.append("\n");
-		buf.append("    int x;\n");
-		buf.append("    int y;\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			
+			    int x;
+			}
+			class F {
+			
+			    int x;
+			    int y;
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 
 	public void testTypeParameters_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("class E extends A {}\n");
-		buf.append("class F {}\n");
-		buf.append("class G <T> extends A {}\n");
-		buf.append("class H <T> {}\n");
-		buf.append("class I<T> extends A {}\n");
-		buf.append("class J<T>extends A {}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			class E extends A {}
+			class F {}
+			class G <T> extends A {}
+			class H <T> {}
+			class I<T> extends A {}
+			class J<T>extends A {}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -684,15 +695,16 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("class E<X> extends A {}\n");
-		buf.append("class F<X> {}\n");
-		buf.append("class G extends A {}\n");
-		buf.append("class H {}\n");
-		buf.append("class I extends A {}\n");
-		buf.append("class J extends A {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			class E<X> extends A {}
+			class F<X> {}
+			class G extends A {}
+			class H {}
+			class I extends A {}
+			class J extends A {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 
@@ -700,15 +712,16 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	//	System.out.println(getClass().getName()+"::" + getName() +" disabled (bug 22161)");
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class T extends Exception implements Runnable, Serializable {\n");
-		buf.append("    public static class EInner {\n");
-		buf.append("        public void xee() {\n");
-		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("T.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class T extends Exception implements Runnable, Serializable {
+			    public static class EInner {
+			        public void xee() {
+			        }
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("T.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		assertTrue("Errors in AST", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
@@ -728,21 +741,22 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	public void testAnonymousClassDeclaration_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E2 {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        new Runnable() {\n");
-		buf.append("        };\n");
-		buf.append("        new Runnable() {\n");
-		buf.append("            int i= 8;\n");
-		buf.append("        };\n");
-		buf.append("        new Runnable() {\n");
-		buf.append("            int i= 8;\n");
-		buf.append("        };\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E2.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E2 {
+			    public void foo() {
+			        new Runnable() {
+			        };
+			        new Runnable() {
+			            int i= 8;
+			        };
+			        new Runnable() {
+			            int i= 8;
+			        };
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E2.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -794,41 +808,42 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E2 {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        new Runnable() {\n");
-		buf.append("\n");
-		buf.append("            private void newMethod(String str) {\n");
-		buf.append("            }\n");
-		buf.append("        };\n");
-		buf.append("        new Runnable() {\n");
-		buf.append("        };\n");
-		buf.append("        new Runnable() {\n");
-		buf.append("            private void newMethod(String str) {\n");
-		buf.append("            }\n");
-		buf.append("        };\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E2 {
+			    public void foo() {
+			        new Runnable() {
+			
+			            private void newMethod(String str) {
+			            }
+			        };
+			        new Runnable() {
+			        };
+			        new Runnable() {
+			            private void newMethod(String str) {
+			            }
+			        };
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	public void testImportDeclaration_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("import java.util.Vector;\n");
-		buf.append("import java.util.Vector;\n");
-		buf.append("import java.net.*;\n");
-		buf.append("import java.text.*;\n");
-		buf.append("import static java.lang.Math.*;\n");
-		buf.append("import java.lang.Math.*;\n");
-		buf.append("public class Z {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("Z.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			import java.util.Vector;
+			import java.util.Vector;
+			import java.net.*;
+			import java.text.*;
+			import static java.lang.Math.*;
+			import java.lang.Math.*;
+			public class Z {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("Z.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -877,27 +892,29 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("import org.eclipse.X;\n");
-		buf.append("import java.util.*;\n");
-		buf.append("import java.net;\n");
-		buf.append("import org.eclipse.*;\n");
-		buf.append("import java.lang.Math.*;\n");
-		buf.append("import static java.lang.Math.*;\n");
-		buf.append("public class Z {\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			import org.eclipse.X;
+			import java.util.*;
+			import java.net;
+			import org.eclipse.*;
+			import java.lang.Math.*;
+			import static java.lang.Math.*;
+			public class Z {
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	public void testPackageDeclaration() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class Z {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("Z.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class Z {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("Z.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -915,21 +932,23 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package org.eclipse;\n");
-		buf.append("public class Z {\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package org.eclipse;
+			public class Z {
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	public void testCompilationUnit() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class Z {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("Z.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class Z {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("Z.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -943,20 +962,22 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("\n");
-		buf.append("public class Z {\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			
+			public class Z {
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	public void testCompilationUnit2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class Z {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("Z.java", buf.toString(), false, null);
+		String str = """
+			public class Z {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("Z.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -974,11 +995,12 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package org.eclipse;\n");
-		buf.append("public class Z {\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package org.eclipse;
+			public class Z {
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -991,11 +1013,12 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_ANNOTATION, JavaCore.INSERT);
 
 			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-			StringBuilder buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public class E {\n");
-			buf.append("}\n");
-			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+			String str = """
+				package test1;
+				public class E {
+				}
+				""";
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1018,12 +1041,13 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			String preview= evaluateRewrite(cu, rewrite);
 
-			buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("@SuppressWarnings (\"deprecation\")\n");
-			buf.append("public class E {\n");
-			buf.append("}\n");
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				package test1;
+				@SuppressWarnings ("deprecation")
+				public class E {
+				}
+				""";
+			assertEqualString(preview, str1);
 		} finally {
 			if (previousValue != null) {
 				this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_ANNOTATION, previousValue);
@@ -1033,13 +1057,14 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	public void testSingleVariableDeclaration_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo(int i, final int[] k, int[] x[]) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    public void foo(int i, final int[] k, int[] x[]) {
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1082,26 +1107,28 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo(final float[][] count[], float k, int[] x) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			    public void foo(final float[][] count[], float k, int[] x) {
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	public void testVariableDeclarationFragment_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        int i, j, k= 0, x[][], y[]= {0, 1};\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    public void foo() {
+			        int i, j, k= 0, x[][], y[]= {0, 1};
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1162,29 +1189,31 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        int a[][], j = 1, k, x[][][][] = null, y= {0, 1};\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			    public void foo() {
+			        int a[][], j = 1, k, x[][][][] = null, y= {0, 1};
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	public void testTypeDeclSpacingMethods1_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    public void gee() {
+			    }
+			
+			    public void hee() {
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1201,35 +1230,37 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("    private void foo(String str) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			    public void gee() {
+			    }
+			
+			    public void hee() {
+			    }
+			
+			    private void foo(String str) {
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	public void testTypeDeclSpacingMethods2_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    public void gee() {
+			    }
+			
+			
+			    public void hee() {
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1246,40 +1277,42 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    private void foo(String str) {\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			    private void foo(String str) {
+			    }
+			
+			
+			    public void gee() {
+			    }
+			
+			
+			    public void hee() {
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	public void testTypeDeclSpacingFields_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    private int x;\n");
-		buf.append("    private int y;\n");
-		buf.append("\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    private int x;
+			    private int y;
+			
+			    public void gee() {
+			    }
+			
+			
+			    public void hee() {
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1296,21 +1329,22 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    private double fCount;\n");
-		buf.append("    private int x;\n");
-		buf.append("    private int y;\n");
-		buf.append("\n");
-		buf.append("    public void gee() {\n");
-		buf.append("    }\n");
-		buf.append("\n");
-		buf.append("\n");
-		buf.append("    public void hee() {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			    private double fCount;
+			    private int x;
+			    private int y;
+			
+			    public void gee() {
+			    }
+			
+			
+			    public void hee() {
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
@@ -1318,11 +1352,12 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		// test the creation of an enum declaration
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1356,15 +1391,16 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("\n");
-		buf.append("    enum MyEnum {\n");
-		buf.append("        a, b, c\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			
+			    enum MyEnum {
+			        a, b, c
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 
@@ -1372,11 +1408,12 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		// test the creation of an enum declaration
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public enum E {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1396,24 +1433,26 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("    A\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public enum E {
+			    A
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 
 	public void testEnumDeclaration2_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("    A, B, C\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public enum E {
+			    A, B, C
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1439,26 +1478,28 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("    B, X, C;\n");
-		buf.append("\n");
-		buf.append("    private void foo(String str) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public enum E {
+			    B, X, C;
+			
+			    private void foo(String str) {
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testEnumDeclaration3_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("    A, B, C;\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public enum E {
+			    A, B, C;
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1484,28 +1525,30 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("    B, X, C;\n");
-		buf.append("\n");
-		buf.append("    private void foo(String str) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public enum E {
+			    B, X, C;
+			
+			    private void foo(String str) {
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testEnumDeclaration4_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("    A, B, C;\n");
-		buf.append("    private void foo(String str) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public enum E {
+			    A, B, C;
+			    private void foo(String str) {
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1518,28 +1561,30 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("    A, B\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public enum E {
+			    A, B
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testEnumDeclaration5_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("    A, B, C;\n");
-		buf.append("\n");
-		buf.append("    private void foo(String str) {\n");
-		buf.append("    }\n");
-		buf.append("    private void foo2(String str) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public enum E {
+			    A, B, C;
+			
+			    private void foo(String str) {
+			    }
+			    private void foo2(String str) {
+			    }
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1558,27 +1603,29 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("    A, B, C, X;\n");
-		buf.append("\n");
-		buf.append("    private void foo2(String str) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public enum E {
+			    A, B, C, X;
+			
+			    private void foo2(String str) {
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testEnumDeclaration6_since_3() throws Exception {
 		// test the creation of an enum declaration
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("    A\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public enum E {
+			    A
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1592,20 +1639,22 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public enum E {
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	public void testEnumDeclaration7_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public enum E {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1618,28 +1667,30 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public enum E {\n");
-		buf.append("    ;\n");
-		buf.append("\n");
-		buf.append("    private void foo(String str) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public enum E {
+			    ;
+			
+			    private void foo(String str) {
+			    }
+			}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 
 	public void testAnnotationTypeDeclaration1_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("/**\n");
-		buf.append(" * test\n");
-		buf.append(" */\n");
-		buf.append("public @interface E {\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			/**
+			 * test
+			 */
+			public @interface E {
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1666,27 +1717,29 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("/**\n");
-		buf.append(" * test\n");
-		buf.append(" */\n");
-		buf.append("final public @interface X {\n");
-		buf.append("\n");
-		buf.append("    String value();\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			/**
+			 * test
+			 */
+			final public @interface X {
+			
+			    String value();
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 
 	public void testWildcardType_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    X<?, ?, ? extends A, ? super B, ? extends A, ? super B> x;\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    X<?, ?, ? extends A, ? super B, ? extends A, ? super B> x;
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1728,30 +1781,32 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    X<? extends A, ? super B, ? super B, ? extends A, ?, ?> x;\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			public class E {
+			    X<? extends A, ? super B, ? super B, ? extends A, ?, ?> x;
+			}
+			""";
+		assertEqualString(preview, str1);
 
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=396576
 	public void testVariableDeclarationFragmentWithAnnot_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        int i, j, k = 0, x, y[][][], z @Annot1 [], zz @Annot2 @Annot2[] = {0, 1};\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot1 {}\n");
-		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot2 {}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			import java.lang.annotation.ElementType;
+			public class E {
+			    public void foo() {
+			        int i, j, k = 0, x, y[][][], z @Annot1 [], zz @Annot2 @Annot2[] = {0, 1};
+			    }
+			}
+			@java.lang.annotation.Target(value= {ElementType.TYPE_USE})
+			@interface Annot1 {}
+			@java.lang.annotation.Target(value= {ElementType.TYPE_USE})
+			@interface Annot2 {}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -1850,38 +1905,40 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        int a @Annot1 @Annot2 [], j = 1, k @Annot1 @Annot2 [], x @Annot1 @Annot2 [] = null, y @Annot1 [] @Annot2 [], zz @Annot2 @Annot2[] = {0, 1};\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot1 {}\n");
-		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot2 {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			import java.lang.annotation.ElementType;
+			public class E {
+			    public void foo() {
+			        int a @Annot1 @Annot2 [], j = 1, k @Annot1 @Annot2 [], x @Annot1 @Annot2 [] = null, y @Annot1 [] @Annot2 [], zz @Annot2 @Annot2[] = {0, 1};
+			    }
+			}
+			@java.lang.annotation.Target(value= {ElementType.TYPE_USE})
+			@interface Annot1 {}
+			@java.lang.annotation.Target(value= {ElementType.TYPE_USE})
+			@interface Annot2 {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=396576
 	public void testSingleVariableDeclarationWithAnnotations_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo(int i, final int[] j @Annot1 @Annot2 [], int[] k @Annot1 @Annot3 [] @Annot2 @Annot3 [], int l []) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot1 {}\n");
-		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot2 {}\n");
-		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot2 {}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			import java.lang.annotation.ElementType;
+			public class E {
+			    public void foo(int i, final int[] j @Annot1 @Annot2 [], int[] k @Annot1 @Annot3 [] @Annot2 @Annot3 [], int l []) {
+			    }
+			}
+			@java.lang.annotation.Target(value= {ElementType.TYPE_USE})
+			@interface Annot1 {}
+			@java.lang.annotation.Target(value= {ElementType.TYPE_USE})
+			@interface Annot2 {}
+			@java.lang.annotation.Target(value= {ElementType.TYPE_USE})
+			@interface Annot2 {}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
@@ -1923,32 +1980,34 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("import java.lang.annotation.ElementType;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo(final int i @Annot1 @Annot2 [], final int[] j, int[] k @Annot2 @Annot3 [] @Annot1 @Annot3 [], int l) {\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot1 {}\n");
-		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot2 {}\n");
-		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
-		buf.append("@interface Annot2 {}\n");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			package test1;
+			import java.lang.annotation.ElementType;
+			public class E {
+			    public void foo(final int i @Annot1 @Annot2 [], final int[] j, int[] k @Annot2 @Annot3 [] @Annot1 @Annot3 [], int l) {
+			    }
+			}
+			@java.lang.annotation.Target(value= {ElementType.TYPE_USE})
+			@interface Annot1 {}
+			@java.lang.annotation.Target(value= {ElementType.TYPE_USE})
+			@interface Annot2 {}
+			@java.lang.annotation.Target(value= {ElementType.TYPE_USE})
+			@interface Annot2 {}
+			""";
+		assertEqualString(preview, str1);
 	}
 
 	// Bug 419057 - ITypeBinding#getModifiers() misses implicit "static" for class member interface
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419057
 	public void testBug419057a() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("    interface IC {}\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			    interface IC {}
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 		CompilationUnit astRoot= createAST(getAST8(), cu, true, false);
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration = (((TypeDeclaration) types.get(0)).getTypes())[0];
@@ -1957,12 +2016,13 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	}
 	public void testBug419057b() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public interface C {\n");
-		buf.append("    interface IC {}\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public interface C {
+			    interface IC {}
+			}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 		CompilationUnit astRoot= createAST(getAST8(), cu, true, false);
 		List types = astRoot.types();
 		TypeDeclaration outerTypeDeclaration = (TypeDeclaration) types.get(0);
@@ -1975,16 +2035,17 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	public void test401848_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public int i;\n");
-		buf.append("    public F f;\n");
-		buf.append("}\n");
-		buf.append("class F {}\n");
-		buf.append("@Target (Element.FIELD);\n");
-		buf.append("@interface Marker {}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class E {
+			    public int i;
+			    public F f;
+			}
+			class F {}
+			@Target (Element.FIELD);
+			@interface Marker {}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", str, false, null);
 
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -2010,24 +2071,26 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
-		String expected = "package test1;\n" +
-			"public class E {\n" +
-			"    @Marker\n"+
-			"    public int i;\n" +
-			"    @test1.Marker\n" +
-			"    public F f;\n" +
-			"}\n" +
-			"class F {}\n" +
-			"@Target (Element.FIELD);\n" +
-			"@interface Marker {}\n";
+		String expected = """
+			package test1;
+			public class E {
+			    @Marker
+			    public int i;
+			    @test1.Marker
+			    public F f;
+			}
+			class F {}
+			@Target (Element.FIELD);
+			@interface Marker {}
+			""";
 		assertEqualString(preview, expected);
 
 	}
 	public void testBug526097a() throws Exception {
 		IPackageFragment pack1 = this.sourceFolder.getPackageFragment(IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH);
-		StringBuilder buf= new StringBuilder();
-		buf.append("public class T");
-		ICompilationUnit cu= pack1.createCompilationUnit("Test.java", buf.toString(), false, null);
+		String str = """
+			public class T""";
+		ICompilationUnit cu= pack1.createCompilationUnit("Test.java", str, false, null);
 		CompilationUnit astRoot= createAST(getAST8(), cu, true, false);
 		List<TypeDeclaration> types = astRoot.types();
 		TypeDeclaration typeDeclaration = types.get(0);
@@ -2036,9 +2099,9 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		ASTRewrite rewrite= ASTRewrite.create(ast);
 		rewrite.replace(simpleName, ast.newSimpleName("Test"), null);
 		String preview= evaluateRewrite(cu, rewrite);
-		buf= new StringBuilder();
-		buf.append("public class Test");
-		assertEqualString(preview, buf.toString());
+		String str1 = """
+			public class Test""";
+		assertEqualString(preview, str1);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -2059,15 +2122,15 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		try {
 			setProjectCompliance();
 
-			StringBuilder buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public sealed class C permits C1{\n");
-			buf.append("\n");
-			buf.append("}\n");
-			buf.append("non-sealed class  C1 extends C{}\n");
-			buf.append("non-sealed class  C2 extends C{}\n");
-
-			ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+			String str = """
+				package test1;
+				public sealed class C permits C1{
+				
+				}
+				non-sealed class  C1 extends C{}
+				non-sealed class  C2 extends C{}
+				""";
+			ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -2086,16 +2149,15 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			String preview= evaluateRewrite(cu, rewrite);
 
-			buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public sealed class C permits C1, C2{\n");
-			buf.append("\n");
-			buf.append("}\n");
-			buf.append("non-sealed class  C1 extends C{}\n");
-			buf.append("non-sealed class  C2 extends C{}\n");
-
-
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				package test1;
+				public sealed class C permits C1, C2{
+				
+				}
+				non-sealed class  C1 extends C{}
+				non-sealed class  C2 extends C{}
+				""";
+			assertEqualString(preview, str1);
 		}finally {
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -2115,16 +2177,17 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public sealed class C permits C1, C2 {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		buf.append("final class  C1 extends C{\n");
-		buf.append("\n");
-		buf.append("}\n");
-		buf.append("non-sealed class  C2 extends C{}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public sealed class C permits C1, C2 {
+			
+			}
+			final class  C1 extends C{
+			
+			}
+			non-sealed class  C2 extends C{}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
@@ -2144,17 +2207,17 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			String preview= evaluateRewrite(cu, rewrite);
 
-			buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public sealed class C permits C1 {\n");
-			buf.append("\n");
-			buf.append("}\n");
-			buf.append("final class  C1 extends C{\n");
-			buf.append("\n");
-			buf.append("}\n");
-			buf.append("non-sealed class  C2 extends C{}\n");
-
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				package test1;
+				public sealed class C permits C1 {
+				
+				}
+				final class  C1 extends C{
+				
+				}
+				non-sealed class  C2 extends C{}
+				""";
+			assertEqualString(preview, str1);
 		}finally {
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -2166,13 +2229,14 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		buf.append("class  C1 extends C{}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C {
+			
+			}
+			class  C1 extends C{}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
@@ -2196,14 +2260,14 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			String preview= evaluateRewrite(cu, rewrite);
 
-			buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public sealed class C permits C1 {\n");
-			buf.append("\n");
-			buf.append("}\n");
-			buf.append("class  C1 extends C{}\n");
-
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				package test1;
+				public sealed class C permits C1 {
+				
+				}
+				class  C1 extends C{}
+				""";
+			assertEqualString(preview, str1);
 		}finally {
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -2215,11 +2279,12 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public sealed class C permits C1{}\n");
-		buf.append("final class  C1 extends C{}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public sealed class C permits C1{}
+			final class  C1 extends C{}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
@@ -2244,12 +2309,12 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			String preview= evaluateRewrite(cu, rewrite);
 
-			buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public class C{}\n");
-			buf.append("final class  C1 extends C{}\n");
-
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				package test1;
+				public class C{}
+				final class  C1 extends C{}
+				""";
+			assertEqualString(preview, str1);
 		}finally {
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -2265,15 +2330,15 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		try {
 			setProjectCompliance();
 
-			StringBuilder buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public sealed class C permits C1{\n");
-			buf.append("\n");
-			buf.append("}\n");
-			buf.append("non-sealed class  C1 extends C{}\n");
-			buf.append("non-sealed class  C2 extends C{}\n");
-
-			ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+			String str = """
+				package test1;
+				public sealed class C permits C1{
+				
+				}
+				non-sealed class  C1 extends C{}
+				non-sealed class  C2 extends C{}
+				""";
+			ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -2303,16 +2368,15 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			String preview= evaluateRewrite(cu, rewrite);
 
-			buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public sealed class C permits C2{\n");
-			buf.append("\n");
-			buf.append("}\n");
-			buf.append("class  C1 extends C{}\n");
-			buf.append("non-sealed class  C2 extends C{}\n");
-
-
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				package test1;
+				public sealed class C permits C2{
+				
+				}
+				class  C1 extends C{}
+				non-sealed class  C2 extends C{}
+				""";
+			assertEqualString(preview, str1);
 		}finally {
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -2328,17 +2392,17 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		try {
 			setProjectCompliance();
 
-			StringBuilder buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public sealed class C permits C3{\n");
-			buf.append("\n");
-			buf.append("}\n");
-			buf.append("non-sealed class  C3 extends C{}\n");
-			buf.append("class  C1{\n");
-			buf.append("final class  C2 extends C{}\n");
-			buf.append("}\n");
-
-			ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+			String str = """
+				package test1;
+				public sealed class C permits C3{
+				
+				}
+				non-sealed class  C3 extends C{}
+				class  C1{
+				final class  C2 extends C{}
+				}
+				""";
+			ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -2357,18 +2421,17 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			String preview= evaluateRewrite(cu, rewrite);
 
-			buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public sealed class C permits C3, C1.C2{\n");
-			buf.append("\n");
-			buf.append("}\n");
-			buf.append("non-sealed class  C3 extends C{}\n");
-			buf.append("class  C1{\n");
-			buf.append("final class  C2 extends C{}\n");
-			buf.append("}\n");
-
-
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				package test1;
+				public sealed class C permits C3, C1.C2{
+				
+				}
+				non-sealed class  C3 extends C{}
+				class  C1{
+				final class  C2 extends C{}
+				}
+				""";
+			assertEqualString(preview, str1);
 		}finally {
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -2384,14 +2447,15 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
 			setProjectCompliance();
-			StringBuilder buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public sealed class C permits C1 //comment\n");
-			buf.append("{\n");
-			buf.append("}\n");
-			buf.append("non-sealed class  C1 extends C{}\n");
-			buf.append("non-sealed class  C2 extends C{}\n");
-			ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+			String str = """
+				package test1;
+				public sealed class C permits C1 //comment
+				{
+				}
+				non-sealed class  C1 extends C{}
+				non-sealed class  C2 extends C{}
+				""";
+			ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -2411,15 +2475,16 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			String preview= evaluateRewrite(cu, rewrite);
 
-			buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public sealed class C permits C1 //comment\n");
-			buf.append(", C2\n");
-			buf.append("{\n");
-			buf.append("}\n");
-			buf.append("non-sealed class  C1 extends C{}\n");
-			buf.append("non-sealed class  C2 extends C{}\n");
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				package test1;
+				public sealed class C permits C1 //comment
+				, C2
+				{
+				}
+				non-sealed class  C1 extends C{}
+				non-sealed class  C2 extends C{}
+				""";
+			assertEqualString(preview, str1);
 		}finally {
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -2434,13 +2499,14 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
 			setProjectCompliance();
-			StringBuilder buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public class C//comment\n");
-			buf.append("{\n");
-			buf.append("}\n");
-			buf.append("non-sealed class  C1 extends C{}\n");
-			ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+			String str = """
+				package test1;
+				public class C//comment
+				{
+				}
+				non-sealed class  C1 extends C{}
+				""";
+			ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -2464,14 +2530,15 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			String preview= evaluateRewrite(cu, rewrite);
 
-			buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public sealed class C//comment\n");
-			buf.append(" permits C1\n");
-			buf.append("{\n");
-			buf.append("}\n");
-			buf.append("non-sealed class  C1 extends C{}\n");
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				package test1;
+				public sealed class C//comment
+				 permits C1
+				{
+				}
+				non-sealed class  C1 extends C{}
+				""";
+			assertEqualString(preview, str1);
 		}finally {
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -2482,13 +2549,14 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class C implements B {\n");
-		buf.append("\n");
-		buf.append("}\n");
-		buf.append("class  C1 extends C{}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		String str = """
+			package test1;
+			public class C implements B {
+			
+			}
+			class  C1 extends C{}
+			""";
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", str, false, null);
 
 		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
@@ -2512,14 +2580,14 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			String preview= evaluateRewrite(cu, rewrite);
 
-			buf= new StringBuilder();
-			buf.append("package test1;\n");
-			buf.append("public sealed class C implements B permits C1 {\n");
-			buf.append("\n");
-			buf.append("}\n");
-			buf.append("class  C1 extends C{}\n");
-
-			assertEqualString(preview, buf.toString());
+			String str1 = """
+				package test1;
+				public sealed class C implements B permits C1 {
+				
+				}
+				class  C1 extends C{}
+				""";
+			assertEqualString(preview, str1);
 		}finally {
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}

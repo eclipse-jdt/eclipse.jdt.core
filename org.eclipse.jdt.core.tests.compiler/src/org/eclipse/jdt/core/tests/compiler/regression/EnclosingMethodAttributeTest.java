@@ -53,25 +53,26 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"public static void main(String[] args) throws Exception  {\n" +
-				"	class MyLocal$A {\n" +
-				"		class Member {\n" +
-				"		}\n" +
-				"	};\n" +
-				"	System.out.print(MyLocal$A.Member.class.getEnclosingMethod() != null);\n" +
-				"	System.out.print(MyLocal$A.Member.class.getEnclosingConstructor() != null);\n" +
-				"\n" +
-				"	System.out.print(MyLocal$A.class.getEnclosingMethod()!= null);\n" +
-				"	System.out.print(MyLocal$A.class.getEnclosingConstructor() != null);	\n" +
-				"	\n" +
-				"	System.out.print(X.class.getEnclosingMethod() != null);\n" +
-				"	System.out.print(X.class.getEnclosingConstructor() != null);	\n" +
-				"}\n" +
-				"public Object foo() {\n" +
-				"	return new Object() {};\n" +
-				"}\n" +
-				"}"
+				"""
+					public class X {
+					public static void main(String[] args) throws Exception  {
+						class MyLocal$A {
+							class Member {
+							}
+						};
+						System.out.print(MyLocal$A.Member.class.getEnclosingMethod() != null);
+						System.out.print(MyLocal$A.Member.class.getEnclosingConstructor() != null);
+					
+						System.out.print(MyLocal$A.class.getEnclosingMethod()!= null);
+						System.out.print(MyLocal$A.class.getEnclosingConstructor() != null);\t
+					\t
+						System.out.print(X.class.getEnclosingMethod() != null);
+						System.out.print(X.class.getEnclosingConstructor() != null);\t
+					}
+					public Object foo() {
+						return new Object() {};
+					}
+					}"""
 			},
 			"falsefalsetruefalsefalsefalse");
 
@@ -98,25 +99,26 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"public static void main(String[] args) throws Exception  {\n" +
-				"	class MyLocal$A {\n" +
-				"		class Member {\n" +
-				"			public Object foo() {\n" +
-				"				return new Object() {};\n" +
-				"			}\n" +
-				"		}\n" +
-				"	};\n" +
-				"	System.out.print(MyLocal$A.Member.class.getEnclosingMethod() != null);\n" +
-				"	System.out.print(MyLocal$A.Member.class.getEnclosingConstructor() != null);\n" +
-				"\n" +
-				"	System.out.print(MyLocal$A.class.getEnclosingMethod()!= null);\n" +
-				"	System.out.print(MyLocal$A.class.getEnclosingConstructor() != null);	\n" +
-				"	\n" +
-				"	System.out.print(X.class.getEnclosingMethod() != null);\n" +
-				"	System.out.print(X.class.getEnclosingConstructor() != null);	\n" +
-				"}\n" +
-				"}"
+				"""
+					public class X {
+					public static void main(String[] args) throws Exception  {
+						class MyLocal$A {
+							class Member {
+								public Object foo() {
+									return new Object() {};
+								}
+							}
+						};
+						System.out.print(MyLocal$A.Member.class.getEnclosingMethod() != null);
+						System.out.print(MyLocal$A.Member.class.getEnclosingConstructor() != null);
+					
+						System.out.print(MyLocal$A.class.getEnclosingMethod()!= null);
+						System.out.print(MyLocal$A.class.getEnclosingConstructor() != null);\t
+					\t
+						System.out.print(X.class.getEnclosingMethod() != null);
+						System.out.print(X.class.getEnclosingConstructor() != null);\t
+					}
+					}"""
 			},
 			"falsefalsetruefalsefalsefalse");
 
@@ -144,27 +146,28 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.reflect.*;\n" +
-				"public class X {\n" +
-				"        public void test() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {\n" +
-				"                class LocalClass {\n" +
-				"                        public void method() {\n" +
-				"                        }\n" +
-				"                };\n" +
-				"                LocalClass localClass = new LocalClass();\n" +
-				"                Class cc = localClass.getClass();\n" +
-				"                System.out.println(\"enclosing class = \" + cc.getEnclosingClass());\n" +
-				"                System.out.println(\"enclosing method = \" + cc.getEnclosingMethod());\n" +
-				"        }\n" +
-				"        public static void main(String args[]) {\n" +
-				"                X t = new X();\n" +
-				"                try {\n" +
-				"                        t.test();\n" +
-				"                } catch (Exception e) {\n" +
-				"                        e.printStackTrace();\n" +
-				"                }\n" +
-				"        }\n" +
-				"}"
+				"""
+					import java.lang.reflect.*;
+					public class X {
+					        public void test() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+					                class LocalClass {
+					                        public void method() {
+					                        }
+					                };
+					                LocalClass localClass = new LocalClass();
+					                Class cc = localClass.getClass();
+					                System.out.println("enclosing class = " + cc.getEnclosingClass());
+					                System.out.println("enclosing method = " + cc.getEnclosingMethod());
+					        }
+					        public static void main(String args[]) {
+					                X t = new X();
+					                try {
+					                        t.test();
+					                } catch (Exception e) {
+					                        e.printStackTrace();
+					                }
+					        }
+					}"""
 			},
 			"enclosing class = class X\n" +
 			"enclosing method = public void X.test() throws java.lang.NoSuchMethodException,java.lang.IllegalAccessException,java.lang.reflect.InvocationTargetException");
@@ -180,9 +183,11 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-			"  Inner classes:\n" +
-			"    [inner class info: #1 X$1LocalClass, outer class info: #0\n" +
-			"     inner name: #28 LocalClass, accessflags: 0 default]\n";
+			"""
+			  Inner classes:
+			    [inner class info: #1 X$1LocalClass, outer class info: #0
+			     inner name: #28 LocalClass, accessflags: 0 default]
+			""";
 
 		// check inner classes info
 		int index = actualOutput.indexOf(expectedOutput);
@@ -210,27 +215,28 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.reflect.*;\n" +
-				"interface I<E> {\n" +
-				"	public String run();\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	public Object test(String s, int i) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {\n" +
-				"		return (new I<String>() {" +
-				"			public String run() {\n" +
-				"				return \"SUCCESS\";\n" +
-				"			}\n" +
-				"		}).run();\n" +
-				"	}\n" +
-				"	public static void main(String args[]) {\n" +
-				"		X t = new X();\n" +
-				"		try {\n" +
-				"			System.out.println(t.test(\"\", 0));\n" +
-				"		} catch (Exception e) {\n" +
-				"			e.printStackTrace();\n" +
-				"		}\n" +
-				"	}\n" +
-				"}"
+				"""
+					import java.lang.reflect.*;
+					interface I<E> {
+						public String run();
+					}
+					public class X {
+						public Object test(String s, int i) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+							return (new I<String>() {\
+								public String run() {
+									return "SUCCESS";
+								}
+							}).run();
+						}
+						public static void main(String args[]) {
+							X t = new X();
+							try {
+								System.out.println(t.test("", 0));
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}"""
 			},
 			"SUCCESS");
 
@@ -284,8 +290,9 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 				}
 				"""
 			},
-			"null\n" +
-			"public static void X.main(java.lang.String[])\n" +
-			"null");
+			"""
+				null
+				public static void X.main(java.lang.String[])
+				null""");
 	}
 }

@@ -65,12 +65,13 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Bug428178", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-				String fileContent =  "package p;\n" +
-						 "public interface Test {\n" +
-						 "	static void main(String[] args) {\n" +
-						 "		System.out.println(\"Hello\");\n" +
-						 "	}\n" +
-						 "}";
+				String fileContent =  """
+					package p;
+					public interface Test {
+						static void main(String[] args) {
+							System.out.println("Hello");
+						}
+					}""";
 				createFolder("/Bug428178/src/p");
 				createFile(	"/Bug428178/src/p/Test.java",	fileContent);
 
@@ -87,12 +88,13 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Bug428178", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent =  "package p;\n" +
-					 "public interface Test {\n" +
-					 "	static void main(String[] args) {\n" +
-					 "		System.out.println(\"Hello\");\n" +
-					 "	}\n" +
-					 "}";
+			String fileContent =  """
+				package p;
+				public interface Test {
+					static void main(String[] args) {
+						System.out.println("Hello");
+					}
+				}""";
 			addLibrary(project,
 							"lib.jar",
 							"src.zip", new
@@ -111,15 +113,16 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Bug429641", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent =  "package p;\n" +
-					 "public interface Test {\n" +
-					 "	static void main(String[] args) {\n" +
-					 "		I i = (x) -> {};\n" +
-					 "	}\n" +
-					 "}\n" +
-					 "interface I {\n" +
-					 "  public void foo(int x);\n" +
-					 "}";
+			String fileContent =  """
+				package p;
+				public interface Test {
+					static void main(String[] args) {
+						I i = (x) -> {};
+					}
+				}
+				interface I {
+				  public void foo(int x);
+				}""";
 			createFolder("/Bug429641/src/p");
 			createFile(	"/Bug429641/src/p/Test.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/Bug429641/src/p/Test.java");
@@ -138,15 +141,16 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Bug429641", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent =  "package p;\n" +
-					 "public interface Test {\n" +
-					 "	static void main(String[] args) {\n" +
-					 "		I i = (x) -> {};\n" +
-					 "	}\n" +
-					 "}\n" +
-					 "interface I {\n" +
-					 "  public void foo(int x);\n" +
-					 "}";
+			String fileContent =  """
+				package p;
+				public interface Test {
+					static void main(String[] args) {
+						I i = (x) -> {};
+					}
+				}
+				interface I {
+				  public void foo(int x);
+				}""";
 			createFolder("/Bug429641/src/p");
 			createFile(	"/Bug429641/src/p/Test.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/Bug429641/src/p/Test.java");
@@ -167,27 +171,29 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("Bug429948", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
 			String fileContent =
-					"interface Supplier<T> {\n" +
-					"    T get();\n" +
-					"}\n" +
-					"interface Runnable {\n" +
-					"    public abstract void run();\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		execute(() -> {\n" +
-					"			executeInner(() -> {\n" +
-					"			});\n" +
-					"			return null;\n" +
-					"		});\n" +
-					"		System.out.println(\"done\");\n" +
-					"	}\n" +
-					"	static <R> R execute(Supplier<R> supplier) {\n" +
-					"		return null;\n" +
-					"	}\n" +
-					"	static void executeInner(Runnable callback) {\n" +
-					"	}\n" +
-					"}\n";
+					"""
+				interface Supplier<T> {
+				    T get();
+				}
+				interface Runnable {
+				    public abstract void run();
+				}
+				public class X {
+					public static void main(String[] args) {
+						execute(() -> {
+							executeInner(() -> {
+							});
+							return null;
+						});
+						System.out.println("done");
+					}
+					static <R> R execute(Supplier<R> supplier) {
+						return null;
+					}
+					static void executeInner(Runnable callback) {
+					}
+				}
+				""";
 			createFile(	"/Bug429948/src/X.java",	fileContent);
 			IType type = getCompilationUnit("/Bug429948/src/X.java").getType("X");
 			ITypeHierarchy h = type.newSupertypeHierarchy(null);
@@ -208,31 +214,33 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("Bug429948", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
 			String fileContent =
-					"interface Supplier<T> {\n" +
-					"    T get();\n" +
-					"}\n" +
-					"interface Runnable {\n" +
-					"    public abstract void run();\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		execute(() -> {\n" +
-					"           executeOuter(() -> {\n" +
-					"			    executeInner(() -> {\n" +
-					"			    });\n" +
-					"			    return null;\n" +
-					"		    });\n" +
-					"       });\n" +
-					"		System.out.println(\"done\");\n" +
-					"	}\n" +
-					"	static <R> R execute(Supplier<R> supplier) {\n" +
-					"		return null;\n" +
-					"	}\n" +
-					"	static void executeInner(Runnable callback) {\n" +
-					"	}\n" +
-					"	static void executeOuter(Runnable callback) {\n" +
-					"	}\n" +
-					"}\n";
+					"""
+				interface Supplier<T> {
+				    T get();
+				}
+				interface Runnable {
+				    public abstract void run();
+				}
+				public class X {
+					public static void main(String[] args) {
+						execute(() -> {
+				           executeOuter(() -> {
+							    executeInner(() -> {
+							    });
+							    return null;
+						    });
+				       });
+						System.out.println("done");
+					}
+					static <R> R execute(Supplier<R> supplier) {
+						return null;
+					}
+					static void executeInner(Runnable callback) {
+					}
+					static void executeOuter(Runnable callback) {
+					}
+				}
+				""";
 			createFile(	"/Bug429948/src/X.java",	fileContent);
 			IType type = getCompilationUnit("/Bug429948/src/X.java").getType("X");
 			ITypeHierarchy h = type.newSupertypeHierarchy(null);
@@ -254,40 +262,44 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
 			String fileContent =
-					"interface Supplier<T> {\n" +
-					"    T get();\n" +
-					"}\n" +
-					"interface Runnable {\n" +
-					"    public abstract void run();\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		execute(() -> {\n" +
-					"           executeOuter(() -> {\n" +
-					"			    executeInner(() -> {\n" +
-					"			    });\n" +
-					"		    });\n" +
-					"		return null;\n" +
-					"       });\n" +
-					"	}\n" +
-					"	static <R> R execute(Supplier<R> supplier) {\n" +
-					"		return null;\n" +
-					"	}\n" +
-					"	static void executeInner(Runnable callback) {\n" +
-					"	}\n" +
-					"	static void executeOuter(Runnable callback) {\n" +
-					"	}\n" +
-					"}\n";
+					"""
+				interface Supplier<T> {
+				    T get();
+				}
+				interface Runnable {
+				    public abstract void run();
+				}
+				public class X {
+					public static void main(String[] args) {
+						execute(() -> {
+				           executeOuter(() -> {
+							    executeInner(() -> {
+							    });
+						    });
+						return null;
+				       });
+					}
+					static <R> R execute(Supplier<R> supplier) {
+						return null;
+					}
+					static void executeInner(Runnable callback) {
+					}
+					static void executeOuter(Runnable callback) {
+					}
+				}
+				""";
 			String fileName = "/" + projectName + "/src/X.java";
 			createFile(fileName, fileContent);
 			IType type = getCompilationUnit(fileName).getType("Runnable");
 			ITypeHierarchy h = type.newTypeHierarchy(null);
 			assertHierarchyEquals(
-					"Focus: Runnable [in X.java [in <default> [in src [in Bug429966]]]]\n" +
-					"Super types:\n" +
-					"Sub types:\n" +
-					"  <lambda #1> [in get() [in <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]\n" +
-					"  <lambda #1> [in run() [in <lambda #1> [in get() [in <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]]]\n",
+					"""
+						Focus: Runnable [in X.java [in <default> [in src [in Bug429966]]]]
+						Super types:
+						Sub types:
+						  <lambda #1> [in get() [in <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]
+						  <lambda #1> [in run() [in <lambda #1> [in get() [in <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]]]
+						""",
 					h);
 		}
 		finally {
@@ -299,16 +311,17 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Bug429910", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent =  "package p;\n" +
-					 "import java.util.List;\n" +
-					 "public interface Test {\n" +
-					 "	static void main(String[] args) {\n" +
-					 "		I<String> i = (x) -> {};\n" +
-					 "	}\n" +
-					 "}\n" +
-					 "interface I<T> {\n" +
-					 "  public void foo(List<T> x);\n" +
-					 "}";
+			String fileContent =  """
+				package p;
+				import java.util.List;
+				public interface Test {
+					static void main(String[] args) {
+						I<String> i = (x) -> {};
+					}
+				}
+				interface I<T> {
+				  public void foo(List<T> x);
+				}""";
 			createFolder("/Bug429910/src/p");
 			createFile(	"/Bug429910/src/p/Test.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/Bug429910/src/p/Test.java");
@@ -333,13 +346,14 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Bug429910", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent =  "package p;\n" +
-					"public interface MyFunction<T, R> {\n" +
-					"	R apply(T t);\n" +
-					"	default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
-					"		return (V v) -> apply(before.apply(v));" +
-					"	}" +
-					"}";
+			String fileContent =  """
+				package p;
+				public interface MyFunction<T, R> {
+					R apply(T t);
+					default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {
+						return (V v) -> apply(before.apply(v));\
+					}\
+				}""";
 			createFolder("/Bug429910/src/p");
 			createFile(	"/Bug429910/src/p/MyFunction.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/Bug429910/src/p/MyFunction.java");
@@ -367,12 +381,14 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
 			String fileContent =
-					"interface MyFunction<T, R> {\n" +
-					"    R apply(T t);\n" +
-					"    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
-					"        return (V v) -> apply(before.apply(v));\n" +
-					"    }\n" +
-					"}\n";
+					"""
+				interface MyFunction<T, R> {
+				    R apply(T t);
+				    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {
+				        return (V v) -> apply(before.apply(v));
+				    }
+				}
+				""";
 			String fileName = "/" + projectName + "/src/X.java";
 			createFile(fileName, fileContent);
 
@@ -392,12 +408,14 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
 			String fileContent =
-					"interface MyFunction<T, R> {\n" +
-					"    R apply(T t);\n" +
-					"    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
-					"        return v -> apply(before.apply(v));\n" +
-					"    }\n" +
-					"}\n";
+					"""
+				interface MyFunction<T, R> {
+				    R apply(T t);
+				    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {
+				        return v -> apply(before.apply(v));
+				    }
+				}
+				""";
 			String fileName = "/" + projectName + "/src/X.java";
 			createFile(fileName, fileContent);
 
@@ -423,12 +441,14 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 
 			String[] pathAndContents = new String[] {
 					"IntPredicate.java",
-					"public interface IntPredicate {\n" +
-					"    boolean test(int value);\n" +
-					"    default IntPredicate and(IntPredicate other) {\n" +
-					"        return (value) -> test(value) && other.test(value);\n" +
-					"    }\n" +
-					"}\n"
+					"""
+						public interface IntPredicate {
+						    boolean test(int value);
+						    default IntPredicate and(IntPredicate other) {
+						        return (value) -> test(value) && other.test(value);
+						    }
+						}
+						"""
 				};
 
 				HashMap libraryOptions = new HashMap(project.getOptions(true));
@@ -455,26 +475,30 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("Bug430141", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
 			String fileContent =
-							"interface I {\n" +
-							"	void doit();\n" +
-							"}\n" +
-							"interface J extends I {\n" +
-							"}\n" +
-							"public class X {\n" +
-							"	public static void main(String[] args) {\n" +
-							"		J j  = () -> { System.out.println(\"Lambda\"); };\n" +
-							"		j.doit();\n" +
-							"	}\n" +
-							"}\n";
+							"""
+				interface I {
+					void doit();
+				}
+				interface J extends I {
+				}
+				public class X {
+					public static void main(String[] args) {
+						J j  = () -> { System.out.println("Lambda"); };
+						j.doit();
+					}
+				}
+				""";
 			createFile(	"/Bug430141/src/X.java",	fileContent);
 			IType type = getCompilationUnit("/Bug430141/src/X.java").getType("I");
 			ITypeHierarchy h = type.newTypeHierarchy(null);
 			assertHierarchyEquals(
-							"Focus: I [in X.java [in <default> [in src [in Bug430141]]]]\n" +
-							"Super types:\n" +
-							"Sub types:\n" +
-							"  J [in X.java [in <default> [in src [in Bug430141]]]]\n" +
-							"    <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug430141]]]]]]\n",
+							"""
+								Focus: I [in X.java [in <default> [in src [in Bug430141]]]]
+								Super types:
+								Sub types:
+								  J [in X.java [in <default> [in src [in Bug430141]]]]
+								    <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug430141]]]]]]
+								""",
 					h);
 		}
 		finally {
@@ -487,26 +511,30 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("Bug430141", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
 			String fileContent =
-							"interface I {\n" +
-							"	void doit();\n" +
-							"}\n" +
-							"interface J extends I {\n" +
-							"}\n" +
-							"public class X {\n" +
-							"	public static void main(String[] args) {\n" +
-							"		J j  = () -> { System.out.println(\"Lambda\"); };\n" +
-							"		j.doit();\n" +
-							"	}\n" +
-							"}\n";
+							"""
+				interface I {
+					void doit();
+				}
+				interface J extends I {
+				}
+				public class X {
+					public static void main(String[] args) {
+						J j  = () -> { System.out.println("Lambda"); };
+						j.doit();
+					}
+				}
+				""";
 			createFile(	"/Bug430141/src/X.java",	fileContent);
 			IType type = getCompilationUnit("/Bug430141/src/X.java").getType("J");
 			ITypeHierarchy h = type.newTypeHierarchy(null);
 			assertHierarchyEquals(
-					"Focus: J [in X.java [in <default> [in src [in Bug430141]]]]\n" +
-							"Super types:\n" +
-							"  I [in X.java [in <default> [in src [in Bug430141]]]]\n" +
-							"Sub types:\n" +
-							"  <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug430141]]]]]]\n",
+					"""
+						Focus: J [in X.java [in <default> [in src [in Bug430141]]]]
+						Super types:
+						  I [in X.java [in <default> [in src [in Bug430141]]]]
+						Sub types:
+						  <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug430141]]]]]]
+						""",
 					h);
 		}
 		finally {
@@ -520,12 +548,14 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
 			String fileContent =
-					"interface MyFunction<T, R> {\n" +
-					"    R apply(T t);\n" +
-					"    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
-					"        return v -> apply(before.apply(v));\n" +
-					"    }\n" +
-					"}\n";
+					"""
+				interface MyFunction<T, R> {
+				    R apply(T t);
+				    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {
+				        return v -> apply(before.apply(v));
+				    }
+				}
+				""";
 			String fileName = "/" + projectName + "/src/X.java";
 			createFile(fileName, fileContent);
 
@@ -551,14 +581,16 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
 			String fileContent =
-					"public interface X<T> {\n" +
-					"    default void asIntStream() {\n" +
-					"    	mapToInt((long l) -> (int) l);" +
-					"    }\n" +
-					"	default void mapToInt(ToIntFunction<? super T> mapper) {}\n" +
-					"interface ToIntFunction<T> {\n" +
-					"	int applyAsInt(T value);\n" +
-					"}\n";
+					"""
+				public interface X<T> {
+				    default void asIntStream() {
+				    	mapToInt((long l) -> (int) l);\
+				    }
+					default void mapToInt(ToIntFunction<? super T> mapper) {}
+				interface ToIntFunction<T> {
+					int applyAsInt(T value);
+				}
+				""";
 			String fileName = "/" + projectName + "/src/X.java";
 			createFile(fileName, fileContent);
 
@@ -567,28 +599,31 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IJavaElement[] elements = unit.codeSelect(start, 1);
 			assertEquals("Incorrect java element", IJavaElement.LOCAL_VARIABLE, elements[0].getElementType());
 			String mem = elements[0].getHandleIdentifier();
-			String expected = "=Bug431716/src<{X.java[X~asIntStream" +
-					"=)=\"LX$ToIntFunction\\<TT;>;!71!89!81=&" +
-					"applyAsInt!1=\"TT;=\"l=\"I=\"LX$ToIntFunction\\<LX;:TT;>;." +
-					"applyAsInt\\(TT;)I@l!72!77!77!77!Ljava\\/lang\\/Object;!0!true=&" +
-					"@l!72!77!77!77!J!0!true";
+			String expected = """
+				=Bug431716/src<{X.java[X~asIntStream\
+				=)="LX$ToIntFunction\\<TT;>;!71!89!81=&\
+				applyAsInt!1="TT;="l="I="LX$ToIntFunction\\<LX;:TT;>;.\
+				applyAsInt\\(TT;)I@l!72!77!77!77!Ljava\\/lang\\/Object;!0!true=&\
+				@l!72!77!77!77!J!0!true""";
 			assertEquals("Incorrect memento", expected, mem);
 
 			IJavaElement parent = elements[0].getParent();
 			mem = parent.getHandleIdentifier();
-			expected = "=Bug431716/src<{X.java[X~asIntStream" +
-					"=)=\"LX$ToIntFunction\\<TT;>;!71!89!81=&" +
-					"applyAsInt!1=\"TT;=\"l=\"I=\"LX$ToIntFunction\\<LX;:TT;>;." +
-					"applyAsInt\\(TT;)I@l!72!77!77!77!Ljava\\/lang\\/Object;!0!true=&";
+			expected = """
+				=Bug431716/src<{X.java[X~asIntStream\
+				=)="LX$ToIntFunction\\<TT;>;!71!89!81=&\
+				applyAsInt!1="TT;="l="I="LX$ToIntFunction\\<LX;:TT;>;.\
+				applyAsInt\\(TT;)I@l!72!77!77!77!Ljava\\/lang\\/Object;!0!true=&""";
 			assertEquals("Incorrect memento", expected, mem);
 			assertTrue("Parent should be LambdaMethod", parent instanceof LambdaMethod);
 
 			parent = parent.getParent();
 			mem = parent.getHandleIdentifier();
-			expected = "=Bug431716/src<{X.java[X~asIntStream" +
-					"=)=\"LX$ToIntFunction\\<TT;>;!71!89!81=&" +
-					"applyAsInt!1=\"TT;=\"l=\"I=\"LX$ToIntFunction\\<LX;:TT;>;." +
-					"applyAsInt\\(TT;)I@l!72!77!77!77!Ljava\\/lang\\/Object;!0!true=)";
+			expected = """
+				=Bug431716/src<{X.java[X~asIntStream\
+				=)="LX$ToIntFunction\\<TT;>;!71!89!81=&\
+				applyAsInt!1="TT;="l="I="LX$ToIntFunction\\<LX;:TT;>;.\
+				applyAsInt\\(TT;)I@l!72!77!77!77!Ljava\\/lang\\/Object;!0!true=)""";
 			assertEquals("Incorrect memento", expected, mem);
 			assertTrue("Grand-parent should be LambdaExpression", parent instanceof LambdaExpression);
 
@@ -609,12 +644,14 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
 			String fileContent =
-					"interface MyFunction<T, R> {\n" +
-					"    R apply(T t);\n" +
-					"    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
-					"        return v -> apply(before.apply(v));\n" +
-					"    }\n" +
-					"}\n";
+					"""
+				interface MyFunction<T, R> {
+				    R apply(T t);
+				    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {
+				        return v -> apply(before.apply(v));
+				    }
+				}
+				""";
 			String fileName = "/" + projectName + "/src/X.java";
 			createFile(fileName, fileContent);
 
@@ -640,12 +677,12 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IFolder folder= project.getProject().getFolder("nosrc");
 			folder.create(0, true, null);
 			IFile file= folder.getFile("X.java");
-			StringBuilder buf= new StringBuilder();
-			buf.append("public class X {\n");
-			buf.append("	public <T> void meth(T s) {\n");
-			buf.append("	}\n");
-			buf.append("}\n");
-			String content= buf.toString();
+			String content= """
+				public class X {
+					public <T> void meth(T s) {
+					}
+				}
+				""";
 			file.create(new ByteArrayInputStream(content.getBytes("UTF-8")), 0, null);
 
 			// create a CU from that file:

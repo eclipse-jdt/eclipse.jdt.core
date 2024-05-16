@@ -122,11 +122,12 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	 */
 	public void testAllTypeNames1() throws CoreException {
 		this.workingCopy.getBuffer().setContents(
-			"package wc;\n" +
-			"public class Y {\n" +
-			"  interface I {\n" +
-			"  }\n" +
-			"}"
+			"""
+				package wc;
+				public class Y {
+				  interface I {
+				  }
+				}"""
 		);
 		this.workingCopy.makeConsistent(null);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
@@ -155,11 +156,12 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	 */
 	public void testAllTypeNames2() throws CoreException {
 		this.workingCopy.getBuffer().setContents(
-			"package wc;\n" +
-			"public class Y {\n" +
-			"  interface I {\n" +
-			"  }\n" +
-			"}"
+			"""
+				package wc;
+				public class Y {
+				  interface I {
+				  }
+				}"""
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 		SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
@@ -190,11 +192,12 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 		try {
 			wc.becomeWorkingCopy(null);
 			wc.getBuffer().setContents(
-				"package wc3;\n" +
-				"public class X44884 {\n" +
-				"}\n" +
-				"interface I {\n" +
-				"}"
+				"""
+					package wc3;
+					public class X44884 {
+					}
+					interface I {
+					}"""
 			);
 			wc.makeConsistent(null);
 
@@ -229,11 +232,12 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 		try {
 			wc.becomeWorkingCopy(null);
 			wc.getBuffer().setContents(
-				"package wc3;\n" +
-				"public class X44884 {\n" +
-				"}\n" +
-				"interface I {\n" +
-				"}"
+				"""
+					package wc3;
+					public class X44884 {
+					}
+					interface I {
+					}"""
 			);
 
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {wc.getParent()});
@@ -264,11 +268,13 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	 */
 	public void testAllTypeNamesBug99915() throws CoreException {
 		this.workingCopy.getBuffer().setContents(
-			"package wc;\n" +
-			"public class X {\n" +
-			"}\n"  +
-			" class AAABBB {}\n" +
-			" class BBBCCC {}\n"
+			"""
+				package wc;
+				public class X {
+				}
+				 class AAABBB {}
+				 class BBBCCC {}
+				"""
 		);
 		this.workingCopy.makeConsistent(null);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
@@ -301,18 +307,20 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			projects[1] = createJavaProject("P2");
 			this.workingCopies = new ICompilationUnit[2];
 			this.workingCopies[0] = getWorkingCopy("/P1/p1/A1.java",
-				"package p1;\n" +
-				"public class A1 {\n" +
-				"	public static class A1Inner1 {}" +
-				"	public static class A1Inner2 {}" +
-				"}"
+				"""
+					package p1;
+					public class A1 {
+						public static class A1Inner1 {}\
+						public static class A1Inner2 {}\
+					}"""
 			);
 			this.workingCopies[1] = getWorkingCopy("/P2/p2/A2.java",
-				"package p2;\n" +
-				"public class A2 {\n" +
-				"	public static class A2Inner1 {}" +
-				"	public static class A2Inner2 {}" +
-				"}"
+				"""
+					package p2;
+					public class A2 {
+						public static class A2Inner1 {}\
+						public static class A2Inner2 {}\
+					}"""
 			);
 			TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 			IJavaSearchScope scope = 	SearchEngine.createJavaSearchScope(new IJavaElement[] { projects[1] });
@@ -329,9 +337,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			);
 			assertSearchResults(
 				"Unexpected all type names",
-				"p2.A2\n" +
-				"p2.A2$A2Inner1\n" +
-				"p2.A2$A2Inner2",
+				"""
+					p2.A2
+					p2.A2$A2Inner1
+					p2.A2$A2Inner2""",
 				requestor);
 		}
 		finally {
@@ -346,9 +355,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	 */
 	public void testDeclarationOfReferencedTypes() throws CoreException {
 		IMethod method = this.workingCopy.getType("X").createMethod(
-			"public void foo() {\n" +
-			"  X x = new X();\n" +
-			"}",
+			"""
+				public void foo() {
+				  X x = new X();
+				}""",
 			null,
 			true,
 			null);
@@ -460,12 +470,14 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	 */
 	public void testBug478042_dirtyWC_001() throws CoreException {
 		this.workingCopy.getBuffer().setContents(
-				"package p478042;\n" +
-				"public class AllMethodDeclarations01 {\n" +
-				"  public void foo01() {}\n" +
-				"  public int foo02(Object o) {return 0;}\n" +
-				"  public char foo03(Object o, String s) {return '0';}\n" +
-				"}\n"
+				"""
+					package p478042;
+					public class AllMethodDeclarations01 {
+					  public void foo01() {}
+					  public int foo02(Object o) {return 0;}
+					  public char foo03(Object o, String s) {return '0';}
+					}
+					"""
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 		SearchTests.SearchMethodNameRequestor requestor = new SearchTests.SearchMethodNameRequestor();
@@ -477,9 +489,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				scope, requestor,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
 		assertSearchResults(
-				"/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
-				"/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
-				"/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.foo01()",
+				"""
+					/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)
+					/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.foo02(Object o)
+					/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.foo01()""",
 				requestor
 		);
 	}
@@ -488,14 +501,16 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	 */
 	public void testBug478042_dirtyWC_002() throws CoreException {
 		this.workingCopy.getBuffer().setContents(
-				"package p478042;\n" +
-				"public class AllMethodDeclarations01 {\n" +
-				"public class Nested {\n" +
-				"  public void foo01() {}\n" +
-				"  public int foo02(Object o) {return 0;}\n" +
-				"  public char foo03(Object o, String s) {return '0';}\n" +
-				"}\n" +
-				"}\n"
+				"""
+					package p478042;
+					public class AllMethodDeclarations01 {
+					public class Nested {
+					  public void foo01() {}
+					  public int foo02(Object o) {return 0;}
+					  public char foo03(Object o, String s) {return '0';}
+					}
+					}
+					"""
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 		SearchTests.SearchMethodNameRequestor requestor = new SearchTests.SearchMethodNameRequestor();
@@ -507,9 +522,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				scope, requestor,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
 		assertSearchResults(
-				"/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.Nested.foo03(Object o,String s)\n" +
-				"/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.Nested.foo02(Object o)\n" +
-				"/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.Nested.foo01()",
+				"""
+					/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.Nested.foo03(Object o,String s)
+					/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.Nested.foo02(Object o)
+					/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.Nested.foo01()""",
 				requestor
 		);
 	}
@@ -518,16 +534,18 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	 */
 	public void testBug478042_dirtyWC_003() throws CoreException {
 		this.workingCopy.getBuffer().setContents(
-				"package p478042;\n" +
-				"public class AllMethodDeclarations01 {\n" +
-				"public class Nested {\n" +
-				"public class Inner {\n" +
-				"  public void foo01() {}\n" +
-				"  public int foo02(Object o) {return 0;}\n" +
-				"  public char foo03(Object o, String s) {return '0';}\n" +
-				"}\n" +
-				"}\n" +
-				"}\n"
+				"""
+					package p478042;
+					public class AllMethodDeclarations01 {
+					public class Nested {
+					public class Inner {
+					  public void foo01() {}
+					  public int foo02(Object o) {return 0;}
+					  public char foo03(Object o, String s) {return '0';}
+					}
+					}
+					}
+					"""
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 		SearchTests.SearchMethodNameRequestor requestor = new SearchTests.SearchMethodNameRequestor();
@@ -539,9 +557,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				scope, requestor,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
 		assertSearchResults(
-				"/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.Nested.Inner.foo03(Object o,String s)\n" +
-				"/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.Nested.Inner.foo02(Object o)\n" +
-				"/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.Nested.Inner.foo01()",
+				"""
+					/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.Nested.Inner.foo03(Object o,String s)
+					/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.Nested.Inner.foo02(Object o)
+					/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.Nested.Inner.foo01()""",
 				requestor
 		);
 	}
@@ -550,12 +569,14 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	 */
 	public void testBug478042_dirtyWC_004() throws CoreException {
 		this.workingCopy.getBuffer().setContents(
-				"package p478042;\n" +
-				"public class AllMethodDeclarations01 {\n" +
-				"  public void foo01() {}\n" +
-				"  public int foo02(Object o) {return 0;}\n" +
-				"  public char foo03(Object o, String s) {return '0';}\n" +
-				"}\n"
+				"""
+					package p478042;
+					public class AllMethodDeclarations01 {
+					  public void foo01() {}
+					  public int foo02(Object o) {return 0;}
+					  public char foo03(Object o, String s) {return '0';}
+					}
+					"""
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 		SearchTests.SearchMethodNameRequestor requestor = new SearchTests.SearchMethodNameRequestor();
@@ -565,20 +586,23 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				scope, requestor,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
 		assertSearchResults(
-				"/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
-				"/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
-				"/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.foo01()",
+				"""
+					/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)
+					/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.foo02(Object o)
+					/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.foo01()""",
 				requestor
 		);
 	}
 	public void testBug483650_dirtyWC_001() throws CoreException {
 		this.workingCopy.getBuffer().setContents(
-				"package p478042;\n" +
-				"public class AllMethodDeclarations01 {\n" +
-				"  public void foo01() {}\n" +
-				"  public int foo02(Object o) {return 0;}\n" +
-				"  public char foo03(Object o, String s) {return '0';}\n" +
-				"}\n"
+				"""
+					package p478042;
+					public class AllMethodDeclarations01 {
+					  public void foo01() {}
+					  public int foo02(Object o) {return 0;}
+					  public char foo03(Object o, String s) {return '0';}
+					}
+					"""
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 		SearchTests.SearchMethodNameRequestor requestor = new SearchTests.SearchMethodNameRequestor();
@@ -588,9 +612,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				scope, requestor,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
 		assertSearchResults(
-				"/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
-				"/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
-				"/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.foo01()",
+				"""
+					/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)
+					/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.foo02(Object o)
+					/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.foo01()""",
 				requestor
 		);
 	}
@@ -599,14 +624,16 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	 */
 	public void testBug483650_dirtyWC_002() throws CoreException {
 		this.workingCopy.getBuffer().setContents(
-				"package p478042;\n" +
-				"public class AllMethodDeclarations01 {\n" +
-				"public class Nested {\n" +
-				"  public void foo01() {}\n" +
-				"  public int foo02(Object o) {return 0;}\n" +
-				"  public char foo03(Object o, String s) {return '0';}\n" +
-				"}\n" +
-				"}\n"
+				"""
+					package p478042;
+					public class AllMethodDeclarations01 {
+					public class Nested {
+					  public void foo01() {}
+					  public int foo02(Object o) {return 0;}
+					  public char foo03(Object o, String s) {return '0';}
+					}
+					}
+					"""
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 		SearchTests.SearchMethodNameRequestor requestor = new SearchTests.SearchMethodNameRequestor();
@@ -616,9 +643,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				scope, requestor,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
 		assertSearchResults(
-				"/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.Nested.foo03(Object o,String s)\n" +
-				"/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.Nested.foo02(Object o)\n" +
-				"/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.Nested.foo01()",
+				"""
+					/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.Nested.foo03(Object o,String s)
+					/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.Nested.foo02(Object o)
+					/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.Nested.foo01()""",
 				requestor
 		);
 	}
@@ -627,16 +655,18 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	 */
 	public void testBug483650_dirtyWC_003() throws CoreException {
 		this.workingCopy.getBuffer().setContents(
-				"package p478042;\n" +
-				"public class AllMethodDeclarations01 {\n" +
-				"public class Nested {\n" +
-				"public class Inner {\n" +
-				"  public void foo01() {}\n" +
-				"  public int foo02(Object o) {return 0;}\n" +
-				"  public char foo03(Object o, String s) {return '0';}\n" +
-				"}\n" +
-				"}\n" +
-				"}\n"
+				"""
+					package p478042;
+					public class AllMethodDeclarations01 {
+					public class Nested {
+					public class Inner {
+					  public void foo01() {}
+					  public int foo02(Object o) {return 0;}
+					  public char foo03(Object o, String s) {return '0';}
+					}
+					}
+					}
+					"""
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 		SearchTests.SearchMethodNameRequestor requestor = new SearchTests.SearchMethodNameRequestor();
@@ -646,9 +676,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				scope, requestor,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
 		assertSearchResults(
-				"/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.Nested.Inner.foo03(Object o,String s)\n" +
-				"/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.Nested.Inner.foo02(Object o)\n" +
-				"/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.Nested.Inner.foo01()",
+				"""
+					/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.Nested.Inner.foo03(Object o,String s)
+					/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.Nested.Inner.foo02(Object o)
+					/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.Nested.Inner.foo01()""",
 				requestor
 		);
 	}
@@ -657,12 +688,14 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	 */
 	public void testBug483650_dirtyWC_004() throws CoreException {
 		this.workingCopy.getBuffer().setContents(
-				"package p478042;\n" +
-				"public class AllMethodDeclarations01 {\n" +
-				"  public void foo01() {}\n" +
-				"  public int foo02(Object o) {return 0;}\n" +
-				"  public char foo03(Object o, String s) {return '0';}\n" +
-				"}\n"
+				"""
+					package p478042;
+					public class AllMethodDeclarations01 {
+					  public void foo01() {}
+					  public int foo02(Object o) {return 0;}
+					  public char foo03(Object o, String s) {return '0';}
+					}
+					"""
 		);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 		SearchTests.SearchMethodNameRequestor requestor = new SearchTests.SearchMethodNameRequestor();
@@ -672,9 +705,10 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 				scope, requestor,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
 		assertSearchResults(
-				"/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
-				"/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
-				"/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.foo01()",
+				"""
+					/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)
+					/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.foo02(Object o)
+					/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.foo01()""",
 				requestor
 		);
 	}

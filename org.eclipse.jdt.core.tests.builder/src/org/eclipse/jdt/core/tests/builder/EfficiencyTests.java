@@ -73,26 +73,32 @@ public class EfficiencyTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "Indicted", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public abstract class Indicted {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public abstract class Indicted {
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root, "p2", "Collaborator", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.*;\n"+ //$NON-NLS-1$
-			"public class Collaborator extends Indicted{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public class Collaborator extends Indicted{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		fullBuild(projectPath);
 
 		env.addClass(root, "p1", "Indicted", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public abstract class Indicted {\n"+ //$NON-NLS-1$
-			"   public abstract void foo();\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public abstract class Indicted {
+			   public abstract void foo();
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(projectPath);
 
@@ -113,38 +119,46 @@ public class EfficiencyTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo() {	\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo() {\t
+				}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.*;\n"+ //$NON-NLS-1$
-			"public class Y extends X{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public class Y extends X{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.*;\n"+ //$NON-NLS-1$
-			"public class Z{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public class Z{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		fullBuild(projectPath);
 
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void bar(){}	\n" + //$NON-NLS-1$
-			"	void foo() {	\n" + //$NON-NLS-1$
-			"		};	\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void bar(){}\t
+				void foo() {\t
+					};\t
+				}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(projectPath);
 
@@ -165,38 +179,46 @@ public class EfficiencyTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo() {	\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo() {\t
+				}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.*;\n"+ //$NON-NLS-1$
-			"public class Y extends X{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public class Y extends X{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.*;\n"+ //$NON-NLS-1$
-			"public class Z{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public class Z{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		fullBuild(projectPath);
 
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo() {	\n" + //$NON-NLS-1$
-			"		new Object(){	\n" + //$NON-NLS-1$
-			"		};	\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo() {\t
+					new Object(){\t
+					};\t
+				}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(projectPath);
 
@@ -217,44 +239,52 @@ public class EfficiencyTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo() {	\n" + //$NON-NLS-1$
-			"		new X(){	\n" + //$NON-NLS-1$
-			"			void bar(){}	\n" + //$NON-NLS-1$
-			"		};	\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo() {\t
+					new X(){\t
+						void bar(){}\t
+					};\t
+				}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.*;\n"+ //$NON-NLS-1$
-			"public class Y extends X{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public class Y extends X{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.*;\n"+ //$NON-NLS-1$
-			"public class Z{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public class Z{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		fullBuild(projectPath);
 
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo() {	\n" + //$NON-NLS-1$
-			"		new Object(){	\n" + //$NON-NLS-1$
-			"		};	\n" + //$NON-NLS-1$
-			"		new X(){	\n" + //$NON-NLS-1$
-			"			void bar(){}	\n" + //$NON-NLS-1$
-			"		};	\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo() {\t
+					new Object(){\t
+					};\t
+					new X(){\t
+						void bar(){}\t
+					};\t
+				}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(projectPath);
 
@@ -275,38 +305,46 @@ public class EfficiencyTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo() {	\n" + //$NON-NLS-1$
-			"		new Object(){	\n" + //$NON-NLS-1$
-			"		};	\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo() {\t
+					new Object(){\t
+					};\t
+				}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.*;\n"+ //$NON-NLS-1$
-			"public class Y extends X{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public class Y extends X{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.*;\n"+ //$NON-NLS-1$
-			"public class Z{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public class Z{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		fullBuild(projectPath);
 
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo() {	\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo() {\t
+				}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(projectPath);
 
@@ -327,44 +365,52 @@ public class EfficiencyTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo() {	\n" + //$NON-NLS-1$
-			"		new Object(){	\n" + //$NON-NLS-1$
-			"		};	\n" + //$NON-NLS-1$
-			"		new X(){	\n" + //$NON-NLS-1$
-			"			void bar(){}	\n" + //$NON-NLS-1$
-			"		};	\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo() {\t
+					new Object(){\t
+					};\t
+					new X(){\t
+						void bar(){}\t
+					};\t
+				}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.*;\n"+ //$NON-NLS-1$
-			"public class Y extends X{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public class Y extends X{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.*;\n"+ //$NON-NLS-1$
-			"public class Z{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public class Z{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		fullBuild(projectPath);
 
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo() {	\n" + //$NON-NLS-1$
-			"		new X(){	\n" + //$NON-NLS-1$
-			"			void bar(){}	\n" + //$NON-NLS-1$
-			"		};	\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo() {\t
+					new X(){\t
+						void bar(){}\t
+					};\t
+				}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(projectPath);
 
@@ -385,26 +431,32 @@ public class EfficiencyTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"	void foo(p2.Y y) {	\n" + //$NON-NLS-1$
-			"		y.bar(null);" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+				void foo(p2.Y y) {\t
+					y.bar(null);\
+				}
+			}
+			""" //$NON-NLS-1$
+					);
 		env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"public class Y {\n"+ //$NON-NLS-1$
-			"	public void bar(Z z) {}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			public class Y {
+				public void bar(Z z) {}
+			}
+			""" //$NON-NLS-1$
+					);
 		fullBuild(projectPath);
 
 		env.addClass(root, "p2", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"public class Z {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			public class Z {
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild(projectPath);
 

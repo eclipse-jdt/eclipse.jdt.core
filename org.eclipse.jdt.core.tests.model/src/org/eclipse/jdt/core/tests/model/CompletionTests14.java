@@ -262,14 +262,16 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/mypack1/rrr.java",
-				"package mypack1;\n" +
-						"public record rrr() {\n" +
-				"}");
+				"""
+					package mypack1;
+					public record rrr() {
+					}""");
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/mypack1/MyClass.java",
-				"package mypack1;\n" +
-						"public class MyClass extends /*here*/rr {\n" +
-				"}");
+				"""
+					package mypack1;
+					public class MyClass extends /*here*/rr {
+					}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -284,13 +286,14 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"/**\n" +
-						" * \n" +
-						" * @par \n" +
-						" *\n"+
-						" */\n" +
-						"public record Point()  {\n" +
-				"}");
+				"""
+					/**
+					 *\s
+					 * @par\s
+					 *
+					 */
+					public record Point()  {
+					}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -305,13 +308,14 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"/**\n" +
-						" * \n" +
-						" * @par \n" +
-						" *\n"+
-						" */\n" +
-						"//public record Point(int a)  {\n" +
-				"}");
+				"""
+					/**
+					 *\s
+					 * @par\s
+					 *
+					 */
+					//public record Point(int a)  {
+					}""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -328,9 +332,11 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public record  Point(int comp_) { \n" +
-						"}\n"+
-						"class MyClass extends /*here*/Poin	\n"
+				"""
+					public record  Point(int comp_) {\s
+					}
+					class MyClass extends /*here*/Poin\t
+					"""
 				);
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -365,15 +371,15 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public class Point {\n" +
-				"private void method(){\n" +
-				"int record;\n" +
-				"{\n" +
-				" /*here*/rec\n" +
-				"}\n" +
-				"}\n" +
-
-				"}");
+				"""
+					public class Point {
+					private void method(){
+					int record;
+					{
+					 /*here*/rec
+					}
+					}
+					}""");
 		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -392,14 +398,14 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n" +
-						"long count = \"\"\"\n"
-						+ "			aa\n"
-						+ "			\n"
-						+ "			\"\"\".len\n" +
-						"}\n" +
-
-				"}");
+				"""
+					public class X {
+					long count = \"""
+								aa
+							\t
+								\""".len
+					}
+					}""");
 		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -418,14 +424,15 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n"
-						+ "  private void method(){\n"
-						+ "    long count = \"\"\"\n"
-						+ "			aa\n"
-						+ "			\n"
-						+ "			\"\"\".len\n"
-						+ "  }\n"
-						+ "}");
+				"""
+					public class X {
+					  private void method(){
+					    long count = \"""
+								aa
+							\t
+								\""".len
+					  }
+					}""");
 		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -443,16 +450,17 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n"
-						+ "  private void method(){\n"
-						+ "    String d_ef = \"\"\"\n"
-						+ "			def\n"
-						+ "			\"\"\";\n"
-						+ "    String abc = \"\"\"\n"
-						+ "			abc\n"
-						+ "			\"\"\" + d_\n"
-						+ "  }\n"
-						+ "}");
+				"""
+					public class X {
+					  private void method(){
+					    String d_ef = \"""
+								def
+								\""";
+					    String abc = \"""
+								abc
+								\""" + d_
+					  }
+					}""");
 		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -470,16 +478,17 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n"
-						+ "  private void method(String a_rg){\n"
-						+ "    String d_ef = \"\"\"\n"
-						+ "			def\n"
-						+ "			\"\"\" + a_ +\n"
-						+ "     \"\"\"\n"
-						+ "			abc\n"
-						+ "			\"\"\";\n"
-						+ "  }\n"
-						+ "}");
+				"""
+					public class X {
+					  private void method(String a_rg){
+					    String d_ef = \"""
+								def
+								\""" + a_ +
+					     \"""
+								abc
+								\""";
+					  }
+					}""");
 		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -497,14 +506,15 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
-				"public class X {\n"
-						+ "  private void method(String a_rg){\n"
-						+ "    var d_ef = \"\"\"\n"
-						+ "			def\n"
-						+ "			\"\"\";\n"
-						+ "     d_\n"
-						+ "  }\n"
-						+ "}");
+				"""
+					public class X {
+					  private void method(String a_rg){
+					    var d_ef = \"""
+								def
+								\""";
+					     d_
+					  }
+					}""");
 		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -582,10 +592,12 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Person.java",
-				"public class Person {\n"
-						+ "private Name name = new Name \n"
-						+ "record Age(int value){};"
-						+ "}\n");
+				"""
+					public class Person {
+					private Name name = new Name\s
+					record Age(int value){};\
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/Name.java",
 				"public class Name {\n"
@@ -607,29 +619,35 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/State.java",
-				"public enum State {\n"
-						+ "	BLOCKED, RUNNING;"
-						+ "}\n");
+				"""
+					public enum State {
+						BLOCKED, RUNNING;\
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/Func.java",
-				"public interface Func<I,O> {\n"
-						+ "	O apply(I input);"
-						+ "}\n");
+				"""
+					public interface Func<I,O> {
+						O apply(I input);\
+					}
+					""");
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Switch.java",
-				"public class Switch {\n"
-						+ "static String toString(State state) {\n"
-						+ " 	return Switch.<State, String>transform(state, st -> {\n"
-						+ " 		return switch(st) { \n"
-						+ " 			case B\n"
-						+ " 		};\n"
-						+ " 	});\n"
-						+ "}\n"
-						+ "static <I, O> O transform(I input, Func<I, O> t) {\n"
-						+ "	return null;"
-						+ "}\n"
-						+ "}\n");
+				"""
+					public class Switch {
+					static String toString(State state) {
+					 	return Switch.<State, String>transform(state, st -> {
+					 		return switch(st) {\s
+					 			case B
+					 		};
+					 	});
+					}
+					static <I, O> O transform(I input, Func<I, O> t) {
+						return null;\
+					}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "case B";
@@ -647,29 +665,35 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/State.java",
-				"public enum State {\n"
-						+ "	BLOCKED, RUNNING;"
-						+ "}\n");
+				"""
+					public enum State {
+						BLOCKED, RUNNING;\
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/Func.java",
-				"public interface Func<I,O> {\n"
-						+ "	O apply(I input);"
-						+ "}\n");
+				"""
+					public interface Func<I,O> {
+						O apply(I input);\
+					}
+					""");
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Switch.java",
-				"public class Switch {\n"
-						+ "static String toString(State state) {\n"
-						+ " 	return Switch.<State, String>transform(state, st -> {\n"
-						+ " 		return switch(st) { \n"
-						+ " 			case BLOCK -> \"blocked\";\n"
-						+ " 		};\n"
-						+ " 	});\n"
-						+ "}\n"
-						+ "static <I, O> O transform(I input, Func<I, O> t) {\n"
-						+ "	return null;"
-						+ "}\n"
-						+ "}\n");
+				"""
+					public class Switch {
+					static String toString(State state) {
+					 	return Switch.<State, String>transform(state, st -> {
+					 		return switch(st) {\s
+					 			case BLOCK -> "blocked";
+					 		};
+					 	});
+					}
+					static <I, O> O transform(I input, Func<I, O> t) {
+						return null;\
+					}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "case B";
@@ -687,30 +711,36 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/State.java",
-				"public enum State {\n"
-						+ "	BLOCKED, RUNNING;"
-						+ "}\n");
+				"""
+					public enum State {
+						BLOCKED, RUNNING;\
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/Func.java",
-				"public interface Func<I,O> {\n"
-						+ "	O apply(I input);"
-						+ "}\n");
+				"""
+					public interface Func<I,O> {
+						O apply(I input);\
+					}
+					""");
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Switch.java",
-				"public class Switch {\n"
-						+ "static String toString(State state) {\n"
-						+ " 	return Switch.<State, String>transform(state, st -> {\n"
-						+ " 		String value = switch(st) { \n"
-						+ " 			case BLOCK -> \"blocked\";\n"
-						+ " 		};\n"
-						+ "			return value;\n"
-						+ " 	});\n"
-						+ "}\n"
-						+ "static <I, O> O transform(I input, Func<I, O> t) {\n"
-						+ "	return null;"
-						+ "}\n"
-						+ "}\n");
+				"""
+					public class Switch {
+					static String toString(State state) {
+					 	return Switch.<State, String>transform(state, st -> {
+					 		String value = switch(st) {\s
+					 			case BLOCK -> "blocked";
+					 		};
+								return value;
+					 	});
+					}
+					static <I, O> O transform(I input, Func<I, O> t) {
+						return null;\
+					}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "case B";
@@ -728,31 +758,37 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/State.java",
-				"public enum State {\n"
-						+ "	BLOCKED, RUNNING;"
-						+ "}\n");
+				"""
+					public enum State {
+						BLOCKED, RUNNING;\
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/Func.java",
-				"public interface Func<I,O> {\n"
-						+ "	O apply(I input);"
-						+ "}\n");
+				"""
+					public interface Func<I,O> {
+						O apply(I input);\
+					}
+					""");
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Switch.java",
-				"public class Switch {\n"
-						+ "static String toString(State state) {\n"
-						+ " 	return Switch.<State, String>transform(state, st -> {\n"
-						+ " 	String value = null;\n"
-						+ "		value = switch(st) { \n"
-						+ " 			case BLOCK -> \"blocked\";\n"
-						+ " 		};\n"
-						+ "			return value;\n"
-						+ " 	});\n"
-						+ "}\n"
-						+ "static <I, O> O transform(I input, Func<I, O> t) {\n"
-						+ "	return null;"
-						+ "}\n"
-						+ "}\n");
+				"""
+					public class Switch {
+					static String toString(State state) {
+					 	return Switch.<State, String>transform(state, st -> {
+					 	String value = null;
+							value = switch(st) {\s
+					 			case BLOCK -> "blocked";
+					 		};
+								return value;
+					 	});
+					}
+					static <I, O> O transform(I input, Func<I, O> t) {
+						return null;\
+					}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "case B";
@@ -770,28 +806,34 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/State.java",
-				"public enum State {\n"
-						+ "	BLOCKED, RUNNING;"
-						+ "}\n");
+				"""
+					public enum State {
+						BLOCKED, RUNNING;\
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/Func.java",
-				"public interface Func<I,O> {\n"
-						+ "	O apply(I input);"
-						+ "}\n");
+				"""
+					public interface Func<I,O> {
+						O apply(I input);\
+					}
+					""");
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Switch.java",
-				"public class Switch {\n"
-						+ "static String toString(State state) {\n"
-						+ " 	return Switch.<State, String>transform(state, \n"
-						+ " 		st -> switch(st) { \n"
-						+ " 			case B\n"
-						+ " 		});\n"
-						+ "}\n"
-						+ "static <I, O> O transform(I input, Func<I, O> t) {\n"
-						+ "	return null;"
-						+ "}\n"
-						+ "}\n");
+				"""
+					public class Switch {
+					static String toString(State state) {
+					 	return Switch.<State, String>transform(state,\s
+					 		st -> switch(st) {\s
+					 			case B
+					 		});
+					}
+					static <I, O> O transform(I input, Func<I, O> t) {
+						return null;\
+					}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "case B";
@@ -809,28 +851,34 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/State.java",
-				"public enum State {\n"
-						+ "	BLOCKED, RUNNING;"
-						+ "}\n");
+				"""
+					public enum State {
+						BLOCKED, RUNNING;\
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/Func.java",
-				"public interface Func<I,O> {\n"
-						+ "	O apply(I input);"
-						+ "}\n");
+				"""
+					public interface Func<I,O> {
+						O apply(I input);\
+					}
+					""");
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Switch.java",
-				"public class Switch {\n"
-						+ "static String toString(State state) {\n"
-						+ " 	return Switch.<State, String>transform(\n"
-						+ " 		st -> switch(st) { \n"
-						+ " 			case B\n"
-						+ " 		}, state);\n"
-						+ "}\n"
-						+ "static <I, O> O transform(Func<I, O> t, I input) {\n"
-						+ "	return null;"
-						+ "}\n"
-						+ "}\n");
+				"""
+					public class Switch {
+					static String toString(State state) {
+					 	return Switch.<State, String>transform(
+					 		st -> switch(st) {\s
+					 			case B
+					 		}, state);
+					}
+					static <I, O> O transform(Func<I, O> t, I input) {
+						return null;\
+					}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "case B";
@@ -848,26 +896,32 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[1] = getWorkingCopy(
 				"/Completion/src/State.java",
-				"public enum State {\n"
-						+ "	BLOCKED, RUNNING;"
-						+ "}\n");
+				"""
+					public enum State {
+						BLOCKED, RUNNING;\
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/Completion/src/Func.java",
-				"public interface Func<I,O> {\n"
-						+ "	O apply(I input);"
-						+ "}\n");
+				"""
+					public interface Func<I,O> {
+						O apply(I input);\
+					}
+					""");
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Switch.java",
-				"public class Switch {\n"
-						+ "private static String S = Switch.transform(\n"
-						+ " 		st -> switch(st) { \n"
-						+ " 			case B\n"
-						+ " 		}, State.BLOCKED);\n"
-						+ "static <I, O> O transform(Func<I, O> t, I input) {\n"
-						+ "	return null;"
-						+ "}\n"
-						+ "}\n");
+				"""
+					public class Switch {
+					private static String S = Switch.transform(
+					 		st -> switch(st) {\s
+					 			case B
+					 		}, State.BLOCKED);
+					static <I, O> O transform(Func<I, O> t, I input) {
+						return null;\
+					}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "case B";
@@ -887,17 +941,19 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Bug_GH1095.java",
-				 "interface BaseInterface {\n" +
-				 "   void implementMe();\n" +
-				"}\n" +
-				"\n" +
-				"class X implements BaseInterface {\n" +
-				"    /*works here*/\n" +
-				"}\n" +
-				"\n" +
-				"record R() implements BaseInterface {\n" +
-				"    /*Fix needed here*/\n" +
-				"}\n");
+				 """
+					interface BaseInterface {
+					   void implementMe();
+					}
+					
+					class X implements BaseInterface {
+					    /*works here*/
+					}
+					
+					record R() implements BaseInterface {
+					    /*Fix needed here*/
+					}
+					""");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -937,20 +993,22 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Bug_GH1095.java",
-				 "interface BaseInterface {\n" +
-				 "   void implementMe();\n" +
-				"}\n" +
-				"\n" +
-				"class X implements BaseInterface {\n" +
-				"    /*works here*/\n" +
-				"}\n" +
-				"\n" +
-				"record R() implements BaseInterface {\n" +
-				"    /*Fix needed here*/\n" +
-				"    public int hashCode() {\n" +
-				"        return 0;\n" +
-				"    }\n" +
-				"}\n");
+				 """
+					interface BaseInterface {
+					   void implementMe();
+					}
+					
+					class X implements BaseInterface {
+					    /*works here*/
+					}
+					
+					record R() implements BaseInterface {
+					    /*Fix needed here*/
+					    public int hashCode() {
+					        return 0;
+					    }
+					}
+					""");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();

@@ -2366,7 +2366,11 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.b.setLength(0);
 		q.accept(v1);
 		String result = this.b.toString();
-		assertTrue(result.equals("[q(nQ" + "[a(nSaanS)a]" + "[b(nSbbnS)b]" + "nQ)q]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		assertTrue(result.equals("""
+			[q(nQ\
+			[a(nSaanS)a]\
+			[b(nSbbnS)b]\
+			nQ)q]""")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 	public void testTraverseAndModify() {
 		final TypeDeclaration typeDeclaration = this.ast.newTypeDeclaration();

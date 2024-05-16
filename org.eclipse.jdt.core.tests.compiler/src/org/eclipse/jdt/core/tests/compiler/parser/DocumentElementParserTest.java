@@ -34,12 +34,13 @@ public void reset() {
 public void test01() {
 
 	String s =
-		"public class X {\n" +
-		"public String getTexts(int i) [] {\n" +
-		"		 String[] texts = new String[1];\n" +
-		"		 return texts; \n" +
-		"}\n" +
-		"}";
+		"""
+		public class X {
+		public String getTexts(int i) [] {
+				 String[] texts = new String[1];
+				 return texts;\s
+		}
+		}""";
 
 	String testName = "test01";
 

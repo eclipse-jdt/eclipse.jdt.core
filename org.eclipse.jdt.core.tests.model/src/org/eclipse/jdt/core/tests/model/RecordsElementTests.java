@@ -56,13 +56,15 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("RecordsElement");
 			project.open(null);
-			String fileContent =  "@SuppressWarnings(\"preview\")\n" +
-					"public class Point {\n" +
-					"	public Point(int x1, int x2) {\n" +
-					"		x1 = 10;\n" +
-					"		x2 = 11;\n" +
-					"	}\n" +
-					"}\n";
+			String fileContent =  """
+				@SuppressWarnings("preview")
+				public class Point {
+					public Point(int x1, int x2) {
+						x1 = 10;
+						x2 = 11;
+					}
+				}
+				""";
 			createFile(	"/RecordsElement/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
 			IType[] types = unit.getTypes();
@@ -83,13 +85,15 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("RecordsElement");
 			project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			project.open(null);
-			String fileContent =  "@SuppressWarnings(\"preview\")\n" +
-					"public class Point {\n" +
-					"	public Point(int x1, int x2) {\n" +
-					"		x1 = 10;\n" +
-					"		x2 = 11;\n" +
-					"	}\n" +
-					"}\n";
+			String fileContent =  """
+				@SuppressWarnings("preview")
+				public class Point {
+					public Point(int x1, int x2) {
+						x1 = 10;
+						x2 = 11;
+					}
+				}
+				""";
 			createFile(	"/RecordsElement/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
 			IType[] types = unit.getTypes();
@@ -104,13 +108,15 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("RecordsElement");
 			project.open(null);
-				String fileContent =  "@SuppressWarnings(\"preview\")\n" +
-						"public record Point(int x1, int x2) {\n" +
-						"	public Point {\n" +
-						"		this.x1 = 10;\n" +
-						"		this.x2 = 11;\n" +
-						"	}\n" +
-						"}\n";
+				String fileContent =  """
+					@SuppressWarnings("preview")
+					public record Point(int x1, int x2) {
+						public Point {
+							this.x1 = 10;
+							this.x2 = 11;
+						}
+					}
+					""";
 				createFile(	"/RecordsElement/src/X.java",	fileContent);
 				ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
 				IType[] types = unit.getTypes();
@@ -145,9 +151,11 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("RecordsElement");
 			project.open(null);
-			String fileContent =  "@SuppressWarnings(\"preview\")\n" +
-					"public record Point(int x1, int x2) {\n" +
-					"}\n";
+			String fileContent =  """
+				@SuppressWarnings("preview")
+				public record Point(int x1, int x2) {
+				}
+				""";
 			createFile(	"/RecordsElement/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
 			IType[] types = unit.getTypes();
@@ -177,11 +185,13 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			this.workingCopies = new ICompilationUnit[1];
 			IJavaProject project = createJavaProject("RecordsElement");
 			project.open(null);
-			String fileContent =  "public record Point(int x1, int x2) {\n" +
-					"	public Point {\n" +
-					"		x1 = 1;\n" +
-					"	}\n" +
-					"}\n";
+			String fileContent =  """
+				public record Point(int x1, int x2) {
+					public Point {
+						x1 = 1;
+					}
+				}
+				""";
 			createFile(	"/RecordsElement/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
 			IType[] types = unit.getTypes();
@@ -228,12 +238,14 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			this.workingCopies = new ICompilationUnit[1];
 			IJavaProject project = createJavaProject("RecordsElement");
 			project.open(null);
-			String fileContent =  "public record Point(int x1, int x2) {\n" +
-					"	public Point(int x1, int x2) {\n" +
-					"		this.x1 = x1;\n" +
-					"		this.x2 = x2;\n" +
-					"	}\n" +
-					"}\n";
+			String fileContent =  """
+				public record Point(int x1, int x2) {
+					public Point(int x1, int x2) {
+						this.x1 = x1;
+						this.x2 = x2;
+					}
+				}
+				""";
 			createFile(	"/RecordsElement/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
 			IType[] types = unit.getTypes();
@@ -284,19 +296,22 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 		try {
 			String[] sources = {
 					"p/Point.java",
-					"package p;\n;" +
-					"public record Point(int x1, int x2) {\n" +
-					"	public Point(int x1, int x2) {\n" +
-					"		this.x1 = x1;\n" +
-					"		this.x2 = x2;\n" +
-					"	}\n" +
-					"	public Point(int x1, int x2, int x3) {\n" +
-					"		this(x1, x2);\n" +
-					"	}\n" +
-					"	public Point(int x1, float f2) {\n" +
-					"		this(0, 0);\n" +
-					"	}\n" +
-					"}\n"
+					"""
+						package p;
+						;\
+						public record Point(int x1, int x2) {
+							public Point(int x1, int x2) {
+								this.x1 = x1;
+								this.x2 = x2;
+							}
+							public Point(int x1, int x2, int x3) {
+								this(x1, x2);
+							}
+							public Point(int x1, float f2) {
+								this(0, 0);
+							}
+						}
+						"""
 				};
 			String outputDirectory = Util.getOutputDirectory();
 
@@ -363,13 +378,16 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 		try {
 			String[] sources = {
 					"p/Point.java",
-					"package p;\n;" +
-							"public record Point(int x1, int x2) {\n" +
-							"	public Point {\n" +
-							"		x1 = 1;\n" +
-							"		x2 = 2;\n" +
-							"	}\n" +
-							"}\n"
+					"""
+						package p;
+						;\
+						public record Point(int x1, int x2) {
+							public Point {
+								x1 = 1;
+								x2 = 2;
+							}
+						}
+						"""
 			};
 			String outputDirectory = Util.getOutputDirectory();
 
@@ -416,11 +434,13 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("RecordsElement");
 			project.open(null);
-			String fileContent =  "@SuppressWarnings(\"preview\")\n" +
-					"public record Point(int /* comment1 */ x1, int /* comment2 */ x2) {\n" +
-					"	public void foo() {}\n" +
-					"	static int field;\n" +
-					"}\n";
+			String fileContent =  """
+				@SuppressWarnings("preview")
+				public record Point(int /* comment1 */ x1, int /* comment2 */ x2) {
+					public void foo() {}
+					static int field;
+				}
+				""";
 			createFile(	"/RecordsElement/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
 			IType[] types = unit.getTypes();
@@ -445,11 +465,13 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("RecordsElement");
 			project.open(null);
-			String fileContent =  "@SuppressWarnings(\"preview\")\n" +
-					"public record Point(int /* comment */ x1) {\n" +
-					"	static int field;\n" +
-					"	public void foo() {}\n" +
-					"}\n";
+			String fileContent =  """
+				@SuppressWarnings("preview")
+				public record Point(int /* comment */ x1) {
+					static int field;
+					public void foo() {}
+				}
+				""";
 			createFile(	"/RecordsElement/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
 			IType[] types = unit.getTypes();
@@ -474,11 +496,13 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("RecordsElement");
 			project.open(null);
-			String fileContent =  "@SuppressWarnings(\"preview\")\n" +
-					"public record Point(int /* comment */ x1) {\n" +
-					"	/** javadoc */ static int field;\n" +
-					"	public void foo() {}\n" +
-					"}\n";
+			String fileContent =  """
+				@SuppressWarnings("preview")
+				public record Point(int /* comment */ x1) {
+					/** javadoc */ static int field;
+					public void foo() {}
+				}
+				""";
 			createFile(	"/RecordsElement/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
 			IType[] types = unit.getTypes();

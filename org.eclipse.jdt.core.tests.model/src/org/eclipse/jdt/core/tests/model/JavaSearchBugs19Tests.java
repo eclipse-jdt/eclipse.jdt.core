@@ -149,22 +149,23 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void _testIssue215_001() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n"
-						+ "  static void print(Rectangle r) {\n"
-						+ "    if (r instanceof Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "                               ColoredPoint lr) /*here*/r11) {\n"
-						+ "        System.out.println(\"Upper-left corner: \" + r11);\n"
-						+ "    }\n"
-						+ "  }\n"
-						+ "  public static void main(String[] obj) {\n"
-						+ "    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
-						+ "                               new ColoredPoint(new Point(10, 15), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					public class X {
+					  static void print(Rectangle r) {
+					    if (r instanceof Rectangle(ColoredPoint(Point(int x, int y), Color c),
+					                               ColoredPoint lr) /*here*/r11) {
+					        System.out.println("Upper-left corner: " + r11);
+					    }
+					  }
+					  public static void main(String[] obj) {
+					    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE),\s
+					                               new ColoredPoint(new Point(10, 15), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -190,22 +191,23 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void testIssue215_002() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n"
-						+ "  static void print(Rectangle r) {\n"
-						+ "    if (r instanceof Rectangle(ColoredPoint(Point(int /*here*/xyz, int y), Color c),\n"
-						+ "                               ColoredPoint lr)) {\n"
-						+ "        System.out.println(\"Upper-left corner: \" + xyz);\n"
-						+ "    }\n"
-						+ "  }\n"
-						+ "  public static void main(String[] obj) {\n"
-						+ "    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
-						+ "                               new ColoredPoint(new Point(10, 15), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					public class X {
+					  static void print(Rectangle r) {
+					    if (r instanceof Rectangle(ColoredPoint(Point(int /*here*/xyz, int y), Color c),
+					                               ColoredPoint lr)) {
+					        System.out.println("Upper-left corner: " + xyz);
+					    }
+					  }
+					  public static void main(String[] obj) {
+					    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE),\s
+					                               new ColoredPoint(new Point(10, 15), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -230,22 +232,23 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void _testIssue215_003() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n"
-						+ "  static void print(Rectangle r) {\n"
-						+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "                               ColoredPoint lr) /*here*/r11)) {\n"
-						+ "        System.out.println(\"Upper-left corner: \" + r11);\n"
-						+ "    }\n"
-						+ "  }\n"
-						+ "  public static void main(String[] obj) {\n"
-						+ "    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
-						+ "                               new ColoredPoint(new Point(10, 15), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					public class X {
+					  static void print(Rectangle r) {
+					    if (r instanceof (Rectangle(ColoredPoint(Point(int x, int y), Color c),
+					                               ColoredPoint lr) /*here*/r11)) {
+					        System.out.println("Upper-left corner: " + r11);
+					    }
+					  }
+					  public static void main(String[] obj) {
+					    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE),\s
+					                               new ColoredPoint(new Point(10, 15), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -274,22 +277,23 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void _testIssue215_004() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n"
-						+ "  static void print(Rectangle r) {\n"
-						+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int /*here*/xyz, int y), Color c),\n"
-						+ "                               ColoredPoint lr) r11)) {\n"
-						+ "        System.out.println(\"Upper-left corner: \" + xyz);\n"
-						+ "    }\n"
-						+ "  }\n"
-						+ "  public static void main(String[] obj) {\n"
-						+ "    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
-						+ "                               new ColoredPoint(new Point(10, 15), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					public class X {
+					  static void print(Rectangle r) {
+					    if (r instanceof (Rectangle(ColoredPoint(Point(int /*here*/xyz, int y), Color c),
+					                               ColoredPoint lr) r11)) {
+					        System.out.println("Upper-left corner: " + xyz);
+					    }
+					  }
+					  public static void main(String[] obj) {
+					    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE),\s
+					                               new ColoredPoint(new Point(10, 15), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -316,28 +320,29 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void _testIssue215_005() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-						+ "public class X {\n"
-						+ "  public static void printLowerRight(Rectangle r) {\n"
-						+ "    int res = switch(r) {\n"
-						+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "                               ColoredPoint lr) /*here*/r11  -> {\n"
-						+ "             System.out.println(r11);\n"
-						+ "        		yield 1;  \n"
-						+ "        } \n"
-						+ "        default -> 0;\n"
-						+ "    }; \n"
-						+ "    System.out.println(res);\n"
-						+ "  }\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-						+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case Rectangle(ColoredPoint(Point(int x, int y), Color c),
+					                               ColoredPoint lr) /*here*/r11  -> {
+					             System.out.println(r11);
+					        		yield 1; \s
+					        }\s
+					        default -> 0;
+					    };\s
+					    System.out.println(res);
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -362,28 +367,29 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void _testIssue215_006() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-						+ "public class X {\n"
-						+ "  public static void printLowerRight(Rectangle r) {\n"
-						+ "    int res = switch(r) {\n"
-						+ "       case Rectangle(ColoredPoint(Point(int /*here*/xyz, int y), Color c),\n"
-						+ "                               ColoredPoint lr) r11  -> {\n"
-						+ "             System.out.println(xyz);\n"
-						+ "        		yield 1;  \n"
-						+ "        } \n"
-						+ "        default -> 0;\n"
-						+ "    }; \n"
-						+ "    System.out.println(res);\n"
-						+ "  }\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-						+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case Rectangle(ColoredPoint(Point(int /*here*/xyz, int y), Color c),
+					                               ColoredPoint lr) r11  -> {
+					             System.out.println(xyz);
+					        		yield 1; \s
+					        }\s
+					        default -> 0;
+					    };\s
+					    System.out.println(res);
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -408,28 +414,29 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void _testIssue215_007() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-						+ "public class X {\n"
-						+ "  public static void printLowerRight(Rectangle r) {\n"
-						+ "    int res = switch(r) {\n"
-						+ "       case Rectangle(ColoredPoint(Point(int xyz, int y), Color /*here*/c1),\n"
-						+ "                               ColoredPoint lr) r11  -> {\n"
-						+ "             System.out.println(c1);\n"
-						+ "        		yield 1;  \n"
-						+ "        } \n"
-						+ "        default -> 0;\n"
-						+ "    }; \n"
-						+ "    System.out.println(res);\n"
-						+ "  }\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-						+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case Rectangle(ColoredPoint(Point(int xyz, int y), Color /*here*/c1),
+					                               ColoredPoint lr) r11  -> {
+					             System.out.println(c1);
+					        		yield 1; \s
+					        }\s
+					        default -> 0;
+					    };\s
+					    System.out.println(res);
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -453,28 +460,29 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void testIssue215_008() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-						+ "public class X {\n"
-						+ "  public static void printLowerRight(Rectangle r) {\n"
-						+ "    int res = switch(r) {\n"
-						+ "       case Rectangle(ColoredPoint(Point(int xyz, int y), Color c1),\n"
-						+ "                               ColoredPoint lr)  -> {\n"
-						+ "             System.out.println(c1);\n"
-						+ "        		yield 1;  \n"
-						+ "        } \n"
-						+ "        default -> 0;\n"
-						+ "    }; \n"
-						+ "    System.out.println(res);\n"
-						+ "  }\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-						+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record /*here*/Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case Rectangle(ColoredPoint(Point(int xyz, int y), Color c1),
+					                               ColoredPoint lr)  -> {
+					             System.out.println(c1);
+					        		yield 1; \s
+					        }\s
+					        default -> 0;
+					    };\s
+					    System.out.println(res);
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record /*here*/Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -489,10 +497,11 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
 			SourceType local = (SourceType) elements[0];
 			search(local, REFERENCES, EXACT_RULE);
-			assertSearchResults("src/X.java void X.printLowerRight(Rectangle) [Point] EXACT_MATCH\n"
-					+ "src/X.java void X.main(String[]) [Point] EXACT_MATCH\n"
-					+ "src/X.java void X.main(String[]) [Point] EXACT_MATCH\n"
-					+ "src/X.java ColoredPoint.p [Point] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java void X.printLowerRight(Rectangle) [Point] EXACT_MATCH
+				src/X.java void X.main(String[]) [Point] EXACT_MATCH
+				src/X.java void X.main(String[]) [Point] EXACT_MATCH
+				src/X.java ColoredPoint.p [Point] EXACT_MATCH""");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -501,28 +510,29 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void testIssue215_009() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-						+ "public class X {\n"
-						+ "  public static void printLowerRight(Rectangle r) {\n"
-						+ "    int res = switch(r) {\n"
-						+ "       case Rectangle(ColoredPoint(Point(int xyz, int y), Color c1),\n"
-						+ "                               ColoredPoint lr)  -> {\n"
-						+ "             System.out.println(c1);\n"
-						+ "        		yield 1;  \n"
-						+ "        } \n"
-						+ "        default -> 0;\n"
-						+ "    }; \n"
-						+ "    System.out.println(res);\n"
-						+ "  }\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-						+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record /*here*/Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record /*here*/ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case Rectangle(ColoredPoint(Point(int xyz, int y), Color c1),
+					                               ColoredPoint lr)  -> {
+					             System.out.println(c1);
+					        		yield 1; \s
+					        }\s
+					        default -> 0;
+					    };\s
+					    System.out.println(res);
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record /*here*/Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record /*here*/ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -552,28 +562,29 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void testIssue215_010() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-						+ "public class X {\n"
-						+ "  public static void printLowerRight(Rectangle r) {\n"
-						+ "    int res = switch(r) {\n"
-						+ "       case Rectangle(ColoredPoint(Point(int xyz, int y), Color c1),\n"
-						+ "                               ColoredPoint lr)  -> {\n"
-						+ "             System.out.println(c1);\n"
-						+ "        		yield 1;  \n"
-						+ "        } \n"
-						+ "        default -> 0;\n"
-						+ "    }; \n"
-						+ "    System.out.println(res);\n"
-						+ "  }\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-						+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record Point(int x, int y) {}\n"
-						+ "enum /*here*/Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case Rectangle(ColoredPoint(Point(int xyz, int y), Color c1),
+					                               ColoredPoint lr)  -> {
+					             System.out.println(c1);
+					        		yield 1; \s
+					        }\s
+					        default -> 0;
+					    };\s
+					    System.out.println(res);
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum /*here*/Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -603,36 +614,37 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void _testIssue215_011() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-						+ "public class X {\n"
-						+ "  public static void printLowerRight(Rectangle r) {\n"
-						+ "    int res = switch(r) {\n"
-						+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "                               ColoredPoint /*here*/lr) r1  -> {\n"
-						+ "    				System.out.println(\"x= \" + x);\n"
-						+ "    				System.out.println(\"y= \" + y);\n"
-						+ "    				System.out.println(\"lr= \" + lr);\n"
-						+ "    				System.out.println(\"lr.c()= \" + lr.c());\n"
-						+ "    				System.out.println(\"lr.p()= \" + lr.p());\n"
-						+ "    				System.out.println(\"lr.p().x()= \" + lr.p().x());\n"
-						+ "    				System.out.println(\"lr.p().y()= \" + lr.p().y());\n"
-						+ "    				System.out.println(\"c= \" + c);\n"
-						+ "    				System.out.println(\"r1= \" + r1);\n"
-						+ "        		yield x;  \n"
-						+ "        } \n"
-						+ "        default -> 0;\n"
-						+ "    }; \n"
-						+ "    System.out.println(\"Returns: \" + res);\n"
-						+ "  }\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
-						+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+					  public static void printLowerRight(Rectangle r) {
+					    int res = switch(r) {
+					       case Rectangle(ColoredPoint(Point(int x, int y), Color c),
+					                               ColoredPoint /*here*/lr) r1  -> {
+					    				System.out.println("x= " + x);
+					    				System.out.println("y= " + y);
+					    				System.out.println("lr= " + lr);
+					    				System.out.println("lr.c()= " + lr.c());
+					    				System.out.println("lr.p()= " + lr.p());
+					    				System.out.println("lr.p().x()= " + lr.p().x());
+					    				System.out.println("lr.p().y()= " + lr.p().y());
+					    				System.out.println("c= " + c);
+					    				System.out.println("r1= " + r1);
+					        		yield x; \s
+					        }\s
+					        default -> 0;
+					    };\s
+					    System.out.println("Returns: " + res);
+					  }
+					  public static void main(String[] args) {
+					    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE),\s
+					        new ColoredPoint(new Point(30, 10), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -663,27 +675,29 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void _testIssue215_0012() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"@SuppressWarnings(\"preview\")"
-						+ "public class X {\n"
-						+ "	 @SuppressWarnings(\"preview\")\n"
-						+ "	public static void print(Pair p) {\n"
-						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, Integer i)) /*here*/r1) {                \n"
-						+ "			 System.out.println(n1.getClass().getTypeName() + \":\" + n1 + \",\" + r1); \n"
-						+ "			 System.out.println(\"MORE\" + r1);\n"
-						+ "		 } else {                         \n"
-						+ "			 System.out.println(\"ELSE\");\n"
-						+ "		 } \n"
-						+ "  }\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    print(new Pair(new Teacher(\"123\"), new Student(\"abc\", 10)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "sealed interface Person permits Student, Teacher {\n"
-						+ "    String name();\n"
-						+ "}\n"
-						+ " record Student(String name, Integer id) implements Person {}\n"
-						+ " record Teacher(String name) implements Person {}\n"
-						+ " record Pair(Person s, Person s1) {}\n"
+				"""
+					@SuppressWarnings("preview")\
+					public class X {
+						 @SuppressWarnings("preview")
+						public static void print(Pair p) {
+					    if (p instanceof Pair(Teacher(Object n), Student(Object n1, Integer i)) /*here*/r1) {               \s
+								 System.out.println(n1.getClass().getTypeName() + ":" + n1 + "," + r1);\s
+								 System.out.println("MORE" + r1);
+							 } else {                        \s
+								 System.out.println("ELSE");
+							 }\s
+					  }
+					  public static void main(String[] args) {
+					    print(new Pair(new Teacher("123"), new Student("abc", 10)));
+					  }
+					}
+					sealed interface Person permits Student, Teacher {
+					    String name();
+					}
+					 record Student(String name, Integer id) implements Person {}
+					 record Teacher(String name) implements Person {}
+					 record Pair(Person s, Person s1) {}
+					"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -708,22 +722,23 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void testIssue344_001() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n"
-						+ "  static void print(Rectangle r) {\n"
-						+ "    if (r instanceof Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "                               ColoredPoint lr)) {\n"
-						+ "        System.out.println(\"Upper-left corner: \" + /*here*/lr);\n"
-						+ "    }\n"
-						+ "  }\n"
-						+ "  public static void main(String[] obj) {\n"
-						+ "    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
-						+ "                               new ColoredPoint(new Point(10, 15), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					public class X {
+					  static void print(Rectangle r) {
+					    if (r instanceof Rectangle(ColoredPoint(Point(int x, int y), Color c),
+					                               ColoredPoint lr)) {
+					        System.out.println("Upper-left corner: " + /*here*/lr);
+					    }
+					  }
+					  public static void main(String[] obj) {
+					    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE),\s
+					                               new ColoredPoint(new Point(10, 15), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -746,25 +761,26 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void testIssue344_002() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n"
-						+ "  static void print(Rectangle r) {\n"
-						+ "switch (r) {\n"
-						+ "case Rectangle r1 when (r instanceof Rectangle(ColoredPoint upperLeft2, ColoredPoint lowerRight)):\n"
-						+ "	System.out.println( /*here*/upperLeft2);\n"
-						+ "	break;\n"
-						+ "	default :\n"
-						+ "		break;\n"
-						+ "	} \n"
-						+ "  }\n"
-						+ "  public static void main(String[] obj) {\n"
-						+ "    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
-						+ "                               new ColoredPoint(new Point(10, 15), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				"""
+					public class X {
+					  static void print(Rectangle r) {
+					switch (r) {
+					case Rectangle r1 when (r instanceof Rectangle(ColoredPoint upperLeft2, ColoredPoint lowerRight)):
+						System.out.println( /*here*/upperLeft2);
+						break;
+						default :
+							break;
+						}\s
+					  }
+					  public static void main(String[] obj) {
+					    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE),\s
+					                               new ColoredPoint(new Point(10, 15), Color.RED)));
+					  }
+					}
+					record Point(int x, int y) {}
+					enum Color { RED, GREEN, BLUE }
+					record ColoredPoint(Point p, Color c) {}
+					record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		// working copies
@@ -787,27 +803,28 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	public void testIssue708_1() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class Test1 {\n"
-				+ "	public void test(Type type, String string) {\n"
-				+ "		switch (type) {\n"
-				+ "		case openDeclarationFails -> {\n"
-				+ "			switch (string) {\n"
-				+ "			case \"Test\" -> method(Type.openDeclarationFails);\n"
-				+ "			}\n"
-				+ "			method(Type.openDeclarationFails);\n"
-				+ "		}\n"
-				+ "		case anotherValue -> {\n"
-				+ "			switch (string) {\n"
-				+ "			case \"Test\" -> method(Type.anotherValue);\n"
-				+ "			}\n"
-				+ "		}\n"
-				+ "		}\n"
-				+ "	}\n"
-				+ "	private void method(Type relay) {}\n"
-				+ "	static public enum Type {\n"
-				+ "		openDeclarationFails, anotherValue;\n"
-				+ "	}\n"
-				+ "}"
+				"""
+					public class Test1 {
+						public void test(Type type, String string) {
+							switch (type) {
+							case openDeclarationFails -> {
+								switch (string) {
+								case "Test" -> method(Type.openDeclarationFails);
+								}
+								method(Type.openDeclarationFails);
+							}
+							case anotherValue -> {
+								switch (string) {
+								case "Test" -> method(Type.anotherValue);
+								}
+							}
+							}
+						}
+						private void method(Type relay) {}
+						static public enum Type {
+							openDeclarationFails, anotherValue;
+						}
+					}"""
 				);
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -843,10 +860,11 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 			local = (IField) elements[0];
 			this.resultCollector.clear();
 			search(local, ALL_OCCURRENCES, EXACT_RULE);
-			assertSearchResults("src/X.java void Test1.test(Type, String) [openDeclarationFails] EXACT_MATCH\n" +
-					"src/X.java void Test1.test(Type, String) [openDeclarationFails] EXACT_MATCH\n" +
-					"src/X.java void Test1.test(Type, String) [openDeclarationFails] EXACT_MATCH\n" +
-					"src/X.java Test1$Type.openDeclarationFails [openDeclarationFails] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java void Test1.test(Type, String) [openDeclarationFails] EXACT_MATCH
+				src/X.java void Test1.test(Type, String) [openDeclarationFails] EXACT_MATCH
+				src/X.java void Test1.test(Type, String) [openDeclarationFails] EXACT_MATCH
+				src/X.java Test1$Type.openDeclarationFails [openDeclarationFails] EXACT_MATCH""");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}

@@ -109,312 +109,326 @@ public class NegativeModelProc extends AbstractProcessor
 	 * Reference model for types in Negative4 test
 	 */
 	private static final String NEGATIVE_4_MODEL =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-		"<model>\n" +
-		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative4\" sname=\"Negative4\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" +
-		"  </superclass>\n" +
-		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" +
-		"  <executable-element kind=\"METHOD\" sname=\"zorkRaw\"/>\n" +
-		"  <executable-element kind=\"METHOD\" sname=\"zorkOfString\"/>\n" +
-		"  <executable-element kind=\"METHOD\" sname=\"ifooOfString\" optional=\"true\"/>\n" +
-		"  <executable-element kind=\"METHOD\" sname=\"ibarRaw\"/>\n" +
-		"  <executable-element kind=\"METHOD\" sname=\"ibarOfT1T2\" optional=\"true\"/>\n" +
-		" </type-element>\n" +
-		"</model>\n";
+		"""
+		<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+		<model>
+		 <type-element kind="CLASS" qname="targets.negative.pa.Negative4" sname="Negative4">
+		  <superclass>
+		   <type-mirror kind="DECLARED" to-string="java.lang.Object"/>
+		  </superclass>
+		  <executable-element kind="CONSTRUCTOR" sname="&lt;init&gt;"/>
+		  <executable-element kind="METHOD" sname="zorkRaw"/>
+		  <executable-element kind="METHOD" sname="zorkOfString"/>
+		  <executable-element kind="METHOD" sname="ifooOfString" optional="true"/>
+		  <executable-element kind="METHOD" sname="ibarRaw"/>
+		  <executable-element kind="METHOD" sname="ibarOfT1T2" optional="true"/>
+		 </type-element>
+		</model>
+		""";
 
 	/**
 	 * Reference model for types in Negative5 test
 	 */
 	private static final String NEGATIVE_5_MODEL =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-		"<model>\n" +
-		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative5\" sname=\"Negative5\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" +
-		"  </superclass>\n" +
-		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" +
-		"  <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative5.C1\" sname=\"C1\">\n" +
-		"   <superclass>\n" +
-		"    <type-mirror kind=\"ERROR\" to-string=\"M1\"/>\n" +
-		"   </superclass>\n" +
-		"   <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" +
-		"  </type-element>\n" +
-		"  <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative5.C2\" sname=\"C2\">\n" +
-		"   <superclass>\n" +
-		"    <type-mirror kind=\"ERROR\" to-string=\"java.lang.Object\"/>\n" +
-		"   </superclass>\n" +
-		"   <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" +
-		"  </type-element>\n" +
-		"  <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative5.I1\" sname=\"I1\">\n" +
-		"   <superclass>\n" +
-		"    <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"   </superclass>\n" +
-		"  </type-element>\n" +
-		"  <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative5.I2\" sname=\"I2\">\n" +
-		"   <superclass>\n" +
-		"    <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"   </superclass>\n" +
-		"  </type-element>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.INegative5\" sname=\"INegative5\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		"  <type-element kind=\"CLASS\" qname=\"targets.negative.pa.INegative5.C101\" sname=\"C101\">\n" +
-		"   <superclass>\n" +
-		"    <type-mirror kind=\"ERROR\" to-string=\"M101\"/>\n" +
-		"   </superclass>\n" +
-		"   <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" +
-		"  </type-element>\n" +
-		"  <type-element kind=\"CLASS\" qname=\"targets.negative.pa.INegative5.C102\" sname=\"C102\">\n" +
-		"   <superclass>\n" +
-		"    <type-mirror kind=\"ERROR\" to-string=\"java.lang.Object\"/>\n" +
-		"   </superclass>\n" +
-		"   <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" +
-		"  </type-element>\n" +
-		"  <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.INegative5.I101\" sname=\"I101\">\n" +
-		"   <superclass>\n" +
-		"    <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"   </superclass>\n" +
-		"  </type-element>\n" +
-		"  <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.INegative5.I102\" sname=\"I102\">\n" +
-		"   <superclass>\n" +
-		"    <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"   </superclass>\n" +
-		"  </type-element>\n" +
-		" </type-element>\n" +
-		"</model>";
+		"""
+		<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+		<model>
+		 <type-element kind="CLASS" qname="targets.negative.pa.Negative5" sname="Negative5">
+		  <superclass>
+		   <type-mirror kind="DECLARED" to-string="java.lang.Object"/>
+		  </superclass>
+		  <executable-element kind="CONSTRUCTOR" sname="&lt;init&gt;"/>
+		  <type-element kind="CLASS" qname="targets.negative.pa.Negative5.C1" sname="C1">
+		   <superclass>
+		    <type-mirror kind="ERROR" to-string="M1"/>
+		   </superclass>
+		   <executable-element kind="CONSTRUCTOR" sname="&lt;init&gt;"/>
+		  </type-element>
+		  <type-element kind="CLASS" qname="targets.negative.pa.Negative5.C2" sname="C2">
+		   <superclass>
+		    <type-mirror kind="ERROR" to-string="java.lang.Object"/>
+		   </superclass>
+		   <executable-element kind="CONSTRUCTOR" sname="&lt;init&gt;"/>
+		  </type-element>
+		  <type-element kind="INTERFACE" qname="targets.negative.pa.Negative5.I1" sname="I1">
+		   <superclass>
+		    <type-mirror kind="NONE" to-string="none"/>
+		   </superclass>
+		  </type-element>
+		  <type-element kind="INTERFACE" qname="targets.negative.pa.Negative5.I2" sname="I2">
+		   <superclass>
+		    <type-mirror kind="NONE" to-string="none"/>
+		   </superclass>
+		  </type-element>
+		 </type-element>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.INegative5" sname="INegative5">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		  <type-element kind="CLASS" qname="targets.negative.pa.INegative5.C101" sname="C101">
+		   <superclass>
+		    <type-mirror kind="ERROR" to-string="M101"/>
+		   </superclass>
+		   <executable-element kind="CONSTRUCTOR" sname="&lt;init&gt;"/>
+		  </type-element>
+		  <type-element kind="CLASS" qname="targets.negative.pa.INegative5.C102" sname="C102">
+		   <superclass>
+		    <type-mirror kind="ERROR" to-string="java.lang.Object"/>
+		   </superclass>
+		   <executable-element kind="CONSTRUCTOR" sname="&lt;init&gt;"/>
+		  </type-element>
+		  <type-element kind="INTERFACE" qname="targets.negative.pa.INegative5.I101" sname="I101">
+		   <superclass>
+		    <type-mirror kind="NONE" to-string="none"/>
+		   </superclass>
+		  </type-element>
+		  <type-element kind="INTERFACE" qname="targets.negative.pa.INegative5.I102" sname="I102">
+		   <superclass>
+		    <type-mirror kind="NONE" to-string="none"/>
+		   </superclass>
+		  </type-element>
+		 </type-element>
+		</model>""";
 
 	/**
 	 * Reference model for class Negative6.
 	 */
 	private static final String NEGATIVE_6_MODEL =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-		"<model>\n" +
-		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative6\" sname=\"Negative6\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" +
-		"  </superclass>\n" +
-		"  <executable-element kind=\"METHOD\" sname=\"method1\">\n" +
-		"   <annotations>\n" +
-		"    <annotation sname=\"M11\"/>\n" +
-		"   </annotations>\n" +
-		"   <variable-element kind=\"PARAMETER\" sname=\"arg0\" type=\"M16\">\n" +
-		"    <annotations>\n" +
-		"     <annotation sname=\"M13\"/>\n" +
-		"    </annotations>\n" +
-		"   </variable-element>\n" +
-		"  </executable-element>\n" +
-		"  <executable-element kind=\"METHOD\" sname=\"method2\">\n" +
-		"   <annotations>\n" +
-		"    <annotation sname=\"M21\"/>\n" +
-		"   </annotations>\n" +
-		"   <variable-element kind=\"PARAMETER\" sname=\"arg0\" type=\"int\">\n" +
-		"    <annotations>\n" +
-		"     <annotation sname=\"M22\"/>\n" +
-		"    </annotations>\n" +
-		"   </variable-element>\n" +
-		"  </executable-element>\n" +
-		"  <executable-element kind=\"METHOD\" sname=\"method3\">\n" +
-		"   <variable-element kind=\"PARAMETER\" sname=\"arg0\" type=\"java.lang.String\">\n" +
-		"    <annotations>\n" +
-		"     <annotation sname=\"M31\"/>\n" +
-		"    </annotations>\n" +
-		"   </variable-element>\n" +
-		"   <variable-element kind=\"PARAMETER\" sname=\"arg1\" type=\"java.lang.String\">\n" +
-		"    <annotations>\n" +
-		"     <annotation sname=\"M32\"/>\n" +
-		"    </annotations>\n" +
-		"   </variable-element>\n" +
-		"  </executable-element>\n" +
-		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\">\n" +
-		"   <annotations>\n" +
-		"    <annotation sname=\"M41\"/>\n" +
-		"   </annotations>\n" +
-		"   <variable-element kind=\"PARAMETER\" sname=\"arg0\" type=\"M43\">\n" +
-		"    <annotations>\n" +
-		"     <annotation sname=\"M42\"/>\n" +
-		"    </annotations>\n" +
-		"   </variable-element>\n" +
-		"  </executable-element>\n" +
-		" </type-element>\n" +
-		"</model>";
+		"""
+		<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+		<model>
+		 <type-element kind="CLASS" qname="targets.negative.pa.Negative6" sname="Negative6">
+		  <superclass>
+		   <type-mirror kind="DECLARED" to-string="java.lang.Object"/>
+		  </superclass>
+		  <executable-element kind="METHOD" sname="method1">
+		   <annotations>
+		    <annotation sname="M11"/>
+		   </annotations>
+		   <variable-element kind="PARAMETER" sname="arg0" type="M16">
+		    <annotations>
+		     <annotation sname="M13"/>
+		    </annotations>
+		   </variable-element>
+		  </executable-element>
+		  <executable-element kind="METHOD" sname="method2">
+		   <annotations>
+		    <annotation sname="M21"/>
+		   </annotations>
+		   <variable-element kind="PARAMETER" sname="arg0" type="int">
+		    <annotations>
+		     <annotation sname="M22"/>
+		    </annotations>
+		   </variable-element>
+		  </executable-element>
+		  <executable-element kind="METHOD" sname="method3">
+		   <variable-element kind="PARAMETER" sname="arg0" type="java.lang.String">
+		    <annotations>
+		     <annotation sname="M31"/>
+		    </annotations>
+		   </variable-element>
+		   <variable-element kind="PARAMETER" sname="arg1" type="java.lang.String">
+		    <annotations>
+		     <annotation sname="M32"/>
+		    </annotations>
+		   </variable-element>
+		  </executable-element>
+		  <executable-element kind="CONSTRUCTOR" sname="&lt;init&gt;">
+		   <annotations>
+		    <annotation sname="M41"/>
+		   </annotations>
+		   <variable-element kind="PARAMETER" sname="arg0" type="M43">
+		    <annotations>
+		     <annotation sname="M42"/>
+		    </annotations>
+		   </variable-element>
+		  </executable-element>
+		 </type-element>
+		</model>""";
 
 	/**
 	 * Reference model for class Negative7.
 	 */
 	private static final String NEGATIVE_7_MODEL =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-		"<model>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative7\" sname=\"Negative7\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		"  <executable-element kind=\"METHOD\" sname=\"method1\">\n" +
-		"   <annotations>\n" +
-		"    <annotation sname=\"A1\"/>\n" +
-		"   </annotations>\n" +
-		"   <variable-element kind=\"PARAMETER\" sname=\"arg0\" type=\"int\">\n" +
-		"    <annotations>\n" +
-		"     <annotation sname=\"A1\"/>\n" +
-		"    </annotations>\n" +
-		"   </variable-element>\n" +
-		"  </executable-element>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative7A\" sname=\"Negative7A\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		"  <interfaces>\n" +
-		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Cloneable\"/>\n" +
-		"  </interfaces>\n" +
-		"  <executable-element kind=\"METHOD\" sname=\"method1\">\n" +
-		"   <annotations>\n" +
-		"    <annotation sname=\"A1\"/>\n" +
-		"   </annotations>\n" +
-		"   <variable-element kind=\"PARAMETER\" sname=\"arg0\" type=\"int\">\n" +
-		"    <annotations>\n" +
-		"     <annotation sname=\"A1\"/>\n" +
-		"    </annotations>\n" +
-		"   </variable-element>\n" +
-		"  </executable-element>\n" +
-		" </type-element>\n" +
-		"</model>\n";
+		"""
+		<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+		<model>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative7" sname="Negative7">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		  <executable-element kind="METHOD" sname="method1">
+		   <annotations>
+		    <annotation sname="A1"/>
+		   </annotations>
+		   <variable-element kind="PARAMETER" sname="arg0" type="int">
+		    <annotations>
+		     <annotation sname="A1"/>
+		    </annotations>
+		   </variable-element>
+		  </executable-element>
+		 </type-element>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative7A" sname="Negative7A">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		  <interfaces>
+		   <type-mirror kind="DECLARED" to-string="java.lang.Cloneable"/>
+		  </interfaces>
+		  <executable-element kind="METHOD" sname="method1">
+		   <annotations>
+		    <annotation sname="A1"/>
+		   </annotations>
+		   <variable-element kind="PARAMETER" sname="arg0" type="int">
+		    <annotations>
+		     <annotation sname="A1"/>
+		    </annotations>
+		   </variable-element>
+		  </executable-element>
+		 </type-element>
+		</model>
+		""";
 	/**
 	 * Reference model for class Negative8.
 	 */
 	private static final String NEGATIVE_8_MODEL =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-		"<model>\n" +
-		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative8a\" sname=\"Negative8a\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" +
-		"  </superclass>\n" +
-		"  <interfaces>\n" +
-		"   <type-mirror kind=\"ERROR\" to-string=\"RemoteNegative8a\"/>\n" +
-		"  </interfaces>\n" +
-		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8b\" sname=\"Negative8b\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		"  <interfaces>\n" +
-		"   <type-mirror kind=\"ERROR\" to-string=\"RemoteNegative8a\"/>\n" +
-		"  </interfaces>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative8c\" sname=\"Negative8c\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" +
-		"  </superclass>\n" +
-		"  <interfaces>\n" +
-		"   <type-mirror kind=\"ERROR\" to-string=\"RemoteNegative8b&lt;T&gt;\"/>\n" +
-		"  </interfaces>\n" +
-		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8d\" sname=\"Negative8d\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		"  <interfaces>\n" +
-		"   <type-mirror kind=\"ERROR\" to-string=\"RemoteNegative8b&lt;T&gt;\"/>\n" +
-		"  </interfaces>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8e\" sname=\"Negative8e\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		"  <interfaces>\n" +
-		"   <type-mirror kind=\"ERROR\" to-string=\"targets.negative.pa.Negative8f&lt;T&gt;\"/>\n" +
-		"  </interfaces>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8f\" sname=\"Negative8f\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		" </type-element>\n" +
-		"</model>\n";
+		"""
+		<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+		<model>
+		 <type-element kind="CLASS" qname="targets.negative.pa.Negative8a" sname="Negative8a">
+		  <superclass>
+		   <type-mirror kind="DECLARED" to-string="java.lang.Object"/>
+		  </superclass>
+		  <interfaces>
+		   <type-mirror kind="ERROR" to-string="RemoteNegative8a"/>
+		  </interfaces>
+		  <executable-element kind="CONSTRUCTOR" sname="&lt;init&gt;"/>
+		 </type-element>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative8b" sname="Negative8b">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		  <interfaces>
+		   <type-mirror kind="ERROR" to-string="RemoteNegative8a"/>
+		  </interfaces>
+		 </type-element>
+		 <type-element kind="CLASS" qname="targets.negative.pa.Negative8c" sname="Negative8c">
+		  <superclass>
+		   <type-mirror kind="DECLARED" to-string="java.lang.Object"/>
+		  </superclass>
+		  <interfaces>
+		   <type-mirror kind="ERROR" to-string="RemoteNegative8b&lt;T&gt;"/>
+		  </interfaces>
+		  <executable-element kind="CONSTRUCTOR" sname="&lt;init&gt;"/>
+		 </type-element>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative8d" sname="Negative8d">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		  <interfaces>
+		   <type-mirror kind="ERROR" to-string="RemoteNegative8b&lt;T&gt;"/>
+		  </interfaces>
+		 </type-element>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative8e" sname="Negative8e">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		  <interfaces>
+		   <type-mirror kind="ERROR" to-string="targets.negative.pa.Negative8f&lt;T&gt;"/>
+		  </interfaces>
+		 </type-element>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative8f" sname="Negative8f">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		 </type-element>
+		</model>
+		""";
 
 	/*
 	 * Reference model for class Negative8.
 	 */
 	private static final String NEGATIVE_8_MODEL_VERSION6 =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-		"<model>\n" +
-		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative8a\" sname=\"Negative8a\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" +
-		"  </superclass>\n" +
-		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8b\" sname=\"Negative8b\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative8c\" sname=\"Negative8c\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" +
-		"  </superclass>\n" +
-		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8d\" sname=\"Negative8d\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8e\" sname=\"Negative8e\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8f\" sname=\"Negative8f\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		" </type-element>\n" +
-		"</model>\n";
+		"""
+		<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+		<model>
+		 <type-element kind="CLASS" qname="targets.negative.pa.Negative8a" sname="Negative8a">
+		  <superclass>
+		   <type-mirror kind="DECLARED" to-string="java.lang.Object"/>
+		  </superclass>
+		  <executable-element kind="CONSTRUCTOR" sname="&lt;init&gt;"/>
+		 </type-element>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative8b" sname="Negative8b">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		 </type-element>
+		 <type-element kind="CLASS" qname="targets.negative.pa.Negative8c" sname="Negative8c">
+		  <superclass>
+		   <type-mirror kind="DECLARED" to-string="java.lang.Object"/>
+		  </superclass>
+		  <executable-element kind="CONSTRUCTOR" sname="&lt;init&gt;"/>
+		 </type-element>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative8d" sname="Negative8d">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		 </type-element>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative8e" sname="Negative8e">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		 </type-element>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative8f" sname="Negative8f">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		 </type-element>
+		</model>
+		""";
 
 	/**
 	 * Reference model for types in Negative1 test
 	 */
 	private static final String NEGATIVE_9_MODEL =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-		"<model>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative9a\" sname=\"Negative9a\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative9b\" sname=\"Negative9b\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		"  <interfaces>\n" +
-		"   <type-mirror kind=\"ERROR\" to-string=\"targets.negative.pa.Negative9a&lt;T&gt;\"/>\n" +
-		"  </interfaces>\n" +
-		" </type-element>\n" +
-		"</model>\n";
+		"""
+		<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+		<model>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative9a" sname="Negative9a">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		 </type-element>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative9b" sname="Negative9b">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		  <interfaces>
+		   <type-mirror kind="ERROR" to-string="targets.negative.pa.Negative9a&lt;T&gt;"/>
+		  </interfaces>
+		 </type-element>
+		</model>
+		""";
 
 	/**
 	 * Reference model for types in Negative1 test
 	 */
 	private static final String NEGATIVE_9_MODEL_VERSION6 =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-		"<model>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative9a\" sname=\"Negative9a\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		" </type-element>\n" +
-		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative9b\" sname=\"Negative9b\">\n" +
-		"  <superclass>\n" +
-		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" +
-		"  </superclass>\n" +
-		" </type-element>\n" +
-		"</model>\n";
+		"""
+		<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+		<model>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative9a" sname="Negative9a">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		 </type-element>
+		 <type-element kind="INTERFACE" qname="targets.negative.pa.Negative9b" sname="Negative9b">
+		  <superclass>
+		   <type-mirror kind="NONE" to-string="none"/>
+		  </superclass>
+		 </type-element>
+		</model>
+		""";
 
 	/**
 	 * Declare this option (-AignoreJavacBugs) to ignore failures of cases that are

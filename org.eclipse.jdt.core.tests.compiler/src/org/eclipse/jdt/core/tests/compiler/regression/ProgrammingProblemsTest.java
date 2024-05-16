@@ -118,10 +118,12 @@ public void test0001_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo(boolean b) {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo(boolean b) {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		null /* warningOptions */,
@@ -143,10 +145,12 @@ public void test0002_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo(boolean b) {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo(boolean b) {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -154,12 +158,14 @@ public void test0002_unread_parameters() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	public void foo(boolean b) {\n" +
-		"	                        ^\n" +
-		"The value of the parameter b is not used\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 2)
+				public void foo(boolean b) {
+				                        ^
+			The value of the parameter b is not used
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -179,11 +185,13 @@ public void test0003_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"/** @param b mute warning **/\n" +
-			"  public void foo(boolean b) {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				/** @param b mute warning **/
+				  public void foo(boolean b) {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -213,11 +221,13 @@ public void test0004_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"/** @param b mute warning **/\n" +
-			"  public void foo(boolean b) {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				/** @param b mute warning **/
+				  public void foo(boolean b) {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -225,12 +235,14 @@ public void test0004_unread_parameters() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	public void foo(boolean b) {\n" +
-		"	                        ^\n" +
-		"The value of the parameter b is not used\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				public void foo(boolean b) {
+				                        ^
+			The value of the parameter b is not used
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -279,10 +291,12 @@ public void test0006_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo(boolean b) {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo(boolean b) {
+				  }
+				}
+				"""
 			},
 		new String[] {
 			CompilerOptions.OPTION_ReportUnusedParameter
@@ -290,12 +304,14 @@ public void test0006_unread_parameters() {
 		null /* warningOptions */,
 		null /* ignoreOptions */,
 		true /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public void foo(boolean b) {\n" +
-		"	                        ^\n" +
-		"The value of the parameter b is not used\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				public void foo(boolean b) {
+				                        ^
+			The value of the parameter b is not used
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -311,11 +327,13 @@ public void test0007_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public void foo() throws IOException {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.IOException;
+				public class X {
+				  public void foo() throws IOException {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		null /* warningOptions */,
@@ -337,11 +355,13 @@ public void test0008_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public void foo() throws IOException {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.IOException;
+				public class X {
+				  public void foo() throws IOException {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -349,12 +369,14 @@ public void test0008_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	public void foo() throws IOException {\n" +
-		"	                         ^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo() from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				public void foo() throws IOException {
+				                         ^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo() from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -376,12 +398,14 @@ public void test0009_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"/** @throws IOException mute warning **/\n" +
-			"  public void foo() throws IOException {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.IOException;
+				public class X {
+				/** @throws IOException mute warning **/
+				  public void foo() throws IOException {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -413,12 +437,14 @@ public void test0010_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"/** @throws IOException mute warning **/\n" +
-			"  public void foo() throws IOException {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.IOException;
+				public class X {
+				/** @throws IOException mute warning **/
+				  public void foo() throws IOException {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -426,12 +452,14 @@ public void test0010_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	public void foo() throws IOException {\n" +
-		"	                         ^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo() from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				public void foo() throws IOException {
+				                         ^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo() from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -479,11 +507,13 @@ public void test0012_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  public void foo() throws IOException {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.IOException;
+				public class X {
+				  public void foo() throws IOException {
+				  }
+				}
+				"""
 			},
 		new String[] {
 			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
@@ -491,12 +521,14 @@ public void test0012_declared_thrown_checked_exceptions() {
 		null /* warningOptions */,
 		null /* ignoreOptions */,
 		true /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	public void foo() throws IOException {\n" +
-		"	                         ^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo() from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				public void foo() throws IOException {
+				                         ^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo() from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -518,13 +550,15 @@ public void test0013_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"import java.io.EOFException;\n" +
-			"public class X {\n" +
-			"/** @throws EOFException does not mute warning for IOException **/\n" +
-			"  public void foo() throws IOException {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.io.IOException;
+				import java.io.EOFException;
+				public class X {
+				/** @throws EOFException does not mute warning for IOException **/
+				  public void foo() throws IOException {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -532,12 +566,14 @@ public void test0013_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
-		"	public void foo() throws IOException {\n" +
-		"	                         ^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo() from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 5)
+				public void foo() throws IOException {
+				                         ^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo() from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -553,10 +589,12 @@ public void test0014_declared_thrown_checked_exceptions_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  void foo(int unused) throws IOException {}\n" +
-			"}\n"
+			"""
+				import java.io.IOException;
+				public class X {
+				  void foo(int unused) throws IOException {}
+				}
+				"""
 			},
 		new String[] {
 			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
@@ -566,17 +604,19 @@ public void test0014_declared_thrown_checked_exceptions_unread_parameters() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		true /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	void foo(int unused) throws IOException {}\n" +
-		"	             ^^^^^^\n" +
-		"The value of the parameter unused is not used\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
-		"	void foo(int unused) throws IOException {}\n" +
-		"	                            ^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				void foo(int unused) throws IOException {}
+				             ^^^^^^
+			The value of the parameter unused is not used
+			----------
+			2. ERROR in X.java (at line 3)
+				void foo(int unused) throws IOException {}
+				                            ^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo(int) from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -593,10 +633,12 @@ public void test0015_declared_thrown_checked_exceptions_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" +
-			"public class X {\n" +
-			"  void foo(int unused) throws IOException {}\n" +
-			"}\n"
+			"""
+				import java.io.IOException;
+				public class X {
+				  void foo(int unused) throws IOException {}
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -605,17 +647,19 @@ public void test0015_declared_thrown_checked_exceptions_unread_parameters() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	void foo(int unused) throws IOException {}\n" +
-		"	             ^^^^^^\n" +
-		"The value of the parameter unused is not used\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 3)\n" +
-		"	void foo(int unused) throws IOException {}\n" +
-		"	                            ^^^^^^^^^^^\n" +
-		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				void foo(int unused) throws IOException {}
+				             ^^^^^^
+			The value of the parameter unused is not used
+			----------
+			2. WARNING in X.java (at line 3)
+				void foo(int unused) throws IOException {}
+				                            ^^^^^^^^^^^
+			The declared exception IOException is not actually thrown by the method foo(int) from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -631,10 +675,12 @@ public void test0016_unread_parameters_constructor() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public X(boolean b) {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public X(boolean b) {
+				  }
+				}
+				"""
 			},
 		new String[] {
 			CompilerOptions.OPTION_ReportUnusedParameter
@@ -642,12 +688,14 @@ public void test0016_unread_parameters_constructor() {
 		null /* warningOptions */,
 		null /* ignoreOptions */,
 		true /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public X(boolean b) {\n" +
-		"	                 ^\n" +
-		"The value of the parameter b is not used\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				public X(boolean b) {
+				                 ^
+			The value of the parameter b is not used
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -663,17 +711,21 @@ public void test0017_shadowing_package_visible_methods() {
 	runTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package p;
+				public class X {
+				  void foo() {
+				  }
+				}
+				""",
 			"q/Y.java",
-			"package q;\n" +
-			"public class Y extends p.X {\n" +
-			"  void foo() {\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package q;
+				public class Y extends p.X {
+				  void foo() {
+				  }
+				}
+				""",
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -681,12 +733,14 @@ public void test0017_shadowing_package_visible_methods() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in q\\Y.java (at line 3)\n" +
-		"	void foo() {\n" +
-		"	     ^^^^^\n" +
-		"The method Y.foo() does not override the inherited method from X since it is private to a different package\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in q\\Y.java (at line 3)
+				void foo() {
+				     ^^^^^
+			The method Y.foo() does not override the inherited method from X since it is private to a different package
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -708,10 +762,12 @@ public void test0018_declared_thrown_unchecked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() throws ArithmeticException {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo() throws ArithmeticException {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		null /* warningOptions */,
@@ -732,10 +788,12 @@ public void test0019_declared_thrown_unchecked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() throws RuntimeException {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo() throws RuntimeException {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		null /* warningOptions */,
@@ -756,10 +814,12 @@ public void test0020_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() throws Exception {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo() throws Exception {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		null /* warningOptions */,
@@ -780,10 +840,12 @@ public void test0021_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() throws Throwable {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo() throws Throwable {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		null /* warningOptions */,
@@ -811,10 +873,12 @@ public void test0022_declared_thrown_unchecked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() throws ArithmeticException {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo() throws ArithmeticException {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -844,10 +908,12 @@ public void test0023_declared_thrown_unchecked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() throws Exception {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo() throws Exception {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -855,12 +921,14 @@ public void test0023_declared_thrown_unchecked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	public void foo() throws Exception {\n" +
-		"	                         ^^^^^^^^^\n" +
-		"The declared exception Exception is not actually thrown by the method foo() from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 2)
+				public void foo() throws Exception {
+				                         ^^^^^^^^^
+			The declared exception Exception is not actually thrown by the method foo() from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -881,10 +949,12 @@ public void test0024_declared_thrown_unchecked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() throws RuntimeException {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo() throws RuntimeException {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -914,10 +984,12 @@ public void test0025_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() throws Exception {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo() throws Exception {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -925,12 +997,14 @@ public void test0025_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	public void foo() throws Exception {\n" +
-		"	                         ^^^^^^^^^\n" +
-		"The declared exception Exception is not actually thrown by the method foo() from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 2)
+				public void foo() throws Exception {
+				                         ^^^^^^^^^
+			The declared exception Exception is not actually thrown by the method foo() from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -952,10 +1026,12 @@ public void test0026_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() throws Throwable {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo() throws Throwable {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -963,12 +1039,14 @@ public void test0026_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	public void foo() throws Throwable {\n" +
-		"	                         ^^^^^^^^^\n" +
-		"The declared exception Throwable is not actually thrown by the method foo() from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 2)
+				public void foo() throws Throwable {
+				                         ^^^^^^^^^
+			The declared exception Throwable is not actually thrown by the method foo() from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -993,11 +1071,13 @@ public void test0027_declared_thrown_unchecked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"/** @throws Exception mute warning **/\n" +
-			"  public void foo() throws Exception {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				/** @throws Exception mute warning **/
+				  public void foo() throws Exception {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -1032,11 +1112,13 @@ public void test0028_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"/** @throws Exception mute warning **/\n" +
-			"  public void foo() throws Exception {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				/** @throws Exception mute warning **/
+				  public void foo() throws Exception {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -1044,12 +1126,14 @@ public void test0028_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	public void foo() throws Exception {\n" +
-		"	                         ^^^^^^^^^\n" +
-		"The declared exception Exception is not actually thrown by the method foo() from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				public void foo() throws Exception {
+				                         ^^^^^^^^^
+			The declared exception Exception is not actually thrown by the method foo() from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -1106,10 +1190,12 @@ public void test0030_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() throws Exception {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo() throws Exception {
+				  }
+				}
+				"""
 			},
 		new String[] {
 			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
@@ -1117,12 +1203,14 @@ public void test0030_declared_thrown_checked_exceptions() {
 		null /* warningOptions */,
 		null /* ignoreOptions */,
 		true /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public void foo() throws Exception {\n" +
-		"	                         ^^^^^^^^^\n" +
-		"The declared exception Exception is not actually thrown by the method foo() from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				public void foo() throws Exception {
+				                         ^^^^^^^^^
+			The declared exception Exception is not actually thrown by the method foo() from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -1147,11 +1235,13 @@ public void test0031_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"/** @throws Throwable does not mute warning for Exception **/\n" +
-			"  public void foo() throws Exception {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				/** @throws Throwable does not mute warning for Exception **/
+				  public void foo() throws Exception {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -1159,12 +1249,14 @@ public void test0031_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	public void foo() throws Exception {\n" +
-		"	                         ^^^^^^^^^\n" +
-		"The declared exception Exception is not actually thrown by the method foo() from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				public void foo() throws Exception {
+				                         ^^^^^^^^^
+			The declared exception Exception is not actually thrown by the method foo() from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -1185,10 +1277,12 @@ public void test0032_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() throws Error {\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo() throws Error {
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -1217,16 +1311,18 @@ public void test0033_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public void foo() throws Exception {\n" +
-			"    if (bar()) {\n" +
-			"      throw new Exception();\n" +
-			"    }\n" +
-			"  }\n" +
-			"  boolean bar() {\n" +
-			"    return true;\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				public class X {
+				  public void foo() throws Exception {
+				    if (bar()) {
+				      throw new Exception();
+				    }
+				  }
+				  boolean bar() {
+				    return true;
+				  }
+				}
+				"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -1254,18 +1350,19 @@ public void test0034_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static final class MyError extends Error {\n" +
-			"    private static final long serialVersionUID = 1L;\n" +
-			"  }\n" +
-			"  public void foo() throws Throwable {\n" +
-			"    try {\n" +
-			"      bar();\n" +
-			"    } catch (MyError e) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"  private void bar() {}\n" +
-			"}"
+			"""
+				public class X {
+				  public static final class MyError extends Error {
+				    private static final long serialVersionUID = 1L;
+				  }
+				  public void foo() throws Throwable {
+				    try {
+				      bar();
+				    } catch (MyError e) {
+				    }
+				  }
+				  private void bar() {}
+				}"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -1273,12 +1370,14 @@ public void test0034_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
-		"	public void foo() throws Throwable {\n" +
-		"	                         ^^^^^^^^^\n" +
-		"The declared exception Throwable is not actually thrown by the method foo() from type X\n" +
-		"----------\n" /* expectedCompilerLog */,
+		"""
+			----------
+			1. WARNING in X.java (at line 5)
+				public void foo() throws Throwable {
+				                         ^^^^^^^^^
+			The declared exception Throwable is not actually thrown by the method foo() from type X
+			----------
+			""",
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -1296,14 +1395,15 @@ public void test0035_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static final class MyError extends Error {\n" +
-			"    private static final long serialVersionUID = 1L;\n" +
-			"  }\n" +
-			"  public void foo() throws Throwable {\n" +
-			"    throw new MyError();\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  public static final class MyError extends Error {
+				    private static final long serialVersionUID = 1L;
+				  }
+				  public void foo() throws Throwable {
+				    throw new MyError();
+				  }
+				}"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -1326,17 +1426,18 @@ public void test0036_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"  public static class E1 extends Exception {\n" +
-			"    private static final long serialVersionUID = 1L;\n" +
-			"  }\n" +
-			"  public static class E2 extends E1 {\n" +
-			"    private static final long serialVersionUID = 1L;\n" +
-			"  }\n" +
-			"  public void foo() throws E1 {\n" +
-			"    throw new E2();\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X {
+				  public static class E1 extends Exception {
+				    private static final long serialVersionUID = 1L;
+				  }
+				  public static class E2 extends E1 {
+				    private static final long serialVersionUID = 1L;
+				  }
+				  public void foo() throws E1 {
+				    throw new E2();
+				  }
+				}"""
 			},
 		null /* errorOptions */,
 		new String[] {
@@ -1359,60 +1460,64 @@ public void test0037() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		boolean b1 = args == args;\n" +
-			"		boolean b2 = args != args;\n" +
-			"		boolean b3 = b1 == b1;\n" +
-			"		boolean b4 = b1 != b1;\n" +
-			"		boolean b5 = b1 && b1;\n" +
-			"		boolean b6 = b1 || b1;\n" +
-			"		\n" +
-			"		boolean b7 = foo() == foo();\n" +
-			"		boolean b8 = foo() != foo();\n" +
-			"		boolean b9 = foo() && foo();\n" +
-			"		boolean b10 = foo() || foo();\n" +
-			"	}\n" +
-			"	static boolean foo() { return true; }\n" +
-			"	Zork z;\n" +
-			"}\n"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						boolean b1 = args == args;
+						boolean b2 = args != args;
+						boolean b3 = b1 == b1;
+						boolean b4 = b1 != b1;
+						boolean b5 = b1 && b1;
+						boolean b6 = b1 || b1;
+					\t
+						boolean b7 = foo() == foo();
+						boolean b8 = foo() != foo();
+						boolean b9 = foo() && foo();
+						boolean b10 = foo() || foo();
+					}
+					static boolean foo() { return true; }
+					Zork z;
+				}
+				"""
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	boolean b1 = args == args;\n" +
-			"	             ^^^^^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	boolean b2 = args != args;\n" +
-			"	             ^^^^^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 5)\n" +
-			"	boolean b3 = b1 == b1;\n" +
-			"	             ^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 6)\n" +
-			"	boolean b4 = b1 != b1;\n" +
-			"	             ^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 7)\n" +
-			"	boolean b5 = b1 && b1;\n" +
-			"	             ^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"6. WARNING in X.java (at line 8)\n" +
-			"	boolean b6 = b1 || b1;\n" +
-			"	             ^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 16)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					boolean b1 = args == args;
+					             ^^^^^^^^^^^^
+				Comparing identical expressions
+				----------
+				2. WARNING in X.java (at line 4)
+					boolean b2 = args != args;
+					             ^^^^^^^^^^^^
+				Comparing identical expressions
+				----------
+				3. WARNING in X.java (at line 5)
+					boolean b3 = b1 == b1;
+					             ^^^^^^^^
+				Comparing identical expressions
+				----------
+				4. WARNING in X.java (at line 6)
+					boolean b4 = b1 != b1;
+					             ^^^^^^^^
+				Comparing identical expressions
+				----------
+				5. WARNING in X.java (at line 7)
+					boolean b5 = b1 && b1;
+					             ^^^^^^^^
+				Comparing identical expressions
+				----------
+				6. WARNING in X.java (at line 8)
+					boolean b6 = b1 || b1;
+					             ^^^^^^^^
+				Comparing identical expressions
+				----------
+				7. ERROR in X.java (at line 16)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				""");
 }
 
 /**
@@ -1422,92 +1527,96 @@ public void test0038() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		boolean b1 = 1 == 1;\n" +
-			"		boolean b2 = 1 != 1;\n" +
-			"		boolean b3 = 1 == 1.0;\n" +
-			"		boolean b4 = 1 != 1.0;\n" +
-			"		boolean b5 = 1 == 2;\n" +
-			"		boolean b6 = 1 != 2;\n" +
-			"		boolean b7 = 1 == 2.0;\n" +
-			"		boolean b8 = 1 != 2.0;\n" +
-			"       final short s1 = 1;\n" +
-			"       final short s2 = 2;\n" +
-			"       boolean b9 = 1 == s1;\n" +
-			"       boolean b10 = 1 == s2;\n" +
-			"       boolean b91 = 1 != s1;\n" +
-			"       boolean b101 = 1 != s2;\n" +
-			"       final long l1 = 1;\n" +
-			"       final long l2 = 2;\n" +
-			"       boolean b11 = 1 == l1;\n" +
-			"       boolean b12 = 1 == l2;\n" +
-			"       boolean b111 = 1 != l1;\n" +
-			"       boolean b121 = 1 != l2;\n" +
-			"       boolean b13 = s1 == l1;\n" +
-			"       boolean b14 = s1 == l2;\n" +
-			"       boolean b15 = s1 != l1;\n" +
-			"       boolean b16 = s1 != l2;\n" +
-			"	}\n" +
-			"	Zork z;\n" +
-			"}\n"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						boolean b1 = 1 == 1;
+						boolean b2 = 1 != 1;
+						boolean b3 = 1 == 1.0;
+						boolean b4 = 1 != 1.0;
+						boolean b5 = 1 == 2;
+						boolean b6 = 1 != 2;
+						boolean b7 = 1 == 2.0;
+						boolean b8 = 1 != 2.0;
+				       final short s1 = 1;
+				       final short s2 = 2;
+				       boolean b9 = 1 == s1;
+				       boolean b10 = 1 == s2;
+				       boolean b91 = 1 != s1;
+				       boolean b101 = 1 != s2;
+				       final long l1 = 1;
+				       final long l2 = 2;
+				       boolean b11 = 1 == l1;
+				       boolean b12 = 1 == l2;
+				       boolean b111 = 1 != l1;
+				       boolean b121 = 1 != l2;
+				       boolean b13 = s1 == l1;
+				       boolean b14 = s1 == l2;
+				       boolean b15 = s1 != l1;
+				       boolean b16 = s1 != l2;
+					}
+					Zork z;
+				}
+				"""
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	boolean b1 = 1 == 1;\n" +
-			"	             ^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	boolean b2 = 1 != 1;\n" +
-			"	             ^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 5)\n" +
-			"	boolean b3 = 1 == 1.0;\n" +
-			"	             ^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 6)\n" +
-			"	boolean b4 = 1 != 1.0;\n" +
-			"	             ^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 13)\n" +
-			"	boolean b9 = 1 == s1;\n" +
-			"	             ^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"6. WARNING in X.java (at line 15)\n" +
-			"	boolean b91 = 1 != s1;\n" +
-			"	              ^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"7. WARNING in X.java (at line 19)\n" +
-			"	boolean b11 = 1 == l1;\n" +
-			"	              ^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"8. WARNING in X.java (at line 21)\n" +
-			"	boolean b111 = 1 != l1;\n" +
-			"	               ^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"9. WARNING in X.java (at line 23)\n" +
-			"	boolean b13 = s1 == l1;\n" +
-			"	              ^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"10. WARNING in X.java (at line 25)\n" +
-			"	boolean b15 = s1 != l1;\n" +
-			"	              ^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"11. ERROR in X.java (at line 28)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					boolean b1 = 1 == 1;
+					             ^^^^^^
+				Comparing identical expressions
+				----------
+				2. WARNING in X.java (at line 4)
+					boolean b2 = 1 != 1;
+					             ^^^^^^
+				Comparing identical expressions
+				----------
+				3. WARNING in X.java (at line 5)
+					boolean b3 = 1 == 1.0;
+					             ^^^^^^^^
+				Comparing identical expressions
+				----------
+				4. WARNING in X.java (at line 6)
+					boolean b4 = 1 != 1.0;
+					             ^^^^^^^^
+				Comparing identical expressions
+				----------
+				5. WARNING in X.java (at line 13)
+					boolean b9 = 1 == s1;
+					             ^^^^^^^
+				Comparing identical expressions
+				----------
+				6. WARNING in X.java (at line 15)
+					boolean b91 = 1 != s1;
+					              ^^^^^^^
+				Comparing identical expressions
+				----------
+				7. WARNING in X.java (at line 19)
+					boolean b11 = 1 == l1;
+					              ^^^^^^^
+				Comparing identical expressions
+				----------
+				8. WARNING in X.java (at line 21)
+					boolean b111 = 1 != l1;
+					               ^^^^^^^
+				Comparing identical expressions
+				----------
+				9. WARNING in X.java (at line 23)
+					boolean b13 = s1 == l1;
+					              ^^^^^^^^
+				Comparing identical expressions
+				----------
+				10. WARNING in X.java (at line 25)
+					boolean b15 = s1 != l1;
+					              ^^^^^^^^
+				Comparing identical expressions
+				----------
+				11. ERROR in X.java (at line 28)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				""");
 }
 
 /**
@@ -1517,32 +1626,36 @@ public void test0039() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public void gain(String[] args) {\n" +
-			"		boolean b1 = this == this;\n" +
-			"		boolean b2 = this != this;\n" +
-			"		boolean b3 = this != new X();\n" +
-			"		boolean b4 = this == new X();\n" +
-			"	}\n" +
-			"	Zork z;\n" +
-			"}\n"
+			"""
+				public class X {
+					public void gain(String[] args) {
+						boolean b1 = this == this;
+						boolean b2 = this != this;
+						boolean b3 = this != new X();
+						boolean b4 = this == new X();
+					}
+					Zork z;
+				}
+				"""
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	boolean b1 = this == this;\n" +
-			"	             ^^^^^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	boolean b2 = this != this;\n" +
-			"	             ^^^^^^^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					boolean b1 = this == this;
+					             ^^^^^^^^^^^^
+				Comparing identical expressions
+				----------
+				2. WARNING in X.java (at line 4)
+					boolean b2 = this != this;
+					             ^^^^^^^^^^^^
+				Comparing identical expressions
+				----------
+				3. ERROR in X.java (at line 8)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				""");
 }
 /**
  * see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=281776"
@@ -1553,50 +1666,58 @@ public void test0040() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-		    "    public static void main(String[] args) {\n" +
-		    "        double var = Double.NaN;\n" +
-		    "            if(var != var) {\n" +
-		    "                  System.out.println(\"NaN\");\n" +
-		    "            }\n" +
-		    "            float varf = 10;\n" +
-		    "            if(varf != varf) {\n" +
-		    "            	System.out.println(\"NaN\");\n" +
-		    "            }\n" +
-		    "   }\n" +
-			"	Zork z;\n" +
-			"}\n"
+			"""
+				public class X {
+				    public static void main(String[] args) {
+				        double var = Double.NaN;
+				            if(var != var) {
+				                  System.out.println("NaN");
+				            }
+				            float varf = 10;
+				            if(varf != varf) {
+				            	System.out.println("NaN");
+				            }
+				   }
+					Zork z;
+				}
+				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 12)
+					Zork z;
+					^^^^
+				Zork cannot be resolved to a type
+				----------
+				""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=251227
 public void test0041() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(1.0 == 1.0);\n" +
-			"		System.out.println(1.0f == 1.0f);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class X {
+					public static void main(String[] args) {
+						System.out.println(1.0 == 1.0);
+						System.out.println(1.0f == 1.0f);
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	System.out.println(1.0 == 1.0);\n" +
-		"	                   ^^^^^^^^^^\n" +
-		"Comparing identical expressions\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	System.out.println(1.0f == 1.0f);\n" +
-		"	                   ^^^^^^^^^^^^\n" +
-		"Comparing identical expressions\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 3)
+				System.out.println(1.0 == 1.0);
+				                   ^^^^^^^^^^
+			Comparing identical expressions
+			----------
+			2. WARNING in X.java (at line 4)
+				System.out.println(1.0f == 1.0f);
+				                   ^^^^^^^^^^^^
+			Comparing identical expressions
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=248897
 public void test0042() {
@@ -1606,18 +1727,20 @@ public void test0042() {
 	runTest(
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"    public static void main(String[]  args) {\n" +
-				"        final String var = \"Hello\";\n" +
-				"        final int local = 10;\n" +
-				"        @ZAnn(var + local)\n" +
-				"        class X {}\n" +
-				"        new X();\n" +
-				"    }\n" +
-				"}\n" +
-				"@interface ZAnn {\n" +
-				"    String value();\n" +
-				"}\n"
+				"""
+					public class Test {
+					    public static void main(String[]  args) {
+					        final String var = "Hello";
+					        final int local = 10;
+					        @ZAnn(var + local)
+					        class X {}
+					        new X();
+					    }
+					}
+					@interface ZAnn {
+					    String value();
+					}
+					"""
 				},
 			null /* errorOptions */,
 			new String[] {
@@ -1640,63 +1763,72 @@ public void test0043() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"	void foo(int i) {\n" +
-			"		foo((a));\n" +
-			"	}\n" +
-			"}"
+			"""
+				class X {
+					void foo(int i) {
+						foo((a));
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	foo((a));\n" +
-		"	     ^\n" +
-		"a cannot be resolved to a variable\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				foo((a));
+				     ^
+			a cannot be resolved to a variable
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=310264
 public void test0044() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"   volatile int x;\n" +
-			"   int nvx;\n" +
-			"	void foo(int i) {\n" +
-			"		x = x;\n" +
-			"       nvx = nvx;\n" +
-			"	}\n" +
-			"}"
+			"""
+				class X {
+				   volatile int x;
+				   int nvx;
+					void foo(int i) {
+						x = x;
+				       nvx = nvx;
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 6)\n" +
-		"	nvx = nvx;\n" +
-		"	^^^^^^^^^\n" +
-		"The assignment to variable nvx has no effect\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 6)
+				nvx = nvx;
+				^^^^^^^^^
+			The assignment to variable nvx has no effect
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=310264
 public void test0045() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" +
-			"   volatile int x = this.x;\n" +
-			"   int nvx = this.nvx;\n" +
-			"	void foo(int i) {\n" +
-			"	}\n" +
-			"}"
+			"""
+				class X {
+				   volatile int x = this.x;
+				   int nvx = this.nvx;
+					void foo(int i) {
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	volatile int x = this.x;\n" +
-		"	             ^^^^^^^^^^\n" +
-		"The assignment to variable x has no effect\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 3)\n" +
-		"	int nvx = this.nvx;\n" +
-		"	    ^^^^^^^^^^^^^^\n" +
-		"The assignment to variable nvx has no effect\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 2)
+				volatile int x = this.x;
+				             ^^^^^^^^^^
+			The assignment to variable x has no effect
+			----------
+			2. WARNING in X.java (at line 3)
+				int nvx = this.nvx;
+				    ^^^^^^^^^^^^^^
+			The assignment to variable nvx has no effect
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
 public void test0046() {
@@ -1722,17 +1854,19 @@ public void test0046() {
 				"    }\n" +
 				"}"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	boolean b=false;\n" +
-			"	        ^\n" +
-			"The value of the local variable b is not used\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 6)\n" +
-			"	int k = 2;\n" +
-			"	    ^\n" +
-			"The value of the local variable k is not used\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 4)
+					boolean b=false;
+					        ^
+				The value of the local variable b is not used
+				----------
+				2. WARNING in X.java (at line 6)
+					int k = 2;
+					    ^
+				The value of the local variable k is not used
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
@@ -1761,17 +1895,19 @@ public void test0046_field() {
 				"    }\n" +
 				"}"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	private boolean b=false;\n" +
-			"	                ^\n" +
-			"The value of the field X.b is not used\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	private int k = 2;\n" +
-			"	            ^\n" +
-			"The value of the field X.k is not used\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					private boolean b=false;
+					                ^
+				The value of the field X.b is not used
+				----------
+				2. WARNING in X.java (at line 4)
+					private int k = 2;
+					            ^
+				The value of the field X.k is not used
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
@@ -1801,17 +1937,19 @@ public void test0046_field_this_qualified() {
 				"    X getThis() { return this; }\n" +
 				"}"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	private boolean b=false;\n" +
-			"	                ^\n" +
-			"The value of the field X.b is not used\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	private int k = 2;\n" +
-			"	            ^\n" +
-			"The value of the field X.k is not used\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					private boolean b=false;
+					                ^
+				The value of the field X.b is not used
+				----------
+				2. WARNING in X.java (at line 4)
+					private int k = 2;
+					            ^
+				The value of the field X.k is not used
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
@@ -1841,17 +1979,19 @@ public void test0046_field_qualified() {
 				"    }\n" +
 				"}"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	private boolean b=false;\n" +
-			"	                ^\n" +
-			"The value of the field X.b is not used\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	private int k = 2;\n" +
-			"	            ^\n" +
-			"The value of the field X.k is not used\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					private boolean b=false;
+					                ^
+				The value of the field X.b is not used
+				----------
+				2. WARNING in X.java (at line 4)
+					private int k = 2;
+					            ^
+				The value of the field X.k is not used
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
@@ -1884,17 +2024,19 @@ public void test0046_field_in_private_type() {
 				"    }\n" +
 				"}"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	public boolean b=false;\n" +
-			"	               ^\n" +
-			"The value of the field X.Y.b is not used\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 5)\n" +
-			"	protected int k = 2;\n" +
-			"	              ^\n" +
-			"The value of the field X.Y.k is not used\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 4)
+					public boolean b=false;
+					               ^
+				The value of the field X.Y.b is not used
+				----------
+				2. WARNING in X.java (at line 5)
+					protected int k = 2;
+					              ^
+				The value of the field X.Y.k is not used
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
@@ -1922,22 +2064,24 @@ public void test0047() {
 				"    }\n" +
 				"}"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 2)\n" +
-			"	void foo(int param1, int param2, Integer param3) {\n" +
-			"	             ^^^^^^\n" +
-			"The value of the parameter param1 is not used\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 2)\n" +
-			"	void foo(int param1, int param2, Integer param3) {\n" +
-			"	                         ^^^^^^\n" +
-			"The value of the parameter param2 is not used\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 3)\n" +
-			"	boolean b=false;\n" +
-			"	        ^\n" +
-			"The value of the local variable b is not used\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 2)
+					void foo(int param1, int param2, Integer param3) {
+					             ^^^^^^
+				The value of the parameter param1 is not used
+				----------
+				2. WARNING in X.java (at line 2)
+					void foo(int param1, int param2, Integer param3) {
+					                         ^^^^^^
+				The value of the parameter param2 is not used
+				----------
+				3. WARNING in X.java (at line 3)
+					boolean b=false;
+					        ^
+				The value of the local variable b is not used
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
@@ -1982,27 +2126,29 @@ public void test0048() {
 				"	public abstract void bar(int param1, int param2, Integer param3);" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	boolean b=false;\n" +
-			"	        ^\n" +
-			"The value of the local variable b is not used\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 9)\n" +
-			"	public void foo(int param1, int param2) {\n" +
-			"	                    ^^^^^^\n" +
-			"The value of the parameter param1 is not used\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 9)\n" +
-			"	public void foo(int param1, int param2) {\n" +
-			"	                                ^^^^^^\n" +
-			"The value of the parameter param2 is not used\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 10)\n" +
-			"	boolean b=false;\n" +
-			"	        ^\n" +
-			"The value of the local variable b is not used\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					boolean b=false;
+					        ^
+				The value of the local variable b is not used
+				----------
+				2. WARNING in X.java (at line 9)
+					public void foo(int param1, int param2) {
+					                    ^^^^^^
+				The value of the parameter param1 is not used
+				----------
+				3. WARNING in X.java (at line 9)
+					public void foo(int param1, int param2) {
+					                                ^^^^^^
+				The value of the parameter param2 is not used
+				----------
+				4. WARNING in X.java (at line 10)
+					boolean b=false;
+					        ^
+				The value of the local variable b is not used
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
@@ -2041,27 +2187,29 @@ public void test0049() {
 				"    }\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	boolean b=false;\n" +
-			"	        ^\n" +
-			"The value of the local variable b is not used\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 9)\n" +
-			"	public void foo(int param1, Integer param3) {\n" +
-			"	                    ^^^^^^\n" +
-			"The value of the parameter param1 is not used\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 15)\n" +
-			"	public void foo(int param1, int param2, Integer param3) {\n" +
-			"	                    ^^^^^^\n" +
-			"The value of the parameter param1 is not used\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 15)\n" +
-			"	public void foo(int param1, int param2, Integer param3) {\n" +
-			"	                                ^^^^^^\n" +
-			"The value of the parameter param2 is not used\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 3)
+					boolean b=false;
+					        ^
+				The value of the local variable b is not used
+				----------
+				2. WARNING in X.java (at line 9)
+					public void foo(int param1, Integer param3) {
+					                    ^^^^^^
+				The value of the parameter param1 is not used
+				----------
+				3. WARNING in X.java (at line 15)
+					public void foo(int param1, int param2, Integer param3) {
+					                    ^^^^^^
+				The value of the parameter param1 is not used
+				----------
+				4. WARNING in X.java (at line 15)
+					public void foo(int param1, int param2, Integer param3) {
+					                                ^^^^^^
+				The value of the parameter param2 is not used
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
@@ -2092,20 +2240,22 @@ public void test0050() {
 				"    }\n" +
 				"}"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	if (false) {\n" +
-			"        	boolean b=false;\n" +
-			"        	b|=true;\n" +
-			"		 }\n" +
-			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 8)\n" +
-			"	int k = 2;\n" +
-			"	    ^\n" +
-			"The value of the local variable k is not used\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 4)
+					if (false) {
+				        	boolean b=false;
+				        	b|=true;
+						 }
+					           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				2. WARNING in X.java (at line 8)
+					int k = 2;
+					    ^
+				The value of the local variable k is not used
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
@@ -2124,12 +2274,14 @@ public void test0051() {
 					"    }\n" +
 					"}"
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 2)\n" +
-			"	X(int abc) {\n" +
-			"	      ^^^\n" +
-			"The value of the parameter abc is not used\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 2)
+					X(int abc) {
+					      ^^^
+				The value of the parameter abc is not used
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
@@ -2229,15 +2381,17 @@ public void test0053() throws Exception {
 		customOptions,
 		null);
 	String expectedOutput =
-		"  // Method descriptor #15 ()I\n" +
-		"  // Stack: 1, Locals: 1\n" +
-		"  int foo();\n" +
-		"    0  iconst_0\n" +
-		"    1  ireturn\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 5]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 2] local: this index: 0 type: X\n";
+		"""
+		  // Method descriptor #15 ()I
+		  // Stack: 1, Locals: 1
+		  int foo();
+		    0  iconst_0
+		    1  ireturn
+		      Line numbers:
+		        [pc: 0, line: 5]
+		      Local variable table:
+		        [pc: 0, pc: 2] local: this index: 0 type: X
+		""";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
@@ -2261,20 +2415,22 @@ public void test0054() throws Exception {
 		customOptions,
 		null);
 	String expectedOutput =
-		"  // Method descriptor #15 ()I\n" +
-		"  // Stack: 1, Locals: 2\n" +
-		"  int foo();\n" +
-		"    0  iconst_1\n" +
-		"    1  istore_1 [i]\n" +
-		"    2  iinc 1 1 [i]\n" +
-		"    5  iload_1 [i]\n" +
-		"    6  ireturn\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 3]\n" +
-		"        [pc: 2, line: 4]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 7] local: this index: 0 type: X\n" +
-		"        [pc: 2, pc: 7] local: i index: 1 type: int\n";
+		"""
+		  // Method descriptor #15 ()I
+		  // Stack: 1, Locals: 2
+		  int foo();
+		    0  iconst_1
+		    1  istore_1 [i]
+		    2  iinc 1 1 [i]
+		    5  iload_1 [i]
+		    6  ireturn
+		      Line numbers:
+		        [pc: 0, line: 3]
+		        [pc: 2, line: 4]
+		      Local variable table:
+		        [pc: 0, pc: 7] local: this index: 0 type: X
+		        [pc: 2, pc: 7] local: i index: 1 type: int
+		""";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 
@@ -2288,25 +2444,28 @@ public void test0055() {
 	this.runNegativeTest(
 			new String[] {
 					"test1/E.java",
-					"package test1;\n" +
-					"public class E {\n" +
-						"    private void foo() {\n" +
-						"        int a= 10;\n" +
-						"        a++;\n" +
-						"        a--;\n" +
-						"        --a;\n" +
-						"        ++a;\n" +
-						"        for ( ; ; a++) {\n" +
-							"        }\n" +
-							"    }\n" +
-							"}"
+					"""
+						package test1;
+						public class E {
+						    private void foo() {
+						        int a= 10;
+						        a++;
+						        a--;
+						        --a;
+						        ++a;
+						        for ( ; ; a++) {
+						        }
+						    }
+						}"""
 			},
-			"----------\n" +
-			"1. WARNING in test1\\E.java (at line 4)\n" +
-			"	int a= 10;\n" +
-			"	    ^\n" +
-			"The value of the local variable a is not used\n" +
-			"----------\n",
+			"""
+				----------
+				1. WARNING in test1\\E.java (at line 4)
+					int a= 10;
+					    ^
+				The value of the local variable a is not used
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
@@ -2343,16 +2502,17 @@ public void test0057() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"    public static void main (String args[]) {\n" +
-			"        int i = 0;\n" +
-			"        i += 4 + foo();\n" +
-			"    }\n" +
-			"    public static int foo() {\n" +
-			"    	System.out.println(\"OK\");\n" +
-			"    	return 0;\n" +
-			"    }\n" +
-			"}"
+			"""
+				public class X {
+				    public static void main (String args[]) {
+				        int i = 0;
+				        i += 4 + foo();
+				    }
+				    public static int foo() {
+				    	System.out.println("OK");
+				    	return 0;
+				    }
+				}"""
 		},
 		"OK",
 		null/*classLibraries*/,
@@ -2368,25 +2528,29 @@ public void _test0058() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    void foo(String m) {\n" +
-				"        final String message= m;\n" +
-				"        new Runnable() {\n" +
-				"            public void run() {\n" +
-				"                if (\"x\".equals(message)) {\n" +
-				"                    bug(); // undefined method\n" +
-				"                }\n" +
-				"            }\n" +
-				"        }.run();\n" +
-				"    }\n" +
-				"}\n"
+				"""
+					public class X {
+					    void foo(String m) {
+					        final String message= m;
+					        new Runnable() {
+					            public void run() {
+					                if ("x".equals(message)) {
+					                    bug(); // undefined method
+					                }
+					            }
+					        }.run();
+					    }
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	bug(); // undefined method\n" +
-			"	^^^\n" +
-			"The method bug() is undefined for the type new Runnable(){}\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					bug(); // undefined method
+					^^^
+				The method bug() is undefined for the type new Runnable(){}
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
@@ -2411,20 +2575,22 @@ public void test0059() throws Exception {
 			"    }\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	if (a != null){\n" +
-		"        	int j = 3;\n" +
-		"        	j++;\n" +
-		"    	}\n" +
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	int j = 3;\n" +
-		"	    ^\n" +
-		"The value of the local variable j is not used\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				if (a != null){
+			        	int j = 3;
+			        	j++;
+			    	}
+				              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			2. WARNING in X.java (at line 5)
+				int j = 3;
+				    ^
+			The value of the local variable j is not used
+			----------
+			""",
 		null/*classLibraries*/,
 		true/*shouldFlushOutputDirectory*/,
 		customOptions);
@@ -2436,77 +2602,81 @@ public void test0060() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"org/eclipse/jdt/internal/compiler/lookup/X.java",
-			"package org.eclipse.jdt.internal.compiler.lookup;\n" +
-			"class TypeBinding {\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		if (t1 == t2) { \n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) {\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void gain(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		if (t1 == t2) { \n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) {\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void vain(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		//$IDENTITY-COMPARISON$\n" +
-			"		//$IDENTITY-COMPARISON$\n" +
-			"		//$IDENTITY-COMPARISON$\n" +
-			"		if (t1 == t2) { \n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void cain(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package org.eclipse.jdt.internal.compiler.lookup;
+				class TypeBinding {
+				}
+				public class X {
+					public static void main(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						if (t1 == t2) {\s
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) {
+								}
+							}
+						}
+					}
+					public static void gain(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						if (t1 == t2) {\s
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) {
+								}
+							}
+						}
+					}
+					public static void vain(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						//$IDENTITY-COMPARISON$
+						//$IDENTITY-COMPARISON$
+						//$IDENTITY-COMPARISON$
+						if (t1 == t2) {\s
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) { //$IDENTITY-COMPARISON$
+								}
+							}
+						}
+					}
+					public static void cain(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						if (t1 == t2) { //$IDENTITY-COMPARISON$
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) { //$IDENTITY-COMPARISON$
+								}
+							}
+						}
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 7)\n" +
-		"	if (t1 == t2) { \n" +
-		"	    ^^^^^^^^\n" +
-		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" +
-		"----------\n" +
-		"2. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 9)\n" +
-		"	if (t1 == t2) {\n" +
-		"	    ^^^^^^^^\n" +
-		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" +
-		"----------\n" +
-		"3. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 16)\n" +
-		"	if (t1 == t2) { \n" +
-		"	    ^^^^^^^^\n" +
-		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" +
-		"----------\n" +
-		"4. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 18)\n" +
-		"	if (t1 == t2) {\n" +
-		"	    ^^^^^^^^\n" +
-		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" +
-		"----------\n" +
-		"5. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 28)\n" +
-		"	if (t1 == t2) { \n" +
-		"	    ^^^^^^^^\n" +
-		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 7)
+				if (t1 == t2) {\s
+				    ^^^^^^^^
+			The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.
+			----------
+			2. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 9)
+				if (t1 == t2) {
+				    ^^^^^^^^
+			The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.
+			----------
+			3. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 16)
+				if (t1 == t2) {\s
+				    ^^^^^^^^
+			The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.
+			----------
+			4. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 18)
+				if (t1 == t2) {
+				    ^^^^^^^^
+			The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.
+			----------
+			5. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 28)
+				if (t1 == t2) {\s
+				    ^^^^^^^^
+			The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.
+			----------
+			""",
 		null/*classLibraries*/,
 		true/*shouldFlushOutputDirectory*/,
 		customOptions);
@@ -2518,50 +2688,52 @@ public void test0061() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"org/eclipse/nonjdt/internal/compiler/lookup/X.java",
-			"package org.eclipse.nonjdt.internal.compiler.lookup;\n" +
-			"class TypeBinding {\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		if (t1 == t2) { \n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) {\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void gain(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		if (t1 == t2) { \n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) {\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void vain(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		//$IDENTITY-COMPARISON$\n" +
-			"		//$IDENTITY-COMPARISON$\n" +
-			"		//$IDENTITY-COMPARISON$\n" +
-			"		if (t1 == t2) { \n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void cain(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package org.eclipse.nonjdt.internal.compiler.lookup;
+				class TypeBinding {
+				}
+				public class X {
+					public static void main(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						if (t1 == t2) {\s
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) {
+								}
+							}
+						}
+					}
+					public static void gain(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						if (t1 == t2) {\s
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) {
+								}
+							}
+						}
+					}
+					public static void vain(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						//$IDENTITY-COMPARISON$
+						//$IDENTITY-COMPARISON$
+						//$IDENTITY-COMPARISON$
+						if (t1 == t2) {\s
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) { //$IDENTITY-COMPARISON$
+								}
+							}
+						}
+					}
+					public static void cain(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						if (t1 == t2) { //$IDENTITY-COMPARISON$
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) { //$IDENTITY-COMPARISON$
+								}
+							}
+						}
+					}
+				}
+				"""
 		},
 		"",
 		null/*classLibraries*/,
@@ -2574,50 +2746,52 @@ public void test0062() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"org/eclipse/jdt/internal/compiler/lookup/X.java",
-			"package org.eclipse.jdt.internal.compiler.lookup;\n" +
-			"class TypeBinding {\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		if (t1 == t2) { \n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) {\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void gain(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		if (t1 == t2) { \n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) {\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void vain(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		//$IDENTITY-COMPARISON$\n" +
-			"		//$IDENTITY-COMPARISON$\n" +
-			"		//$IDENTITY-COMPARISON$\n" +
-			"		if (t1 == t2) { \n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void cain(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package org.eclipse.jdt.internal.compiler.lookup;
+				class TypeBinding {
+				}
+				public class X {
+					public static void main(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						if (t1 == t2) {\s
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) {
+								}
+							}
+						}
+					}
+					public static void gain(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						if (t1 == t2) {\s
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) {
+								}
+							}
+						}
+					}
+					public static void vain(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						//$IDENTITY-COMPARISON$
+						//$IDENTITY-COMPARISON$
+						//$IDENTITY-COMPARISON$
+						if (t1 == t2) {\s
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) { //$IDENTITY-COMPARISON$
+								}
+							}
+						}
+					}
+					public static void cain(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						if (t1 == t2) { //$IDENTITY-COMPARISON$
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) { //$IDENTITY-COMPARISON$
+								}
+							}
+						}
+					}
+				}
+				"""
 		},
 		"",
 		null/*classLibraries*/,
@@ -2631,79 +2805,83 @@ public void test0063() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"org/eclipse/jdt/core/dom/X.java",
-			"package org.eclipse.jdt.core.dom;\n" +
-			"interface ITypeBinding {\n" +
-			"}\n" +
-			"class TypeBinding implements ITypeBinding {\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		if (t1 == t2) { \n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) {\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void gain(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		if (t1 == t2) { \n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) {\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void vain(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		//$IDENTITY-COMPARISON$\n" +
-			"		//$IDENTITY-COMPARISON$\n" +
-			"		//$IDENTITY-COMPARISON$\n" +
-			"		if (t1 == t2) { \n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public static void cain(String[] args) {\n" +
-			"		TypeBinding t1 = null, t2 = null;\n" +
-			"		if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
-			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
-			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package org.eclipse.jdt.core.dom;
+				interface ITypeBinding {
+				}
+				class TypeBinding implements ITypeBinding {
+				}
+				public class X {
+					public static void main(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						if (t1 == t2) {\s
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) {
+								}
+							}
+						}
+					}
+					public static void gain(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						if (t1 == t2) {\s
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) {
+								}
+							}
+						}
+					}
+					public static void vain(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						//$IDENTITY-COMPARISON$
+						//$IDENTITY-COMPARISON$
+						//$IDENTITY-COMPARISON$
+						if (t1 == t2) {\s
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) { //$IDENTITY-COMPARISON$
+								}
+							}
+						}
+					}
+					public static void cain(String[] args) {
+						TypeBinding t1 = null, t2 = null;
+						if (t1 == t2) { //$IDENTITY-COMPARISON$
+							if (t2 == t1) {  //$IDENTITY-COMPARISON$
+								if (t1 == t2) { //$IDENTITY-COMPARISON$
+								}
+							}
+						}
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 9)\n" +
-		"	if (t1 == t2) { \n" +
-		"	    ^^^^^^^^\n" +
-		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" +
-		"----------\n" +
-		"2. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 11)\n" +
-		"	if (t1 == t2) {\n" +
-		"	    ^^^^^^^^\n" +
-		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" +
-		"----------\n" +
-		"3. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 18)\n" +
-		"	if (t1 == t2) { \n" +
-		"	    ^^^^^^^^\n" +
-		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" +
-		"----------\n" +
-		"4. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 20)\n" +
-		"	if (t1 == t2) {\n" +
-		"	    ^^^^^^^^\n" +
-		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" +
-		"----------\n" +
-		"5. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 30)\n" +
-		"	if (t1 == t2) { \n" +
-		"	    ^^^^^^^^\n" +
-		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 9)
+				if (t1 == t2) {\s
+				    ^^^^^^^^
+			The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.
+			----------
+			2. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 11)
+				if (t1 == t2) {
+				    ^^^^^^^^
+			The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.
+			----------
+			3. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 18)
+				if (t1 == t2) {\s
+				    ^^^^^^^^
+			The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.
+			----------
+			4. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 20)
+				if (t1 == t2) {
+				    ^^^^^^^^
+			The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.
+			----------
+			5. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 30)
+				if (t1 == t2) {\s
+				    ^^^^^^^^
+			The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.
+			----------
+			""",
 		null/*classLibraries*/,
 		true/*shouldFlushOutputDirectory*/,
 		customOptions);
@@ -2715,48 +2893,52 @@ public void testBug410218a() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"class X {\n" +
-			"  void test() {\n" +
-			"	Set<Short> set = new HashSet<Short>();\n" +
-			"	short one = 1;\n" +
-			"	set.add(one);\n" +
-			"\n" +
-			"	if (set.contains(\"ONE\")) // bad\n" +
-			"		set.remove(\"ONE\"); // bad\n" +
-			"	if (set.contains(1)) // bad\n" +
-			"		set.remove(1); // bad (tries to remove \"Integer 1\")\n" +
-			"	System.out.println(set); // shows that the \"Short 1\" is still in!\n" +
-			"\n" +
-			"	if (set.contains(one)) // ok\n" +
-			"		set.remove(one); // ok\n" +
-			"	if (set.contains(Short.valueOf(one))) // ok\n" +
-			"		set.remove(Short.valueOf(one)); // ok\n" +
-			"	System.out.println(set);\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				class X {
+				  void test() {
+					Set<Short> set = new HashSet<Short>();
+					short one = 1;
+					set.add(one);
+				
+					if (set.contains("ONE")) // bad
+						set.remove("ONE"); // bad
+					if (set.contains(1)) // bad
+						set.remove(1); // bad (tries to remove "Integer 1")
+					System.out.println(set); // shows that the "Short 1" is still in!
+				
+					if (set.contains(one)) // ok
+						set.remove(one); // ok
+					if (set.contains(Short.valueOf(one))) // ok
+						set.remove(Short.valueOf(one)); // ok
+					System.out.println(set);
+				  }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 8)\n" +
-		"	if (set.contains(\"ONE\")) // bad\n" +
-		"	                 ^^^^^\n" +
-		"Unlikely argument type String for contains(Object) on a Collection<Short>\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 9)\n" +
-		"	set.remove(\"ONE\"); // bad\n" +
-		"	           ^^^^^\n" +
-		"Unlikely argument type String for remove(Object) on a Collection<Short>\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 10)\n" +
-		"	if (set.contains(1)) // bad\n" +
-		"	                 ^\n" +
-		"Unlikely argument type int for contains(Object) on a Collection<Short>\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 11)\n" +
-		"	set.remove(1); // bad (tries to remove \"Integer 1\")\n" +
-		"	           ^\n" +
-		"Unlikely argument type int for remove(Object) on a Collection<Short>\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 8)
+				if (set.contains("ONE")) // bad
+				                 ^^^^^
+			Unlikely argument type String for contains(Object) on a Collection<Short>
+			----------
+			2. WARNING in X.java (at line 9)
+				set.remove("ONE"); // bad
+				           ^^^^^
+			Unlikely argument type String for remove(Object) on a Collection<Short>
+			----------
+			3. WARNING in X.java (at line 10)
+				if (set.contains(1)) // bad
+				                 ^
+			Unlikely argument type int for contains(Object) on a Collection<Short>
+			----------
+			4. WARNING in X.java (at line 11)
+				set.remove(1); // bad (tries to remove "Integer 1")
+				           ^
+			Unlikely argument type int for remove(Object) on a Collection<Short>
+			----------
+			""");
 }
 // HashSet vs. TreeSet
 public void testBug410218b() {
@@ -2765,29 +2947,33 @@ public void testBug410218b() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"class X {\n" +
-			"  <T> void test(Set<HashSet<T>> hss, TreeSet<T> ts, LinkedHashSet<T> lhs) {\n" +
-			"	if (hss.contains(ts)) // bad\n" +
-			"		hss.remove(ts); // bad\n" +
-			"	if (hss.contains((Set<T>)ts)) // ok\n" +
-			"		hss.remove((Set<T>)ts); // ok\n" +
-			"	if (hss.contains(lhs)) // ok\n" +
-			"		hss.remove(lhs); // ok\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				class X {
+				  <T> void test(Set<HashSet<T>> hss, TreeSet<T> ts, LinkedHashSet<T> lhs) {
+					if (hss.contains(ts)) // bad
+						hss.remove(ts); // bad
+					if (hss.contains((Set<T>)ts)) // ok
+						hss.remove((Set<T>)ts); // ok
+					if (hss.contains(lhs)) // ok
+						hss.remove(lhs); // ok
+				  }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	if (hss.contains(ts)) // bad\n" +
-		"	                 ^^\n" +
-		"Unlikely argument type TreeSet<T> for contains(Object) on a Collection<HashSet<T>>\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	hss.remove(ts); // bad\n" +
-		"	           ^^\n" +
-		"Unlikely argument type TreeSet<T> for remove(Object) on a Collection<HashSet<T>>\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				if (hss.contains(ts)) // bad
+				                 ^^
+			Unlikely argument type TreeSet<T> for contains(Object) on a Collection<HashSet<T>>
+			----------
+			2. WARNING in X.java (at line 5)
+				hss.remove(ts); // bad
+				           ^^
+			Unlikely argument type TreeSet<T> for remove(Object) on a Collection<HashSet<T>>
+			----------
+			""");
 }
 // HashSet vs. TreeSet or: strict
 public void testBug410218b2() {
@@ -2798,39 +2984,43 @@ public void testBug410218b2() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"class X {\n" +
-			"  <T> void test(Set<HashSet<T>> hss, TreeSet<T> ts, LinkedHashSet<T> lhs) {\n" +
-			"	if (hss.contains(ts)) // bad\n" +
-			"		hss.remove(ts); // bad\n" +
-			"	if (hss.contains((Set<T>)ts)) // bad (because of strict check)\n" +
-			"		hss.remove((Set<T>)ts); // bad (because of strict check)\n" +
-			"	if (hss.contains(lhs)) // ok\n" +
-			"		hss.remove(lhs); // ok\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				class X {
+				  <T> void test(Set<HashSet<T>> hss, TreeSet<T> ts, LinkedHashSet<T> lhs) {
+					if (hss.contains(ts)) // bad
+						hss.remove(ts); // bad
+					if (hss.contains((Set<T>)ts)) // bad (because of strict check)
+						hss.remove((Set<T>)ts); // bad (because of strict check)
+					if (hss.contains(lhs)) // ok
+						hss.remove(lhs); // ok
+				  }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	if (hss.contains(ts)) // bad\n" +
-		"	                 ^^\n" +
-		"Unlikely argument type TreeSet<T> for contains(Object) on a Collection<HashSet<T>>\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	hss.remove(ts); // bad\n" +
-		"	           ^^\n" +
-		"Unlikely argument type TreeSet<T> for remove(Object) on a Collection<HashSet<T>>\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 6)\n" +
-		"	if (hss.contains((Set<T>)ts)) // bad (because of strict check)\n" +
-		"	                 ^^^^^^^^^^\n" +
-		"Unlikely argument type Set<T> for contains(Object) on a Collection<HashSet<T>>\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 7)\n" +
-		"	hss.remove((Set<T>)ts); // bad (because of strict check)\n" +
-		"	           ^^^^^^^^^^\n" +
-		"Unlikely argument type Set<T> for remove(Object) on a Collection<HashSet<T>>\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				if (hss.contains(ts)) // bad
+				                 ^^
+			Unlikely argument type TreeSet<T> for contains(Object) on a Collection<HashSet<T>>
+			----------
+			2. WARNING in X.java (at line 5)
+				hss.remove(ts); // bad
+				           ^^
+			Unlikely argument type TreeSet<T> for remove(Object) on a Collection<HashSet<T>>
+			----------
+			3. WARNING in X.java (at line 6)
+				if (hss.contains((Set<T>)ts)) // bad (because of strict check)
+				                 ^^^^^^^^^^
+			Unlikely argument type Set<T> for contains(Object) on a Collection<HashSet<T>>
+			----------
+			4. WARNING in X.java (at line 7)
+				hss.remove((Set<T>)ts); // bad (because of strict check)
+				           ^^^^^^^^^^
+			Unlikely argument type Set<T> for remove(Object) on a Collection<HashSet<T>>
+			----------
+			""",
 		null/*classLibraries*/,
 		true/*shouldFlushOutputDirectory*/,
 		customOptions);
@@ -2842,50 +3032,55 @@ public void testBug410218c() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"class X {\n" +
-			"  Number test(Map<? extends Number, Number> m, boolean f) {\n" +
-			"	if (m.containsKey(\"ONE\")) // bad\n" +
-			"		m.remove(\"ONE\"); // bad\n" +
-			"	if (m.containsValue(\"ONE\")) // bad\n" +
-			"		m.remove(\"ONE\"); // bad\n" +
-			"	short one = 1;\n" +
-			"	if (m.containsKey(one)) // almost ok\n" +
-			"		m.remove(one); // almost ok\n" +
-			"	if (m.containsValue(Short.valueOf(one))) // ok\n" +
-			"		m.remove(Short.valueOf(one)); // almost ok\n" +
-			"	if (f)\n" +
-			"		return m.get(\"ONE\"); // bad\n" +
-			"	return m.get(one);\n // almost ok\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				class X {
+				  Number test(Map<? extends Number, Number> m, boolean f) {
+					if (m.containsKey("ONE")) // bad
+						m.remove("ONE"); // bad
+					if (m.containsValue("ONE")) // bad
+						m.remove("ONE"); // bad
+					short one = 1;
+					if (m.containsKey(one)) // almost ok
+						m.remove(one); // almost ok
+					if (m.containsValue(Short.valueOf(one))) // ok
+						m.remove(Short.valueOf(one)); // almost ok
+					if (f)
+						return m.get("ONE"); // bad
+					return m.get(one);
+				 // almost ok
+				  }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	if (m.containsKey(\"ONE\")) // bad\n" +
-		"	                  ^^^^^\n" +
-		"Unlikely argument type String for containsKey(Object) on a Map<capture#1-of ? extends Number,Number>\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	m.remove(\"ONE\"); // bad\n" +
-		"	         ^^^^^\n" +
-		"Unlikely argument type String for remove(Object) on a Map<capture#2-of ? extends Number,Number>\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 6)\n" +
-		"	if (m.containsValue(\"ONE\")) // bad\n" +
-		"	                    ^^^^^\n" +
-		"Unlikely argument type String for containsValue(Object) on a Map<capture#3-of ? extends Number,Number>\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 7)\n" +
-		"	m.remove(\"ONE\"); // bad\n" +
-		"	         ^^^^^\n" +
-		"Unlikely argument type String for remove(Object) on a Map<capture#4-of ? extends Number,Number>\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 14)\n" +
-		"	return m.get(\"ONE\"); // bad\n" +
-		"	             ^^^^^\n" +
-		"Unlikely argument type String for get(Object) on a Map<capture#9-of ? extends Number,Number>\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				if (m.containsKey("ONE")) // bad
+				                  ^^^^^
+			Unlikely argument type String for containsKey(Object) on a Map<capture#1-of ? extends Number,Number>
+			----------
+			2. WARNING in X.java (at line 5)
+				m.remove("ONE"); // bad
+				         ^^^^^
+			Unlikely argument type String for remove(Object) on a Map<capture#2-of ? extends Number,Number>
+			----------
+			3. WARNING in X.java (at line 6)
+				if (m.containsValue("ONE")) // bad
+				                    ^^^^^
+			Unlikely argument type String for containsValue(Object) on a Map<capture#3-of ? extends Number,Number>
+			----------
+			4. WARNING in X.java (at line 7)
+				m.remove("ONE"); // bad
+				         ^^^^^
+			Unlikely argument type String for remove(Object) on a Map<capture#4-of ? extends Number,Number>
+			----------
+			5. WARNING in X.java (at line 14)
+				return m.get("ONE"); // bad
+				             ^^^^^
+			Unlikely argument type String for get(Object) on a Map<capture#9-of ? extends Number,Number>
+			----------
+			""");
 }
 // Collection: {contains,remove,retain}All, non-generic sub type of Collection, configured to be ERROR
 public void testBug410218d() {
@@ -2896,25 +3091,29 @@ public void testBug410218d() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"interface NumberCollection extends Collection<Number> {}\n" +
-			"class X {\n" +
-			"  void test(NumberCollection numbers, List<Integer> ints, Set<String> stringSet) {\n" +
-			"	if (numbers.containsAll(ints)) // ok\n" +
-			"		numbers.removeAll(ints); // ok\n" +
-			"	else\n" +
-			"		numbers.retainAll(ints); // ok\n" +
-			"\n" +
-			"	numbers.removeAll(stringSet); // bad\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				interface NumberCollection extends Collection<Number> {}
+				class X {
+				  void test(NumberCollection numbers, List<Integer> ints, Set<String> stringSet) {
+					if (numbers.containsAll(ints)) // ok
+						numbers.removeAll(ints); // ok
+					else
+						numbers.retainAll(ints); // ok
+				
+					numbers.removeAll(stringSet); // bad
+				  }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	numbers.removeAll(stringSet); // bad\n" +
-		"	                  ^^^^^^^^^\n" +
-		"Unlikely argument type Set<String> for removeAll(Collection<?>) on a Collection<Number>\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 10)
+				numbers.removeAll(stringSet); // bad
+				                  ^^^^^^^^^
+			Unlikely argument type Set<String> for removeAll(Collection<?>) on a Collection<Number>
+			----------
+			""",
 		null/*classLibraries*/,
 		true/*shouldFlushOutputDirectory*/,
 		customOptions);
@@ -2928,25 +3127,29 @@ public void testBug410218e() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"class X {\n" +
-			"  int test1(List<Integer> ints, Object o) {\n" +
-			"	return ints.indexOf(\"ONE\"); // bad\n" +
-			"  }\n" +
-			"  @SuppressWarnings(\"unlikely-arg-type\")\n" +
-			"  int test2(List<Integer> ints, boolean f, Object o) {\n" +
-			"	if (f)\n" +
-			"		return ints.indexOf(\"ONE\"); // bad but suppressed\n" +
-			"	return ints.indexOf(o); // supertype\n" +
-			"  }\n" +
-			"}\n"
+			"""
+				import java.util.*;
+				class X {
+				  int test1(List<Integer> ints, Object o) {
+					return ints.indexOf("ONE"); // bad
+				  }
+				  @SuppressWarnings("unlikely-arg-type")
+				  int test2(List<Integer> ints, boolean f, Object o) {
+					if (f)
+						return ints.indexOf("ONE"); // bad but suppressed
+					return ints.indexOf(o); // supertype
+				  }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	return ints.indexOf(\"ONE\"); // bad\n" +
-		"	                    ^^^^^\n" +
-		"Unlikely argument type String for indexOf(Object) on a List<Integer>\n" +
-		"----------\n",
+		"""
+			----------
+			1. WARNING in X.java (at line 4)
+				return ints.indexOf("ONE"); // bad
+				                    ^^^^^
+			Unlikely argument type String for indexOf(Object) on a List<Integer>
+			----------
+			""",
 		null/*classLibraries*/,
 		true/*shouldFlushOutputDirectory*/,
 		customOptions);
@@ -3104,122 +3307,124 @@ public void testBug410218f() {
 			"}\n" +
 			"",
 		},
-		"----------\n" +
-		"1. WARNING in test\\TestUnlikely.java (at line 30)\n" +
-		"	c.remove(o); // warning: unrelated interface\n" +
-		"	         ^\n" +
-		"Unlikely argument type TestUnlikely.OtherInterface for remove(Object) on a Collection<TestUnlikely.Interface>\n" +
-		"----------\n" +
-		"2. WARNING in test\\TestUnlikely.java (at line 37)\n" +
-		"	c.remove(i); // warning: unrelated interface\n" +
-		"	         ^\n" +
-		"Unlikely argument type TestUnlikely.Interface for remove(Object) on a Collection<TestUnlikely.OtherInterface>\n" +
-		"----------\n" +
-		"3. WARNING in test\\TestUnlikely.java (at line 39)\n" +
-		"	c.remove(f); // warning: impossible\n" +
-		"	         ^\n" +
-		"Unlikely argument type TestUnlikely.Final for remove(Object) on a Collection<TestUnlikely.OtherInterface>\n" +
-		"----------\n" +
-		"4. WARNING in test\\TestUnlikely.java (at line 40)\n" +
-		"	c.remove(nf); // warning: castable, but not supertype\n" +
-		"	         ^^\n" +
-		"Unlikely argument type TestUnlikely.NonFinal for remove(Object) on a Collection<TestUnlikely.OtherInterface>\n" +
-		"----------\n" +
-		"5. WARNING in test\\TestUnlikely.java (at line 46)\n" +
-		"	c.remove(o); // warning: impossible\n" +
-		"	         ^\n" +
-		"Unlikely argument type TestUnlikely.OtherInterface for remove(Object) on a Collection<TestUnlikely.Final>\n" +
-		"----------\n" +
-		"6. WARNING in test\\TestUnlikely.java (at line 48)\n" +
-		"	c.remove(nf); // warning: impossible\n" +
-		"	         ^^\n" +
-		"Unlikely argument type TestUnlikely.NonFinal for remove(Object) on a Collection<TestUnlikely.Final>\n" +
-		"----------\n" +
-		"7. WARNING in test\\TestUnlikely.java (at line 49)\n" +
-		"	c.remove(s); // warning: impossible\n" +
-		"	         ^\n" +
-		"Unlikely argument type TestUnlikely.Sub for remove(Object) on a Collection<TestUnlikely.Final>\n" +
-		"----------\n" +
-		"8. WARNING in test\\TestUnlikely.java (at line 54)\n" +
-		"	c.remove(o); // warning: unrelated interface\n" +
-		"	         ^\n" +
-		"Unlikely argument type TestUnlikely.OtherInterface for remove(Object) on a Collection<TestUnlikely.NonFinal>\n" +
-		"----------\n" +
-		"9. WARNING in test\\TestUnlikely.java (at line 55)\n" +
-		"	c.remove(f); // warning: impossible\n" +
-		"	         ^\n" +
-		"Unlikely argument type TestUnlikely.Final for remove(Object) on a Collection<TestUnlikely.NonFinal>\n" +
-		"----------\n" +
-		"10. WARNING in test\\TestUnlikely.java (at line 63)\n" +
-		"	c.remove(f); // warning: impossible\n" +
-		"	         ^\n" +
-		"Unlikely argument type TestUnlikely.Final for remove(Object) on a Collection<TestUnlikely.Sub>\n" +
-		"----------\n" +
-		"11. WARNING in test\\TestUnlikely.java (at line 70)\n" +
-		"	map.containsKey(value); // warning\n" +
-		"	                ^^^^^\n" +
-		"Unlikely argument type V for containsKey(Object) on a Map<K,V>\n" +
-		"----------\n" +
-		"12. WARNING in test\\TestUnlikely.java (at line 71)\n" +
-		"	map.containsValue(key); // warning\n" +
-		"	                  ^^^\n" +
-		"Unlikely argument type K for containsValue(Object) on a Map<K,V>\n" +
-		"----------\n" +
-		"13. WARNING in test\\TestUnlikely.java (at line 95)\n" +
-		"	if (c.contains(iterator.next())) { // warning\n" +
-		"	               ^^^^^^^^^^^^^^^\n" +
-		"Unlikely argument type U for contains(Object) on a Collection<T>\n" +
-		"----------\n" +
-		"14. WARNING in test\\TestUnlikely.java (at line 105)\n" +
-		"	c.removeAll(other); // warning\n" +
-		"	            ^^^^^\n" +
-		"Unlikely argument type Set<TestUnlikely.Final> for removeAll(Collection<?>) on a Collection<TestUnlikely.NonFinal>\n" +
-		"----------\n" +
-		"15. WARNING in test\\TestUnlikely.java (at line 111)\n" +
-		"	Predicate<OtherInterface> p2 = c::contains; // warning\n" +
-		"	                               ^^^^^^^^^^^\n" +
-		"Unlikely argument type TestUnlikely.OtherInterface for contains(Object) on a Collection<TestUnlikely.Interface>\n" +
-		"----------\n" +
-		"16. WARNING in test\\TestUnlikely.java (at line 112)\n" +
-		"	BiPredicate<Collection<Interface>, OtherInterface> bp2 = Collection<Interface>::contains; // warning\n" +
-		"	                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Unlikely argument type TestUnlikely.OtherInterface for contains(Object) on a Collection<TestUnlikely.Interface>\n" +
-		"----------\n" +
-		"17. INFO in test\\TestUnlikely.java (at line 120)\n" +
-		"	s.equals(i); // info\n" +
-		"	         ^\n" +
-		"Unlikely argument type for equals(): Integer seems to be unrelated to String\n" +
-		"----------\n" +
-		"18. INFO in test\\TestUnlikely.java (at line 121)\n" +
-		"	i.equals(s); // info\n" +
-		"	         ^\n" +
-		"Unlikely argument type for equals(): String seems to be unrelated to Integer\n" +
-		"----------\n" +
-		"19. INFO in test\\TestUnlikely.java (at line 125)\n" +
-		"	Predicate<String> p1 = i::equals; // info\n" +
-		"	                       ^^^^^^^^^\n" +
-		"Unlikely argument type for equals(): String seems to be unrelated to Integer\n" +
-		"----------\n" +
-		"20. INFO in test\\TestUnlikely.java (at line 128)\n" +
-		"	BiPredicate<String, Integer> bp2 = Object::equals; // info\n" +
-		"	                                   ^^^^^^^^^^^^^^\n" +
-		"Unlikely argument type for equals(): Integer seems to be unrelated to String\n" +
-		"----------\n" +
-		"21. INFO in test\\TestUnlikely.java (at line 131)\n" +
-		"	Objects.equals(s, i); // info\n" +
-		"	                  ^\n" +
-		"Unlikely argument type for equals(): Integer seems to be unrelated to String\n" +
-		"----------\n" +
-		"22. INFO in test\\TestUnlikely.java (at line 132)\n" +
-		"	Objects.equals(i, s); // info\n" +
-		"	                  ^\n" +
-		"Unlikely argument type for equals(): String seems to be unrelated to Integer\n" +
-		"----------\n" +
-		"23. INFO in test\\TestUnlikely.java (at line 136)\n" +
-		"	BiPredicate<String, Integer> bp3 = Objects::equals; // info\n" +
-		"	                                   ^^^^^^^^^^^^^^^\n" +
-		"Unlikely argument type for equals(): Integer seems to be unrelated to String\n" +
-		"----------\n"
+		"""
+			----------
+			1. WARNING in test\\TestUnlikely.java (at line 30)
+				c.remove(o); // warning: unrelated interface
+				         ^
+			Unlikely argument type TestUnlikely.OtherInterface for remove(Object) on a Collection<TestUnlikely.Interface>
+			----------
+			2. WARNING in test\\TestUnlikely.java (at line 37)
+				c.remove(i); // warning: unrelated interface
+				         ^
+			Unlikely argument type TestUnlikely.Interface for remove(Object) on a Collection<TestUnlikely.OtherInterface>
+			----------
+			3. WARNING in test\\TestUnlikely.java (at line 39)
+				c.remove(f); // warning: impossible
+				         ^
+			Unlikely argument type TestUnlikely.Final for remove(Object) on a Collection<TestUnlikely.OtherInterface>
+			----------
+			4. WARNING in test\\TestUnlikely.java (at line 40)
+				c.remove(nf); // warning: castable, but not supertype
+				         ^^
+			Unlikely argument type TestUnlikely.NonFinal for remove(Object) on a Collection<TestUnlikely.OtherInterface>
+			----------
+			5. WARNING in test\\TestUnlikely.java (at line 46)
+				c.remove(o); // warning: impossible
+				         ^
+			Unlikely argument type TestUnlikely.OtherInterface for remove(Object) on a Collection<TestUnlikely.Final>
+			----------
+			6. WARNING in test\\TestUnlikely.java (at line 48)
+				c.remove(nf); // warning: impossible
+				         ^^
+			Unlikely argument type TestUnlikely.NonFinal for remove(Object) on a Collection<TestUnlikely.Final>
+			----------
+			7. WARNING in test\\TestUnlikely.java (at line 49)
+				c.remove(s); // warning: impossible
+				         ^
+			Unlikely argument type TestUnlikely.Sub for remove(Object) on a Collection<TestUnlikely.Final>
+			----------
+			8. WARNING in test\\TestUnlikely.java (at line 54)
+				c.remove(o); // warning: unrelated interface
+				         ^
+			Unlikely argument type TestUnlikely.OtherInterface for remove(Object) on a Collection<TestUnlikely.NonFinal>
+			----------
+			9. WARNING in test\\TestUnlikely.java (at line 55)
+				c.remove(f); // warning: impossible
+				         ^
+			Unlikely argument type TestUnlikely.Final for remove(Object) on a Collection<TestUnlikely.NonFinal>
+			----------
+			10. WARNING in test\\TestUnlikely.java (at line 63)
+				c.remove(f); // warning: impossible
+				         ^
+			Unlikely argument type TestUnlikely.Final for remove(Object) on a Collection<TestUnlikely.Sub>
+			----------
+			11. WARNING in test\\TestUnlikely.java (at line 70)
+				map.containsKey(value); // warning
+				                ^^^^^
+			Unlikely argument type V for containsKey(Object) on a Map<K,V>
+			----------
+			12. WARNING in test\\TestUnlikely.java (at line 71)
+				map.containsValue(key); // warning
+				                  ^^^
+			Unlikely argument type K for containsValue(Object) on a Map<K,V>
+			----------
+			13. WARNING in test\\TestUnlikely.java (at line 95)
+				if (c.contains(iterator.next())) { // warning
+				               ^^^^^^^^^^^^^^^
+			Unlikely argument type U for contains(Object) on a Collection<T>
+			----------
+			14. WARNING in test\\TestUnlikely.java (at line 105)
+				c.removeAll(other); // warning
+				            ^^^^^
+			Unlikely argument type Set<TestUnlikely.Final> for removeAll(Collection<?>) on a Collection<TestUnlikely.NonFinal>
+			----------
+			15. WARNING in test\\TestUnlikely.java (at line 111)
+				Predicate<OtherInterface> p2 = c::contains; // warning
+				                               ^^^^^^^^^^^
+			Unlikely argument type TestUnlikely.OtherInterface for contains(Object) on a Collection<TestUnlikely.Interface>
+			----------
+			16. WARNING in test\\TestUnlikely.java (at line 112)
+				BiPredicate<Collection<Interface>, OtherInterface> bp2 = Collection<Interface>::contains; // warning
+				                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Unlikely argument type TestUnlikely.OtherInterface for contains(Object) on a Collection<TestUnlikely.Interface>
+			----------
+			17. INFO in test\\TestUnlikely.java (at line 120)
+				s.equals(i); // info
+				         ^
+			Unlikely argument type for equals(): Integer seems to be unrelated to String
+			----------
+			18. INFO in test\\TestUnlikely.java (at line 121)
+				i.equals(s); // info
+				         ^
+			Unlikely argument type for equals(): String seems to be unrelated to Integer
+			----------
+			19. INFO in test\\TestUnlikely.java (at line 125)
+				Predicate<String> p1 = i::equals; // info
+				                       ^^^^^^^^^
+			Unlikely argument type for equals(): String seems to be unrelated to Integer
+			----------
+			20. INFO in test\\TestUnlikely.java (at line 128)
+				BiPredicate<String, Integer> bp2 = Object::equals; // info
+				                                   ^^^^^^^^^^^^^^
+			Unlikely argument type for equals(): Integer seems to be unrelated to String
+			----------
+			21. INFO in test\\TestUnlikely.java (at line 131)
+				Objects.equals(s, i); // info
+				                  ^
+			Unlikely argument type for equals(): Integer seems to be unrelated to String
+			----------
+			22. INFO in test\\TestUnlikely.java (at line 132)
+				Objects.equals(i, s); // info
+				                  ^
+			Unlikely argument type for equals(): String seems to be unrelated to Integer
+			----------
+			23. INFO in test\\TestUnlikely.java (at line 136)
+				BiPredicate<String, Integer> bp3 = Objects::equals; // info
+				                                   ^^^^^^^^^^^^^^^
+			Unlikely argument type for equals(): Integer seems to be unrelated to String
+			----------
+			"""
 		,
 		null/*classLibraries*/,
 		true/*shouldFlushOutputDirectory*/,
@@ -3234,15 +3439,17 @@ public void testBug514956a() {
 	runConformTest(
 		new String[] {
 			"Unlikely.java",
-			"import java.util.Map;\n" +
-			"\n" +
-			"interface MApplicationElement {}\n" +
-			"interface EObject {}\n" +
-			"public class Unlikely {\n" +
-			"	void m(Map<MApplicationElement, MApplicationElement> map, EObject key) {\n" +
-			"		map.get((MApplicationElement)key);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.Map;
+				
+				interface MApplicationElement {}
+				interface EObject {}
+				public class Unlikely {
+					void m(Map<MApplicationElement, MApplicationElement> map, EObject key) {
+						map.get((MApplicationElement)key);
+					}
+				}
+				"""
 		},
 		customOptions);
 }
@@ -3253,12 +3460,14 @@ public void testBug514956b() {
 	runConformTest(
 		new String[] {
 			"Unlikely.java",
-			"interface EObject {}\n" +
-			"public class Unlikely {\n" +
-			"	boolean m(EObject key) {\n" +
-			"		return this.equals((Unlikely)key);\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				interface EObject {}
+				public class Unlikely {
+					boolean m(EObject key) {
+						return this.equals((Unlikely)key);
+					}
+				}
+				"""
 		},
 		customOptions);
 }
@@ -3281,22 +3490,24 @@ public void testBug514956c() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in Unlikely.java (at line 6)\n" +
-		"	return i1.equals((I1)this);\n" +
-		"	                 ^^^^^^^^\n" +
-		"Unnecessary cast from Unlikely to I1\n" +
-		"----------\n" +
-		"2. ERROR in Unlikely.java (at line 9)\n" +
-		"	return i1.equals((I3)i2);\n" +
-		"	                 ^^^^^^\n" +
-		"Unnecessary cast from I2 to I3\n" +
-		"----------\n" +
-		"3. WARNING in Unlikely.java (at line 9)\n" +
-		"	return i1.equals((I3)i2);\n" +
-		"	                 ^^^^^^\n" +
-		"Unlikely argument type for equals(): I3 seems to be unrelated to I1\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in Unlikely.java (at line 6)
+				return i1.equals((I1)this);
+				                 ^^^^^^^^
+			Unnecessary cast from Unlikely to I1
+			----------
+			2. ERROR in Unlikely.java (at line 9)
+				return i1.equals((I3)i2);
+				                 ^^^^^^
+			Unnecessary cast from I2 to I3
+			----------
+			3. WARNING in Unlikely.java (at line 9)
+				return i1.equals((I3)i2);
+				                 ^^^^^^
+			Unlikely argument type for equals(): I3 seems to be unrelated to I1
+			----------
+			""",
 		null, // classlibs
 		false, // flush output dir
 		customOptions);
@@ -3347,17 +3558,19 @@ public void testGH567() {
 				"    }\n" +
 				"}"
 			},
-			"----------\n"
-			+ "1. WARNING in X.java (at line 4)\n"
-			+ "	if (o instanceof String s) { int x; }\n"
-			+ "	                        ^\n"
-			+ "The value of the local variable s is not used\n"
-			+ "----------\n"
-			+ "2. WARNING in X.java (at line 4)\n"
-			+ "	if (o instanceof String s) { int x; }\n"
-			+ "	                                 ^\n"
-			+ "The value of the local variable x is not used\n"
-			+ "----------\n",
+			"""
+				----------
+				1. WARNING in X.java (at line 4)
+					if (o instanceof String s) { int x; }
+					                        ^
+				The value of the local variable s is not used
+				----------
+				2. WARNING in X.java (at line 4)
+					if (o instanceof String s) { int x; }
+					                                 ^
+				The value of the local variable x is not used
+				----------
+				""",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);

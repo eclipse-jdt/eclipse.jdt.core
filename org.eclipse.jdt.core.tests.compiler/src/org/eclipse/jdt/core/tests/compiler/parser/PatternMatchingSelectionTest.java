@@ -31,15 +31,16 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 		super(testName);
 	}
 	public void test001() throws JavaModelException {
-		String string =  "public class X {\n"
-				+ "    protected Object x_ = \"FIELD X\";\n"
-				+ "    @SuppressWarnings(\"preview\")\n"
-				+ "	   public void f(Object obj, boolean b) {\n"
-				+ "        if ((x_ instanceof String y) && y.length() > 0) {\n"
-				+ "            System.out.println(y.toLowerCase());\n"
-				+ "        }\n"
-				+ "    }\n"
-				+ "}";
+		String string =  """
+			public class X {
+			    protected Object x_ = "FIELD X";
+			    @SuppressWarnings("preview")
+				   public void f(Object obj, boolean b) {
+			        if ((x_ instanceof String y) && y.length() > 0) {
+			            System.out.println(y.toLowerCase());
+			        }
+			    }
+			}""";
 
 		String selection = "x_";
 		String selectKey = "<SelectOnName:";
@@ -47,15 +48,17 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 
 		String selectionIdentifier = "x_";
 		String expectedUnitDisplayString =
-				"public class X {\n" +
-						"  protected Object x_;\n" +
-						"  public X() {\n" +
-						"  }\n" +
-						"  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n" +
-						"    if (<SelectOnName:x_>)\n" +
-						"        ;\n" +
-						"  }\n" +
-						"}\n";
+				"""
+			public class X {
+			  protected Object x_;
+			  public X() {
+			  }
+			  public @SuppressWarnings("preview") void f(Object obj, boolean b) {
+			    if (<SelectOnName:x_>)
+			        ;
+			  }
+			}
+			""";
 		String expectedReplacedSource = "x_";
 		String testName = "X.java";
 
@@ -66,15 +69,16 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 				selectionIdentifier, expectedReplacedSource, testName);
 	}
 	public void test002() throws JavaModelException {
-		String string =  "public class X {\n"
-				+ "    protected Object x_ = \"FIELD X\";\n"
-				+ "    @SuppressWarnings(\"preview\")\n"
-				+ "	   public void f(Object obj, boolean b) {\n"
-				+ "        if ((x_ instanceof String y_) && y_.length() > 0) {\n"
-				+ "            System.out.println(y_.toLowerCase());\n"
-				+ "        }\n"
-				+ "    }\n"
-				+ "}";
+		String string =  """
+			public class X {
+			    protected Object x_ = "FIELD X";
+			    @SuppressWarnings("preview")
+				   public void f(Object obj, boolean b) {
+			        if ((x_ instanceof String y_) && y_.length() > 0) {
+			            System.out.println(y_.toLowerCase());
+			        }
+			    }
+			}""";
 
 		String selection = "y_";
 		String selectKey = "<SelectOnName:";
@@ -82,19 +86,21 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 
 		String selectionIdentifier = "y_";
 		String expectedUnitDisplayString =
-				"public class X {\n" +
-						"  protected Object x_;\n" +
-						"  public X() {\n" +
-						"  }\n" +
-						"  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n" +
-					    "    {\n" +
-						"      if (((x_ instanceof String y_) && (y_.length() > 0)))\n" +
-						"          {\n" +
-						"            <SelectOnName:y_>;\n" +
-						"          }\n" +
-						"    }\n" +
-						"  }\n" +
-						"}\n";
+				"""
+			public class X {
+			  protected Object x_;
+			  public X() {
+			  }
+			  public @SuppressWarnings("preview") void f(Object obj, boolean b) {
+			    {
+			      if (((x_ instanceof String y_) && (y_.length() > 0)))
+			          {
+			            <SelectOnName:y_>;
+			          }
+			    }
+			  }
+			}
+			""";
 		String expectedReplacedSource = "y_";
 		String testName = "X.java";
 
@@ -105,13 +111,14 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 				selectionIdentifier, expectedReplacedSource, testName);
 	}
 	public void test003() throws JavaModelException {
-		String string =  "public class X {\n"
-				+ "    protected Object x_ = \"FIELD X\";\n"
-				+ "    @SuppressWarnings(\"preview\")\n"
-				+ "	   public void f(Object obj, boolean b) {\n"
-				+ "        b = (x_ instanceof String y_) && (y_.length() > 0);\n"
-				+ "    }\n"
-				+ "}";
+		String string =  """
+			public class X {
+			    protected Object x_ = "FIELD X";
+			    @SuppressWarnings("preview")
+				   public void f(Object obj, boolean b) {
+			        b = (x_ instanceof String y_) && (y_.length() > 0);
+			    }
+			}""";
 
 		String selection = "y_";
 		String selectKey = "<SelectOnName:";
@@ -119,14 +126,16 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 
 		String selectionIdentifier = "y_";
 		String expectedUnitDisplayString =
-				"public class X {\n" +
-						"  protected Object x_;\n" +
-						"  public X() {\n" +
-						"  }\n" +
-						"  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n" +
-						"    ((x_ instanceof String y_) && <SelectOnName:y_>);\n" +
-						"  }\n" +
-						"}\n";
+				"""
+			public class X {
+			  protected Object x_;
+			  public X() {
+			  }
+			  public @SuppressWarnings("preview") void f(Object obj, boolean b) {
+			    ((x_ instanceof String y_) && <SelectOnName:y_>);
+			  }
+			}
+			""";
 		String expectedReplacedSource = "y_";
 		String testName = "X.java";
 
@@ -137,12 +146,13 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 				selectionIdentifier, expectedReplacedSource, testName);
 	}
 	public void test004() throws JavaModelException {
-		String string =  "public class X {\n"
-				+ "    @SuppressWarnings(\"preview\")\n"
-				+ "	   public void f(Object obj, boolean b) {\n"
-				+ "        b = (x_ instanceof String y_) && (y_.length() > 0);\n"
-				+ "    }\n"
-				+ "}";
+		String string =  """
+			public class X {
+			    @SuppressWarnings("preview")
+				   public void f(Object obj, boolean b) {
+			        b = (x_ instanceof String y_) && (y_.length() > 0);
+			    }
+			}""";
 
 		String selection = "y_";
 		String selectKey = "<SelectionOnLocalName:String ";
@@ -150,13 +160,15 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 
 		String selectionIdentifier = "y_";
 		String expectedUnitDisplayString =
-				"public class X {\n" +
-						"  public X() {\n" +
-						"  }\n" +
-						"  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n" +
-						"    b = ((x_ instanceof <SelectionOnLocalName:String y_>) && (y_.length() > 0));\n" +
-						"  }\n" +
-						"}\n";
+				"""
+			public class X {
+			  public X() {
+			  }
+			  public @SuppressWarnings("preview") void f(Object obj, boolean b) {
+			    b = ((x_ instanceof <SelectionOnLocalName:String y_>) && (y_.length() > 0));
+			  }
+			}
+			""";
 		String expectedReplacedSource = "y_";
 		String testName = "X.java";
 
@@ -170,22 +182,24 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 	// Open Declaration(F3) broken in pattern instanceof #769
 	public void testGH769() throws JavaModelException {
 		String source =
-				"import java.util.Random;\n" +
-				"public class TestBug {\n" +
-				"	private static final void bugDemonstration() {\n" +
-				"		new Object() {					\n" +
-				"			private void methodA(Object object) {\n" +
-				"				if (!(object instanceof Random varX))\n" +
-				"					return;\n" +
-				"			}\n" +
-				"		\n" +
-				"			private void methodB(Object object) {\n" +
-				"				if (object instanceof String var1) {\n" +
-				"				}\n" +
-				"			}\n" +
-				"		};\n" +
-				"	}\n" +
-				"}\n";
+				"""
+			import java.util.Random;
+			public class TestBug {
+				private static final void bugDemonstration() {
+					new Object() {				\t
+						private void methodA(Object object) {
+							if (!(object instanceof Random varX))
+								return;
+						}
+				\t
+						private void methodB(Object object) {
+							if (object instanceof String var1) {
+							}
+						}
+					};
+				}
+			}
+			""";
 
 		String selection = "String";
 		String selectKey = "<SelectOnType:";
@@ -193,24 +207,26 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 
 		String completionIdentifier = "String";
 		String expectedUnitDisplayString =
-				"import java.util.Random;\n" +
-				"public class TestBug {\n" +
-				"  public TestBug() {\n" +
-				"  }\n" +
-				"  private static final void bugDemonstration() {\n" +
-				"    new Object() {\n" +
-				"      private void methodA(Object object) {\n" +
-				"        if ((! (object instanceof Random varX)))\n" +
-				"            return ;\n" +
-				"      }\n" +
-				"      private void methodB(Object object) {\n" +
-				"        if ((object instanceof <SelectOnType:String> var1))\n" +
-				"            {\n" +
-				"            }\n" +
-				"      }\n" +
-				"    };\n" +
-				"  }\n" +
-				"}\n";
+				"""
+			import java.util.Random;
+			public class TestBug {
+			  public TestBug() {
+			  }
+			  private static final void bugDemonstration() {
+			    new Object() {
+			      private void methodA(Object object) {
+			        if ((! (object instanceof Random varX)))
+			            return ;
+			      }
+			      private void methodB(Object object) {
+			        if ((object instanceof <SelectOnType:String> var1))
+			            {
+			            }
+			      }
+			    };
+			  }
+			}
+			""";
 
 
 
@@ -235,19 +251,21 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 	public void testGH1568() {
 		if (this.complianceLevel < ClassFileConstants.JDK17)
 			return;
-		String string =  "@SuppressWarnings(\"preview\")\n"
-						+ "public class X {\n"
-						+ "    public static Object k_;\n"
-						+ "    public int val_;\n"
-						+ "    public static void foo(X[] ar_ray) {\n"
-						+ "       if (k instanceof String z_) {\n"
-						+ "           System.out.println(\"Some statement\");\n"
-						+ "           for(X x_ : ar_ray) {\n"
-						+ "    	          int per = x_.val_ * 2;\n"
-						+ "           }\n"
-						+ "       }\n"
-						+ "    }\n"
-						+ "}\n";
+		String string =  """
+			@SuppressWarnings("preview")
+			public class X {
+			    public static Object k_;
+			    public int val_;
+			    public static void foo(X[] ar_ray) {
+			       if (k instanceof String z_) {
+			           System.out.println("Some statement");
+			           for(X x_ : ar_ray) {
+			    	          int per = x_.val_ * 2;
+			           }
+			       }
+			    }
+			}
+			""";
 
 		String selection = "x_";
 		String selectKey = "<SelectOnName:";
@@ -255,30 +273,32 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 
 		String selectionIdentifier = "x_";
 		String expectedUnitDisplayString =
-						"public @SuppressWarnings(\"preview\") class X {\n" +
-						"  public static Object k_;\n" +
-						"  public int val_;\n" +
-						"  <clinit>() {\n" +
-						"  }\n" +
-						"  public X() {\n" +
-						"  }\n" +
-						"  public static void foo(X[] ar_ray) {\n" +
-						"    {\n" +
-						"      {\n" +
-						"        if ((k instanceof String z_))\n" +
-						"            {\n" +
-			            "              System.out.println(\"Some statement\");\n" +
-						"              for (X x_ : ar_ray) \n" +
-						"                {\n" +
-						"                  int;\n" +
-						"                  int per;\n" +
-						"                  <SelectOnName:x_>;\n" +
-						"                }\n" +
-						"            }\n" +
-						"      }\n" +
-						"    }\n" +
-						"  }\n" +
-						"}\n";
+						"""
+			public @SuppressWarnings("preview") class X {
+			  public static Object k_;
+			  public int val_;
+			  <clinit>() {
+			  }
+			  public X() {
+			  }
+			  public static void foo(X[] ar_ray) {
+			    {
+			      {
+			        if ((k instanceof String z_))
+			            {
+			              System.out.println("Some statement");
+			              for (X x_ : ar_ray)\s
+			                {
+			                  int;
+			                  int per;
+			                  <SelectOnName:x_>;
+			                }
+			            }
+			      }
+			    }
+			  }
+			}
+			""";
 
 		String expectedReplacedSource = "x_";
 		String testName = "X.java";

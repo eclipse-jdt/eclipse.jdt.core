@@ -21,15 +21,16 @@ public class ColorTestCodeExample {
 	public static final String CODE_FULL_NAME = CODE_PACKAGE + "." + CODE_CLASS_NAME;
 
 	public static final String CODE =
-		"package colortestpackage;\r\n" +
-		"\r\n" +
-		"import org.eclipse.jdt.apt.tests.external.annotations.classloader.Color;\r\n" +
-		"import org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorAnnotation;\r\n" +
-		"import org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorWrapper;\r\n" +
-		"\r\n" +
-		"@ColorAnnotation(color = Color.RED)\r\n" +
-		"@ColorWrapper(colors = {@ColorAnnotation(color = Color.GREEN), @ColorAnnotation(color = Color.BLUE)})\r\n" +
-		"public class ColorTest {\r\n" +
-		"\r\n" +
-		"}";
+		"""
+		package colortestpackage;\r
+		\r
+		import org.eclipse.jdt.apt.tests.external.annotations.classloader.Color;\r
+		import org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorAnnotation;\r
+		import org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorWrapper;\r
+		\r
+		@ColorAnnotation(color = Color.RED)\r
+		@ColorWrapper(colors = {@ColorAnnotation(color = Color.GREEN), @ColorAnnotation(color = Color.BLUE)})\r
+		public class ColorTest {\r
+		\r
+		}""";
 }

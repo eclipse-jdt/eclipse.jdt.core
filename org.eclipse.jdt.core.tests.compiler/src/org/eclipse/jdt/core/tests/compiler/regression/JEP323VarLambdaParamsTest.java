@@ -55,15 +55,17 @@ public void testBug534787_positive_001() throws IOException {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I lam = (var  x) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-				"        lam.apply(20);\n" +
-				"    }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"    public void apply(Integer k);\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        I lam = (var  x) -> {System.out.println("SUCCESS " + x);};
+					        lam.apply(20);
+					    }
+					}
+					interface I {
+					    public void apply(Integer k);
+					}
+					"""
 			},
 			"SUCCESS 20");
 }
@@ -71,15 +73,17 @@ public void testBug534787_positive_002() throws IOException {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I lam = (var  x, var y) -> {System.out.println(\"SUCCESS \" + (x+y));};\n" +
-				"        lam.apply(20, 200);\n" +
-				"    }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"    public void apply(Integer k, Integer l);\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        I lam = (var  x, var y) -> {System.out.println("SUCCESS " + (x+y));};
+					        lam.apply(20, 200);
+					    }
+					}
+					interface I {
+					    public void apply(Integer k, Integer l);
+					}
+					"""
 			},
 			"SUCCESS 220");
 }
@@ -87,15 +91,17 @@ public void testBug534787_positive_003() throws IOException {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I lam = var -> {System.out.println(\"SUCCESS \" + var);};\n" +
-				"        lam.apply(10);\n" +
-				"    }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"    public void apply(Integer k);\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        I lam = var -> {System.out.println("SUCCESS " + var);};
+					        lam.apply(10);
+					    }
+					}
+					interface I {
+					    public void apply(Integer k);
+					}
+					"""
 			},
 			"SUCCESS 10");
 }
@@ -103,15 +109,17 @@ public void testBug534787_positive_004() throws IOException {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I lam = (var var) -> {System.out.println(\"SUCCESS \" + var);};\n" +
-				"        lam.apply(10);\n" +
-				"    }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"    public void apply(Integer k);\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        I lam = (var var) -> {System.out.println("SUCCESS " + var);};
+					        lam.apply(10);
+					    }
+					}
+					interface I {
+					    public void apply(Integer k);
+					}
+					"""
 			},
 			"SUCCESS 10");
 }
@@ -119,227 +127,259 @@ public void testBug534787_negative_001() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-				"    }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"    public void apply(Integer k, Integer z);\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        I lam = (var  x, y) -> {System.out.println("SUCCESS " + x);};
+					    }
+					}
+					interface I {
+					    public void apply(Integer k, Integer z);
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-			"	         ^^^\n" +
-			"Syntax error on token \"var\", ( expected after this token\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-			"	                  ^\n" +
-			"Syntax error on token \")\", delete this token\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-			"	                                                           ^\n" +
-			"Syntax error, insert \")\" to complete Expression\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 3)\n" +
-			"	I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-			"	                                                           ^\n" +
-			"Syntax error, insert \")\" to complete Expression\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					I lam = (var  x, y) -> {System.out.println("SUCCESS " + x);};
+					         ^^^
+				Syntax error on token "var", ( expected after this token
+				----------
+				2. ERROR in X.java (at line 3)
+					I lam = (var  x, y) -> {System.out.println("SUCCESS " + x);};
+					                  ^
+				Syntax error on token ")", delete this token
+				----------
+				3. ERROR in X.java (at line 3)
+					I lam = (var  x, y) -> {System.out.println("SUCCESS " + x);};
+					                                                           ^
+				Syntax error, insert ")" to complete Expression
+				----------
+				4. ERROR in X.java (at line 3)
+					I lam = (var  x, y) -> {System.out.println("SUCCESS " + x);};
+					                                                           ^
+				Syntax error, insert ")" to complete Expression
+				----------
+				""");
 }
 public void testBug534787_negative_002() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I lam = (var  x, Integer y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-				"        lam.apply(20, 200);\n" +
-				"    }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"    public void apply(Integer k, Integer z);\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        I lam = (var  x, Integer y) -> {System.out.println("SUCCESS " + x);};
+					        lam.apply(20, 200);
+					    }
+					}
+					interface I {
+					    public void apply(Integer k, Integer z);
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	I lam = (var  x, Integer y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-			"	              ^\n" +
-			"\'var\' cannot be mixed with non-var parameters\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					I lam = (var  x, Integer y) -> {System.out.println("SUCCESS " + x);};
+					              ^
+				'var' cannot be mixed with non-var parameters
+				----------
+				""");
 }
 public void testBug534787_negative_003() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I lam = (Integer  x, var y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-				"        lam.apply(20, 200);\n" +
-				"    }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"    public void apply(Integer k, Integer z);\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        I lam = (Integer  x, var y) -> {System.out.println("SUCCESS " + x);};
+					        lam.apply(20, 200);
+					    }
+					}
+					interface I {
+					    public void apply(Integer k, Integer z);
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	I lam = (Integer  x, var y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-			"	                         ^\n" +
-			"'var' cannot be mixed with non-var parameters\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					I lam = (Integer  x, var y) -> {System.out.println("SUCCESS " + x);};
+					                         ^
+				'var' cannot be mixed with non-var parameters
+				----------
+				""");
 }
 public void testBug534787_negative_004() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I lam = (var  x, var y, var...s) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-				"        lam.apply(20, 200, \"hello\");\n" +
-				"    }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"    public void apply(Integer k, Integer z, String s);\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        I lam = (var  x, var y, var...s) -> {System.out.println("SUCCESS " + x);};
+					        lam.apply(20, 200, "hello");
+					    }
+					}
+					interface I {
+					    public void apply(Integer k, Integer z, String s);
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	I lam = (var  x, var y, var...s) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-			"	                              ^\n" +
-			"'var' is not allowed as an element type of an array\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					I lam = (var  x, var y, var...s) -> {System.out.println("SUCCESS " + x);};
+					                              ^
+				'var' is not allowed as an element type of an array
+				----------
+				""");
 }
 public void testBug534787_negative_005() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I lam = (var  x, Integer y, var...s) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-				"        lam.apply(20, 200, \"hello\");\n" +
-				"    }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"    public void apply(Integer k, Integer z, String s);\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        I lam = (var  x, Integer y, var...s) -> {System.out.println("SUCCESS " + x);};
+					        lam.apply(20, 200, "hello");
+					    }
+					}
+					interface I {
+					    public void apply(Integer k, Integer z, String s);
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	I lam = (var  x, Integer y, var...s) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-			"	              ^\n" +
-			"'var' cannot be mixed with non-var parameters\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	I lam = (var  x, Integer y, var...s) -> {System.out.println(\"SUCCESS \" + x);};\n" +
-			"	                                  ^\n" +
-			"'var' is not allowed as an element type of an array\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					I lam = (var  x, Integer y, var...s) -> {System.out.println("SUCCESS " + x);};
+					              ^
+				'var' cannot be mixed with non-var parameters
+				----------
+				2. ERROR in X.java (at line 3)
+					I lam = (var  x, Integer y, var...s) -> {System.out.println("SUCCESS " + x);};
+					                                  ^
+				'var' is not allowed as an element type of an array
+				----------
+				""");
 }
 
 public void testBug534787_negative_006() throws IOException {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    public static void main(String [] args) {\n" +
-				"        I lam = var  x -> {System.out.println(\"SUCCESS \" + x);};\n" +
-				"    }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"    public void apply(Integer k);\n" +
-				"}\n"
+				"""
+					public class X {
+					    public static void main(String [] args) {
+					        I lam = var  x -> {System.out.println("SUCCESS " + x);};
+					    }
+					}
+					interface I {
+					    public void apply(Integer k);
+					}
+					"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	I lam = var  x -> {System.out.println(\"SUCCESS \" + x);};\n" +
-			"	             ^\n" +
-			"Syntax error on token \"x\", delete this token\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					I lam = var  x -> {System.out.println("SUCCESS " + x);};
+					             ^
+				Syntax error on token "x", delete this token
+				----------
+				""");
 }
 public void testBug536159_01() throws IOException {
 	runConformTest(new String[] {
 			"X.java",
-			"public class X<T> {\n"
-			+ "public static void main(String[] args) {\n"
-			+ "  FI x = (int i []) -> 5;\n"
-			+ "    }\n"
-			+ "}\n"
-			+ "interface FI {\n"
-			+ "  public int foo (int i []);\n"
-			+ "}"
+			"""
+				public class X<T> {
+				public static void main(String[] args) {
+				  FI x = (int i []) -> 5;
+				    }
+				}
+				interface FI {
+				  public int foo (int i []);
+				}"""
 	});
 }
 public void testBug536159_02() throws IOException {
 	runConformTest(new String[] {
 			"X.java",
-			"public class X<T> {\n"
-			+ "public static void main(String[] args) {\n"
-			+ "  FI x = (int[] i []) -> 5;\n"
-			+ "    }\n"
-			+ "}\n"
-			+ "interface FI {\n"
-			+ "  public int foo (int i [][]);\n"
-			+ "}"
+			"""
+				public class X<T> {
+				public static void main(String[] args) {
+				  FI x = (int[] i []) -> 5;
+				    }
+				}
+				interface FI {
+				  public int foo (int i [][]);
+				}"""
 	});
 }
 public void testBug536159_03() throws IOException {
 	runConformTest(new String[] {
 			"X.java",
-			"public class X<T> {\n"
-			+ "public static void main(String[] args) {\n"
-			+ "  FI x = (int i [][]) -> 5;\n"
-			+ "    }\n"
-			+ "}\n"
-			+ "interface FI {\n"
-			+ "  public int foo (int i [][]);\n"
-			+ "}"
+			"""
+				public class X<T> {
+				public static void main(String[] args) {
+				  FI x = (int i [][]) -> 5;
+				    }
+				}
+				interface FI {
+				  public int foo (int i [][]);
+				}"""
 	});
 }
 public void testBug536159_04() throws IOException {
 	runNegativeTest(new String[] {
 			"X.java",
-			"public class X<T> {\n"
-			+ "public static void main(String[] args) {\n"
-			+ "  FI x = (var i []) -> 5;\n"
-			+ "    }\n"
-			+ "}\n"
-			+ "interface FI {\n"
-			+ "  public int foo (int i []);\n"
-			+ "}"
+			"""
+				public class X<T> {
+				public static void main(String[] args) {
+				  FI x = (var i []) -> 5;
+				    }
+				}
+				interface FI {
+				  public int foo (int i []);
+				}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	FI x = (var i []) -> 5;\n" +
-			"	            ^\n" +
-			"\'var\' is not allowed as an element type of an array\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					FI x = (var i []) -> 5;
+					            ^
+				'var' is not allowed as an element type of an array
+				----------
+				""");
 }
 public void testBug541532_01() throws IOException {
 	runConformTest(new String[] {
 			"X.java",
-			"import java.util.Arrays;\n" +
-			"import java.util.List;\n" +
-			"\n" +
-			"public class X {\n" +
-			"\n" +
-			"	public static void foo(List<String> list) {\n" +
-			"		list.stream()\n" +
-			"		  .map((var s) -> s.toLowerCase())\n" +
-			"		  .forEach(System.out::println);\n" +
-			"\n" +
-			"		list.stream()\n" +
-			"		  .filter((var s) -> s.length() == 1)\n" +
-			"		  .forEach(System.out::println);\n" +
-			"	}\n" +
-			"	public static void main(String[] args) {\n" +
-			"		String[] greetings = {\"hello\", \"world\"};\n" +
-			"		X.foo(Arrays.asList(greetings));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				import java.util.Arrays;
+				import java.util.List;
+				
+				public class X {
+				
+					public static void foo(List<String> list) {
+						list.stream()
+						  .map((var s) -> s.toLowerCase())
+						  .forEach(System.out::println);
+				
+						list.stream()
+						  .filter((var s) -> s.length() == 1)
+						  .forEach(System.out::println);
+					}
+					public static void main(String[] args) {
+						String[] greetings = {"hello", "world"};
+						X.foo(Arrays.asList(greetings));
+					}
+				}
+				"""
 		},
 		"hello\nworld");
 }

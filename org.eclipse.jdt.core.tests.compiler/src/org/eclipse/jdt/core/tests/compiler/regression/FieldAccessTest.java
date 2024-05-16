@@ -45,19 +45,22 @@ public void test001() {
 	this.runConformTest(
 		new String[] {
 			"foo/BaseFoo.java",
-			"package foo;\n" +
-			"class BaseFoo {\n" +
-			" public static final int VAL = 0;\n" +
-			"}",
+			"""
+				package foo;
+				class BaseFoo {
+				 public static final int VAL = 0;
+				}""",
 			"foo/NextFoo.java",
-			"package foo;\n" +
-			"public class NextFoo extends BaseFoo {\n" +
-			"}",
+			"""
+				package foo;
+				public class NextFoo extends BaseFoo {
+				}""",
 			"bar/Bar.java",
-			"package bar;\n" +
-			"public class Bar {\n" +
-			" int v = foo.NextFoo.VAL;\n" +
-			"}"
+			"""
+				package bar;
+				public class Bar {
+				 int v = foo.NextFoo.VAL;
+				}"""
 		},
 		"");
 }
@@ -66,26 +69,31 @@ public void test002() {
 	this.runNegativeTest(
 		new String[] {
 			"foo/BaseFoo.java",
-			"package foo;\n" +
-			"public class BaseFoo {\n" +
-			" public static final int VAL = 0;\n" +
-			"}",
+			"""
+				package foo;
+				public class BaseFoo {
+				 public static final int VAL = 0;
+				}""",
 			"foo/NextFoo.java",
-			"package foo;\n" +
-			"public class NextFoo extends BaseFoo {\n" +
-			"}",
+			"""
+				package foo;
+				public class NextFoo extends BaseFoo {
+				}""",
 			"bar/Bar.java",
-			"package bar;\n" +
-			"public class Bar {\n" +
-			" int v = foo.NextFoo.VAL;\n" +
-			"}"
+			"""
+				package bar;
+				public class Bar {
+				 int v = foo.NextFoo.VAL;
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in bar\\Bar.java (at line 3)\n" +
-		"	int v = foo.NextFoo.VAL;\n" +
-		"	                    ^^^\n" +
-		"The static field BaseFoo.VAL should be accessed directly\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in bar\\Bar.java (at line 3)
+				int v = foo.NextFoo.VAL;
+				                    ^^^
+			The static field BaseFoo.VAL should be accessed directly
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=149004
@@ -95,21 +103,24 @@ public void test003() {
 	this.runConformTest(
 		new String[] {
 			"foo/BaseFoo.java",
-			"package foo;\n" +
-			"class BaseFoo {\n" +
-			" public static final int VAL = 0;\n" +
-			"}",
+			"""
+				package foo;
+				class BaseFoo {
+				 public static final int VAL = 0;
+				}""",
 			"foo/NextFoo.java",
-			"package foo;\n" +
-			"public class NextFoo extends BaseFoo {\n" +
-			"}",
+			"""
+				package foo;
+				public class NextFoo extends BaseFoo {
+				}""",
 			"bar/Bar.java",
-			"package bar;\n" +
-			"import foo.NextFoo;\n" +
-			"public class Bar {\n" +
-			"	NextFoo[] tab = new NextFoo[] { new NextFoo() };\n" +
-			"	int v = tab[0].VAL;\n" +
-			"}"
+			"""
+				package bar;
+				import foo.NextFoo;
+				public class Bar {
+					NextFoo[] tab = new NextFoo[] { new NextFoo() };
+					int v = tab[0].VAL;
+				}"""
 		},
 		"",
 		null,
@@ -126,30 +137,35 @@ public void test004() {
 		true,
 		new String[] {
 			"foo/BaseFoo.java",
-			"package foo;\n" +
-			"public class BaseFoo {\n" +
-			" public static final int VAL = 0;\n" +
-			"}",
+			"""
+				package foo;
+				public class BaseFoo {
+				 public static final int VAL = 0;
+				}""",
 			"foo/NextFoo.java",
-			"package foo;\n" +
-			"public class NextFoo extends BaseFoo {\n" +
-			"}",
+			"""
+				package foo;
+				public class NextFoo extends BaseFoo {
+				}""",
 			"bar/Bar.java",
-			"package bar;\n" +
-			"import foo.NextFoo;\n" +
-			"public class Bar {\n" +
-			"	NextFoo[] tab = new NextFoo[] { new NextFoo() };\n" +
-			"	int v = tab[0].VAL;\n" +
-			"}"
+			"""
+				package bar;
+				import foo.NextFoo;
+				public class Bar {
+					NextFoo[] tab = new NextFoo[] { new NextFoo() };
+					int v = tab[0].VAL;
+				}"""
 		},
 		null,
 		options,
-		"----------\n" +
-		"1. ERROR in bar\\Bar.java (at line 5)\n" +
-		"	int v = tab[0].VAL;\n" +
-		"	               ^^^\n" +
-		"The static field BaseFoo.VAL should be accessed directly\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in bar\\Bar.java (at line 5)
+				int v = tab[0].VAL;
+				               ^^^
+			The static field BaseFoo.VAL should be accessed directly
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142234
@@ -160,21 +176,24 @@ public void test005() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	private String memberVariable;\n" +
-			"	public String getMemberVariable() {\n" +
-			"		return (memberVariable);\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					private String memberVariable;
+					public String getMemberVariable() {
+						return (memberVariable);
+					}
+				}"""
 		},
 		null,
 		options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	return (memberVariable);\n" +
-		"	        ^^^^^^^^^^^^^^\n" +
-		"Unqualified access to the field X.memberVariable \n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				return (memberVariable);
+				        ^^^^^^^^^^^^^^
+			Unqualified access to the field X.memberVariable\s
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142234
@@ -185,21 +204,24 @@ public void test006() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	private String memberVariable;\n" +
-			"	public String getMemberVariable() {\n" +
-			"		return \\u0028memberVariable\\u0029;\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					private String memberVariable;
+					public String getMemberVariable() {
+						return \\u0028memberVariable\\u0029;
+					}
+				}"""
 		},
 		null,
 		options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	return \\u0028memberVariable\\u0029;\n" +
-		"	             ^^^^^^^^^^^^^^\n" +
-		"Unqualified access to the field X.memberVariable \n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				return \\u0028memberVariable\\u0029;
+				             ^^^^^^^^^^^^^^
+			Unqualified access to the field X.memberVariable\s
+			----------
+			""",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
@@ -209,25 +231,30 @@ public void test007() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	private void foo() {\n" +
-			"		new A().a2.a.test = 8;\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					private void foo() {
+						new A().a2.a.test = 8;
+					}
+				}""",
 			"A.java",
-			"class A {\n" +
-			"	private int test;\n" +
-			"	A a2;\n" +
-			"	A a = new A();\n" +
-			"}\n" +
-			"\n"
+			"""
+				class A {
+					private int test;
+					A a2;
+					A a = new A();
+				}
+				
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	new A().a2.a.test = 8;\n" +
-		"	             ^^^^\n" +
-		"The field A.test is not visible\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				new A().a2.a.test = 8;
+				             ^^^^
+			The field A.test is not visible
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -239,25 +266,30 @@ public void test008() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	private void foo() {\n" +
-			"		new A().a2.a.test = 8;\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					private void foo() {
+						new A().a2.a.test = 8;
+					}
+				}""",
 			"A.java",
-			"class A {\n" +
-			"	int test;\n" +
-			"	private A a2;\n" +
-			"	A a = new A();\n" +
-			"}\n" +
-			"\n"
+			"""
+				class A {
+					int test;
+					private A a2;
+					A a = new A();
+				}
+				
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	new A().a2.a.test = 8;\n" +
-		"	        ^^\n" +
-		"The field A.a2 is not visible\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				new A().a2.a.test = 8;
+				        ^^
+			The field A.a2 is not visible
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -269,25 +301,30 @@ public void test009() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	private void foo() {\n" +
-			"		new A().a2.a.test = 8;\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					private void foo() {
+						new A().a2.a.test = 8;
+					}
+				}""",
 			"A.java",
-			"class A {\n" +
-			"	int test;\n" +
-			"	A a2;\n" +
-			"	private A a = new A();\n" +
-			"}\n" +
-			"\n"
+			"""
+				class A {
+					int test;
+					A a2;
+					private A a = new A();
+				}
+				
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	new A().a2.a.test = 8;\n" +
-		"	           ^\n" +
-		"The field A.a is not visible\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				new A().a2.a.test = 8;
+				           ^
+			The field A.a is not visible
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -299,25 +336,30 @@ public void test010() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	private void foo() {\n" +
-			"		A.a2.a.test = 8;\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					private void foo() {
+						A.a2.a.test = 8;
+					}
+				}""",
 			"A.java",
-			"class A {\n" +
-			"	static int test;\n" +
-			"	static A a2;\n" +
-			"	static private A a = new A();\n" +
-			"}\n" +
-			"\n"
+			"""
+				class A {
+					static int test;
+					static A a2;
+					static private A a = new A();
+				}
+				
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	A.a2.a.test = 8;\n" +
-		"	     ^\n" +
-		"The field A.a is not visible\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				A.a2.a.test = 8;
+				     ^
+			The field A.a is not visible
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -329,25 +371,30 @@ public void test011() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	private void foo() {\n" +
-			"		A.a2.a.test = 8;\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					private void foo() {
+						A.a2.a.test = 8;
+					}
+				}""",
 			"A.java",
-			"class A {\n" +
-			"	static int test;\n" +
-			"	static private A a2;\n" +
-			"	static A a = new A();\n" +
-			"}\n" +
-			"\n"
+			"""
+				class A {
+					static int test;
+					static private A a2;
+					static A a = new A();
+				}
+				
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	A.a2.a.test = 8;\n" +
-		"	  ^^\n" +
-		"The field A.a2 is not visible\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				A.a2.a.test = 8;
+				  ^^
+			The field A.a2 is not visible
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -359,25 +406,30 @@ public void test012() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	private void foo() {\n" +
-			"		A.a2.a.test = 8;\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X {
+					private void foo() {
+						A.a2.a.test = 8;
+					}
+				}""",
 			"A.java",
-			"class A {\n" +
-			"	private static int test;\n" +
-			"	static A a2;\n" +
-			"	A a = new A();\n" +
-			"}\n" +
-			"\n"
+			"""
+				class A {
+					private static int test;
+					static A a2;
+					A a = new A();
+				}
+				
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	A.a2.a.test = 8;\n" +
-		"	       ^^^^\n" +
-		"The field A.test is not visible\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				A.a2.a.test = 8;
+				       ^^^^
+			The field A.test is not visible
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -389,22 +441,27 @@ public void test013() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X extends A {\n" +
-			"	private void foo() {\n" +
-			"		test = 8;\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X extends A {
+					private void foo() {
+						test = 8;
+					}
+				}""",
 			"A.java",
-			"class A {\n" +
-			"	private int test;\n" +
-			"}\n"
+			"""
+				class A {
+					private int test;
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	test = 8;\n" +
-		"	^^^^\n" +
-		"The field A.test is not visible\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				test = 8;
+				^^^^
+			The field A.test is not visible
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -416,22 +473,27 @@ public void test014() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X extends A {\n" +
-			"	private void foo() {\n" +
-			"		this.test = 8;\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X extends A {
+					private void foo() {
+						this.test = 8;
+					}
+				}""",
 			"A.java",
-			"class A {\n" +
-			"	private int test;\n" +
-			"}\n"
+			"""
+				class A {
+					private int test;
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	this.test = 8;\n" +
-		"	     ^^^^\n" +
-		"The field A.test is not visible\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				this.test = 8;
+				     ^^^^
+			The field A.test is not visible
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -443,23 +505,28 @@ public void test015() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X extends A {\n" +
-			"	private void foo() {\n" +
-			"		MyA.test = 8;\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X extends A {
+					private void foo() {
+						MyA.test = 8;
+					}
+				}""",
 			"A.java",
-			"class A {\n" +
-			"	private static A MyA;\n" +
-			"	static int test;\n" +
-			"}\n"
+			"""
+				class A {
+					private static A MyA;
+					static int test;
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	MyA.test = 8;\n" +
-		"	^^^\n" +
-		"The field A.MyA is not visible\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				MyA.test = 8;
+				^^^
+			The field A.MyA is not visible
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -471,24 +538,29 @@ public void test016() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X extends A {\n" +
-			"	private void foo() {\n" +
-			"		MyA2.MyA.test = 8;\n" +
-			"	}\n" +
-			"}",
+			"""
+				public class X extends A {
+					private void foo() {
+						MyA2.MyA.test = 8;
+					}
+				}""",
 			"A.java",
-			"class A {\n" +
-			"	private static A MyA;\n" +
-			"	static A MyA2;\n" +
-			"	static int test;\n" +
-			"}\n"
+			"""
+				class A {
+					private static A MyA;
+					static A MyA2;
+					static int test;
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	MyA2.MyA.test = 8;\n" +
-		"	     ^^^\n" +
-		"The field A.MyA is not visible\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 3)
+				MyA2.MyA.test = 8;
+				     ^^^
+			The field A.MyA is not visible
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -501,23 +573,27 @@ public void test017() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		Zork z;\n" +
-			"       private static class Inner1 {\n" +
-			"                private int field;\n" +
-			"       }\n" +
-			"       private static class Inner2 extends Inner1 {\n" +
-			"                private int field;\n" +
-			"                public void bar() {System.out.println(field);}\n" +
-			"       }\n" +
-			"}\n"
+			"""
+				public class X {
+						Zork z;
+				       private static class Inner1 {
+				                private int field;
+				       }
+				       private static class Inner2 extends Inner1 {
+				                private int field;
+				                public void bar() {System.out.println(field);}
+				       }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -530,34 +606,38 @@ public void test018() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		Zork z;\n" +
-			"		public static int field;\n" +
-			"       private static class Inner1 {\n" +
-			"                private int field;\n" +
-			"       }\n" +
-			"       private static class Inner2 extends Inner1 {\n" +
-			"                private int field;\n" +
-			"                public void bar() {System.out.println(field);}\n" +
-			"       }\n" +
-			"}\n"
+			"""
+				public class X {
+						Zork z;
+						public static int field;
+				       private static class Inner1 {
+				                private int field;
+				       }
+				       private static class Inner2 extends Inner1 {
+				                private int field;
+				                public void bar() {System.out.println(field);}
+				       }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	private int field;\n" +
-		"	            ^^^^^\n" +
-		"The field X.Inner1.field is hiding a field from type X\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 8)\n" +
-		"	private int field;\n" +
-		"	            ^^^^^\n" +
-		"The field X.Inner2.field is hiding a field from type X\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			2. WARNING in X.java (at line 5)
+				private int field;
+				            ^^^^^
+			The field X.Inner1.field is hiding a field from type X
+			----------
+			3. WARNING in X.java (at line 8)
+				private int field;
+				            ^^^^^
+			The field X.Inner2.field is hiding a field from type X
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -570,22 +650,26 @@ public void test019() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		Zork z;\n" +
-			"       private static class Inner1 {\n" +
-			"                private int field;\n" +
-			"       }\n" +
-			"       private static class Inner2 extends Inner1 {\n" +
-			"                public void bar(int field) {System.out.println(field);}\n" +
-			"       }\n" +
-			"}\n"
+			"""
+				public class X {
+						Zork z;
+				       private static class Inner1 {
+				                private int field;
+				       }
+				       private static class Inner2 extends Inner1 {
+				                public void bar(int field) {System.out.println(field);}
+				       }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -598,33 +682,37 @@ public void test020() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		Zork z;\n" +
-			"		public static int field;\n" +
-			"       private static class Inner1 {\n" +
-			"                private int field;\n" +
-			"       }\n" +
-			"       private static class Inner2 extends Inner1 {\n" +
-			"                public void bar(int field) {System.out.println(field);}\n" +
-			"       }\n" +
-			"}\n"
+			"""
+				public class X {
+						Zork z;
+						public static int field;
+				       private static class Inner1 {
+				                private int field;
+				       }
+				       private static class Inner2 extends Inner1 {
+				                public void bar(int field) {System.out.println(field);}
+				       }
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	private int field;\n" +
-		"	            ^^^^^\n" +
-		"The field X.Inner1.field is hiding a field from type X\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 8)\n" +
-		"	public void bar(int field) {System.out.println(field);}\n" +
-		"	                    ^^^^^\n" +
-		"The parameter field is hiding a field from type X\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				Zork z;
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			2. WARNING in X.java (at line 5)
+				private int field;
+				            ^^^^^
+			The field X.Inner1.field is hiding a field from type X
+			----------
+			3. WARNING in X.java (at line 8)
+				public void bar(int field) {System.out.println(field);}
+				                    ^^^^^
+			The parameter field is hiding a field from type X
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -636,21 +724,24 @@ public void test021() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	public void bar() {\n" +
-			"		ArrayList myList = new ArrayList();\n" +
-			"		int len = myList.length;\n" +
-			"	}\n" +
-			"}"
+			"""
+				import java.util.ArrayList;
+				
+				public class X {
+					public void bar() {
+						ArrayList myList = new ArrayList();
+						int len = myList.length;
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	int len = myList.length;\n" +
-		"	                 ^^^^^^\n" +
-		"length cannot be resolved or is not a field\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				int len = myList.length;
+				                 ^^^^^^
+			length cannot be resolved or is not a field
+			----------
+			""",
 		null,
 		true,
 		options);
@@ -660,164 +751,203 @@ public void test022() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"	static int NEW_FIELD;\n" +
-			"}",
+			"""
+				public class X {
+					static int NEW_FIELD;
+				}""",
 			"Y.java",
-			"public class Y {\n" +
-			"	void foo() {\n" +
-			"		int i = X.OLD_FIELD;\n" +
-			"	}\n" +
-			"	void bar() {\n" +
-			"		int j = X.OLD_FIELD;\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class Y {
+					void foo() {
+						int i = X.OLD_FIELD;
+					}
+					void bar() {
+						int j = X.OLD_FIELD;
+					}
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in Y.java (at line 3)\n" +
-		"	int i = X.OLD_FIELD;\n" +
-		"	          ^^^^^^^^^\n" +
-		"OLD_FIELD cannot be resolved or is not a field\n" +
-		"----------\n" +
-		"2. ERROR in Y.java (at line 6)\n" +
-		"	int j = X.OLD_FIELD;\n" +
-		"	          ^^^^^^^^^\n" +
-		"OLD_FIELD cannot be resolved or is not a field\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Y.java (at line 3)
+				int i = X.OLD_FIELD;
+				          ^^^^^^^^^
+			OLD_FIELD cannot be resolved or is not a field
+			----------
+			2. ERROR in Y.java (at line 6)
+				int j = X.OLD_FIELD;
+				          ^^^^^^^^^
+			OLD_FIELD cannot be resolved or is not a field
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171
 public void test023() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/A.java",
-			"package p1;\n" +
-			"public abstract class A {\n" +
-			"    protected int field;\n" +
-			"}\n",
+			"""
+				package p1;
+				public abstract class A {
+				    protected int field;
+				}
+				""",
 			"p2/B.java",
-			"package p2;\n" +
-			"import p1.A;\n" +
-			"public abstract class B extends A {\n" +
-			"    protected int field;\n" +
-			"}\n"
+			"""
+				package p2;
+				import p1.A;
+				public abstract class B extends A {
+				    protected int field;
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in p2\\B.java (at line 4)\n" +
-		"	protected int field;\n" +
-		"	              ^^^^^\n" +
-		"The field B.field is hiding a field from type A\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in p2\\B.java (at line 4)
+				protected int field;
+				              ^^^^^
+			The field B.field is hiding a field from type A
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171
 public void test024() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/A.java",
-			"package p1;\n" +
-			"public abstract class A extends Super {\n" +
-			"}\n",
+			"""
+				package p1;
+				public abstract class A extends Super {
+				}
+				""",
 			"p1/Super.java",
-			"package p1;\n" +
-			"public abstract class Super extends SuperSuper {\n" +
-			"}\n",
+			"""
+				package p1;
+				public abstract class Super extends SuperSuper {
+				}
+				""",
 			"p1/SuperSuper.java",
-			"package p1;\n" +
-			"public abstract class SuperSuper {\n" +
-			"    protected int field;\n" +
-			"}\n",
+			"""
+				package p1;
+				public abstract class SuperSuper {
+				    protected int field;
+				}
+				""",
 			"p2/B.java",
-			"package p2;\n" +
-			"import p1.A;\n" +
-			"public abstract class B extends A {\n" +
-			"    protected int field;\n" +
-			"}\n"
+			"""
+				package p2;
+				import p1.A;
+				public abstract class B extends A {
+				    protected int field;
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in p2\\B.java (at line 4)\n" +
-		"	protected int field;\n" +
-		"	              ^^^^^\n" +
-		"The field B.field is hiding a field from type SuperSuper\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in p2\\B.java (at line 4)
+				protected int field;
+				              ^^^^^
+			The field B.field is hiding a field from type SuperSuper
+			----------
+			""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171
 public void test025() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/A.java",
-			"package p1;\n" +
-			"public abstract class A extends Super {\n" +
-			"}\n",
+			"""
+				package p1;
+				public abstract class A extends Super {
+				}
+				""",
 			"p1/Super.java",
-			"package p1;\n" +
-			"public abstract class Super extends SuperSuper {\n" +
-			"}\n",
+			"""
+				package p1;
+				public abstract class Super extends SuperSuper {
+				}
+				""",
 			"p1/SuperSuper.java",
-			"package p1;\n" +
-			"public abstract class SuperSuper implements Interface{\n" +
-			"}\n",
+			"""
+				package p1;
+				public abstract class SuperSuper implements Interface{
+				}
+				""",
 			"p1/Interface.java",
-			"package p1;\n" +
-			"public interface Interface{\n" +
-			"    int field = 123;\n" +
-			"}\n",
+			"""
+				package p1;
+				public interface Interface{
+				    int field = 123;
+				}
+				""",
 			"p2/B.java",
-			"package p2;\n" +
-			"import p1.A;\n" +
-			"public abstract class B extends A {\n" +
-			"    protected int field;\n" +
-			"}\n"
+			"""
+				package p2;
+				import p1.A;
+				public abstract class B extends A {
+				    protected int field;
+				}
+				"""
 		},
-		"----------\n" +
-		"1. WARNING in p2\\B.java (at line 4)\n" +
-		"	protected int field;\n" +
-		"	              ^^^^^\n" +
-		"The field B.field is hiding a field from type Interface\n" +
-		"----------\n");
+		"""
+			----------
+			1. WARNING in p2\\B.java (at line 4)
+				protected int field;
+				              ^^^^^
+			The field B.field is hiding a field from type Interface
+			----------
+			""");
 }
 public void testBug361039() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // to leverage autounboxing
 	runNegativeTest(
 		new String[] {
 			"Bug361039.java",
-			"public class Bug361039 {\n" +
-			"	public Bug361039(boolean b) {\n" +
-			"	}\n" +
-			"	private Object foo() {\n" +
-			"		return new Bug361039(!((Boolean)this.f));\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				public class Bug361039 {
+					public Bug361039(boolean b) {
+					}
+					private Object foo() {
+						return new Bug361039(!((Boolean)this.f));
+					}
+				}
+				"""
 		},
-		"----------\n" +
-		"1. ERROR in Bug361039.java (at line 5)\n" +
-		"	return new Bug361039(!((Boolean)this.f));\n" +
-		"	                                     ^\n" +
-		"f cannot be resolved or is not a field\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in Bug361039.java (at line 5)
+				return new Bug361039(!((Boolean)this.f));
+				                                     ^
+			f cannot be resolved or is not a field
+			----------
+			""");
 }
 public void testBug568959_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // lambda
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n"+
-			" public void foo(Object o) {\n"+
-			"   I i = () -> {\n"+
-			"     while (o.eq) {\n"+
-			"       // nothing\n"+
-			"     }\n"+
-			"   };\n"+
-			" }\n"+
-			"}\n"+
-			"interface I { \n"+
-			" public abstract void run();\n"+
-			"}"
+			"""
+				public class X {
+				 public void foo(Object o) {
+				   I i = () -> {
+				     while (o.eq) {
+				       // nothing
+				     }
+				   };
+				 }
+				}
+				interface I {\s
+				 public abstract void run();
+				}"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	while (o.eq) {\n" +
-		"	         ^^\n" +
-		"eq cannot be resolved or is not a field\n" +
-		"----------\n");
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				while (o.eq) {
+				         ^^
+			eq cannot be resolved or is not a field
+			----------
+			""");
 }
 public static Class testClass() {
 	return FieldAccessTest.class;

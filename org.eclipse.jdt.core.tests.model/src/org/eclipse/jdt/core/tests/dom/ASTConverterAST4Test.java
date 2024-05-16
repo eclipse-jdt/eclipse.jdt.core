@@ -121,13 +121,14 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		unit.types().add(type);
 		assertTrue("Both AST trees should be identical", result.subtreeMatch(new ASTMatcher(), unit));//$NON-NLS-1$
 		String expected =
-			"package test0001;\n" +
-			"import java.util.*;\n" +
-			"public class Test {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(\"Hello\" + \" world\");\n" +
-			"	}\n" +
-			"}";
+			"""
+			package test0001;
+			import java.util.*;
+			public class Test {
+				public static void main(String[] args) {
+					System.out.println("Hello" + " world");
+				}
+			}""";
 		checkSourceRange(result, expected, source);
 	}
 
@@ -2130,15 +2131,16 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		expressionStatement = this.ast.newExpressionStatement(methodInvocation);
 		switchStatement.statements().add(expressionStatement);
 		assertTrue("Both AST trees should be identical", switchStatement.subtreeMatch(new ASTMatcher(), node));	//$NON-NLS-1$
-		String expectedSource = "switch(i) {\n" +//$NON-NLS-1$
-			 "			case 1: \n" +//$NON-NLS-1$
-			 "              break;\n" +//$NON-NLS-1$
-			 "			case 2:\n" +//$NON-NLS-1$
-			 "				System.out.println(2);\n" +//$NON-NLS-1$
-			 "              break;\n" +//$NON-NLS-1$
-			 "          default:\n" +//$NON-NLS-1$
-			 "				System.out.println(\"default\");\n" +//$NON-NLS-1$
-			 "		}"; //$NON-NLS-1$
+		String expectedSource = """
+			switch(i) {
+						case 1:\s
+			              break;
+						case 2:
+							System.out.println(2);
+			              break;
+			          default:
+							System.out.println("default");
+					}"""; //$NON-NLS-1$
 		checkSourceRange(node, expectedSource, source);
 		SwitchStatement switchStatement2 = (SwitchStatement) node;
 		List statements = switchStatement2.statements();
@@ -2518,10 +2520,11 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		catchBlock.setException(exceptionVariable);
 		tryStatement.catchClauses().add(catchBlock);
 		assertTrue("Both AST trees should be identical", tryStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
-		String expectedSource = "try {\n" +//$NON-NLS-1$
-			 "		} catch(Exception e) {\n" +//$NON-NLS-1$
-			 "		} finally {\n" +//$NON-NLS-1$
-			 "		}"; //$NON-NLS-1$
+		String expectedSource = """
+			try {
+					} catch(Exception e) {
+					} finally {
+					}"""; //$NON-NLS-1$
 		checkSourceRange(node, expectedSource, source);
 	}
 
@@ -2544,9 +2547,10 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		catchBlock.setException(exceptionVariable);
 		tryStatement.catchClauses().add(catchBlock);
 		assertTrue("Both AST trees should be identical", tryStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
-		String expectedSource = "try {\n" +//$NON-NLS-1$
-			 "		} catch(Exception e) {\n" +//$NON-NLS-1$
-			 "		}"; //$NON-NLS-1$
+		String expectedSource = """
+			try {
+					} catch(Exception e) {
+					}"""; //$NON-NLS-1$
 		checkSourceRange(node, expectedSource, source);
 	}
 
@@ -2575,10 +2579,11 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		catchBlock.setException(exceptionVariable);
 		tryStatement.catchClauses().add(catchBlock);
 		assertTrue("Both AST trees should be identical", tryStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
-		String expectedSource = "try {\n" +//$NON-NLS-1$
-			 "			return 2;\n" +//$NON-NLS-1$
-			 "		} catch(Exception e) {\n" +//$NON-NLS-1$
-			 "		}"; //$NON-NLS-1$
+		String expectedSource = """
+			try {
+						return 2;
+					} catch(Exception e) {
+					}"""; //$NON-NLS-1$
 		checkSourceRange(node, expectedSource, source);
 	}
 
@@ -3081,9 +3086,10 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
-		String expectedContents = "public class Test {\n" +//$NON-NLS-1$
-			"  int i;\n"  +//$NON-NLS-1$
-			"}";//$NON-NLS-1$
+		String expectedContents = """
+			public class Test {
+			  int i;
+			}""";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
 	}
 
@@ -3099,9 +3105,10 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
-		String expectedContents = "public class Test {\n" +//$NON-NLS-1$
-			"  int i;\n"  +//$NON-NLS-1$
-			"}";//$NON-NLS-1$
+		String expectedContents = """
+			public class Test {
+			  int i;
+			}""";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
 	}
 
@@ -3118,10 +3125,11 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		String expectedContents =
-			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
-			"public class Test {\n" +//$NON-NLS-1$
-			"  int i;\n"  +//$NON-NLS-1$
-			"}";//$NON-NLS-1$
+					 """
+			/** JavaDoc Comment*/
+			public class Test {
+			  int i;
+			}""";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
 		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 	}
@@ -4951,9 +4959,10 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
-		String expectedContents = "public class Test {\n" +//$NON-NLS-1$
-			"  int i;\n"  +//$NON-NLS-1$
-			"}";//$NON-NLS-1$
+		String expectedContents = """
+			public class Test {
+			  int i;
+			}""";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
 	}
 
@@ -4969,9 +4978,10 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		assertTrue("Javadoc must be null", actualJavadoc == null);//$NON-NLS-1$
-		String expectedContents = "public class Test {\n" +//$NON-NLS-1$
-			"  int i;\n"  +//$NON-NLS-1$
-			"}";//$NON-NLS-1$
+		String expectedContents = """
+			public class Test {
+			  int i;
+			}""";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
 	}
 
@@ -4988,10 +4998,11 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		String expectedContents =
-			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
-			"public class Test {\n" +//$NON-NLS-1$
-			"  int i;\n"  +//$NON-NLS-1$
-			"}";//$NON-NLS-1$
+					 """
+			/** JavaDoc Comment*/
+			public class Test {
+			  int i;
+			}""";//$NON-NLS-1$
 		checkSourceRange(node, expectedContents, source); //$NON-NLS-1$
 		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 	}
@@ -6219,11 +6230,12 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
 		assertNotNull("No anonymousclassdeclaration", anonymousClassDeclaration); //$NON-NLS-1$
 		String expectedSourceRange =
-			"{\n"+  //$NON-NLS-1$
-			"			void m(int k){\n"+ //$NON-NLS-1$
-			"				k= i;\n"+ //$NON-NLS-1$
-			"			}\n"+ //$NON-NLS-1$
-			"		}"; //$NON-NLS-1$
+					"""
+			{
+						void m(int k){
+							k= i;
+						}
+					}"""; //$NON-NLS-1$
 		checkSourceRange(anonymousClassDeclaration, expectedSourceRange, source);
 		List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 		assertEquals("Wrong size", 1, bodyDeclarations.size()); //$NON-NLS-1$
@@ -6495,14 +6507,16 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertTrue("Not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		String expectedSource =
-			"public void foo() {\n" + //$NON-NLS-1$
-			"		foo();\n" + //$NON-NLS-1$
-			"	}"; //$NON-NLS-1$
+					"""
+			public void foo() {
+					foo();
+				}"""; //$NON-NLS-1$
 		checkSourceRange(methodDeclaration, expectedSource, source);
 		expectedSource =
-			"{\n" + //$NON-NLS-1$
-			"		foo();\n" + //$NON-NLS-1$
-			"	}";		 //$NON-NLS-1$
+					"""
+			{
+					foo();
+				}""";		 //$NON-NLS-1$
 		checkSourceRange(methodDeclaration.getBody(), expectedSource, source);
 	}
 
@@ -6939,18 +6953,20 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
 		assertNotNull("No body", anonymousClassDeclaration); //$NON-NLS-1$
 		String expectedSource =
-				"{\n" + //$NON-NLS-1$
-				"			public void run() {\n" + //$NON-NLS-1$
-				"				/*]*/foo();/*[*/\n" + //$NON-NLS-1$
-				"			}\n" + //$NON-NLS-1$
-				"		}"; //$NON-NLS-1$
+						"""
+			{
+						public void run() {
+							/*]*/foo();/*[*/
+						}
+					}"""; //$NON-NLS-1$
 		checkSourceRange(anonymousClassDeclaration, expectedSource, source);
 		expectedSource =
-				"run= new Runnable() {\n" + //$NON-NLS-1$
-				"			public void run() {\n" + //$NON-NLS-1$
-				"				/*]*/foo();/*[*/\n" + //$NON-NLS-1$
-				"			}\n" + //$NON-NLS-1$
-				"		}"; //$NON-NLS-1$
+						"""
+			run= new Runnable() {
+						public void run() {
+							/*]*/foo();/*[*/
+						}
+					}"""; //$NON-NLS-1$
 		checkSourceRange(variableDeclarationFragment, expectedSource, source);
 	}
 
@@ -6968,15 +6984,17 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertTrue("Not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		String expectedSource =
-				"public void fails() {\n" + //$NON-NLS-1$
-				"		foo()\n" + //$NON-NLS-1$
-				"	}"; //$NON-NLS-1$
+						"""
+			public void fails() {
+					foo()
+				}"""; //$NON-NLS-1$
 		checkSourceRange(methodDeclaration, expectedSource, source, true/*expectMalformed*/);
 		Block block = methodDeclaration.getBody();
 		expectedSource =
-				"{\n" + //$NON-NLS-1$
-				"		foo()\n" + //$NON-NLS-1$
-				"	}"; //$NON-NLS-1$
+						"""
+			{
+					foo()
+				}"""; //$NON-NLS-1$
 		checkSourceRange(block, expectedSource, source);
 		node = getASTNode(compilationUnit, 0, 1);
 		assertTrue("Not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
@@ -7024,15 +7042,17 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertTrue("Not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		String expectedSource =
-				"public void fails() {\n" + //$NON-NLS-1$
-				"		foo()\n" + //$NON-NLS-1$
-				"	}"; //$NON-NLS-1$
+						"""
+			public void fails() {
+					foo()
+				}"""; //$NON-NLS-1$
 		checkSourceRange(methodDeclaration, expectedSource, source, true/*expectMalformed*/);
 		Block block = methodDeclaration.getBody();
 		expectedSource =
-				"{\n" + //$NON-NLS-1$
-				"		foo()\n" + //$NON-NLS-1$
-				"	}"; //$NON-NLS-1$
+						"""
+			{
+					foo()
+				}"""; //$NON-NLS-1$
 		checkSourceRange(block, expectedSource, source);
 		node = getASTNode(compilationUnit, 0, 1);
 		assertTrue("Not a method declaration", node instanceof MethodDeclaration); //$NON-NLS-1$
@@ -7150,9 +7170,10 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertTrue("Not a DoStatement", node instanceof DoStatement); //$NON-NLS-1$
 		DoStatement doStatement = (DoStatement) node;
 		String expectedSource =
-				"do\n" +   //$NON-NLS-1$
-				"			foo();\n" +  //$NON-NLS-1$
-				"		while(1 < 10);"; //$NON-NLS-1$
+						"""
+			do
+						foo();
+					while(1 < 10);"""; //$NON-NLS-1$
 		checkSourceRange(doStatement, expectedSource, source);
 	}
 
@@ -7206,11 +7227,12 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 	 */
 	public void test0305() {
 		char[] source =
-				("package test0305;\n" +  //$NON-NLS-1$
-				"\n" +  //$NON-NLS-1$
-				"class Test {\n" +  //$NON-NLS-1$
-				"	public void foo(int arg) {}\n" +  //$NON-NLS-1$
-				"}").toCharArray(); //$NON-NLS-1$
+						("""
+			package test0305;
+			
+			class Test {
+				public void foo(int arg) {}
+			}""").toCharArray(); //$NON-NLS-1$
 		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
 		ASTNode result = runConversion(getJLS4(), source, "Test.java", project, true); //$NON-NLS-1$
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
@@ -7231,11 +7253,12 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 	 */
 	public void test0306() {
 		char[] source =
-				("package java.lang;\n" +  //$NON-NLS-1$
-				"\n" +  //$NON-NLS-1$
-				"class Object {\n" +  //$NON-NLS-1$
-				"	public void foo(int arg) {}\n" +  //$NON-NLS-1$
-				"}").toCharArray(); //$NON-NLS-1$
+						("""
+			package java.lang;
+			
+			class Object {
+				public void foo(int arg) {}
+			}""").toCharArray(); //$NON-NLS-1$
 		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
 		ASTNode result = runConversion(getJLS4(), source, "Object.java", project, true); //$NON-NLS-1$
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
@@ -8205,11 +8228,12 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertNotNull("not null", node); //$NON-NLS-1$
 		assertTrue("not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		String expectedSource =
-			"public void setX(boolean x) {\n" +  //$NON-NLS-1$
-			" 		{\n" +  //$NON-NLS-1$
-			"		z\n" +  //$NON-NLS-1$
-			"	}\n" +  //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"""
+			public void setX(boolean x) {
+			 		{
+					z
+				}
+			}"""; //$NON-NLS-1$
 		checkSourceRange(node, expectedSource, source, true/*expectMalformed*/);
 		int methodEndPosition = node.getStartPosition() + node.getLength();
 		node = getASTNode(compilationUnit, 0);
@@ -8288,62 +8312,69 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertNotNull("not null", node); //$NON-NLS-1$
 		assertTrue("Not an if statement", node.getNodeType() == ASTNode.IF_STATEMENT); //$NON-NLS-1$
 		String expectedSource =
-				"if (field != null) {\n" + //$NON-NLS-1$
-				"			throw new IOException();\n" + //$NON-NLS-1$
-				"		} else if (field == null) {\n" + //$NON-NLS-1$
-				"			throw new MalformedURLException();\n" + //$NON-NLS-1$
-				"		} else if (field == null) {\n" + //$NON-NLS-1$
-				"			throw new InterruptedIOException();\n" + //$NON-NLS-1$
-				"		} else {\n" + //$NON-NLS-1$
-				"			throw new UnsupportedEncodingException();\n" + //$NON-NLS-1$
-				"		}"; //$NON-NLS-1$
+						"""
+			if (field != null) {
+						throw new IOException();
+					} else if (field == null) {
+						throw new MalformedURLException();
+					} else if (field == null) {
+						throw new InterruptedIOException();
+					} else {
+						throw new UnsupportedEncodingException();
+					}"""; //$NON-NLS-1$
 		checkSourceRange(node, expectedSource, source);
 		IfStatement ifStatement = (IfStatement) node;
 		Statement thenStatement = ifStatement.getThenStatement();
 		expectedSource =
-				"{\n" + //$NON-NLS-1$
-				"			throw new IOException();\n" + //$NON-NLS-1$
-				"		}"; //$NON-NLS-1$
+						"""
+			{
+						throw new IOException();
+					}"""; //$NON-NLS-1$
 		checkSourceRange(thenStatement, expectedSource, source);
 		Statement elseStatement = ifStatement.getElseStatement();
 		expectedSource =
-				"if (field == null) {\n" + //$NON-NLS-1$
-				"			throw new MalformedURLException();\n" + //$NON-NLS-1$
-				"		} else if (field == null) {\n" + //$NON-NLS-1$
-				"			throw new InterruptedIOException();\n" + //$NON-NLS-1$
-				"		} else {\n" + //$NON-NLS-1$
-				"			throw new UnsupportedEncodingException();\n" + //$NON-NLS-1$
-				"		}"; //$NON-NLS-1$
+						"""
+			if (field == null) {
+						throw new MalformedURLException();
+					} else if (field == null) {
+						throw new InterruptedIOException();
+					} else {
+						throw new UnsupportedEncodingException();
+					}"""; //$NON-NLS-1$
 		checkSourceRange(elseStatement, expectedSource, source);
 		assertTrue("Not a if statement", elseStatement.getNodeType() == ASTNode.IF_STATEMENT); //$NON-NLS-1$
 		ifStatement = (IfStatement) elseStatement;
 		thenStatement = ifStatement.getThenStatement();
 		expectedSource =
-				"{\n" + //$NON-NLS-1$
-				"			throw new MalformedURLException();\n" + //$NON-NLS-1$
-				"		}"; //$NON-NLS-1$
+						"""
+			{
+						throw new MalformedURLException();
+					}"""; //$NON-NLS-1$
 		checkSourceRange(thenStatement, expectedSource, source);
 		elseStatement = ifStatement.getElseStatement();
 		expectedSource =
-				"if (field == null) {\n" + //$NON-NLS-1$
-				"			throw new InterruptedIOException();\n" + //$NON-NLS-1$
-				"		} else {\n" + //$NON-NLS-1$
-				"			throw new UnsupportedEncodingException();\n" + //$NON-NLS-1$
-				"		}"; //$NON-NLS-1$
+						"""
+			if (field == null) {
+						throw new InterruptedIOException();
+					} else {
+						throw new UnsupportedEncodingException();
+					}"""; //$NON-NLS-1$
 		checkSourceRange(elseStatement, expectedSource, source);
 		assertTrue("Not a if statement", elseStatement.getNodeType() == ASTNode.IF_STATEMENT); //$NON-NLS-1$
 		ifStatement = (IfStatement) elseStatement;
 		thenStatement = ifStatement.getThenStatement();
 		expectedSource =
-				"{\n" + //$NON-NLS-1$
-				"			throw new InterruptedIOException();\n" + //$NON-NLS-1$
-				"		}"; //$NON-NLS-1$
+						"""
+			{
+						throw new InterruptedIOException();
+					}"""; //$NON-NLS-1$
 		checkSourceRange(thenStatement, expectedSource, source);
 		elseStatement = ifStatement.getElseStatement();
 		expectedSource =
-				"{\n" + //$NON-NLS-1$
-				"			throw new UnsupportedEncodingException();\n" + //$NON-NLS-1$
-				"		}"; //$NON-NLS-1$
+						"""
+			{
+						throw new UnsupportedEncodingException();
+					}"""; //$NON-NLS-1$
 		checkSourceRange(elseStatement, expectedSource, source);
 	}
 

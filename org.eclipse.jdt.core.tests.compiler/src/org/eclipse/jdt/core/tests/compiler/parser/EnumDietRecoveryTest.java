@@ -219,29 +219,35 @@ public void checkParse(
 public void test0001() {
 
 	String s =
-		"package a;											\n"
-			+ "#\n"
-			+ "public enum X {								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#
+		public enum X {							\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  public X() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -260,35 +266,41 @@ public void test0001() {
 public void test0002() {
 
 	String s =
-		"package a;											\n"
-			+ "#\n"
-			+ "public enum X {								\n"
-			+ "  A,											\n"
-			+ "  B;											\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#
+		public enum X {							\t
+		  A,										\t
+		  B;										\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  A(),\n" +
-		"  B(),\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  A(),
+		  B(),
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  A(),\n" +
-		"  B(),\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  A(),
+		  B(),
+		  public X() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -307,37 +319,43 @@ public void test0002() {
 public void test0003() {
 
 	String s =
-		"package a;											\n"
-			+ "#\n"
-			+ "public enum X {								\n"
-			+ "  A(10),										\n"
-			+ "  B(){};										\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#
+		public enum X {							\t
+		  A(10),									\t
+		  B(){};									\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  A(10),\n" +
-		"  B() {\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  A(10),
+		  B() {
+		  },
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  A(10),\n" +
-		"  B() {\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  A(10),
+		  B() {
+		  },
+		  public X() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -356,41 +374,47 @@ public void test0003() {
 public void test0004() {
 
 	String s =
-		"package a;											\n"
-			+ "#\n"
-			+ "public enum X {								\n"
-			+ "  B(){										\n"
-			+ "    void foo(){								\n"
-			+ "    }										\n"
-			+ "  }  										\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#
+		public enum X {							\t
+		  B(){									\t
+		    void foo(){							\t
+		    }									\t
+		  }  									\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  public X() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -409,42 +433,48 @@ public void test0004() {
 public void test0005() {
 
 	String s =
-		"package a;											\n"
-			+ "#\n"
-			+ "public enum X {								\n"
-			+ "  B(){										\n"
-			+ "    void foo(){								\n"
-			+ "    }										\n"
-			+ "  };  										\n"
-			+ "  public X(){}								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#
+		public enum X {							\t
+		  B(){									\t
+		    void foo(){							\t
+		    }									\t
+		  };  									\t
+		  public X(){}							\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  <clinit>() {
+		  }
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  <clinit>() {
+		  }
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -463,46 +493,52 @@ public void test0005() {
 public void test0006() {
 
 	String s =
-		"package a;											\n"
-			+ "#\n"
-			+ "public enum X {								\n"
-			+ "  B(){										\n"
-			+ "    void foo(){								\n"
-			+ "    }										\n"
-			+ "  }  										\n"
-			+ "  public X(){} 								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#
+		public enum X {							\t
+		  B(){									\t
+		    void foo(){							\t
+		    }									\t
+		  }  									\t
+		  public X(){} 							\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  public X() {
+		  },
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  public X() {
+		  },
+		  public X() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -521,46 +557,52 @@ public void test0006() {
 public void test0007() {
 
 	String s =
-		"package a;											\n"
-			+ "#\n"
-			+ "public enum X {								\n"
-			+ "  B(){										\n"
-			+ "    void foo(){								\n"
-			+ "    }										\n"
-			+ "  }  										\n"
-			+ "  X(){} 								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#
+		public enum X {							\t
+		  B(){									\t
+		    void foo(){							\t
+		    }									\t
+		  }  									\t
+		  X(){} 							\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  X() {\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  X() {
+		  },
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  X() {\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  X() {
+		  },
+		  public X() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -579,40 +621,46 @@ public void test0007() {
 public void test0008() {
 
 	String s =
-		"package a;											\n"
-			+ "public enum X {								\n"
-			+ "  B(){										\n"
-			+ "    void foo(){								\n"
-			+ "    }										\n"
-			+ "  }  										\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public enum X {							\t
+		  B(){									\t
+		    void foo(){							\t
+		    }									\t
+		  }  									\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-		"    void foo() {\n" +
-		"    }\n" +
-		"  },\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  <clinit>() {
+		  }
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-		"    void foo() {\n" +
-		"    }\n" +
-		"  },\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  <clinit>() {
+		  }
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietPlusBodyUnitToString;
@@ -632,41 +680,47 @@ public void test0008() {
 public void test0009() {
 
 	String s =
-		"package a;											\n"
-			+ "#              								\n"
-			+ "public enum X {								\n"
-			+ "  B(){										\n"
-			+ "    void foo(){								\n"
-			+ "    }										\n"
-			+ "  }  										\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#              							\t
+		public enum X {							\t
+		  B(){									\t
+		    void foo(){							\t
+		    }									\t
+		  }  									\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  public X() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -685,47 +739,52 @@ public void test0009() {
 public void test0010() {
 
 	String s =
-		"package a;											\n"
-			+ "#              								\n"
-			+ "public enum X {								\n"
-			+ "  B(){										\n"
-			+ "    void foo(){								\n"
-			+ "    }										\n"
-			+ "  ;  										\n"
-			+ "  void bar(){}  								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#              							\t
+		public enum X {							\t
+		  B(){									\t
+		    void foo(){							\t
+		    }									\t
+		  ;  									\t
+		  void bar(){}  							\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-        "    void bar() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		    void bar() {
+		    }
+		  },
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-
-        "    void foo() {\n" +
-        "    }\n" +
-        "    void bar() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		    void bar() {
+		    }
+		  },
+		  public X() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -744,46 +803,52 @@ public void test0010() {
 public void test0011() {
 
 	String s =
-		"package a;											\n"
-			+ "#              								\n"
-			+ "public enum X {								\n"
-			+ "  B(){										\n"
-			+ "    void foo(){								\n"
-			+ "    }										\n"
-			+ "  ;  										\n"
-			+ "  X(){}      								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#              							\t
+		public enum X {							\t
+		  B(){									\t
+		    void foo(){							\t
+		    }									\t
+		  ;  									\t
+		  X(){}      							\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-        "    X() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		    X() {
+		    }
+		  },
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-        "    X() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B() {
+		    void foo() {
+		    }
+		    X() {
+		    }
+		  },
+		  public X() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -802,48 +867,54 @@ public void test0011() {
 public void test0012() {
 
 	String s =
-		"package a;											\n"
-			+ "#              								\n"
-			+ "public enum X {								\n"
-			+ "  B()										\n"
-			+ "    void foo(){								\n"
-			+ "    }										\n"
-			+ "  };  										\n"
-			+ "  void bar(){}  								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#              							\t
+		public enum X {							\t
+		  B()									\t
+		    void foo(){							\t
+		    }									\t
+		  };  									\t
+		  void bar(){}  							\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B(),\n" +
-		"  {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"  void bar() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B(),
+		  {
+		  }
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		  void foo() {
+		  }
+		  void bar() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B(),\n" +
-		"  {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"  void bar() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B(),
+		  {
+		  }
+		  public X() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		  void foo() {
+		  }
+		  void bar() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -862,49 +933,55 @@ public void test0012() {
 public void test0013() {
 
 	String s =
-		"package a;											\n"
-			+ "#              								\n"
-			+ "public enum X {								\n"
-			+ "  B( {										\n"
-			+ "    void foo(){								\n"
-			+ "    }										\n"
-			+ "  };  										\n"
-			+ "  void bar(){}  								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#              							\t
+		public enum X {							\t
+		  B( {									\t
+		    void foo(){							\t
+		    }									\t
+		  };  									\t
+		  void bar(){}  							\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B,\n" +
-		"  {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"  void bar() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B,
+		  {
+		  }
+		  public X() {
+		  }
+		  <clinit>() {
+		  }
+		  void foo() {
+		  }
+		  void bar() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X {\n" +
-		"  B,\n" +
-		"  {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"  void bar() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X {
+		  B,
+		  {
+		  }
+		  public X() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		  void foo() {
+		  }
+		  void bar() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -923,76 +1000,82 @@ public void test0013() {
 public void test0014() {
 
 	String s =
-		"package a;											\n"
-			+ "#              								\n"
-			+ "public class X {								\n"
-			+ "  class Y { 									\n"
-			+ "  }   										\n"
-			+ "  enum Z {									\n"
-			+ "    B() {									\n"
-			+ "      void foo(){							\n"
-			+ "      }										\n"
-			+ "    };  										\n"
-			+ "    Z(){}       								\n"
-			+ "  }            								\n"
-			+ "  class W {     								\n"
-			+ "  }             								\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		#              							\t
+		public class X {							\t
+		  class Y { 								\t
+		  }   									\t
+		  enum Z {								\t
+		    B() {								\t
+		      void foo(){						\t
+		      }									\t
+		    };  									\t
+		    Z(){}       							\t
+		  }            							\t
+		  class W {     							\t
+		  }             							\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  class Y {\n" +
-		"    Y() {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  enum Z {\n" +
-		"    B() {\n" +
-        "      void foo() {\n" +
-        "      }\n" +
-		"    },\n" +
-		"    <clinit>() {\n" +
-		"    }\n" +
-		"    Z() {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  class W {\n" +
-		"    W() {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  class Y {
+		    Y() {
+		    }
+		  }
+		  enum Z {
+		    B() {
+		      void foo() {
+		      }
+		    },
+		    <clinit>() {
+		    }
+		    Z() {
+		    }
+		  }
+		  class W {
+		    W() {
+		    }
+		  }
+		  public X() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  class Y {\n" +
-		"    Y() {\n" +
-		"      super();\n" +
-		"    }\n" +
-		"  }\n" +
-		"  enum Z {\n" +
-		"    B() {\n" +
-        "      void foo() {\n" +
-        "      }\n" +
-		"    },\n" +
-		"    <clinit>() {\n" +
-		"    }\n" +
-		"    Z() {\n" +
-		"      super();\n" +
-		"    }\n" +
-		"  }\n" +
-		"  class W {\n" +
-		"    W() {\n" +
-		"      super();\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  class Y {
+		    Y() {
+		      super();
+		    }
+		  }
+		  enum Z {
+		    B() {
+		      void foo() {
+		      }
+		    },
+		    <clinit>() {
+		    }
+		    Z() {
+		      super();
+		    }
+		  }
+		  class W {
+		    W() {
+		      super();
+		    }
+		  }
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -1014,47 +1097,53 @@ public void test0014() {
 public void test0015() {
 
 	String s =
-		"public enum Enum1 {						\n"
-			+ "  BLEU(){   									\n"
-			+ "    void foo() {                             \n"
-			+ "       System.out.println();     			\n"
-			+ "    }    									\n"
-			+ "  },             							\n"
-			+ "  BLANC,  									\n"
-			+ "  ROUGE;										\n"
-			+ "                								\n"
-			+ "  main         								\n"
-			+ "}											\n";
+		"""
+		public enum Enum1 {					\t
+		  BLEU(){   								\t
+		    void foo() {                            \s
+		       System.out.println();     		\t
+		    }    								\t
+		  },             						\t
+		  BLANC,  								\t
+		  ROUGE;									\t
+		                							\t
+		  main         							\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"public enum Enum1 {\n" +
-		"  BLEU() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  BLANC(),\n" +
-		"  ROUGE(),\n" +
-		"  public Enum1() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public enum Enum1 {
+		  BLEU() {
+		    void foo() {
+		    }
+		  },
+		  BLANC(),
+		  ROUGE(),
+		  public Enum1() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"public enum Enum1 {\n" +
-		"  BLEU() {\n" +
-        "    void foo() {\n" +
-        "    }\n" +
-		"  },\n" +
-		"  BLANC(),\n" +
-		"  ROUGE(),\n" +
-		"  public Enum1() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public enum Enum1 {
+		  BLEU() {
+		    void foo() {
+		    }
+		  },
+		  BLANC(),
+		  ROUGE(),
+		  public Enum1() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -1075,32 +1164,38 @@ public void test0015() {
  */
 public void test0016() {
 	String s =
-		"public enum Enum {								\n"
-			+ "  BEGIN(\"blabla\"),						\n"
-			+ "  END(\"blabla\").							\n"
-			+ "}											\n";
+		"""
+		public enum Enum {							\t
+		  BEGIN("blabla"),					\t
+		  END("blabla").						\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"public enum Enum {\n" +
-		"  BEGIN(\"blabla\"),\n" +
-		"  END(\"blabla\"),\n" +
-		"  public Enum() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public enum Enum {
+		  BEGIN("blabla"),
+		  END("blabla"),
+		  public Enum() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 
 	String expectedDietPlusBodyUnitToString =
-		"public enum Enum {\n" +
-		"  BEGIN(\"blabla\"),\n" +
-		"  END(\"blabla\"),\n" +
-		"  public Enum() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public enum Enum {
+		  BEGIN("blabla"),
+		  END("blabla"),
+		  public Enum() {
+		    super();
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -1119,38 +1214,46 @@ public void test0016() {
 public void test0017() {
 
 	String s =
-		"package a;											\n"
-			+ "public enum X <T> {							\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public enum X <T> {						\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public enum X<T> {\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X<T> {
+		  <clinit>() {
+		  }
+		  public X() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public enum X<T> {\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X<T> {
+		  <clinit>() {
+		  }
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"package a;\n" +
-		"public enum X<T> {\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public enum X<T> {
+		  <clinit>() {
+		  }
+		  public X() {
+		    super();
+		  }
+		}
+		""";
 
 	String expectedCompletionDietUnitToString =
 		expectedDietUnitToString;
