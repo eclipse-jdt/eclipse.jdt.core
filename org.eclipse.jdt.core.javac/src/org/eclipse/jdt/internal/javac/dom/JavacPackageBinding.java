@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IModuleBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 
@@ -83,17 +84,24 @@ public class JavacPackageBinding implements IPackageBinding {
 			return null;
 		}
 		try {
-			return Arrays.stream(this.resolver.javaProject.getAllPackageFragmentRoots())
+			IJavaElement ret = Arrays.stream(this.resolver.javaProject.getAllPackageFragmentRoots())
 				.map(root -> root.getPackageFragment(this.packageSymbol.getQualifiedName().toString()))
 				.filter(Objects::nonNull)
 				.filter(IPackageFragment::exists)
 				.findFirst()
 				.orElse(null);
+			
+			// TODO need to make sure the package is accessible in the module. :|
+			return ret;
 		} catch (JavaModelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public IModuleBinding getModule() {
+		return new JavacModuleBinding(this.packageSymbol.modle, this.resolver);
 	}
 
 	@Override

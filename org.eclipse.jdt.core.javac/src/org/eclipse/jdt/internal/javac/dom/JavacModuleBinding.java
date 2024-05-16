@@ -22,36 +22,37 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 
+import com.sun.tools.javac.code.Directive.ExportsDirective;
 import com.sun.tools.javac.code.Directive.OpensDirective;
 import com.sun.tools.javac.code.Directive.ProvidesDirective;
-import com.sun.tools.javac.code.Directive.UsesDirective;
 import com.sun.tools.javac.code.Directive.RequiresDirective;
-import com.sun.tools.javac.code.Directive.ExportsDirective;
+import com.sun.tools.javac.code.Directive.UsesDirective;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol.ModuleSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
-import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Type.ClassType;
-import com.sun.tools.javac.code.Types;
+import com.sun.tools.javac.code.Type.ModuleType;
 
 public class JavacModuleBinding implements IModuleBinding {
 
 	private static final ITypeBinding[] NO_TYPE_ARGUMENTS = new ITypeBinding[0];
 	final JavacBindingResolver resolver;
 	public final ModuleSymbol moduleSymbol;
-	private final Types types;
 	private final ModuleType moduleType;
 
 	public JavacModuleBinding(final ModuleType moduleType, final JavacBindingResolver resolver) {
-		this(moduleType, (ModuleSymbol) moduleType.tsym, resolver);
+		this((ModuleSymbol) moduleType.tsym, moduleType, resolver);
 	}
 
-	public JavacModuleBinding(final ModuleType moduleType, final ModuleSymbol moduleSymbol, JavacBindingResolver resolver) {
+	public JavacModuleBinding(final ModuleSymbol moduleSymbol, final JavacBindingResolver resolver) {
+		this(moduleSymbol, (ModuleType)moduleSymbol.type, resolver);
+	}
+
+	public JavacModuleBinding(final ModuleSymbol moduleSymbol, final ModuleType moduleType, JavacBindingResolver resolver) {
 		this.moduleType = moduleType;
 		this.moduleSymbol = moduleSymbol;
 		this.resolver = resolver;
-		this.types = Types.instance(this.resolver.context);
 	}
 
 	@Override
