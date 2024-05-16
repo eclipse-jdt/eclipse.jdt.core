@@ -36,11 +36,12 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0b001);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0b001);
+						}
+					}"""
 			},
 			"1");
 	}
@@ -48,35 +49,41 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0b);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0b);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0b);\n" +
-			"	                   ^^\n" +
-			"Invalid binary literal number (only \'0\' and \'1\' are expected)\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0b);
+					                   ^^
+				Invalid binary literal number (only '0' and '1' are expected)
+				----------
+				""");
 	}
 	public void test003() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0b2);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {
+						public static void main(String[] args) {
+							System.out.println(0b2);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0b2);\n" +
-			"	                   ^^\n" +
-			"Invalid binary literal number (only \'0\' and \'1\' are expected)\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0b2);
+					                   ^^
+				Invalid binary literal number (only '0' and '1' are expected)
+				----------
+				""");
 	}
 	public void test004() {
 		Map customedOptions = getCompilerOptions();
@@ -86,18 +93,21 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {	\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0b1110000);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {\t
+						public static void main(String[] args) {
+							System.out.println(0b1110000);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0b1110000);\n" +
-			"	                   ^^^^^^^^^\n" +
-			"Binary literals can only be used with source level 1.7 or greater\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0b1110000);
+					                   ^^^^^^^^^
+				Binary literals can only be used with source level 1.7 or greater
+				----------
+				""",
 			null,
 			true,
 			customedOptions);
@@ -110,18 +120,21 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {	\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(-0b1110000);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {\t
+						public static void main(String[] args) {
+							System.out.println(-0b1110000);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(-0b1110000);\n" +
-			"	                    ^^^^^^^^^\n" +
-			"Binary literals can only be used with source level 1.7 or greater\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(-0b1110000);
+					                    ^^^^^^^^^
+				Binary literals can only be used with source level 1.7 or greater
+				----------
+				""",
 			null,
 			true,
 			customedOptions);
@@ -134,18 +147,21 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {	\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(0b1113000);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class X {\t
+						public static void main(String[] args) {
+							System.out.println(0b1113000);
+						}
+					}"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0b1113000);\n" +
-			"	                   ^^^^^\n" +
-			"Binary literals can only be used with source level 1.7 or greater\n" +
-			"----------\n",
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					System.out.println(0b1113000);
+					                   ^^^^^
+				Binary literals can only be used with source level 1.7 or greater
+				----------
+				""",
 			null,
 			true,
 			customedOptions);

@@ -32,9 +32,10 @@ public void test1() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		public int a\\uA7BA; // new unicode character in unicode 12.0 \n" +
-			"}",
+			"""
+				public class X {
+						public int a\\uA7BA; // new unicode character in unicode 12.0\s
+				}""",
 		},
 		"",
 		options);
@@ -45,16 +46,19 @@ public void test2() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" +
-			"		public int a\\uA7BA; // new unicode character in unicode 12.0 \n" +
-			"}",
+			"""
+				public class X {
+						public int a\\uA7BA; // new unicode character in unicode 12.0\s
+				}""",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public int a\\uA7BA; // new unicode character in unicode 12.0 \n" +
-		"	            ^^^^^^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" +
-		"----------\n",
+		"""
+			----------
+			1. ERROR in X.java (at line 2)
+				public int a\\uA7BA; // new unicode character in unicode 12.0\s
+				            ^^^^^^
+			Syntax error on token "Invalid Character", delete this token
+			----------
+			""",
 		null,
 		true,
 		options);

@@ -182,93 +182,98 @@ public void tearDownSuite() throws Exception {
 public void test001() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java", //$NON-NLS-1$
-			"/**\n" + //$NON-NLS-1$
-			" *\n" + //$NON-NLS-1$
-			" */\n" + //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	static class D {\n" + //$NON-NLS-1$
-			"		String toString() {\n" + //$NON-NLS-1$
-			"			return \"HELLO\";\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	static int i, j = 3, /*     */ k = 4;\n" + //$NON-NLS-1$
-			"	void bar(int i) {\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	void bar() {\n" + //$NON-NLS-1$
-			"		\n\n" + //$NON-NLS-1$
-			"		class E {\n" + //$NON-NLS-1$
-			"			void bar7() {\n" + //$NON-NLS-1$
-			"				System.out.println();\n" + //$NON-NLS-1$
-			"			}\n" + //$NON-NLS-1$
-			"			void bar9() {}\n" + //$NON-NLS-1$
-			"			void bar2() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		Object o = new E();\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		class C {\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	Object b1 = null, a1 = new Object() {\n" + //$NON-NLS-1$
-			"		void bar2() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar4() {\n" + //$NON-NLS-1$
-			"			System.out.println();\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar3() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}, c1 = null;\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
-		String expectedResult = "/**\n" + //$NON-NLS-1$
-			" *\n" + //$NON-NLS-1$
-			" */\n" + //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	static class D {\n" + //$NON-NLS-1$
-			"		String toString() {\n" + //$NON-NLS-1$
-			"			return \"HELLO\";\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	static int i, j = 3, /*     */ k = 4;\n" + //$NON-NLS-1$
-			"	Object b1 = null, a1 = new Object() {\n" + //$NON-NLS-1$
-			"		void bar() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar2() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar3() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar4() {\n" + //$NON-NLS-1$
-			"			System.out.println();\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}, c1 = null;\n" + //$NON-NLS-1$
-			"	void bar() {\n" + //$NON-NLS-1$
-			"		\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"		class E {\n" + //$NON-NLS-1$
-			"			void bar2() {}\n" + //$NON-NLS-1$
-			"			void bar7() {\n" + //$NON-NLS-1$
-			"				System.out.println();\n" + //$NON-NLS-1$
-			"			}\n" + //$NON-NLS-1$
-			"			void bar9() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		Object o = new E();\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		class C {\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	void bar(int i) {\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n";//$NON-NLS-1$
+					"/P/src/p/X.java", //$NON-NLS-1$
+					"""
+			/**
+			 *
+			 */
+			package p;
+			public class X {
+				static class D {
+					String toString() {
+						return "HELLO";
+					}
+				}
+				static int i, j = 3, /*     */ k = 4;
+				void bar(int i) {
+				}
+				void bar() {
+				\t
+			
+					class E {
+						void bar7() {
+							System.out.println();
+						}
+						void bar9() {}
+						void bar2() {}
+					}
+					Object o = new E();
+					System.out.println(o);
+					class C {
+						void bar6() {}
+						void bar4() {}
+						void bar5() {}
+					}
+				}
+				Object b1 = null, a1 = new Object() {
+					void bar2() {
+					}
+					void bar() {
+					}
+					void bar4() {
+						System.out.println();
+					}
+					void bar3() {
+					}
+				}, c1 = null;
+			}
+			""" //$NON-NLS-1$
+				);
+		String expectedResult = """
+			/**
+			 *
+			 */
+			package p;
+			public class X {
+				static class D {
+					String toString() {
+						return "HELLO";
+					}
+				}
+				static int i, j = 3, /*     */ k = 4;
+				Object b1 = null, a1 = new Object() {
+					void bar() {
+					}
+					void bar2() {
+					}
+					void bar3() {
+					}
+					void bar4() {
+						System.out.println();
+					}
+				}, c1 = null;
+				void bar() {
+				\t
+			
+					class E {
+						void bar2() {}
+						void bar7() {
+							System.out.println();
+						}
+						void bar9() {}
+					}
+					Object o = new E();
+					System.out.println(o);
+					class C {
+						void bar4() {}
+						void bar5() {}
+						void bar6() {}
+					}
+				}
+				void bar(int i) {
+				}
+			}
+			""";//$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
 		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -277,64 +282,66 @@ public void test001() throws CoreException {
 public void test002() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java", //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
-			"	class D {\n" + //$NON-NLS-1$
-			"		String toString() {\n" + //$NON-NLS-1$
-			"			return \"HELLO\";\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	int i, j, k;\n" + //$NON-NLS-1$
-			"	Object bar() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		Object o = new Object() {    };\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		class C {\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		return new C();\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		Object o = new Object() {        };\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		return o;\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	Object a1 = new Object() { }, o1 = null;\n" + //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-		);
-		String expectedSource = "package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
-			"	class D {\n" + //$NON-NLS-1$
-			"		String toString() {\n" + //$NON-NLS-1$
-			"			return \"HELLO\";\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	Object a1 = new Object() { }, o1 = null;\n" + //$NON-NLS-1$
-			"	int i, j, k;\n" + //$NON-NLS-1$
-			"	Object bar() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		Object o = new Object() {    };\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		class C {\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		return new C();\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		Object o = new Object() {        };\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		return o;\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"/P/src/p/X.java", //$NON-NLS-1$
+					"""
+			package p;
+			public class X {
+			\t
+				class D {
+					String toString() {
+						return "HELLO";
+					}
+				}
+				int i, j, k;
+				Object bar() {
+					System.out.println();
+					Object o = new Object() {    };
+					System.out.println(o);
+					class C {
+						void bar6() {}
+						void bar4() {}
+						void bar5() {}
+					}
+					return new C();
+				}
+				Object bar3() {
+					System.out.println();
+					Object o = new Object() {        };
+					System.out.println(o);
+					return o;
+				}
+				Object a1 = new Object() { }, o1 = null;
+			}""" //$NON-NLS-1$
+				);
+		String expectedSource = """
+			package p;
+			public class X {
+			\t
+				class D {
+					String toString() {
+						return "HELLO";
+					}
+				}
+				Object a1 = new Object() { }, o1 = null;
+				int i, j, k;
+				Object bar() {
+					System.out.println();
+					Object o = new Object() {    };
+					System.out.println(o);
+					class C {
+						void bar4() {}
+						void bar5() {}
+						void bar6() {}
+					}
+					return new C();
+				}
+				Object bar3() {
+					System.out.println();
+					Object o = new Object() {        };
+					System.out.println(o);
+					return o;
+				}
+			}"""; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedSource); //$NON-NLS-1$
 	} finally {
 		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -346,93 +353,98 @@ public void test002() throws CoreException {
 public void test003() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java", //$NON-NLS-1$
-			"/**\n" + //$NON-NLS-1$
-			" *\n" + //$NON-NLS-1$
-			" */\n" + //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X extends java.lang.Object implements java.util.Cloneable {\n" + //$NON-NLS-1$
-			"	class D {\n" + //$NON-NLS-1$
-			"		String toString() {\n" + //$NON-NLS-1$
-			"			return \"HELLO\";\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	int i, j = 3, /*     */ k = 4;\n" + //$NON-NLS-1$
-			"	void bar(final int i[]) {\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	void bar() {\n" + //$NON-NLS-1$
-			"		\n\n" + //$NON-NLS-1$
-			"		class E {\n" + //$NON-NLS-1$
-			"			void bar7() {\n" + //$NON-NLS-1$
-			"				System.out.println();\n" + //$NON-NLS-1$
-			"			}\n" + //$NON-NLS-1$
-			"			void bar9() {}\n" + //$NON-NLS-1$
-			"			void bar2() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		Object o = new E();\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		class C {\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	Object b1[] = null, a1 = new Object() {\n" + //$NON-NLS-1$
-			"		void bar2(int[] j) {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar4() {\n" + //$NON-NLS-1$
-			"			System.out.println();\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar3() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}, c1 = null;\n" + //$NON-NLS-1$
-			"}\n"//$NON-NLS-1$
-		);
-		String expectedResult = "/**\n" + //$NON-NLS-1$
-			" *\n" + //$NON-NLS-1$
-			" */\n" + //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X extends java.lang.Object implements java.util.Cloneable {\n" + //$NON-NLS-1$
-			"	class D {\n" + //$NON-NLS-1$
-			"		String toString() {\n" + //$NON-NLS-1$
-			"			return \"HELLO\";\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	Object b1[] = null, a1 = new Object() {\n" + //$NON-NLS-1$
-			"		void bar() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar2(int[] j) {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar3() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar4() {\n" + //$NON-NLS-1$
-			"			System.out.println();\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}, c1 = null;\n" + //$NON-NLS-1$
-			"	int i, j = 3, /*     */ k = 4;\n" + //$NON-NLS-1$
-			"	void bar() {\n" + //$NON-NLS-1$
-			"		\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"		class E {\n" + //$NON-NLS-1$
-			"			void bar2() {}\n" + //$NON-NLS-1$
-			"			void bar7() {\n" + //$NON-NLS-1$
-			"				System.out.println();\n" + //$NON-NLS-1$
-			"			}\n" + //$NON-NLS-1$
-			"			void bar9() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		Object o = new E();\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		class C {\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	void bar(final int i[]) {\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n"; //$NON-NLS-1$
+					"/P/src/p/X.java", //$NON-NLS-1$
+					"""
+			/**
+			 *
+			 */
+			package p;
+			public class X extends java.lang.Object implements java.util.Cloneable {
+				class D {
+					String toString() {
+						return "HELLO";
+					}
+				}
+				int i, j = 3, /*     */ k = 4;
+				void bar(final int i[]) {
+				}
+				void bar() {
+				\t
+			
+					class E {
+						void bar7() {
+							System.out.println();
+						}
+						void bar9() {}
+						void bar2() {}
+					}
+					Object o = new E();
+					System.out.println(o);
+					class C {
+						void bar6() {}
+						void bar4() {}
+						void bar5() {}
+					}
+				}
+				Object b1[] = null, a1 = new Object() {
+					void bar2(int[] j) {
+					}
+					void bar() {
+					}
+					void bar4() {
+						System.out.println();
+					}
+					void bar3() {
+					}
+				}, c1 = null;
+			}
+			"""//$NON-NLS-1$
+				);
+		String expectedResult = """
+			/**
+			 *
+			 */
+			package p;
+			public class X extends java.lang.Object implements java.util.Cloneable {
+				class D {
+					String toString() {
+						return "HELLO";
+					}
+				}
+				Object b1[] = null, a1 = new Object() {
+					void bar() {
+					}
+					void bar2(int[] j) {
+					}
+					void bar3() {
+					}
+					void bar4() {
+						System.out.println();
+					}
+				}, c1 = null;
+				int i, j = 3, /*     */ k = 4;
+				void bar() {
+				\t
+			
+					class E {
+						void bar2() {}
+						void bar7() {
+							System.out.println();
+						}
+						void bar9() {}
+					}
+					Object o = new E();
+					System.out.println(o);
+					class C {
+						void bar4() {}
+						void bar5() {}
+						void bar6() {}
+					}
+				}
+				void bar(final int i[]) {
+				}
+			}
+			"""; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
 		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -444,78 +456,84 @@ public void test003() throws CoreException {
 public void test004() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java", //$NON-NLS-1$
-			"/**\n" + //$NON-NLS-1$
-			" *\n" + //$NON-NLS-1$
-			" */\n" + //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X extends java.lang.Object implements java.util.Cloneable {\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
-			"	class D {\n" + //$NON-NLS-1$
-			"		String toString() {\n" + //$NON-NLS-1$
-			"			return \"HELLO\";\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	void bar(final int i[]) {\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	void bar() {\n" + //$NON-NLS-1$
-			"		\n\n" + //$NON-NLS-1$
-			"		class E {\n" + //$NON-NLS-1$
-			"			Object bar7() {\n" + //$NON-NLS-1$
-			"				return new Object() {\n" + //$NON-NLS-1$
-			"					void bar9() {}\n" + //$NON-NLS-1$
-			"					void bar2() {}\n" + //$NON-NLS-1$
-			"				};\n" + //$NON-NLS-1$
-			"			}\n" + //$NON-NLS-1$
-			"			void bar9() {}\n" + //$NON-NLS-1$
-			"			void bar2() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		Object o = new E();\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		class C {\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
-		String expectedResult = "/**\n" + //$NON-NLS-1$
-			" *\n" + //$NON-NLS-1$
-			" */\n" + //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X extends java.lang.Object implements java.util.Cloneable {\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
-			"	class D {\n" + //$NON-NLS-1$
-			"		String toString() {\n" + //$NON-NLS-1$
-			"			return \"HELLO\";\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	void bar() {\n" + //$NON-NLS-1$
-			"		\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"		class E {\n" + //$NON-NLS-1$
-			"			void bar2() {}\n" + //$NON-NLS-1$
-			"			Object bar7() {\n" + //$NON-NLS-1$
-			"				return new Object() {\n" + //$NON-NLS-1$
-			"					void bar2() {}\n" + //$NON-NLS-1$
-			"					void bar9() {}\n" + //$NON-NLS-1$
-			"				};\n" + //$NON-NLS-1$
-			"			}\n" + //$NON-NLS-1$
-			"			void bar9() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		Object o = new E();\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		class C {\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	void bar(final int i[]) {\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"}\n"; //$NON-NLS-1$
+					"/P/src/p/X.java", //$NON-NLS-1$
+					"""
+			/**
+			 *
+			 */
+			package p;
+			public class X extends java.lang.Object implements java.util.Cloneable {
+			\t
+				class D {
+					String toString() {
+						return "HELLO";
+					}
+				}
+				void bar(final int i[]) {
+				}
+				void bar() {
+				\t
+			
+					class E {
+						Object bar7() {
+							return new Object() {
+								void bar9() {}
+								void bar2() {}
+							};
+						}
+						void bar9() {}
+						void bar2() {}
+					}
+					Object o = new E();
+					System.out.println(o);
+					class C {
+						void bar6() {}
+						void bar4() {}
+						void bar5() {}
+					}
+				}
+			
+			}
+			""" //$NON-NLS-1$
+				);
+		String expectedResult = """
+			/**
+			 *
+			 */
+			package p;
+			public class X extends java.lang.Object implements java.util.Cloneable {
+			\t
+				class D {
+					String toString() {
+						return "HELLO";
+					}
+				}
+				void bar() {
+				\t
+			
+					class E {
+						void bar2() {}
+						Object bar7() {
+							return new Object() {
+								void bar2() {}
+								void bar9() {}
+							};
+						}
+						void bar9() {}
+					}
+					Object o = new E();
+					System.out.println(o);
+					class C {
+						void bar4() {}
+						void bar5() {}
+						void bar6() {}
+					}
+				}
+				void bar(final int i[]) {
+				}
+			
+			}
+			"""; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
 		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -524,26 +542,28 @@ public void test004() throws CoreException {
 public void test005() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java", //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		Object o = new Object() {        };\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		return o;\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-		);
-		String expectedResult = "package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		Object o = new Object() {        };\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		return o;\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"/P/src/p/X.java", //$NON-NLS-1$
+					"""
+			package p;
+			public class X {
+				Object bar3() {
+					System.out.println();
+					Object o = new Object() {        };
+					System.out.println(o);
+					return o;
+				}
+			}""" //$NON-NLS-1$
+				);
+		String expectedResult = """
+			package p;
+			public class X {
+				Object bar3() {
+					System.out.println();
+					Object o = new Object() {        };
+					System.out.println(o);
+					return o;
+				}
+			}"""; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
 		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -552,30 +572,32 @@ public void test005() throws CoreException {
 public void test006() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java", //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		return new Object() {\n" + //$NON-NLS-1$
-			"			public void bar6() {}\n" + //$NON-NLS-1$
-			"			void bar4() throws IOException, Exception, NullPointerException {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"       };\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-		);
-		String expectedResult = "package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		return new Object() {\n" + //$NON-NLS-1$
-			"			void bar4() throws IOException, Exception, NullPointerException {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"			public void bar6() {}\n" + //$NON-NLS-1$
-			"       };\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"/P/src/p/X.java", //$NON-NLS-1$
+					"""
+			package p;
+			public class X {
+				Object bar3() {
+					System.out.println();
+					return new Object() {
+						public void bar6() {}
+						void bar4() throws IOException, Exception, NullPointerException {}
+						void bar5() {}
+			       };
+				}
+			}""" //$NON-NLS-1$
+				);
+		String expectedResult = """
+			package p;
+			public class X {
+				Object bar3() {
+					System.out.println();
+					return new Object() {
+						void bar4() throws IOException, Exception, NullPointerException {}
+						void bar5() {}
+						public void bar6() {}
+			       };
+				}
+			}"""; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
 		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -584,30 +606,32 @@ public void test006() throws CoreException {
 public void test007() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java", //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		return new Object() {\n" + //$NON-NLS-1$
-			"			public static void bar6() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"			void bar4() throws IOException, Exception, NullPointerException {}\n" + //$NON-NLS-1$
-			"       };\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-		);
-		String expectedResult = "package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		return new Object() {\n" + //$NON-NLS-1$
-			"			public static void bar6() {}\n" + //$NON-NLS-1$
-			"			void bar4() throws IOException, Exception, NullPointerException {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"       };\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"/P/src/p/X.java", //$NON-NLS-1$
+					"""
+			package p;
+			public class X {
+				Object bar3() {
+					System.out.println();
+					return new Object() {
+						public static void bar6() {}
+						void bar5() {}
+						void bar4() throws IOException, Exception, NullPointerException {}
+			       };
+				}
+			}""" //$NON-NLS-1$
+				);
+		String expectedResult = """
+			package p;
+			public class X {
+				Object bar3() {
+					System.out.println();
+					return new Object() {
+						public static void bar6() {}
+						void bar4() throws IOException, Exception, NullPointerException {}
+						void bar5() {}
+			       };
+				}
+			}"""; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
 		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -617,30 +641,32 @@ public void test007() throws CoreException {
 public void test008() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java", //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		return new Object() {\n" + //$NON-NLS-1$
-			"			public static void bar6() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"			void bar4() throws IOException, Exception, NullPointerException {}\n" + //$NON-NLS-1$
-			"       };\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-		);
-		String expectedResult = "package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		return new Object() {\n" + //$NON-NLS-1$
-			"			public static void bar6() {}\n" + //$NON-NLS-1$
-			"			void bar4() throws IOException, Exception, NullPointerException {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"       };\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"/P/src/p/X.java", //$NON-NLS-1$
+					"""
+			package p;
+			public class X {
+				Object bar3() {
+					System.out.println();
+					return new Object() {
+						public static void bar6() {}
+						void bar5() {}
+						void bar4() throws IOException, Exception, NullPointerException {}
+			       };
+				}
+			}""" //$NON-NLS-1$
+				);
+		String expectedResult = """
+			package p;
+			public class X {
+				Object bar3() {
+					System.out.println();
+					return new Object() {
+						public static void bar6() {}
+						void bar4() throws IOException, Exception, NullPointerException {}
+						void bar5() {}
+			       };
+				}
+			}"""; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
 		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -652,96 +678,102 @@ public void test008() throws CoreException {
 public void test009() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java", //$NON-NLS-1$
-			"/**\n" + //$NON-NLS-1$
-			" *\n" + //$NON-NLS-1$
-			" */\n" + //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
-			"	static class D {\n" + //$NON-NLS-1$
-			"		String toString() {\n" + //$NON-NLS-1$
-			"			return \"HELLO\";\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	static int i, j = 3, /*     */ k = 4;\n" + //$NON-NLS-1$
-			"	void bar(int i) {\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	void bar() {\n" + //$NON-NLS-1$
-			"		\n\n" + //$NON-NLS-1$
-			"		class E {\n" + //$NON-NLS-1$
-			"			void bar7() {\n" + //$NON-NLS-1$
-			"				System.out.println();\n" + //$NON-NLS-1$
-			"			}\n" + //$NON-NLS-1$
-			"			void bar9() {}\n" + //$NON-NLS-1$
-			"			void bar2() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		Object o = new E();\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		class C {\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n\n" + //$NON-NLS-1$
-			"	Object b1 = null, a1 = new Object() {\n" + //$NON-NLS-1$
-			"		void bar2() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar4() {\n" + //$NON-NLS-1$
-			"			System.out.println();\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar3() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}, c1 = null;\n" + //$NON-NLS-1$
-			"}\n"  //$NON-NLS-1$
-		);
-		String expectedResult = "/**\n" + //$NON-NLS-1$
-			" *\n" + //$NON-NLS-1$
-			" */\n" + //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
-			"	static class D {\n" + //$NON-NLS-1$
-			"		String toString() {\n" + //$NON-NLS-1$
-			"			return \"HELLO\";\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	static int i, j = 3, /*     */ k = 4;\n" + //$NON-NLS-1$
-			"	Object b1 = null, a1 = new Object() {\n" + //$NON-NLS-1$
-			"		void bar() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar2() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar3() {\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		void bar4() {\n" + //$NON-NLS-1$
-			"			System.out.println();\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}, c1 = null;\n" + //$NON-NLS-1$
-			"	void bar() {\n" + //$NON-NLS-1$
-			"		\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"		class E {\n" + //$NON-NLS-1$
-			"			void bar2() {}\n" + //$NON-NLS-1$
-			"			void bar7() {\n" + //$NON-NLS-1$
-			"				System.out.println();\n" + //$NON-NLS-1$
-			"			}\n" + //$NON-NLS-1$
-			"			void bar9() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		Object o = new E();\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		class C {\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"	void bar(int i) {\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}\n"; //$NON-NLS-1$
+					"/P/src/p/X.java", //$NON-NLS-1$
+					"""
+			/**
+			 *
+			 */
+			package p;
+			public class X {
+			\t
+				static class D {
+					String toString() {
+						return "HELLO";
+					}
+				}
+				static int i, j = 3, /*     */ k = 4;
+				void bar(int i) {
+				}
+				void bar() {
+				\t
+			
+					class E {
+						void bar7() {
+							System.out.println();
+						}
+						void bar9() {}
+						void bar2() {}
+					}
+					Object o = new E();
+					System.out.println(o);
+					class C {
+						void bar6() {}
+						void bar4() {}
+						void bar5() {}
+					}
+				}
+			
+				Object b1 = null, a1 = new Object() {
+					void bar2() {
+					}
+					void bar() {
+					}
+					void bar4() {
+						System.out.println();
+					}
+					void bar3() {
+					}
+				}, c1 = null;
+			}
+			"""  //$NON-NLS-1$
+				);
+		String expectedResult = """
+			/**
+			 *
+			 */
+			package p;
+			public class X {
+			\t
+				static class D {
+					String toString() {
+						return "HELLO";
+					}
+				}
+				static int i, j = 3, /*     */ k = 4;
+				Object b1 = null, a1 = new Object() {
+					void bar() {
+					}
+					void bar2() {
+					}
+					void bar3() {
+					}
+					void bar4() {
+						System.out.println();
+					}
+				}, c1 = null;
+				void bar() {
+				\t
+			
+					class E {
+						void bar2() {}
+						void bar7() {
+							System.out.println();
+						}
+						void bar9() {}
+					}
+					Object o = new E();
+					System.out.println(o);
+					class C {
+						void bar4() {}
+						void bar5() {}
+						void bar6() {}
+					}
+				}
+			
+				void bar(int i) {
+				}
+			}
+			"""; //$NON-NLS-1$
 		ICompilationUnit unit = this.getCompilationUnit("/P/src/p/X.java"); //$NON-NLS-1$
 		sortUnit(unit, expectedResult, false);
 	} finally {
@@ -751,88 +783,90 @@ public void test009() throws CoreException {
 public void test010() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/SuperReference.java", //$NON-NLS-1$
-			"public class SuperReference extends ThisReference {\r\n" + //$NON-NLS-1$
-			"public SuperReference(int sourceStart, int sourceEnd) {\r\n" + //$NON-NLS-1$
-			"	super(sourceStart, sourceEnd);\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public static ExplicitConstructorCall implicitSuperConstructorCall() {\r\n" + //$NON-NLS-1$
-			"	return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public boolean isImplicitThis() {\r\n" + //$NON-NLS-1$
-			"	\r\n" + //$NON-NLS-1$
-			"	return false;\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public boolean isSuper() {\r\n" + //$NON-NLS-1$
-			"	\r\n" + //$NON-NLS-1$
-			"	return true;\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public boolean isThis() {\r\n" + //$NON-NLS-1$
-			"	\r\n" + //$NON-NLS-1$
-			"	return false ;\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public TypeBinding resolveType(BlockScope scope) {\r\n" + //$NON-NLS-1$
-			"	constant = NotAConstant;\r\n" + //$NON-NLS-1$
-			"	if (!checkAccess(scope.methodScope()))\r\n" + //$NON-NLS-1$
-			"		return null;\r\n" + //$NON-NLS-1$
-			"	SourceTypeBinding enclosingTb = scope.enclosingSourceType();\r\n" + //$NON-NLS-1$
-			"	if (scope.isJavaLangObject(enclosingTb)) {\r\n" + //$NON-NLS-1$
-			"		scope.problemReporter().cannotUseSuperInJavaLangObject(this);\r\n" + //$NON-NLS-1$
-			"		return null;\r\n" + //$NON-NLS-1$
-			"	}\r\n" + //$NON-NLS-1$
-			"	return this.resolvedType = enclosingTb.superclass;\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public String toStringExpression(){\r\n" + //$NON-NLS-1$
-			"\r\n" + //$NON-NLS-1$
-			"	return \"super\"; //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {\r\n" + //$NON-NLS-1$
-			"	visitor.visit(this, blockScope);\r\n" + //$NON-NLS-1$
-			"	visitor.endVisit(this, blockScope);\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-		);
-		String expectedResult = "public class SuperReference extends ThisReference {\r\n" + //$NON-NLS-1$
-			"public static ExplicitConstructorCall implicitSuperConstructorCall() {\r\n" + //$NON-NLS-1$
-			"	return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public SuperReference(int sourceStart, int sourceEnd) {\r\n" + //$NON-NLS-1$
-			"	super(sourceStart, sourceEnd);\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public boolean isImplicitThis() {\r\n" + //$NON-NLS-1$
-			"	\r\n" + //$NON-NLS-1$
-			"	return false;\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public boolean isSuper() {\r\n" + //$NON-NLS-1$
-			"	\r\n" + //$NON-NLS-1$
-			"	return true;\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public boolean isThis() {\r\n" + //$NON-NLS-1$
-			"	\r\n" + //$NON-NLS-1$
-			"	return false ;\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public TypeBinding resolveType(BlockScope scope) {\r\n" + //$NON-NLS-1$
-			"	constant = NotAConstant;\r\n" + //$NON-NLS-1$
-			"	if (!checkAccess(scope.methodScope()))\r\n" + //$NON-NLS-1$
-			"		return null;\r\n" + //$NON-NLS-1$
-			"	SourceTypeBinding enclosingTb = scope.enclosingSourceType();\r\n" + //$NON-NLS-1$
-			"	if (scope.isJavaLangObject(enclosingTb)) {\r\n" + //$NON-NLS-1$
-			"		scope.problemReporter().cannotUseSuperInJavaLangObject(this);\r\n" + //$NON-NLS-1$
-			"		return null;\r\n" + //$NON-NLS-1$
-			"	}\r\n" + //$NON-NLS-1$
-			"	return this.resolvedType = enclosingTb.superclass;\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public String toStringExpression(){\r\n" + //$NON-NLS-1$
-			"\r\n" + //$NON-NLS-1$
-			"	return \"super\"; //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {\r\n" + //$NON-NLS-1$
-			"	visitor.visit(this, blockScope);\r\n" + //$NON-NLS-1$
-			"	visitor.endVisit(this, blockScope);\r\n" + //$NON-NLS-1$
-			"}\r\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"/P/src/SuperReference.java", //$NON-NLS-1$
+					"""
+			public class SuperReference extends ThisReference {\r
+			public SuperReference(int sourceStart, int sourceEnd) {\r
+				super(sourceStart, sourceEnd);\r
+			}\r
+			public static ExplicitConstructorCall implicitSuperConstructorCall() {\r
+				return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);\r
+			}\r
+			public boolean isImplicitThis() {\r
+				\r
+				return false;\r
+			}\r
+			public boolean isSuper() {\r
+				\r
+				return true;\r
+			}\r
+			public boolean isThis() {\r
+				\r
+				return false ;\r
+			}\r
+			public TypeBinding resolveType(BlockScope scope) {\r
+				constant = NotAConstant;\r
+				if (!checkAccess(scope.methodScope()))\r
+					return null;\r
+				SourceTypeBinding enclosingTb = scope.enclosingSourceType();\r
+				if (scope.isJavaLangObject(enclosingTb)) {\r
+					scope.problemReporter().cannotUseSuperInJavaLangObject(this);\r
+					return null;\r
+				}\r
+				return this.resolvedType = enclosingTb.superclass;\r
+			}\r
+			public String toStringExpression(){\r
+			\r
+				return "super"; //$NON-NLS-1$\r
+				\r
+			}\r
+			public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {\r
+				visitor.visit(this, blockScope);\r
+				visitor.endVisit(this, blockScope);\r
+			}\r
+			}""" //$NON-NLS-1$
+				);
+		String expectedResult = """
+			public class SuperReference extends ThisReference {\r
+			public static ExplicitConstructorCall implicitSuperConstructorCall() {\r
+				return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);\r
+			}\r
+			public SuperReference(int sourceStart, int sourceEnd) {\r
+				super(sourceStart, sourceEnd);\r
+			}\r
+			public boolean isImplicitThis() {\r
+				\r
+				return false;\r
+			}\r
+			public boolean isSuper() {\r
+				\r
+				return true;\r
+			}\r
+			public boolean isThis() {\r
+				\r
+				return false ;\r
+			}\r
+			public TypeBinding resolveType(BlockScope scope) {\r
+				constant = NotAConstant;\r
+				if (!checkAccess(scope.methodScope()))\r
+					return null;\r
+				SourceTypeBinding enclosingTb = scope.enclosingSourceType();\r
+				if (scope.isJavaLangObject(enclosingTb)) {\r
+					scope.problemReporter().cannotUseSuperInJavaLangObject(this);\r
+					return null;\r
+				}\r
+				return this.resolvedType = enclosingTb.superclass;\r
+			}\r
+			public String toStringExpression(){\r
+			\r
+				return "super"; //$NON-NLS-1$\r
+				\r
+			}\r
+			public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {\r
+				visitor.visit(this, blockScope);\r
+				visitor.endVisit(this, blockScope);\r
+			}\r
+			}"""; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/SuperReference.java"), expectedResult); //$NON-NLS-1$
 	} finally {
 		deleteFile("/P/src/SuperReference.java"); //$NON-NLS-1$
@@ -841,56 +875,60 @@ public void test010() throws CoreException {
 public void test011() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/BaseTypes.java", //$NON-NLS-1$
-			"/*******************************************************************************\r\n" + //$NON-NLS-1$
-			" * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.\r\n" + //$NON-NLS-1$
-			" * All rights reserved. This program and the accompanying materials \r\n" + //$NON-NLS-1$
-			" * are made available under the terms of the Common Public License v0.5 \r\n" + //$NON-NLS-1$
-			" * which accompanies this distribution, and is available at\r\n" + //$NON-NLS-1$
-			" * http://www.eclipse.org/legal/cpl-v05.html\r\n" + //$NON-NLS-1$
-			" * \r\n" + //$NON-NLS-1$
-			" * Contributors:\r\n" + //$NON-NLS-1$
-			" *     IBM Corporation - initial API and implementation\r\n" + //$NON-NLS-1$
-			" ******************************************************************************/\r\n" + //$NON-NLS-1$
-			"package p;\r\n" + //$NON-NLS-1$
-			"\r\n" + //$NON-NLS-1$
-			"public interface BaseTypes {\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding IntBinding = new BaseTypeBinding(TypeIds.T_int, \"int\".toCharArray(), new char[] {'I'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding ByteBinding = new BaseTypeBinding(TypeIds.T_byte, \"byte\".toCharArray(), new char[] {'B'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding ShortBinding = new BaseTypeBinding(TypeIds.T_short, \"short\".toCharArray(), new char[] {'S'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding CharBinding = new BaseTypeBinding(TypeIds.T_char, \"char\".toCharArray(), new char[] {'C'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding LongBinding = new BaseTypeBinding(TypeIds.T_long, \"long\".toCharArray(), new char[] {'J'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding FloatBinding = new BaseTypeBinding(TypeIds.T_float, \"float\".toCharArray(), new char[] {'F'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding DoubleBinding = new BaseTypeBinding(TypeIds.T_double, \"double\".toCharArray(), new char[] {'D'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding BooleanBinding = new BaseTypeBinding(TypeIds.T_boolean, \"boolean\".toCharArray(), new char[] {'Z'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding NullBinding = new BaseTypeBinding(TypeIds.T_null, \"null\".toCharArray(), new char[] {'N'}); //N stands for null even if it is never internally used //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding VoidBinding = new BaseTypeBinding(TypeIds.T_void, \"void\".toCharArray(), new char[] {'V'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"}\r\n" //$NON-NLS-1$
-		);
-		String expectedResult = "/*******************************************************************************\r\n" + //$NON-NLS-1$
-			" * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.\r\n" + //$NON-NLS-1$
-			" * All rights reserved. This program and the accompanying materials \r\n" + //$NON-NLS-1$
-			" * are made available under the terms of the Common Public License v0.5 \r\n" + //$NON-NLS-1$
-			" * which accompanies this distribution, and is available at\r\n" + //$NON-NLS-1$
-			" * http://www.eclipse.org/legal/cpl-v05.html\r\n" + //$NON-NLS-1$
-			" * \r\n" + //$NON-NLS-1$
-			" * Contributors:\r\n" + //$NON-NLS-1$
-			" *     IBM Corporation - initial API and implementation\r\n" + //$NON-NLS-1$
-			" ******************************************************************************/\r\n" + //$NON-NLS-1$
-			"package p;\r\n" + //$NON-NLS-1$
-			"\r\n" + //$NON-NLS-1$
-			"public interface BaseTypes {\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding BooleanBinding = new BaseTypeBinding(TypeIds.T_boolean, \"boolean\".toCharArray(), new char[] {'Z'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding ByteBinding = new BaseTypeBinding(TypeIds.T_byte, \"byte\".toCharArray(), new char[] {'B'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding CharBinding = new BaseTypeBinding(TypeIds.T_char, \"char\".toCharArray(), new char[] {'C'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding DoubleBinding = new BaseTypeBinding(TypeIds.T_double, \"double\".toCharArray(), new char[] {'D'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding FloatBinding = new BaseTypeBinding(TypeIds.T_float, \"float\".toCharArray(), new char[] {'F'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding IntBinding = new BaseTypeBinding(TypeIds.T_int, \"int\".toCharArray(), new char[] {'I'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding LongBinding = new BaseTypeBinding(TypeIds.T_long, \"long\".toCharArray(), new char[] {'J'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding NullBinding = new BaseTypeBinding(TypeIds.T_null, \"null\".toCharArray(), new char[] {'N'}); //N stands for null even if it is never internally used //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding ShortBinding = new BaseTypeBinding(TypeIds.T_short, \"short\".toCharArray(), new char[] {'S'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"	final BaseTypeBinding VoidBinding = new BaseTypeBinding(TypeIds.T_void, \"void\".toCharArray(), new char[] {'V'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$
-			"}\r\n"; //$NON-NLS-1$
+					"/P/src/p/BaseTypes.java", //$NON-NLS-1$
+					"""
+			/*******************************************************************************\r
+			 * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.\r
+			 * All rights reserved. This program and the accompanying materials \r
+			 * are made available under the terms of the Common Public License v0.5 \r
+			 * which accompanies this distribution, and is available at\r
+			 * http://www.eclipse.org/legal/cpl-v05.html\r
+			 * \r
+			 * Contributors:\r
+			 *     IBM Corporation - initial API and implementation\r
+			 ******************************************************************************/\r
+			package p;\r
+			\r
+			public interface BaseTypes {\r
+				final BaseTypeBinding IntBinding = new BaseTypeBinding(TypeIds.T_int, "int".toCharArray(), new char[] {'I'}); //$NON-NLS-1$\r
+				final BaseTypeBinding ByteBinding = new BaseTypeBinding(TypeIds.T_byte, "byte".toCharArray(), new char[] {'B'}); //$NON-NLS-1$\r
+				final BaseTypeBinding ShortBinding = new BaseTypeBinding(TypeIds.T_short, "short".toCharArray(), new char[] {'S'}); //$NON-NLS-1$\r
+				final BaseTypeBinding CharBinding = new BaseTypeBinding(TypeIds.T_char, "char".toCharArray(), new char[] {'C'}); //$NON-NLS-1$\r
+				final BaseTypeBinding LongBinding = new BaseTypeBinding(TypeIds.T_long, "long".toCharArray(), new char[] {'J'}); //$NON-NLS-1$\r
+				final BaseTypeBinding FloatBinding = new BaseTypeBinding(TypeIds.T_float, "float".toCharArray(), new char[] {'F'}); //$NON-NLS-1$\r
+				final BaseTypeBinding DoubleBinding = new BaseTypeBinding(TypeIds.T_double, "double".toCharArray(), new char[] {'D'}); //$NON-NLS-1$\r
+				final BaseTypeBinding BooleanBinding = new BaseTypeBinding(TypeIds.T_boolean, "boolean".toCharArray(), new char[] {'Z'}); //$NON-NLS-1$\r
+				final BaseTypeBinding NullBinding = new BaseTypeBinding(TypeIds.T_null, "null".toCharArray(), new char[] {'N'}); //N stands for null even if it is never internally used //$NON-NLS-1$\r
+				final BaseTypeBinding VoidBinding = new BaseTypeBinding(TypeIds.T_void, "void".toCharArray(), new char[] {'V'}); //$NON-NLS-1$\r
+			}\r
+			""" //$NON-NLS-1$
+				);
+		String expectedResult = """
+			/*******************************************************************************\r
+			 * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.\r
+			 * All rights reserved. This program and the accompanying materials \r
+			 * are made available under the terms of the Common Public License v0.5 \r
+			 * which accompanies this distribution, and is available at\r
+			 * http://www.eclipse.org/legal/cpl-v05.html\r
+			 * \r
+			 * Contributors:\r
+			 *     IBM Corporation - initial API and implementation\r
+			 ******************************************************************************/\r
+			package p;\r
+			\r
+			public interface BaseTypes {\r
+				final BaseTypeBinding BooleanBinding = new BaseTypeBinding(TypeIds.T_boolean, "boolean".toCharArray(), new char[] {'Z'}); //$NON-NLS-1$\r
+				final BaseTypeBinding ByteBinding = new BaseTypeBinding(TypeIds.T_byte, "byte".toCharArray(), new char[] {'B'}); //$NON-NLS-1$\r
+				final BaseTypeBinding CharBinding = new BaseTypeBinding(TypeIds.T_char, "char".toCharArray(), new char[] {'C'}); //$NON-NLS-1$\r
+				final BaseTypeBinding DoubleBinding = new BaseTypeBinding(TypeIds.T_double, "double".toCharArray(), new char[] {'D'}); //$NON-NLS-1$\r
+				final BaseTypeBinding FloatBinding = new BaseTypeBinding(TypeIds.T_float, "float".toCharArray(), new char[] {'F'}); //$NON-NLS-1$\r
+				final BaseTypeBinding IntBinding = new BaseTypeBinding(TypeIds.T_int, "int".toCharArray(), new char[] {'I'}); //$NON-NLS-1$\r
+				final BaseTypeBinding LongBinding = new BaseTypeBinding(TypeIds.T_long, "long".toCharArray(), new char[] {'J'}); //$NON-NLS-1$\r
+				final BaseTypeBinding NullBinding = new BaseTypeBinding(TypeIds.T_null, "null".toCharArray(), new char[] {'N'}); //N stands for null even if it is never internally used //$NON-NLS-1$\r
+				final BaseTypeBinding ShortBinding = new BaseTypeBinding(TypeIds.T_short, "short".toCharArray(), new char[] {'S'}); //$NON-NLS-1$\r
+				final BaseTypeBinding VoidBinding = new BaseTypeBinding(TypeIds.T_void, "void".toCharArray(), new char[] {'V'}); //$NON-NLS-1$\r
+			}\r
+			"""; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/BaseTypes.java"), expectedResult); //$NON-NLS-1$
 	} finally {
 		deleteFile("/P/src/p/BaseTypes.java"); //$NON-NLS-1$
@@ -899,44 +937,46 @@ public void test011() throws CoreException {
 public void test012() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java", //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		return null;\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	bar() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		Object o = new Object() {    };\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		class C {\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		return new C();\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-		);
-		String expectedSource = "package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		return null;\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	bar() {\n" + //$NON-NLS-1$
-			"		System.out.println();\n" + //$NON-NLS-1$
-			"		Object o = new Object() {    };\n" + //$NON-NLS-1$
-			"		System.out.println(o);\n" + //$NON-NLS-1$
-			"		class C {\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"		}\n" + //$NON-NLS-1$
-			"		return new C();\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"/P/src/p/X.java", //$NON-NLS-1$
+					"""
+			package p;
+			public class X {
+			\t
+				Object bar3() {
+					return null;
+				}
+				bar() {
+					System.out.println();
+					Object o = new Object() {    };
+					System.out.println(o);
+					class C {
+						void bar6() {}
+						void bar4() {}
+						void bar5() {}
+					}
+					return new C();
+				}
+			}""" //$NON-NLS-1$
+				);
+		String expectedSource = """
+			package p;
+			public class X {
+			\t
+				Object bar3() {
+					return null;
+				}
+				bar() {
+					System.out.println();
+					Object o = new Object() {    };
+					System.out.println(o);
+					class C {
+						void bar4() {}
+						void bar5() {}
+						void bar6() {}
+					}
+					return new C();
+				}
+			}"""; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedSource); //$NON-NLS-1$
 	} finally {
 		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -946,30 +986,32 @@ public void test012() throws CoreException {
 public void test013() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java", //$NON-NLS-1$
-			"package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	X bar() {\n" + //$NON-NLS-1$
-			"		// comment\n" + //$NON-NLS-1$
-			"		return new X() {\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"		};\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-		);
-		String expectedSource = "package p;\n" + //$NON-NLS-1$
-			"public class X {\n" + //$NON-NLS-1$
-			"	X bar() {\n" + //$NON-NLS-1$
-			"		// comment\n" + //$NON-NLS-1$
-			"		return new X() {\n" + //$NON-NLS-1$
-			"			void bar4() {}\n" + //$NON-NLS-1$
-			"			void bar5() {}\n" + //$NON-NLS-1$
-			"			void bar6() {}\n" + //$NON-NLS-1$
-			"		};\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}"; //$NON-NLS-1$
+					"/P/src/p/X.java", //$NON-NLS-1$
+					"""
+			package p;
+			public class X {
+				X bar() {
+					// comment
+					return new X() {
+						void bar6() {}
+						void bar4() {}
+						void bar5() {}
+					};
+				}
+			}""" //$NON-NLS-1$
+				);
+		String expectedSource = """
+			package p;
+			public class X {
+				X bar() {
+					// comment
+					return new X() {
+						void bar4() {}
+						void bar5() {}
+						void bar6() {}
+					};
+				}
+			}"""; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedSource); //$NON-NLS-1$
 	} finally {
 		deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -982,20 +1024,22 @@ public void test014() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"  int j;\n" +
-			"  \n" +
-			"  // start of static field declaration\n" +
-			"  static int i; // end of static field declaration\n" +
-			"}"
+			"""
+				public class X {
+				  int j;
+				 \s
+				  // start of static field declaration
+				  static int i; // end of static field declaration
+				}"""
 		);
 		String expectedResult =
-			"public class X {\n" +
-			"  // start of static field declaration\n" +
-			"  static int i; // end of static field declaration\n" +
-			"  \n" +
-			"  int j;\n" +
-			"}";
+			"""
+			public class X {
+			  // start of static field declaration
+			  static int i; // end of static field declaration
+			 \s
+			  int j;
+			}""";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1008,24 +1052,26 @@ public void test015() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"  int j;\n" +
-			"  \n" +
-			"  /** some Java doc */\n" +
-			"  \n" +
-			"  // start of static field declaration\n" +
-			"  static int i; // end of static field declaration\n" +
-			"}"
+			"""
+				public class X {
+				  int j;
+				 \s
+				  /** some Java doc */
+				 \s
+				  // start of static field declaration
+				  static int i; // end of static field declaration
+				}"""
 		);
 		String expectedResult =
-			"public class X {\n" +
-			"  /** some Java doc */\n" +
-			"  \n" +
-			"  // start of static field declaration\n" +
-			"  static int i; // end of static field declaration\n" +
-			"  \n" +
-			"  int j;\n" +
-			"}";
+			"""
+			public class X {
+			  /** some Java doc */
+			 \s
+			  // start of static field declaration
+			  static int i; // end of static field declaration
+			 \s
+			  int j;
+			}""";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1038,78 +1084,80 @@ public void test016() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   \n" +
-			"   public void c() {\n" +
-			"      \n" +
-			"   }\n" +
-			"   \n" +
-			"   public void b() {\n" +
-			"      \n" +
-			"   }\n" +
-			"   \n" +
-			"   public void a() {\n" +
-			"      class E {\n" +
-			"         // this is the line that breaks the Sort Members.\n" +
-			"         // comment this fix the problem.\n" +
-			"         int x, y;\n" +
-			"      }\n" +
-			"      \n" +
-			"      \n" +
-			"      new Object() {\n" +
-			"         // it breaks in an anonymous class also.\n" +
-			"         // comment this fix the problem.\n" +
-			"         int x, y;\n" +
-			"      }; \n" +
-			"      \n" +
-			"      \n" +
-			"      class D {\n" +
-			"         // this appears to break also.\n" +
-			"      }\n" +
-			"   }\n" +
-			"   \n" +
-			"   private class F {\n" +
-			"      // but this works fine\n" +
-			"      int x, y;\n" +
-			"   }\n" +
-			"}"
+			"""
+				public class X {
+				  \s
+				   public void c() {
+				     \s
+				   }
+				  \s
+				   public void b() {
+				     \s
+				   }
+				  \s
+				   public void a() {
+				      class E {
+				         // this is the line that breaks the Sort Members.
+				         // comment this fix the problem.
+				         int x, y;
+				      }
+				     \s
+				     \s
+				      new Object() {
+				         // it breaks in an anonymous class also.
+				         // comment this fix the problem.
+				         int x, y;
+				      };\s
+				     \s
+				     \s
+				      class D {
+				         // this appears to break also.
+				      }
+				   }
+				  \s
+				   private class F {
+				      // but this works fine
+				      int x, y;
+				   }
+				}"""
 		);
 		String expectedResult =
-			"public class X {\n" +
-			"   \n" +
-			"   private class F {\n" +
-			"      // but this works fine\n" +
-			"      int x, y;\n" +
-			"   }\n" +
-			"   \n" +
-			"   public void a() {\n" +
-			"      class E {\n" +
-			"         // this is the line that breaks the Sort Members.\n" +
-			"         // comment this fix the problem.\n" +
-			"         int x, y;\n" +
-			"      }\n" +
-			"      \n" +
-			"      \n" +
-			"      new Object() {\n" +
-			"         // it breaks in an anonymous class also.\n" +
-			"         // comment this fix the problem.\n" +
-			"         int x, y;\n" +
-			"      }; \n" +
-			"      \n" +
-			"      \n" +
-			"      class D {\n" +
-			"         // this appears to break also.\n" +
-			"      }\n" +
-			"   }\n" +
-			"   \n" +
-			"   public void b() {\n" +
-			"      \n" +
-			"   }\n" +
-			"   \n" +
-			"   public void c() {\n" +
-			"      \n" +
-			"   }\n" +
-			"}";
+			"""
+			public class X {
+			  \s
+			   private class F {
+			      // but this works fine
+			      int x, y;
+			   }
+			  \s
+			   public void a() {
+			      class E {
+			         // this is the line that breaks the Sort Members.
+			         // comment this fix the problem.
+			         int x, y;
+			      }
+			     \s
+			     \s
+			      new Object() {
+			         // it breaks in an anonymous class also.
+			         // comment this fix the problem.
+			         int x, y;
+			      };\s
+			     \s
+			     \s
+			      class D {
+			         // this appears to break also.
+			      }
+			   }
+			  \s
+			   public void b() {
+			     \s
+			   }
+			  \s
+			   public void c() {
+			     \s
+			   }
+			}""";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1122,78 +1170,80 @@ public void test017() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   \n" +
-			"   public void c() {\n" +
-			"      \n" +
-			"   }\n" +
-			"   \n" +
-			"   public void b() {\n" +
-			"      \n" +
-			"   }\n" +
-			"   \n" +
-			"   public void a() {\n" +
-			"      class E {\n" +
-			"         // this is the line that breaks the Sort Members.\n" +
-			"         // comment this fix the problem.\n" +
-			"         int x, y; // my comment\n" +
-			"      }\n" +
-			"      \n" +
-			"      \n" +
-			"      new Object() {\n" +
-			"         // it breaks in an anonymous class also.\n" +
-			"         // comment this fix the problem.\n" +
-			"         int x, y; // my comment\n" +
-			"      }; \n" +
-			"      \n" +
-			"      \n" +
-			"      class D {\n" +
-			"         // this appears to break also.\n" +
-			"      }\n" +
-			"   }\n" +
-			"   \n" +
-			"   private class F {\n" +
-			"      // but this works fine\n" +
-			"      int x, y;\n" +
-			"   }\n" +
-			"}"
+			"""
+				public class X {
+				  \s
+				   public void c() {
+				     \s
+				   }
+				  \s
+				   public void b() {
+				     \s
+				   }
+				  \s
+				   public void a() {
+				      class E {
+				         // this is the line that breaks the Sort Members.
+				         // comment this fix the problem.
+				         int x, y; // my comment
+				      }
+				     \s
+				     \s
+				      new Object() {
+				         // it breaks in an anonymous class also.
+				         // comment this fix the problem.
+				         int x, y; // my comment
+				      };\s
+				     \s
+				     \s
+				      class D {
+				         // this appears to break also.
+				      }
+				   }
+				  \s
+				   private class F {
+				      // but this works fine
+				      int x, y;
+				   }
+				}"""
 		);
 		String expectedResult =
-			"public class X {\n" +
-			"   \n" +
-			"   private class F {\n" +
-			"      // but this works fine\n" +
-			"      int x, y;\n" +
-			"   }\n" +
-			"   \n" +
-			"   public void a() {\n" +
-			"      class E {\n" +
-			"         // this is the line that breaks the Sort Members.\n" +
-			"         // comment this fix the problem.\n" +
-			"         int x, y; // my comment\n" +
-			"      }\n" +
-			"      \n" +
-			"      \n" +
-			"      new Object() {\n" +
-			"         // it breaks in an anonymous class also.\n" +
-			"         // comment this fix the problem.\n" +
-			"         int x, y; // my comment\n" +
-			"      }; \n" +
-			"      \n" +
-			"      \n" +
-			"      class D {\n" +
-			"         // this appears to break also.\n" +
-			"      }\n" +
-			"   }\n" +
-			"   \n" +
-			"   public void b() {\n" +
-			"      \n" +
-			"   }\n" +
-			"   \n" +
-			"   public void c() {\n" +
-			"      \n" +
-			"   }\n" +
-			"}";
+			"""
+			public class X {
+			  \s
+			   private class F {
+			      // but this works fine
+			      int x, y;
+			   }
+			  \s
+			   public void a() {
+			      class E {
+			         // this is the line that breaks the Sort Members.
+			         // comment this fix the problem.
+			         int x, y; // my comment
+			      }
+			     \s
+			     \s
+			      new Object() {
+			         // it breaks in an anonymous class also.
+			         // comment this fix the problem.
+			         int x, y; // my comment
+			      };\s
+			     \s
+			     \s
+			      class D {
+			         // this appears to break also.
+			      }
+			   }
+			  \s
+			   public void b() {
+			     \s
+			   }
+			  \s
+			   public void c() {
+			     \s
+			   }
+			}""";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1203,22 +1253,24 @@ public void test018() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"   public void c() {\n" +
-			"   }\n" +
-			"   \n" +
-			"   public void b() {\n" +
-			"   }\n" +
-			"}"
+			"""
+				public class X {
+				   public void c() {
+				   }
+				  \s
+				   public void b() {
+				   }
+				}"""
 		);
 		String expectedResult =
-			"public class X {\n" +
-			"   public void b() {\n" +
-			"   }\n" +
-			"   \n" +
-			"   public void c() {\n" +
-			"   }\n" +
-			"}";
+			"""
+			public class X {
+			   public void b() {
+			   }
+			  \s
+			   public void c() {
+			   }
+			}""";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1229,14 +1281,16 @@ public void test019() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public enum X {\n" +
-			"	Z, A, C, B;\n" +
-			"}"
+			"""
+				public enum X {
+					Z, A, C, B;
+				}"""
 		);
 		String expectedResult =
-			"public enum X {\n" +
-			"	A, B, C, Z;\n" +
-			"}";
+			"""
+			public enum X {
+				A, B, C, Z;
+			}""";
 		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1247,26 +1301,28 @@ public void test020() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public enum X {\n" +
-			"	A , B, C;\n" +
-			"	\n" +
-			"	void foo() {\n" +
-			"		\n" +
-			"	}\n" +
-			"	\n" +
-			"	public Object field;\n" +
-			"}"
+			"""
+				public enum X {
+					A , B, C;
+				\t
+					void foo() {
+					\t
+					}
+				\t
+					public Object field;
+				}"""
 		);
 		String expectedResult =
-			"public enum X {\n" +
-			"	A , B, C;\n" +
-			"	\n" +
-			"	public Object field;\n" +
-			"	\n" +
-			"	void foo() {\n" +
-			"		\n" +
-			"	}\n" +
-			"}";
+			"""
+			public enum X {
+				A , B, C;
+			\t
+				public Object field;
+			\t
+				void foo() {
+				\t
+				}
+			}""";
 		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1277,42 +1333,44 @@ public void test021() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"\n" +
-			"	public enum Suit {\n" +
-			"		SPADES, CLUBS, HEARTS, DIAMONDS\n" +
-			"	}\n" +
-			"\n" +
-			"	public enum Card {\n" +
-			"		KING, QUEEN, JACK, ACE\n" +
-			"	}\n" +
-			"	\n" +
-			"	private String string;\n" +
-			"	private int integer;\n" +
-			"	\n" +
-			"	public void method1() { }\n" +
-			"	\n" +
-			"	public void method2() { }\n" +
-			"}"
+			"""
+				public class X {
+				
+					public enum Suit {
+						SPADES, CLUBS, HEARTS, DIAMONDS
+					}
+				
+					public enum Card {
+						KING, QUEEN, JACK, ACE
+					}
+				\t
+					private String string;
+					private int integer;
+				\t
+					public void method1() { }
+				\t
+					public void method2() { }
+				}"""
 		);
 		String expectedResult =
-			"public class X {\n" +
-			"\n" +
-			"	public enum Card {\n" +
-			"		ACE, JACK, KING, QUEEN\n" +
-			"	}\n" +
-			"\n" +
-			"	public enum Suit {\n" +
-			"		CLUBS, DIAMONDS, HEARTS, SPADES\n" +
-			"	}\n" +
-			"	\n" +
-			"	private int integer;\n" +
-			"	private String string;\n" +
-			"	\n" +
-			"	public void method1() { }\n" +
-			"	\n" +
-			"	public void method2() { }\n" +
-			"}";
+			"""
+			public class X {
+			
+				public enum Card {
+					ACE, JACK, KING, QUEEN
+				}
+			
+				public enum Suit {
+					CLUBS, DIAMONDS, HEARTS, SPADES
+				}
+			\t
+				private int integer;
+				private String string;
+			\t
+				public void method1() { }
+			\t
+				public void method2() { }
+			}""";
 		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1323,342 +1381,344 @@ public void test022() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/BuildUtilities.java",
-			"/*******************************************************************************" +
-			" * Copyright (c) 2000, 2006 IBM Corporation and others." +
-			" * All rights reserved. This program and the accompanying materials" +
-			" * are made available under the terms of the Eclipse Public License v1.0" +
-			" * which accompanies this distribution, and is available at" +
-			" * http://www.eclipse.org/legal/epl-v10.html" +
-			" *" +
-			" * Contributors:" +
-			" *     IBM Corporation - initial API and implementation" +
-			" *******************************************************************************/" +
-			"import java.util.HashSet;\n" +
-			"import org.eclipse.core.resources.ICommand;\n" +
-			"import org.eclipse.core.resources.IProject;\n" +
-			"import org.eclipse.core.resources.IProjectDescription;\n" +
-			"import org.eclipse.core.resources.IResource;\n" +
-			"import org.eclipse.core.resources.IncrementalProjectBuilder;\n" +
-			"import org.eclipse.core.resources.ResourcesPlugin;\n" +
-			"import org.eclipse.core.runtime.CoreException;\n" +
-			"import org.eclipse.core.runtime.IAdaptable;\n" +
-			"import org.eclipse.jface.viewers.ISelection;\n" +
-			"import org.eclipse.jface.viewers.IStructuredSelection;\n" +
-			"import org.eclipse.ui.IEditorInput;\n" +
-			"import org.eclipse.ui.IEditorPart;\n" +
-			"import org.eclipse.ui.IFileEditorInput;\n" +
-			"import org.eclipse.ui.IWorkbenchPart;\n" +
-			"import org.eclipse.ui.IWorkbenchWindow;\n" +
-			"\n" +
-			"/**\n" +
-			" * This class contains convenience methods used by the various build commands\n" +
-			" * to determine enablement.  These utilities cannot be factored into a common\n" +
-			" * class because some build actions are API and some are not.\n" +
-			" * \n" +
-			" * @since 3.1\n" +
-			" */\n" +
-			"public class BuildUtilities {\n" +
-			"	/**\n" +
-			"	 * Extracts the selected projects from a selection.\n" +
-			"	 * \n" +
-			"	 * @param selection The selection to analyze\n" +
-			"	 * @return The selected projects\n" +
-			"	 */\n" +
-			"	public static IProject[] extractProjects(Object[] selection) {\n" +
-			"		HashSet projects = new HashSet();\n" +
-			"		for (int i = 0; i < selection.length; i++) {\n" +
-			"			if (selection[i] instanceof IResource) {\n" +
-			"				projects.add(((IResource) selection[i]).getProject());\n" +
-			"			} else if (selection[i] instanceof IAdaptable) {\n" +
-			"				IAdaptable adaptable = (IAdaptable) selection[i];\n" +
-			"				IResource resource = (IResource) adaptable.getAdapter(IResource.class);\n" +
-			"				if (resource != null)\n" +
-			"					projects.add(resource.getProject());\n" +
-			"			}\n" +
-			"		}\n" +
-			"		return (IProject[]) projects.toArray(new IProject[projects.size()]);\n" +
-			"	}\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * Finds and returns the selected projects in the given window\n" +
-			"	 * \n" +
-			"	 * @param window The window to find the selection in\n" +
-			"	 * @return The selected projects, or an empty array if no selection could be found.\n" +
-			"	 */\n" +
-			"	public static IProject[] findSelectedProjects(IWorkbenchWindow window) {\n" +
-			"		if (window == null)\n" +
-			"			return new IProject[0];\n" +
-			"		ISelection selection = window.getSelectionService().getSelection();\n" +
-			"		IProject[] selected = null;\n" +
-			"		if (selection != null && !selection.isEmpty() && selection instanceof IStructuredSelection) {\n" +
-			"			selected = extractProjects(((IStructuredSelection) selection).toArray());\n" +
-			"		} else {\n" +
-			"			//see if we can extract a selected project from the active editor\n" +
-			"			IWorkbenchPart part = window.getPartService().getActivePart();\n" +
-			"			if (part instanceof IEditorPart) {\n" +
-			"				IEditorInput input = ((IEditorPart) part).getEditorInput();\n" +
-			"				if (input instanceof IFileEditorInput)\n" +
-			"					selected = new IProject[] {((IFileEditorInput) input).getFile().getProject()};\n" +
-			"			}\n" +
-			"		}\n" +
-			"		if (selected == null)\n" +
-			"			selected = new IProject[0];\n" +
-			"		return selected;\n" +
-			"	}\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * Returns whether the workspace has a builder installed that responds\n" +
-			"	 * to the given trigger.\n" +
-			"	 */\n" +
-			"	static boolean hasBuilder(int trigger) {\n" +
-			"		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();\n" +
-			"		boolean builderFound = false;\n" +
-			"		for (int i = 0; i < projects.length; i++) {\n" +
-			"			if (!projects[i].isAccessible())\n" +
-			"				continue;\n" +
-			"			try {\n" +
-			"				IProjectDescription description = projects[i].getDescription();\n" +
-			"				ICommand[] buildSpec = description.getBuildSpec();\n" +
-			"				for (int j = 0; j < buildSpec.length; j++) {\n" +
-			"					builderFound = true;\n" +
-			"					if (!buildSpec[j].isBuilding(trigger))\n" +
-			"						return true;\n" +
-			"				}\n" +
-			"			} catch (CoreException e) {\n" +
-			"				//ignore projects that are not available\n" +
-			"			}\n" +
-			"		}\n" +
-			"		//enable building if there are any accessible projects with builders\n" +
-			"		return builderFound;\n" +
-			"\n" +
-			"	}\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * Returns whether the selection of projects is being managed by autobuild.\n" +
-			"	 * \n" +
-			"	 * @param projects The projects to examine\n" +
-			"	 * @return <code>true</code> if the projects are being managed by\n" +
-			"	 * autobuild, and <code>false</code> otherwise.\n" +
-			"	 */\n" +
-			"	public static boolean isAutoBuilding(IProject[] projects) {\n" +
-			"		if (!ResourcesPlugin.getWorkspace().isAutoBuilding())\n" +
-			"			return false;\n" +
-			"		\n" +
-			"	/**\n" +
-			"	 * Returns whether one of the projects has a builder whose trigger setting\n" +
-			"	 * for the given trigger matches the given value.\n" +
-			"	 * \n" +
-			"	 * @param projects The projects to check\n" +
-			"	 * @param trigger The trigger to look for\n" +
-			"	 * @param value The trigger value to look for\n" +
-			"	 * @return <code>true</code> if one of the projects has a builder whose\n" +
-			"	 * trigger activation matches the provided value, and <code>false</code> otherwise.\n" +
-			"	 */\n" +
-			"	private static boolean matchingTrigger(IProject[] projects, int trigger, boolean value) {\n" +
-			"		for (int i = 0; i < projects.length; i++) {\n" +
-			"			if (!projects[i].isAccessible())\n" +
-			"				continue;\n" +
-			"			try {\n" +
-			"				IProjectDescription description = projects[i].getDescription();\n" +
-			"				ICommand[] buildSpec = description.getBuildSpec();\n" +
-			"				for (int j = 0; j < buildSpec.length; j++) {\n" +
-			"					if (buildSpec[j].isBuilding(trigger) == value)\n" +
-			"						return true;\n" +
-			"				}\n" +
-			"			} catch (CoreException e) {\n" +
-			"				//ignore projects that are not available\n" +
-			"			}\n" +
-			"		}\n" +
-			"		return false;\n" +
-			"	}\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * Returns whether a build command with the given trigger should\n" +
-			"	 * be enabled for the given selection.\n" +
-			"	 * @param projects The projects to use to determine enablement\n" +
-			"	 * @param trigger The build trigger (<code>IncrementalProjectBuilder.*_BUILD</code> constants).\n" +
-			"	 * @return <code>true</code> if the action should be enabled, and\n" +
-			"	 * <code>false</code> otherwise.\n" +
-			"	 */\n" +
-			"	public static boolean isEnabled(IProject[] projects, int trigger) {\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * Doesn\'t need to be instantiated\n" +
-			"	 */\n" +
-			"	private BuildUtilities() {\n" +
-			"	}\n" +
-			"}"
+			"""
+				/*******************************************************************************\
+				 * Copyright (c) 2000, 2006 IBM Corporation and others.\
+				 * All rights reserved. This program and the accompanying materials\
+				 * are made available under the terms of the Eclipse Public License v1.0\
+				 * which accompanies this distribution, and is available at\
+				 * http://www.eclipse.org/legal/epl-v10.html\
+				 *\
+				 * Contributors:\
+				 *     IBM Corporation - initial API and implementation\
+				 *******************************************************************************/\
+				import java.util.HashSet;
+				import org.eclipse.core.resources.ICommand;
+				import org.eclipse.core.resources.IProject;
+				import org.eclipse.core.resources.IProjectDescription;
+				import org.eclipse.core.resources.IResource;
+				import org.eclipse.core.resources.IncrementalProjectBuilder;
+				import org.eclipse.core.resources.ResourcesPlugin;
+				import org.eclipse.core.runtime.CoreException;
+				import org.eclipse.core.runtime.IAdaptable;
+				import org.eclipse.jface.viewers.ISelection;
+				import org.eclipse.jface.viewers.IStructuredSelection;
+				import org.eclipse.ui.IEditorInput;
+				import org.eclipse.ui.IEditorPart;
+				import org.eclipse.ui.IFileEditorInput;
+				import org.eclipse.ui.IWorkbenchPart;
+				import org.eclipse.ui.IWorkbenchWindow;
+				
+				/**
+				 * This class contains convenience methods used by the various build commands
+				 * to determine enablement.  These utilities cannot be factored into a common
+				 * class because some build actions are API and some are not.
+				 *\s
+				 * @since 3.1
+				 */
+				public class BuildUtilities {
+					/**
+					 * Extracts the selected projects from a selection.
+					 *\s
+					 * @param selection The selection to analyze
+					 * @return The selected projects
+					 */
+					public static IProject[] extractProjects(Object[] selection) {
+						HashSet projects = new HashSet();
+						for (int i = 0; i < selection.length; i++) {
+							if (selection[i] instanceof IResource) {
+								projects.add(((IResource) selection[i]).getProject());
+							} else if (selection[i] instanceof IAdaptable) {
+								IAdaptable adaptable = (IAdaptable) selection[i];
+								IResource resource = (IResource) adaptable.getAdapter(IResource.class);
+								if (resource != null)
+									projects.add(resource.getProject());
+							}
+						}
+						return (IProject[]) projects.toArray(new IProject[projects.size()]);
+					}
+				
+					/**
+					 * Finds and returns the selected projects in the given window
+					 *\s
+					 * @param window The window to find the selection in
+					 * @return The selected projects, or an empty array if no selection could be found.
+					 */
+					public static IProject[] findSelectedProjects(IWorkbenchWindow window) {
+						if (window == null)
+							return new IProject[0];
+						ISelection selection = window.getSelectionService().getSelection();
+						IProject[] selected = null;
+						if (selection != null && !selection.isEmpty() && selection instanceof IStructuredSelection) {
+							selected = extractProjects(((IStructuredSelection) selection).toArray());
+						} else {
+							//see if we can extract a selected project from the active editor
+							IWorkbenchPart part = window.getPartService().getActivePart();
+							if (part instanceof IEditorPart) {
+								IEditorInput input = ((IEditorPart) part).getEditorInput();
+								if (input instanceof IFileEditorInput)
+									selected = new IProject[] {((IFileEditorInput) input).getFile().getProject()};
+							}
+						}
+						if (selected == null)
+							selected = new IProject[0];
+						return selected;
+					}
+				
+					/**
+					 * Returns whether the workspace has a builder installed that responds
+					 * to the given trigger.
+					 */
+					static boolean hasBuilder(int trigger) {
+						IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+						boolean builderFound = false;
+						for (int i = 0; i < projects.length; i++) {
+							if (!projects[i].isAccessible())
+								continue;
+							try {
+								IProjectDescription description = projects[i].getDescription();
+								ICommand[] buildSpec = description.getBuildSpec();
+								for (int j = 0; j < buildSpec.length; j++) {
+									builderFound = true;
+									if (!buildSpec[j].isBuilding(trigger))
+										return true;
+								}
+							} catch (CoreException e) {
+								//ignore projects that are not available
+							}
+						}
+						//enable building if there are any accessible projects with builders
+						return builderFound;
+				
+					}
+				
+					/**
+					 * Returns whether the selection of projects is being managed by autobuild.
+					 *\s
+					 * @param projects The projects to examine
+					 * @return <code>true</code> if the projects are being managed by
+					 * autobuild, and <code>false</code> otherwise.
+					 */
+					public static boolean isAutoBuilding(IProject[] projects) {
+						if (!ResourcesPlugin.getWorkspace().isAutoBuilding())
+							return false;
+					\t
+					/**
+					 * Returns whether one of the projects has a builder whose trigger setting
+					 * for the given trigger matches the given value.
+					 *\s
+					 * @param projects The projects to check
+					 * @param trigger The trigger to look for
+					 * @param value The trigger value to look for
+					 * @return <code>true</code> if one of the projects has a builder whose
+					 * trigger activation matches the provided value, and <code>false</code> otherwise.
+					 */
+					private static boolean matchingTrigger(IProject[] projects, int trigger, boolean value) {
+						for (int i = 0; i < projects.length; i++) {
+							if (!projects[i].isAccessible())
+								continue;
+							try {
+								IProjectDescription description = projects[i].getDescription();
+								ICommand[] buildSpec = description.getBuildSpec();
+								for (int j = 0; j < buildSpec.length; j++) {
+									if (buildSpec[j].isBuilding(trigger) == value)
+										return true;
+								}
+							} catch (CoreException e) {
+								//ignore projects that are not available
+							}
+						}
+						return false;
+					}
+				
+					/**
+					 * Returns whether a build command with the given trigger should
+					 * be enabled for the given selection.
+					 * @param projects The projects to use to determine enablement
+					 * @param trigger The build trigger (<code>IncrementalProjectBuilder.*_BUILD</code> constants).
+					 * @return <code>true</code> if the action should be enabled, and
+					 * <code>false</code> otherwise.
+					 */
+					public static boolean isEnabled(IProject[] projects, int trigger) {
+						return true;
+					}
+				
+					/**
+					 * Doesn't need to be instantiated
+					 */
+					private BuildUtilities() {
+					}
+				}"""
 		);
 		String expectedResult =
-			"/*******************************************************************************" +
-			" * Copyright (c) 2000, 2006 IBM Corporation and others." +
-			" * All rights reserved. This program and the accompanying materials" +
-			" * are made available under the terms of the Eclipse Public License v1.0" +
-			" * which accompanies this distribution, and is available at" +
-			" * http://www.eclipse.org/legal/epl-v10.html" +
-			" *" +
-			" * Contributors:" +
-			" *     IBM Corporation - initial API and implementation" +
-			" *******************************************************************************/" +
-			"import java.util.HashSet;\n" +
-			"import org.eclipse.core.resources.ICommand;\n" +
-			"import org.eclipse.core.resources.IProject;\n" +
-			"import org.eclipse.core.resources.IProjectDescription;\n" +
-			"import org.eclipse.core.resources.IResource;\n" +
-			"import org.eclipse.core.resources.IncrementalProjectBuilder;\n" +
-			"import org.eclipse.core.resources.ResourcesPlugin;\n" +
-			"import org.eclipse.core.runtime.CoreException;\n" +
-			"import org.eclipse.core.runtime.IAdaptable;\n" +
-			"import org.eclipse.jface.viewers.ISelection;\n" +
-			"import org.eclipse.jface.viewers.IStructuredSelection;\n" +
-			"import org.eclipse.ui.IEditorInput;\n" +
-			"import org.eclipse.ui.IEditorPart;\n" +
-			"import org.eclipse.ui.IFileEditorInput;\n" +
-			"import org.eclipse.ui.IWorkbenchPart;\n" +
-			"import org.eclipse.ui.IWorkbenchWindow;\n" +
-			"\n" +
-			"/**\n" +
-			" * This class contains convenience methods used by the various build commands\n" +
-			" * to determine enablement.  These utilities cannot be factored into a common\n" +
-			" * class because some build actions are API and some are not.\n" +
-			" * \n" +
-			" * @since 3.1\n" +
-			" */\n" +
-			"public class BuildUtilities {\n" +
-			"	/**\n" +
-			"	 * Extracts the selected projects from a selection.\n" +
-			"	 * \n" +
-			"	 * @param selection The selection to analyze\n" +
-			"	 * @return The selected projects\n" +
-			"	 */\n" +
-			"	public static IProject[] extractProjects(Object[] selection) {\n" +
-			"		HashSet projects = new HashSet();\n" +
-			"		for (int i = 0; i < selection.length; i++) {\n" +
-			"			if (selection[i] instanceof IResource) {\n" +
-			"				projects.add(((IResource) selection[i]).getProject());\n" +
-			"			} else if (selection[i] instanceof IAdaptable) {\n" +
-			"				IAdaptable adaptable = (IAdaptable) selection[i];\n" +
-			"				IResource resource = (IResource) adaptable.getAdapter(IResource.class);\n" +
-			"				if (resource != null)\n" +
-			"					projects.add(resource.getProject());\n" +
-			"			}\n" +
-			"		}\n" +
-			"		return (IProject[]) projects.toArray(new IProject[projects.size()]);\n" +
-			"	}\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * Finds and returns the selected projects in the given window\n" +
-			"	 * \n" +
-			"	 * @param window The window to find the selection in\n" +
-			"	 * @return The selected projects, or an empty array if no selection could be found.\n" +
-			"	 */\n" +
-			"	public static IProject[] findSelectedProjects(IWorkbenchWindow window) {\n" +
-			"		if (window == null)\n" +
-			"			return new IProject[0];\n" +
-			"		ISelection selection = window.getSelectionService().getSelection();\n" +
-			"		IProject[] selected = null;\n" +
-			"		if (selection != null && !selection.isEmpty() && selection instanceof IStructuredSelection) {\n" +
-			"			selected = extractProjects(((IStructuredSelection) selection).toArray());\n" +
-			"		} else {\n" +
-			"			//see if we can extract a selected project from the active editor\n" +
-			"			IWorkbenchPart part = window.getPartService().getActivePart();\n" +
-			"			if (part instanceof IEditorPart) {\n" +
-			"				IEditorInput input = ((IEditorPart) part).getEditorInput();\n" +
-			"				if (input instanceof IFileEditorInput)\n" +
-			"					selected = new IProject[] {((IFileEditorInput) input).getFile().getProject()};\n" +
-			"			}\n" +
-			"		}\n" +
-			"		if (selected == null)\n" +
-			"			selected = new IProject[0];\n" +
-			"		return selected;\n" +
-			"	}\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * Returns whether the workspace has a builder installed that responds\n" +
-			"	 * to the given trigger.\n" +
-			"	 */\n" +
-			"	static boolean hasBuilder(int trigger) {\n" +
-			"		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();\n" +
-			"		boolean builderFound = false;\n" +
-			"		for (int i = 0; i < projects.length; i++) {\n" +
-			"			if (!projects[i].isAccessible())\n" +
-			"				continue;\n" +
-			"			try {\n" +
-			"				IProjectDescription description = projects[i].getDescription();\n" +
-			"				ICommand[] buildSpec = description.getBuildSpec();\n" +
-			"				for (int j = 0; j < buildSpec.length; j++) {\n" +
-			"					builderFound = true;\n" +
-			"					if (!buildSpec[j].isBuilding(trigger))\n" +
-			"						return true;\n" +
-			"				}\n" +
-			"			} catch (CoreException e) {\n" +
-			"				//ignore projects that are not available\n" +
-			"			}\n" +
-			"		}\n" +
-			"		//enable building if there are any accessible projects with builders\n" +
-			"		return builderFound;\n" +
-			"\n" +
-			"	}\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * Returns whether the selection of projects is being managed by autobuild.\n" +
-			"	 * \n" +
-			"	 * @param projects The projects to examine\n" +
-			"	 * @return <code>true</code> if the projects are being managed by\n" +
-			"	 * autobuild, and <code>false</code> otherwise.\n" +
-			"	 */\n" +
-			"	public static boolean isAutoBuilding(IProject[] projects) {\n" +
-			"		if (!ResourcesPlugin.getWorkspace().isAutoBuilding())\n" +
-			"			return false;\n" +
-			"		\n" +
-			"	/**\n" +
-			"	 * Returns whether one of the projects has a builder whose trigger setting\n" +
-			"	 * for the given trigger matches the given value.\n" +
-			"	 * \n" +
-			"	 * @param projects The projects to check\n" +
-			"	 * @param trigger The trigger to look for\n" +
-			"	 * @param value The trigger value to look for\n" +
-			"	 * @return <code>true</code> if one of the projects has a builder whose\n" +
-			"	 * trigger activation matches the provided value, and <code>false</code> otherwise.\n" +
-			"	 */\n" +
-			"	private static boolean matchingTrigger(IProject[] projects, int trigger, boolean value) {\n" +
-			"		for (int i = 0; i < projects.length; i++) {\n" +
-			"			if (!projects[i].isAccessible())\n" +
-			"				continue;\n" +
-			"			try {\n" +
-			"				IProjectDescription description = projects[i].getDescription();\n" +
-			"				ICommand[] buildSpec = description.getBuildSpec();\n" +
-			"				for (int j = 0; j < buildSpec.length; j++) {\n" +
-			"					if (buildSpec[j].isBuilding(trigger) == value)\n" +
-			"						return true;\n" +
-			"				}\n" +
-			"			} catch (CoreException e) {\n" +
-			"				//ignore projects that are not available\n" +
-			"			}\n" +
-			"		}\n" +
-			"		return false;\n" +
-			"	}\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * Returns whether a build command with the given trigger should\n" +
-			"	 * be enabled for the given selection.\n" +
-			"	 * @param projects The projects to use to determine enablement\n" +
-			"	 * @param trigger The build trigger (<code>IncrementalProjectBuilder.*_BUILD</code> constants).\n" +
-			"	 * @return <code>true</code> if the action should be enabled, and\n" +
-			"	 * <code>false</code> otherwise.\n" +
-			"	 */\n" +
-			"	public static boolean isEnabled(IProject[] projects, int trigger) {\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * Doesn\'t need to be instantiated\n" +
-			"	 */\n" +
-			"	private BuildUtilities() {\n" +
-			"	}\n" +
-			"}";
+			"""
+			/*******************************************************************************\
+			 * Copyright (c) 2000, 2006 IBM Corporation and others.\
+			 * All rights reserved. This program and the accompanying materials\
+			 * are made available under the terms of the Eclipse Public License v1.0\
+			 * which accompanies this distribution, and is available at\
+			 * http://www.eclipse.org/legal/epl-v10.html\
+			 *\
+			 * Contributors:\
+			 *     IBM Corporation - initial API and implementation\
+			 *******************************************************************************/\
+			import java.util.HashSet;
+			import org.eclipse.core.resources.ICommand;
+			import org.eclipse.core.resources.IProject;
+			import org.eclipse.core.resources.IProjectDescription;
+			import org.eclipse.core.resources.IResource;
+			import org.eclipse.core.resources.IncrementalProjectBuilder;
+			import org.eclipse.core.resources.ResourcesPlugin;
+			import org.eclipse.core.runtime.CoreException;
+			import org.eclipse.core.runtime.IAdaptable;
+			import org.eclipse.jface.viewers.ISelection;
+			import org.eclipse.jface.viewers.IStructuredSelection;
+			import org.eclipse.ui.IEditorInput;
+			import org.eclipse.ui.IEditorPart;
+			import org.eclipse.ui.IFileEditorInput;
+			import org.eclipse.ui.IWorkbenchPart;
+			import org.eclipse.ui.IWorkbenchWindow;
+			
+			/**
+			 * This class contains convenience methods used by the various build commands
+			 * to determine enablement.  These utilities cannot be factored into a common
+			 * class because some build actions are API and some are not.
+			 *\s
+			 * @since 3.1
+			 */
+			public class BuildUtilities {
+				/**
+				 * Extracts the selected projects from a selection.
+				 *\s
+				 * @param selection The selection to analyze
+				 * @return The selected projects
+				 */
+				public static IProject[] extractProjects(Object[] selection) {
+					HashSet projects = new HashSet();
+					for (int i = 0; i < selection.length; i++) {
+						if (selection[i] instanceof IResource) {
+							projects.add(((IResource) selection[i]).getProject());
+						} else if (selection[i] instanceof IAdaptable) {
+							IAdaptable adaptable = (IAdaptable) selection[i];
+							IResource resource = (IResource) adaptable.getAdapter(IResource.class);
+							if (resource != null)
+								projects.add(resource.getProject());
+						}
+					}
+					return (IProject[]) projects.toArray(new IProject[projects.size()]);
+				}
+			
+				/**
+				 * Finds and returns the selected projects in the given window
+				 *\s
+				 * @param window The window to find the selection in
+				 * @return The selected projects, or an empty array if no selection could be found.
+				 */
+				public static IProject[] findSelectedProjects(IWorkbenchWindow window) {
+					if (window == null)
+						return new IProject[0];
+					ISelection selection = window.getSelectionService().getSelection();
+					IProject[] selected = null;
+					if (selection != null && !selection.isEmpty() && selection instanceof IStructuredSelection) {
+						selected = extractProjects(((IStructuredSelection) selection).toArray());
+					} else {
+						//see if we can extract a selected project from the active editor
+						IWorkbenchPart part = window.getPartService().getActivePart();
+						if (part instanceof IEditorPart) {
+							IEditorInput input = ((IEditorPart) part).getEditorInput();
+							if (input instanceof IFileEditorInput)
+								selected = new IProject[] {((IFileEditorInput) input).getFile().getProject()};
+						}
+					}
+					if (selected == null)
+						selected = new IProject[0];
+					return selected;
+				}
+			
+				/**
+				 * Returns whether the workspace has a builder installed that responds
+				 * to the given trigger.
+				 */
+				static boolean hasBuilder(int trigger) {
+					IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+					boolean builderFound = false;
+					for (int i = 0; i < projects.length; i++) {
+						if (!projects[i].isAccessible())
+							continue;
+						try {
+							IProjectDescription description = projects[i].getDescription();
+							ICommand[] buildSpec = description.getBuildSpec();
+							for (int j = 0; j < buildSpec.length; j++) {
+								builderFound = true;
+								if (!buildSpec[j].isBuilding(trigger))
+									return true;
+							}
+						} catch (CoreException e) {
+							//ignore projects that are not available
+						}
+					}
+					//enable building if there are any accessible projects with builders
+					return builderFound;
+			
+				}
+			
+				/**
+				 * Returns whether the selection of projects is being managed by autobuild.
+				 *\s
+				 * @param projects The projects to examine
+				 * @return <code>true</code> if the projects are being managed by
+				 * autobuild, and <code>false</code> otherwise.
+				 */
+				public static boolean isAutoBuilding(IProject[] projects) {
+					if (!ResourcesPlugin.getWorkspace().isAutoBuilding())
+						return false;
+				\t
+				/**
+				 * Returns whether one of the projects has a builder whose trigger setting
+				 * for the given trigger matches the given value.
+				 *\s
+				 * @param projects The projects to check
+				 * @param trigger The trigger to look for
+				 * @param value The trigger value to look for
+				 * @return <code>true</code> if one of the projects has a builder whose
+				 * trigger activation matches the provided value, and <code>false</code> otherwise.
+				 */
+				private static boolean matchingTrigger(IProject[] projects, int trigger, boolean value) {
+					for (int i = 0; i < projects.length; i++) {
+						if (!projects[i].isAccessible())
+							continue;
+						try {
+							IProjectDescription description = projects[i].getDescription();
+							ICommand[] buildSpec = description.getBuildSpec();
+							for (int j = 0; j < buildSpec.length; j++) {
+								if (buildSpec[j].isBuilding(trigger) == value)
+									return true;
+							}
+						} catch (CoreException e) {
+							//ignore projects that are not available
+						}
+					}
+					return false;
+				}
+			
+				/**
+				 * Returns whether a build command with the given trigger should
+				 * be enabled for the given selection.
+				 * @param projects The projects to use to determine enablement
+				 * @param trigger The build trigger (<code>IncrementalProjectBuilder.*_BUILD</code> constants).
+				 * @return <code>true</code> if the action should be enabled, and
+				 * <code>false</code> otherwise.
+				 */
+				public static boolean isEnabled(IProject[] projects, int trigger) {
+					return true;
+				}
+			
+				/**
+				 * Doesn't need to be instantiated
+				 */
+				private BuildUtilities() {
+				}
+			}""";
 		sortUnit(this.getCompilationUnit("/P/src/BuildUtilities.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/BuildUtilities.java");
@@ -1669,22 +1729,24 @@ public void test023() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public @interface X {\n" +
-			"	String name();\n" +
-			"	int id() default 0;\n" +
-			"	String value;\n" +
-			"	static int GlobalID;\n" +
-			"}\n" +
-			"class A {}"
+			"""
+				public @interface X {
+					String name();
+					int id() default 0;
+					String value;
+					static int GlobalID;
+				}
+				class A {}"""
 		);
 		String expectedResult =
-			"class A {}\n" +
-			"public @interface X {\n" +
-			"	static int GlobalID;\n" +
-			"	String value;\n" +
-			"	int id() default 0;\n" +
-			"	String name();\n" +
-			"}";
+			"""
+			class A {}
+			public @interface X {
+				static int GlobalID;
+				String value;
+				int id() default 0;
+				String name();
+			}""";
 		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1695,30 +1757,32 @@ public void test024() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		class Local {\n" +
-			"			static enum E {\n" +
-			"				C, B;\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void bar() {\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					void foo() {
+						class Local {
+							static enum E {
+								C, B;
+							}
+						}
+					}
+					void bar() {
+					}
+				}"""
 		);
 		String expectedResult =
-			"public class X {\n" +
-			"	void bar() {\n" +
-			"	}\n" +
-			"	void foo() {\n" +
-			"		class Local {\n" +
-			"			static enum E {\n" +
-			"				B, C;\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X {
+				void bar() {
+				}
+				void foo() {
+					class Local {
+						static enum E {
+							B, C;
+						}
+					}
+				}
+			}""";
 		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1729,48 +1793,50 @@ public void test025() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"interface Jpf {\n" +
-			"	@interface Action {\n" +
-			"		ValidatableProperty[] validatableProperties();\n" +
-			"	}\n" +
-			"	@interface ValidatableProperty {\n" +
-			"		String propertyName();\n" +
-			"		ValidationLocaleRules[] localeRules();\n" +
-			"	}\n" +
-			"	@interface ValidateMinLength {\n" +
-			"		String chars();\n" +
-			"	}\n" +
-			"	@interface ValidationLocaleRules {\n" +
-			"		ValidateMinLength validateMinLength();\n" +
-			"	}\n" +
-			"public class X {\n" +
-			"	@Jpf.Action(validatableProperties = { @Jpf.ValidatableProperty(propertyName = \"fooField\", localeRules = { @Jpf.ValidationLocaleRules(validateMinLength = @Jpf.ValidateMinLength(chars = \"12\")) }) })\n" +
-			"	public String actionForValidationRuleTest() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}"
+			"""
+				interface Jpf {
+					@interface Action {
+						ValidatableProperty[] validatableProperties();
+					}
+					@interface ValidatableProperty {
+						String propertyName();
+						ValidationLocaleRules[] localeRules();
+					}
+					@interface ValidateMinLength {
+						String chars();
+					}
+					@interface ValidationLocaleRules {
+						ValidateMinLength validateMinLength();
+					}
+				public class X {
+					@Jpf.Action(validatableProperties = { @Jpf.ValidatableProperty(propertyName = "fooField", localeRules = { @Jpf.ValidationLocaleRules(validateMinLength = @Jpf.ValidateMinLength(chars = "12")) }) })
+					public String actionForValidationRuleTest() {
+						return null;
+					}
+				}"""
 		);
 		String expectedResult =
-			"interface Jpf {\n" +
-			"	@interface Action {\n" +
-			"		ValidatableProperty[] validatableProperties();\n" +
-			"	}\n" +
-			"	@interface ValidatableProperty {\n" +
-			"		ValidationLocaleRules[] localeRules();\n" +
-			"		String propertyName();\n" +
-			"	}\n" +
-			"	@interface ValidateMinLength {\n" +
-			"		String chars();\n" +
-			"	}\n" +
-			"	@interface ValidationLocaleRules {\n" +
-			"		ValidateMinLength validateMinLength();\n" +
-			"	}\n" +
-			"public class X {\n" +
-			"	@Jpf.Action(validatableProperties = { @Jpf.ValidatableProperty(propertyName = \"fooField\", localeRules = { @Jpf.ValidationLocaleRules(validateMinLength = @Jpf.ValidateMinLength(chars = \"12\")) }) })\n" +
-			"	public String actionForValidationRuleTest() {\n" +
-			"		return null;\n" +
-			"	}\n" +
-			"}";
+			"""
+			interface Jpf {
+				@interface Action {
+					ValidatableProperty[] validatableProperties();
+				}
+				@interface ValidatableProperty {
+					ValidationLocaleRules[] localeRules();
+					String propertyName();
+				}
+				@interface ValidateMinLength {
+					String chars();
+				}
+				@interface ValidationLocaleRules {
+					ValidateMinLength validateMinLength();
+				}
+			public class X {
+				@Jpf.Action(validatableProperties = { @Jpf.ValidatableProperty(propertyName = "fooField", localeRules = { @Jpf.ValidationLocaleRules(validateMinLength = @Jpf.ValidateMinLength(chars = "12")) }) })
+				public String actionForValidationRuleTest() {
+					return null;
+				}
+			}""";
 		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1781,32 +1847,34 @@ public void test026() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"	void z() {\n" +
-			"	}\n" +
-			"	void b() {\n" +
-			"		System.out.println(\"b1\");\n" +
-			"	}\n" +
-			"	void b() {\n" +
-			"		System.out.println(\"b2\");\n" +
-			"	}\n" +
-			"	void a() {\n" +
-			"	}\n" +
-			"}"
+			"""
+				public class X {
+					void z() {
+					}
+					void b() {
+						System.out.println("b1");
+					}
+					void b() {
+						System.out.println("b2");
+					}
+					void a() {
+					}
+				}"""
 		);
 		String expectedResult =
-			"public class X {\n" +
-			"	void a() {\n" +
-			"	}\n" +
-			"	void b() {\n" +
-			"		System.out.println(\"b1\");\n" +
-			"	}\n" +
-			"	void b() {\n" +
-			"		System.out.println(\"b2\");\n" +
-			"	}\n" +
-			"	void z() {\n" +
-			"	}\n" +
-			"}";
+			"""
+			public class X {
+				void a() {
+				}
+				void b() {
+					System.out.println("b1");
+				}
+				void b() {
+					System.out.println("b2");
+				}
+				void z() {
+				}
+			}""";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1817,40 +1885,42 @@ public void test027() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public final class X\n" +
-			"{\n" +
-			"	static\n" +
-			"	{\n" +
-			"\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(String[] args)\n" +
-			"	{\n" +
-			"	}\n" +
-			"\n" +
-			"	static\n" +
-			"	{\n" +
-			"\n" +
-			"	}\n" +
-			"}"
+			"""
+				public final class X
+				{
+					static
+					{
+				
+					}
+				
+					public static void main(String[] args)
+					{
+					}
+				
+					static
+					{
+				
+					}
+				}"""
 		);
 		String expectedResult =
-			"public final class X\n" +
-			"{\n" +
-			"	static\n" +
-			"	{\n" +
-			"\n" +
-			"	}\n" +
-			"\n" +
-			"	static\n" +
-			"	{\n" +
-			"\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void main(String[] args)\n" +
-			"	{\n" +
-			"	}\n" +
-			"}";
+			"""
+			public final class X
+			{
+				static
+				{
+			
+				}
+			
+				static
+				{
+			
+				}
+			
+				public static void main(String[] args)
+				{
+				}
+			}""";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -1862,22 +1932,24 @@ public void test028() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public final class X\n" +
-			"{\n" +
-			"/** JavaDoc comment2 */\n" +
-			"int j;\n" +
-			"/** JavaDoc comment1 */\n" +
-			"int i;\n" +
-			"}"
+			"""
+				public final class X
+				{
+				/** JavaDoc comment2 */
+				int j;
+				/** JavaDoc comment1 */
+				int i;
+				}"""
 		);
 		String expectedResult =
-			"public final class X\n" +
-			"{\n" +
-			"/** JavaDoc comment1 */\n" +
-			"int i;\n" +
-			"/** JavaDoc comment2 */\n" +
-			"int j;\n" +
-			"}";
+			"""
+			public final class X
+			{
+			/** JavaDoc comment1 */
+			int i;
+			/** JavaDoc comment2 */
+			int j;
+			}""";
 		oldAPISortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
 			@Override
 			public int compare(Object o1, Object o2) {
@@ -1902,14 +1974,16 @@ public void test029() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public enum X {\n" +
-			"	Z, A, C, B;\n" +
-			"}"
+			"""
+				public enum X {
+					Z, A, C, B;
+				}"""
 		);
 		String expectedResult =
-			"public enum X {\n" +
-			"	Z, A, C, B;\n" +
-			"}";
+			"""
+			public enum X {
+				Z, A, C, B;
+			}""";
 		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
 			@Override
 			public int compare(Object o1, Object o2) {
@@ -1929,14 +2003,16 @@ public void testBug543073_001() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public enum X {\n" +
-			"	Z, A, C, B;\n" +
-			"}"
+			"""
+				public enum X {
+					Z, A, C, B;
+				}"""
 		);
 		String expectedResult =
-			"public enum X {\n" +
-			"	Z, A, C, B;\n" +
-			"}";
+			"""
+			public enum X {
+				Z, A, C, B;
+			}""";
 		sortUnit(AST_INTERNAL_JLS10, this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
 			public int compare(Object o1, Object o2) {
 				BodyDeclaration bodyDeclaration1 = (BodyDeclaration) o1;
@@ -1955,26 +2031,28 @@ public void test030() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/I.java",
-			"public interface I<T> {\n" +
-			"	public I<T> foo(A<T> A);\n" +
-			"	public <S> I<S> foo2(C<T,S> c);\n" +
-			"	public <S> I<S> foo3(C<T,I<S>> c);\n" +
-			"	public <K> J<T> bar(C<T,K> c);\n" +
-			"	public <K> J<T> bar2(C<T,K> c);\n" +
-			"	public <K> I<K<K,T> bar3(C<T,K> c);\n" +
-			"	public <K,E> I<K<K,E> bar3(C<T,K> c, C<T,E> c2);\n" +
-			"}"
+			"""
+				public interface I<T> {
+					public I<T> foo(A<T> A);
+					public <S> I<S> foo2(C<T,S> c);
+					public <S> I<S> foo3(C<T,I<S>> c);
+					public <K> J<T> bar(C<T,K> c);
+					public <K> J<T> bar2(C<T,K> c);
+					public <K> I<K<K,T> bar3(C<T,K> c);
+					public <K,E> I<K<K,E> bar3(C<T,K> c, C<T,E> c2);
+				}"""
 		);
 		String expectedResult =
-			"public interface I<T> {\n" +
-			"	public I<T> foo(A<T> A);\n" +
-			"	public <S> I<S> foo2(C<T,S> c);\n" +
-			"	public <S> I<S> foo3(C<T,I<S>> c);\n" +
-			"	public <K> J<T> bar(C<T,K> c);\n" +
-			"	public <K> J<T> bar2(C<T,K> c);\n" +
-			"	public <K> I<K<K,T> bar3(C<T,K> c);\n" +
-			"	public <K,E> I<K<K,E> bar3(C<T,K> c, C<T,E> c2);\n" +
-			"}";
+			"""
+			public interface I<T> {
+				public I<T> foo(A<T> A);
+				public <S> I<S> foo2(C<T,S> c);
+				public <S> I<S> foo3(C<T,I<S>> c);
+				public <K> J<T> bar(C<T,K> c);
+				public <K> J<T> bar2(C<T,K> c);
+				public <K> I<K<K,T> bar3(C<T,K> c);
+				public <K,E> I<K<K,E> bar3(C<T,K> c, C<T,E> c2);
+			}""";
 		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/I.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/I.java");
@@ -1985,26 +2063,28 @@ public void test031() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/I.java",
-			"public interface I<T> {\n" +
-			"	public I<T> foo(A<T> A);\n" +
-			"	public <S> I<S> foo2(C<T,S> c);\n" +
-			"	public <S> I<S> foo3(C<T,I<S>> c);\n" +
-			"	public <K> J<T> bar(C<T,K> c);\n" +
-			"	public <K> J<T> bar2(C<T,K> c);\n" +
-			"	public <K> I<K<K,T>> bar3(C<T,K> c);\n" +
-			"	public <K,E> I<K<K,E>> bar3(C<T,K> c, C<T,E> c2);\n" +
-			"}"
+			"""
+				public interface I<T> {
+					public I<T> foo(A<T> A);
+					public <S> I<S> foo2(C<T,S> c);
+					public <S> I<S> foo3(C<T,I<S>> c);
+					public <K> J<T> bar(C<T,K> c);
+					public <K> J<T> bar2(C<T,K> c);
+					public <K> I<K<K,T>> bar3(C<T,K> c);
+					public <K,E> I<K<K,E>> bar3(C<T,K> c, C<T,E> c2);
+				}"""
 		);
 		String expectedResult =
-			"public interface I<T> {\n" +
-			"	public <K> J<T> bar2(C<T,K> c);\n" +
-			"	public <K> I<K<K,T>> bar3(C<T,K> c);\n" +
-			"	public <K,E> I<K<K,E>> bar3(C<T,K> c, C<T,E> c2);\n" +
-			"	public <K> J<T> bar(C<T,K> c);\n" +
-			"	public <S> I<S> foo2(C<T,S> c);\n" +
-			"	public <S> I<S> foo3(C<T,I<S>> c);\n" +
-			"	public I<T> foo(A<T> A);\n" +
-			"}";
+			"""
+			public interface I<T> {
+				public <K> J<T> bar2(C<T,K> c);
+				public <K> I<K<K,T>> bar3(C<T,K> c);
+				public <K,E> I<K<K,E>> bar3(C<T,K> c, C<T,E> c2);
+				public <K> J<T> bar(C<T,K> c);
+				public <S> I<S> foo2(C<T,S> c);
+				public <S> I<S> foo3(C<T,I<S>> c);
+				public I<T> foo(A<T> A);
+			}""";
 		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/I.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/I.java");
@@ -2015,18 +2095,20 @@ public void test032() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"import java.util.*;\n" +
-			"public interface X<T> {\n" +
-			"	<K> List<Map<K,T> foo(Map<T,K> m);\n" +
-			"	<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);\n" +
-			"}"
+			"""
+				import java.util.*;
+				public interface X<T> {
+					<K> List<Map<K,T> foo(Map<T,K> m);
+					<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);
+				}"""
 		);
 		String expectedResult =
-			"import java.util.*;\n" +
-			"public interface X<T> {\n" +
-			"	<K> List<Map<K,T> foo(Map<T,K> m);\n" +
-			"	<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);\n" +
-			"}";
+			"""
+			import java.util.*;
+			public interface X<T> {
+				<K> List<Map<K,T> foo(Map<T,K> m);
+				<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);
+			}""";
 		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
@@ -2039,14 +2121,16 @@ public void test033() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public enum X {\n" +
-			"	Z, A, C, B;\n" +
-			"}"
+			"""
+				public enum X {
+					Z, A, C, B;
+				}"""
 		);
 		String expectedResult =
-			"public enum X {\n" +
-			"	A, B, C, Z;\n" +
-			"}";
+			"""
+			public enum X {
+				A, B, C, Z;
+			}""";
 		unit = this.getCompilationUnit("/P/src/X.java");
 		unit.becomeWorkingCopy(null);
 		String source = unit.getSource();
@@ -2097,9 +2181,10 @@ public void test034() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/X.java",
-			"public enum X {\n" +
-			"	Z, A, C, B;\n" +
-			"}"
+			"""
+				public enum X {
+					Z, A, C, B;
+				}"""
 		);
 		unit = this.getCompilationUnit("/P/src/X.java");
 		unit.becomeWorkingCopy(null);
@@ -2136,32 +2221,34 @@ public void testBug446255() throws CoreException {
 	try {
 		this.createFile(
 			fileName,
-			"public class MainScreen {\n"+
-			"	public MainScreen() {}\n"+
-			"	/**\n"+
-			"	 * m1\n"+
-			"	 */\n"+
-			"	void m1() {}\n"+
-			"	\n"+
-			"		this.m2();\n"+
-			"	}\n"+
-			"	\n"+
-			"	void m2() {}\n"+
-			"}"
+			"""
+				public class MainScreen {
+					public MainScreen() {}
+					/**
+					 * m1
+					 */
+					void m1() {}
+				\t
+						this.m2();
+					}
+				\t
+					void m2() {}
+				}"""
 		);
 		String expectedResult =
-			"public class MainScreen {\n"+
-			"	public MainScreen() {}\n"+
-			"	/**\n"+
-			"	 * m1\n"+
-			"	 */\n"+
-			"	void m1() {}\n"+
-			"	\n"+
-			"		this.m2();\n"+
-			"	}\n"+
-			"	\n"+
-			"	void m2() {}\n"+
-			"}";
+			"""
+			public class MainScreen {
+				public MainScreen() {}
+				/**
+				 * m1
+				 */
+				void m1() {}
+			\t
+					this.m2();
+				}
+			\t
+				void m2() {}
+			}""";
 		sortUnit(this.getCompilationUnit(fileName), expectedResult);
 	} finally {
 		deleteFile(fileName);

@@ -64,16 +64,18 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"module mod.one { \n" +
-						"  requires java.sql;\n" +
-						"}");
+						"""
+							module mod.one {\s
+							  requires java.sql;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java",
-						"package p;\n" +
-						"public class X {\n" +
-						"	public static java.sql.Connection getConnection() {\n" +
-						"		return null;\n" +
-						"	}\n" +
-						"}");
+						"""
+							package p;
+							public class X {
+								public static java.sql.Connection getConnection() {
+									return null;
+								}
+							}""");
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
@@ -97,16 +99,18 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"module mod.one { \n" +
-						"  requires java.sql;\n" +
-						"}");
+						"""
+							module mod.one {\s
+							  requires java.sql;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java",
-						"package p;\n" +
-						"public class X {\n" +
-						"	public static java.sql.Connection getConnection() {\n" +
-						"		return null;\n" +
-						"	}\n" +
-						"}");
+						"""
+							package p;
+							public class X {
+								public static java.sql.Connection getConnection() {
+									return null;
+								}
+							}""");
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
@@ -116,19 +120,21 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 		runNegativeModuleTest(files,
 				buffer,
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n" +
-				"	requires java.sql;\n" +
-				"	         ^^^^^^^^\n" +
-				"java.sql cannot be resolved to a module\n" +
-				"----------\n" +
-				"----------\n" +
-				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 3)\n" +
-				"	public static java.sql.Connection getConnection() {\n" +
-				"	              ^^^^^^^^\n" +
-				"java.sql cannot be resolved to a type\n" +
-				"----------\n" +
-				"2 problems (2 errors)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)
+						requires java.sql;
+						         ^^^^^^^^
+					java.sql cannot be resolved to a module
+					----------
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 3)
+						public static java.sql.Connection getConnection() {
+						              ^^^^^^^^
+					java.sql cannot be resolved to a type
+					----------
+					2 problems (2 errors)
+					""",
 				false,
 				"p.X");
 	}
@@ -141,16 +147,18 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"module mod.one { \n" +
-						"  requires java.sql;\n" +
-						"}");
+						"""
+							module mod.one {\s
+							  requires java.sql;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java",
-						"package p;\n" +
-						"public class X {\n" +
-						"	public static java.sql.Connection getConnection() {\n" +
-						"		return null;\n" +
-						"	}\n" +
-						"}");
+						"""
+							package p;
+							public class X {
+								public static java.sql.Connection getConnection() {
+									return null;
+								}
+							}""");
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
@@ -161,19 +169,21 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 		runNegativeModuleTest(files,
 				buffer,
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n" +
-				"	requires java.sql;\n" +
-				"	         ^^^^^^^^\n" +
-				"java.sql cannot be resolved to a module\n" +
-				"----------\n" +
-				"----------\n" +
-				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 3)\n" +
-				"	public static java.sql.Connection getConnection() {\n" +
-				"	              ^^^^^^^^\n" +
-				"java.sql cannot be resolved to a type\n" +
-				"----------\n" +
-				"2 problems (2 errors)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)
+						requires java.sql;
+						         ^^^^^^^^
+					java.sql cannot be resolved to a module
+					----------
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 3)
+						public static java.sql.Connection getConnection() {
+						              ^^^^^^^^
+					java.sql cannot be resolved to a type
+					----------
+					2 problems (2 errors)
+					""",
 				false,
 				"p.X");
 	}
@@ -189,12 +199,13 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 						"module mod.one { \n" +
 						"}");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java",
-						"package p;\n" +
-						"public class X {\n" +
-						"	public static java.sql.Connection getConnection() {\n" +
-						"		return null;\n" +
-						"	}\n" +
-						"}");
+						"""
+							package p;
+							public class X {
+								public static java.sql.Connection getConnection() {
+									return null;
+								}
+							}""");
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
@@ -205,13 +216,15 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 		runNegativeModuleTest(files,
 				buffer,
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 3)\n" +
-				"	public static java.sql.Connection getConnection() {\n" +
-				"	              ^^^^^^^^\n" +
-				"java.sql cannot be resolved to a type\n" +
-				"----------\n" +
-				"1 problem (1 error)\n",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 3)
+						public static java.sql.Connection getConnection() {
+						              ^^^^^^^^
+					java.sql cannot be resolved to a type
+					----------
+					1 problem (1 error)
+					""",
 				false,
 				"p.X");
 	}
@@ -224,30 +237,34 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"module mod.one { \n" +
-						"	exports p;\n" +
-						"	requires mod.two;\n" +
-						"	requires transitive java.sql;\n" +
-						"}");
+						"""
+							module mod.one {\s
+								exports p;
+								requires mod.two;
+								requires transitive java.sql;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java",
-						"package p;\n" +
-						"import q.Y;\n" +
-						"public class X {\n" +
-						"	public static java.sql.Connection getConnection() {\n" +
-						"		return Y.con;\n" +
-						"	}\n" +
-						"}");
+						"""
+							package p;
+							import q.Y;
+							public class X {
+								public static java.sql.Connection getConnection() {
+									return Y.con;
+								}
+							}""");
 		moduleLoc = directory + File.separator + "mod.two";
 		writeFileCollecting(files, moduleLoc, "module-info.java",
-						"module mod.two { \n" +
-						"	exports q;\n" +
-						"	requires java.sql;\n" +
-						"}");
+						"""
+							module mod.two {\s
+								exports q;
+								requires java.sql;
+							}""");
 		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java",
-						"package q;\n" +
-						"public class Y {\n" +
-						"   public static java.sql.Connection con = null;\n" +
-						"}");
+						"""
+							package q;
+							public class Y {
+							   public static java.sql.Connection con = null;
+							}""");
 
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )

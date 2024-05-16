@@ -83,18 +83,22 @@ public class MirrorDeclarationTests extends APTTestBase {
 
 		env.addClass(srcRoot, "test", "Trigger", codeTrigger);
 
-		String codeEntryPoint = "package test;\n" +
-								"@Trigger\n" +
-								"public class EntryPoint {\n" +
-								"    ClassWithNestedAnnotation nestedAnno;\n}";
+		String codeEntryPoint = """
+			package test;
+			@Trigger
+			public class EntryPoint {
+			    ClassWithNestedAnnotation nestedAnno;
+			}""";
 
 		env.addClass(srcRoot, "test", "EntryPoint", codeEntryPoint);
 
 		String codeClassWithNestedAnnotation =
-			"package test; \n" +
-			"public class ClassWithNestedAnnotation {\n" +
-			"	public final int FOUR = 4; \n " +
-			"}";
+			"""
+			package test;\s
+			public class ClassWithNestedAnnotation {
+				public final int FOUR = 4;\s
+			 \
+			}""";
 
 		env.addClass(srcRoot, "test", "ClassWithNestedAnnotation", codeClassWithNestedAnnotation);
 		fullBuild( project.getFullPath() );
@@ -113,23 +117,26 @@ public class MirrorDeclarationTests extends APTTestBase {
 
 		env.addClass(srcRoot, "test", "Trigger", codeTrigger);
 
-		String codeEntryPoint = "package test;\n" +
-								"@Trigger\n" +
-								"public class EntryPoint {\n" +
-								"    ClassWithNestedAnnotation nestedAnno;\n}";
+		String codeEntryPoint = """
+			package test;
+			@Trigger
+			public class EntryPoint {
+			    ClassWithNestedAnnotation nestedAnno;
+			}""";
 
 		env.addClass(srcRoot, "test", "EntryPoint", codeEntryPoint);
 
 		String codeClassWithNestedAnnotation =
-			"package test; \n" +
-			"public class ClassWithNestedAnnotation {\n" +
-			"	public @interface NestedAnnotation{\n" +
-			"		public enum Character{ \n" +
-			"			Winnie, Tiger, Piglet, Eore; \n" +
-			"		}\n"+
-			"		Character value() default Character.Eore; \n" +
-			"	}\n" +
-			"}";
+			"""
+			package test;\s
+			public class ClassWithNestedAnnotation {
+				public @interface NestedAnnotation{
+					public enum Character{\s
+						Winnie, Tiger, Piglet, Eore;\s
+					}
+					Character value() default Character.Eore;\s
+				}
+			}""";
 
 		env.addClass(srcRoot, "test", "ClassWithNestedAnnotation", codeClassWithNestedAnnotation);
 		fullBuild( project.getFullPath() );
@@ -157,16 +164,21 @@ public class MirrorDeclarationTests extends APTTestBase {
 		env.addClass(srcRoot, "test", "DeclarationAnno", declAnno);
 
 		String codeFoo =
-			"package test;\n" +
-			"@DeclarationAnno\n" +
-			"public class Foo {\n" +
-			"    int field0;\n " +
-			"    UnknownType field1;\n " +
-			"    public Foo(UnknownType type){} \n" +
-			"    public void voidMethod(){} \n " +
-			"    public UnknownType getType(){}\n " +
-			"    public class Inner{} \n" +
-			"}";
+			"""
+			package test;
+			@DeclarationAnno
+			public class Foo {
+			    int field0;
+			 \
+			    UnknownType field1;
+			 \
+			    public Foo(UnknownType type){}\s
+			    public void voidMethod(){}\s
+			 \
+			    public UnknownType getType(){}
+			 \
+			    public class Inner{}\s
+			}""";
 
 		final IPath fooPath = env.addClass(srcRoot, "test", "Foo", codeFoo);
 		fullBuild( project.getFullPath() );
@@ -200,22 +212,28 @@ public class MirrorDeclarationTests extends APTTestBase {
 		env.addClass(srcRoot, "test", "DeclarationAnno", declAnno);
 
 		String codeBar =
-			"package test;\n" +
-			"@DeclarationAnno\n" +
-			"public class Bar {}";
+			"""
+			package test;
+			@DeclarationAnno
+			public class Bar {}""";
 		env.addClass(srcRoot, "test", "Bar", codeBar);
 
 		String codeFoo =
-			"package test;\n" +
-			"@DeclarationAnno\n" +
-			"public class Foo {\n" +
-			"    int field0;\n " +
-			"    UnknownType field1;\n " +
-			"    public Foo(UnknownType type){} \n" +
-			"    public void voidMethod(){} \n " +
-			"    public UnknownType getType(){}\n " +
-			"    public class Inner{} \n" +
-			"}";
+			"""
+			package test;
+			@DeclarationAnno
+			public class Foo {
+			    int field0;
+			 \
+			    UnknownType field1;
+			 \
+			    public Foo(UnknownType type){}\s
+			    public void voidMethod(){}\s
+			 \
+			    public UnknownType getType(){}
+			 \
+			    public class Inner{}\s
+			}""";
 
 		final IPath fooPath = env.addClass(srcRoot, "test", "Foo", codeFoo);
 
@@ -235,9 +253,10 @@ public class MirrorDeclarationTests extends APTTestBase {
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		String x =
-			"package test;\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.generic.*;\n" +
-			"@GenericAnnotation public class X {}";
+			"""
+			package test;
+			import org.eclipse.jdt.apt.tests.annotations.generic.*;
+			@GenericAnnotation public class X {}""";
 
 		env.addClass(srcRoot, "test", "X", x);
 
@@ -270,17 +289,20 @@ public class MirrorDeclarationTests extends APTTestBase {
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		IPath pkg = env.addPackage(srcRoot, "pkg");
-		String contents = "@PkgAnnotation\n" +
-						  "@GenericAnnotation\n" +
-						  "package pkg;\n" +
-						  "import org.eclipse.jdt.apt.tests.annotations.generic.*;";
+		String contents = """
+			@PkgAnnotation
+			@GenericAnnotation
+			package pkg;
+			import org.eclipse.jdt.apt.tests.annotations.generic.*;""";
 		env.addFile(pkg, "package-info.java", contents);
 		String annContents =
-				"package pkg;\n" +
-				"\n" +
-				"@interface PkgAnnotation {\n" +
-				"    String value() default \"def\";\n" +
-				"}\n";
+				"""
+			package pkg;
+			
+			@interface PkgAnnotation {
+			    String value() default "def";
+			}
+			""";
 		env.addClass(srcRoot, "pkg", "pkgAnnotation", annContents);
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
@@ -363,8 +385,10 @@ public class MirrorDeclarationTests extends APTTestBase {
 
 		IProject project = env.getProject(getProjectName());
 		IPath srcRoot = getSourcePath();
-		String x = "package test;\n" + "import org.eclipse.jdt.apt.tests.annotations.generic.*;\n"
-				+ "@GenericAnnotation public class X {}";
+		String x = """
+			package test;
+			import org.eclipse.jdt.apt.tests.annotations.generic.*;
+			@GenericAnnotation public class X {}""";
 
 		IPath path = env.addClass(srcRoot, "test", "X", x);
 		IPath tail = path.removeFirstSegments(2);

@@ -334,20 +334,22 @@ public void setUpSuite() throws Exception {
 	createFolder("/P/x/y/z");
 	createFile(
 		"/P/x/y/z/Foo.java",
-		"package x.y,z;\n" +
-		"import x.y.*;\n" +
-		"import java.util.Vector;\n" +
-		"public class Foo {\n" +
-		"  int field;\n" +
-		"  void bar() {\n" +
-		"  }\n" +
-		"}"
+		"""
+			package x.y,z;
+			import x.y.*;
+			import java.util.Vector;
+			public class Foo {
+			  int field;
+			  void bar() {
+			  }
+			}"""
 	);
 	createFile(
 		"/P/x/y/z/I.java",
-		"package x.y,z;\n" +
-		"public interface I {\n" +
-		"}"
+		"""
+			package x.y,z;
+			public interface I {
+			}"""
 	);
 }
 @Override
@@ -418,20 +420,21 @@ public void testChangeClasspath2() throws CoreException {
 		assertAllTypes(
 			"Unexpected types before changing the classpath",
 			null, // workspace search
-			"X\n" +
-			"java.io.Serializable\n" +
-			"java.lang.Class\n" +
-			"java.lang.CloneNotSupportedException\n" +
-			"java.lang.Error\n" +
-			"java.lang.Exception\n" +
-			"java.lang.IllegalMonitorStateException\n" +
-			"java.lang.InterruptedException\n" +
-			"java.lang.Object\n" +
-			"java.lang.RuntimeException\n" +
-			"java.lang.String\n" +
-			"java.lang.Throwable\n" +
-			"x.y.Foo\n" +
-			"x.y.I"
+			"""
+				X
+				java.io.Serializable
+				java.lang.Class
+				java.lang.CloneNotSupportedException
+				java.lang.Error
+				java.lang.Exception
+				java.lang.IllegalMonitorStateException
+				java.lang.InterruptedException
+				java.lang.Object
+				java.lang.RuntimeException
+				java.lang.String
+				java.lang.Throwable
+				x.y.Foo
+				x.y.I"""
 		);
 		getWorkspace().run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -442,19 +445,20 @@ public void testChangeClasspath2() throws CoreException {
 		assertAllTypes(
 			"Unexpected types after changing the classpath",
 			null, // workspace search
-			"java.io.Serializable\n" +
-			"java.lang.Class\n" +
-			"java.lang.CloneNotSupportedException\n" +
-			"java.lang.Error\n" +
-			"java.lang.Exception\n" +
-			"java.lang.IllegalMonitorStateException\n" +
-			"java.lang.InterruptedException\n" +
-			"java.lang.Object\n" +
-			"java.lang.RuntimeException\n" +
-			"java.lang.String\n" +
-			"java.lang.Throwable\n" +
-			"x.y.Foo\n" +
-			"x.y.I"
+			"""
+				java.io.Serializable
+				java.lang.Class
+				java.lang.CloneNotSupportedException
+				java.lang.Error
+				java.lang.Exception
+				java.lang.IllegalMonitorStateException
+				java.lang.InterruptedException
+				java.lang.Object
+				java.lang.RuntimeException
+				java.lang.String
+				java.lang.Throwable
+				x.y.Foo
+				x.y.I"""
 		);
 	} finally {
 		deleteProject("P1");
@@ -493,17 +497,18 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 						project,
 						WAIT_UNTIL_READY_TO_SEARCH,
 						monitor,
-						"java.io.Serializable\n" +
-						"java.lang.Class\n" +
-						"java.lang.CloneNotSupportedException\n" +
-						"java.lang.Error\n" +
-						"java.lang.Exception\n" +
-						"java.lang.IllegalMonitorStateException\n" +
-						"java.lang.InterruptedException\n" +
-						"java.lang.Object\n" +
-						"java.lang.RuntimeException\n" +
-						"java.lang.String\n" +
-						"java.lang.Throwable"
+						"""
+							java.io.Serializable
+							java.lang.Class
+							java.lang.CloneNotSupportedException
+							java.lang.Error
+							java.lang.Exception
+							java.lang.IllegalMonitorStateException
+							java.lang.InterruptedException
+							java.lang.Object
+							java.lang.RuntimeException
+							java.lang.String
+							java.lang.Throwable"""
 					);
 				} catch (JavaModelException e) {
 					e.printStackTrace();

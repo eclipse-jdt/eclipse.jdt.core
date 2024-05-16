@@ -66,16 +66,26 @@ public class RegressionTests extends APTTestBase {
 		IFolder srcFolder = project.getFolder( "src" );
 		IPath srcRoot = srcFolder.getFullPath();
 
-		String a1Code = "package p1; " + "\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n"
-			+ "@HelloWorldAnnotation" + "\n"
-			+ "public class A1 {}";
-		String a2Code = "package p1; " + "\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n"
-			+ "@HelloWorldAnnotation" + "\n"
-			+ "public class A2 {}";
-		String bCode = "package p1; " + "\n"
-			+ "public class B { generatedfilepackage.GeneratedFileTest gft; }";
+		String a1Code = """
+			package p1; \
+			
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			@HelloWorldAnnotation\
+			
+			public class A1 {}""";
+		String a2Code = """
+			package p1; \
+			
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\
+			
+			@HelloWorldAnnotation\
+			
+			public class A2 {}""";
+		String bCode = """
+			package p1; \
+			
+			public class B { generatedfilepackage.GeneratedFileTest gft; }""";
 		env.addClass( srcRoot, "p1", "A1", a1Code ); //$NON-NLS-1$ //$NON-NLS-2$
 		env.addClass( srcRoot, "p1", "A2", a2Code ); //$NON-NLS-1$ //$NON-NLS-2$
 		env.addClass( srcRoot, "p1", "B", bCode ); //$NON-NLS-1$ //$NON-NLS-2$
@@ -113,12 +123,16 @@ public class RegressionTests extends APTTestBase {
         IFolder srcFolder = project.getFolder( "src" );
         IPath srcRoot = srcFolder.getFullPath();
 
-        String code = "package p1; " + "\n"
-        + "import org.eclipse.jdt.apt.tests.annotations.readAnnotationType.SimpleAnnotation;" + "\n"
-        + "@SimpleAnnotation(SimpleAnnotation.Name.HELLO)" + "\n"
-        + "public class MyClass { \n"
-        + " public test.HELLOGen _gen;"
-        + " }";
+        String code = """
+			package p1; \
+			
+			import org.eclipse.jdt.apt.tests.annotations.readAnnotationType.SimpleAnnotation;\
+			
+			@SimpleAnnotation(SimpleAnnotation.Name.HELLO)\
+			
+			public class MyClass {\s
+			 public test.HELLOGen _gen;\
+			 }""";
 
         env.addClass( srcRoot, "p1", "MyClass", code );
 
@@ -144,17 +158,22 @@ public class RegressionTests extends APTTestBase {
 		IFolder srcFolder = project.getFolder( "src" );
 		IPath srcRoot = srcFolder.getFullPath();
 
-		String a1Code = "package pkg; " + "\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.apitest.Common;\n"
-			+ "import java.util.*;\n\n"
-			+ "@Common\n"
-			+ "public class A1<T> {\n "
-			+ "    @Common\n"
-			+ "    Collection<String> collectionOfString;\n\n"
-			+ "    @Common\n"
-			+ "    Collection<List> collectionOfList;\n"
-			+ "    public static class inner{}"
-			+ "}";
+		String a1Code = """
+			package pkg; \
+			
+			import org.eclipse.jdt.apt.tests.annotations.apitest.Common;
+			import java.util.*;
+			
+			@Common
+			public class A1<T> {
+			 \
+			    @Common
+			    Collection<String> collectionOfString;
+			
+			    @Common
+			    Collection<List> collectionOfList;
+			    public static class inner{}\
+			}""";
 
 		final IPath a1Path = env.addClass( srcRoot, "pkg", "A1", a1Code ); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -188,36 +207,40 @@ public class RegressionTests extends APTTestBase {
 		IFolder srcFolder = project.getFolder( "src" );
 		IPath srcRoot = srcFolder.getFullPath();
 
-		String a1Code = "package pkg; " + "\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.apitest.SubtypeOf;\n"
-			+ "public interface A1 {\n "
-			+ "}\n"
-			+ "class A2 implements A1 {\n"
-			+ "}\n"
-			+ "class A3 extends A2 {\n"
-			+ "    @SubtypeOf(A1.class) // yes\n"
-			+ "    A2 _foo;\n"
-			+ "    @SubtypeOf(A1.class) // yes\n"
-			+ "    A3 _bar;\n"
-			+ "    @SubtypeOf(A2.class) // yes\n"
-			+ "    A3 _baz;\n"
-			+ "    @SubtypeOf(A1.class) // yes\n"
-			+ "    A1 _quux;\n"
-			+ "    @SubtypeOf(A2.class) // no\n"
-			+ "    A1 _yuzz;\n"
-			+ "    @SubtypeOf(String.class) // no\n"
-			+ "    A2 _wum;\n"
-			+ "}\n"
-			+ "class A4 extends A2 implements A1 {\n"
-			+ "    @SubtypeOf(A1.class) // yes\n"
-			+ "    A4 _humpf;\n"
-			+ "    @SubtypeOf(A2.class) // yes\n"
-			+ "    A4 _fuddle;\n"
-			+ "    @SubtypeOf(A5.class) // no\n"
-			+ "    A4 _snee;\n"
-			+ "}\n"
-			+ "class A5 {\n"
-			+ "}\n";
+		String a1Code = """
+			package pkg; \
+			
+			import org.eclipse.jdt.apt.tests.annotations.apitest.SubtypeOf;
+			public interface A1 {
+			 \
+			}
+			class A2 implements A1 {
+			}
+			class A3 extends A2 {
+			    @SubtypeOf(A1.class) // yes
+			    A2 _foo;
+			    @SubtypeOf(A1.class) // yes
+			    A3 _bar;
+			    @SubtypeOf(A2.class) // yes
+			    A3 _baz;
+			    @SubtypeOf(A1.class) // yes
+			    A1 _quux;
+			    @SubtypeOf(A2.class) // no
+			    A1 _yuzz;
+			    @SubtypeOf(String.class) // no
+			    A2 _wum;
+			}
+			class A4 extends A2 implements A1 {
+			    @SubtypeOf(A1.class) // yes
+			    A4 _humpf;
+			    @SubtypeOf(A2.class) // yes
+			    A4 _fuddle;
+			    @SubtypeOf(A5.class) // no
+			    A4 _snee;
+			}
+			class A5 {
+			}
+			""";
 
 		final IPath a1Path = env.addClass( srcRoot, "pkg", "A1", a1Code ); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -257,22 +280,25 @@ public class RegressionTests extends APTTestBase {
 		IFolder srcFolder = project.getFolder( "src" );
 		IPath srcRoot = srcFolder.getFullPath();
 
-		String a1Code = "package pkg; " + "\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.apitest.AssignableTo;\n"
-			+ "public interface A1 {\n "
-			+ "}\n"
-			+ "class A2 implements A1 {\n"
-			+ "}\n"
-			+ "class A3 extends A2 {\n"
-			+ "    @AssignableTo(A1.class) // yes\n"
-			+ "    A2 _foo;\n"
-			+ "    @AssignableTo(int.class) // yes\n"
-			+ "    byte _bar;\n"
-			+ "    @AssignableTo(A1.class) // yes\n"
-			+ "    A3 _baz;\n"
-			+ "    @AssignableTo(A2.class) // no\n"
-			+ "    A1 _quux;\n"
-			+ "}";
+		String a1Code = """
+			package pkg; \
+			
+			import org.eclipse.jdt.apt.tests.annotations.apitest.AssignableTo;
+			public interface A1 {
+			 \
+			}
+			class A2 implements A1 {
+			}
+			class A3 extends A2 {
+			    @AssignableTo(A1.class) // yes
+			    A2 _foo;
+			    @AssignableTo(int.class) // yes
+			    byte _bar;
+			    @AssignableTo(A1.class) // yes
+			    A3 _baz;
+			    @AssignableTo(A2.class) // no
+			    A1 _quux;
+			}""";
 
 		final IPath a1Path = env.addClass( srcRoot, "pkg", "A1", a1Code ); //$NON-NLS-1$ //$NON-NLS-2$
 

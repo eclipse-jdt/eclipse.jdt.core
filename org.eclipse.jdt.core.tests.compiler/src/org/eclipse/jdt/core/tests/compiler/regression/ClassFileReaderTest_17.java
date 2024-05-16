@@ -44,13 +44,15 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 
 	public void testBug564227_001() throws Exception {
 		String source =
-				"sealed class X permits Y, Z{\n" +
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(0);\n" +
-				"  }\n"+
-				"}\n" +
-				"final class Y extends X{}\n" +
-				"final class Z extends X{}\n";
+				"""
+			sealed class X permits Y, Z{
+			  public static void main(String[] args){
+			     System.out.println(0);
+			  }
+			}
+			final class Y extends X{}
+			final class Z extends X{}
+			""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
 		char[][] permittedSubtypesNames = classFileReader.getPermittedSubtypeNames();
@@ -63,13 +65,14 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 	}
 	public void testBug565782_001() throws Exception {
 		String source =
-				"sealed interface I {}\n"+
-				"enum X implements I {\n"+
-				"    ONE {};\n"+
-				"    public static void main(String[] args) {\n"+
-				"        System.out.println(0);\n"+
-				"   }\n"+
-				"}";
+				"""
+			sealed interface I {}
+			enum X implements I {
+			    ONE {};
+			    public static void main(String[] args) {
+			        System.out.println(0);
+			   }
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
 		char[][] permittedSubtypesNames = classFileReader.getPermittedSubtypeNames();
@@ -84,15 +87,16 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 	}
 	public void testBug565782_002() throws Exception {
 		String source =
-				"sealed interface I {}\n"+
-				"class X {\n"+
-				"	enum E implements I {\n"+
-				"   	ONE {};\n"+
-				"	}\n"+
-				"   public static void main(String[] args) {\n"+
-				"      	System.out.println(0);\n"+
-				"   }\n"+
-				"}";
+				"""
+			sealed interface I {}
+			class X {
+				enum E implements I {
+			   	ONE {};
+				}
+			   public static void main(String[] args) {
+			      	System.out.println(0);
+			   }
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X.E", "X$E", source);
 		char[][] permittedSubtypesNames = classFileReader.getPermittedSubtypeNames();
@@ -117,9 +121,10 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 	}
 	public void testBug545510_2() throws Exception {
 		String source =
-				"class X {\n"+
-				"  strictfp void foo() {}\n"+
-				"}";
+				"""
+			class X {
+			  strictfp void foo() {}
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
 		IBinaryMethod[] methods = classFileReader.getMethods();
@@ -129,9 +134,10 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 	}
 	public void testBug545510_3() throws Exception {
 		String source =
-				"strictfp class X {\n"+
-				"  void foo() {}\n"+
-				"}";
+				"""
+			strictfp class X {
+			  void foo() {}
+			}""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
 		IBinaryMethod[] methods = classFileReader.getMethods();
@@ -141,28 +147,30 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 	}
 	public void testWildcardBinding() throws Exception {
 		String source =
-				"public class X {    \n"
-				+ "    public static void main(String[] args) {\n"
-				+ "		getHasValue().addValueChangeListener(evt -> {System.out.println(\"hello\");});		\n"
-				+ "    }\n"
-				+ "    public static HasValue<?, ?> getHasValue() { \n"
-				+ "        return new HasValue<HasValue.ValueChangeEvent<String>, String>() { \n"
-				+ "			@Override\n"
-				+ "			public void addValueChangeListener(\n"
-				+ "					HasValue.ValueChangeListener<? super HasValue.ValueChangeEvent<String>> listener) {\n"
-				+ "				listener.valueChanged(null);\n"
-				+ "			}\n"
-				+ "		};\n"
-				+ "    }    \n"
-				+ "}\n"
-				+ "\n"
-				+ "interface HasValue<E extends HasValue.ValueChangeEvent<V>,V> {    \n"
-				+ "    public static interface ValueChangeEvent<V> {}    \n"
-				+ "    public static interface ValueChangeListener<E extends HasValue.ValueChangeEvent<?>> {\n"
-				+ "        void valueChanged(E event);\n"
-				+ "    }    \n"
-				+ "    void addValueChangeListener(HasValue.ValueChangeListener<? super E> listener);\n"
-				+ "}\n";
+				"""
+			public class X {   \s
+			    public static void main(String[] args) {
+					getHasValue().addValueChangeListener(evt -> {System.out.println("hello");});	\t
+			    }
+			    public static HasValue<?, ?> getHasValue() {\s
+			        return new HasValue<HasValue.ValueChangeEvent<String>, String>() {\s
+						@Override
+						public void addValueChangeListener(
+								HasValue.ValueChangeListener<? super HasValue.ValueChangeEvent<String>> listener) {
+							listener.valueChanged(null);
+						}
+					};
+			    }   \s
+			}
+			
+			interface HasValue<E extends HasValue.ValueChangeEvent<V>,V> {   \s
+			    public static interface ValueChangeEvent<V> {}   \s
+			    public static interface ValueChangeListener<E extends HasValue.ValueChangeEvent<?>> {
+			        void valueChanged(E event);
+			    }   \s
+			    void addValueChangeListener(HasValue.ValueChangeListener<? super E> listener);
+			}
+			""";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
 		IBinaryMethod[] methods = classFileReader.getMethods();

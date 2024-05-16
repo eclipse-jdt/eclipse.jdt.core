@@ -60,22 +60,24 @@ public static Test suite() {
 private static String[] getTestSeriesClassic() {
 	return new String[] {
 			"pack1/X.java",
-			"package pack1;\n" +
-					"public class X {\n" +
-					"	public class Y {\n" +
-					"		class Z {}\n" +
-					"	}\n" +
-					"	public static class A {\n" +
-					"		public static class B {}\n" +
-					"		public class C {}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.println(\"SUCCESS\");\n" +
-					"	}\n" +
-					"	public void foo() {\n" +
-					"		System.out.println(\"foo\");\n" +
-					"	}\n" +
-					"}\n",
+			"""
+				package pack1;
+				public class X {
+					public class Y {
+						class Z {}
+					}
+					public static class A {
+						public static class B {}
+						public class C {}
+					}
+					public static void main(String[] args) {
+						System.out.println("SUCCESS");
+					}
+					public void foo() {
+						System.out.println("foo");
+					}
+				}
+				""",
 	};
 }
 private void verifyClassFile(String expectedOutput, String classFileName, int mode, boolean positive) throws IOException, ClassFormatException {
@@ -131,12 +133,14 @@ public void testBug535851_001() throws Exception {
 	);
 
 	String expectedPartialOutput =
-			"Nest Members:\n" +
-			"   #37 pack1/X$A,\n" +
-			"   #44 pack1/X$A$B,\n" +
-			"   #46 pack1/X$A$C,\n" +
-			"   #40 pack1/X$Y,\n" +
-			"   #48 pack1/X$Y$Z\n";
+			"""
+		Nest Members:
+		   #37 pack1/X$A,
+		   #44 pack1/X$A$B,
+		   #46 pack1/X$A$C,
+		   #40 pack1/X$Y,
+		   #48 pack1/X$Y$Z
+		""";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug535851_002() throws Exception {
@@ -187,21 +191,23 @@ public void testBug535851_005() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 	String[] files = new String[] {
 			"pack1/X.java",
-			"package pack1;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"	public void foo() {\n" +
-			"		Y y = new Y() {\n" +
-			"		    void bar() {}\n" +
-			"		};\n" +
-			"       System.out.println(y.toString());\n" +
-			"	}\n" +
-			"}\n" +
-			"abstract class Y {\n" +
-			"	abstract void bar();\n" +
-			"}\n",
+			"""
+				package pack1;
+				public class X {
+					public static void main(String[] args) {
+						System.out.println("SUCCESS");
+					}
+					public void foo() {
+						Y y = new Y() {
+						    void bar() {}
+						};
+				       System.out.println(y.toString());
+					}
+				}
+				abstract class Y {
+					abstract void bar();
+				}
+				""",
 	};
 	this.runConformTest(
 			files,
@@ -224,26 +230,28 @@ public void testBug535851_006() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 	String[] files = new String[] {
 			"pack1/X.java",
-			"package pack1;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"	public void foo() {\n" +
-			"		Y y = new Y() {\n" +
-			"		    void bar() {\n" +
-			"		        Y y1 = new Y() {\n" +
-			"		           void bar() {}\n" +
-			"		        };\n" +
-			"               System.out.println(y1.toString());\n" +
-			"	        }\n" +
-			"		};\n" +
-			"       System.out.println(y.toString());\n" +
-			"	}\n" +
-			"}\n" +
-			"abstract class Y {\n" +
-			"	abstract void bar();\n" +
-			"}\n",
+			"""
+				package pack1;
+				public class X {
+					public static void main(String[] args) {
+						System.out.println("SUCCESS");
+					}
+					public void foo() {
+						Y y = new Y() {
+						    void bar() {
+						        Y y1 = new Y() {
+						           void bar() {}
+						        };
+				               System.out.println(y1.toString());
+					        }
+						};
+				       System.out.println(y.toString());
+					}
+				}
+				abstract class Y {
+					abstract void bar();
+				}
+				""",
 	};
 	this.runConformTest(
 			files,
@@ -252,9 +260,11 @@ public void testBug535851_006() throws Exception {
 	);
 
 	String expectedPartialOutput =
-			"Nest Members:\n" +
-			"   #33 pack1/X$1,\n" +
-			"   #48 pack1/X$1$1\n";
+			"""
+		Nest Members:
+		   #33 pack1/X$1,
+		   #48 pack1/X$1$1
+		""";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 
 	expectedPartialOutput = "Nest Host: #48 pack1/X\n";
@@ -270,35 +280,37 @@ public void testBug535851_007() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 	String[] files = new String[] {
 			"pack1/X.java",
-			"package pack1;\n" +
-			"\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"	public void foo() {\n" +
-			"		I i = ()->{\n" +
-			"			Y y = new Y() {	\n" +
-			"				@Override\n" +
-			"				void bar() {\n" +
-			"					Y y1 = new Y() {\n" +
-			"						@Override\n" +
-			"						void bar() {}\n" +
-			"					};\n" +
-			"					System.out.println(y1);\n" +
-			"				}\n" +
-			"			};\n" +
-			"			System.out.println(y.toString());\n" +
-			"		};\n" +
-			"		i.apply();\n" +
-			"	}\n" +
-			"}\n" +
-			"interface I {\n" +
-			"	void apply();\n" +
-			"}\n" +
-			"abstract class Y {\n" +
-			"	abstract void bar();\n" +
-			"}\n",
+			"""
+				package pack1;
+				
+				public class X {
+					public static void main(String[] args) {
+						System.out.println("SUCCESS");
+					}
+					public void foo() {
+						I i = ()->{
+							Y y = new Y() {\t
+								@Override
+								void bar() {
+									Y y1 = new Y() {
+										@Override
+										void bar() {}
+									};
+									System.out.println(y1);
+								}
+							};
+							System.out.println(y.toString());
+						};
+						i.apply();
+					}
+				}
+				interface I {
+					void apply();
+				}
+				abstract class Y {
+					abstract void bar();
+				}
+				""",
 	};
 	this.runConformTest(
 			files,
@@ -307,9 +319,11 @@ public void testBug535851_007() throws Exception {
 	);
 
 	String expectedPartialOutput =
-			"Nest Members:\n" +
-			"   #44 pack1/X$1,\n" +
-			"   #77 pack1/X$1$1\n";
+			"""
+		Nest Members:
+		   #44 pack1/X$1,
+		   #77 pack1/X$1$1
+		""";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 
 	expectedPartialOutput = "Nest Host: #42 pack1/X\n";
@@ -324,20 +338,22 @@ public void testBug535851_008() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 	String[] files = new String[] {
 			"pack1/X.java",
-			"package pack1;\n" +
-			"\n" +
-			"public class X {\n"+
-			"   public void foo() {\n"+
-			"       class Y {\n"+
-			"           // nothing\n"+
-			"       }\n"+
-			"       Y y = new Y();\n"+
-			"       System.out.println(\"SUCCESS\");\n"+
-			"   }\n"+
-			"   public static void main(String[] args) {\n"+
-			"       new X().foo();\n"+
-			"   }\n"+
-			"}\n",
+			"""
+				package pack1;
+				
+				public class X {
+				   public void foo() {
+				       class Y {
+				           // nothing
+				       }
+				       Y y = new Y();
+				       System.out.println("SUCCESS");
+				   }
+				   public static void main(String[] args) {
+				       new X().foo();
+				   }
+				}
+				""",
 	};
 	this.runConformTest(
 			files,
@@ -362,27 +378,29 @@ public void testBug535918_001a() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	public static class Y {\n" +
-					"		private int priv_int = 100;\n" +
-					"		public int pub_int = 200;\n" +
-					"		\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = foo();\n" +
-					"		System.out.println(\"SUCCESS:\" + sum);\n" +
-					"	}\n" +
-					"	public static int foo() {\n" +
-					"		Y y = new Y();\n" +
-					"		int i = y.priv_int;\n" +
-					"		int j = y.pub_int;\n" +
-					"		return i + j;\n" +
-					"	}\n" +
-					"	public void bar() {\n" +
-					"		System.out.println(\"bar\");\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public static class Y {
+								private int priv_int = 100;
+								public int pub_int = 200;
+							\t
+							}
+							public static void main(String[] args) {
+								int sum = foo();
+								System.out.println("SUCCESS:" + sum);
+							}
+							public static int foo() {
+								Y y = new Y();
+								int i = y.priv_int;
+								int j = y.pub_int;
+								return i + j;
+							}
+							public void bar() {
+								System.out.println("bar");
+							}
+						}
+						""",
 			},
 			"SUCCESS:300",
 			options
@@ -404,27 +422,29 @@ public void testBug535918_001b() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	public static class Y {\n" +
-					"		private static int priv_int = 100;\n" +
-					"		public int pub_int = 200;\n" +
-					"		\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = foo();\n" +
-					"		System.out.println(\"SUCCESS:\" + sum);\n" +
-					"	}\n" +
-					"	public static int foo() {\n" +
-					"		Y y = new Y();\n" +
-					"		int i = y.priv_int;\n" +
-					"		int j = y.pub_int;\n" +
-					"		return i + j;\n" +
-					"	}\n" +
-					"	public void bar() {\n" +
-					"		System.out.println(\"bar\");\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public static class Y {
+								private static int priv_int = 100;
+								public int pub_int = 200;
+							\t
+							}
+							public static void main(String[] args) {
+								int sum = foo();
+								System.out.println("SUCCESS:" + sum);
+							}
+							public static int foo() {
+								Y y = new Y();
+								int i = y.priv_int;
+								int j = y.pub_int;
+								return i + j;
+							}
+							public void bar() {
+								System.out.println("bar");
+							}
+						}
+						""",
 			},
 			"SUCCESS:300",
 			options
@@ -456,27 +476,29 @@ public void testBug535918_001c() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	public static class Y {\n" +
-					"		private int priv_int = 100;\n" +
-					"		public int pub_int = 200;\n" +
-					"		\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = foo();\n" +
-					"		System.out.println(\"SUCCESS:\" + sum);\n" +
-					"	}\n" +
-					"	public static int foo() {\n" +
-					"		Y y = new Y();\n" +
-					"		int i = y.priv_int;\n" +
-					"		int j = y.pub_int;\n" +
-					"		return i + j;\n" +
-					"	}\n" +
-					"	public void bar() {\n" +
-					"		System.out.println(\"bar\");\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public static class Y {
+								private int priv_int = 100;
+								public int pub_int = 200;
+							\t
+							}
+							public static void main(String[] args) {
+								int sum = foo();
+								System.out.println("SUCCESS:" + sum);
+							}
+							public static int foo() {
+								Y y = new Y();
+								int i = y.priv_int;
+								int j = y.pub_int;
+								return i + j;
+							}
+							public void bar() {
+								System.out.println("bar");
+							}
+						}
+						""",
 			},
 			"SUCCESS:300",
 			options
@@ -496,20 +518,22 @@ public void testBug535918_002() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	private int priv_non_static_method() {\n" +
-					"		return 100;\n" +
-					"	}\n" +
-					"	public int pub_non_static_method() {\n" +
-					"		return priv_non_static_method();\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		X x = new X();\n" +
-					"		int result =x.pub_non_static_method();\n" +
-					"		System.out.println(result);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							private int priv_non_static_method() {
+								return 100;
+							}
+							public int pub_non_static_method() {
+								return priv_non_static_method();
+							}
+							public static void main(String[] args) {
+								X x = new X();
+								int result =x.pub_non_static_method();
+								System.out.println(result);
+							}
+						}
+						""",
 			},
 			"100",
 			options
@@ -530,22 +554,24 @@ public void testBug535918_003a() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	public static class Y {\n" +
-					"		private static int priv_int = 100;\n" +
-					"	}\n" +
-					"	public static class Z {\n" +
-					"		public static int foo() {\n" +
-					"			int i = Y.priv_int;\n" +
-					"			return i;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = Z.foo();\n" +
-					"		System.out.println(\"SUCCESS:\"+sum);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public static class Y {
+								private static int priv_int = 100;
+							}
+							public static class Z {
+								public static int foo() {
+									int i = Y.priv_int;
+									return i;
+								}
+							}
+							public static void main(String[] args) {
+								int sum = Z.foo();
+								System.out.println("SUCCESS:"+sum);
+							}
+						}
+						""",
 			},
 			"SUCCESS:100",
 			options
@@ -555,13 +581,15 @@ public void testBug535918_003a() throws Exception {
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
 	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
-			"Nest Members:\n" +
-			"   #55 pack1/X$Y,\n" +
-			"   #17 pack1/X$Z"
+			"""
+				Nest Members:
+				   #55 pack1/X$Y,
+				   #17 pack1/X$Z"""
 		:
-			"Nest Members:\n"
-			+ "   #59 pack1/X$Y,\n"
-			+ "   #17 pack1/X$Z");
+			"""
+				Nest Members:
+				   #59 pack1/X$Y,
+				   #17 pack1/X$Z""");
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #26 pack1/X");
@@ -580,23 +608,25 @@ public void testBug535918_003b() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	public static class Y {\n" +
-					"		private int priv_int = 100;\n" +
-					"	}\n" +
-					"	public static class Z {\n" +
-					"		public static int foo() {\n" +
-					"			Y y = new Y();\n" +
-					"			int i = y.priv_int;\n" +
-					"			return i;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = Z.foo();\n" +
-					"		System.out.println(\"SUCCESS:\"+sum);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public static class Y {
+								private int priv_int = 100;
+							}
+							public static class Z {
+								public static int foo() {
+									Y y = new Y();
+									int i = y.priv_int;
+									return i;
+								}
+							}
+							public static void main(String[] args) {
+								int sum = Z.foo();
+								System.out.println("SUCCESS:"+sum);
+							}
+						}
+						""",
 			},
 			"SUCCESS:100",
 			options
@@ -606,13 +636,15 @@ public void testBug535918_003b() throws Exception {
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
 	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
-			"Nest Members:\n" +
-			"   #55 pack1/X$Y,\n" +
-			"   #17 pack1/X$Z"
+			"""
+				Nest Members:
+				   #55 pack1/X$Y,
+				   #17 pack1/X$Z"""
 		:
-			"Nest Members:\n"
-			+ "   #59 pack1/X$Y,\n"
-			+ "   #17 pack1/X$Z");
+			"""
+				Nest Members:
+				   #59 pack1/X$Y,
+				   #17 pack1/X$Z""");
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #29 pack1/X");
@@ -632,22 +664,24 @@ public void testBug535918_003c() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	public static class Y {\n" +
-					"		private int priv_int = 100;\n" +
-					"	}\n" +
-					"	public static class Z {\n" +
-					"		public static int foo() {\n" +
-					"			int i = new Y().priv_int;\n" +
-					"			return i;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = Z.foo();\n" +
-					"		System.out.println(\"SUCCESS:\"+sum);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public static class Y {
+								private int priv_int = 100;
+							}
+							public static class Z {
+								public static int foo() {
+									int i = new Y().priv_int;
+									return i;
+								}
+							}
+							public static void main(String[] args) {
+								int sum = Z.foo();
+								System.out.println("SUCCESS:"+sum);
+							}
+						}
+						""",
 			},
 			"SUCCESS:100",
 			options
@@ -657,13 +691,15 @@ public void testBug535918_003c() throws Exception {
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
 	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
-			"Nest Members:\n" +
-			"   #55 pack1/X$Y,\n" +
-			"   #17 pack1/X$Z"
+			"""
+				Nest Members:
+				   #55 pack1/X$Y,
+				   #17 pack1/X$Z"""
 		:
-			"Nest Members:\n"
-			+ "   #59 pack1/X$Y,\n"
-			+ "   #17 pack1/X$Z");
+			"""
+				Nest Members:
+				   #59 pack1/X$Y,
+				   #17 pack1/X$Z""");
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #27 pack1/X");
@@ -683,22 +719,24 @@ public void testBug535918_003d() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	public static class Y {\n" +
-					"		private static int priv_int = 100;\n" +
-					"	}\n" +
-					"	public static class Z extends Y {\n" +
-					"		public static int foo() {\n" +
-					"			int i = Y.priv_int;\n" +
-					"			return i;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = Z.foo();\n" +
-					"		System.out.println(\"SUCCESS:\"+sum);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public static class Y {
+								private static int priv_int = 100;
+							}
+							public static class Z extends Y {
+								public static int foo() {
+									int i = Y.priv_int;
+									return i;
+								}
+							}
+							public static void main(String[] args) {
+								int sum = Z.foo();
+								System.out.println("SUCCESS:"+sum);
+							}
+						}
+						""",
 			},
 			"SUCCESS:100",
 			options
@@ -708,13 +746,15 @@ public void testBug535918_003d() throws Exception {
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
 	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
-			"Nest Members:\n" +
-			"   #55 pack1/X$Y,\n" +
-			"   #17 pack1/X$Z"
+			"""
+				Nest Members:
+				   #55 pack1/X$Y,
+				   #17 pack1/X$Z"""
 		:
-			"Nest Members:\n"
-			+ "   #59 pack1/X$Y,\n"
-			+ "   #17 pack1/X$Z");
+			"""
+				Nest Members:
+				   #59 pack1/X$Y,
+				   #17 pack1/X$Z""");
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #24 pack1/X");
@@ -734,23 +774,25 @@ public void testBug535918_003e() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	public static class Y{\n" +
-					"		private int priv_int = 100;\n" +
-					"	}\n" +
-					"	public static class Z extends Y {\n" +
-					"		public static int foo() {\n" +
-					"			Y y = new Y();\n" +
-					"			int i = y.priv_int;\n" +
-					"			return i;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = Z.foo();\n" +
-					"		System.out.println(\"SUCCESS:\"+sum);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public static class Y{
+								private int priv_int = 100;
+							}
+							public static class Z extends Y {
+								public static int foo() {
+									Y y = new Y();
+									int i = y.priv_int;
+									return i;
+								}
+							}
+							public static void main(String[] args) {
+								int sum = Z.foo();
+								System.out.println("SUCCESS:"+sum);
+							}
+						}
+						""",
 			},
 			"SUCCESS:100",
 			options
@@ -760,13 +802,15 @@ public void testBug535918_003e() throws Exception {
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
 	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
-			"Nest Members:\n" +
-			"   #55 pack1/X$Y,\n" +
-			"   #17 pack1/X$Z"
+			"""
+				Nest Members:
+				   #55 pack1/X$Y,
+				   #17 pack1/X$Z"""
 		:
-			"Nest Members:\n"
-			+ "   #59 pack1/X$Y,\n"
-			+ "   #17 pack1/X$Z");
+			"""
+				Nest Members:
+				   #59 pack1/X$Y,
+				   #17 pack1/X$Z""");
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #26 pack1/X");
@@ -786,22 +830,24 @@ public void testBug535918_003f() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	public static class Y{\n" +
-					"		private int priv_int = 100;\n" +
-					"	}\n" +
-					"	public static class Z extends Y {\n" +
-					"		public int foo() {\n" +
-					"			int i = super.priv_int;\n" +
-					"			return i;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = new Z().foo();\n" +
-					"		System.out.println(\"SUCCESS:\"+sum);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public static class Y{
+								private int priv_int = 100;
+							}
+							public static class Z extends Y {
+								public int foo() {
+									int i = super.priv_int;
+									return i;
+								}
+							}
+							public static void main(String[] args) {
+								int sum = new Z().foo();
+								System.out.println("SUCCESS:"+sum);
+							}
+						}
+						""",
 			},
 			"SUCCESS:100",
 			options
@@ -811,13 +857,15 @@ public void testBug535918_003f() throws Exception {
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
 	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
-			"Nest Members:\n" +
-			"   #55 pack1/X$Y,\n" +
-			"   #17 pack1/X$Z"
+			"""
+				Nest Members:
+				   #55 pack1/X$Y,
+				   #17 pack1/X$Z"""
 		:
-			"Nest Members:\n"
-			+ "   #60 pack1/X$Y,\n"
-			+ "   #16 pack1/X$Z");
+			"""
+				Nest Members:
+				   #60 pack1/X$Y,
+				   #16 pack1/X$Z""");
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #24 pack1/X");
@@ -836,19 +884,21 @@ public void testBug535918_004a() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	private static int priv_int = 100;\n" +
-					"	public static class Y {\n" +
-					"		public static int foo() {\n" +
-					"			return priv_int;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = Y.foo();\n" +
-					"		System.out.println(\"SUCCESS:\"+sum);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							private static int priv_int = 100;
+							public static class Y {
+								public static int foo() {
+									return priv_int;
+								}
+							}
+							public static void main(String[] args) {
+								int sum = Y.foo();
+								System.out.println("SUCCESS:"+sum);
+							}
+						}
+						""",
 			},
 			"SUCCESS:100",
 			options
@@ -876,19 +926,21 @@ public void testBug535918_004b() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	private int priv_int = 100;\n" +
-					"	public class Y {\n" +
-					"		public int foo() {\n" +
-					"			return priv_int;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = new X().new Y().foo();\n" +
-					"		System.out.println(\"SUCCESS:\"+sum);\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							private int priv_int = 100;
+							public class Y {
+								public int foo() {
+									return priv_int;
+								}
+							}
+							public static void main(String[] args) {
+								int sum = new X().new Y().foo();
+								System.out.println("SUCCESS:"+sum);
+							}
+						}
+						""",
 			},
 			"SUCCESS:100",
 			options
@@ -915,26 +967,28 @@ public void testBug535918_005a() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	class Y {\n" +
-					"		class Z {\n" +
-					"			private Z() {\n" +
-					"			}\n" +
-					"		}\n" +
-					"		Z d;\n" +
-					"		private Y() {\n" +
-					"			this.d = new Z();\n" +
-					"		}\n" +
-					"	}\n" +
-					"	@Override\n" +
-					"	public String toString() {\n" +
-					"		return \"SUCCESS\";\n" +
-					"	}\n" +
-					"  public static void main(String[] argv) {\n" +
-					"    System.out.println(new X());\n" +
-					"  }\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							class Y {
+								class Z {
+									private Z() {
+									}
+								}
+								Z d;
+								private Y() {
+									this.d = new Z();
+								}
+							}
+							@Override
+							public String toString() {
+								return "SUCCESS";
+							}
+						  public static void main(String[] argv) {
+						    System.out.println(new X());
+						  }
+						}
+						""",
 			},
 			"SUCCESS",
 			options
@@ -943,9 +997,10 @@ public void testBug535918_005a() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYZFile = getClassFileContents("pack1/X$Y$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" +
-			"   #38 pack1/X$Y,\n" +
-			"   #42 pack1/X$Y$Z";
+	String partialOutput = """
+		Nest Members:
+		   #38 pack1/X$Y,
+		   #42 pack1/X$Y$Z""";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #31 pack1/X");
 	verifyOutputPositive(XYZFile, "Nest Host: #24 pack1/X");
@@ -963,26 +1018,28 @@ public void testBug535918_005b() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	class Z {\n" +
-					"		private Z() {\n" +
-					"		}\n" +
-					"	}\n" +
-					"	class Y {\n" +
-					"		Z d;\n" +
-					"		private Y() {\n" +
-					"			this.d = new Z();\n" +
-					"		}\n" +
-					"	}\n" +
-					"	@Override\n" +
-					"	public String toString() {\n" +
-					"		return \"SUCCESS\";\n" +
-					"	}\n" +
-					"  public static void main(String[] argv) {\n" +
-					"    System.out.println(new X());\n" +
-					"  }\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							class Z {
+								private Z() {
+								}
+							}
+							class Y {
+								Z d;
+								private Y() {
+									this.d = new Z();
+								}
+							}
+							@Override
+							public String toString() {
+								return "SUCCESS";
+							}
+						  public static void main(String[] argv) {
+						    System.out.println(new X());
+						  }
+						}
+						""",
 			},
 			"SUCCESS",
 			options
@@ -991,9 +1048,10 @@ public void testBug535918_005b() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" +
-			"   #38 pack1/X$Y,\n" +
-			"   #41 pack1/X$Z";
+	String partialOutput = """
+		Nest Members:
+		   #38 pack1/X$Y,
+		   #41 pack1/X$Z""";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #30 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #22 pack1/X");
@@ -1011,26 +1069,28 @@ public void testBug535918_005c() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	class Y {\n" +
-					"		private Y() {\n" +
-					"		}\n" +
-					"		class Z {\n" +
-					"			Y y;\n" +
-					"			private Z() {\n" +
-					"				this.y = new Y();\n" +
-					"			}\n" +
-					"		}\n" +
-					"	}\n" +
-					"	@Override\n" +
-					"	public String toString() {\n" +
-					"		return \"SUCCESS\";\n" +
-					"	}\n" +
-					"  public static void main(String[] argv) {\n" +
-					"    System.out.println(new X());\n" +
-					"  }\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							class Y {
+								private Y() {
+								}
+								class Z {
+									Y y;
+									private Z() {
+										this.y = new Y();
+									}
+								}
+							}
+							@Override
+							public String toString() {
+								return "SUCCESS";
+							}
+						  public static void main(String[] argv) {
+						    System.out.println(new X());
+						  }
+						}
+						""",
 			},
 			"SUCCESS",
 			options
@@ -1039,9 +1099,10 @@ public void testBug535918_005c() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYZFile = getClassFileContents("pack1/X$Y$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" +
-			"   #38 pack1/X$Y,\n" +
-			"   #42 pack1/X$Y$Z";
+	String partialOutput = """
+		Nest Members:
+		   #38 pack1/X$Y,
+		   #42 pack1/X$Y$Z""";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #24 pack1/X");
 	verifyOutputPositive(XYZFile, "Nest Host: #34 pack1/X");
@@ -1059,22 +1120,24 @@ public void testBug535918_005d() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	  private class Y {\n" +
-					"	    private Y() {\n" +
-					"	      super();\n" +
-					"	    }\n" +
-					"	  }\n" +
-					"	  private class Z extends Y {\n" +
-					"	    private Z() {\n" +
-					"	      super();\n" +
-					"	    }\n" +
-					"	  }\n" +
-					"  public static void main(String[] argv) {\n" +
-					"		  System.out.println(\"SUCCESS\");\n" +
-					"	  }\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							  private class Y {
+							    private Y() {
+							      super();
+							    }
+							  }
+							  private class Z extends Y {
+							    private Z() {
+							      super();
+							    }
+							  }
+						  public static void main(String[] argv) {
+								  System.out.println("SUCCESS");
+							  }
+						}
+						""",
 			},
 			"SUCCESS",
 			options
@@ -1083,9 +1146,10 @@ public void testBug535918_005d() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" +
-			"   #35 pack1/X$Y,\n" +
-			"   #38 pack1/X$Z";
+	String partialOutput = """
+		Nest Members:
+		   #35 pack1/X$Y,
+		   #38 pack1/X$Z""";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #21 pack1/X");
@@ -1104,25 +1168,27 @@ public void testBug535918_005e() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"  private static class Y<T> implements AutoCloseable {\n" +
-					"    private Y() {\n" +
-					"      super();\n" +
-					"    }\n" +
-					"    public void close() {\n" +
-					"    }\n" +
-					"  }\n" +
-					"  @SuppressWarnings(\"unused\")\n" +
-					"private static class Z extends Y<Object> {\n" +
-					"    private Z() {\n" +
-					"      super();\n" +
-					"    }\n" +
-					"  }\n" +
-					"  public static void main(String[] args) {\n" +
-					"	  System.out.println(\"SUCCESS\");\n" +
-					"  }\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+						  private static class Y<T> implements AutoCloseable {
+						    private Y() {
+						      super();
+						    }
+						    public void close() {
+						    }
+						  }
+						  @SuppressWarnings("unused")
+						private static class Z extends Y<Object> {
+						    private Z() {
+						      super();
+						    }
+						  }
+						  public static void main(String[] args) {
+							  System.out.println("SUCCESS");
+						  }
+						}
+						""",
 			},
 			"SUCCESS",
 			options
@@ -1131,9 +1197,10 @@ public void testBug535918_005e() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" +
-			"   #35 pack1/X$Y,\n" +
-			"   #38 pack1/X$Z";
+	String partialOutput = """
+		Nest Members:
+		   #35 pack1/X$Y,
+		   #38 pack1/X$Z""";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #24 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #19 pack1/X");
@@ -1151,30 +1218,32 @@ public void testBug535918_005f() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" +
-					"  X makeX(int x);\n" +
-					"}\n" +
-					"public class X {\n" +
-					"  void foo() {\n" +
-					"    class Y {\n" +
-					"    	void f() {\n" +
-					"    		I i = X::new;\n" +
-					"    		i.makeX(123456);\n" +
-					"    	}\n" +
-					"    }\n" +
-					"    new Y().f();\n" +
-					"  }\n" +
-					"  private X(int x) {\n" +
-					"    super();\n" +
-					"    System.out.println(\"SUCCESS\");\n" +
-					"  }\n" +
-					"  X() {\n" +
-					"    super();\n" +
-					"  }\n" +
-					"  public static void main(String[] args) {\n" +
-					"    new X().foo();\n" +
-					"  }\n" +
-					"}\n",
+					"""
+						interface I {
+						  X makeX(int x);
+						}
+						public class X {
+						  void foo() {
+						    class Y {
+						    	void f() {
+						    		I i = X::new;
+						    		i.makeX(123456);
+						    	}
+						    }
+						    new Y().f();
+						  }
+						  private X(int x) {
+						    super();
+						    System.out.println("SUCCESS");
+						  }
+						  X() {
+						    super();
+						  }
+						  public static void main(String[] args) {
+						    new X().foo();
+						  }
+						}
+						""",
 			},
 			"SUCCESS",
 			options
@@ -1198,31 +1267,33 @@ public void testBug535918_005g() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	public static class Y {\n" +
-					"		private int priv_instance_method() {\n" +
-					"			return 100;\n" +
-					"		}\n" +
-					"		public int pub_instance_method() {\n" +
-					"			int pri = priv_instance_method();\n" +
-					"			return 200 + pri;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = foo();\n" +
-					"		System.out.println(\"SUCCESS:\"+sum);\n" +
-					"	}\n" +
-					"	public static int foo() {\n" +
-					"		Y y = new Y();\n" +
-					"		int i = y.priv_instance_method();\n" +
-					"		int j = y.pub_instance_method();\n" +
-					"		return i + j;\n" +
-					"	}\n" +
-					"	public void bar() {\n" +
-					"		System.out.println(\"bar\");\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public static class Y {
+								private int priv_instance_method() {
+									return 100;
+								}
+								public int pub_instance_method() {
+									int pri = priv_instance_method();
+									return 200 + pri;
+								}
+							}
+							public static void main(String[] args) {
+								int sum = foo();
+								System.out.println("SUCCESS:"+sum);
+							}
+							public static int foo() {
+								Y y = new Y();
+								int i = y.priv_instance_method();
+								int j = y.pub_instance_method();
+								return i + j;
+							}
+							public void bar() {
+								System.out.println("bar");
+							}
+						}
+						""",
 			},
 			"SUCCESS:400",
 			options
@@ -1241,31 +1312,33 @@ public void testBug535918_005h() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	public static class Y {\n" +
-					"		private int priv_instance_method() {\n" +
-					"			return 100;\n" +
-					"		}\n" +
-					"		public int pub_instance_method() {\n" +
-					"			int pri = priv_instance_method();\n" +
-					"			return 200 + pri;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = foo();\n" +
-					"		System.out.println(\"SUCCESS:\"+sum);\n" +
-					"	}\n" +
-					"	public static int foo() {\n" +
-					"		Y y = new Y();\n" +
-					"		int i = y.priv_instance_method();\n" +
-					"		int j = y.pub_instance_method();\n" +
-					"		return i + j;\n" +
-					"	}\n" +
-					"	public void bar() {\n" +
-					"		System.out.println(\"bar\");\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public static class Y {
+								private int priv_instance_method() {
+									return 100;
+								}
+								public int pub_instance_method() {
+									int pri = priv_instance_method();
+									return 200 + pri;
+								}
+							}
+							public static void main(String[] args) {
+								int sum = foo();
+								System.out.println("SUCCESS:"+sum);
+							}
+							public static int foo() {
+								Y y = new Y();
+								int i = y.priv_instance_method();
+								int j = y.pub_instance_method();
+								return i + j;
+							}
+							public void bar() {
+								System.out.println("bar");
+							}
+						}
+						""",
 			},
 			"SUCCESS:400",
 			options
@@ -1284,31 +1357,33 @@ public void testBug535918_005i() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"public class X {\n" +
-					"	public static class Y {\n" +
-					"		private int priv_instance_method() {\n" +
-					"			return 100;\n" +
-					"		}\n" +
-					"		public int pub_instance_method() {\n" +
-					"			int pri = priv_instance_method();\n" +
-					"			return 200 + pri;\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public static void main(String[] args) {\n" +
-					"		int sum = foo();\n" +
-					"		System.out.println(\"SUCCESS:\"+sum);\n" +
-					"	}\n" +
-					"	public static int foo() {\n" +
-					"		Y y = new Y();\n" +
-					"		int i = y.priv_instance_method();\n" +
-					"		int j = y.pub_instance_method();\n" +
-					"		return i + j;\n" +
-					"	}\n" +
-					"	public void bar() {\n" +
-					"		System.out.println(\"bar\");\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public static class Y {
+								private int priv_instance_method() {
+									return 100;
+								}
+								public int pub_instance_method() {
+									int pri = priv_instance_method();
+									return 200 + pri;
+								}
+							}
+							public static void main(String[] args) {
+								int sum = foo();
+								System.out.println("SUCCESS:"+sum);
+							}
+							public static int foo() {
+								Y y = new Y();
+								int i = y.priv_instance_method();
+								int j = y.pub_instance_method();
+								return i + j;
+							}
+							public void bar() {
+								System.out.println("bar");
+							}
+						}
+						""",
 			},
 			"SUCCESS:400",
 			options
@@ -1327,17 +1402,19 @@ public void testBug535918_005j() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"interface I {\n" +
-					"	private void foo() {}\n" +
-					"	public default void apply() {\n" +
-					"		foo();\n" +
-					"	}\n" +
-					"}\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package pack1;
+						interface I {
+							private void foo() {}
+							public default void apply() {
+								foo();
+							}
+						}
+						public class X {
+							public static void main(String[] args) {
+							}
+						}
+						""",
 			},
 			"",
 			options
@@ -1356,19 +1433,21 @@ public void testBug535918_005k() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n" +
-					"interface I {" +
-					"	private void foo() {}" +
-					"	" +
-					"	interface J {" +
-					"		public default void apply() {" +
-					"			I i = new X();" +
-					"			i.foo();" +
-					"		}	" +
-					"	}" +
-					"}" +
-					"public class X implements I{\n" +
-					"}\n",
+					"""
+						package pack1;
+						interface I {\
+							private void foo() {}\
+							\
+							interface J {\
+								public default void apply() {\
+									I i = new X();\
+									i.foo();\
+								}	\
+							}\
+						}\
+						public class X implements I{
+						}
+						""",
 			},
 			"",
 			options
@@ -1387,22 +1466,24 @@ public void testBug535918_0056a() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n"+
-					"public class X {\n"+
-					"	private int priv_int;\n"+
-					"\n"+
-					"	class Y extends X {\n"+
-					"		class Z extends Y {\n"+
-					"			public void foo() {\n"+
-					"				X.Y.super.priv_int = 0;\n"+
-					"			}\n"+
-					"		}\n"+
-					"	}\n"+
-					"\n"+
-					"	public static void main(String[] args) {\n"+
-					"		new X().new Y().new Z().foo();\n"+
-					"	}\n"+
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							private int priv_int;
+						
+							class Y extends X {
+								class Z extends Y {
+									public void foo() {
+										X.Y.super.priv_int = 0;
+									}
+								}
+							}
+						
+							public static void main(String[] args) {
+								new X().new Y().new Z().foo();
+							}
+						}
+						""",
 			},
 			"",
 			options
@@ -1411,9 +1492,10 @@ public void testBug535918_0056a() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYZFile = getClassFileContents("pack1/X$Y$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" +
-			"   #20 pack1/X$Y,\n" +
-			"   #18 pack1/X$Y$Z";
+	String partialOutput = """
+		Nest Members:
+		   #20 pack1/X$Y,
+		   #18 pack1/X$Y$Z""";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #3 pack1/X");
 	verifyOutputPositive(XYZFile, "Nest Host: #22 pack1/X");
@@ -1431,31 +1513,33 @@ public void testBug545387_01() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"pack1/X.java",
-					"package pack1;\n"+
-					"public class X {\n"+
-					"	public class Inner1 {\n"+
-					"		private void foo() {\n"+
-					"			System.out.println(\"hello\");;\n"+
-					"		}\n"+
-					"	}\n"+
-					"	public class Sub1 extends Inner1 {\n"+
-					"		public class Sub2 {\n"+
-					"			void testFoo() {\n"+
-					"				Sub1.super.foo();\n"+
-					"			}\n"+
-					"		}\n"+
-					"		void testFoo() {\n"+
-					"			(new Sub2()).testFoo();\n"+
-					"		}\n"+
-					"	}\n"+
-					"	public static void main(String[] args) {\n"+
-					"		Sub1 s1 = getS1();\n"+
-					"		s1.testFoo();\n"+
-					"	}\n"+
-					"	public static Sub1 getS1() {\n"+
-					"		return new X().new Sub1();\n"+
-					"	}\n"+
-					"}\n",
+					"""
+						package pack1;
+						public class X {
+							public class Inner1 {
+								private void foo() {
+									System.out.println("hello");;
+								}
+							}
+							public class Sub1 extends Inner1 {
+								public class Sub2 {
+									void testFoo() {
+										Sub1.super.foo();
+									}
+								}
+								void testFoo() {
+									(new Sub2()).testFoo();
+								}
+							}
+							public static void main(String[] args) {
+								Sub1 s1 = getS1();
+								s1.testFoo();
+							}
+							public static Sub1 getS1() {
+								return new X().new Sub1();
+							}
+						}
+						""",
 			},
 			"hello",
 			options
@@ -1470,29 +1554,34 @@ public void testBug572190_01() throws Exception {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n"+
-				"       public void foo() {\n"+
-				"               new Thread(() -> {\n"+
-				"                       new Object() {\n"+
-				"                       };\n"+
-				"               });\n"+
-				"       }\n"+
-				"       public static void main(String[] args) {\n"+
-				"               System.out.println(0);\n"+
-				"       }\n"+
-				"}",
+				"""
+					public class X {
+					       public void foo() {
+					               new Thread(() -> {
+					                       new Object() {
+					                       };
+					               });
+					       }
+					       public static void main(String[] args) {
+					               System.out.println(0);
+					       }
+					}""",
 			},
 			"0"
 	);
 
 	String XFile = getClassFileContents("X.class", ClassFileBytesDisassembler.SYSTEM);
-	String expected = "Nest Members:\n" +
-			"   #41 X$1\n" +
-			"Bootstrap methods:\n" ;
-	String unexpectedOutput = "Nest Members:\n" +
-			 "   #41 X$1,\n" +
-			 "   #68 X$2\n" +
-			 "Bootstrap methods:\n";
+	String expected = """
+		Nest Members:
+		   #41 X$1
+		Bootstrap methods:
+		""" ;
+	String unexpectedOutput = """
+		Nest Members:
+		   #41 X$1,
+		   #68 X$2
+		Bootstrap methods:
+		""";
 	verifyOutputPositive(XFile, expected);
 
 	verifyOutputNegative(XFile, unexpectedOutput);
@@ -1503,37 +1592,42 @@ public void testBug572190_02() throws Exception {
 	this.runConformTest(
 			new String[] {
 				"pack1/X.java",
-				"package pack1;\n"+
-				"\n"+
-				"import pack1.XB.EF;\n"+
-				"\n"+
-				"public class X {\n"+
-				"       private static int foo() {\n"+
-				"               return  EF.values().length;\n"+
-				"       }\n"+
-				"    public static void main(String argv[])   {\n"+
-				"       System.out.println(X.foo());\n"+
-				"    }\n"+
-				"    public enum ch { }\n"+
-				"}\n",
+				"""
+					package pack1;
+					
+					import pack1.XB.EF;
+					
+					public class X {
+					       private static int foo() {
+					               return  EF.values().length;
+					       }
+					    public static void main(String argv[])   {
+					       System.out.println(X.foo());
+					    }
+					    public enum ch { }
+					}
+					""",
 				"pack1/XA.java",
-				"package pack1;\n"+
-				"public class XA {\n"+
-				"    public enum EC {}\n"+
-				"}",
+				"""
+					package pack1;
+					public class XA {
+					    public enum EC {}
+					}""",
 				"pack1/XB.java",
-				"package pack1;\n"+
-				"public class XB {\n"+
-				"    protected enum EF {}\n"+
-				"}",
+				"""
+					package pack1;
+					public class XB {
+					    protected enum EF {}
+					}""",
 			},
 			"0"
 	);
 
 	String XFile = getClassFileContents("pack1/XB.class", ClassFileBytesDisassembler.SYSTEM);
-	String expected = "Nest Members:\n" +
-			"   #17 pack1/XB$EF\n" +
-			"}";
+	String expected = """
+		Nest Members:
+		   #17 pack1/XB$EF
+		}""";
 	verifyOutputPositive(XFile, expected);
 
 }

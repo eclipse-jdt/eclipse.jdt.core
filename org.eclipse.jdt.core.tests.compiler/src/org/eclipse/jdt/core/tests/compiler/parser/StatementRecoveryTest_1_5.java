@@ -244,68 +244,78 @@ protected Map getCompilerOptions() {
 public void test0001() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X {								\n"
-			+ "  void foo(Collection c) {					\n"
-			+ "    for(String s: c) {						\n"
-			+ "      try {									\n"
-			+ "        foo();		`						\n"
-			+ "      }				`						\n"
-			+ "    }										\n"
-			+ "  }											\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X {							\t
+		  void foo(Collection c) {				\t
+		    for(String s: c) {					\t
+		      try {								\t
+		        foo();		`					\t
+		      }				`					\t
+		    }									\t
+		  }										\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo(Collection c) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo(Collection c) {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo(Collection c) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo(Collection c) {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo(Collection c) {\n" +
-		"    for (String s : c) \n" +
-		"      {\n" +
-		"        try\n" +
-		"          {\n" +
-		"            foo();\n" +
-		"          }\n" +
-		"        finally\n" +
-		"          {\n" +
-		"          }\n" +
-		"      }\n" +
-		"    ;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo(Collection c) {
+		    for (String s : c)\s
+		      {
+		        try
+		          {
+		            foo();
+		          }
+		        finally
+		          {
+		          }
+		      }
+		    ;
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo(Collection c) {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo(Collection c) {
+		  }
+		}
+		""";
 
 	String expectedFullWithStatementRecoveryUnitToString =
 		expectedFullUnitToString;
@@ -325,47 +335,55 @@ public void test0001() {
 public void test0002() {
 
 	String s =
-		"package a;											\n"
-			+ "public class X {								\n"
-			+ "  void foo() {								\n"
-			+ "    #										\n"
-			+ "    @MyAnnot(value=)							\n"
-			+ "    int i;			`						\n"
-			+ "  }											\n"
-			+ "}											\n";
+		"""
+		package a;										\t
+		public class X {							\t
+		  void foo() {							\t
+		    #									\t
+		    @MyAnnot(value=)						\t
+		    int i;			`					\t
+		  }										\t
+		}										\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    @MyAnnot(value = $missing$) int i;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		    @MyAnnot(value = $missing$) int i;
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
@@ -388,46 +406,54 @@ public void test0002() {
 public void test0003() {
 
 	String s =
-		"package a;															\n"
-			+ "public class X {												\n"
-			+ "  void foo() {												\n"
-			+ "    @AnAnnotation(name) #									\n"
-			+ "    int var;													\n"
-			+ "  }															\n"
-			+ "}															\n";
+		"""
+		package a;														\t
+		public class X {											\t
+		  void foo() {											\t
+		    @AnAnnotation(name) #								\t
+		    int var;												\t
+		  }														\t
+		}														\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    @AnAnnotation(name) int var;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		    @AnAnnotation(name) int var;
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
@@ -450,46 +476,54 @@ public void test0003() {
 public void test0004() {
 
 	String s =
-		"package a;															\n"
-			+ "public class X {												\n"
-			+ "  void foo() {												\n"
-			+ "    @AnAnnotation(name=)										\n"
-			+ "    int var;													\n"
-			+ "  }															\n"
-			+ "}															\n";
+		"""
+		package a;														\t
+		public class X {											\t
+		  void foo() {											\t
+		    @AnAnnotation(name=)									\t
+		    int var;												\t
+		  }														\t
+		}														\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    @AnAnnotation(name = $missing$) int var;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		    @AnAnnotation(name = $missing$) int var;
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
@@ -512,59 +546,67 @@ public void test0004() {
 public void test0005() {
 
 	String s =
-		"package a;															\n"
-			+ "public class X {												\n"
-			+ "  void foo() {												\n"
-			+ "    foo1();													\n"
-			+ "    @AnAnnotation(name) #									\n"
-			+ "    class Y {}												\n"
-			+ "    foo2();													\n"
-			+ "  }															\n"
-			+ "}															\n";
+		"""
+		package a;														\t
+		public class X {											\t
+		  void foo() {											\t
+		    foo1();												\t
+		    @AnAnnotation(name) #								\t
+		    class Y {}											\t
+		    foo2();												\t
+		  }														\t
+		}														\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    @AnAnnotation(name) class Y {\n" +
-		"      Y() {\n" +
-		"        super();\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		    @AnAnnotation(name) class Y {
+		      Y() {
+		        super();
+		      }
+		    }
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    foo1();\n" +
-		"    @AnAnnotation(name) class Y {\n" +
-		"      Y() {\n" +
-		"        super();\n" +
-		"      }\n" +
-		"    }\n" +
-		"    foo2();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		    foo1();
+		    @AnAnnotation(name) class Y {
+		      Y() {
+		        super();
+		      }
+		    }
+		    foo2();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
@@ -587,59 +629,67 @@ public void test0005() {
 public void test0006() {
 
 	String s =
-		"package a;															\n"
-			+ "public class X {												\n"
-			+ "  void foo() {												\n"
-			+ "    foo1();													\n"
-			+ "    @AnAnnotation(name=)										\n"
-			+ "    class Y {}												\n"
-			+ "    foo2();													\n"
-			+ "  }															\n"
-			+ "}															\n";
+		"""
+		package a;														\t
+		public class X {											\t
+		  void foo() {											\t
+		    foo1();												\t
+		    @AnAnnotation(name=)									\t
+		    class Y {}											\t
+		    foo2();												\t
+		  }														\t
+		}														\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    @AnAnnotation(name = $missing$) class Y {\n" +
-		"      Y() {\n" +
-		"        super();\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		    @AnAnnotation(name = $missing$) class Y {
+		      Y() {
+		        super();
+		      }
+		    }
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    foo1();\n" +
-		"    @AnAnnotation(name = $missing$) class Y {\n" +
-		"      Y() {\n" +
-		"        super();\n" +
-		"      }\n" +
-		"    }\n" +
-		"    foo2();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		    foo1();
+		    @AnAnnotation(name = $missing$) class Y {
+		      Y() {
+		        super();
+		      }
+		    }
+		    foo2();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
@@ -662,59 +712,67 @@ public void test0006() {
 public void test0007() {
 
 	String s =
-		"package a;															\n"
-			+ "public class X {												\n"
-			+ "  void foo() {												\n"
-			+ "    foo1();													\n"
-			+ "    final @AnAnnotation(name) #								\n"
-			+ "    class Y {}												\n"
-			+ "    foo2();													\n"
-			+ "  }															\n"
-			+ "}															\n";
+		"""
+		package a;														\t
+		public class X {											\t
+		  void foo() {											\t
+		    foo1();												\t
+		    final @AnAnnotation(name) #							\t
+		    class Y {}											\t
+		    foo2();												\t
+		  }														\t
+		}														\t
+		""";
 
 	String expectedDietUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	String expectedDietWithStatementRecoveryUnitToString =
 		expectedDietUnitToString;
 
 	String expectedDietPlusBodyUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    final @AnAnnotation(name) class Y {\n" +
-		"      Y() {\n" +
-		"        super();\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		    final @AnAnnotation(name) class Y {
+		      Y() {
+		        super();
+		      }
+		    }
+		  }
+		}
+		""";
 
 	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-		"package a;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    foo1();\n" +
-		"    final @AnAnnotation(name) class Y {\n" +
-		"      Y() {\n" +
-		"        super();\n" +
-		"      }\n" +
-		"    }\n" +
-		"    foo2();\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package a;
+		public class X {
+		  public X() {
+		    super();
+		  }
+		  void foo() {
+		    foo1();
+		    final @AnAnnotation(name) class Y {
+		      Y() {
+		        super();
+		      }
+		    }
+		    foo2();
+		  }
+		}
+		""";
 
 	String expectedFullUnitToString =
 		expectedDietUnitToString;
@@ -738,44 +796,52 @@ public void test0007() {
 // incorrectly used modifier
 public void test0008() {
 	String s =
-		"public class Try {\n" +
-		"\n" +
-		"    void m() {\n" +
-		"\n" +
-		"        synchronized new Object();\n" +
-		"\n" +
-		"    }\n" +
-		"}\n" +
-		"\n";
+		"""
+		public class Try {
+		
+		    void m() {
+		
+		        synchronized new Object();
+		
+		    }
+		}
+		
+		""";
 
 	String expectedDietUnitToString =
-			"public class Try {\n" +
-			"  public Try() {\n" +
-			"  }\n" +
-			"  void m() {\n" +
-			"  }\n" +
-			"}\n";
+			"""
+		public class Try {
+		  public Try() {
+		  }
+		  void m() {
+		  }
+		}
+		""";
 
 		String expectedDietWithStatementRecoveryUnitToString =
 			expectedDietUnitToString;
 
 		String expectedDietPlusBodyUnitToString =
-				"public class Try {\n" +
-				"  public Try() {\n" +
-				"    super();\n" +
-				"  }\n" +
-				"  void m() {\n" +
-				"  }\n" +
-				"}\n";
+				"""
+			public class Try {
+			  public Try() {
+			    super();
+			  }
+			  void m() {
+			  }
+			}
+			""";
 
 		String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-				"public class Try {\n" +
-				"  public Try() {\n" +
-				"    super();\n" +
-				"  }\n" +
-				"  void m() {\n" +
-				"  }\n" +
-				"}\n";
+				"""
+			public class Try {
+			  public Try() {
+			    super();
+			  }
+			  void m() {
+			  }
+			}
+			""";
 
 		String expectedFullUnitToString =
 			expectedDietUnitToString;

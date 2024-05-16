@@ -436,15 +436,17 @@ public class CompilerToolJava9Tests extends TestCase {
 			File inputFile = new File(tmpFolder, "X.java");
 			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))) {
 				writer.write(
-					"package p;\n" +
-					"import java.nio.Buffer;\n" +
-					"import java.nio.ByteBuffer;\n" +
-					"public class X {\n" +
-					"  public Buffer buf() {\n" +
-					"    ByteBuffer buffer = ByteBuffer.allocate(10);\n" +
-					"    return buffer.flip();\n" +
-					"  }\n" +
-					"}\n");
+					"""
+						package p;
+						import java.nio.Buffer;
+						import java.nio.ByteBuffer;
+						public class X {
+						  public Buffer buf() {
+						    ByteBuffer buffer = ByteBuffer.allocate(10);
+						    return buffer.flip();
+						  }
+						}
+						""");
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -525,11 +527,12 @@ public class CompilerToolJava9Tests extends TestCase {
 			File inputFile = new File(tmpFolder, "X.java");
 			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
 				writer.write(
-						"public class X { \n" +
-						"	public Module getModule(String name) {\n" +
-						"		return null;\n" +
-						"	}\n" +
-						"}");
+						"""
+							public class X {\s
+								public Module getModule(String name) {
+									return null;
+								}
+							}""");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -568,11 +571,12 @@ public class CompilerToolJava9Tests extends TestCase {
 			File inputFile = new File(tmpFolder, "X.java");
 			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
 				writer.write(
-						"public class X { \n" +
-						"	public Module getModule(String name) {\n" +
-						"		return null;\n" +
-						"	}\n" +
-						"}");
+						"""
+							public class X {\s
+								public Module getModule(String name) {
+									return null;
+								}
+							}""");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

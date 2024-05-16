@@ -34,23 +34,27 @@ public class SelectionParserTest10 extends AbstractSelectionTest {
 	}
 
 	public void test001() throws JavaModelException {
-		String string =   "public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    var s_s = args[0];\n"
-						+ "  }\n"
-						+ "}\n";
+		String string =   """
+			public class X {
+			  public static void main(String[] args) {
+			    var s_s = args[0];
+			  }
+			}
+			""";
 
 		String selection = "s_s";
 		String expectedSelection = "<SelectionOnLocalName:var s_s = args[0]>;";
 
 		String completionIdentifier = "s_s";
-		String expectedUnitDisplayString = "public class X {\n" +
-											"  public X() {\n" +
-											"  }\n" +
-											"  public static void main(String[] args) {\n" +
-											"    <SelectionOnLocalName:var s_s = args[0]>;\n" +
-											"  }\n" +
-											"}\n";
+		String expectedUnitDisplayString = """
+			public class X {
+			  public X() {
+			  }
+			  public static void main(String[] args) {
+			    <SelectionOnLocalName:var s_s = args[0]>;
+			  }
+			}
+			""";
 		String expectedReplacedSource = "s_s";
 		String testName = "X.java";
 
@@ -62,23 +66,27 @@ public class SelectionParserTest10 extends AbstractSelectionTest {
 	}
 
 	public void test002() throws JavaModelException {
-		String string =   "public class X {\n"
-						+ "  public static void main(String[] args) {\n"
-						+ "    var s_s = args[0];\n"
-						+ "  }\n"
-						+ "}\n";
+		String string =   """
+			public class X {
+			  public static void main(String[] args) {
+			    var s_s = args[0];
+			  }
+			}
+			""";
 
 		String selection = "var";
 		String expectedSelection = "<SelectOnType:var>";
 
 		String completionIdentifier = "var";
-		String expectedUnitDisplayString = "public class X {\n" +
-											"  public X() {\n" +
-											"  }\n" +
-											"  public static void main(String[] args) {\n" +
-										    "    <SelectOnType:var> s_s = args[0];\n" +
-											"  }\n" +
-											"}\n";
+		String expectedUnitDisplayString = """
+			public class X {
+			  public X() {
+			  }
+			  public static void main(String[] args) {
+			    <SelectOnType:var> s_s = args[0];
+			  }
+			}
+			""";
 		String expectedReplacedSource = "var";
 		String testName = "X.java";
 

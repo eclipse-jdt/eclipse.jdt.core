@@ -69,16 +69,18 @@ protected void tearDown() throws Exception {
  * Multi constant case statement with ':', selection node is the string constant
  */
 public void test001() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"static final String ONE=\"One\", TWO = \"Two\", THREE=\"Three\";\n" +
-	"  public static void foo(String num) {\n" +
-	" 	 switch (num) {\n" +
-	"	   case ONE, TWO, THREE:\n" +
-	"		 System.out.println(num);\n" +
-	"		 break;\n" +
-	"    }" +
-	"  }\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		static final String ONE="One", TWO = "Two", THREE="Three";
+		  public static void foo(String num) {
+		 	 switch (num) {
+			   case ONE, TWO, THREE:
+				 System.out.println(num);
+				 break;
+		    }\
+		  }
+		}
+		""");
 
 	String str = this.wc.getSource();
 	String selection = "ONE";
@@ -95,16 +97,18 @@ public void test001() throws JavaModelException {
  * Multi constant case statement with ':', selection node is the first enum constant
  */
 public void test002() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"  public static void foo(Num num) {\n" +
-	" 	 switch (num) {\n" +
-	"	   case ONE, TWO, THREE:\n" +
-	"		 System.out.println(num);\n" +
-	"		 break;\n" +
-	"    }" +
-	"  }\n" +
-	"	enum Num { ONE, TWO, THREE;}\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		  public static void foo(Num num) {
+		 	 switch (num) {
+			   case ONE, TWO, THREE:
+				 System.out.println(num);
+				 break;
+		    }\
+		  }
+			enum Num { ONE, TWO, THREE;}
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "ONE";
 	int start = str.lastIndexOf(selection);
@@ -120,16 +124,18 @@ public void test002() throws JavaModelException {
  * Multi constant case statement with ':', selection node is the second string constant
  */
 public void test003() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"static final String ONE=\"One\", TWO = \"Two\", THREE=\"Three\";\n" +
-	"  public static void foo(String num) {\n" +
-	" 	 switch (num) {\n" +
-	"	   case ONE, TWO, THREE:\n" +
-	"		 System.out.println(num);\n" +
-	"		 break;\n" +
-	"    }" +
-	"  }\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		static final String ONE="One", TWO = "Two", THREE="Three";
+		  public static void foo(String num) {
+		 	 switch (num) {
+			   case ONE, TWO, THREE:
+				 System.out.println(num);
+				 break;
+		    }\
+		  }
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "TWO";
 	int start = str.lastIndexOf(selection);
@@ -145,16 +151,18 @@ public void test003() throws JavaModelException {
  * Multi constant case statement with ':', selection node is the second enum constant
  */
 public void test004() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"  public static void foo(Num num) {\n" +
-	" 	 switch (num) {\n" +
-	"	   case ONE, TWO, THREE:\n" +
-	"		 System.out.println(num);\n" +
-	"		 break;\n" +
-	"    }" +
-	"  }\n" +
-	"	enum Num { ONE, TWO, THREE;}\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		  public static void foo(Num num) {
+		 	 switch (num) {
+			   case ONE, TWO, THREE:
+				 System.out.println(num);
+				 break;
+		    }\
+		  }
+			enum Num { ONE, TWO, THREE;}
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "TWO";
 	int start = str.lastIndexOf(selection);
@@ -170,15 +178,17 @@ public void test004() throws JavaModelException {
  * Multi constant case statement with '->', selection node is the string constant
  */
 public void test005() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"static final String ONE=\"One\", TWO = \"Two\", THREE=\"Three\";\n" +
-	"  public static void foo(String num) {\n" +
-	" 	 switch (num) {\n" +
-	"	   case ONE, TWO, THREE ->\n" +
-	"		 System.out.println(num);\n" +
-	"    }" +
-	"  }\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		static final String ONE="One", TWO = "Two", THREE="Three";
+		  public static void foo(String num) {
+		 	 switch (num) {
+			   case ONE, TWO, THREE ->
+				 System.out.println(num);
+		    }\
+		  }
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "ONE";
 	int start = str.lastIndexOf(selection);
@@ -194,16 +204,18 @@ public void test005() throws JavaModelException {
  * Multi constant case statement with '->', selection node is the first enum constant
  */
 public void test006() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"  public static void foo(Num num) {\n" +
-	" 	 switch (num) {\n" +
-	"	   case ONE, TWO, THREE ->\n" +
-	"		 System.out.println(num);\n" +
-	"		 break; // illegal, but should be ignored and shouldn't matter\n" +
-	"    }" +
-	"  }\n" +
-	"	enum Num { ONE, TWO, THREE;}\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		  public static void foo(Num num) {
+		 	 switch (num) {
+			   case ONE, TWO, THREE ->
+				 System.out.println(num);
+				 break; // illegal, but should be ignored and shouldn't matter
+		    }\
+		  }
+			enum Num { ONE, TWO, THREE;}
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "ONE";
 	int start = str.lastIndexOf(selection);
@@ -219,16 +231,18 @@ public void test006() throws JavaModelException {
  * Multi constant case statement with '->', selection node is the second string constant
  */
 public void test007() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"static final String ONE=\"One\", TWO = \"Two\", THREE=\"Three\";\n" +
-	"  public static void foo(String num) {\n" +
-	" 	 switch (num) {\n" +
-	"	   case ONE, TWO, THREE ->\n" +
-	"		 System.out.println(num);\n" +
-	"		 break;\n" +
-	"    }" +
-	"  }\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		static final String ONE="One", TWO = "Two", THREE="Three";
+		  public static void foo(String num) {
+		 	 switch (num) {
+			   case ONE, TWO, THREE ->
+				 System.out.println(num);
+				 break;
+		    }\
+		  }
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "TWO";
 	int start = str.lastIndexOf(selection);
@@ -244,16 +258,18 @@ public void test007() throws JavaModelException {
  * Multi constant case statement with '->', selection node is the second enum constant
  */
 public void test008() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"  public static void foo(Num num) {\n" +
-	" 	 switch (num) {\n" +
-	"	   case ONE, TWO, THREE ->\n" +
-	"		 System.out.println(num);\n" +
-	"		 break;\n" +
-	"    }" +
-	"  }\n" +
-	"	enum Num { ONE, TWO, THREE;}\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		  public static void foo(Num num) {
+		 	 switch (num) {
+			   case ONE, TWO, THREE ->
+				 System.out.println(num);
+				 break;
+		    }\
+		  }
+			enum Num { ONE, TWO, THREE;}
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "TWO";
 	int start = str.lastIndexOf(selection);
@@ -270,16 +286,18 @@ public void test008() throws JavaModelException {
  * which same as the switch's expression
  */
 public void test009() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"  public static void foo(Num num_) {\n" +
-	" 	 switch (num_) {\n" +
-	"	   case ONE, TWO, THREE ->\n" +
-	"		 System.out.println(num_);\n" +
-	"		 break;\n" +
-	"    }" +
-	"  }\n" +
-	"	enum Num { ONE, TWO, THREE;}\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		  public static void foo(Num num_) {
+		 	 switch (num_) {
+			   case ONE, TWO, THREE ->
+				 System.out.println(num_);
+				 break;
+		    }\
+		  }
+			enum Num { ONE, TWO, THREE;}
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "num_";
 	int start = str.lastIndexOf(selection);
@@ -296,18 +314,20 @@ public void test009() throws JavaModelException {
  * which is referencing a local variable defined in the case block
  */
 public void test010() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"  public static void foo(Num num_) {\n" +
-	" 	 switch (num_) {\n" +
-	"	   case ONE, TWO, THREE -> {\n" +
-	"		 int i_j = 0;" +
-	"		 System.out.println(i_j);\n" +
-	"		 break;" +
-	"		 }\n" +
-	"    }" +
-	"  }\n" +
-	"	enum Num { ONE, TWO, THREE;}\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		  public static void foo(Num num_) {
+		 	 switch (num_) {
+			   case ONE, TWO, THREE -> {
+				 int i_j = 0;\
+				 System.out.println(i_j);
+				 break;\
+				 }
+		    }\
+		  }
+			enum Num { ONE, TWO, THREE;}
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "i_j";
 	int start = str.lastIndexOf(selection);
@@ -323,16 +343,18 @@ public void test010() throws JavaModelException {
  * Multi constant case statement with '->', selection is a referenced name of type enum in switch expression
  */
 public void test011() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"  public static void foo(Num num_) {\n" +
-	" 	 switch (num_) {\n" +
-	"	   case ONE, TWO, THREE -> {\n" +
-	"		 break;" +
-	"		 }\n" +
-	"    }" +
-	"  }\n" +
-	"	enum Num { ONE, TWO, THREE;}\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		  public static void foo(Num num_) {
+		 	 switch (num_) {
+			   case ONE, TWO, THREE -> {
+				 break;\
+				 }
+		    }\
+		  }
+			enum Num { ONE, TWO, THREE;}
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "num_";
 	int start = str.lastIndexOf(selection);
@@ -348,15 +370,17 @@ public void test011() throws JavaModelException {
  * Multi constant case statement with '->', selection is a referenced name of type int in switch expression
  */
 public void test012() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"  public static void foo(int num_) {\n" +
-	" 	 switch (num_ + 1) {\n" +
-	"	   case 1, 2, 3 -> {\n" +
-	"		 break;" +
-	"		 }\n" +
-	"    }" +
-	"  }\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		  public static void foo(int num_) {
+		 	 switch (num_ + 1) {
+			   case 1, 2, 3 -> {
+				 break;\
+				 }
+		    }\
+		  }
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "num_";
 	int start = str.lastIndexOf(selection);
@@ -372,14 +396,16 @@ public void test012() throws JavaModelException {
  * Multi constant case statement with '->', selection is a referenced name of type int in switch expression
  */
 public void test013() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"  public static void foo(int num_) {\n" +
-	" 	 int i = switch (num_) {\n" +
-	"	   case 1, 2, 3 -> (num_ + 1);\n" +
-	"      default -> 0;\n" +
-	"    }" +
-	"  }\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		  public static void foo(int num_) {
+		 	 int i = switch (num_) {
+			   case 1, 2, 3 -> (num_ + 1);
+		      default -> 0;
+		    }\
+		  }
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "num_";
 	int start = str.lastIndexOf(selection);
@@ -395,14 +421,16 @@ public void test013() throws JavaModelException {
  * Multi constant case statement with '->', selection is a referenced name of type int in switch expression
  */
 public void test014() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"  public static void foo(int num_) {\n" +
-	" 	 int i = switch (num_) {\n" +
-	"	   case 1, 2, 3 -> 0;\n" +
-	"      default -> (num_ + 1);\n" +
-	"    }" +
-	"  }\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		  public static void foo(int num_) {
+		 	 int i = switch (num_) {
+			   case 1, 2, 3 -> 0;
+		      default -> (num_ + 1);
+		    }\
+		  }
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "num_";
 	int start = str.lastIndexOf(selection);
@@ -418,14 +446,16 @@ public void test014() throws JavaModelException {
  * Multi constant case statement with '->', selection is a referenced name of type int in switch expression
  */
 public void test015() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-	"  public static void foo(int num_) {\n" +
-	" 	 int i = switch (num_) {\n" +
-	"	   case 1, 2, 3 -> 0;\n" +
-	"      default -> (num_ + 1);\n" +
-	"    }" +
-	"  }\n" +
-	"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+		  public static void foo(int num_) {
+		 	 int i = switch (num_) {
+			   case 1, 2, 3 -> 0;
+		      default -> (num_ + 1);
+		    }\
+		  }
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "num_";
 	int start = str.lastIndexOf(selection);
@@ -441,14 +471,16 @@ public void test015() throws JavaModelException {
  * Multi constant case statement with '->', selection is a referenced name of type int in switch expression
  */
 public void test016() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-			"	public void bar(int s) {\n" +
-			"		int i_j = switch (s) {\n" +
-			"			case 1, 2, 3 -> (s+1);\n" +
-			"			default -> i_j;\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+			public void bar(int s) {
+				int i_j = switch (s) {
+					case 1, 2, 3 -> (s+1);
+					default -> i_j;
+				};
+			}
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "i_j";
 	int start = str.lastIndexOf(selection);
@@ -461,14 +493,16 @@ public void test016() throws JavaModelException {
 	);
 }
 public void test017() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
-			"	public void bar(int s) {\n" +
-			"		int i_j = switch (s) {\n" +
-			"			case 1, 2, 3 -> (s+1);\n" +
-			"			default -> (1+i_j);\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+	this.wc = getWorkingCopy("/Resolve/src/X.java","""
+		public class X {
+			public void bar(int s) {
+				int i_j = switch (s) {
+					case 1, 2, 3 -> (s+1);
+					default -> (1+i_j);
+				};
+			}
+		}
+		""");
 	String str = this.wc.getSource();
 	String selection = "i_j";
 	int start = str.lastIndexOf(selection);
@@ -482,20 +516,22 @@ public void test017() throws JavaModelException {
 }
 public void test018() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.function.*;\n" +
-			"interface IN0 {} \n" +
-			"interface IN1 extends IN0 {} \n" +
-			"interface IN2 extends IN0 {}\n" +
-			"public class X {\n" +
-			"	 IN1 n_1() { return new IN1() {}; } \n" +
-			"	IN2 n_2() { return null; } \n" +
-			"	<M> void m( Supplier< M> m2) { } \n" +
-			"	void testSw(int i) { \n" +
-			"		m(switch(i) { \n" +
-			"			case 1 -> this::n_1; \n" +
-			"			default -> this::n_2; }); \n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.function.*;
+				interface IN0 {}\s
+				interface IN1 extends IN0 {}\s
+				interface IN2 extends IN0 {}
+				public class X {
+					 IN1 n_1() { return new IN1() {}; }\s
+					IN2 n_2() { return null; }\s
+					<M> void m( Supplier< M> m2) { }\s
+					void testSw(int i) {\s
+						m(switch(i) {\s
+							case 1 -> this::n_1;\s
+							default -> this::n_2; });\s
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "n_1";
 	int start = str.lastIndexOf(selection);
@@ -509,20 +545,22 @@ public void test018() throws JavaModelException {
 }
 public void test019() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.function.*;\n" +
-			"interface IN0 {} \n" +
-			"interface IN1 extends IN0 {} \n" +
-			"interface IN2 extends IN0 {}\n" +
-			"public class X {\n" +
-			"	 IN1 n_1() { return new IN1() {}; } \n" +
-			"	IN2 n_2() { return null; } \n" +
-			"	<M> void m( Supplier< M> m2) { } \n" +
-			"	void testSw(int i) { \n" +
-			"		m(switch(i) { \n" +
-			"			case 2 -> () -> n_1(); \n" +
-			"			default -> this::n_2; }); \n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.function.*;
+				interface IN0 {}\s
+				interface IN1 extends IN0 {}\s
+				interface IN2 extends IN0 {}
+				public class X {
+					 IN1 n_1() { return new IN1() {}; }\s
+					IN2 n_2() { return null; }\s
+					<M> void m( Supplier< M> m2) { }\s
+					void testSw(int i) {\s
+						m(switch(i) {\s
+							case 2 -> () -> n_1();\s
+							default -> this::n_2; });\s
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "n_1";
 	int start = str.lastIndexOf(selection);
@@ -536,19 +574,21 @@ public void test019() throws JavaModelException {
 }
 public void test020() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.function.*;\n" +
-			"interface IN0 {} \n" +
-			"interface IN1 extends IN0 {} \n" +
-			"interface IN2 extends IN0 {}\n" +
-			"public class X {\n" +
-			"	 IN1 n_1() { return new IN1() {}; } \n" +
-			"	IN2 n_2() { return null; } \n" +
-			"	<M> void m( Supplier< M> m2) { } \n" +
-			"	void testSw(int i) { \n" +
-			"		m(switch(i) { \n" +
-			"			default -> this::n_2; }); \n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.function.*;
+				interface IN0 {}\s
+				interface IN1 extends IN0 {}\s
+				interface IN2 extends IN0 {}
+				public class X {
+					 IN1 n_1() { return new IN1() {}; }\s
+					IN2 n_2() { return null; }\s
+					<M> void m( Supplier< M> m2) { }\s
+					void testSw(int i) {\s
+						m(switch(i) {\s
+							default -> this::n_2; });\s
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "n_2";
 	int start = str.lastIndexOf(selection);
@@ -562,19 +602,21 @@ public void test020() throws JavaModelException {
 }
 public void test021() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.function.*;\n" +
-			"interface IN0 {} \n" +
-			"interface IN1 extends IN0 {} \n" +
-			"interface IN2 extends IN0 {}\n" +
-			"public class X {\n" +
-			"	 IN1 n_1(int ijk) { return new IN1() {}; } \n" +
-			"	IN2 n_2() { return null; } \n" +
-			"	<M> void m( Supplier< M> m2) { } \n" +
-			"	void testSw(int ijk) { \n" +
-			"		m(switch(ijk) { \n" +
-			"			default -> () -> n_1(ijk); }); \n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.function.*;
+				interface IN0 {}\s
+				interface IN1 extends IN0 {}\s
+				interface IN2 extends IN0 {}
+				public class X {
+					 IN1 n_1(int ijk) { return new IN1() {}; }\s
+					IN2 n_2() { return null; }\s
+					<M> void m( Supplier< M> m2) { }\s
+					void testSw(int ijk) {\s
+						m(switch(ijk) {\s
+							default -> () -> n_1(ijk); });\s
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "n_1";
 	int start = str.lastIndexOf(selection);
@@ -588,19 +630,21 @@ public void test021() throws JavaModelException {
 }
 public void test022() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.function.*;\n" +
-			"interface IN0 {} \n" +
-			"interface IN1 extends IN0 {} \n" +
-			"interface IN2 extends IN0 {}\n" +
-			"public class X {\n" +
-			"	 IN1 n_1(int ijk) { return new IN1() {}; } \n" +
-			"	IN2 n_2() { return null; } \n" +
-			"	<M> void m( Supplier< M> m2) { } \n" +
-			"	void testSw(int ijk) { \n" +
-			"		m(switch(ijk) { \n" +
-			"			default -> () -> n_1(ijk); }); \n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.function.*;
+				interface IN0 {}\s
+				interface IN1 extends IN0 {}\s
+				interface IN2 extends IN0 {}
+				public class X {
+					 IN1 n_1(int ijk) { return new IN1() {}; }\s
+					IN2 n_2() { return null; }\s
+					<M> void m( Supplier< M> m2) { }\s
+					void testSw(int ijk) {\s
+						m(switch(ijk) {\s
+							default -> () -> n_1(ijk); });\s
+					}
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "ijk";
 	int start = str.lastIndexOf(selection);
@@ -614,15 +658,16 @@ public void test022() throws JavaModelException {
 }
 public void testBug553149_1() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-			"public class X {\n"
-					+ "    protected Object x_ = \"FIELD X\";\n"
-					+ "    @SuppressWarnings(\"preview\")\n"
-					+ "	   public void f(Object obj, boolean b) {\n"
-					+ "        if ((x_ instanceof String y) && y.length() > 0) {\n"
-					+ "            System.out.println(y.toLowerCase());\n"
-					+ "        }\n"
-					+ "    }\n"
-					+ "}");
+			"""
+				public class X {
+				    protected Object x_ = "FIELD X";
+				    @SuppressWarnings("preview")
+					   public void f(Object obj, boolean b) {
+				        if ((x_ instanceof String y) && y.length() > 0) {
+				            System.out.println(y.toLowerCase());
+				        }
+				    }
+				}""");
 	String str = this.wc.getSource();
 	String selection = "x_";
 	int start = str.lastIndexOf(selection);
@@ -636,15 +681,16 @@ public void testBug553149_1() throws JavaModelException {
 }
 public void testBug553149_2() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-			"public class X {\n"
-					+ "    protected Object x_ = \"FIELD X\";\n"
-					+ "    @SuppressWarnings(\"preview\")\n"
-					+ "	   public void f(Object obj, boolean b) {\n"
-					+ "        if ((x_ instanceof String y_) && y_.length() > 0) {\n"
-					+ "            System.out.println(y.toLowerCase());\n"
-					+ "        }\n"
-					+ "    }\n"
-					+ "}");
+			"""
+				public class X {
+				    protected Object x_ = "FIELD X";
+				    @SuppressWarnings("preview")
+					   public void f(Object obj, boolean b) {
+				        if ((x_ instanceof String y_) && y_.length() > 0) {
+				            System.out.println(y.toLowerCase());
+				        }
+				    }
+				}""");
 	String str = this.wc.getSource();
 	String selection = "y_";
 	int start = str.lastIndexOf(selection);
@@ -658,15 +704,16 @@ public void testBug553149_2() throws JavaModelException {
 }
 public void testBug553149_3() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-			"public class X {\n"
-					+ "    protected Object x_ = \"FIELD X\";\n"
-					+ "    @SuppressWarnings(\"preview\")\n"
-					+ "	   public void f(Object obj, boolean b) {\n"
-					+ "        if ((x_ instanceof String x_) && x_.length() > 0) {\n"
-					+ "            System.out.println(y.toLowerCase());\n"
-					+ "        }\n"
-					+ "    }\n"
-					+ "}");
+			"""
+				public class X {
+				    protected Object x_ = "FIELD X";
+				    @SuppressWarnings("preview")
+					   public void f(Object obj, boolean b) {
+				        if ((x_ instanceof String x_) && x_.length() > 0) {
+				            System.out.println(y.toLowerCase());
+				        }
+				    }
+				}""");
 	String str = this.wc.getSource();
 	String selection = "x_";
 	int start = str.lastIndexOf(selection);
@@ -680,15 +727,16 @@ public void testBug553149_3() throws JavaModelException {
 }
 public void testBug553149_4() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-			"public class X {\n"
-					+ "    protected Object x_ = \"FIELD X\";\n"
-					+ "    @SuppressWarnings(\"preview\")\n"
-					+ "	   public void f(Object obj, boolean b) {\n"
-					+ "        if ((x_ instanceof String x_) && x_.length() > 0) {\n"
-					+ "            System.out.println(x_.toLowerCase());\n"
-					+ "        }\n"
-					+ "    }\n"
-					+ "}");
+			"""
+				public class X {
+				    protected Object x_ = "FIELD X";
+				    @SuppressWarnings("preview")
+					   public void f(Object obj, boolean b) {
+				        if ((x_ instanceof String x_) && x_.length() > 0) {
+				            System.out.println(x_.toLowerCase());
+				        }
+				    }
+				}""");
 	String str = this.wc.getSource();
 	String selection = "x_";
 	int start = str.lastIndexOf(selection);
@@ -702,16 +750,17 @@ public void testBug553149_4() throws JavaModelException {
 }
 public void testBug553149_5() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-			"public class X {\n"
-					+ "    protected Object x_ = \"FIELD X\";\n"
-					+ "    @SuppressWarnings(\"preview\")\n"
-					+ "	   public void f(Object obj, boolean b) {\n"
-					+ "        if ((x_ instanceof String x_) && x_.length() > 0) {\n"
-					+ "            System.out.println(x_.toLowerCase());\n"
-					+ "        }\n"
-					+ "        System.out.println(x_.toLowerCase());\n"
-					+ "    }\n"
-					+ "}");
+			"""
+				public class X {
+				    protected Object x_ = "FIELD X";
+				    @SuppressWarnings("preview")
+					   public void f(Object obj, boolean b) {
+				        if ((x_ instanceof String x_) && x_.length() > 0) {
+				            System.out.println(x_.toLowerCase());
+				        }
+				        System.out.println(x_.toLowerCase());
+				    }
+				}""");
 	String str = this.wc.getSource();
 	String selection = "x_";
 	int start = str.lastIndexOf(selection);
@@ -725,14 +774,15 @@ public void testBug553149_5() throws JavaModelException {
 }
 public void testBug553149_6() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-			"public class X {\n"
-					+ "    @SuppressWarnings(\"preview\")\n"
-					+ "	   public void f(Object obj, boolean b) {\n"
-					+ "        if ((y instanceof String /*not selecting */x_) && /* selecting*/x_.length() > 0) {\n"
-					+ "            System.out.println(x_.toLowerCase());\n"
-					+ "        }\n"
-					+ "    }\n"
-					+ "}");
+			"""
+				public class X {
+				    @SuppressWarnings("preview")
+					   public void f(Object obj, boolean b) {
+				        if ((y instanceof String /*not selecting */x_) && /* selecting*/x_.length() > 0) {
+				            System.out.println(x_.toLowerCase());
+				        }
+				    }
+				}""");
 	String str = this.wc.getSource();
 	String selection = "x_";
 	int start = str.indexOf(selection);
@@ -748,20 +798,22 @@ public void testBug574697() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/Test2.java",
-			"import java.util.List;\n" +
-			"import java.util.ArrayList;\n" +
-			"public class Test2 {\n" +
-			"    public String getGreeting() {\n" +
-			"        return \"foo\";\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"        List<Integer> foo = new List<>() {\n" +
-			"            private void test() {\n" +
-			"                new Test2().getGreeting();\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"}\n");
+			"""
+				import java.util.List;
+				import java.util.ArrayList;
+				public class Test2 {
+				    public String getGreeting() {
+				        return "foo";
+				    }
+				    public static void main(String[] args) {
+				        List<Integer> foo = new List<>() {
+				            private void test() {
+				                new Test2().getGreeting();
+				            }
+				        };
+				    }
+				}
+				""");
 
 	String str = this.workingCopies[0].getSource();
 	String selectAt = "getGreeting()";
@@ -779,17 +831,19 @@ public void testBugDiamond() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/Test2.java",
-			"import java.util.List;\n" +
-			"public class Test2 {\n" +
-			"    public static void test() {\n" +
-			"        List<Integer> foo = new List<>() {"
-			+ "          String s2;\n" +
-			"            private void test() {\n" +
-			"                System.out.println(s2);\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"}\n");
+			"""
+				import java.util.List;
+				public class Test2 {
+				    public static void test() {
+				        List<Integer> foo = new List<>() {\
+				          String s2;
+				            private void test() {
+				                System.out.println(s2);
+				            }
+				        };
+				    }
+				}
+				""");
 
 	String str = this.workingCopies[0].getSource();
 	String selectAt = "s2";
@@ -805,19 +859,20 @@ public void testBugDiamond() throws JavaModelException {
 }
 public void testBug577508_1() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-			"public class X {\n"
-					+ "    public X () {\n"
-					+ "		new Runnable() {\n"
-					+ "			public void run () {\n"
-					+ "				Object object = null;\n"
-					+ "				if (object instanceof Thread thread) thread.start();\n"
-					+ "				tryToOpenDeclarationOnThisMethod();\n"
-					+ "			}\n"
-					+ "		};\n"
-					+ "	}\n"
-					+ "	public void tryToOpenDeclarationOnThisMethod () {\n"
-					+ "	}\n"
-					+ "}");
+			"""
+				public class X {
+				    public X () {
+						new Runnable() {
+							public void run () {
+								Object object = null;
+								if (object instanceof Thread thread) thread.start();
+								tryToOpenDeclarationOnThisMethod();
+							}
+						};
+					}
+					public void tryToOpenDeclarationOnThisMethod () {
+					}
+				}""");
 	String str = this.wc.getSource();
 	String selection = "tryToOpenDeclarationOnThisMethod";
 	int start = str.indexOf(selection);
@@ -831,18 +886,19 @@ public void testBug577508_1() throws JavaModelException {
 }
 public void testBug577508_2() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-			"public class X {\n"
-					+ "    public X () {\n"
-					+ "		for (Object object : new Object[] {\"test\"}) {\n"
-					+ "			if (object instanceof String string) {\n"
-					+ "				System.out.println(string);\n"
-					+ "				tryToOpenDeclarationOnThisMethod();\n"
-					+ "			}\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "	static public void tryToOpenDeclarationOnThisMethod () {\n"
-					+ "	}\n"
-					+ "}");
+			"""
+				public class X {
+				    public X () {
+						for (Object object : new Object[] {"test"}) {
+							if (object instanceof String string) {
+								System.out.println(string);
+								tryToOpenDeclarationOnThisMethod();
+							}
+						}
+					}
+					static public void tryToOpenDeclarationOnThisMethod () {
+					}
+				}""");
 	String str = this.wc.getSource();
 	String selection = "tryToOpenDeclarationOnThisMethod";
 	int start = str.indexOf(selection);
@@ -856,23 +912,24 @@ public void testBug577508_2() throws JavaModelException {
 }
 public void testBug577508_3() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-			"public class X {\n"
-			+ "  public static void main(String[] args) {\n"
-			+ "    Set<Foo> foos = Set.of(new Foo(), new Bar());\n"
-			+ "    for (Foo foo : foos) {\n"
-			+ "      String string;\n"
-			+ "      if (foo instanceof Bar bar) {\n"
-			+ "        string = \"__\";\n"
-			+ "      }\n"
-			+ "    }\n"
-			+ "    String[] names = new String[] {};\n"
-			+ "    for (String name : names) {\n"
-			+ "      int size = name.length();\n"
-			+ "    }\n"
-			+ "  }\n"
-			+ "  static class Foo {}\n"
-			+ "  static class Bar extends Foo {}\n"
-			+ "}");
+			"""
+				public class X {
+				  public static void main(String[] args) {
+				    Set<Foo> foos = Set.of(new Foo(), new Bar());
+				    for (Foo foo : foos) {
+				      String string;
+				      if (foo instanceof Bar bar) {
+				        string = "__";
+				      }
+				    }
+				    String[] names = new String[] {};
+				    for (String name : names) {
+				      int size = name.length();
+				    }
+				  }
+				  static class Foo {}
+				  static class Bar extends Foo {}
+				}""");
 	String str = this.wc.getSource();
 	String selection = "length";
 	int start = str.indexOf(selection);
@@ -886,15 +943,16 @@ public void testBug577508_3() throws JavaModelException {
 }
 public void testBug577508_4() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-			"public class X {\n"
-			+ "  static public void main (String[] args) {\n"
-			+ "	Object[] objects = new Object[3];\n"
-			+ "	for (Object object : objects) \n"
-			+ "		if (object instanceof String string && !(object instanceof Runnable)) \n"
-			+ "			System.out.println(); // Open Declaration fails here if you remove the braces from the for loop.\n"
-			+ "	System.out.println(); // Open Declaration always fails here.\n"
-			+ "}\n"
-			+ "}");
+			"""
+				public class X {
+				  static public void main (String[] args) {
+					Object[] objects = new Object[3];
+					for (Object object : objects)\s
+						if (object instanceof String string && !(object instanceof Runnable))\s
+							System.out.println(); // Open Declaration fails here if you remove the braces from the for loop.
+					System.out.println(); // Open Declaration always fails here.
+				}
+				}""");
 	String str = this.wc.getSource();
 	String selection = "println";
 	int start = str.indexOf(selection);
@@ -920,30 +978,32 @@ public void testBug577508_4() throws JavaModelException {
 // Wrong method redirect
 public void testGH1278() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/TestSelect.java",
-					"public class TestSelect {\n" +
-	                "    class Integer {}\n" +
-					"    class Double {}\n" +
-					"\n" +
-					"	public void foo(String s) {\n" +
-					"\n" +
-					"	}\n" +
-					"\n" +
-					"	public void foo(Integer i) {\n" +
-					"\n" +
-					"	}\n" +
-					"\n" +
-					"	public void foo(Double d) {\n" +
-					"\n" +
-					"	}\n" +
-					"\n" +
-					"	public void foo2(Integer i) {\n" +
-					"		Object test = 1d;\n" +
-					"		if (test instanceof Double test2) {\n" +
-					"			foo(test2);\n" +
-					"		}\n" +
-					"	}\n" +
-					"\n" +
-					"}\n");
+					"""
+						public class TestSelect {
+						    class Integer {}
+						    class Double {}
+						
+							public void foo(String s) {
+						
+							}
+						
+							public void foo(Integer i) {
+						
+							}
+						
+							public void foo(Double d) {
+						
+							}
+						
+							public void foo2(Integer i) {
+								Object test = 1d;
+								if (test instanceof Double test2) {
+									foo(test2);
+								}
+							}
+						
+						}
+						""");
 	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
@@ -959,40 +1019,42 @@ public void testGH1278() throws JavaModelException {
 // Open Declaration (F3) sometimes not working for "Pattern Matching for instanceof
 public void testGH1288() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/DetectVMInstallationsJob.java",
-					"public class X {\n" +
-					"	public void test(Object s) {\n" +
-					"		if(s instanceof String x) {\n" +
-					"			x./*fails1*/length();\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public void test2(Object s) {\n" +
-					"		if(s instanceof String x)\n" +
-					"			x./*works1*/length();\n" +
-					"	}\n" +
-					"	\n" +
-					"	public void foo(Object s) {\n" +
-					"		\n" +
-					"		if (s instanceof String x) {\n" +
-					"			x./*fails2*/length(); x./*works2*/length();\n" +
-					"		}\n" +
-					"\n" +
-					"		if (s instanceof String x) {\n" +
-					"			x./*fails3*/length(); x./*works3*/length(); x./*works4*/length();\n" +
-					"		}\n" +
-					"\n" +
-					"		if (s instanceof String x) {\n" +
-					"			int i; x./*works5*/length(); // works\n" +
-					"		}\n" +
-					"\n" +
-					"		if (s instanceof String x) {\n" +
-					"			int i; x./*fails4*/length(); int j; // fails\n" +
-					"		}\n" +
-					"\n" +
-					"		if (s instanceof String x) {\n" +
-					"			x./*fails5*/length(); int j; // fails\n" +
-					"		}\n" +
-					"	}\n" +
-					"}\n");
+					"""
+						public class X {
+							public void test(Object s) {
+								if(s instanceof String x) {
+									x./*fails1*/length();
+								}
+							}
+							public void test2(Object s) {
+								if(s instanceof String x)
+									x./*works1*/length();
+							}
+						\t
+							public void foo(Object s) {
+							\t
+								if (s instanceof String x) {
+									x./*fails2*/length(); x./*works2*/length();
+								}
+						
+								if (s instanceof String x) {
+									x./*fails3*/length(); x./*works3*/length(); x./*works4*/length();
+								}
+						
+								if (s instanceof String x) {
+									int i; x./*works5*/length(); // works
+								}
+						
+								if (s instanceof String x) {
+									int i; x./*fails4*/length(); int j; // fails
+								}
+						
+								if (s instanceof String x) {
+									x./*fails5*/length(); int j; // fails
+								}
+							}
+						}
+						""");
 	String str = this.wc.getSource();
 	String selection = "/*fails1*/length";
 	int start = str.indexOf(selection);
@@ -1080,23 +1142,25 @@ public void testGH1288() throws JavaModelException {
 // Open Declaration (F3) sometimes not working for "Pattern Matching for instanceof
 public void testGH1288_while() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-					"public class X {\n" +
-					"	public void test(Object s) {\n" +
-					"		while(s instanceof String x) {\n" +
-					"			x.hashCode();\n" +
-					"		}\n" +
-					"		while(s.hashCode()) {\n" +
-					"			System.out.println();\n" +
-					"		}\n" +
-					"		while(s instanceof String x && x.length() > 0) {\n" +
-					"			System.out.println();\n" +
-					"			x.length();\n" +
-					"		}\n" +
-					"		while(s instanceof String xyz && xyz == \"abc\") {\n" +
-					"			System.out.println();\n" +
-					"		}\n" +
-					"	}\n" +
-					"}\n" );
+					"""
+						public class X {
+							public void test(Object s) {
+								while(s instanceof String x) {
+									x.hashCode();
+								}
+								while(s.hashCode()) {
+									System.out.println();
+								}
+								while(s instanceof String x && x.length() > 0) {
+									System.out.println();
+									x.length();
+								}
+								while(s instanceof String xyz && xyz == "abc") {
+									System.out.println();
+								}
+							}
+						}
+						""" );
 	String str = this.wc.getSource();
 	String selection = "length";
 	int start = str.indexOf(selection);
@@ -1130,16 +1194,18 @@ public void testGH1288_while() throws JavaModelException {
 // Open Declaration (F3) sometimes not working for "Pattern Matching for instanceof
 public void testGH1288_do_while() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-			"import java.util.ArrayList;\n" +
-					"\n" +
-					"public class X {\n" +
-					"	public void foo(ArrayList<Object> alo) {\n" +
-					"		int i = 0;\n" +
-					"		do {\n" +
-					"		}	while (!(alo.get(i) instanceof String patVar) || /*here*/patVar.length() > 0);\n" +
-					"		patVar.hashCode();\n" +
-					"	}\n" +
-					"}\n" );
+			"""
+				import java.util.ArrayList;
+				
+				public class X {
+					public void foo(ArrayList<Object> alo) {
+						int i = 0;
+						do {
+						}	while (!(alo.get(i) instanceof String patVar) || /*here*/patVar.length() > 0);
+						patVar.hashCode();
+					}
+				}
+				""" );
 	String str = this.wc.getSource();
 	String selection = "/*here*/patVar";
 	int start = str.indexOf(selection);
@@ -1165,16 +1231,18 @@ public void testGH1288_do_while() throws JavaModelException {
 // Errors when using instanceof pattern inside enum
 public void testBug573257() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-					"public enum ASD {\n" +
-					"\n" +
-					"	A1 {\n" +
-					"		void f(Object o) {\n" +
-					"			if (o instanceof String s) {\n" +
-					"				System.out.println(s);\n" +
-					"			}\n" +
-					"		}\n" +
-					"	}\n" +
-					"}\n");
+					"""
+						public enum ASD {
+						
+							A1 {
+								void f(Object o) {
+									if (o instanceof String s) {
+										System.out.println(s);
+									}
+								}
+							}
+						}
+						""");
 	String str = this.wc.getSource();
 	String selection = "System";
 	int start = str.indexOf(selection);
@@ -1208,23 +1276,25 @@ public void testBug573257() throws JavaModelException {
 // Class rename fails with ClassCastException
 public void testBug576794() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/RenameFails.java",
-					"import java.lang.annotation.Annotation;\n" +
-					"\n" +
-					"public class RenameFails {\n" +
-					"\n" +
-					"    private final static ClassValue<RenameFails> STUFF = new ClassValue<>() {\n" +
-					"\n" +
-					"        @Override\n" +
-					"        protected RenameFails computeValue(Class<?> type) {\n" +
-					"            for (Annotation a : type.getAnnotations()) {\n" +
-					"                if (a instanceof Deprecated h) {\n" +
-					"                	\n" +
-					"                }\n" +
-					"            }\n" +
-					"            return null;\n" +
-					"        }\n" +
-					"    };\n" +
-					"}\n");
+					"""
+						import java.lang.annotation.Annotation;
+						
+						public class RenameFails {
+						
+						    private final static ClassValue<RenameFails> STUFF = new ClassValue<>() {
+						
+						        @Override
+						        protected RenameFails computeValue(Class<?> type) {
+						            for (Annotation a : type.getAnnotations()) {
+						                if (a instanceof Deprecated h) {
+						                \t
+						                }
+						            }
+						            return null;
+						        }
+						    };
+						}
+						""");
 	String str = this.wc.getSource();
 	String selection = "Deprecated";
 	int start = str.indexOf(selection);
@@ -1240,38 +1310,40 @@ public void testBug576794() throws JavaModelException {
 // CCE: LocalDeclaration cannot be cast to class ForeachStatement
 public void testGH1263() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/DetectVMInstallationsJob.java",
-					"import java.util.Set;\n" +
-					"import java.util.function.Predicate;\n" +
-					"\n" +
-					"public class DetectVMInstallationsJob  {\n" +
-					"	\n" +
-					"	interface Collection<E> extends Iterable<E> {\n" +
-					"		default boolean removeIf(Predicate<? super E> filter) {\n" +
-					"			return true;\n" +
-					"	    }\n" +
-					"	}\n" +
-					"	public interface Predicate<T> {\n" +
-					"	    boolean test(T t);\n" +
-					"	}\n" +
-					"\n" +
-					"	protected void run() {\n" +
-					"		Collection<String> candidates = null;\n" +
-					"		Set<Object> knownVMs = null;\n" +
-					"		Collection<Object> systemVMs = null;\n" +
-					"		if (\"\".equals(\"\")) {\n" +
-					"				systemVMs = null;\n" +
-					"				systemVMs.removeIf(t -> knownVMs.contains(null));\n" +
-					"				for (int systemVM : new int[] { 10 }) {\n" +
-					"					candidates.removeIf(t -> t.equals(null));\n" +
-					"				}\n" +
-					"		}\n" +
-					"		for (int f : new int [] {}) {\n" +
-					"			String install = null;\n" +
-					"			if (!(install instanceof String vm && vm.hashCode() != 0)) {\n" +
-					"			}\n" +
-					"		}\n" +
-					"	}\n" +
-					"}\n");
+					"""
+						import java.util.Set;
+						import java.util.function.Predicate;
+						
+						public class DetectVMInstallationsJob  {
+						\t
+							interface Collection<E> extends Iterable<E> {
+								default boolean removeIf(Predicate<? super E> filter) {
+									return true;
+							    }
+							}
+							public interface Predicate<T> {
+							    boolean test(T t);
+							}
+						
+							protected void run() {
+								Collection<String> candidates = null;
+								Set<Object> knownVMs = null;
+								Collection<Object> systemVMs = null;
+								if ("".equals("")) {
+										systemVMs = null;
+										systemVMs.removeIf(t -> knownVMs.contains(null));
+										for (int systemVM : new int[] { 10 }) {
+											candidates.removeIf(t -> t.equals(null));
+										}
+								}
+								for (int f : new int [] {}) {
+									String install = null;
+									if (!(install instanceof String vm && vm.hashCode() != 0)) {
+									}
+								}
+							}
+						}
+						""");
 	String str = this.wc.getSource();
 	String selection = "->";
 	int start = str.indexOf(selection);
@@ -1294,19 +1366,21 @@ public void testGH1263() throws JavaModelException {
 // SelectionParser behavior erratic wrt to live pattern variables upon loop exit
 public void testGH1364() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-					"public class X {\n" +
-					"	String xx = \"Hello\";\n" +
-					"	void foo(Object o) {\n" +
-					"		do {\n" +
-					"			\n" +
-					"		} while (!(o instanceof X xxx));\n" +
-					"		xxx.foo(o); // F3 on xxx fails\n" +
-					"		while (!(o instanceof X yyy)) {\n" +
-					"			\n" +
-					"		}\n" +
-					"		yyy.foo(o); // F3 on yyy works ok\n" +
-					"	}\n" +
-					"}\n");
+					"""
+						public class X {
+							String xx = "Hello";
+							void foo(Object o) {
+								do {
+								\t
+								} while (!(o instanceof X xxx));
+								xxx.foo(o); // F3 on xxx fails
+								while (!(o instanceof X yyy)) {
+								\t
+								}
+								yyy.foo(o); // F3 on yyy works ok
+							}
+						}
+						""");
 	String str = this.wc.getSource();
 	String selection = "xxx.foo";
 	int start = str.indexOf(selection);
@@ -1330,16 +1404,18 @@ public void testGH1364() throws JavaModelException {
 // SelectionParser miscomputes type of variable
 public void testGH1360() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-					"public class X {\n" +
-					"	String xx = \"Hello\";\n" +
-					"	void foo(Object o) {\n" +
-					"		if (o instanceof X xx) {\n" +
-					"			/*pattern*/xx.foo(o);\n" +
-					"		} else {\n" +
-					"			System.out.println(/*field*/xx);  // F3 on xx jumps wrongly to to o instanceof X xx\n" +
-					"		}\n" +
-					"	}\n" +
-					"}\n");
+					"""
+						public class X {
+							String xx = "Hello";
+							void foo(Object o) {
+								if (o instanceof X xx) {
+									/*pattern*/xx.foo(o);
+								} else {
+									System.out.println(/*field*/xx);  // F3 on xx jumps wrongly to to o instanceof X xx
+								}
+							}
+						}
+						""");
 	String str = this.wc.getSource();
 	String selection = "/*pattern*/xx";
 	int start = str.indexOf(selection);
@@ -1364,15 +1440,17 @@ public void testGH1360() throws JavaModelException {
 //  [15] Search for declaration of pattern variable not working
 public void testBug567497() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-			"public class X {\n" +
-					"    protected Object y = \"FIELD X\";\n" +
-					"    @SuppressWarnings(\"preview\")\n" +
-					"	public void f(Object obj, boolean b) {\n" +
-					"        if ((y instanceof String /*not selecting */x) && /* selecting*/x.length() > 0) {\n" +
-					"            System.out.println(x.toLowerCase());\n" +
-					"        }\n" +
-					"    }\n" +
-					"}\n");
+			"""
+				public class X {
+				    protected Object y = "FIELD X";
+				    @SuppressWarnings("preview")
+					public void f(Object obj, boolean b) {
+				        if ((y instanceof String /*not selecting */x) && /* selecting*/x.length() > 0) {
+				            System.out.println(x.toLowerCase());
+				        }
+				    }
+				}
+				""");
 	String str = this.wc.getSource();
 	String selection = "/* selecting*/x";
 	int start = str.indexOf(selection);

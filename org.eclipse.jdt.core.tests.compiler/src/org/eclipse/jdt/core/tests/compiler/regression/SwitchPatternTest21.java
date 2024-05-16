@@ -336,37 +336,39 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case String s when s != null, Integer i when i == 3, X x when x != null : System.out.println(\"Integer\");\n" +
-			"	            ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case String s when s != null, Integer i when i == 3, X x when x != null : System.out.println(\"Integer\");\n" +
-			"	              ^^^^^^^^^^^^^^\n" +
-			"Syntax error on token(s), misplaced construct(s)\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case String s when s != null, Integer i when i == 3, X x when x != null : System.out.println(\"Integer\");\n" +
-			"	                                      ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 4)\n" +
-			"	case String s when s != null, Integer i when i == 3, X x when x != null : System.out.println(\"Integer\");\n" +
-			"	                                        ^^^^^^^^^^^\n" +
-			"Syntax error on token(s), misplaced construct(s)\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 4)\n" +
-			"	case String s when s != null, Integer i when i == 3, X x when x != null : System.out.println(\"Integer\");\n" +
-			"	                                                       ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 4)\n" +
-			"	case String s when s != null, Integer i when i == 3, X x when x != null : System.out.println(\"Integer\");\n" +
-			"	                                                              ^\n" +
-			"x cannot be resolved to a variable\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case String s when s != null, Integer i when i == 3, X x when x != null : System.out.println("Integer");
+					            ^
+				Named pattern variables are not allowed here
+				----------
+				2. ERROR in X.java (at line 4)
+					case String s when s != null, Integer i when i == 3, X x when x != null : System.out.println("Integer");
+					              ^^^^^^^^^^^^^^
+				Syntax error on token(s), misplaced construct(s)
+				----------
+				3. ERROR in X.java (at line 4)
+					case String s when s != null, Integer i when i == 3, X x when x != null : System.out.println("Integer");
+					                                      ^
+				Named pattern variables are not allowed here
+				----------
+				4. ERROR in X.java (at line 4)
+					case String s when s != null, Integer i when i == 3, X x when x != null : System.out.println("Integer");
+					                                        ^^^^^^^^^^^
+				Syntax error on token(s), misplaced construct(s)
+				----------
+				5. ERROR in X.java (at line 4)
+					case String s when s != null, Integer i when i == 3, X x when x != null : System.out.println("Integer");
+					                                                       ^
+				Named pattern variables are not allowed here
+				----------
+				6. ERROR in X.java (at line 4)
+					case String s when s != null, Integer i when i == 3, X x when x != null : System.out.println("Integer");
+					                                                              ^
+				x cannot be resolved to a variable
+				----------
+				""");
 	}
 	public void testIllegalFallThrough() throws Exception {
 		runNegativeTest(
@@ -383,22 +385,24 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case String s, Integer i, X x when o != null : System.out.println(\"Integer\");\n" +
-			"	            ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case String s, Integer i, X x when o != null : System.out.println(\"Integer\");\n" +
-			"	                       ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case String s, Integer i, X x when o != null : System.out.println(\"Integer\");\n" +
-			"	                            ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case String s, Integer i, X x when o != null : System.out.println("Integer");
+					            ^
+				Named pattern variables are not allowed here
+				----------
+				2. ERROR in X.java (at line 4)
+					case String s, Integer i, X x when o != null : System.out.println("Integer");
+					                       ^
+				Named pattern variables are not allowed here
+				----------
+				3. ERROR in X.java (at line 4)
+					case String s, Integer i, X x when o != null : System.out.println("Integer");
+					                            ^
+				Named pattern variables are not allowed here
+				----------
+				""");
 	}
 	public void testInternalDomination_this() throws Exception {
 		runConformTest(
@@ -438,22 +442,24 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case Object _, Integer _, X _ when true : System.out.println(\"Integer\");\n" +
-			"	               ^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case Object _, Integer _, X _ when true : System.out.println(\"Integer\");\n" +
-			"	                          ^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	default: System.out.println(\"Object\");\n" +
-			"	^^^^^^^\n" +
-			"Switch case cannot have both unconditional pattern and default label\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case Object _, Integer _, X _ when true : System.out.println("Integer");
+					               ^^^^^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				2. ERROR in X.java (at line 5)
+					case Object _, Integer _, X _ when true : System.out.println("Integer");
+					                          ^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				3. ERROR in X.java (at line 6)
+					default: System.out.println("Object");
+					^^^^^^^
+				Switch case cannot have both unconditional pattern and default label
+				----------
+				""");
 	}
 	public void testInternalDomination_3() throws Exception {
 		runNegativeTest(
@@ -474,22 +480,24 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case Object _, Integer _, X _  : System.out.println(\"Integer\");\n" +
-			"	               ^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	case Object _, Integer _, X _  : System.out.println(\"Integer\");\n" +
-			"	                          ^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	default: System.out.println(\"Object\");\n" +
-			"	^^^^^^^\n" +
-			"Switch case cannot have both unconditional pattern and default label\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case Object _, Integer _, X _  : System.out.println("Integer");
+					               ^^^^^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				2. ERROR in X.java (at line 5)
+					case Object _, Integer _, X _  : System.out.println("Integer");
+					                          ^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				3. ERROR in X.java (at line 6)
+					default: System.out.println("Object");
+					^^^^^^^
+				Switch case cannot have both unconditional pattern and default label
+				----------
+				""");
 	}
 	public void testExternalDomination() throws Exception {
 		runNegativeTest(
@@ -510,12 +518,14 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case Integer _, String _  : System.out.println(\"Integer\");\n" +
-			"	     ^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case Integer _, String _  : System.out.println("Integer");
+					     ^^^^^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				""");
 	}
 	public void testExternalDomination_2() throws Exception {
 		runNegativeTest(
@@ -536,12 +546,14 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case Integer _, String _  : System.out.println(\"Integer\");\n" +
-			"	     ^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case Integer _, String _  : System.out.println("Integer");
+					     ^^^^^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				""");
 	}
 	public void testExternalDomination_3() throws Exception {
 		runNegativeTest(
@@ -562,12 +574,14 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case X _, Integer _, String _  : System.out.println(\"Integer\");\n" +
-			"	          ^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case X _, Integer _, String _  : System.out.println("Integer");
+					          ^^^^^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				""");
 	}
 	public void testExternalDomination_3_1() throws Exception {
 		runConformTest(
@@ -610,12 +624,14 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case Integer _ : System.out.println(\"A Integer\");\n" +
-			"	     ^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case labels\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case Integer _ : System.out.println("A Integer");
+					     ^^^^^^^^^
+				This case label is dominated by one of the preceding case labels
+				----------
+				""");
 	}
 	public void testExternalDomination_4_1() throws Exception {
 		runConformTest(
@@ -636,9 +652,10 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 				}
 				"""
 			},
-			"Multi label\n"
-			+ "A Integer\n"
-			+ "Object");
+			"""
+				Multi label
+				A Integer
+				Object""");
 	}
 	// javac jdk21 allows components to be named, but they can't be referenced.
 	public void testNaming() throws Exception {
@@ -660,12 +677,14 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	case Integer _, Point(int x, int _), String _  : System.out.println(\"Integer\");\n" +
-			"	                          ^\n" +
-			"Named pattern variables are not allowed here\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case Integer _, Point(int x, int _), String _  : System.out.println("Integer");
+					                          ^
+				Named pattern variables are not allowed here
+				----------
+				""");
 	}
 	public void testGuard_0() {
 		this.runConformTest(
@@ -793,10 +812,11 @@ public class SwitchPatternTest21 extends AbstractBatchCompilerTest {
 						    }
 						}
 						""", },
-				"true\n" +
-				"true\n" +
-				"true\n" +
-				"false");
+				"""
+					true
+					true
+					true
+					false""");
 	}
 	public void testTypePattern() {
 		this.runConformTest(

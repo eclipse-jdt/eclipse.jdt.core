@@ -48,91 +48,103 @@ static {
 }
 
 static final String JUNIT_ASSERT_NAME = "junit/framework/Assert.java";
-static final String JUNIT_ASSERT_CONTENT = "package junit.framework;\n" +
-		"public class Assert {\n" +
-		"    static public void assertNull(Object object) {}\n" +
-		"    static public void assertNull(String message, Object object) {}\n" +
-		"    static public void assertNotNull(Object object) {}\n" +
-		"    static public void assertNotNull(String message, Object object) {}\n" +
-		"    static public void assertTrue(boolean expression) {}\n" +
-		"    static public void assertTrue(String message, boolean expression) {}\n" +
-		"    static public void assertFalse(boolean expression) {}\n" +
-		"    static public void assertFalse(String message, boolean expression) {}\n" +
-		"}\n";
+static final String JUNIT_ASSERT_CONTENT = """
+	package junit.framework;
+	public class Assert {
+	    static public void assertNull(Object object) {}
+	    static public void assertNull(String message, Object object) {}
+	    static public void assertNotNull(Object object) {}
+	    static public void assertNotNull(String message, Object object) {}
+	    static public void assertTrue(boolean expression) {}
+	    static public void assertTrue(String message, boolean expression) {}
+	    static public void assertFalse(boolean expression) {}
+	    static public void assertFalse(String message, boolean expression) {}
+	}
+	""";
 
 static final String ORG_JUNIT_ASSERT_NAME = "org/junit/Assert.java";
-static final String ORG_JUNIT_ASSERT_CONTENT = "package org.junit;\n" +
-		"public class Assert {\n" +
-		"    static public void assertNull(Object object) {}\n" +
-		"    static public void assertNull(String message, Object object) {}\n" +
-		"    static public void assertNotNull(Object object) {}\n" +
-		"    static public void assertNotNull(String message, Object object) {}\n" +
-		"    static public void assertTrue(boolean expression) {}\n" +
-		"    static public void assertTrue(String message, boolean expression) {}\n" +
-		"    static public void assertFalse(boolean expression) {}\n" +
-		"    static public void assertFalse(String message, boolean expression) {}\n" +
-		"}\n";
+static final String ORG_JUNIT_ASSERT_CONTENT = """
+	package org.junit;
+	public class Assert {
+	    static public void assertNull(Object object) {}
+	    static public void assertNull(String message, Object object) {}
+	    static public void assertNotNull(Object object) {}
+	    static public void assertNotNull(String message, Object object) {}
+	    static public void assertTrue(boolean expression) {}
+	    static public void assertTrue(String message, boolean expression) {}
+	    static public void assertFalse(boolean expression) {}
+	    static public void assertFalse(String message, boolean expression) {}
+	}
+	""";
 static final String ORG_JUNIT_JUPITER_API_ASSERTIONS_NAME = "org/junit/jupiter/api/Assertions.java";
-static final String ORG_JUNIT_JUPITER_API_ASSERTIONS_CONTENT = "package org.junit.jupiter.api;\n" +
-		"import java.util.function.Supplier;\n" +
-		"import java.util.function.BooleanSupplier;\n" +
-		"public class Assertions {\n" +
-		"    static public void assertNull(Object object) {}\n" +
-		"    static public void assertNull(Object object, String message) {}\n" +
-		"    static public void assertNull(Object object, Supplier<String> messageSupplier) {}\n" +
-		"    static public void assertNotNull(Object object) {}\n" +
-		"    static public void assertNotNull(Object object, String message) {}\n" +
-		"    static public void assertNotNull(Object object, Supplier<String> messageSupplier) {}\n" +
-		"    static public void assertTrue(boolean expression) {}\n" +
-		"    static public void assertTrue(boolean expression, String message) {}\n" +
-		"    static public void assertTrue(boolean expression, Supplier<String> messageSupplier) {}\n" +
-		"    static public void assertTrue(BooleanSupplier booleanSupplier) {}\n" +
-		"    static public void assertTrue(BooleanSupplier booleanSupplier, String message) {}\n" +
-		"    static public void assertTrue(BooleanSupplier booleanSupplier, Supplier<String> messageSupplier) {}\n" +
-		"    static public void assertFalse(boolean expression) {}\n" +
-		"    static public void assertFalse(boolean expression, String message) {}\n" +
-		"    static public void assertFalse(boolean expression, Supplier<String> messageSupplier) {}\n" +
-		"    static public void assertFalse(BooleanSupplier booleanSupplier) {}\n" +
-		"    static public void assertFalse(BooleanSupplier booleanSupplier, String message) {}\n" +
-		"    static public void assertFalse(BooleanSupplier booleanSupplier, Supplier<String> messageSupplier) {}\n" +
-		"}\n";
+static final String ORG_JUNIT_JUPITER_API_ASSERTIONS_CONTENT = """
+	package org.junit.jupiter.api;
+	import java.util.function.Supplier;
+	import java.util.function.BooleanSupplier;
+	public class Assertions {
+	    static public void assertNull(Object object) {}
+	    static public void assertNull(Object object, String message) {}
+	    static public void assertNull(Object object, Supplier<String> messageSupplier) {}
+	    static public void assertNotNull(Object object) {}
+	    static public void assertNotNull(Object object, String message) {}
+	    static public void assertNotNull(Object object, Supplier<String> messageSupplier) {}
+	    static public void assertTrue(boolean expression) {}
+	    static public void assertTrue(boolean expression, String message) {}
+	    static public void assertTrue(boolean expression, Supplier<String> messageSupplier) {}
+	    static public void assertTrue(BooleanSupplier booleanSupplier) {}
+	    static public void assertTrue(BooleanSupplier booleanSupplier, String message) {}
+	    static public void assertTrue(BooleanSupplier booleanSupplier, Supplier<String> messageSupplier) {}
+	    static public void assertFalse(boolean expression) {}
+	    static public void assertFalse(boolean expression, String message) {}
+	    static public void assertFalse(boolean expression, Supplier<String> messageSupplier) {}
+	    static public void assertFalse(BooleanSupplier booleanSupplier) {}
+	    static public void assertFalse(BooleanSupplier booleanSupplier, String message) {}
+	    static public void assertFalse(BooleanSupplier booleanSupplier, Supplier<String> messageSupplier) {}
+	}
+	""";
 
 static final String APACHE_VALIDATE_NAME = "org/apache/commons/lang/Validate.java";
-static final String APACHE_VALIDATE_CONTENT = "package org.apache.commons.lang;\n" +
-		"public class Validate {\n" +
-		"    static public void notNull(Object object) {}\n" +
-		"    static public void notNull(Object object, String message) {}\n" +
-		"    static public void isTrue(boolean expression) {}\n" +
-		"    static public void isTrue(boolean expression, String message) {}\n" +
-		"    static public void isTrue(boolean expression, String message, double value) {}\n" +
-		"    static public void isTrue(boolean expression, String message, long value) {}\n" +
-		"    static public void isTrue(boolean expression, String message, Object value) {}\n" +
-		"}\n";
+static final String APACHE_VALIDATE_CONTENT = """
+	package org.apache.commons.lang;
+	public class Validate {
+	    static public void notNull(Object object) {}
+	    static public void notNull(Object object, String message) {}
+	    static public void isTrue(boolean expression) {}
+	    static public void isTrue(boolean expression, String message) {}
+	    static public void isTrue(boolean expression, String message, double value) {}
+	    static public void isTrue(boolean expression, String message, long value) {}
+	    static public void isTrue(boolean expression, String message, Object value) {}
+	}
+	""";
 
 static final String APACHE_3_VALIDATE_NAME = "org/apache/commons/lang3/Validate.java";
-static final String APACHE_3_VALIDATE_CONTENT = "package org.apache.commons.lang3;\n" +
-		"public class Validate {\n" +
-		"    static public <T> T notNull(T object) { return object; }\n" +
-		"    static public <T> T notNull(T object, String message, Object... values) { return object; }\n" +
-		"    static public void isTrue(boolean expression) {}\n" +
-		"    static public void isTrue(boolean expression, String message, double value) {}\n" +
-		"    static public void isTrue(boolean expression, String message, long value) {}\n" +
-		"    static public void isTrue(boolean expression, String message, Object value) {}\n" +
-		"}\n";
+static final String APACHE_3_VALIDATE_CONTENT = """
+	package org.apache.commons.lang3;
+	public class Validate {
+	    static public <T> T notNull(T object) { return object; }
+	    static public <T> T notNull(T object, String message, Object... values) { return object; }
+	    static public void isTrue(boolean expression) {}
+	    static public void isTrue(boolean expression, String message, double value) {}
+	    static public void isTrue(boolean expression, String message, long value) {}
+	    static public void isTrue(boolean expression, String message, Object value) {}
+	}
+	""";
 
 static final String GOOGLE_PRECONDITIONS_NAME = "com/google/common/base/Preconditions.java";
-static final String GOOGLE_PRECONDITIONS_CONTENT = "package com.google.common.base;\n" +
-		"public class Preconditions {\n" +
-		"    static public <T> T checkNotNull(T object) { return object; }\n" +
-		"    static public <T> T checkNotNull(T object, Object message) { return object; }\n" +
-		"    static public <T> T checkNotNull(T object, String message, Object... values) { return object; }\n" +
-		"    static public void checkArgument(boolean expression) {}\n" +
-		"    static public void checkArgument(boolean expression, Object message) {}\n" +
-		"    static public void checkArgument(boolean expression, String msgTmpl, Object... messageArgs) {}\n" +
-		"    static public void checkState(boolean expression) {}\n" +
-		"    static public void checkState(boolean expression, Object message) {}\n" +
-		"    static public void checkState(boolean expression, String msgTmpl, Object... messageArgs) {}\n" +
-		"}\n";
+static final String GOOGLE_PRECONDITIONS_CONTENT = """
+	package com.google.common.base;
+	public class Preconditions {
+	    static public <T> T checkNotNull(T object) { return object; }
+	    static public <T> T checkNotNull(T object, Object message) { return object; }
+	    static public <T> T checkNotNull(T object, String message, Object... values) { return object; }
+	    static public void checkArgument(boolean expression) {}
+	    static public void checkArgument(boolean expression, Object message) {}
+	    static public void checkArgument(boolean expression, String msgTmpl, Object... messageArgs) {}
+	    static public void checkState(boolean expression) {}
+	    static public void checkState(boolean expression, Object message) {}
+	    static public void checkState(boolean expression, String msgTmpl, Object... messageArgs) {}
+	}
+	""";
 
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());
@@ -208,12 +220,14 @@ public void testBug127575b() {
 				"  }\n" +
 				"}\n"};
 	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n";
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				o.toString();
+				^
+			Null pointer access: The variable o can only be null at this location
+			----------
+			""";
 	runner.classLibraries =
 		this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -235,12 +249,14 @@ public void testBug127575c() {
 				"  }\n" +
 				"}\n"};
 	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n";
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				o.toString();
+				^
+			Potential null pointer access: The variable o may be null at this location
+			----------
+			""";
 	runner.classLibraries =
 	    this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -263,22 +279,24 @@ public void testBug127575d() {
 				"  }\n" +
 				"}\n"};
 	runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	if (o1 == null) { };\n" +
-			"	    ^^\n" +
-			"Null comparison always yields false: The variable o1 cannot be null at this location\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	if (o1 == null) { };\n" +
-			"	                ^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	if (o2 == null) { };\n" +
-			"	    ^^\n" +
-			"Redundant null check: The variable o2 can only be null at this location\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					if (o1 == null) { };
+					    ^^
+				Null comparison always yields false: The variable o1 cannot be null at this location
+				----------
+				2. WARNING in X.java (at line 4)
+					if (o1 == null) { };
+					                ^^^
+				Dead code
+				----------
+				3. ERROR in X.java (at line 5)
+					if (o2 == null) { };
+					    ^^
+				Redundant null check: The variable o2 can only be null at this location
+				----------
+				""";
 	runner.classLibraries =
 		    this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -300,12 +318,14 @@ public void testBug127575e() {
 				"  }\n" +
 				"}\n"};
 	runner.expectedCompilerLog =
-				"----------\n" +
-				"1. WARNING in X.java (at line 3)\n" +
-				"	org.eclipse.core.runtime.Assert.isLegal(false && o != null);\n" +
-				"	                                                 ^^^^^^^^^\n" +
-				"Dead code\n" +
-				"----------\n";
+				"""
+					----------
+					1. WARNING in X.java (at line 3)
+						org.eclipse.core.runtime.Assert.isLegal(false && o != null);
+						                                                 ^^^^^^^^^
+					Dead code
+					----------
+					""";
 	runner.classLibraries =
 				this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
@@ -327,17 +347,19 @@ public void testBug127575e_1() {
 				"  }\n" +
 				"}\n"};
 	runner.expectedCompilerLog =
-				"----------\n" +
-				"1. WARNING in X.java (at line 4)\n" +
-				"	org.eclipse.core.runtime.Assert.isLegal(false && o != null);\n" +
-				"	                                                 ^^^^^^^^^\n" +
-				"Dead code\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	if (o == null) { };\n" +
-				"	    ^\n" +
-				"Redundant null check: The variable o can only be null at this location\n" +
-				"----------\n";
+				"""
+					----------
+					1. WARNING in X.java (at line 4)
+						org.eclipse.core.runtime.Assert.isLegal(false && o != null);
+						                                                 ^^^^^^^^^
+					Dead code
+					----------
+					2. ERROR in X.java (at line 5)
+						if (o == null) { };
+						    ^
+					Redundant null check: The variable o can only be null at this location
+					----------
+					""";
 	runner.classLibraries =
 				this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -359,12 +381,14 @@ public void testBug127575e_2() {
 				"  }\n" +
 				"}\n"};
 	runner.expectedCompilerLog =
-				"----------\n" +
-				"1. WARNING in X.java (at line 3)\n" +
-				"	org.eclipse.core.runtime.Assert.isLegal(true || o != null);\n" +
-				"	                                                ^^^^^^^^^\n" +
-				"Dead code\n" +
-				"----------\n";
+				"""
+					----------
+					1. WARNING in X.java (at line 3)
+						org.eclipse.core.runtime.Assert.isLegal(true || o != null);
+						                                                ^^^^^^^^^
+					Dead code
+					----------
+					""";
 	runner.classLibraries =
 				this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
@@ -385,17 +409,19 @@ public void testBug127575f() {
 				"  }\n" +
 				"}\n"};
 	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o == null) { };\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	if (o == null) { };\n" +
-		"	               ^^^\n" +
-		"Dead code\n" +
-		"----------\n";
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				if (o == null) { };
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 4)
+				if (o == null) { };
+				               ^^^
+			Dead code
+			----------
+			""";
 	runner.classLibraries =
 	    this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -419,22 +445,24 @@ public void testBug127575g() {
 				"  }\n" +
 				"}\n"};
 	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	org.eclipse.core.runtime.Assert.isLegal(o != null);\n" +
-		"	                                        ^\n" +
-		"Null comparison always yields false: The variable o can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	if (o == null) { };\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 5)\n" +
-		"	if (o == null) { };\n" +
-		"	               ^^^\n" +
-		"Dead code\n" +
-		"----------\n";
+		"""
+			----------
+			1. ERROR in X.java (at line 4)
+				org.eclipse.core.runtime.Assert.isLegal(o != null);
+				                                        ^
+			Null comparison always yields false: The variable o can only be null at this location
+			----------
+			2. ERROR in X.java (at line 5)
+				if (o == null) { };
+				    ^
+			Null comparison always yields false: The variable o cannot be null at this location
+			----------
+			3. WARNING in X.java (at line 5)
+				if (o == null) { };
+				               ^^^
+			Dead code
+			----------
+			""";
 	runner.classLibraries =
 		this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -468,47 +496,49 @@ public void testBug127575h() {
 				"  }\n" +
 				"}\n"};
 	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (foo == null) {}\n" +
-		"	    ^^^\n" +
-		"Null comparison always yields false: The variable foo cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	if (foo == null) {}\n" +
-		"	                 ^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 7)\n" +
-		"	org.eclipse.core.runtime.Assert.isLegal (foo2 == null);\n" +
-		"	                                         ^^^^\n" +
-		"Null comparison always yields false: The variable foo2 cannot be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 8)\n" +
-		"	if (foo2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Redundant null check: The variable foo2 can only be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 11)\n" +
-		"	if (bar == null) {}\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable bar can only be null at this location\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 13)\n" +
-		"	org.eclipse.core.runtime.Assert.isLegal (bar2 != null);\n" +
-		"	                                         ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 can only be null at this location\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 14)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" +
-		"----------\n" +
-		"8. WARNING in X.java (at line 14)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	                  ^^\n" +
-		"Dead code\n" +
-		"----------\n";
+		"""
+			----------
+			1. ERROR in X.java (at line 5)
+				if (foo == null) {}
+				    ^^^
+			Null comparison always yields false: The variable foo cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 5)
+				if (foo == null) {}
+				                 ^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 7)
+				org.eclipse.core.runtime.Assert.isLegal (foo2 == null);
+				                                         ^^^^
+			Null comparison always yields false: The variable foo2 cannot be null at this location
+			----------
+			4. ERROR in X.java (at line 8)
+				if (foo2 == null) {}
+				    ^^^^
+			Redundant null check: The variable foo2 can only be null at this location
+			----------
+			5. ERROR in X.java (at line 11)
+				if (bar == null) {}
+				    ^^^
+			Redundant null check: The variable bar can only be null at this location
+			----------
+			6. ERROR in X.java (at line 13)
+				org.eclipse.core.runtime.Assert.isLegal (bar2 != null);
+				                                         ^^^^
+			Null comparison always yields false: The variable bar2 can only be null at this location
+			----------
+			7. ERROR in X.java (at line 14)
+				if (bar2 == null) {}
+				    ^^^^
+			Null comparison always yields false: The variable bar2 cannot be null at this location
+			----------
+			8. WARNING in X.java (at line 14)
+				if (bar2 == null) {}
+				                  ^^
+			Dead code
+			----------
+			""";
 	runner.classLibraries =
 	    this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -539,17 +569,19 @@ public void testBug127575i() {
 				"  public X getX() { return new X();}\n" +
 				"}\n"};
 	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	if (foo != null) {}\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable foo cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
-		"	if (bar == null) {}\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable bar can only be null at this location\n" +
-		"----------\n";
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				if (foo != null) {}
+				    ^^^
+			Redundant null check: The variable foo cannot be null at this location
+			----------
+			2. ERROR in X.java (at line 10)
+				if (bar == null) {}
+				    ^^^
+			Redundant null check: The variable bar can only be null at this location
+			----------
+			""";
 	runner.classLibraries =
 	    this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -585,47 +617,49 @@ public void testBug127575j() {
 				"  }\n" +
 				"}\n"};
 	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	if (foo == null) {}\n" +
-		"	    ^^^\n" +
-		"Null comparison always yields false: The variable foo cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 9)\n" +
-		"	if (foo == null) {}\n" +
-		"	                 ^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 10)\n" +
-		"	org.eclipse.core.runtime.Assert.isLegal (foo2 == null);\n" +
-		"	                                         ^^^^\n" +
-		"Null comparison always yields false: The variable foo2 cannot be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 11)\n" +
-		"	if (foo2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Redundant null check: The variable foo2 can only be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 13)\n" +
-		"	if (bar == null) {}\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable bar can only be null at this location\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 14)\n" +
-		"	org.eclipse.core.runtime.Assert.isLegal (bar2 != null);\n" +
-		"	                                         ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 can only be null at this location\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 15)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" +
-		"----------\n" +
-		"8. WARNING in X.java (at line 15)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	                  ^^\n" +
-		"Dead code\n" +
-		"----------\n";
+		"""
+			----------
+			1. ERROR in X.java (at line 9)
+				if (foo == null) {}
+				    ^^^
+			Null comparison always yields false: The variable foo cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 9)
+				if (foo == null) {}
+				                 ^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 10)
+				org.eclipse.core.runtime.Assert.isLegal (foo2 == null);
+				                                         ^^^^
+			Null comparison always yields false: The variable foo2 cannot be null at this location
+			----------
+			4. ERROR in X.java (at line 11)
+				if (foo2 == null) {}
+				    ^^^^
+			Redundant null check: The variable foo2 can only be null at this location
+			----------
+			5. ERROR in X.java (at line 13)
+				if (bar == null) {}
+				    ^^^
+			Redundant null check: The variable bar can only be null at this location
+			----------
+			6. ERROR in X.java (at line 14)
+				org.eclipse.core.runtime.Assert.isLegal (bar2 != null);
+				                                         ^^^^
+			Null comparison always yields false: The variable bar2 can only be null at this location
+			----------
+			7. ERROR in X.java (at line 15)
+				if (bar2 == null) {}
+				    ^^^^
+			Null comparison always yields false: The variable bar2 cannot be null at this location
+			----------
+			8. WARNING in X.java (at line 15)
+				if (bar2 == null) {}
+				                  ^^
+			Dead code
+			----------
+			""";
 	runner.classLibraries =
 	    this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -664,47 +698,49 @@ public void testBug127575k() {
 				"  }\n" +
 				"}\n"};
 	runner.expectedCompilerLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	if (foo == null) {}\n" +
-		"	    ^^^\n" +
-		"Null comparison always yields false: The variable foo cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 12)\n" +
-		"	if (foo == null) {}\n" +
-		"	                 ^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 13)\n" +
-		"	org.eclipse.core.runtime.Assert.isLegal (foo2 == null);\n" +
-		"	                                         ^^^^\n" +
-		"Null comparison always yields false: The variable foo2 cannot be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 14)\n" +
-		"	if (foo2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Redundant null check: The variable foo2 can only be null at this location\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 16)\n" +
-		"	if (bar == null) {}\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable bar can only be null at this location\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 17)\n" +
-		"	org.eclipse.core.runtime.Assert.isLegal (bar2 != null);\n" +
-		"	                                         ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 can only be null at this location\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 18)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" +
-		"----------\n" +
-		"8. WARNING in X.java (at line 18)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	                  ^^\n" +
-		"Dead code\n" +
-		"----------\n";
+		"""
+			----------
+			1. ERROR in X.java (at line 12)
+				if (foo == null) {}
+				    ^^^
+			Null comparison always yields false: The variable foo cannot be null at this location
+			----------
+			2. WARNING in X.java (at line 12)
+				if (foo == null) {}
+				                 ^^
+			Dead code
+			----------
+			3. ERROR in X.java (at line 13)
+				org.eclipse.core.runtime.Assert.isLegal (foo2 == null);
+				                                         ^^^^
+			Null comparison always yields false: The variable foo2 cannot be null at this location
+			----------
+			4. ERROR in X.java (at line 14)
+				if (foo2 == null) {}
+				    ^^^^
+			Redundant null check: The variable foo2 can only be null at this location
+			----------
+			5. ERROR in X.java (at line 16)
+				if (bar == null) {}
+				    ^^^
+			Redundant null check: The variable bar can only be null at this location
+			----------
+			6. ERROR in X.java (at line 17)
+				org.eclipse.core.runtime.Assert.isLegal (bar2 != null);
+				                                         ^^^^
+			Null comparison always yields false: The variable bar2 can only be null at this location
+			----------
+			7. ERROR in X.java (at line 18)
+				if (bar2 == null) {}
+				    ^^^^
+			Null comparison always yields false: The variable bar2 cannot be null at this location
+			----------
+			8. WARNING in X.java (at line 18)
+				if (bar2 == null) {}
+				                  ^^
+			Dead code
+			----------
+			""";
 	runner.classLibraries =
 	    this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -721,75 +757,81 @@ public void testBug127575l() {
 	runner.testFiles =
 			new String[] {
 				"Test.java",
-				"public class Test {\n" +
-				"	void foo(Object a, Object b, Object c) {\n" +
-				"		org.eclipse.core.runtime.Assert.isLegal( a == null);\n " +
-				"		if (a!=null) {\n" +
-				"			System.out.println(\"a is not null\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"a is null\");\n" +
-				"		 }\n" +
-				"		a = null;\n" +
-				"		if (a== null) {}\n" +
-				"		org.eclipse.core.runtime.Assert.isLegal(b != null);\n " +
-				"		if (b!=null) {\n" +
-				"			System.out.println(\"b is not null\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"b is null\");\n" +
-				"		 }\n" +
-				"		org.eclipse.core.runtime.Assert.isLegal(c == null);\n" +
-				"		if (c.equals(a)) {\n" +
-				"			System.out.println(\"\");\n" +
-				"		 } else{\n" +
-				"			System.out.println(\"\");\n" +
-				"		 }\n" +
-				"	}\n" +
-				"	public static void main(String[] args){\n" +
-				"		Test test = new Test();\n" +
-				"		test.foo(null,null, null);\n" +
-				"	}\n" +
-				"}\n"};
+				"""
+					public class Test {
+						void foo(Object a, Object b, Object c) {
+							org.eclipse.core.runtime.Assert.isLegal( a == null);
+					 \
+							if (a!=null) {
+								System.out.println("a is not null");
+							 } else{
+								System.out.println("a is null");
+							 }
+							a = null;
+							if (a== null) {}
+							org.eclipse.core.runtime.Assert.isLegal(b != null);
+					 \
+							if (b!=null) {
+								System.out.println("b is not null");
+							 } else{
+								System.out.println("b is null");
+							 }
+							org.eclipse.core.runtime.Assert.isLegal(c == null);
+							if (c.equals(a)) {
+								System.out.println("");
+							 } else{
+								System.out.println("");
+							 }
+						}
+						public static void main(String[] args){
+							Test test = new Test();
+							test.foo(null,null, null);
+						}
+					}
+					"""};
 	runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in Test.java (at line 4)\n" +
-			"	if (a!=null) {\n" +
-			"	    ^\n" +
-			"Null comparison always yields false: The variable a can only be null at this location\n" +
-			"----------\n" +
-			"2. WARNING in Test.java (at line 4)\n" +
-			"	if (a!=null) {\n" +
-			"			System.out.println(\"a is not null\");\n" +
-			"		 } else{\n" +
-			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"3. ERROR in Test.java (at line 9)\n" +
-			"	a = null;\n" +
-			"	^\n" +
-			"Redundant assignment: The variable a can only be null at this location\n" +
-			"----------\n" +
-			"4. ERROR in Test.java (at line 10)\n" +
-			"	if (a== null) {}\n" +
-			"	    ^\n" +
-			"Redundant null check: The variable a can only be null at this location\n" +
-			"----------\n" +
-			"5. ERROR in Test.java (at line 12)\n" +
-			"	if (b!=null) {\n" +
-			"	    ^\n" +
-			"Redundant null check: The variable b cannot be null at this location\n" +
-			"----------\n" +
-			"6. WARNING in Test.java (at line 14)\n" +
-			"	} else{\n" +
-			"			System.out.println(\"b is null\");\n" +
-			"		 }\n" +
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"7. ERROR in Test.java (at line 18)\n" +
-			"	if (c.equals(a)) {\n" +
-			"	    ^\n" +
-			"Null pointer access: The variable c can only be null at this location\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in Test.java (at line 4)
+					if (a!=null) {
+					    ^
+				Null comparison always yields false: The variable a can only be null at this location
+				----------
+				2. WARNING in Test.java (at line 4)
+					if (a!=null) {
+							System.out.println("a is not null");
+						 } else{
+					             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				3. ERROR in Test.java (at line 9)
+					a = null;
+					^
+				Redundant assignment: The variable a can only be null at this location
+				----------
+				4. ERROR in Test.java (at line 10)
+					if (a== null) {}
+					    ^
+				Redundant null check: The variable a can only be null at this location
+				----------
+				5. ERROR in Test.java (at line 12)
+					if (b!=null) {
+					    ^
+				Redundant null check: The variable b cannot be null at this location
+				----------
+				6. WARNING in Test.java (at line 14)
+					} else{
+							System.out.println("b is null");
+						 }
+					      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				Dead code
+				----------
+				7. ERROR in Test.java (at line 18)
+					if (c.equals(a)) {
+					    ^
+				Null pointer access: The variable c can only be null at this location
+				----------
+				""";
 	runner.classLibraries =
 			this.assertLib;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -824,12 +866,14 @@ public void testBug127575m() {
 				"	boolean checkSomething() {return true;}\n" +
 				"}\n"};
 		runner.expectedCompilerLog =
-				"----------\n" +
-			"1. ERROR in Info.java (at line 11)\n" +
-			"	org.eclipse.core.runtime.Assert.isLegal(info.checkSomething());\n" +
-			"	                                        ^^^^\n" +
-			"Null pointer access: The variable info can only be null at this location\n" +
-			"----------\n";
+				"""
+					----------
+					1. ERROR in Info.java (at line 11)
+						org.eclipse.core.runtime.Assert.isLegal(info.checkSomething());
+						                                        ^^^^
+					Null pointer access: The variable info can only be null at this location
+					----------
+					""";
 		runner.classLibraries =
 			this.assertLib;
 		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -847,30 +891,33 @@ public void testBug127575n() {
 		runner.testFiles =
 			new String[] {
 		"DoWhileBug.java",
-				"public class DoWhileBug {\n" +
-				"	void test(boolean b1) {\n" +
-				"		Object o1 = null;\n" +
-				"		Object o2 = null;\n" +
-				"		do {\n" +
-				"           if (b1)\n" +
-				"				o1 = null;\n" +
-				"           org.eclipse.core.runtime.Assert.isLegal (o1 != null);\n" +
-				"		} while (true);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class DoWhileBug {
+						void test(boolean b1) {
+							Object o1 = null;
+							Object o2 = null;
+							do {
+					           if (b1)
+									o1 = null;
+					           org.eclipse.core.runtime.Assert.isLegal (o1 != null);
+							} while (true);
+						}
+					}"""
 			};
 		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in DoWhileBug.java (at line 7)\n" +
-			"	o1 = null;\n" +
-			"	^^\n" +
-			"Redundant assignment: The variable o1 can only be null at this location\n" +
-			"----------\n" +
-			"2. ERROR in DoWhileBug.java (at line 8)\n" +
-			"	org.eclipse.core.runtime.Assert.isLegal (o1 != null);\n" +
-			"	                                         ^^\n" +
-			"Null comparison always yields false: The variable o1 can only be null at this location\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in DoWhileBug.java (at line 7)
+					o1 = null;
+					^^
+				Redundant assignment: The variable o1 can only be null at this location
+				----------
+				2. ERROR in DoWhileBug.java (at line 8)
+					org.eclipse.core.runtime.Assert.isLegal (o1 != null);
+					                                         ^^
+				Null comparison always yields false: The variable o1 can only be null at this location
+				----------
+				""";
 		runner.classLibraries =
 			this.assertLib;
 		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -888,25 +935,28 @@ public void testBug127575o() {
 		runner.testFiles =
 			new String[] {
 		"DoWhileBug.java",
-				"public class DoWhileBug {\n" +
-				"	void test(boolean b1) {\n" +
-				"		Object o1 = null;\n" +
-				"		Object o2 = null;\n" +
-				"		do {\n" +
-				"           if (b1)\n" +
-				"				o1 = null;\n" +
-				"           org.eclipse.core.runtime.Assert.isLegal ((o2 = o1) == null);\n" +
-				"		} while (true);\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class DoWhileBug {
+						void test(boolean b1) {
+							Object o1 = null;
+							Object o2 = null;
+							do {
+					           if (b1)
+									o1 = null;
+					           org.eclipse.core.runtime.Assert.isLegal ((o2 = o1) == null);
+							} while (true);
+						}
+					}"""
 			};
 		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in DoWhileBug.java (at line 7)\n" +
-			"	o1 = null;\n" +
-			"	^^\n" +
-			"Redundant assignment: The variable o1 can only be null at this location\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in DoWhileBug.java (at line 7)
+					o1 = null;
+					^^
+				Redundant assignment: The variable o1 can only be null at this location
+				----------
+				""";
 		runner.classLibraries =
 			this.assertLib;
 		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -934,29 +984,35 @@ public void testBug373953() throws IOException {
 				"  }\n" +
 				"}\n",
 				"java.eclipse.core.runtime/Assert.java",
-				"package java.eclipse.core.runtime;\n" +
-				"public class Assert {\n" +
-				"  public static void isLegal(boolean b) {\n" +
-				"  }\n" +
-				"}\n",
+				"""
+					package java.eclipse.core.runtime;
+					public class Assert {
+					  public static void isLegal(boolean b) {
+					  }
+					}
+					""",
 				"org.lang.core.runtime/Assert.java",
-				"package org.lang.core.runtime;\n" +
-				"public class Assert {\n" +
-				"  public static void isLegal(boolean b) {\n" +
-				"  }\n" +
-				"}\n"};
+				"""
+					package org.lang.core.runtime;
+					public class Assert {
+					  public static void isLegal(boolean b) {
+					  }
+					}
+					"""};
 		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Potential null pointer access: The variable o may be null at this location\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
-			"	o.toString();\n" +
-			"	^\n" +
-			"Potential null pointer access: The variable o may be null at this location\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					o.toString();
+					^
+				Potential null pointer access: The variable o may be null at this location
+				----------
+				2. ERROR in X.java (at line 10)
+					o.toString();
+					^
+				Potential null pointer access: The variable o may be null at this location
+				----------
+				""";
 		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 		runner.runNegativeTest();
 	}
@@ -1035,22 +1091,24 @@ public void testBug382069c() throws IOException {
 			"  }\n" +
 			"}\n"};
 	runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	return o1 != null;\n" +
-			"	       ^^\n" +
-			"Null comparison always yields false: The variable o1 can only be null at this location\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 7)\n" +
-			"	return false; // dead code\n" +
-			"	^^^^^^^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 12)\n" +
-			"	return; // dead code\n" +
-			"	^^^^^^^\n" +
-			"Dead code\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in X.java (at line 5)
+					return o1 != null;
+					       ^^
+				Null comparison always yields false: The variable o1 can only be null at this location
+				----------
+				2. WARNING in X.java (at line 7)
+					return false; // dead code
+					^^^^^^^^^^^^^
+				Dead code
+				----------
+				3. WARNING in X.java (at line 12)
+					return; // dead code
+					^^^^^^^
+				Dead code
+				----------
+				""";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
@@ -1077,12 +1135,14 @@ public void testBug382069d() throws IOException {
 			"  }\n" +
 			"}\n"};
 	runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	x.foo(null, null, null); // definite NPE\n" +
-			"	^\n" +
-			"Null pointer access: The variable x can only be null at this location\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in X.java (at line 11)
+					x.foo(null, null, null); // definite NPE
+					^
+				Null pointer access: The variable x can only be null at this location
+				----------
+				""";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
@@ -1110,12 +1170,14 @@ public void testBug382069e() throws IOException {
 				"  }\n" +
 				"}\n"};
 		runner.expectedCompilerLog =
-				"----------\n" +
-				"1. ERROR in X.java (at line 11)\n" +
-				"	x.foo(null, null, null); // definite NPE\n" +
-				"	^\n" +
-				"Null pointer access: The variable x can only be null at this location\n" +
-				"----------\n";
+				"""
+					----------
+					1. ERROR in X.java (at line 11)
+						x.foo(null, null, null); // definite NPE
+						^
+					Null pointer access: The variable x can only be null at this location
+					----------
+					""";
 		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 		runner.runNegativeTest();
 	}
@@ -1144,12 +1206,14 @@ public void testBug382069f() throws IOException {
 				"  }\n" +
 				"}\n"};
 		runner.expectedCompilerLog =
-				"----------\n" +
-				"1. ERROR in X.java (at line 11)\n" +
-				"	x.foo(null, null, null); // definite NPE\n" +
-				"	^\n" +
-				"Null pointer access: The variable x can only be null at this location\n" +
-				"----------\n";
+				"""
+					----------
+					1. ERROR in X.java (at line 11)
+						x.foo(null, null, null); // definite NPE
+						^
+					Null pointer access: The variable x can only be null at this location
+					----------
+					""";
 		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 		runner.runNegativeTest();
 	}
@@ -1219,12 +1283,14 @@ public void testBug401159() throws IOException {
 			"  }\n" +
 			"}\n"};
 	runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	x.foo(null, null, null); // definite NPE\n" +
-			"	^\n" +
-			"Null pointer access: The variable x can only be null at this location\n" +
-			"----------\n";
+			"""
+				----------
+				1. ERROR in X.java (at line 11)
+					x.foo(null, null, null); // definite NPE
+					^
+				Null pointer access: The variable x can only be null at this location
+				----------
+				""";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 }
 
@@ -1237,24 +1303,26 @@ public void testBug472618() throws IOException {
 			JUNIT_ASSERT_NAME,
 			JUNIT_ASSERT_CONTENT,
 			"AssertionTest.java",
-			"import junit.framework.Assert;\n" +
-			"\n" +
-			"public class AssertionTest extends Assert\n" +
-			"{\n" +
-			"    void test()\n" +
-			"    {\n" +
-			"        Long test = null;\n" +
-			"\n" +
-			"        if(Boolean.TRUE)\n" +
-			"        {\n" +
-			"            test = 0L;\n" +
-			"        }\n" +
-			"\n" +
-			"        assertNotNull(test);\n" +
-			"\n" +
-			"        test.longValue();  // <- potential null pointer access\n" +
-			"    }\n" +
-			"}\n"},
+			"""
+				import junit.framework.Assert;
+				
+				public class AssertionTest extends Assert
+				{
+				    void test()
+				    {
+				        Long test = null;
+				
+				        if(Boolean.TRUE)
+				        {
+				            test = 0L;
+				        }
+				
+				        assertNotNull(test);
+				
+				        test.longValue();  // <- potential null pointer access
+				    }
+				}
+				"""},
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=568542
@@ -1266,18 +1334,20 @@ public void testBug568542a() throws IOException {
 			ORG_JUNIT_JUPITER_API_ASSERTIONS_NAME,
 			ORG_JUNIT_JUPITER_API_ASSERTIONS_CONTENT,
 			"X.java",
-			"import static org.junit.jupiter.api.Assertions.assertNotNull;\n" +
-			"public class X {\n" +
-			"    void test(Long test1, Long test2, Long test3) {\n" +
-			"        boolean b = (test1 != null | test2 != null | test3 != null);\n" +
-			"        assertNotNull(test1);\n" +
-			"        test1.longValue();\n" +
-			"        assertNotNull(test2, \"message\");\n" +
-			"        test2.longValue();\n" +
-			"        assertNotNull(test3, () -> \"message\");\n" +
-			"        test3.longValue();\n" +
-			"    }\n" +
-			"}\n"},
+			"""
+				import static org.junit.jupiter.api.Assertions.assertNotNull;
+				public class X {
+				    void test(Long test1, Long test2, Long test3) {
+				        boolean b = (test1 != null | test2 != null | test3 != null);
+				        assertNotNull(test1);
+				        test1.longValue();
+				        assertNotNull(test2, "message");
+				        test2.longValue();
+				        assertNotNull(test3, () -> "message");
+				        test3.longValue();
+				    }
+				}
+				"""},
 		"");
 }
 // junit 5's assertNull
@@ -1288,34 +1358,38 @@ public void testBug568542b() throws IOException {
 			ORG_JUNIT_JUPITER_API_ASSERTIONS_NAME,
 			ORG_JUNIT_JUPITER_API_ASSERTIONS_CONTENT,
 			"X.java",
-			"import static org.junit.jupiter.api.Assertions.assertNull;\n" +
-			"public class X {\n" +
-			"    void test(Long test1, Long test2, Long test3) {\n" +
-			"        boolean b = (test1 != null | test2 != null | test3 != null);\n" +
-			"        assertNull(test1);\n" +
-			"        test1.longValue();\n" +
-			"        assertNull(test2, \"message\");\n" +
-			"        test2.longValue();\n" +
-			"        assertNull(test3, () -> \"message\");\n" +
-			"        test3.longValue();\n" +
-			"    }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	test1.longValue();\n" +
-		"	^^^^^\n" +
-		"Null pointer access: The variable test1 can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	test2.longValue();\n" +
-		"	^^^^^\n" +
-		"Null pointer access: The variable test2 can only be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 10)\n" +
-		"	test3.longValue();\n" +
-		"	^^^^^\n" +
-		"Null pointer access: The variable test3 can only be null at this location\n" +
-		"----------\n"
+			"""
+				import static org.junit.jupiter.api.Assertions.assertNull;
+				public class X {
+				    void test(Long test1, Long test2, Long test3) {
+				        boolean b = (test1 != null | test2 != null | test3 != null);
+				        assertNull(test1);
+				        test1.longValue();
+				        assertNull(test2, "message");
+				        test2.longValue();
+				        assertNull(test3, () -> "message");
+				        test3.longValue();
+				    }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				test1.longValue();
+				^^^^^
+			Null pointer access: The variable test1 can only be null at this location
+			----------
+			2. ERROR in X.java (at line 8)
+				test2.longValue();
+				^^^^^
+			Null pointer access: The variable test2 can only be null at this location
+			----------
+			3. ERROR in X.java (at line 10)
+				test3.longValue();
+				^^^^^
+			Null pointer access: The variable test3 can only be null at this location
+			----------
+			"""
 	);
 }
 // junit 5's assertTrue
@@ -1326,18 +1400,20 @@ public void testBug568542c() throws IOException {
 			ORG_JUNIT_JUPITER_API_ASSERTIONS_NAME,
 			ORG_JUNIT_JUPITER_API_ASSERTIONS_CONTENT,
 			"X.java",
-			"import static org.junit.jupiter.api.Assertions.assertTrue;\n" +
-			"public class X {\n" +
-			"    void test(Long test1, Long test2, Long test3) {\n" +
-			"        boolean b = (test1 != null | test2 != null | test3 != null);\n" +
-			"        assertTrue(test1 != null);\n" +
-			"        test1.longValue();\n" +
-			"        assertTrue(test2 != null, \"message\");\n" +
-			"        test2.longValue();\n" +
-			"        assertTrue(test3 != null, () -> \"message\");\n" +
-			"        test3.longValue();\n" +
-			"    }\n" +
-			"}\n"},
+			"""
+				import static org.junit.jupiter.api.Assertions.assertTrue;
+				public class X {
+				    void test(Long test1, Long test2, Long test3) {
+				        boolean b = (test1 != null | test2 != null | test3 != null);
+				        assertTrue(test1 != null);
+				        test1.longValue();
+				        assertTrue(test2 != null, "message");
+				        test2.longValue();
+				        assertTrue(test3 != null, () -> "message");
+				        test3.longValue();
+				    }
+				}
+				"""},
 		"");
 }
 // junit 5's assertFalse
@@ -1348,34 +1424,38 @@ public void testBug568542d() throws IOException {
 			ORG_JUNIT_JUPITER_API_ASSERTIONS_NAME,
 			ORG_JUNIT_JUPITER_API_ASSERTIONS_CONTENT,
 			"X.java",
-			"import static org.junit.jupiter.api.Assertions.assertFalse;\n" +
-			"public class X {\n" +
-			"    void test(Long test1, Long test2, Long test3) {\n" +
-			"        boolean b = (test1 != null | test2 != null | test3 != null);\n" +
-			"        assertFalse(test1 != null);\n" +
-			"        test1.longValue();\n" +
-			"        assertFalse(test2 != null, \"message\");\n" +
-			"        test2.longValue();\n" +
-			"        assertFalse(test3 != null, () -> \"message\");\n" +
-			"        test3.longValue();\n" +
-			"    }\n" +
-			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	test1.longValue();\n" +
-		"	^^^^^\n" +
-		"Null pointer access: The variable test1 can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	test2.longValue();\n" +
-		"	^^^^^\n" +
-		"Null pointer access: The variable test2 can only be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 10)\n" +
-		"	test3.longValue();\n" +
-		"	^^^^^\n" +
-		"Null pointer access: The variable test3 can only be null at this location\n" +
-		"----------\n"
+			"""
+				import static org.junit.jupiter.api.Assertions.assertFalse;
+				public class X {
+				    void test(Long test1, Long test2, Long test3) {
+				        boolean b = (test1 != null | test2 != null | test3 != null);
+				        assertFalse(test1 != null);
+				        test1.longValue();
+				        assertFalse(test2 != null, "message");
+				        test2.longValue();
+				        assertFalse(test3 != null, () -> "message");
+				        test3.longValue();
+				    }
+				}
+				"""},
+		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				test1.longValue();
+				^^^^^
+			Null pointer access: The variable test1 can only be null at this location
+			----------
+			2. ERROR in X.java (at line 8)
+				test2.longValue();
+				^^^^^
+			Null pointer access: The variable test2 can only be null at this location
+			----------
+			3. ERROR in X.java (at line 10)
+				test3.longValue();
+				^^^^^
+			Null pointer access: The variable test3 can only be null at this location
+			----------
+			"""
 	);
 }
 }

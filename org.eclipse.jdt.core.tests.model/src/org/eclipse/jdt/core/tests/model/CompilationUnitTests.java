@@ -197,10 +197,11 @@ public void testCommitWorkingCopy() {
 public void testDefaultValue1() throws CoreException {
 	try {
 		String cuSource =
-			"package p;\n" +
-			"public @interface Y {\n" +
-			"  public String member() default \"abc\";\n" +
-			"}";
+			"""
+			package p;
+			public @interface Y {
+			  public String member() default "abc";
+			}""";
 		createFile("/P/src/p/Y.java", cuSource);
 		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
 		assertMemberValuePairEquals(
@@ -217,10 +218,11 @@ public void testDefaultValue1() throws CoreException {
 public void testDefaultValue2() throws CoreException {
 	try {
 		String cuSource =
-			"package p;\n" +
-			"public @interface Y {\n" +
-			"  public int member() default 1;\n" +
-			"}";
+			"""
+			package p;
+			public @interface Y {
+			  public int member() default 1;
+			}""";
 		createFile("/P/src/p/Y.java", cuSource);
 		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
 		assertMemberValuePairEquals(
@@ -237,10 +239,11 @@ public void testDefaultValue2() throws CoreException {
 public void testDefaultValue3() throws CoreException {
 	try {
 		String cuSource =
-			"package p;\n" +
-			"public @interface Y {\n" +
-			"  public int member();\n" +
-			"}";
+			"""
+			package p;
+			public @interface Y {
+			  public int member();
+			}""";
 		createFile("/P/src/p/Y.java", cuSource);
 		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
 		assertMemberValuePairEquals(
@@ -257,10 +260,11 @@ public void testDefaultValue3() throws CoreException {
 public void testDefaultValue4() throws CoreException {
 	try {
 		String cuSource =
-			"package p;\n" +
-			"public class Y {\n" +
-			"  public int member() {}\n" +
-			"}";
+			"""
+			package p;
+			public class Y {
+			  public int member() {}
+			}""";
 		createFile("/P/src/p/Y.java", cuSource);
 		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
 		assertMemberValuePairEquals(
@@ -277,10 +281,11 @@ public void testDefaultValue4() throws CoreException {
 public void testDefaultValue5() throws CoreException {
 	try {
 		String cuSource =
-			"package p;\n" +
-			"public @interface Y {\n" +
-			"  public String member() default \"abc\" + 1;\n" +
-			"}";
+			"""
+			package p;
+			public @interface Y {
+			  public String member() default "abc" + 1;
+			}""";
 		createFile("/P/src/p/Y.java", cuSource);
 		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
 		assertMemberValuePairEquals(
@@ -298,10 +303,11 @@ public void testDefaultValue5() throws CoreException {
 public void testDefaultValue6() throws CoreException {
 	try {
 		String cuSource =
-			"package p;\n" +
-			"public class Y {\n" +
-			"  public Y() {}\n" +
-			"}";
+			"""
+			package p;
+			public class Y {
+			  public Y() {}
+			}""";
 		createFile("/P/src/p/Y.java", cuSource);
 		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("Y", new String[0]);
 		assertMemberValuePairEquals(
@@ -319,10 +325,11 @@ public void testDefaultValue6() throws CoreException {
 public void testDefaultValue7() throws CoreException {
 	try {
 		String cuSource =
-			"package p;\n" +
-			"public @interface Y {\n" +
-			"  public int member() default -1;\n" +
-			"}";
+			"""
+			package p;
+			public @interface Y {
+			  public int member() default -1;
+			}""";
 		createFile("/P/src/p/Y.java", cuSource);
 		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
 		assertMemberValuePairEquals(
@@ -340,10 +347,11 @@ public void testDefaultValue7() throws CoreException {
 public void testDefaultValue8() throws CoreException {
 	try {
 		String cuSource =
-			"package p;\n" +
-			"public @interface Y {\n" +
-			"  public float member() default -1.0f;\n" +
-			"}";
+			"""
+			package p;
+			public @interface Y {
+			  public float member() default -1.0f;
+			}""";
 		createFile("/P/src/p/Y.java", cuSource);
 		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
 		assertMemberValuePairEquals(
@@ -361,10 +369,11 @@ public void testDefaultValue8() throws CoreException {
 public void testDefaultValue9() throws CoreException {
 	try {
 		String cuSource =
-			"package p;\n" +
-			"public @interface Y {\n" +
-			"  public double member() default -1.0;\n" +
-			"}";
+			"""
+			package p;
+			public @interface Y {
+			  public double member() default -1.0;
+			}""";
 		createFile("/P/src/p/Y.java", cuSource);
 		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
 		assertMemberValuePairEquals(
@@ -382,10 +391,11 @@ public void testDefaultValue9() throws CoreException {
 public void testDefaultValue10() throws CoreException {
 	try {
 		String cuSource =
-			"package p;\n" +
-			"public @interface Y {\n" +
-			"  public long member() default -1L;\n" +
-			"}";
+			"""
+			package p;
+			public @interface Y {
+			  public long member() default -1L;
+			}""";
 		createFile("/P/src/p/Y.java", cuSource);
 		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
 		assertMemberValuePairEquals(
@@ -404,13 +414,14 @@ public void testDefaultValue10() throws CoreException {
 public void testDefaultValue11() throws CoreException {
 	try {
 		String cuSource =
-			"package p;\n" +
-			"interface A {\n" +
-			"	static int VAL = 1;\n" +
-			"}\n" +
-			"public @interface Y {\n" +
-			"  public int member() default -A.VAL;\n" +
-			"}";
+			"""
+			package p;
+			interface A {
+				static int VAL = 1;
+			}
+			public @interface Y {
+			  public int member() default -A.VAL;
+			}""";
 		createFile("/P/src/p/Y.java", cuSource);
 		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
 		assertMemberValuePairEquals(
@@ -519,10 +530,12 @@ public void testDeprecatedFlag10() throws CoreException {
 		createFolder("/P/src/java/lang");
 		createFile(
 				"/P/src/java/lang/Deprecated.java",
-				"package java.lang;\n" +
-				"@Retention(RetentionPolicy.RUNTIME)\n" +
-				"public @interface Deprecated {\n" +
-				"}\n"
+				"""
+					package java.lang;
+					@Retention(RetentionPolicy.RUNTIME)
+					public @interface Deprecated {
+					}
+					"""
 			);
 
 		createFile("/P/src/p2/C.java",
@@ -570,10 +583,12 @@ public void testDeprecatedFlag11() throws CoreException {
 		createFolder("/P/src/java/lang");
 		createFile(
 				"/P/src/java/lang/Deprecated.java",
-				"package java.lang;\n" +
-				"@Retention(RetentionPolicy.RUNTIME)\n" +
-				"public @interface Deprecated {\n" +
-				"}\n"
+				"""
+					package java.lang;
+					@Retention(RetentionPolicy.RUNTIME)
+					public @interface Deprecated {
+					}
+					"""
 			);
 
 		createFile("/P/src/p2/C.java",
@@ -639,10 +654,11 @@ public void testFindPrimaryType2() throws JavaModelException {
  */
 public void testAnnotations01() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -655,12 +671,13 @@ public void testAnnotations01() throws CoreException {
  */
 public void testAnnotations02() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  @MyAnnot\n" +
-		"  public void foo() {\n" +
-		"  }\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  @MyAnnot
+			  public void foo() {
+			  }
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getAnnotations();
 	assertAnnotationsEqual(
@@ -673,11 +690,12 @@ public void testAnnotations02() throws CoreException {
  */
 public void testAnnotations03() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  @MyAnnot\n" +
-		"  int field;\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  @MyAnnot
+			  int field;
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getField("field").getAnnotations();
 	assertAnnotationsEqual(
@@ -704,13 +722,14 @@ public void testAnnotations04() throws CoreException {
  */
 public void testAnnotations05() throws JavaModelException {
 	createWorkingCopy(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  void foo() {\n" +
-		"    @MyAnnot\n" +
-		"    int var1 = 2;\n" +
-		"  }\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  void foo() {
+			    @MyAnnot
+			    int var1 = 2;
+			  }
+			}"""
 	);
 	IAnnotation[] annotations = getLocalVariable(this.workingCopy, "var1 = 2;", "var1").getAnnotations();
 	assertAnnotationsEqual(
@@ -723,10 +742,11 @@ public void testAnnotations05() throws JavaModelException {
  */
 public void testAnnotations06() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(intMember=2)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(intMember=2)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -739,10 +759,11 @@ public void testAnnotations06() throws CoreException {
  */
 public void testAnnotations07() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(longMember=123456789L)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(longMember=123456789L)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -755,10 +776,11 @@ public void testAnnotations07() throws CoreException {
  */
 public void testAnnotations08() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(floatMember=1.2f)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(floatMember=1.2f)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -771,10 +793,11 @@ public void testAnnotations08() throws CoreException {
  */
 public void testAnnotations09() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(doubleMember=1.2)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(doubleMember=1.2)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -787,10 +810,11 @@ public void testAnnotations09() throws CoreException {
  */
 public void testAnnotations10() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(charMember='a')\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(charMember='a')
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -803,10 +827,11 @@ public void testAnnotations10() throws CoreException {
  */
 public void testAnnotations11() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(booleanMember=true)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(booleanMember=true)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -819,10 +844,11 @@ public void testAnnotations11() throws CoreException {
  */
 public void testAnnotations12() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(stringMember=\"abc\")\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(stringMember="abc")
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -835,10 +861,11 @@ public void testAnnotations12() throws CoreException {
  */
 public void testAnnotations13() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(annotationMember=@MyOtherAnnot(1))\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(annotationMember=@MyOtherAnnot(1))
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -851,10 +878,11 @@ public void testAnnotations13() throws CoreException {
  */
 public void testAnnotations14() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(classLiteralMember=Object.class)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(classLiteralMember=Object.class)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -867,10 +895,11 @@ public void testAnnotations14() throws CoreException {
  */
 public void testAnnotations15() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(qualifiedMember=MyEnum.FIRST)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(qualifiedMember=MyEnum.FIRST)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -883,10 +912,11 @@ public void testAnnotations15() throws CoreException {
  */
 public void testAnnotations16() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(arrayMember={1, 2, 3})\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(arrayMember={1, 2, 3})
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -899,10 +929,11 @@ public void testAnnotations16() throws CoreException {
  */
 public void testAnnotations17() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(arrayMember={})\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(arrayMember={})
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -915,10 +946,11 @@ public void testAnnotations17() throws CoreException {
  */
 public void testAnnotations18() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@x . y. MyAnnot(x='a', y=false)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@x . y. MyAnnot(x='a', y=false)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -931,10 +963,11 @@ public void testAnnotations18() throws CoreException {
  */
 public void testAnnotations19() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(unknown=1 + 2.3)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(unknown=1 + 2.3)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -947,10 +980,11 @@ public void testAnnotations19() throws CoreException {
  */
 public void testAnnotations20() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(1)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(1)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -963,10 +997,11 @@ public void testAnnotations20() throws CoreException {
  */
 public void testAnnotations21() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(arrayMember={1, 2.3, 1 + 3.4, 'a'})\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(arrayMember={1, 2.3, 1 + 3.4, 'a'})
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -979,10 +1014,11 @@ public void testAnnotations21() throws CoreException {
  */
 public void testAnnotations22() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(name=)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(name=)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -996,10 +1032,11 @@ public void testAnnotations22() throws CoreException {
  */
 public void testAnnotations23() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(arrayMember={1, \"abc\"})\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(arrayMember={1, "abc"})
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -1013,11 +1050,12 @@ public void testAnnotations23() throws CoreException {
  */
 public void testAnnotations24() throws JavaModelException {
 	createWorkingCopy(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  void foo(@MyAnnot int arg1) {\n" +
-		"  }\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  void foo(@MyAnnot int arg1) {
+			  }
+			}"""
 	);
 	IAnnotation[] annotations = getLocalVariable(this.workingCopy, "arg1", "arg1").getAnnotations();
 	assertAnnotationsEqual(
@@ -1030,11 +1068,12 @@ public void testAnnotations24() throws JavaModelException {
  */
 public void testAnnotations25() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"import static MyEnum.FIRST;\n" +
-		"@MyAnnot(simpleMember=FIRST)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			import static MyEnum.FIRST;
+			@MyAnnot(simpleMember=FIRST)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -1048,10 +1087,11 @@ public void testAnnotations25() throws CoreException {
  */
 public void testAnnotations26() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(value={null})\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(value={null})
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -1064,10 +1104,11 @@ public void testAnnotations26() throws CoreException {
  */
 public void testAnnotations27() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"@MyAnnot(name=)\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			@MyAnnot(name=)
+			public class Y {
+			}"""
 	);
 	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
 	assertAnnotationsEqual(
@@ -1143,12 +1184,13 @@ public void testGetFullyQualifiedName8() {
  */
 public void testGetCategories01() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"/**\n" +
-		" * @category test\n" +
-		" */\n" +
-		"public class Y {\n" +
-		"}"
+		"""
+			package p;
+			/**
+			 * @category test
+			 */
+			public class Y {
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getCategories();
 	assertStringsEqual(
@@ -1162,12 +1204,13 @@ public void testGetCategories01() throws CoreException {
  */
 public void testGetCategories02() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"/**\n" +
-		" * @category test\n" +
-		" */\n" +
-		"public interface Y {\n" +
-		"}"
+		"""
+			package p;
+			/**
+			 * @category test
+			 */
+			public interface Y {
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getCategories();
 	assertStringsEqual(
@@ -1181,12 +1224,13 @@ public void testGetCategories02() throws CoreException {
  */
 public void testGetCategories03() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"/**\n" +
-		" * @category test\n" +
-		" */\n" +
-		"public enum Y {\n" +
-		"}"
+		"""
+			package p;
+			/**
+			 * @category test
+			 */
+			public enum Y {
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getCategories();
 	assertStringsEqual(
@@ -1200,12 +1244,13 @@ public void testGetCategories03() throws CoreException {
  */
 public void testGetCategories04() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"/**\n" +
-		" * @category test\n" +
-		" */\n" +
-		"public @interface Y {\n" +
-		"}"
+		"""
+			package p;
+			/**
+			 * @category test
+			 */
+			public @interface Y {
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getCategories();
 	assertStringsEqual(
@@ -1219,13 +1264,14 @@ public void testGetCategories04() throws CoreException {
  */
 public void testGetCategories05() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category test\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category test
+			   */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -1239,13 +1285,14 @@ public void testGetCategories05() throws CoreException {
  */
 public void testGetCategories06() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category test\n" +
-		"   */\n" +
-		"  public Y() {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category test
+			   */
+			  public Y() {}
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getMethod("Y", new String[0]).getCategories();
 	assertStringsEqual(
@@ -1259,13 +1306,14 @@ public void testGetCategories06() throws CoreException {
  */
 public void testGetCategories07() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category test\n" +
-		"   */\n" +
-		"  int field;\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category test
+			   */
+			  int field;
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getField("field").getCategories();
 	assertStringsEqual(
@@ -1279,13 +1327,14 @@ public void testGetCategories07() throws CoreException {
  */
 public void testGetCategories08() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category test\n" +
-		"   */\n" +
-		"  class Member {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category test
+			   */
+			  class Member {}
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getType("Member").getCategories();
 	assertStringsEqual(
@@ -1299,12 +1348,13 @@ public void testGetCategories08() throws CoreException {
  */
 public void testGetCategories09() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"  */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			  */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -1318,14 +1368,15 @@ public void testGetCategories09() throws CoreException {
  */
 public void testGetCategories10() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category test1\n" +
-		"   * @category test2\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category test1
+			   * @category test2
+			   */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -1340,13 +1391,14 @@ public void testGetCategories10() throws CoreException {
  */
 public void testGetCategories11() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category test1 test2\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category test1 test2
+			   */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -1357,13 +1409,14 @@ public void testGetCategories11() throws CoreException {
 }
 public void testGetCategories12() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category test1 test2\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category test1 test2
+			   */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -1375,14 +1428,15 @@ public void testGetCategories12() throws CoreException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=125676
 public void testGetCategories13() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category " +
-		"	 *		test\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category \
+				 *		test
+			   */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -1392,14 +1446,15 @@ public void testGetCategories13() throws CoreException {
 }
 public void testGetCategories14() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category" +
-		"	 *		test\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category\
+				 *		test
+			   */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -1409,14 +1464,15 @@ public void testGetCategories14() throws CoreException {
 }
 public void testGetCategories15() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category test1" +
-		"	 *		test2\n" +
-		"   */\n" +
-		"  void foo() {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category test1\
+				 *		test2
+			   */
+			  void foo() {}
+			}"""
 	);
 	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
@@ -1430,32 +1486,34 @@ public void testGetCategories15() throws CoreException {
  */
 public void testGetChildrenForCategory01() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category test\n" +
-		"   */\n" +
-		"  int field;\n" +
-		"  /**\n" +
-		"   * @category test\n" +
-		"   */\n" +
-		"  void foo1() {}\n" +
-		"  /**\n" +
-		"   * @category test\n" +
-		"   */\n" +
-		"  void foo2() {}\n" +
-		"  /**\n" +
-		"   * @category other\n" +
-		"   */\n" +
-		"  void foo3() {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category test
+			   */
+			  int field;
+			  /**
+			   * @category test
+			   */
+			  void foo1() {}
+			  /**
+			   * @category test
+			   */
+			  void foo2() {}
+			  /**
+			   * @category other
+			   */
+			  void foo3() {}
+			}"""
 	);
 	IJavaElement[] children = this.workingCopy.getType("Y").getChildrenForCategory("test");
 	assertElementsEqual(
 		"Unexpected children",
-		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
-		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
-		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
+		"""
+			field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]
+			foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]
+			foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]""",
 		children);
 }
 
@@ -1464,21 +1522,22 @@ public void testGetChildrenForCategory01() throws CoreException {
  */
 public void testGetChildrenForCategory02() throws CoreException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category test1 test2\n" +
-		"   */\n" +
-		"  class Member {}\n" +
-		"  /**\n" +
-		"   * @category test1\n" +
-		"   */\n" +
-		"  void foo1() {}\n" +
-		"  /**\n" +
-		"   * @category test2\n" +
-		"   */\n" +
-		"  void foo2() {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category test1 test2
+			   */
+			  class Member {}
+			  /**
+			   * @category test1
+			   */
+			  void foo1() {}
+			  /**
+			   * @category test2
+			   */
+			  void foo2() {}
+			}"""
 	);
 	IJavaElement[] children = this.workingCopy.getType("Y").getChildrenForCategory("test1");
 	assertElementsEqual(
@@ -1489,39 +1548,42 @@ public void testGetChildrenForCategory02() throws CoreException {
 }
 public void testGetChildrenForCategory03() throws CoreException, IOException {
 	createWorkingCopyComputingProblems(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  /**\n" +
-		"   * @category fields test all\n" +
-		"   */\n" +
-		"  int field;\n" +
-		"  /**\n" +
-		"   * @category methods test all\n" +
-		"   */\n" +
-		"  void foo1() {}\n" +
-		"  /**\n" +
-		"   * @category methods test all\n" +
-		"   */\n" +
-		"  void foo2() {}\n" +
-		"  /**\n" +
-		"   * @category methods other all\n" +
-		"   */\n" +
-		"  void foo3() {}\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  /**
+			   * @category fields test all
+			   */
+			  int field;
+			  /**
+			   * @category methods test all
+			   */
+			  void foo1() {}
+			  /**
+			   * @category methods test all
+			   */
+			  void foo2() {}
+			  /**
+			   * @category methods other all
+			   */
+			  void foo3() {}
+			}"""
 	);
 	IJavaElement[] tests  = this.workingCopy.getType("Y").getChildrenForCategory("test");
 	assertElementsEqual(
 		"Unexpected children",
-		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
-		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
-		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
+		"""
+			field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]
+			foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]
+			foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]""",
 		tests);
 	IJavaElement[] methods = this.workingCopy.getType("Y").getChildrenForCategory("methods");
 	assertElementsEqual(
 		"Unexpected children",
-		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
-		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
-		"foo3() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
+		"""
+			foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]
+			foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]
+			foo3() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]""",
 		methods);
 	IJavaElement[] others = this.workingCopy.getType("Y").getChildrenForCategory("other");
 	assertElementsEqual(
@@ -1531,10 +1593,11 @@ public void testGetChildrenForCategory03() throws CoreException, IOException {
 	IJavaElement[] all = this.workingCopy.getType("Y").getChildrenForCategory("all");
 	assertElementsEqual(
 		"Unexpected children",
-		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
-		"foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
-		"foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" +
-		"foo3() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]",
+		"""
+			field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]
+			foo1() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]
+			foo2() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]
+			foo3() [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]""",
 		all);
 }
 
@@ -2163,9 +2226,10 @@ public void testSuperFlag2() throws JavaModelException {
 public void testBug73884() throws CoreException {
 	try {
 		String cuSource =
-			"package p;\n" +
-			"public interface I<T> {\n" +
-			"}";
+			"""
+			package p;
+			public interface I<T> {
+			}""";
 		createFile("/P/src/p/I.java", cuSource);
 		ITypeParameter[] typeParameters = getCompilationUnit("/P/src/p/I.java").getType("I").getTypeParameters();
 		assertTypeParametersEqual(
@@ -2181,9 +2245,10 @@ public void testBug73884() throws CoreException {
  */
 public void testTypeParameter1() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"public class Y<T> {\n" +
-		"}"
+		"""
+			package p;
+			public class Y<T> {
+			}"""
 	);
 	ITypeParameter[] typeParameters = this.workingCopy.getType("Y").getTypeParameters();
 	assertTypeParametersEqual(
@@ -2196,9 +2261,10 @@ public void testTypeParameter1() throws CoreException {
  */
 public void testTypeParameter2() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"public class Y<T, U> {\n" +
-		"}"
+		"""
+			package p;
+			public class Y<T, U> {
+			}"""
 	);
 	ITypeParameter[] typeParameters = this.workingCopy.getType("Y").getTypeParameters();
 	assertTypeParametersEqual(
@@ -2212,9 +2278,10 @@ public void testTypeParameter2() throws CoreException {
  */
 public void testTypeParameter3() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"public class Y<T extends List> {\n" +
-		"}"
+		"""
+			package p;
+			public class Y<T extends List> {
+			}"""
 	);
 	ITypeParameter[] typeParameters = this.workingCopy.getType("Y").getTypeParameters();
 	assertTypeParametersEqual(
@@ -2227,9 +2294,10 @@ public void testTypeParameter3() throws CoreException {
  */
 public void testTypeParameter4() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"public class Y<T extends List & Runnable & Comparable> {\n" +
-		"}"
+		"""
+			package p;
+			public class Y<T extends List & Runnable & Comparable> {
+			}"""
 	);
 	ITypeParameter[] typeParameters = this.workingCopy.getType("Y").getTypeParameters();
 	assertTypeParametersEqual(
@@ -2243,11 +2311,12 @@ public void testTypeParameter4() throws CoreException {
  */
 public void testTypeParameter5() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"public class Y {\n" +
-		"  <T extends List, U extends X & Runnable> void foo() {\n" +
-		"  }\n" +
-		"}"
+		"""
+			package p;
+			public class Y {
+			  <T extends List, U extends X & Runnable> void foo() {
+			  }
+			}"""
 	);
 	ITypeParameter[] typeParameters = this.workingCopy.getType("Y").getMethod("foo", new String[]{}).getTypeParameters();
 	assertTypeParametersEqual(
@@ -2263,12 +2332,14 @@ public void testTypeParameter5() throws CoreException {
 public void testBug78275() throws CoreException {
 	try {
 		String cuSource =
-			"public class X {\n" +
-			"	void a() {\n" +
-			"	     }\n" +
-			"	}\n" +
-			"	void m() {}\n" +
-			"}\n";
+			"""
+			public class X {
+				void a() {
+				     }
+				}
+				void m() {}
+			}
+			""";
 		createFile("/P/src/X.java", cuSource);
 		IType type = getCompilationUnit("/P/src/X.java").getType("X");
 		IInitializer[] initializers = type.getInitializers();
@@ -2281,64 +2352,65 @@ public void testBug78275() throws CoreException {
 public void test110172() throws CoreException {
 	try {
 		String source =
-			"/**\n" +
-			" * Class X javadoc \n" +
-			" */\n" +
-			"public class X {\n" +
-			"	/**\n" +
-			"	 * Javadoc for initializer\n" +
-			"	 */\n" +
-			"	static {\n" +
-			"	}\n" +
-			"	\n" +
-			"	 /**\n" +
-			"	  * Javadoc for field f \n" +
-			"	  */\n" +
-			"	public int f;\n" +
-			"	\n" +
-			"	/**\n" +
-			"	 * Javadoc for method foo\n" +
-			"	 */\n" +
-			"	public void foo(int i, long l, String s) {\n" +
-			"	}\n" +
-			"	\n" +
-			"	/**\n" +
-			"	 * Javadoc for member type A\n" +
-			"	 */\n" +
-			"	public class A {\n" +
-			"	}\n" +
-			"\n" +
-			"	/**\n" +
-			"	 * Javadoc for constructor X(int)\n" +
-			"	 */\n" +
-			"	X(int i) {\n" +
-			"	}\n" +
-			"	\n" +
-			"	/**\n" +
-			"	 * Javadoc for f3\n" +
-			"	 */\n" +
-			"	/*\n" +
-			"	 * Not a javadoc comment\n" +
-			"	 */\n" +
-			"	/**\n" +
-			"	 * Real javadoc for f3\n" +
-			"	 */\n" +
-			"	public String f3;\n" +
-			"	\n" +
-			"	public int f2;\n" +
-			"	\n" +
-			"	public void foo2() {\n" +
-			"	}\n" +
-			"	\n" +
-			"	public class B {\n" +
-			"	}\n" +
-			"\n" +
-			"	X() {\n" +
-			"	}\n" +
-			"	\n" +
-			"	{\n" +
-			"	}\n" +
-			"}";
+			"""
+			/**
+			 * Class X javadoc\s
+			 */
+			public class X {
+				/**
+				 * Javadoc for initializer
+				 */
+				static {
+				}
+			\t
+				 /**
+				  * Javadoc for field f\s
+				  */
+				public int f;
+			\t
+				/**
+				 * Javadoc for method foo
+				 */
+				public void foo(int i, long l, String s) {
+				}
+			\t
+				/**
+				 * Javadoc for member type A
+				 */
+				public class A {
+				}
+			
+				/**
+				 * Javadoc for constructor X(int)
+				 */
+				X(int i) {
+				}
+			\t
+				/**
+				 * Javadoc for f3
+				 */
+				/*
+				 * Not a javadoc comment
+				 */
+				/**
+				 * Real javadoc for f3
+				 */
+				public String f3;
+			\t
+				public int f2;
+			\t
+				public void foo2() {
+				}
+			\t
+				public class B {
+				}
+			
+				X() {
+				}
+			\t
+				{
+				}
+			}""";
 		createFile("/P/src/X.java", source);
 		IType type = getCompilationUnit("/P/src/X.java").getType("X");
 		IJavaElement[] members = type.getChildren();
@@ -2414,11 +2486,12 @@ public void test110172() throws CoreException {
 public void test120902() throws CoreException {
 	try {
 		String source =
-			"/**\r\n" +
-			" * Toy\r\n" +
-			" */\r\n" +
-			"public class X {\r\n" +
-			"}";
+			"""
+			/**\r
+			 * Toy\r
+			 */\r
+			public class X {\r
+			}""";
 		createFile("/P/src/X.java", source);
 		final ICompilationUnit compilationUnit = getCompilationUnit("/P/src/X.java");
 		IType type = compilationUnit.getType("X");
@@ -2439,21 +2512,22 @@ public void test120902() throws CoreException {
 public void test543266() throws CoreException {
 	try {
 		String source =
-				"/**\r\n" +
-				"	 * enum A\r\n" +
-				"	 */\r\n" +
-				"	public /** V1 */ enum  /** V2 */ A  /** V3 */ {\r\n" +
-				"		/** A */\r\n" +
-				"		a /**/, /**/ //\r\n" +
-				"		/** B */\r\n" +
-				"		b,\r\n" +
-				"		/** C */\r\n" +
-				"		/*\r\n" +
-				"		 * \r\n" +
-				"		 */\r\n" +
-				"		/** Real C */\r\n" +
-				"		c\r\n" +
-				"	}";
+				"""
+			/**\r
+				 * enum A\r
+				 */\r
+				public /** V1 */ enum  /** V2 */ A  /** V3 */ {\r
+					/** A */\r
+					a /**/, /**/ //\r
+					/** B */\r
+					b,\r
+					/** C */\r
+					/*\r
+					 * \r
+					 */\r
+					/** Real C */\r
+					c\r
+				}""";
 		createFile("/P/src/X.java", source);
 		final ICompilationUnit compilationUnit = getCompilationUnit("/P/src/X.java");
 
@@ -2536,11 +2610,13 @@ public void testApplyEdit2() throws CoreException {
 		UndoEdit undoEdit= compilationUnit.applyTextEdit(edit, null);
 
 		String newSource =
-			"import java.util.ArrayList;\n" +
-			"import java.util.Vector;\n" +
-			"\n" +
-			"public class X {\n" +
-			"}\n";
+			"""
+			import java.util.ArrayList;
+			import java.util.Vector;
+			
+			public class X {
+			}
+			""";
 
 		assertEquals(newSource, compilationUnit.getSource());
 
@@ -2574,9 +2650,10 @@ public void testApplyEdit3() throws CoreException {
 	this.workingCopy.createType("class Y {}", null, false, null);
 	assertSourceEquals(
 		"Unexpeted source",
-		"public class X {}\n" +
-		"\n" +
-		"class Y {}",
+		"""
+			public class X {}
+			
+			class Y {}""",
 		this.workingCopy.getSource());
 }
 
@@ -2586,43 +2663,47 @@ public void testApplyEdit3() throws CoreException {
  */
 public void testBug248312() throws CoreException{
 	createWorkingCopy(
-			"package p;\n" +
-			"interface A {\n" +
-			"	static int VAL = 2;\n" +
-			"}\n" +
-			"public @interface Y {\n" +
-			"  public int member_int() default -1;\n" +
-			"  public int member_int2() default -1;\n" +
-			"  public float member_float() default -1.0f\n" +
-			"  public double member_double=-1.0\n" +
-			"  public long member_long=-1L\n" +
-			"}\n" +
-			"public class Test{\n" +
-			"	void testMethod(){\n" +
-			"		@Y(member_int=-2) @Y(member_float=-2.0f)\n" +
-			"		@Y(member_double=-2.0) @Y(member_long=-2L)\n" +
-			"		@Y(member_int2=-A.VAL)\n" +
-			"		Object testField1\n" +
-			"	}\n" +
-			"}"
+			"""
+				package p;
+				interface A {
+					static int VAL = 2;
+				}
+				public @interface Y {
+				  public int member_int() default -1;
+				  public int member_int2() default -1;
+				  public float member_float() default -1.0f
+				  public double member_double=-1.0
+				  public long member_long=-1L
+				}
+				public class Test{
+					void testMethod(){
+						@Y(member_int=-2) @Y(member_float=-2.0f)
+						@Y(member_double=-2.0) @Y(member_long=-2L)
+						@Y(member_int2=-A.VAL)
+						Object testField1
+					}
+				}"""
 			);
 	ILocalVariable variable1 = selectLocalVariable(this.workingCopy, "testField1");
 	IAnnotation[] annotations = variable1.getAnnotations();
 	assertAnnotationsEqual(
-	"@Y(member_int=(int)-2)\n" +
-	"@Y(member_float=-2.0f)\n" +
-	"@Y(member_double=(double)-2.0)\n" +
-	"@Y(member_long=-2L)\n" +
-	"@Y(member_int2=<null>)\n",
+	"""
+		@Y(member_int=(int)-2)
+		@Y(member_float=-2.0f)
+		@Y(member_double=(double)-2.0)
+		@Y(member_long=-2L)
+		@Y(member_int2=<null>)
+		""",
 	annotations);
 }
 
 public void testBug246594() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"public class Z<T extends Object & I<? super T>> {\n" +
-		"}\n" +
-		"public interface I<T> {}"
+		"""
+			package p;
+			public class Z<T extends Object & I<? super T>> {
+			}
+			public interface I<T> {}"""
 	);
 	IType type = this.workingCopy.getType("Z");
 	ITypeParameter[] typeParameters = type.getTypeParameters();
@@ -2634,12 +2715,13 @@ public void testBug246594() throws CoreException {
 }
 public void testBug246594a() throws CoreException {
 	createWorkingCopy(
-		"package p;\n" +
-		"interface Collection<E> {\n" +
-		"public <T> boolean containsAll(Collection<T> c);\n" +
-		"public <T extends E & I<? super String>> boolean addAll(Collection<T> c);\n" +
-		"}" +
-		"public interface I<T> {}");
+		"""
+			package p;
+			interface Collection<E> {
+			public <T> boolean containsAll(Collection<T> c);
+			public <T extends E & I<? super String>> boolean addAll(Collection<T> c);
+			}\
+			public interface I<T> {}""");
 	IMethod[] methods = this.workingCopy.getType("Collection").getMethods();//<T:TE;>
 	ITypeParameter[] typeParameters = methods[1].getTypeParameters();
 	assertStringsEqual("Type parameter bounds signatures",
@@ -2685,18 +2767,18 @@ public void testBug526615() throws CoreException {
 				"package test1;\n" +
 				"public abstract class B {}");
 
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("/**\n");
-		buf.append(" * Lore ipsum dolor sit amet, consectetur adipisici elit,\n");
-		buf.append(" * sed eiusmod tempor incidunt ut labore et dolore magna aliqua.\n");
-		buf.append(" */\n");
-		buf.append("@SuppressWarnings({\"rawtypes\", \"unchecked\"})\n");
-		buf.append("public class A {\n");
-		buf.append("    B run= new B(\n");
-		buf.append("    static class C {}\n");
-		buf.append("}\n");
-		String contents= buf.toString();
+		String contents= """
+			package test1;
+			/**
+			 * Lore ipsum dolor sit amet, consectetur adipisici elit,
+			 * sed eiusmod tempor incidunt ut labore et dolore magna aliqua.
+			 */
+			@SuppressWarnings({"rawtypes", "unchecked"})
+			public class A {
+			    B run= new B(
+			    static class C {}
+			}
+			""";
 		createFile("/P/src/test1/A.java", contents);
 
 		ICompilationUnit cuA= getCompilationUnit("/P/src/test1/A.java");
@@ -2714,13 +2796,15 @@ public void testBug559618_1() throws CoreException {
 					"public class C{};\n");
 
 			createFile("/P/src/p/D.java",
-					"package p;\n" +
-					"import p.C;\n" +
-					"public class D {\n" +
-					"  C getC() {\n" +
-					"    return null;\n" +
-					"  }\n" +
-					"}\n");
+					"""
+						package p;
+						import p.C;
+						public class D {
+						  C getC() {
+						    return null;
+						  }
+						}
+						""");
 			ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
 
 			ASTParser parser = ASTParser.newParser(AST_INTERNAL_LATEST);
@@ -2743,13 +2827,15 @@ public void testBug559618_2() throws CoreException { // Same as testBug559618_1,
 					"public class C{};\n");
 
 			createFile("/P/src/p/D.java",
-					"package p;\n" +
-					"import p.*;\n" +
-					"public class D {\n" +
-					"  C getC() {\n" +
-					"    return null;\n" +
-					"  }\n" +
-					"}\n");
+					"""
+						package p;
+						import p.*;
+						public class D {
+						  C getC() {
+						    return null;
+						  }
+						}
+						""");
 			ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
 
 			ASTParser parser = ASTParser.newParser(AST_INTERNAL_LATEST);
@@ -2768,19 +2854,23 @@ public void testBug559618_2() throws CoreException { // Same as testBug559618_1,
 public void testBug559618_3() throws CoreException { // Nested class imports must not be flagged as unused.
 	try {
 		createFile("/P/src/p/C.java",
-				"package p;\n" +
-				"public class C{\n" +
-				"  public class C1{};\n" +
-				"};\n");
+				"""
+					package p;
+					public class C{
+					  public class C1{};
+					};
+					""");
 
 		createFile("/P/src/p/D.java",
-				"package p;\n" +
-				"import p.C.C1;\n" +
-				"public class D {\n" +
-				"  C1 getC1() {\n" +
-				"    return null;\n" +
-				"  }\n" +
-				"}\n");
+				"""
+					package p;
+					import p.C.C1;
+					public class D {
+					  C1 getC1() {
+					    return null;
+					  }
+					}
+					""");
 		ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
 
 		ASTParser parser = ASTParser.newParser(AST_INTERNAL_LATEST);
@@ -2802,9 +2892,11 @@ public void testBug560630() throws CoreException {
                   "public class C{};\n");
 
           createFile("/P/src/p/D.java",
-                  "package p;\n" +
-                  "import p.C;\n" +
-                  "public class D extends C {}\n");
+                  """
+					package p;
+					import p.C;
+					public class D extends C {}
+					""");
           ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
 
           ASTParser parser = ASTParser.newParser(AST_INTERNAL_LATEST);

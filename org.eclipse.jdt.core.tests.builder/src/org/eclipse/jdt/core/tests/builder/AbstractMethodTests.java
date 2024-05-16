@@ -84,19 +84,23 @@ public class AbstractMethodTests extends BuilderTests {
 		IPath root1 = env.addPackageFragmentRoot(project1Path, "src"); //$NON-NLS-1$
 
 		env.addClass(root1, "p1", "IX", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"public interface IX {\n" + //$NON-NLS-1$
-			"   public abstract void foo(IX x);\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public interface IX {
+			   public abstract void foo(IX x);
+			}
+			""" //$NON-NLS-1$
+					);
 
 		IPath classX = env.addClass(root1, "p2", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n" + //$NON-NLS-1$
-			"import p1.*;\n" + //$NON-NLS-1$
-			"public abstract class X implements IX {\n" + //$NON-NLS-1$
-			"   public void foo(IX x){}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public abstract class X implements IX {
+			   public void foo(IX x){}
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project2
@@ -112,11 +116,13 @@ public class AbstractMethodTests extends BuilderTests {
 		env.setOutputFolder(project2Path, "bin"); //$NON-NLS-1$
 
 		IPath classY =env.addClass(root2, "p3", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p3;\n" + //$NON-NLS-1$
-			"import p2.*;\n" + //$NON-NLS-1$
-			"public class Y extends X{\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p3;
+			import p2.*;
+			public class Y extends X{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		fullBuild();
 		expectingNoProblems();
@@ -125,12 +131,14 @@ public class AbstractMethodTests extends BuilderTests {
 		//           Step 2
 		//----------------------------
 		env.addClass(root1, "p2", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n" + //$NON-NLS-1$
-			"import p1.*;\n" + //$NON-NLS-1$
-			"public abstract class X implements IX {\n" + //$NON-NLS-1$
-			"   public void foo(I__X x){}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public abstract class X implements IX {
+			   public void foo(I__X x){}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild();
 		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved to a type", classX, 84, 88, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -140,12 +148,14 @@ public class AbstractMethodTests extends BuilderTests {
 		//           Step 3
 		//----------------------------
 		env.addClass(root1, "p2", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n" + //$NON-NLS-1$
-			"import p1.*;\n" + //$NON-NLS-1$
-			"public abstract class X implements IX {\n" + //$NON-NLS-1$
-			"   public void foo(IX x){}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public abstract class X implements IX {
+			   public void foo(IX x){}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild();
 		expectingNoProblems();
@@ -171,19 +181,23 @@ public class AbstractMethodTests extends BuilderTests {
 		IPath root1 = env.addPackageFragmentRoot(project1Path, "src"); //$NON-NLS-1$
 
 		env.addClass(root1, "p1", "IX", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"public interface IX {\n" + //$NON-NLS-1$
-			"   public abstract void foo(IX x);\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public interface IX {
+			   public abstract void foo(IX x);
+			}
+			""" //$NON-NLS-1$
+					);
 
 		IPath classX = env.addClass(root1, "p2", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n" + //$NON-NLS-1$
-			"import p1.*;\n" + //$NON-NLS-1$
-			"public abstract class X implements IX {\n" + //$NON-NLS-1$
-			"   public void foo(IX x){}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public abstract class X implements IX {
+			   public void foo(IX x){}
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project2
@@ -199,11 +213,13 @@ public class AbstractMethodTests extends BuilderTests {
 		env.setOutputFolder(project2Path, "bin"); //$NON-NLS-1$
 
 		IPath classY =env.addClass(root2, "p3", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p3;\n" + //$NON-NLS-1$
-			"import p2.*;\n" + //$NON-NLS-1$
-			"public class Y extends X{\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p3;
+			import p2.*;
+			public class Y extends X{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		fullBuild();
 		expectingNoProblems();
@@ -212,12 +228,14 @@ public class AbstractMethodTests extends BuilderTests {
 		//           Step 2
 		//----------------------------
 		env.addClass(root1, "p2", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n" + //$NON-NLS-1$
-			"import p1.*;\n" + //$NON-NLS-1$
-			"public abstract class X implements IX {\n" + //$NON-NLS-1$
-			"   public void foo(I__X x){}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public abstract class X implements IX {
+			   public void foo(I__X x){}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild();
 		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved to a type", classX, 84, 88, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -227,12 +245,14 @@ public class AbstractMethodTests extends BuilderTests {
 		//           Step 3
 		//----------------------------
 		env.addClass(root1, "p2", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n" + //$NON-NLS-1$
-			"import p1.*;\n" + //$NON-NLS-1$
-			"public abstract class X implements IX {\n" + //$NON-NLS-1$
-			"   public void foo(IX x){}\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public abstract class X implements IX {
+			   public void foo(IX x){}
+			}
+			""" //$NON-NLS-1$
+					);
 
 		incrementalBuild();
 		expectingNoProblems();
@@ -258,18 +278,22 @@ public class AbstractMethodTests extends BuilderTests {
 		IPath root1 = env.addPackageFragmentRoot(project1Path, "src"); //$NON-NLS-1$
 
 		env.addClass(root1, "p1", "IX", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"public interface IX {\n" + //$NON-NLS-1$
-			"   public abstract void foo(IX x);\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public interface IX {
+			   public abstract void foo(IX x);
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root1, "p2", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n" + //$NON-NLS-1$
-			"import p1.*;\n" + //$NON-NLS-1$
-			"public abstract class X implements IX {\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.*;
+			public abstract class X implements IX {
+			}
+			""" //$NON-NLS-1$
+					);
 
 		fullBuild();
 		expectingNoProblems();

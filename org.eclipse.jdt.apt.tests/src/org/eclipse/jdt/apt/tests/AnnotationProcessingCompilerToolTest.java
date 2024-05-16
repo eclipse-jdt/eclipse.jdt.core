@@ -65,14 +65,19 @@ public class AnnotationProcessingCompilerToolTest extends AbstractBatchCompilerT
 			true /* shouldCompileOK */,
 			new String [] { /* sourceFiles */
 				"X.java",
-				"package p1;\n"
-				+ "\n import org.eclipse.jdt.apt.tests.external.annotations.batch.*;"
-				+ "\n import p1.gen.*;"
-				+ "\n@BatchGen\n"
-				+ "public class X {"
-				+ "   Class0 clazz0;\n"
-				+ "   Class1 clazz1;\n"
-				+ "}\n",
+				"""
+					package p1;
+					
+					 import org.eclipse.jdt.apt.tests.external.annotations.batch.*;\
+					
+					 import p1.gen.*;\
+					
+					@BatchGen
+					public class X {\
+					   Class0 clazz0;
+					   Class1 clazz1;
+					}
+					""",
 			},
 			null /* standardJavaFileManager */,
 			Arrays.asList(

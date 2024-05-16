@@ -40,12 +40,18 @@ public class ListenerTests extends APTTestBase
 		IPath srcRoot = getSourcePath();
 
 		String code =
-				"package test;" + "\n" +
-				"import org.eclipse.jdt.apt.tests.annotations.listener.ListenerAnnotation;" + "\n" +
-				"@ListenerAnnotation" + "\n" +
-				"public class Test" + "\n" +
-				"{" + "\n" +
-				"}";
+				"""
+			package test;\
+			
+			import org.eclipse.jdt.apt.tests.annotations.listener.ListenerAnnotation;\
+			
+			@ListenerAnnotation\
+			
+			public class Test\
+			
+			{\
+			
+			}""";
 
 		env.addClass(srcRoot, "test", "Test", code);
 

@@ -43,10 +43,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		env.addClass(src1, "p1", "P1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class P1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class P1Class {
+					}
+					"""
 				);
 		env.addClass(src1, "p1", "Production1",
 				"package p1;\n" +
@@ -60,10 +62,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				""
 				);
 		env.addClass(tests1, "p1", "T1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class T1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class T1Class {
+					}
+					"""
 				);
 		env.addClass(tests1, "p1", "Test1",
 				"package p1;\n" +
@@ -84,10 +88,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path);
 		env.addClass(src2, "p2", "P2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class P2Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class P2Class {
+					}
+					"""
 				);
 		env.addClass(src2, "p2", "Production2",
 				"package p2;\n" +
@@ -106,10 +112,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				""
 				);
 		env.addClass(tests2, "p2", "T2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class T2Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class T2Class {
+					}
+					"""
 				);
 		env.addClass(tests2, "p2", "Test2",
 				"package p2;\n" +
@@ -129,10 +137,11 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				);
 
 		fullBuild();
-		expectingProblemsFor(env.getWorkspaceRootPath(), "Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]\n" +
-				"Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <144,151> category : <40> severity : <2>]\n" +
-				"Problem : T2Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <174,181> category : <40> severity : <2>]\n" +
-				"Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,49> category : <30> severity : <2>]");
+		expectingProblemsFor(env.getWorkspaceRootPath(), """
+			Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]
+			Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <144,151> category : <40> severity : <2>]
+			Problem : T2Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <174,181> category : <40> severity : <2>]
+			Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,49> category : <30> severity : <2>]""");
 	}
 	public void testWithProjectAsTestDependency() throws JavaModelException {
 		IPath project1Path = env.addProject("Project1");
@@ -142,10 +151,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		env.addClass(src1, "p1", "P1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class P1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class P1Class {
+					}
+					"""
 				);
 		env.addClass(src1, "p1", "Production1",
 				"package p1;\n" +
@@ -159,10 +170,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				""
 				);
 		env.addClass(tests1, "p1", "T1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class T1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class T1Class {
+					}
+					"""
 				);
 		env.addClass(tests1, "p1", "Test1",
 				"package p1;\n" +
@@ -183,10 +196,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredTestProject(project2Path, project1Path);
 		env.addClass(src2, "p2", "P2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class P2Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class P2Class {
+					}
+					"""
 				);
 		env.addClass(src2, "p2", "Production2",
 				"package p2;\n" +
@@ -205,10 +220,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				""
 				);
 		env.addClass(tests2, "p2", "T2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class T2Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class T2Class {
+					}
+					"""
 				);
 		env.addClass(tests2, "p2", "Test2",
 				"package p2;\n" +
@@ -228,12 +245,13 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				);
 
 		fullBuild();
-		expectingProblemsFor(env.getWorkspaceRootPath(), "Problem : P1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <98,105> category : <40> severity : <2>]\n" +
-				"Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]\n" +
-				"Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <151,158> category : <40> severity : <2>]\n" +
-				"Problem : T2Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <181,188> category : <40> severity : <2>]\n" +
-				"Problem : The import p1 cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <20,22> category : <30> severity : <2>]\n" +
-				"Problem : The import p1 cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,41> category : <30> severity : <2>]");
+		expectingProblemsFor(env.getWorkspaceRootPath(), """
+			Problem : P1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <98,105> category : <40> severity : <2>]
+			Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]
+			Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <151,158> category : <40> severity : <2>]
+			Problem : T2Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <181,188> category : <40> severity : <2>]
+			Problem : The import p1 cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <20,22> category : <30> severity : <2>]
+			Problem : The import p1 cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,41> category : <30> severity : <2>]""");
 	}
 	public void testWithProjectAsMainDependencyWithoutTestCode() throws JavaModelException {
 		IPath project1Path = env.addProject("Project1");
@@ -243,10 +261,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		env.addClass(src1, "p1", "P1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class P1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class P1Class {
+					}
+					"""
 				);
 		env.addClass(src1, "p1", "Production1",
 				"package p1;\n" +
@@ -260,10 +280,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				""
 				);
 		env.addClass(tests1, "p1", "T1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class T1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class T1Class {
+					}
+					"""
 				);
 		env.addClass(tests1, "p1", "Test1",
 				"package p1;\n" +
@@ -284,10 +306,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProjectWithoutTestCode(project2Path, project1Path);
 		env.addClass(src2, "p2", "P2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class P2Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class P2Class {
+					}
+					"""
 				);
 		env.addClass(src2, "p2", "Production2",
 				"package p2;\n" +
@@ -306,10 +330,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				""
 				);
 		env.addClass(tests2, "p2", "T2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class T2Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class T2Class {
+					}
+					"""
 				);
 		env.addClass(tests2, "p2", "Test2",
 				"package p2;\n" +
@@ -329,12 +355,13 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				);
 
 		fullBuild();
-		expectingProblemsFor(env.getWorkspaceRootPath(), "Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]\n" +
-				"Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <144,151> category : <40> severity : <2>]\n" +
-				"Problem : T1Class cannot be resolved to a type [ resource : </Project2/tests/p2/Test2.java> range : <141,148> category : <40> severity : <2>]\n" +
-				"Problem : T2Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <174,181> category : <40> severity : <2>]\n" +
-				"Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,49> category : <30> severity : <2>]\n" +
-				"Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/tests/p2/Test2.java> range : <39,49> category : <30> severity : <2>]");
+		expectingProblemsFor(env.getWorkspaceRootPath(), """
+			Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]
+			Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <144,151> category : <40> severity : <2>]
+			Problem : T1Class cannot be resolved to a type [ resource : </Project2/tests/p2/Test2.java> range : <141,148> category : <40> severity : <2>]
+			Problem : T2Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <174,181> category : <40> severity : <2>]
+			Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,49> category : <30> severity : <2>]
+			Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/tests/p2/Test2.java> range : <39,49> category : <30> severity : <2>]""");
 	}
 	public void testWithProjectAsTestDependencyWithoutTestCode() throws JavaModelException {
 		IPath project1Path = env.addProject("Project1");
@@ -344,10 +371,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		env.addClass(src1, "p1", "P1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class P1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class P1Class {
+					}
+					"""
 				);
 		env.addClass(src1, "p1", "Production1",
 				"package p1;\n" +
@@ -361,10 +390,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				""
 				);
 		env.addClass(tests1, "p1", "T1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class T1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class T1Class {
+					}
+					"""
 				);
 		env.addClass(tests1, "p1", "Test1",
 				"package p1;\n" +
@@ -385,10 +416,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredTestProjectWithoutTestCode(project2Path, project1Path);
 		env.addClass(src2, "p2", "P2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class P2Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class P2Class {
+					}
+					"""
 				);
 		env.addClass(src2, "p2", "Production2",
 				"package p2;\n" +
@@ -407,10 +440,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				""
 				);
 		env.addClass(tests2, "p2", "T2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class T2Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class T2Class {
+					}
+					"""
 				);
 		env.addClass(tests2, "p2", "Test2",
 				"package p2;\n" +
@@ -430,14 +465,15 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				);
 
 		fullBuild();
-		expectingProblemsFor(env.getWorkspaceRootPath(), "Problem : P1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <98,105> category : <40> severity : <2>]\n" +
-				"Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]\n" +
-				"Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <151,158> category : <40> severity : <2>]\n" +
-				"Problem : T1Class cannot be resolved to a type [ resource : </Project2/tests/p2/Test2.java> range : <141,148> category : <40> severity : <2>]\n" +
-				"Problem : T2Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <181,188> category : <40> severity : <2>]\n" +
-				"Problem : The import p1 cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <20,22> category : <30> severity : <2>]\n" +
-				"Problem : The import p1 cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,41> category : <30> severity : <2>]\n" +
-				"Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/tests/p2/Test2.java> range : <39,49> category : <30> severity : <2>]");
+		expectingProblemsFor(env.getWorkspaceRootPath(), """
+			Problem : P1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <98,105> category : <40> severity : <2>]
+			Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]
+			Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <151,158> category : <40> severity : <2>]
+			Problem : T1Class cannot be resolved to a type [ resource : </Project2/tests/p2/Test2.java> range : <141,148> category : <40> severity : <2>]
+			Problem : T2Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <181,188> category : <40> severity : <2>]
+			Problem : The import p1 cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <20,22> category : <30> severity : <2>]
+			Problem : The import p1 cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,41> category : <30> severity : <2>]
+			Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/tests/p2/Test2.java> range : <39,49> category : <30> severity : <2>]""");
 	}
 
 	public void testIncrementalBuildMainChange() throws JavaModelException {
@@ -448,16 +484,20 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		env.addClass(src1, "p1", "P1Class",
-				"package p1;\n" +
-				"\n" +
-				"class P1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					class P1Class {
+					}
+					"""
 				);
 		env.addClass(tests1, "p1", "T1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class T1Class extends P1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class T1Class extends P1Class {
+					}
+					"""
 				);
 
 		IPath project2Path = env.addProject("Project2");
@@ -467,16 +507,20 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path);
 		env.addClass(src2, "p2", "P2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class P2Class extends p1.P1Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class P2Class extends p1.P1Class {
+					}
+					"""
 				);
 		env.addClass(tests2, "p2", "T2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class T2Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class T2Class {
+					}
+					"""
 				);
 		env.addClass(tests2, "p2", "Test2",
 				"package p2;\n" +
@@ -493,10 +537,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		expectingProblemsFor(env.getWorkspaceRootPath(), "Problem : The type p1.P1Class is not visible [ resource : </Project2/src/p2/P2Class.java> range : <42,52> category : <40> severity : <2>]");
 
 		env.addClass(src1, "p1", "P1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class P1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class P1Class {
+					}
+					"""
 				);
 		incrementalBuild();
 		expectingNoProblems();
@@ -512,16 +558,20 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		env.addClass(src1, "p1", "P1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class P1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class P1Class {
+					}
+					"""
 				);
 		env.addClass(tests1, "p1", "T1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class T1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class T1Class {
+					}
+					"""
 				);
 		env.addClass(tests1, "p1", "Test1",
 				"package p1;\n" +
@@ -542,16 +592,20 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path);
 		env.addClass(src2, "p2", "P2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class P2Class extends p1.P1Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class P2Class extends p1.P1Class {
+					}
+					"""
 				);
 		env.addClass(tests2, "p2", "T2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class T2Class extends p1.T1Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class T2Class extends p1.T1Class {
+					}
+					"""
 				);
 		env.addClass(tests2, "p2", "Test2",
 				"package p2;\n" +
@@ -567,10 +621,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		expectingNoProblems();
 
 		env.addClass(tests1, "p1", "T1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class T1Class extends P1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class T1Class extends P1Class {
+					}
+					"""
 				);
 		incrementalBuild();
 		expectingNoProblems();
@@ -586,10 +642,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		env.addClass(tests1, "p1", "T1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class T1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class T1Class {
+					}
+					"""
 				);
 		env.addClass(tests1, "p1", "Test1",
 				"package p1;\n" +
@@ -632,16 +690,20 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		env.addClass(src1, "p1", "P1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class P1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class P1Class {
+					}
+					"""
 				);
 		env.addClass(src1, "p1", "P1Unrelated",
-				"package p1;\n" +
-				"\n" +
-				"public class P1Unrelated {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class P1Unrelated {
+					}
+					"""
 				);
 		env.addClass(src1, "p1", "Production1",
 				"package p1;\n" +
@@ -655,10 +717,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				""
 				);
 		env.addClass(tests1, "p1", "T1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class T1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class T1Class {
+					}
+					"""
 				);
 		env.addClass(tests1, "p1", "Test1",
 				"package p1;\n" +
@@ -679,16 +743,20 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path);
 		env.addClass(src2, "p2", "P2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class P2Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class P2Class {
+					}
+					"""
 				);
 		env.addClass(src1, "p2", "P2Unrelated",
-				"package p2;\n" +
-				"\n" +
-				"public class P2Unrelated {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class P2Unrelated {
+					}
+					"""
 				);
 		env.addClass(src2, "p2", "Production2",
 				"package p2;\n" +
@@ -707,10 +775,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				""
 				);
 		env.addClass(tests2, "p2", "T2Class",
-				"package p2;\n" +
-				"\n" +
-				"public class T2Class {\n"+
-				"}\n"
+				"""
+					package p2;
+					
+					public class T2Class {
+					}
+					"""
 				);
 		env.addClass(tests2, "p2", "Test2",
 				"package p2;\n" +
@@ -730,18 +800,20 @@ public class TestAttributeBuilderTests extends BuilderTests {
 				);
 
 		fullBuild();
-		expectingProblemsFor(env.getWorkspaceRootPath(), "Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]\n" +
-				"Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <144,151> category : <40> severity : <2>]\n" +
-				"Problem : T2Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <174,181> category : <40> severity : <2>]\n" +
-				"Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,49> category : <30> severity : <2>]");
+		expectingProblemsFor(env.getWorkspaceRootPath(), """
+			Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]
+			Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <144,151> category : <40> severity : <2>]
+			Problem : T2Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <174,181> category : <40> severity : <2>]
+			Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,49> category : <30> severity : <2>]""");
 
 		env.changePackageFragmentRootTestAttribute(project2Path, tests2, false);
 		incrementalBuild();
-		expectingProblemsFor(env.getWorkspaceRootPath(), "Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]\n" +
-				"Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <144,151> category : <40> severity : <2>]\n" +
-				"Problem : T1Class cannot be resolved to a type [ resource : </Project2/tests/p2/Test2.java> range : <141,148> category : <40> severity : <2>]\n" +
-				"Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,49> category : <30> severity : <2>]\n" +
-				"Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/tests/p2/Test2.java> range : <39,49> category : <30> severity : <2>]");
+		expectingProblemsFor(env.getWorkspaceRootPath(), """
+			Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]
+			Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <144,151> category : <40> severity : <2>]
+			Problem : T1Class cannot be resolved to a type [ resource : </Project2/tests/p2/Test2.java> range : <141,148> category : <40> severity : <2>]
+			Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,49> category : <30> severity : <2>]
+			Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/tests/p2/Test2.java> range : <39,49> category : <30> severity : <2>]""");
 		expectingCompiledClasses(new String[]{"p2.P2Class","p2.Production2","p2.T2Class","p2.Test2"});
 
 		env.changePackageFragmentRootTestAttribute(project1Path, tests1, false);
@@ -756,10 +828,11 @@ public class TestAttributeBuilderTests extends BuilderTests {
 
 		env.changePackageFragmentRootTestAttribute(project1Path, tests1, true);
 		incrementalBuild();
-		expectingProblemsFor(env.getWorkspaceRootPath(), "Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]\n" +
-				"Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <144,151> category : <40> severity : <2>]\n" +
-				"Problem : T2Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <174,181> category : <40> severity : <2>]\n" +
-				"Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,49> category : <30> severity : <2>]");
+		expectingProblemsFor(env.getWorkspaceRootPath(), """
+			Problem : T1Class cannot be resolved to a type [ resource : </Project1/src/p1/Production1.java> range : <82,89> category : <40> severity : <2>]
+			Problem : T1Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <144,151> category : <40> severity : <2>]
+			Problem : T2Class cannot be resolved to a type [ resource : </Project2/src/p2/Production2.java> range : <174,181> category : <40> severity : <2>]
+			Problem : The import p1.T1Class cannot be resolved [ resource : </Project2/src/p2/Production2.java> range : <39,49> category : <30> severity : <2>]""");
 		expectingCompiledClasses(new String[]{"p1.P1Class", "p1.P1Unrelated","p1.Production1","p1.T1Class","p1.Test1","p2.P2Class","p2.P2Unrelated","p2.Production2","p2.T2Class","p2.Test2"});
 
 		env.changePackageFragmentRootTestAttribute(project2Path, tests2, false);
@@ -776,20 +849,22 @@ public class TestAttributeBuilderTests extends BuilderTests {
 
 		IPath tests = env.addTestPackageFragmentRoot(projectPath, "tests");
 		IPath classTest = env.addClass(tests, "p", "X",
-			"package p;\n"+
-			"public class X {\n" +
-			"  void foo() {\n" +
-			"    new q.Y().bar();\n" +
-			"  }\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				  void foo() {
+				    new q.Y().bar();
+				  }
+				}"""
 		);
 		String externalJar = Util.getOutputDirectory() + java.io.File.separator + "test.jar";
 		Util.createJar(
 			new String[] {
 				"q/Y.java",
-				"package q;\n" +
-				"public class Y {\n" +
-				"}"
+				"""
+					package q;
+					public class Y {
+					}"""
 			},
 			new HashMap<>(),
 			externalJar
@@ -810,11 +885,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		Util.createJar(
 			new String[] {
 				"q/Y.java",
-				"package q;\n" +
-				"public class Y {\n" +
-				"  public void bar() {\n" +
-				"  }\n" +
-				"}"
+				"""
+					package q;
+					public class Y {
+					  public void bar() {
+					  }
+					}"""
 			},
 			new HashMap<>(),
 			externalJar
@@ -833,10 +909,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		env.addClass(tests1, "p1", "T1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class T1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class T1Class {
+					}
+					"""
 				);
 
 		// project X just reexports Project1 without test code
@@ -878,10 +956,12 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 		env.addClass(tests1, "p1", "T1Class",
-				"package p1;\n" +
-				"\n" +
-				"public class T1Class {\n"+
-				"}\n"
+				"""
+					package p1;
+					
+					public class T1Class {
+					}
+					"""
 				);
 		env.addClass(tests1, "p1", "Test1",
 				"package p1;\n" +

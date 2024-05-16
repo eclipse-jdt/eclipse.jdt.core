@@ -53,37 +53,39 @@ public class BatchCompilerTest_20 extends AbstractBatchCompilerTest {
 		}
 		Util.createJar(new String[] {
 			"p/Color.java",
-			"package p;\n" +
-			"public enum Color {\n" +
-			"	R, Y;\n" +
-			"	public static Color getColor() {\n" +
-			"		return R;\n" +
-			"	}\n" +
-			"}",
+			"""
+				package p;
+				public enum Color {
+					R, Y;
+					public static Color getColor() {
+						return R;
+					}
+				}""",
 		},
 		libPath,
 		JavaCore.VERSION_20);
 		this.runConformTest(
 			new String[] {
 				"src/p/X.java",
-				"package p;\n"
-				+ "import p.Color;\n"
-				+ "public class X {\n"
-				+ "	public static void main(String argv[]) {\n"
-				+ "		Color c = Color.getColor();\n"
-				+ "		try {\n"
-				+ "			int a = switch (c) {\n"
-				+ "				case R -> 1;\n"
-				+ "				case Y -> 2;\n"
-				+ "			};\n"
-				+ "		} catch (MatchException e) {\n"
-				+ "			System.out.print(\"OK\");\n"
-				+ "		} catch (Exception e) {\n"
-				+ "			System.out.print(\"NOT OK: \" + e);\n"
-				+ "		}\n"
-				+ "			System.out.print(\"END\");\n"
-				+ "	}\n"
-				+ "}",
+				"""
+					package p;
+					import p.Color;
+					public class X {
+						public static void main(String argv[]) {
+							Color c = Color.getColor();
+							try {
+								int a = switch (c) {
+									case R -> 1;
+									case Y -> 2;
+								};
+							} catch (MatchException e) {
+								System.out.print("OK");
+							} catch (Exception e) {
+								System.out.print("NOT OK: " + e);
+							}
+								System.out.print("END");
+						}
+					}""",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib.jar\""
@@ -97,13 +99,14 @@ public class BatchCompilerTest_20 extends AbstractBatchCompilerTest {
 		assertEquals("Incorrect output", "END", this.verifier.getExecutionOutput());
 		Util.createJar(new String[] {
 				"p/Color.java",
-				"package p;\n" +
-				"public enum Color {\n" +
-				"	R, Y, B;\n" +
-				"	public static Color getColor() {\n" +
-				"		return B;\n" +
-				"	}\n" +
-				"}",
+				"""
+					package p;
+					public enum Color {
+						R, Y, B;
+						public static Color getColor() {
+							return B;
+						}
+					}""",
 			},
 			libPath,
 			JavaCore.VERSION_20);
@@ -120,38 +123,40 @@ public class BatchCompilerTest_20 extends AbstractBatchCompilerTest {
 		}
 		Util.createJar(new String[] {
 			"p/I.java",
-			"package p;\n" +
-			"public sealed interface I {\n" +
-			"	public static I getImpl() {\n" +
-			"		return new A();\n" +
-			"	}\n" +
-			"}\n" +
-			"final class A implements I {}\n" +
-			"final class B implements I {}",
+			"""
+				package p;
+				public sealed interface I {
+					public static I getImpl() {
+						return new A();
+					}
+				}
+				final class A implements I {}
+				final class B implements I {}""",
 		},
 		libPath,
 		JavaCore.VERSION_20);
 		this.runConformTest(
 			new String[] {
 				"src/p/X.java",
-				"package p;\n"
-				+ "import p.I;\n"
-				+ "public class X {\n"
-				+ "	public static void main(String argv[]) {\n"
-				+ "		I i = I.getImpl();\n"
-				+ "		try {\n"
-				+ "			int r = switch (i) {\n"
-				+ "				case A a -> 1;\n"
-				+ "				case B b -> 2;\n"
-				+ "			};\n"
-				+ "		} catch (MatchException e) {\n"
-				+ "			System.out.print(\"OK\");\n"
-				+ "		} catch (Exception e) {\n"
-				+ "			System.out.print(\"NOT OK: \" + e);\n"
-				+ "		}\n"
-				+ "			System.out.print(\"END\");\n"
-				+ "	}\n"
-				+ "}",
+				"""
+					package p;
+					import p.I;
+					public class X {
+						public static void main(String argv[]) {
+							I i = I.getImpl();
+							try {
+								int r = switch (i) {
+									case A a -> 1;
+									case B b -> 2;
+								};
+							} catch (MatchException e) {
+								System.out.print("OK");
+							} catch (Exception e) {
+								System.out.print("NOT OK: " + e);
+							}
+								System.out.print("END");
+						}
+					}""",
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib.jar\""
@@ -165,15 +170,16 @@ public class BatchCompilerTest_20 extends AbstractBatchCompilerTest {
 		assertEquals("Incorrect output", "END", this.verifier.getExecutionOutput());
 		Util.createJar(new String[] {
 				"p/I.java",
-				"package p;\n" +
-				"public sealed interface I {\n" +
-				"	public static I getImpl() {\n" +
-				"		return new C();\n" +
-				"	}\n" +
-				"}\n" +
-				"final class A implements I {}\n" +
-				"final class B implements I {}\n" +
-				"final class C implements I {}",
+				"""
+					package p;
+					public sealed interface I {
+						public static I getImpl() {
+							return new C();
+						}
+					}
+					final class A implements I {}
+					final class B implements I {}
+					final class C implements I {}""",
 			},
 			libPath,
 			JavaCore.VERSION_20);

@@ -66,43 +66,45 @@ public class GetSourceTests extends ModifyingResourceTests {
 		createFolder("/P/p");
 		createFile(
 			"/P/p/X.java",
-			"package p;\n" +
-			"import java.lang.*;\n" +
-			"public class X {\n" +
-			"  public Object field;\n" +
-			"  private int s\\u0069ze;\n" +
-			"  void foo(String s) {\n" +
-			"    final int var1 = 2;\n" +
-			"    Object var2;\n" +
-			"    for (int i = 0;  i < 10; i++) {}\n" +
-			"  }\n" +
-			"  private int bar() {\n" +
-			"    return 1;\n" +
-			"  }\n" +
-			"  /**\n" +
-			"   * Returns the size.\n" +
-			"   * @return\n" +
-			"   *     the size\n" +
-			"   */\n" +
-			"  int getSiz\\u0065 () {\n" +
-			"    return this.size;\n" +
-			"  }\n" +
-			"}"
+			"""
+				package p;
+				import java.lang.*;
+				public class X {
+				  public Object field;
+				  private int s\\u0069ze;
+				  void foo(String s) {
+				    final int var1 = 2;
+				    Object var2;
+				    for (int i = 0;  i < 10; i++) {}
+				  }
+				  private int bar() {
+				    return 1;
+				  }
+				  /**
+				   * Returns the size.
+				   * @return
+				   *     the size
+				   */
+				  int getSiz\\u0065 () {
+				    return this.size;
+				  }
+				}"""
 		);
 		this.cu = getCompilationUnit("/P/p/X.java");
 		String cuSource =
-			"package p;\n" +
-			"public class Constants {\n" +
-			"  static final long field1 = 938245798324893L;\n" +
-			"  static final long field2 = 938245798324893l;\n" +
-			"  static final long field3 = 938245798324893;\n" +
-			"  static final char field4 = ' ';\n" +
-			"  static final double field5 = 938245798324893D;\n" +
-			"  static final float field6 = 123456f;\n" +
-			"  static final String field7 = \"simple string\";\n" +
-			"  static final java.lang.String field8 = \"qualified string\";\n" +
-			"  static final int field9 = 1<<0;\n" +
-			"}";
+			"""
+			package p;
+			public class Constants {
+			  static final long field1 = 938245798324893L;
+			  static final long field2 = 938245798324893l;
+			  static final long field3 = 938245798324893;
+			  static final char field4 = ' ';
+			  static final double field5 = 938245798324893D;
+			  static final float field6 = 123456f;
+			  static final String field7 = "simple string";
+			  static final java.lang.String field8 = "qualified string";
+			  static final int field9 = 1<<0;
+			}""";
 		createFile("/P/p/Constants.java", cuSource);
 	}
 
@@ -194,19 +196,21 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testFieldConstants406836() throws CoreException {
 		try {
 			String cuSource =
-					"package p;\n" +
-					"public class A{\n" +
-					"    final long CONST = 1;\n" +
-					"    final long NON_TRIVIAL_INITIALIZER_NON_CONST = 2<<8;\n" +
-					"    static long STATIC_NOT_CONST = 3;\n" +
-					"    final int NON_COMPILE_TIME_CONSTANT = new Integer(4).intValue();\n" +
-					"}\n" +
-					"interface B{\n" +
-					"	final long CONST = 1;\n" +
-					"	final long NON_TRIVIAL_INITIALIZER_NON_CONST = 2<<8;\n" +
-					"	static long STATIC_NOT_CONST = 3;\n" +
-					"	final int NON_COMPILE_TIME_CONSTANT = new Integer(4).intValue();\n" +
-					"}\n";
+					"""
+				package p;
+				public class A{
+				    final long CONST = 1;
+				    final long NON_TRIVIAL_INITIALIZER_NON_CONST = 2<<8;
+				    static long STATIC_NOT_CONST = 3;
+				    final int NON_COMPILE_TIME_CONSTANT = new Integer(4).intValue();
+				}
+				interface B{
+					final long CONST = 1;
+					final long NON_TRIVIAL_INITIALIZER_NON_CONST = 2<<8;
+					static long STATIC_NOT_CONST = 3;
+					final int NON_COMPILE_TIME_CONSTANT = new Integer(4).intValue();
+				}
+				""";
 			createFile("/P/p/A.java", cuSource);
 			IType type = getCompilationUnit("/P/p/A.java").getType("A");
 
@@ -250,21 +254,23 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testJavadocRange01() throws CoreException {
 		try {
 			String cuSource =
-				"package p;\n" +
-				"class A{\n" +
-				"    /**\n" +
-				"     * swsw\n" +
-				"     */\n" +
-				"    void m(){\n" +
-				"    }\n" +
-				"}";
+				"""
+				package p;
+				class A{
+				    /**
+				     * swsw
+				     */
+				    void m(){
+				    }
+				}""";
 			createFile("/P/p/A.java", cuSource);
 			IMethod method = getCompilationUnit("/P/p/A.java").getType("A").getMethod("m", new String[0]);
 			assertSourceEquals(
 				"Unexpected Javadoc'",
-				"/**\n" +
-				"     * swsw\n" +
-				"     */",
+				"""
+					/**
+					     * swsw
+					     */""",
 				getSource(cuSource, method.getJavadocRange()));
 		} finally {
 			deleteFile("/P/p/A.java");
@@ -357,9 +363,10 @@ public class GetSourceTests extends ModifyingResourceTests {
 
 		String actualSource = method.getSource();
 		String expectedSource =
-			"private int bar() {\n" +
-			"    return 1;\n" +
-			"  }";
+			"""
+			private int bar() {
+			    return 1;
+			  }""";
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 	}
 
@@ -369,10 +376,11 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testNameRange01() throws CoreException { // was testAnnotationNameRange1
 		try {
 			String cuSource =
-				"package p;\n" +
-				"@ MyAnnot (1)\n" +
-				"public class Y {\n" +
-				"}";
+				"""
+				package p;
+				@ MyAnnot (1)
+				public class Y {
+				}""";
 			createFile("/P/p/Y.java", cuSource);
 			IAnnotation annotation = getCompilationUnit("/P/p/Y.java").getType("Y").getAnnotation("MyAnnot");
 			assertSourceEquals(
@@ -390,10 +398,11 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testNameRange02() throws CoreException { // was testAnnotationNameRange2
 		try {
 			String cuSource =
-				"package p;\n" +
-				"@x.  y  .  z.MyAnnot (1)\n" +
-				"public class Y {\n" +
-				"}";
+				"""
+				package p;
+				@x.  y  .  z.MyAnnot (1)
+				public class Y {
+				}""";
 			createFile("/P/p/Y.java", cuSource);
 			IAnnotation annotation = getCompilationUnit("/P/p/Y.java").getType("Y").getAnnotation("x.y.z.MyAnnot");
 			assertSourceEquals(
@@ -412,12 +421,13 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testNameRange03() throws CoreException { // was testAnnotationNameRange3
 		try {
 			String cuSource =
-				"package p;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"    @MyAnnot int local;\n" +
-				"  }\n" +
-				"}";
+				"""
+				package p;
+				public class Y {
+				  void foo() {
+				    @MyAnnot int local;
+				  }
+				}""";
 			createFile("/P/p/Y.java", cuSource);
 			IAnnotation annotation = getLocalVariable(getCompilationUnit("/P/p/Y.java"), "local", "local").getAnnotation("MyAnnot");
 			assertSourceEquals(
@@ -436,14 +446,15 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testNameRange04() throws CoreException { // was testNameRangeAnonymous
 		try {
 			String cuSource =
-				"package p;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"    Y y = new Y() {};\n" +
-				"    class C {\n" +
-				"    }\n"+
-				"  }\n" +
-				"}";
+				"""
+				package p;
+				public class Y {
+				  void foo() {
+				    Y y = new Y() {};
+				    class C {
+				    }
+				  }
+				}""";
 			createFile("/P/p/Y.java", cuSource);
 			IType anonymous = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getType("", 1);
 
@@ -461,9 +472,10 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testNameRange05() throws CoreException { // was testNameRangeTypeParameter1
 		try {
 			String cuSource =
-				"package p;\n" +
-				"public class Y<T extends String> {\n" +
-				"}";
+				"""
+				package p;
+				public class Y<T extends String> {
+				}""";
 			createFile("/P/p/Y.java", cuSource);
 			ITypeParameter typeParameter = getCompilationUnit("/P/p/Y.java").getType("Y").getTypeParameter("T");
 			assertSourceEquals(
@@ -481,10 +493,11 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testNameRange06() throws CoreException { // was testNameRangeTypeParameter2
 		try {
 			String cuSource =
-				"package p;\n" +
-				"public class Y {\n" +
-				"  <T extends String, U extends StringBuffer & Runnable> void foo() {} \n" +
-				"}";
+				"""
+				package p;
+				public class Y {
+				  <T extends String, U extends StringBuffer & Runnable> void foo() {}\s
+				}""";
 			createFile("/P/p/Y.java", cuSource);
 			ITypeParameter typeParameter = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getTypeParameter("U");
 			assertSourceEquals(
@@ -503,12 +516,13 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testNameRange07() throws CoreException { // was testNameRangeMethodWithSyntaxError
 		try {
 			String cuSource =
-				"package p;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"  void static bar() {}\n" +
-				"}";
+				"""
+				package p;
+				public class Y {
+				  void foo() {
+				  }
+				  void static bar() {}
+				}""";
 			createFile("/P/p/Y.java", cuSource);
 			IMethod method= getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("bar", new String[0]);
 
@@ -528,10 +542,11 @@ public class GetSourceTests extends ModifyingResourceTests {
 		try {
 			createJavaProject("P15", new String[] {""}, new String[0], "", "1.5");
 			String cuSource =
-				"public enum X {\n" +
-				"  GREEN() {\n" +
-				"  };\n" +
-				"}";
+				"""
+				public enum X {
+				  GREEN() {
+				  };
+				}""";
 			createFile("/P15/X.java", cuSource);
 			IType type = getCompilationUnit("/P15/X.java").getType("X").getField("GREEN").getType("", 1);
 			assertSourceEquals(
@@ -549,14 +564,15 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testNameRange09() throws CoreException { // was testNameRangeAnonymous
 		try {
 			String cuSource =
-				"package p . q . r. s ;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"    Y y = new Y() {};\n" +
-				"    class C {\n" +
-				"    }\n"+
-				"  }\n" +
-				"}";
+				"""
+				package p . q . r. s ;
+				public class Y {
+				  void foo() {
+				    Y y = new Y() {};
+				    class C {
+				    }
+				  }
+				}""";
 			createFolder("/P/p/q/r/s/");
 			createFile("/P/p/q/r/s/Y.java", cuSource);
 			final IPackageDeclaration[] packageDeclarations = getCompilationUnit("/P/p/q/r/s/Y.java").getPackageDeclarations();
@@ -576,9 +592,10 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testNameRange10() throws CoreException { // was testNameRangeAnonymous
 		try {
 			String cuSource =
-				"import java . lang . * ;\n" +
-				"public class Y {\n" +
-				"}";
+				"""
+				import java . lang . * ;
+				public class Y {
+				}""";
 			createFile("/P/Y.java", cuSource);
 			final IImportDeclaration[] imports = getCompilationUnit("/P/Y.java").getImports();
 			assertEquals("Wrong size", 1, imports.length);
@@ -597,9 +614,10 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testNameRange11() throws CoreException { // was testNameRangeAnonymous
 		try {
 			String cuSource =
-				"import java . lang  .  Object  ;\n" +
-				"public class Y {\n" +
-				"}";
+				"""
+				import java . lang  .  Object  ;
+				public class Y {
+				}""";
 			createFile("/P/Y.java", cuSource);
 			final IImportDeclaration[] imports = getCompilationUnit("/P/Y.java").getImports();
 			assertEquals("Wrong size", 1, imports.length);
@@ -619,12 +637,13 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testSourceRange01() throws CoreException { // was testAnnotationSourceRange
 		try {
 			String cuSource =
-				"package p;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"    @MyAnnot int local;\n" +
-				"  }\n" +
-				"}";
+				"""
+				package p;
+				public class Y {
+				  void foo() {
+				    @MyAnnot int local;
+				  }
+				}""";
 			createFile("/P/p/Y.java", cuSource);
 			IAnnotation annotation = getLocalVariable(getCompilationUnit("/P/p/Y.java"), "local", "local").getAnnotation("MyAnnot");
 			assertSourceEquals(
@@ -643,12 +662,13 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testSourceRange02() throws CoreException { // was testAnonymousSourceRange
 		try {
 			String cuSource =
-				"package p;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"    new Object() {};\n" +
-				"  }\n" +
-				"}";
+				"""
+				package p;
+				public class Y {
+				  void foo() {
+				    new Object() {};
+				  }
+				}""";
 			createFile("/P/p/Y.java", cuSource);
 			IType type = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getType("", 1);
 			assertSourceEquals(
@@ -668,9 +688,10 @@ public class GetSourceTests extends ModifyingResourceTests {
 		try {
 			createJavaProject("P15", new String[] {""}, new String[0], "", "1.5");
 			String cuSource =
-				"public enum X {\n" +
-				"  GREEN() {};\n" +
-				"}";
+				"""
+				public enum X {
+				  GREEN() {};
+				}""";
 			createFile("/P15/X.java", cuSource);
 			IType type = getCompilationUnit("/P15/X.java").getType("X").getField("GREEN").getType("", 1);
 			assertSourceEquals(
@@ -688,9 +709,10 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testTypeParameter1() throws CoreException {
 		try {
 			String cuSource =
-				"package p;\n" +
-				"public class Y<T extends String> {\n" +
-				"}";
+				"""
+				package p;
+				public class Y<T extends String> {
+				}""";
 			createFile("/P/p/Y.java", cuSource);
 			ITypeParameter typeParameter = getCompilationUnit("/P/p/Y.java").getType("Y").getTypeParameter("T");
 			assertSourceEquals(
@@ -708,10 +730,11 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testTypeParameter2() throws CoreException {
 		try {
 			String cuSource =
-				"package p;\n" +
-				"public class Y {\n" +
-				"  <T extends String, U extends StringBuffer & Runnable> void foo() {} \n" +
-				"}";
+				"""
+				package p;
+				public class Y {
+				  <T extends String, U extends StringBuffer & Runnable> void foo() {}\s
+				}""";
 			createFile("/P/p/Y.java", cuSource);
 			ITypeParameter typeParameter = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getTypeParameter("U");
 			assertSourceEquals(
@@ -746,14 +769,15 @@ public class GetSourceTests extends ModifyingResourceTests {
 
 		String actualSource = method.getSource();
 		String expectedSource =
-			"/**\n" +
-			"   * Returns the size.\n" +
-			"   * @return\n" +
-			"   *     the size\n" +
-			"   */\n" +
-			"  int getSiz\\u0065 () {\n" +
-			"    return this.size;\n" +
-			"  }";
+			"""
+			/**
+			   * Returns the size.
+			   * @return
+			   *     the size
+			   */
+			  int getSiz\\u0065 () {
+			    return this.size;
+			  }""";
 		assertSourceEquals("Unexpected source", expectedSource, actualSource);
 	}
 }

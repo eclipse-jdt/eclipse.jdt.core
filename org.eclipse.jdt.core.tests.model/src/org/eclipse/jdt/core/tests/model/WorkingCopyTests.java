@@ -75,25 +75,26 @@ protected void setUp() throws Exception {
 			"bin");
 		this.createFolder("P/src/x/y");
 		this.createFile("P/src/x/y/A.java",
-			"package x.y;\n" +
-			"import java.io.File;\n" +
-			"public class A {\n" +
-			"  public class Inner {\n" +
-			"    public class InnerInner {\n" +
-			"    }\n" +
-			"    int innerField;\n" +
-			"    void innerMethod() {\n" +
-			"    }\n" +
-			"  }\n" +
-			"  static String FIELD;\n" +
-			"  {\n" +
-			"    FIELD = File.pathSeparator;\n" +
-			"  }\n" +
-			"  int field1;\n" +
-			"  boolean field2;\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}");
+			"""
+				package x.y;
+				import java.io.File;
+				public class A {
+				  public class Inner {
+				    public class InnerInner {
+				    }
+				    int innerField;
+				    void innerMethod() {
+				    }
+				  }
+				  static String FIELD;
+				  {
+				    FIELD = File.pathSeparator;
+				  }
+				  int field1;
+				  boolean field2;
+				  public void foo() {
+				  }
+				}""");
 		this.cu = this.getCompilationUnit("P/src/x/y/A.java");
 		this.copy = this.cu.getWorkingCopy(null);
 	} catch (CoreException e) {
@@ -113,11 +114,12 @@ protected void tearDown() throws Exception {
  */
 public void testCancelMakeConsistent() throws JavaModelException {
 	String newContents =
-		"package x.y;\n" +
-		"public class A {\n" +
-		"  public void bar() {\n" +
-		"  }\n" +
-		"}";
+		"""
+		package x.y;
+		public class A {
+		  public void bar() {
+		  }
+		}""";
 	this.copy.getBuffer().setContents(newContents);
 	NullProgressMonitor monitor = new NullProgressMonitor();
 	monitor.setCanceled(true);
@@ -131,11 +133,12 @@ public void testCancelMakeConsistent() throws JavaModelException {
 
 public void testChangeContent() throws CoreException {
 	String newContents =
-		"package x.y;\n" +
-		"public class A {\n" +
-		"  public void bar() {\n" +
-		"  }\n" +
-		"}";
+		"""
+		package x.y;
+		public class A {
+		  public void bar() {
+		  }
+		}""";
 	this.copy.getBuffer().setContents(newContents);
 	this.copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertSourceEquals(
@@ -184,11 +187,12 @@ public void testChangeContentOfReadOnlyCU2() throws CoreException {
 		return;
 	}
 	String newContents =
-		"package x.y;\n" +
-		"public class A {\n" +
-		"  public void bar() {\n" +
-		"  }\n" +
-		"}";
+		"""
+		package x.y;
+		public class A {
+		  public void bar() {
+		  }
+		}""";
 	IResource resource = this.cu.getUnderlyingResource();
 	IProject project = resource.getProject();
 	boolean readOnlyFlag = Util.isReadOnly(resource);
@@ -296,9 +300,10 @@ public void testDelete2Fields() throws CoreException {
 			null);
 		assertWorkingCopyDeltas(
 			"Unexpected delta",
-			"A[*]: {CHILDREN | FINE GRAINED}\n" +
-			"	field1[-]: {}\n" +
-			"	field2[-]: {}"
+			"""
+				A[*]: {CHILDREN | FINE GRAINED}
+					field1[-]: {}
+					field2[-]: {}"""
 		);
 	} finally {
 		stopDeltas();
@@ -527,9 +532,10 @@ public void testGetPrimaryType() {
 public void testMoveTypeToAnotherWorkingCopy() throws CoreException {
 	this.createFile(
 		"P/src/x/y/B.java",
-		"package x.y;\n" +
-		"public class B {\n" +
-		"}");
+		"""
+			package x.y;
+			public class B {
+			}""");
 	ICompilationUnit cu2 = this.getCompilationUnit("P/src/x/y/B.java");
 	ICompilationUnit copy2 = cu2.getWorkingCopy(null);
 	try {
@@ -545,27 +551,28 @@ public void testMoveTypeToAnotherWorkingCopy() throws CoreException {
 			this.copy.getBuffer().getContents());
 		assertTrue("Buffer for B should not be null", copy2.getBuffer() != null);
 		assertSourceEquals("Invalid content for B",
-			"package x.y;\n" +
-			"public class B {\n" +
-			"\n" +
-			"	public class A {\n" +
-			"	  public class Inner {\n" +
-			"	    public class InnerInner {\n" +
-			"	    }\n" +
-			"	    int innerField;\n" +
-			"	    void innerMethod() {\n" +
-			"	    }\n" +
-			"	  }\n" +
-			"	  static String FIELD;\n" +
-			"	  {\n" +
-			"	    FIELD = File.pathSeparator;\n" +
-			"	  }\n" +
-			"	  int field1;\n" +
-			"	  boolean field2;\n" +
-			"	  public void foo() {\n" +
-			"	  }\n" +
-			"	}\n" +
-			"}",
+			"""
+				package x.y;
+				public class B {
+				
+					public class A {
+					  public class Inner {
+					    public class InnerInner {
+					    }
+					    int innerField;
+					    void innerMethod() {
+					    }
+					  }
+					  static String FIELD;
+					  {
+					    FIELD = File.pathSeparator;
+					  }
+					  int field1;
+					  boolean field2;
+					  public void foo() {
+					  }
+					}
+				}""",
 			copy2.getBuffer().getContents());
 	} finally {
 		copy2.discardWorkingCopy();

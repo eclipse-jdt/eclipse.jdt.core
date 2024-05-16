@@ -115,20 +115,22 @@ public void setUpSuite() throws Exception {
 	this.cu = this.getCompilationUnit("TypeResolve", "src", "p", "TypeResolve.java");
 	addLibrary("myLib.jar", "myLibsrc.zip", new String[] {
 			"p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"}",
+			"""
+				package p1;
+				public class X {
+				}""",
 			"p2/Y.java",
-			"package p2;\n" +
-			"import p1.X;\n" +
-			"public class Y {\n" +
-			"  class Member {\n" +
-			"    X field;\n" +
-			"  }\n" +
-			"  X foo() {\n" +
-			"   return new X() {};" +
-			"  }\n" +
-			"}",
+			"""
+				package p2;
+				import p1.X;
+				public class Y {
+				  class Member {
+				    X field;
+				  }
+				  X foo() {
+				   return new X() {};\
+				  }
+				}""",
 		}, JavaCore.VERSION_1_4);
 }
 	static {
@@ -175,9 +177,10 @@ public void testResolveParameterizedType() throws CoreException {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 		createFile(
 			"/P/src/X.java",
-			"public class X<T> {\n" +
-			"  X<String> field;\n" +
-			"}"
+			"""
+				public class X<T> {
+				  X<String> field;
+				}"""
 		);
 		IType type = getCompilationUnit("/P/src/X.java").getType("X");
 		String[][] types = type.resolveType("X<String>");
@@ -235,12 +238,13 @@ public void testResolveTypeInBinary4() throws Exception {
 	try {
 		addLibrary("lib212224.jar", "lib212224src.zip", new String[] {
 			"X212224.java",
-			"public class X212224 {\n" +
-			"  public class Member {\n" +
-			"    Member(int i) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"}"
+			"""
+				public class X212224 {
+				  public class Member {
+				    Member(int i) {
+				    }
+				  }
+				}"""
 		}, "1.4");
 		IType type = getPackageFragmentRoot("/TypeResolve/lib212224.jar").getPackageFragment("").getOrdinaryClassFile("X212224$Member.class").getType();
 		String[][] types = type.resolveType("int");
@@ -344,16 +348,17 @@ public void testResolveInnerType2() throws JavaModelException {
 public void testParamAnnotations() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
-		String source = "package p;\n" +
-				"public class X<T> {\n" +
-				"	X<String> field;\n" +
-				"	@Inject\n" +
-				"	public void Test(@Default String processor) {}\n" +
-				"}" +
-				"@interface Inject{\n" +
-				"}" +
-				"@interface Default{\n" +
-				"}";
+		String source = """
+			package p;
+			public class X<T> {
+				X<String> field;
+				@Inject
+				public void Test(@Default String processor) {}
+			}\
+			@interface Inject{
+			}\
+			@interface Default{
+			}""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -382,16 +387,17 @@ public void testParamAnnotations2() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 		String[] pathAndContents = new String[]{"p/X.java",
-				"package p;\n" +
-				"public class X<T> {\n" +
-				"	X<String> field;\n" +
-				"	@Inject\n" +
-				"	public void Test(@Default String processor) {}\n" +
-				"}" +
-				"@interface Inject{\n" +
-				"}" +
-				"@interface Default{\n" +
-				"}"};
+				"""
+					package p;
+					public class X<T> {
+						X<String> field;
+						@Inject
+						public void Test(@Default String processor) {}
+					}\
+					@interface Inject{
+					}\
+					@interface Default{
+					}"""};
 		addLibrary(project, "lib334783.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
 
 		waitForAutoBuild();
@@ -411,19 +417,20 @@ public void testParamAnnotations2() throws CoreException, IOException {
 public void testParamAnnotations3() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
-		String source = "package p;\n" +
-				"public class X<T> {\n" +
-				"	X<String> field;\n" +
-				"	@Inject\n" +
-				"	public void Test(int i, @Default @Marker(id=1) String processor, int k) {}\n" +
-				"}\n" +
-				"@interface Inject{\n" +
-				"}\n" +
-				"@interface Marker {\n" +
-				"	int id() default 0;\n" +
-				"}\n" +
-				"@interface Default{\n" +
-				"}";
+		String source = """
+			package p;
+			public class X<T> {
+				X<String> field;
+				@Inject
+				public void Test(int i, @Default @Marker(id=1) String processor, int k) {}
+			}
+			@interface Inject{
+			}
+			@interface Marker {
+				int id() default 0;
+			}
+			@interface Default{
+			}""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -466,27 +473,31 @@ public void testParamAnnotations4() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 		String sourceX =
-				"package p;\n" +
-				"public class X<T> {\n" +
-				"	X<String> field;\n" +
-				"	@Inject @Marker(id=3)\n" +
-				"	public void Test(final int i, @Default final @Marker(id=1) String processor, int k) {}\n" +
-				"}";
+				"""
+			package p;
+			public class X<T> {
+				X<String> field;
+				@Inject @Marker(id=3)
+				public void Test(final int i, @Default final @Marker(id=1) String processor, int k) {}
+			}""";
 		String[] pathAndContents = new String[]{"p/X.java",
 				sourceX,
 				"p/Inject.java",
-				"package p;\n"+
-				"public @interface Inject{\n" +
-				"}",
+				"""
+					package p;
+					public @interface Inject{
+					}""",
 				"p/Marker.java",
-				"package p;\n" +
-				"public @interface Marker {\n" +
-				"	int id() default 0;\n" +
-				"}",
+				"""
+					package p;
+					public @interface Marker {
+						int id() default 0;
+					}""",
 				"p/Default.java",
-				"package p;\n" +
-				"public @interface Default{\n" +
-				"}"};
+				"""
+					package p;
+					public @interface Default{
+					}"""};
 		addLibrary(project, "lib334783_2.jar", "lib334783_2src.zip", pathAndContents, JavaCore.VERSION_1_5);
 
 		waitForAutoBuild();
@@ -541,25 +552,29 @@ public void testParamAnnotations5() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 		String[] pathAndContents = new String[]{"p/X.java",
-				"package p;\n" +
-				"public class X<T> {\n" +
-				"	X<String> field;\n" +
-				"	@Inject @Marker(id=3)\n" +
-				"	public void Test(int i, @Default @Marker(id=1) String processor, int k) {}\n" +
-				"}",
+				"""
+					package p;
+					public class X<T> {
+						X<String> field;
+						@Inject @Marker(id=3)
+						public void Test(int i, @Default @Marker(id=1) String processor, int k) {}
+					}""",
 				"p/Inject.java",
-				"package p;\n"+
-				"public @interface Inject{\n" +
-				"}",
+				"""
+					package p;
+					public @interface Inject{
+					}""",
 				"p/Marker.java",
-				"package p;\n" +
-				"public @interface Marker {\n" +
-				"	int id() default 0;\n" +
-				"}",
+				"""
+					package p;
+					public @interface Marker {
+						int id() default 0;
+					}""",
 				"p/Default.java",
-				"package p;\n" +
-				"public @interface Default{\n" +
-				"}"};
+				"""
+					package p;
+					public @interface Default{
+					}"""};
 		Map options = new HashMap();
 		options.put(JavaCore.COMPILER_LOCAL_VARIABLE_ATTR, JavaCore.DO_NOT_GENERATE);
 		addLibrary(project, "lib334783_3.jar", "lib334783_3src.zip", pathAndContents, JavaCore.VERSION_1_5, options);
@@ -606,11 +621,12 @@ public void testParamAnnotations5() throws CoreException, IOException {
 public void testParamAnnotations6() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
-		String source = "package p;\n" +
-				"public class X<T> {\n" +
-				"	X<String> field;\n" +
-				"	public void Test() {}\n" +
-				"}";
+		String source = """
+			package p;
+			public class X<T> {
+				X<String> field;
+				public void Test() {}
+			}""";
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -635,11 +651,12 @@ public void testParamAnnotations7() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 		String[] pathAndContents = new String[]{"p/X.java",
-				"package p;\n" +
-				"public class X<T> {\n" +
-				"	X<String> field;\n" +
-				"	public void Test() {}\n" +
-				"}"
+				"""
+					package p;
+					public class X<T> {
+						X<String> field;
+						public void Test() {}
+					}"""
 		};
 		addLibrary(project, "lib334783.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
 
@@ -662,25 +679,29 @@ public void testParamAnnotations8() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 		String[] pathAndContents = new String[]{"p/X.java",
-				"package p;\n" +
-				"public class X<T> {\n" +
-				"	X<String> field;\n" +
-				"	@Inject @Marker(id=3)\n" +
-				"	public X(int i, @Default @Marker(id=1) String processor, int k) {}\n" +
-				"}",
+				"""
+					package p;
+					public class X<T> {
+						X<String> field;
+						@Inject @Marker(id=3)
+						public X(int i, @Default @Marker(id=1) String processor, int k) {}
+					}""",
 				"p/Inject.java",
-				"package p;\n"+
-				"public @interface Inject{\n" +
-				"}",
+				"""
+					package p;
+					public @interface Inject{
+					}""",
 				"p/Marker.java",
-				"package p;\n" +
-				"public @interface Marker {\n" +
-				"	int id() default 0;\n" +
-				"}",
+				"""
+					package p;
+					public @interface Marker {
+						int id() default 0;
+					}""",
 				"p/Default.java",
-				"package p;\n" +
-				"public @interface Default{\n" +
-				"}"};
+				"""
+					package p;
+					public @interface Default{
+					}"""};
 		Map options = new HashMap();
 		options.put(JavaCore.COMPILER_LOCAL_VARIABLE_ATTR, JavaCore.DO_NOT_GENERATE);
 		addLibrary(project, "lib334783_3.jar", "lib334783_3src.zip", pathAndContents, JavaCore.VERSION_1_5, options);
@@ -728,14 +749,15 @@ public void testParamAnnotations9() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 		String[] pathAndContents = new String[]{"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"	X field;\n" +
-				"	@Deprecated\n" +
-				"	public void Test(@Default String processor) {}\n" +
-				"}" +
-				"@interface Default{\n" +
-				"}"};
+				"""
+					package p;
+					public class X {
+						X field;
+						@Deprecated
+						public void Test(@Default String processor) {}
+					}\
+					@interface Default{
+					}"""};
 		addLibrary(project, "lib334783.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
 
 		waitForAutoBuild();
@@ -759,44 +781,46 @@ public void testBug342393() throws Exception {
 	try {
 		IJavaProject project = createJavaProject("Test342393", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 		project.open(null);
-			String fileContent =  "package p;\n"
-					 + "public class Test {\n"
-					 + "Test() {\n"
-					 + "    class A {\n"
-					 + "    	// one \n"
-					 + "        public void foo() {\n"
-					 + "            Throwable a1 = new Throwable(){ // two \n"
-					 + "            };\n"
-					 + "            Throwable b1 = new Throwable(){ // three \n"
-					 + "            };\n"
-					 + "        }\n"
-					 + "        public void bar() {\n"
-					 + "            Throwable b2 = new Throwable(){ // four\n"
-					 + "            	Throwable bi2 = new Throwable() { // five\n"
-					 + "            	};\n"
-					 + "            };\n"
-					 + "        }\n"
-					 + "        class B {\n"
-					 + "        	Throwable t1 = new Throwable() { // six\n"
-					 + "        	};\n"
-					 + "        	Throwable t2 = new Throwable() { // seven\n"
-					 + "        	};\n"
-					 + "        }\n"
-					 + "    };\n"
-					 + "    {\n"
-					 + "        Throwable a3 = new Throwable(){ // eight\n"
-					 + "        	Throwable ai3 = new Throwable() { // nine\n"
-					 + "        	};\n"
-					 + "        };\n"
-					 + "    }\n"
-					 + "}\n"
-					 + "public static void main(String[] args) throws Exception {\n"
-					 + "	Throwable c1 = new Throwable() { // ten\n"
-					 + "	};\n"
-					 + "	Throwable c2 = new Throwable() { // eleven\n"
-					 + "	};\n"
-					 + "}\n"
-					 + "}\n";
+			String fileContent =  """
+				package p;
+				public class Test {
+				Test() {
+				    class A {
+				    	// one\s
+				        public void foo() {
+				            Throwable a1 = new Throwable(){ // two\s
+				            };
+				            Throwable b1 = new Throwable(){ // three\s
+				            };
+				        }
+				        public void bar() {
+				            Throwable b2 = new Throwable(){ // four
+				            	Throwable bi2 = new Throwable() { // five
+				            	};
+				            };
+				        }
+				        class B {
+				        	Throwable t1 = new Throwable() { // six
+				        	};
+				        	Throwable t2 = new Throwable() { // seven
+				        	};
+				        }
+				    };
+				    {
+				        Throwable a3 = new Throwable(){ // eight
+				        	Throwable ai3 = new Throwable() { // nine
+				        	};
+				        };
+				    }
+				}
+				public static void main(String[] args) throws Exception {
+					Throwable c1 = new Throwable() { // ten
+					};
+					Throwable c2 = new Throwable() { // eleven
+					};
+				}
+				}
+				""";
 			createFolder("/Test342393/src/p");
 			createFile(	"/Test342393/src/p/Test.java",	fileContent);
 
@@ -873,16 +897,18 @@ public void test377710() throws CoreException, IOException {
 public void test405026a() throws CoreException, IOException {
 	try {
 		JavaProject project = (JavaProject) createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
-		String source = "package p;\n"  +
-						"\n" +
-						"public interface test13 {\n"  +
-						"}\n"  +
-						"\n"  +
-						"/**\n" +
-						" * @noreference\n"  +
-						" */\n"  +
-						"interface test13outer {}\n"  +
-						"class Foo {}\n";
+		String source = """
+			package p;
+			
+			public interface test13 {
+			}
+			
+			/**
+			 * @noreference
+			 */
+			interface test13outer {}
+			class Foo {}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/test13.java", source);
 		waitForAutoBuild();
@@ -978,16 +1004,18 @@ public void test405026a() throws CoreException, IOException {
 public void test405026b() throws CoreException, IOException {
 	try {
 		JavaProject project = (JavaProject) createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
-		String source = "package p;\n"  +
-						"\n" +
-						"public interface test13 {\n"  +
-						"}\n"  +
-						"\n"  +
-						"/**\n" +
-						" * @noreference\n"  +
-						" */\n"  +
-						"interface test13outer {}\n"  +
-						"class Foo {}\n";
+		String source = """
+			package p;
+			
+			public interface test13 {
+			}
+			
+			/**
+			 * @noreference
+			 */
+			interface test13outer {}
+			class Foo {}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/test13.java", source);
 		waitForAutoBuild();
@@ -1029,13 +1057,15 @@ public void test405026b() throws CoreException, IOException {
 public void test433404() throws CoreException, IOException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
-		String source = "package p;\n"  +
-						"public class X {\n"  +
-						" 	FI fi = (i_) -> { return 0;};\n" +
-						"}\n" +
-						"interface FI {\n" +
-						"	public int foo(int i);\n" +
-						"}\n";
+		String source = """
+			package p;
+			public class X {
+			 	FI fi = (i_) -> { return 0;};
+			}
+			interface FI {
+				public int foo(int i);
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1062,19 +1092,21 @@ public void testBug458613() throws CoreException, IOException {
 	try {
 		prj = createJavaProject("Bug458613", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
 		createFolder("/Bug458613/src/p");
-		String source = "package p;\n" +
-				"interface I9<T> {\n" +
-				"  void foo(T x);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"  public static void main(String[] args) {\n" +
-				"    A.sort(new String[2], x_ -> { // not shown in Ctrl+T\n" +
-				"    });\n" +
-				"  }\n" +
-				"}\n" +
-				"class A {\n" +
-				"  static <T> void sort(T[] t, I9<? super T> i9b) {}\n" +
-				"}\n";
+		String source = """
+			package p;
+			interface I9<T> {
+			  void foo(T x);
+			}
+			public class X {
+			  public static void main(String[] args) {
+			    A.sort(new String[2], x_ -> { // not shown in Ctrl+T
+			    });
+			  }
+			}
+			class A {
+			  static <T> void sort(T[] t, I9<? super T> i9b) {}
+			}
+			""";
 		createFile("/Bug458613/src/p/X.java", source);
 		waitForAutoBuild();
 
@@ -1101,21 +1133,23 @@ public void testBug458613b() throws CoreException, IOException {
 	try {
 		prj = createJavaProject("Bug458613", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
 		createFolder("/Bug458613/src/p");
-		String source = "package p;\n" +
-				"interface I9<U, T> {\n" +
-				"  void foo(T x);\n" +
-				"}\n" +
-				"interface I10<T> extends I9<Number,T> {}\n" +
-				"public class X {\n" +
-				"	I9<Number,String> i9a = x -> {};\n" +
-				"  public static void main(String[] args) {\n" +
-				"    B.sort(new String[2], x_ -> {\n" +
-				"    });\n" +
-				"  }\n" +
-				"}\n" +
-				"class B {\n" +
-				"  static <T> void sort(T[] t, I10<? super T> i10) {} \n" +
-				"}\n";
+		String source = """
+			package p;
+			interface I9<U, T> {
+			  void foo(T x);
+			}
+			interface I10<T> extends I9<Number,T> {}
+			public class X {
+				I9<Number,String> i9a = x -> {};
+			  public static void main(String[] args) {
+			    B.sort(new String[2], x_ -> {
+			    });
+			  }
+			}
+			class B {
+			  static <T> void sort(T[] t, I10<? super T> i10) {}\s
+			}
+			""";
 		createFile("/Bug458613/src/p/X.java", source);
 		waitForAutoBuild();
 
@@ -1140,16 +1174,17 @@ public void testBug458613b() throws CoreException, IOException {
 public void test479963() throws CoreException, IOException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
-		String source = "package p;\n" +
-						"public class X {\n" +
-						"	public void foo() {\n" +
-						"		bar(item -> System.out.println(item));\n" +
-						"	}\n" +
-						"	public void bar(FI fi) { /* Do nothing */ }\n" +
-						"}\n" +
-						"interface FI {\n" +
-						"	public void foobar(String param);\n" +
-						"}";
+		String source = """
+			package p;
+			public class X {
+				public void foo() {
+					bar(item -> System.out.println(item));
+				}
+				public void bar(FI fi) { /* Do nothing */ }
+			}
+			interface FI {
+				public void foobar(String param);
+			}""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1174,23 +1209,24 @@ public void test479963() throws CoreException, IOException {
 public void test479963a() throws CoreException, IOException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
-		String source = "package p;\n" +
-						"public class X {\n" +
-						"	public void foo() {\n" +
-						"		new FI1() {\n" +
-						"			public void foobar(String param) {\n" +
-						"				bar(() -> item -> System.out.println(item));\n" +
-						"			}\n" +
-						"		};\n" +
-						"	}\n" +
-						"	public void bar(FI2 fi) { /* Do nothing */ }\n" +
-						"}\n" +
-						"interface FI1 {\n" +
-						"	public void foobar(Object param);\n" +
-						"}\n" +
-						"interface FI2 {\n" +
-						"	public FI1 get();\n" +
-						"}";
+		String source = """
+			package p;
+			public class X {
+				public void foo() {
+					new FI1() {
+						public void foobar(String param) {
+							bar(() -> item -> System.out.println(item));
+						}
+					};
+				}
+				public void bar(FI2 fi) { /* Do nothing */ }
+			}
+			interface FI1 {
+				public void foobar(Object param);
+			}
+			interface FI2 {
+				public FI1 get();
+			}""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1231,13 +1267,15 @@ public void test531046a() throws CoreException, IOException {
 	if (!isJRE9) return;
 	try {
 		createJava10Project("P", new String[] {"src"});
-		String source =   "package p;\n"
-				+ "public class X {\n"
-				+ "  public static void main(java.lang.String[] args) {\n"
-				+ "    var s1 = args[0];\n"
-				+ "    System.out.println(s1);\n"
-				+ "  }\n"
-				+ "}\n";
+		String source =   """
+			package p;
+			public class X {
+			  public static void main(java.lang.String[] args) {
+			    var s1 = args[0];
+			    System.out.println(s1);
+			  }
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1257,13 +1295,15 @@ public void test531046b() throws CoreException, IOException {
 	if (!isJRE9) return;
 	try {
 		createJava10Project("P", new String[] {"src"});
-		String source =   "package p;\n"
-				+ "public class X {\n"
-				+ "  public static void main(java.lang.String[] args) {\n"
-				+ "    var s1 = args[0];\n"
-				+ "    System.out.println(s1);\n"
-				+ "  }\n"
-				+ "}\n";
+		String source =   """
+			package p;
+			public class X {
+			  public static void main(java.lang.String[] args) {
+			    var s1 = args[0];
+			    System.out.println(s1);
+			  }
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1283,13 +1323,15 @@ public void test531046c() throws CoreException, IOException {
 	if (!isJRE9) return;
 	try {
 		createJava10Project("P", new String[] {"src"});
-		String source =   "package p;\n"
-				+ "public class X {\n"
-				+ "  public static void main(java.lang.String[] args) {\n"
-				+ "    var s1 = args;\n"
-				+ "    System.out.println(s1);\n"
-				+ "  }\n"
-				+ "}\n";
+		String source =   """
+			package p;
+			public class X {
+			  public static void main(java.lang.String[] args) {
+			    var s1 = args;
+			    System.out.println(s1);
+			  }
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1309,12 +1351,14 @@ public void test531046d() throws CoreException, IOException {
 	if (!isJRE9) return;
 	try {
 		createJava10Project("P", new String[] {"src"});
-		String source =   "package p;\n"
-				+ "public class X {\n"
-				+ "  public static void main(java.lang.String[] args) {\n"
-				+ "    var s1 = new java.util.HashMap<String, Object>();\n"
-				+ "  }\n"
-				+ "}\n";
+		String source =   """
+			package p;
+			public class X {
+			  public static void main(java.lang.String[] args) {
+			    var s1 = new java.util.HashMap<String, Object>();
+			  }
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1334,12 +1378,14 @@ public void test531046e() throws CoreException, IOException {
 	if (!isJRE9) return;
 	try {
 		createJava10Project("P", new String[] {"src"});
-		String source =   "package p;\n"
-				+ "public class X {\n"
-				+ "  public static void main(java.lang.String[] args) {\n"
-				+ "    var s1 = new java.util.HashMap<String, Object>();\n"
-				+ "  }\n"
-				+ "}\n";
+		String source =   """
+			package p;
+			public class X {
+			  public static void main(java.lang.String[] args) {
+			    var s1 = new java.util.HashMap<String, Object>();
+			  }
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1358,12 +1404,14 @@ public void test531046f() throws CoreException, IOException {
 	if (!isJRE9) return;
 	try {
 		createJava10Project("P", new String[] {"src"});
-		String source =   "package p;\n"
-				+ "public class X {\n"
-				+ "  public static void main(java.lang.String[] args) {\n"
-				+ "    var e = (CharSequence & Comparable<String>) \"x\";\n"
-				+ "  }\n"
-				+ "}\n";
+		String source =   """
+			package p;
+			public class X {
+			  public static void main(java.lang.String[] args) {
+			    var e = (CharSequence & Comparable<String>) "x";
+			  }
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1384,12 +1432,14 @@ public void test531046g() throws CoreException, IOException {
 	if (!isJRE9) return;
 	try {
 		createJava10Project("P", new String[] {"src"});
-		String source =   "package p;\n"
-				+ "public class X {\n"
-				+ "  public static void main(java.lang.String[] args) {\n"
-				+ "    var v_v = (CharSequence & Comparable<String>) \"x\";\n"
-				+ "  }\n"
-				+ "}\n";
+		String source =   """
+			package p;
+			public class X {
+			  public static void main(java.lang.String[] args) {
+			    var v_v = (CharSequence & Comparable<String>) "x";
+			  }
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1408,13 +1458,15 @@ public void test531046h() throws CoreException, IOException {
 	if (!isJRE9) return;
 	try {
 		createJava10Project("P", new String[] {"src"});
-		String source =   "package p;\n"
-				+ "public class X {\n"
-				+ "  public static void main(java.lang.String[] args) {\n"
-				+ "    var v_v = (CharSequence & Comparable<String>) \"x\";\n"
-				+ "		System.out.println(v_v);\n"
-				+ "  }\n"
-				+ "}\n";
+		String source =   """
+			package p;
+			public class X {
+			  public static void main(java.lang.String[] args) {
+			    var v_v = (CharSequence & Comparable<String>) "x";
+					System.out.println(v_v);
+			  }
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1614,21 +1666,26 @@ public void testBug533884c_blockless() throws Exception {
 public void testBug536387() throws Exception {
 	try {
 		createJava11Project("P", new String[] {"src"});
-		String source =   "package p;\n\n" +
-				"public class X {\n" +
-				"	public class NewType {\n" +
-				"		public int indexOf(int two) {\n" +
-				"       	return 0;\n" +
-				"       }\n" +
-				"	}\n\n"+
-				"	public interface Finder {\n" +
-				"		public int find(NewType one, int two);\n" +
-				"	}\n\n"+
-				" 	public static void main(String[] args) {\n" +
-				" 		final Finder finder = (var s1,var s2) -> s1.indexOf(s2);\n"+
-				"	}\n" +
-				"\n"
-				+ "}\n";
+		String source =   """
+			package p;
+			
+			public class X {
+				public class NewType {
+					public int indexOf(int two) {
+			       	return 0;
+			       }
+				}
+			
+				public interface Finder {
+					public int find(NewType one, int two);
+				}
+			
+			 	public static void main(String[] args) {
+			 		final Finder finder = (var s1,var s2) -> s1.indexOf(s2);
+				}
+			
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1647,27 +1704,29 @@ public void testBug536387() throws Exception {
 public void testBug570314() throws Exception{
 	try {
 		createJava16Project("P", new String[] {"src"});
-		String source =   "package p;\n\n" +
-				"public class X {\n" +
-
-				" 	public static void main(String[] args) {\n" +
-				"		enum Y1 {\n" +
-				"				\n" +
-				"				BLEU,\n" +
-				"				BLANC,\n" +
-				"				ROUGE;\n" +
-				"				\n" +
-				"				public static void printValues() {\r\n" +
-				"					for(Y1 y: Y1.values()) {\r\n" +
-				"						System.out.print(y);\r\n" +
-				"					}\r\n" +
-				"				}\r\n" +
-				"				\r\n" +
-				"		}\r\n" +
-				"		Y1.printValues();"	+
-				"	}\n" +
-				"\n" +
-				"}\n";
+		String source =   """
+			package p;
+			
+			public class X {
+			 	public static void main(String[] args) {
+					enum Y1 {
+						\t
+							BLEU,
+							BLANC,
+							ROUGE;
+						\t
+							public static void printValues() {\r
+								for(Y1 y: Y1.values()) {\r
+									System.out.print(y);\r
+								}\r
+							}\r
+							\r
+					}\r
+					Y1.printValues();\
+				}
+			
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();
@@ -1689,17 +1748,20 @@ public void testBug570314() throws Exception{
 public void testBug575503() throws Exception{
 	try {
 		createJava16Project("P", new String[] {"src"});
-		String source =   "package p;\n\n" +
-				"public class Ssss {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new Ssss.Entry(false, new int[0]);\n" +
-    			"	}\n" +
-    			"	record Entry(boolean isHidden, int... indexes) {\n" +
-    			"		Entry(int... indexes) {\n" +
-    			"			this(false, indexes);\n" +
-        		"		}\n" +
-    			"	}\n" +
-				"}\n";
+		String source =   """
+			package p;
+			
+			public class Ssss {
+				public static void main(String[] args) {
+					new Ssss.Entry(false, new int[0]);
+				}
+				record Entry(boolean isHidden, int... indexes) {
+					Entry(int... indexes) {
+						this(false, indexes);
+					}
+				}
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/Ssss.java", source);
 		waitForAutoBuild();
@@ -1719,15 +1781,18 @@ public void testBug575503() throws Exception{
 public void testBug576778() throws Exception {
 	try {
 		createJava11Project("P", new String[] {"src"});
-		String source =    "package p;\n\n"
-				+"public class X {\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "   var runnable = new Runnable() {\n"
-				+ "     public void run() {}\n"
-				+ "   };\n"
-				+ "   runnable.run();\n"
-				+ "  }\n"
-				+ "}\n";
+		String source =    """
+			package p;
+			
+			public class X {
+			  public static void main(String[] args) {
+			   var runnable = new Runnable() {
+			     public void run() {}
+			   };
+			   runnable.run();
+			  }
+			}
+			""";
 		createFolder("/P/src/p");
 		createFile("/P/src/p/X.java", source);
 		waitForAutoBuild();

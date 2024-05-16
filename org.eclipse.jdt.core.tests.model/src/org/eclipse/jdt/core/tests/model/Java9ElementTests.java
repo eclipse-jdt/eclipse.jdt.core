@@ -87,12 +87,13 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-				String fileContent =  "module my.mod{\n" +
-						 "	exports p.q.r;" +
-						 "	exports a.b.c;\n" +
-						 "	requires java.sql;\n" +
-						 "	requires transitive java.desktop;\n" +
-						 "}";
+				String fileContent =  """
+					module my.mod{
+						exports p.q.r;\
+						exports a.b.c;
+						requires java.sql;
+						requires transitive java.desktop;
+					}""";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
@@ -108,10 +109,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =
-						"module my.mod{\n" +
-						 "	exports p.q.r;" +
-						 "	exports a.b.c;\n" +
-						 "}";
+						"""
+					module my.mod{
+						exports p.q.r;\
+						exports a.b.c;
+					}""";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
 				createFolder("/Java9Elements/src/p/q/r");
@@ -146,10 +148,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =
-						"module my.mod{\n" +
-						 "	provides com.socket.spi.NetworkSocketProvider\n" +
-						 "      with org.fastsocket.FastNetworkSocketProvider;\n" +
-						 "}";
+						"""
+					module my.mod{
+						provides com.socket.spi.NetworkSocketProvider
+					      with org.fastsocket.FastNetworkSocketProvider;
+					}""";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
@@ -165,9 +168,10 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =
-						"module my.mod{\n" +
-						 "	uses com.socket.spi.NetworkSocketProvider;\n" +
-						 "}";
+						"""
+					module my.mod{
+						uses com.socket.spi.NetworkSocketProvider;
+					}""";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
@@ -183,20 +187,22 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 			String fileContent =
-					"module my.mod{\n" +
-					"	exports p.q.r;" +
-					"	exports a.b.c;\n" +
-					"	requires java.sql;\n" +
-					"	requires transitive java.desktop;\n" +
-					"}";
+					"""
+				module my.mod{
+					exports p.q.r;\
+					exports a.b.c;
+					requires java.sql;
+					requires transitive java.desktop;
+				}""";
 			createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
 			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-			fileContent =  "module your.mod{\n" +
-					"	requires my.mod;\n" +
-					"	requires transitive java.desktop;\n" +
-					"}";
+			fileContent =  """
+				module your.mod{
+					requires my.mod;
+					requires transitive java.desktop;
+				}""";
 			createFile(	"/Java9Elements2/src/module-info.java",	fileContent);
 
 			ICompilationUnit unit = getCompilationUnit("/Java9Elements2/src/module-info.java");
@@ -216,18 +222,20 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 			String fileContent =
-					"module my.mod{\n" +
-					"	exports p.q.r;" +
-					"	exports a.b.c;\n" +
-					"}";
+					"""
+				module my.mod{
+					exports p.q.r;\
+					exports a.b.c;
+				}""";
 			createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
 			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 			fileContent =
-					"module your.mod{\n" +
-					"	requires my.mod;\n" +
-					"}";
+					"""
+						module your.mod{
+							requires my.mod;
+						}""";
 			createFile(	"/Java9Elements2/src/module-info.java",	fileContent);
 
 			ICompilationUnit unit = getCompilationUnit("/Java9Elements2/src/module-info.java");
@@ -246,18 +254,20 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-			String fileContent =  "module my.mod {\n" +
-					"	exports p.q.r to your.mod;" +
-					"}";
+			String fileContent =  """
+				module my.mod {
+					exports p.q.r to your.mod;\
+				}""";
 			createFolder("/Java9Elements/src/p/q/r");
 			createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 			int start = fileContent.indexOf("your.mod");
 
 			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-			fileContent =  "module your.mod{\n" +
-					"	requires my.mod;\n" +
-					"}";
+			fileContent =  """
+				module your.mod{
+					requires my.mod;
+				}""";
 			createFile(	"/Java9Elements2/src/module-info.java",	fileContent);
 
 			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
@@ -276,9 +286,10 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-			String fileContent =  "module my.mod {\n" +
-					"	exports p.q.r;" +
-					"}";
+			String fileContent =  """
+				module my.mod {
+					exports p.q.r;\
+				}""";
 			createFolder("/Java9Elements/src/p/q/r");
 			createFile("/Java9Elements/src/package-info.java",
 					"package p.q.r;");
@@ -300,10 +311,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
 			project.open(null);
-			String fileContent =  "// A very simple module" +
-					 "module my.mod {\n" +
-					"	exports p.q.r;" +
-					"}";
+			String fileContent =  """
+				// A very simple module\
+				module my.mod {
+					exports p.q.r;\
+				}""";
 			createFolder("/Java9Elements/src/p/q/r");
 			createFile("/Java9Elements/src/module-info.java",	fileContent);
 			int start = fileContent.lastIndexOf("module");
@@ -321,10 +333,12 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-				String fileContent =  "module my.mod{" +
-									"	provides a.b.C with a.b.CImpl, a.b.DImpl;\n" +
-									"	opens a.b;" +
-									"}\n";
+				String fileContent =  """
+					module my.mod{\
+						provides a.b.C with a.b.CImpl, a.b.DImpl;
+						opens a.b;\
+					}
+					""";
 				createFolder("/Java9Elements/src/a/b");
 				createFile("/Java9Elements/src/a/b/C.java",
 						"package a.b;\n" +
@@ -346,9 +360,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-				String fileContent =  "module my.mod{" +
-									"	provides a.b.C with a.b.CImpl, a.b.DImpl;\n" +
-									"}\n";
+				String fileContent =  """
+					module my.mod{\
+						provides a.b.C with a.b.CImpl, a.b.DImpl;
+					}
+					""";
 				createFolder("/Java9Elements/src/a/b");
 				createFile("/Java9Elements/src/a/b/C.java",
 						"package a.b;\n" +
@@ -370,9 +386,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-				String fileContent =  "module my.mod{" +
-									"	opens a.b to java.base, java.sql;" +
-									"}\n";
+				String fileContent =  """
+					module my.mod{\
+						opens a.b to java.base, java.sql;\
+					}
+					""";
 				createFolder("/Java9Elements/src/a/b");
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
@@ -388,9 +406,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-				String fileContent =  "module my.mod{" +
-									"	exports a.b to java.base, java.sql;" +
-									"}\n";
+				String fileContent =  """
+					module my.mod{\
+						exports a.b to java.base, java.sql;\
+					}
+					""";
 				createFolder("/Java9Elements/src/a/b");
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
@@ -408,9 +428,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			addClasspathEntry(project, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			project.open(null);
 			String fileContent =
-				"module first {\n" +
-				"    exports pack1 to second;\n" +
-				"}\n";
+				"""
+				module first {
+				    exports pack1 to second;
+				}
+				""";
 			createFile("/Java9Elements/src/module-info.java",	fileContent);
 			int start = fileContent.lastIndexOf("pack1");
 			createFolder("/Java9Elements/src/pack1");
@@ -436,9 +458,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    exports pack1 to second;\n" +
-				"}\n";
+				"""
+				module first {
+				    exports pack1 to second;
+				}
+				""";
 			createFile("/Java9Elements/src/module-info.java",	fileContent);
 			String selection = "second";
 			int start = fileContent.lastIndexOf(selection);
@@ -451,9 +475,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
-					"module second {\n" +
-					"    requires first;\n" +
-					"}\n";
+					"""
+				module second {
+				    requires first;
+				}
+				""";
 			createFile("/second/src/module-info.java",	secondFile);
 
 			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
@@ -479,9 +505,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			addClasspathEntry(project, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			project.open(null);
 			String fileContent =
-				"module first {\n" +
-				"    opens pack1 to second;\n" +
-				"}\n";
+				"""
+				module first {
+				    opens pack1 to second;
+				}
+				""";
 			createFile("/Java9Elements/src/module-info.java",	fileContent);
 			int start = fileContent.lastIndexOf("pack1");
 			createFolder("/Java9Elements/src/pack1");
@@ -507,9 +535,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    exports pack1 to second;\n" +
-				"}\n";
+				"""
+				module first {
+				    exports pack1 to second;
+				}
+				""";
 			createFile("/Java9Elements/src/module-info.java",	fileContent);
 			createFolder("/Java9Elements/src/pack1");
 			createFile("/Java9Elements/src/pack1/X11.java",
@@ -520,9 +550,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
-					"module second {\n" +
-					"    requires first;\n" +
-					"}\n";
+					"""
+				module second {
+				    requires first;
+				}
+				""";
 			createFile("/second/src/module-info.java",	secondFile);
 
 			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
@@ -551,10 +583,12 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    requires second;\n" +
-				"    provides pack22.I22 with pack11.X11;\n" +
-				"}\n";
+				"""
+				module first {
+				    requires second;
+				    provides pack22.I22 with pack11.X11;
+				}
+				""";
 			createFile("/Java9Elements/src/module-info.java", fileContent);
 			createFolder("/Java9Elements/src/pack11");
 			createFile("/Java9Elements/src/pack11/X11.java",
@@ -565,9 +599,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
-					"module second {\n" +
-					"    exports pack22 to first;\n" +
-					"}\n";
+					"""
+				module second {
+				    exports pack22 to first;
+				}
+				""";
 			createFile("/second/src/module-info.java",	secondFile);
 			createFolder("/second/src/pack22");
 			createFile("/second/src/pack22/I22.java",
@@ -600,10 +636,12 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    requires second;\n" +
-				"    provides pack22.I22 with pack11.X11;\n" +
-				"}\n";
+				"""
+				module first {
+				    requires second;
+				    provides pack22.I22 with pack11.X11;
+				}
+				""";
 			createFile("/Java9Elements/src/module-info.java", fileContent);
 			createFolder("/Java9Elements/src/pack11");
 			createFile("/Java9Elements/src/pack11/X11.java",
@@ -614,9 +652,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
-					"module second {\n" +
-					"    exports pack22 to first;\n" +
-					"}\n";
+					"""
+				module second {
+				    exports pack22 to first;
+				}
+				""";
 			createFile("/second/src/module-info.java",	secondFile);
 			createFolder("/second/src/pack22");
 			createFile("/second/src/pack22/I22.java",
@@ -649,10 +689,12 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    requires second;\n" +
-				"    uses pack11.X11;\n" +
-				"}\n";
+				"""
+				module first {
+				    requires second;
+				    uses pack11.X11;
+				}
+				""";
 			createFile("/Java9Elements/src/module-info.java", fileContent);
 			createFolder("/Java9Elements/src/pack11");
 			createFile("/Java9Elements/src/pack11/X11.java",
@@ -681,10 +723,12 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    requires second;\n" +
-				"    provides pack22.I22 with pack11.X11;\n" +
-				"}\n";
+				"""
+				module first {
+				    requires second;
+				    provides pack22.I22 with pack11.X11;
+				}
+				""";
 			createFile("/Java9Elements/src/module-info.java", fileContent);
 			createFolder("/Java9Elements/src/pack11");
 			createFile("/Java9Elements/src/pack11/X11.java",
@@ -695,9 +739,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
-					"module second {\n" +
-					"    exports pack22 to first;\n" +
-					"}\n";
+					"""
+				module second {
+				    exports pack22 to first;
+				}
+				""";
 			createFile("/second/src/module-info.java",	secondFile);
 			createFolder("/second/src/pack22");
 			createFile("/second/src/pack22/I22.java",
@@ -730,10 +776,12 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    requires second;\n" +
-				"    uses pack11.X11;\n" +
-				"}\n";
+				"""
+				module first {
+				    requires second;
+				    uses pack11.X11;
+				}
+				""";
 			createFile("/Java9Elements/src/module-info.java", fileContent);
 			createFolder("/Java9Elements/src/pack11");
 			createFile("/Java9Elements/src/pack11/X11.java",
@@ -761,10 +809,12 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
-				"module first {\n" +
-				"    requires second;\n" +
-				"    uses pack11.X11;\n" +
-				"}\n";
+				"""
+				module first {
+				    requires second;
+				    uses pack11.X11;
+				}
+				""";
 			createFile("/Java9Elements/src/module-info.java", fileContent);
 			createFolder("/Java9Elements/src/pack11");
 			createFile("/Java9Elements/src/pack11/X11.java",
@@ -801,10 +851,12 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			}
 			project1.setRawClasspath(rawClasspath, null);
 			String fileContent =
-					"module first {\n" +
-					"    requires java.base;\n" +
-					"    uses pack11.X11;\n" +
-					"}\n";
+					"""
+				module first {
+				    requires java.base;
+				    uses pack11.X11;
+				}
+				""";
 				createFile("/Java9Elements/src/module-info.java", fileContent);
 
 			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
@@ -856,10 +908,12 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			}
 			project1.setRawClasspath(rawClasspath, null);
 			String fileContent =
-					"module first {\n" +
-							"    requires java.base;\n" +
-							"    uses pack11.X11;\n" +
-							"}\n";
+					"""
+				module first {
+				    requires java.base;
+				    uses pack11.X11;
+				}
+				""";
 			createFile("/Java9Elements/src/module-info.java", fileContent);
 
 			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
@@ -943,39 +997,48 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			createJavaProject("mod.zero", new String[]{"src"}, null, "bin", JavaCore.VERSION_9);
 			createFolder("/mod.zero/src/test0");
 			createFile("/mod.zero/src/test0/Test.java",
-				"package test0;\n" +
-				"\n" +
-				"public class Test {}");
+				"""
+					package test0;
+					
+					public class Test {}""");
 			createFile("/mod.zero/src/module-info.java",
-				"module mod.zero {\n" +
-				"	exports test0;\n" +
-				"}\n");
+				"""
+					module mod.zero {
+						exports test0;
+					}
+					""");
 
 			IJavaProject javaProject = createJavaProject("Test", new String[]{"src"}, null, new String[] {"/mod.zero"}, "bin", JavaCore.VERSION_9);
 			createFolder("/Test/src/test1");
 			createFile("/Test/src/test1/Test.java",
-				"package test1;\n" +
-				"\n" +
-				"public class Test {}");
+				"""
+					package test1;
+					
+					public class Test {}""");
 			createFile("/Test/src/module-info.java",
-				"module test {\n" +
-				"	requires mod.one;\n" +
-				"	exports test1;\n" +
-				"}\n");
+				"""
+					module test {
+						requires mod.one;
+						exports test1;
+					}
+					""");
 
 			String modOneSrc =
-				"\n" +
-				"/** The no. one module. */\n" +
-				"module mod.one {\n" +
-				"  exports m.o.p;\n" +
-				"}\n";
+				"""
+				
+				/** The no. one module. */
+				module mod.one {
+				  exports m.o.p;
+				}
+				""";
 			String[] pathAndContents = new String[] {
 				"module-info.java",
 				modOneSrc,
 				"m/o/p/C.java",
-				"package m.o.p;\n" +
-				"public class C {\n" +
-				"}"
+				"""
+					package m.o.p;
+					public class C {
+					}"""
 			};
 			addModularLibrary(javaProject, "mod.one.jar", "/Test/mod.onesrc.zip", pathAndContents, JavaCore.VERSION_9);
 
@@ -1027,24 +1090,30 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			createJavaProject("mod.zero", new String[]{"src"}, null, "bin", JavaCore.VERSION_9);
 			createFolder("/mod.zero/src/test0");
 			createFile("/mod.zero/src/test0/ABCD.java",
-				"package test0;\n" +
-				"\n" +
-				"public class ABCD {}");
+				"""
+					package test0;
+					
+					public class ABCD {}""");
 			createFile("/mod.zero/src/module-info.java",
-				"module ABCD {\n" +
-				"	exports test0 to PQRS;\n" +
-				"}\n");
+				"""
+					module ABCD {
+						exports test0 to PQRS;
+					}
+					""");
 
 			createJavaProject("Test", new String[]{"src"}, null, new String[] {"/mod.zero"}, "bin", JavaCore.VERSION_9);
 			createFolder("/Test/src/test1");
 			createFile("/Test/src/test1/Test.java",
-				"package test1;\n" +
-				"\n" +
-				"public class Test {}");
-			String content = "module PQRS {\n" +
-								"	exports test1;\n" +
-								"	requires ABCD;\n" +
-								"}\n";
+				"""
+					package test1;
+					
+					public class Test {}""");
+			String content = """
+				module PQRS {
+					exports test1;
+					requires ABCD;
+				}
+				""";
 			createFile("/Test/src/module-info.java",
 				content);
 
@@ -1070,26 +1139,32 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			createJavaProject("mod.zero", new String[]{"src"}, null, "bin", JavaCore.VERSION_9);
 			createFolder("/mod.zero/src/test0");
 			createFile("/mod.zero/src/test0/PQRS.java",
-							"package test0;\n" +
-							"\n" +
-							"public class PQRS {}");
-			String content = 	"module ABCD {\n" +
-								"	exports test0 to PQRS;\n" +
-								"}\n";
+							"""
+								package test0;
+								
+								public class PQRS {}""");
+			String content = 	"""
+				module ABCD {
+					exports test0 to PQRS;
+				}
+				""";
 			createFile("/mod.zero/src/module-info.java",
 				content);
 
 			createJavaProject("Test", new String[]{"src"}, null, new String[] {"/mod.zero"}, "bin", JavaCore.VERSION_9);
 			createFolder("/Test/src/test1");
 			createFile("/Test/src/test1/Test.java",
-				"package test1;\n" +
-				"\n" +
-				"public class Test {}");
+				"""
+					package test1;
+					
+					public class Test {}""");
 			createFile("/Test/src/module-info.java",
-							"module PQRS {\n" +
-							"	exports test1;\n" +
-							"	requires ABCD;\n" +
-							"}\n");
+							"""
+								module PQRS {
+									exports test1;
+									requires ABCD;
+								}
+								""");
 
 			ICompilationUnit unit = getCompilationUnit("/mod.zero/src/module-info.java");
 
@@ -1115,13 +1190,16 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			addClasspathEntry(javaProject, src2);
 			createFolder("/mod.zero/src/test0");
 			createFile("/mod.zero/src/test0/PQRS.java",
-							"package test0;\n" +
-							"\n" +
-							"public class PQRS {}");
+							"""
+								package test0;
+								
+								public class PQRS {}""");
 			createFolder("/mod.zero/src/test1");
-			String content = 	"module mod.zero {\n" +
-								"	exports test0;\n" +
-								"}\n";
+			String content = 	"""
+				module mod.zero {
+					exports test0;
+				}
+				""";
 			createFolder("/mod.zero/src2");
 			createFile("/mod.zero/src2/module-info.java", content);
 
@@ -1150,33 +1228,39 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 
 			createFolder("/mod.zero/src/test0");
 			createFile("/mod.zero/src/test0/SPQR.java",
-							"package test0;\n" +
-							"\n" +
-							"public class SPQR {}");
+							"""
+								package test0;
+								
+								public class SPQR {}""");
 
 			createFolder("/mod.zero/src/test1");
 			createFile("/mod.zero/src/test1/Service.java",
-							"package test1;\n" +
-							"\n" +
-							"public interface Service {}");
+							"""
+								package test1;
+								
+								public interface Service {}""");
 
 			createFolder("/mod.zero/src/test2");
 			createFile("/mod.zero/src/test2/Impl.java",
-							"package test2;\n" +
-							"\n" +
-							"public class Impl implements test1.Service {}");
+							"""
+								package test2;
+								
+								public class Impl implements test1.Service {}""");
 
 			createFolder("/mod.zero/src/testDont");
 			createFile("/mod.zero/src/testDont/Show.java",
-							"package testDont;\n" +
-							"\n" +
-							"public class Show {}");
+							"""
+								package testDont;
+								
+								public class Show {}""");
 
-			String content = 	"module mod.zero {\n" +
-								"	exports test0;\n" +
-								"	opens test1;\n" +
-								"	provides test1.Service with test2.Impl;\n" +
-								"}\n";
+			String content = 	"""
+				module mod.zero {
+					exports test0;
+					opens test1;
+					provides test1.Service with test2.Impl;
+				}
+				""";
 			createFile("/mod.zero/src/module-info.java", content);
 
 			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1238,33 +1322,39 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 
 			createFolder("/mod.zero/src/test0");
 			createFile("/mod.zero/src/test0/SPQR.java",
-							"package test0;\n" +
-							"\n" +
-							"public class SPQR {}");
+							"""
+								package test0;
+								
+								public class SPQR {}""");
 
 			createFolder("/mod.zero/src/test1");
 			createFile("/mod.zero/src/test1/Service.java",
-							"package test1;\n" +
-							"\n" +
-							"public interface Service {}");
+							"""
+								package test1;
+								
+								public interface Service {}""");
 
 			createFolder("/mod.zero/src/test2");
 			createFile("/mod.zero/src/test2/Impl.java",
-							"package test2;\n" +
-							"\n" +
-							"public class Impl implements test1.Service {}");
+							"""
+								package test2;
+								
+								public class Impl implements test1.Service {}""");
 
 			createFolder("/mod.zero/src/testDont");
 			createFile("/mod.zero/src/testDont/Show.java",
-							"package testDont;\n" +
-							"\n" +
-							"public class Show {}");
+							"""
+								package testDont;
+								
+								public class Show {}""");
 
-			String content = 	"module mod.zero {\n" +
-								"	exports test0;\n" +
-								"	opens test1;\n" +
-								"	provides test1.Service with test2.Impl;\n" +
-								"}\n";
+			String content = 	"""
+				module mod.zero {
+					exports test0;
+					opens test1;
+					provides test1.Service with test2.Impl;
+				}
+				""";
 			createFile("/mod.zero/src/module-info.java", content);
 
 			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1280,27 +1370,28 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 			String result = disassembler.disassemble(bytes, "\n", ClassFileBytesDisassembler.DETAILED);
-			String expectedOutput = "// Compiled from module-info.java (version 9 : 53.0, no super bit)\n" +
-					" module mod.zero  {\n" +
-					"  // Version: \n" +
-					"\n" +
-					"  requires java.base;\n" +
-					"\n" +
-					"  exports test0;\n" +
-					"\n" +
-					"  opens test1;\n" +
-					"\n" +
-					"  provides test1.Service with test2.Impl;\n" +
-					"  \n" +
-					"  Module packages:\n" +
-					"    test0\n" +
-					"    test1\n" +
-					"    test2\n" +
-					"\n" +
-					"  Module main class:\n" +
-					"    test0.SPQR\n" +
-					"\n" +
-					"}";
+			String expectedOutput = """
+				// Compiled from module-info.java (version 9 : 53.0, no super bit)
+				 module mod.zero  {
+				  // Version:\s
+				
+				  requires java.base;
+				
+				  exports test0;
+				
+				  opens test1;
+				
+				  provides test1.Service with test2.Impl;
+				 \s
+				  Module packages:
+				    test0
+				    test1
+				    test2
+				
+				  Module main class:
+				    test0.SPQR
+				
+				}""";
 			int index = result.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {
 				System.out.println(Util.displayString(result, 2));
@@ -1318,9 +1409,10 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project1.open(null);
 			createFolder("/my_mod/src/p/q");
 			createFile("/my_mod/src/p/q/R.java",
-					"package p.q;\n" +
-					"public class R {\n" +
-					"}");
+					"""
+						package p.q;
+						public class R {
+						}""");
 
 			IJavaProject project2 = createJava9Project("your.mod", new String[] {"src"});
 			IClasspathAttribute[] attrs = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
@@ -1328,9 +1420,10 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			addClasspathEntry(project2, dep);
 			project2.open(null);
 			createFile("/your.mod/src/module-info.java",
-					"module your.mod{\n" +
-					"	requires my.mod;\n" +
-					"}");
+					"""
+						module your.mod{
+							requires my.mod;
+						}""");
 
 			IModuleDescription mod1 = JavaCore.getAutomaticModuleDescription(project1);
 			assertNotNull("auto module not found via project", mod1);
@@ -1459,33 +1552,35 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProjectWithBaseSql();
 			project.open(null);
 				String fileContent =
-						"import java.sql.Driver;\n" +
-						"import p.q.Main;\n" +
-						"module my.mod{\n"  +
-						 "	exports p.q;" +
-						 "	requires java.sql;\n" +
-						 "	provides Driver with Main;\n" +
-						 "}";
+						"""
+					import java.sql.Driver;
+					import p.q.Main;
+					module my.mod{
+						exports p.q;\
+						requires java.sql;
+						provides Driver with Main;
+					}""";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 				createFolder("/Java9Elements/src/p/q");
 				createFile("/Java9Elements/src/p/q/Main.java",
-						"package p.q;\n" +
-						"import java.sql.Connection;\n" +
-						"import java.sql.Driver;\n" +
-						"import java.sql.DriverPropertyInfo;\n" +
-						"import java.sql.SQLException;\n" +
-						"import java.sql.SQLFeatureNotSupportedException;\n" +
-						"import java.util.Properties;\n" +
-						"import java.util.logging.Logger;\n" +
-						"public class Main implements Driver {\n" +
-						"	public boolean acceptsURL(String arg0) throws SQLException { return false; }\n" +
-						"	public Connection connect(String arg0, Properties arg1) throws SQLException { return null; }\n" +
-						"	public int getMajorVersion() { return 0; }\n" +
-						"	public int getMinorVersion() { return 0;}\n" +
-						"	public Logger getParentLogger() throws SQLFeatureNotSupportedException { return null; }\n" +
-						"	public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException { return null; }\n" +
-						"	public boolean jdbcCompliant() { return false; }\n" +
-						"}");
+						"""
+							package p.q;
+							import java.sql.Connection;
+							import java.sql.Driver;
+							import java.sql.DriverPropertyInfo;
+							import java.sql.SQLException;
+							import java.sql.SQLFeatureNotSupportedException;
+							import java.util.Properties;
+							import java.util.logging.Logger;
+							public class Main implements Driver {
+								public boolean acceptsURL(String arg0) throws SQLException { return false; }
+								public Connection connect(String arg0, Properties arg1) throws SQLException { return null; }
+								public int getMajorVersion() { return 0; }
+								public int getMinorVersion() { return 0;}
+								public Logger getParentLogger() throws SQLFeatureNotSupportedException { return null; }
+								public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException { return null; }
+								public boolean jdbcCompliant() { return false; }
+							}""");
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
 				int start = fileContent.lastIndexOf("Driver");
 				IJavaElement[] elements = unit.codeSelect(start, "Driver".length());
@@ -1509,33 +1604,35 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProjectWithBaseSql();
 			project.open(null);
 				String fileContent =
-						"import java.sql.Driver;\n" +
-						"import p.q.Main;\n" +
-						"module my.mod{\n"  +
-						 "	exports p.q;" +
-						 "	requires java.sql;\n" +
-						 "	provides java.sql.Driver with p.q.Main;\n" +
-						 "}";
+						"""
+					import java.sql.Driver;
+					import p.q.Main;
+					module my.mod{
+						exports p.q;\
+						requires java.sql;
+						provides java.sql.Driver with p.q.Main;
+					}""";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 				createFolder("/Java9Elements/src/p/q");
 				createFile("/Java9Elements/src/p/q/Main.java",
-						"package p.q;\n" +
-						"import java.sql.Connection;\n" +
-						"import java.sql.Driver;\n" +
-						"import java.sql.DriverPropertyInfo;\n" +
-						"import java.sql.SQLException;\n" +
-						"import java.sql.SQLFeatureNotSupportedException;\n" +
-						"import java.util.Properties;\n" +
-						"import java.util.logging.Logger;\n" +
-						"public class Main implements Driver {\n" +
-						"	public boolean acceptsURL(String arg0) throws SQLException { return false; }\n" +
-						"	public Connection connect(String arg0, Properties arg1) throws SQLException { return null; }\n" +
-						"	public int getMajorVersion() { return 0; }\n" +
-						"	public int getMinorVersion() { return 0;}\n" +
-						"	public Logger getParentLogger() throws SQLFeatureNotSupportedException { return null; }\n" +
-						"	public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException { return null; }\n" +
-						"	public boolean jdbcCompliant() { return false; }\n" +
-						"}");
+						"""
+							package p.q;
+							import java.sql.Connection;
+							import java.sql.Driver;
+							import java.sql.DriverPropertyInfo;
+							import java.sql.SQLException;
+							import java.sql.SQLFeatureNotSupportedException;
+							import java.util.Properties;
+							import java.util.logging.Logger;
+							public class Main implements Driver {
+								public boolean acceptsURL(String arg0) throws SQLException { return false; }
+								public Connection connect(String arg0, Properties arg1) throws SQLException { return null; }
+								public int getMajorVersion() { return 0; }
+								public int getMinorVersion() { return 0;}
+								public Logger getParentLogger() throws SQLFeatureNotSupportedException { return null; }
+								public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException { return null; }
+								public boolean jdbcCompliant() { return false; }
+							}""");
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
 				int start = fileContent.lastIndexOf("Driver");
 				IJavaElement[] elements = unit.codeSelect(start, "Driver".length());
@@ -1559,31 +1656,33 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProjectWithBaseSql();
 			project.open(null);
 				String fileContent =
-						"module my.mod{\n"  +
-						 "	exports p.q;" +
-						 "	requires java.sql;\n" +
-						 "	provides java.sql.Driver with p.q.Main;\n" +
-						 "}";
+						"""
+					module my.mod{
+						exports p.q;\
+						requires java.sql;
+						provides java.sql.Driver with p.q.Main;
+					}""";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 				createFolder("/Java9Elements/src/p/q");
 				createFile("/Java9Elements/src/p/q/Main.java",
-						"package p.q;\n" +
-						"import java.sql.Connection;\n" +
-						"import java.sql.Driver;\n" +
-						"import java.sql.DriverPropertyInfo;\n" +
-						"import java.sql.SQLException;\n" +
-						"import java.sql.SQLFeatureNotSupportedException;\n" +
-						"import java.util.Properties;\n" +
-						"import java.util.logging.Logger;\n" +
-						"public class Main implements Driver {\n" +
-						"	public boolean acceptsURL(String arg0) throws SQLException { return false; }\n" +
-						"	public Connection connect(String arg0, Properties arg1) throws SQLException { return null; }\n" +
-						"	public int getMajorVersion() { return 0; }\n" +
-						"	public int getMinorVersion() { return 0;}\n" +
-						"	public Logger getParentLogger() throws SQLFeatureNotSupportedException { return null; }\n" +
-						"	public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException { return null; }\n" +
-						"	public boolean jdbcCompliant() { return false; }\n" +
-						"}");
+						"""
+							package p.q;
+							import java.sql.Connection;
+							import java.sql.Driver;
+							import java.sql.DriverPropertyInfo;
+							import java.sql.SQLException;
+							import java.sql.SQLFeatureNotSupportedException;
+							import java.util.Properties;
+							import java.util.logging.Logger;
+							public class Main implements Driver {
+								public boolean acceptsURL(String arg0) throws SQLException { return false; }
+								public Connection connect(String arg0, Properties arg1) throws SQLException { return null; }
+								public int getMajorVersion() { return 0; }
+								public int getMinorVersion() { return 0;}
+								public Logger getParentLogger() throws SQLFeatureNotSupportedException { return null; }
+								public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException { return null; }
+								public boolean jdbcCompliant() { return false; }
+							}""");
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
 				int start = fileContent.lastIndexOf("Driver");
 				IJavaElement[] elements = unit.codeSelect(start, "Driver".length());
@@ -1619,10 +1718,12 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			}
 			project1.setRawClasspath(rawClasspath, null);
 			String fileContent =
-					"module first {\n" +
-							"    requires java.base;\n" +
-							"    uses pack11.X11;\n" +
-							"}\n";
+					"""
+				module first {
+				    requires java.base;
+				    uses pack11.X11;
+				}
+				""";
 			createFile("/Java9Elements/src/module-info.java", fileContent);
 
 			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
@@ -1647,9 +1748,10 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-				String fileContent =  "module my.mod{\n" +
-						 "	requires java.base;\n" +
-						 "}";
+				String fileContent =  """
+					module my.mod{
+						requires java.base;
+					}""";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
@@ -1678,9 +1780,10 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project.getProject().refreshLocal(2, null);
 			project.open(null);
 			String fileContent =
-					"module my.mod {\n" +
-					"	requires M;\n" +
-					"}";
+					"""
+				module my.mod {
+					requires M;
+				}""";
 			createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
 			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
@@ -1708,13 +1811,14 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project.open(null);
 
 			createFile(	"/Java9Elements/src/module-info.java",
-					"/**\n" +
-					" @category application\n" +
-					" @category underTest" +
-					" */\n" +
-					"module my.mod {\n" +
-					"	requires M;\n" +
-					"}");
+					"""
+						/**
+						 @category application
+						 @category underTest\
+						 */
+						module my.mod {
+							requires M;
+						}""");
 
 			// binary JRT module without categories:
 			IModuleDescription mod = project.findModule("java.base", this.wcOwner);

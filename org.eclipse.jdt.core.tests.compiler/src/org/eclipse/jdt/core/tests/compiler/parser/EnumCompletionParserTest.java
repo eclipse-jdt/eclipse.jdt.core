@@ -45,12 +45,14 @@ protected Map getCompilerOptions() {
  */
 public void test0001(){
 	String str =
-		"public class Completion {\n" +
-		"	/*here*/\n" +
-		"}\n" +
-		"enum Natural {\n" +
-		"	ONE;\n" +
-		"}\n";
+		"""
+		public class Completion {
+			/*here*/
+		}
+		enum Natural {
+			ONE;
+		}
+		""";
 
 	String completeBehind = "/*here*/";
 	int cursorLocation = str.indexOf("/*here*/") + completeBehind.length() - 1;
@@ -59,18 +61,20 @@ public void test0001(){
 	String completionIdentifier = "";
 	String expectedReplacedSource = "";
 	String expectedUnitDisplayString =
-		"public class Completion {\n" +
-		"  <CompleteOnType:>;\n" +
-		"  public Completion() {\n" +
-		"  }\n" +
-		"}\n" +
-		"enum Natural {\n" +
-		"  ONE(),\n" +
-		"  Natural() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class Completion {
+		  <CompleteOnType:>;
+		  public Completion() {
+		  }
+		}
+		enum Natural {
+		  ONE(),
+		  Natural() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -85,14 +89,16 @@ public void test0001(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0002(){
 	String str =
-		"public class Test {\n" +
-		"	void foo() {\n" +
-		"	  switch(c) {\n" +
-		"	  	case FOO :\n" +
-		"	  	  break;\n" +
-		"	  }\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo() {
+			  switch(c) {
+			  	case FOO :
+			  	  break;
+			  }
+			}
+		}
+		""";
 
 	String completeBehind = "FOO";
 	int cursorLocation = str.indexOf("FOO") + completeBehind.length() - 1;
@@ -101,12 +107,14 @@ public void test0002(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class Test {
+		  public Test() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -120,23 +128,26 @@ public void test0002(){
 
 	expectedCompletionNodeToString = "<CompleteOnName:FOO>";
 	expectedParentNodeToString =
-		"switch (c) {\n" +
-		"case <CompleteOnName:FOO> :\n" +
-		"    break;\n" +
-		"}";
+		"""
+			switch (c) {
+			case <CompleteOnName:FOO> :
+			    break;
+			}""";
 	completionIdentifier = "FOO";
 	expectedReplacedSource = "FOO";
 	expectedUnitDisplayString =
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    switch (c) {\n" +
-		"    case <CompleteOnName:FOO> :\n" +
-		"        break;\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+			public class Test {
+			  public Test() {
+			  }
+			  void foo() {
+			    switch (c) {
+			    case <CompleteOnName:FOO> :
+			        break;
+			    }
+			  }
+			}
+			""";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -151,15 +162,17 @@ public void test0002(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0003(){
 	String str =
-		"public class Test {\n" +
-		"	void foo() {\n" +
-		"	  switch(c) {\n" +
-		"	  	case BAR :\n" +
-		"	  	case FOO :\n" +
-		"	  	  break;\n" +
-		"	  }\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo() {
+			  switch(c) {
+			  	case BAR :
+			  	case FOO :
+			  	  break;
+			  }
+			}
+		}
+		""";
 
 	String completeBehind = "FOO";
 	int cursorLocation = str.indexOf("FOO") + completeBehind.length() - 1;
@@ -168,12 +181,14 @@ public void test0003(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class Test {
+		  public Test() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -187,25 +202,28 @@ public void test0003(){
 
 	expectedCompletionNodeToString = "<CompleteOnName:FOO>";
 	expectedParentNodeToString =
-		"switch (c) {\n" +
-		"case BAR :\n" +
-		"case <CompleteOnName:FOO> :\n" +
-		"    break;\n" +
-		"}";
+		"""
+			switch (c) {
+			case BAR :
+			case <CompleteOnName:FOO> :
+			    break;
+			}""";
 	completionIdentifier = "FOO";
 	expectedReplacedSource = "FOO";
 	expectedUnitDisplayString =
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    switch (c) {\n" +
-		"    case BAR :\n" +
-		"    case <CompleteOnName:FOO> :\n" +
-		"        break;\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+			public class Test {
+			  public Test() {
+			  }
+			  void foo() {
+			    switch (c) {
+			    case BAR :
+			    case <CompleteOnName:FOO> :
+			        break;
+			    }
+			  }
+			}
+			""";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -220,16 +238,18 @@ public void test0003(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0004(){
 	String str =
-		"public class Test {\n" +
-		"	void foo() {\n" +
-		"	  switch(c) {\n" +
-		"	  	case BAR :\n" +
-		"	  	  break;\n" +
-		"	  	case FOO :\n" +
-		"	  	  break;\n" +
-		"	  }\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo() {
+			  switch(c) {
+			  	case BAR :
+			  	  break;
+			  	case FOO :
+			  	  break;
+			  }
+			}
+		}
+		""";
 
 	String completeBehind = "FOO";
 	int cursorLocation = str.indexOf("FOO") + completeBehind.length() - 1;
@@ -238,12 +258,14 @@ public void test0004(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class Test {
+		  public Test() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -257,27 +279,30 @@ public void test0004(){
 
 	expectedCompletionNodeToString = "<CompleteOnName:FOO>";
 	expectedParentNodeToString =
-		"switch (c) {\n" +
-		"case BAR :\n" +
-		"    break;\n" +
-		"case <CompleteOnName:FOO> :\n" +
-		"    break;\n" +
-		"}";
+		"""
+			switch (c) {
+			case BAR :
+			    break;
+			case <CompleteOnName:FOO> :
+			    break;
+			}""";
 	completionIdentifier = "FOO";
 	expectedReplacedSource = "FOO";
 	expectedUnitDisplayString =
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    switch (c) {\n" +
-		"    case BAR :\n" +
-		"        break;\n" +
-		"    case <CompleteOnName:FOO> :\n" +
-		"        break;\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+			public class Test {
+			  public Test() {
+			  }
+			  void foo() {
+			    switch (c) {
+			    case BAR :
+			        break;
+			    case <CompleteOnName:FOO> :
+			        break;
+			    }
+			  }
+			}
+			""";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -292,15 +317,17 @@ public void test0004(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0005(){
 	String str =
-		"public class Test {\n" +
-		"	void foo() {\n" +
-		"	  switch(c) {\n" +
-		"	  	case BAR :\n" +
-		"	  	  break;\n" +
-		"	  	case FOO :\n" +
-		"	  }\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo() {
+			  switch(c) {
+			  	case BAR :
+			  	  break;
+			  	case FOO :
+			  }
+			}
+		}
+		""";
 
 	String completeBehind = "FOO";
 	int cursorLocation = str.indexOf("FOO") + completeBehind.length() - 1;
@@ -309,12 +336,14 @@ public void test0005(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class Test {
+		  public Test() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -328,25 +357,28 @@ public void test0005(){
 
 	expectedCompletionNodeToString = "<CompleteOnName:FOO>";
 	expectedParentNodeToString =
-		"switch (c) {\n" +
-		"case BAR :\n" +
-		"    break;\n" +
-		"case <CompleteOnName:FOO> :\n" +
-		"}";
+		"""
+			switch (c) {
+			case BAR :
+			    break;
+			case <CompleteOnName:FOO> :
+			}""";
 	completionIdentifier = "FOO";
 	expectedReplacedSource = "FOO";
 	expectedUnitDisplayString =
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    switch (c) {\n" +
-		"    case BAR :\n" +
-		"        break;\n" +
-		"    case <CompleteOnName:FOO> :\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+			public class Test {
+			  public Test() {
+			  }
+			  void foo() {
+			    switch (c) {
+			    case BAR :
+			        break;
+			    case <CompleteOnName:FOO> :
+			    }
+			  }
+			}
+			""";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -361,15 +393,17 @@ public void test0005(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0006(){
 	String str =
-		"public class Test {\n" +
-		"	void foo() {\n" +
-		"	  switch(c) {\n" +
-		"	  	case BAR :\n" +
-		"	  	  break;\n" +
-		"	  	case FOO\n" +
-		"	  }\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo() {
+			  switch(c) {
+			  	case BAR :
+			  	  break;
+			  	case FOO
+			  }
+			}
+		}
+		""";
 
 	String completeBehind = "FOO";
 	int cursorLocation = str.indexOf("FOO") + completeBehind.length() - 1;
@@ -378,12 +412,14 @@ public void test0006(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class Test {
+		  public Test() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -397,27 +433,30 @@ public void test0006(){
 
 	expectedCompletionNodeToString = "<CompleteOnName:FOO>";
 	expectedParentNodeToString =
-		"switch (c) {\n" +
-		"case BAR :\n" +
-		"    break;\n" +
-		"case <CompleteOnName:FOO> :\n" +
-		"}";
+		"""
+			switch (c) {
+			case BAR :
+			    break;
+			case <CompleteOnName:FOO> :
+			}""";
 	completionIdentifier = "FOO";
 	expectedReplacedSource = "FOO";
 	expectedUnitDisplayString =
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    {\n" +
-		"      switch (c) {\n" +
-		"      case BAR :\n" +
-		"          break;\n" +
-		"      case <CompleteOnName:FOO> :\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+			public class Test {
+			  public Test() {
+			  }
+			  void foo() {
+			    {
+			      switch (c) {
+			      case BAR :
+			          break;
+			      case <CompleteOnName:FOO> :
+			      }
+			    }
+			  }
+			}
+			""";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -432,21 +471,23 @@ public void test0006(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0007(){
 	String str =
-		"public class Test {\n" +
-		"	void foo() {\n" +
-		"	  switch(c) {\n" +
-		"	  	case BAR0 :\n" +
-		"	      switch(c) {\n" +
-		"	        case BAR :\n" +
-		"	  	      break;\n" +
-		"	  	    case FOO\n" +
-		"	      }\n" +
-		"	  	  break;\n" +
-		"	  	case BAR2 :\n" +
-		"	  	  break;\n" +
-		"	  }\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public class Test {
+			void foo() {
+			  switch(c) {
+			  	case BAR0 :
+			      switch(c) {
+			        case BAR :
+			  	      break;
+			  	    case FOO
+			      }
+			  	  break;
+			  	case BAR2 :
+			  	  break;
+			  }
+			}
+		}
+		""";
 
 	String completeBehind = "FOO";
 	int cursorLocation = str.indexOf("FOO") + completeBehind.length() - 1;
@@ -455,12 +496,14 @@ public void test0007(){
 	String completionIdentifier = "<NONE>";
 	String expectedReplacedSource = "<NONE>";
 	String expectedUnitDisplayString =
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class Test {
+		  public Test() {
+		  }
+		  void foo() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -474,29 +517,32 @@ public void test0007(){
 
 	expectedCompletionNodeToString = "<CompleteOnName:FOO>";
 	expectedParentNodeToString =
-		"switch (c) {\n" +
-		"case BAR :\n" +
-		"    break;\n" +
-		"case <CompleteOnName:FOO> :\n" +
-		"}";
+		"""
+			switch (c) {
+			case BAR :
+			    break;
+			case <CompleteOnName:FOO> :
+			}""";
 	completionIdentifier = "FOO";
 	expectedReplacedSource = "FOO";
 	expectedUnitDisplayString =
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    {\n" +
-		"      {\n" +
-		"        switch (c) {\n" +
-		"        case BAR :\n" +
-		"            break;\n" +
-		"        case <CompleteOnName:FOO> :\n" +
-		"        }\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}\n";
+		"""
+			public class Test {
+			  public Test() {
+			  }
+			  void foo() {
+			    {
+			      {
+			        switch (c) {
+			        case BAR :
+			            break;
+			        case <CompleteOnName:FOO> :
+			        }
+			      }
+			    }
+			  }
+			}
+			""";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -511,13 +557,15 @@ public void test0007(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0008(){
 	String str =
-		"public enum Test {\n" +
-		"	A() {\n" +
-		"	  void foo() {\n" +
-		"	    zzz\n" +
-		"	  }\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public enum Test {
+			A() {
+			  void foo() {
+			    zzz
+			  }
+			}
+		}
+		""";
 
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
@@ -526,17 +574,19 @@ public void test0008(){
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
-		"public enum Test {\n" +
-		"  A() {\n" +
-		"    void foo() {\n" +
-		"      <CompleteOnName:zzz>;\n" +
-		"    }\n" +
-		"  },\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public enum Test {
+		  A() {
+		    void foo() {
+		      <CompleteOnName:zzz>;
+		    }
+		  },
+		  public Test() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -551,14 +601,16 @@ public void test0008(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0009(){
 	String str =
-		"public enum Test {\n" +
-		"	B,\n" +
-		"	A() {\n" +
-		"	  void foo() {\n" +
-		"	    zzz\n" +
-		"	  }\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public enum Test {
+			B,
+			A() {
+			  void foo() {
+			    zzz
+			  }
+			}
+		}
+		""";
 
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
@@ -567,18 +619,20 @@ public void test0009(){
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
-		"public enum Test {\n" +
-		"  B(),\n" +
-		"  A() {\n" +
-		"    void foo() {\n" +
-		"      <CompleteOnName:zzz>;\n" +
-		"    }\n" +
-		"  },\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public enum Test {
+		  B(),
+		  A() {
+		    void foo() {
+		      <CompleteOnName:zzz>;
+		    }
+		  },
+		  public Test() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -593,15 +647,17 @@ public void test0009(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0010(){
 	String str =
-		"public enum Test {\n" +
-		"	#\n" +
-		"	B,\n" +
-		"	A() {\n" +
-		"	  void foo() {\n" +
-		"	    zzz\n" +
-		"	  }\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public enum Test {
+			#
+			B,
+			A() {
+			  void foo() {
+			    zzz
+			  }
+			}
+		}
+		""";
 
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
@@ -610,18 +666,20 @@ public void test0010(){
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
-		"public enum Test {\n" +
-		"  B(),\n" +
-		"  A() {\n" +
-		"    void foo() {\n" +
-		"      <CompleteOnName:zzz>;\n" +
-		"    }\n" +
-		"  },\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public enum Test {
+		  B(),
+		  A() {
+		    void foo() {
+		      <CompleteOnName:zzz>;
+		    }
+		  },
+		  public Test() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -636,17 +694,19 @@ public void test0010(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0011(){
 	String str =
-		"public enum Test {\n" +
-		"	B() {\n" +
-		"	  void foo() {\n" +
-		"	  }\n" +
-		"	},\n" +
-		"	A() {\n" +
-		"	  void foo() {\n" +
-		"	    zzz\n" +
-		"	  }\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public enum Test {
+			B() {
+			  void foo() {
+			  }
+			},
+			A() {
+			  void foo() {
+			    zzz
+			  }
+			}
+		}
+		""";
 
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
@@ -655,21 +715,23 @@ public void test0011(){
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
-		"public enum Test {\n" +
-		"  B() {\n" +
-		"    void foo() {\n" +
-		"    }\n" +
-		"  },\n" +
-		"  A() {\n" +
-		"    void foo() {\n" +
-		"      <CompleteOnName:zzz>;\n" +
-		"    }\n" +
-		"  },\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public enum Test {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  A() {
+		    void foo() {
+		      <CompleteOnName:zzz>;
+		    }
+		  },
+		  public Test() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -684,18 +746,20 @@ public void test0011(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0012(){
 	String str =
-		"public enum Test {\n" +
-		"	#\n" +
-		"	B() {\n" +
-		"	  void foo() {\n" +
-		"	  }\n" +
-		"	},\n" +
-		"	A() {\n" +
-		"	  void foo() {\n" +
-		"	    zzz\n" +
-		"	  }\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public enum Test {
+			#
+			B() {
+			  void foo() {
+			  }
+			},
+			A() {
+			  void foo() {
+			    zzz
+			  }
+			}
+		}
+		""";
 
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
@@ -704,21 +768,23 @@ public void test0012(){
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
-		"public enum Test {\n" +
-		"  B() {\n" +
-		"    void foo() {\n" +
-		"    }\n" +
-		"  },\n" +
-		"  A() {\n" +
-		"    void foo() {\n" +
-		"      <CompleteOnName:zzz>;\n" +
-		"    }\n" +
-		"  },\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public enum Test {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  A() {
+		    void foo() {
+		      <CompleteOnName:zzz>;
+		    }
+		  },
+		  public Test() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -733,19 +799,21 @@ public void test0012(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0013(){
 	String str =
-		"public enum Test {\n" +
-		"	#\n" +
-		"	B() {\n" +
-		"	  void foo() {\n" +
-		"	    #\n" +
-		"	  }\n" +
-		"	},\n" +
-		"	A() {\n" +
-		"	  void foo() {\n" +
-		"	    zzz\n" +
-		"	  }\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		public enum Test {
+			#
+			B() {
+			  void foo() {
+			    #
+			  }
+			},
+			A() {
+			  void foo() {
+			    zzz
+			  }
+			}
+		}
+		""";
 
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
@@ -754,21 +822,23 @@ public void test0013(){
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
-		"public enum Test {\n" +
-		"  B() {\n" +
-		"    void foo() {\n" +
-		"    }\n" +
-		"  },\n" +
-		"  A() {\n" +
-		"    void foo() {\n" +
-		"      <CompleteOnName:zzz>;\n" +
-		"    }\n" +
-		"  },\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public enum Test {
+		  B() {
+		    void foo() {
+		    }
+		  },
+		  A() {
+		    void foo() {
+		      <CompleteOnName:zzz>;
+		    }
+		  },
+		  public Test() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),
@@ -783,31 +853,36 @@ public void test0013(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100868
 public void test0014(){
 	String str =
-		"public enum Enum1 {\n"+
-		"  A {\n"+
-		"    tos\n"+
-		"  };\n"+
-		"}\n";
+		"""
+		public enum Enum1 {
+		  A {
+		    tos
+		  };
+		}
+		""";
 
 	String completeBehind = "tos";
 	int cursorLocation = str.indexOf("tos") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnType:tos>";
 	String expectedParentNodeToString =
-			"() {\n" +
-			"  <CompleteOnType:tos>;\n" +
-			"}";
+			"""
+		() {
+		  <CompleteOnType:tos>;
+		}""";
 	String completionIdentifier = "tos";
 	String expectedReplacedSource = "tos";
 	String expectedUnitDisplayString =
-		"public enum Enum1 {\n" +
-		"  A() {\n" +
-		"    <CompleteOnType:tos>;\n" +
-		"  },\n" +
-		"  public Enum1() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public enum Enum1 {
+		  A() {
+		    <CompleteOnType:tos>;
+		  },
+		  public Enum1() {
+		  }
+		  <clinit>() {
+		  }
+		}
+		""";
 
 	checkDietParse(
 			str.toCharArray(),

@@ -78,56 +78,68 @@ public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 		this.runWarningTest(
 			new String[] {
 				"X.java",
-				"class X {\n" +
-				"  public static void main(String[] args){\n" +
-				"		Integer abc= Integer.valueOf(10);\n" +
-				"		synchronized(abc) {\n" +
-				"			\n" +
-				"		}" +
-				"  }\n"+
-				"}\n",
+				"""
+					class X {
+					  public static void main(String[] args){
+							Integer abc= Integer.valueOf(10);
+							synchronized(abc) {
+							\t
+							}\
+					  }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	synchronized(abc) {\n" +
-			"	             ^^^\n" +
-			"Integer is a value-based type which is a discouraged argument for the synchronized statement\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 4)
+					synchronized(abc) {
+					             ^^^
+				Integer is a value-based type which is a discouraged argument for the synchronized statement
+				----------
+				""");
 	}
 	public void testBug571507_002() {
 		this.runWarningTest(
 			new String[] {
 				"X.java",
-				"import java.util.Optional;\n\n" +
-				"class X {\n" +
-				"  public static void main(String[] args){\n" +
-				"		String[] sentence = new String[10];\n" +
-				"       Optional<String> abc = Optional.ofNullable(sentence[9]);  \n" +
-				"		synchronized (abc) { // no error given here.\n" +
-				"		}\n" +
-				"  }\n"+
-				"}\n",
+				"""
+					import java.util.Optional;
+					
+					class X {
+					  public static void main(String[] args){
+							String[] sentence = new String[10];
+					       Optional<String> abc = Optional.ofNullable(sentence[9]); \s
+							synchronized (abc) { // no error given here.
+							}
+					  }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 7)\n" +
-			"	synchronized (abc) { // no error given here.\n" +
-			"	              ^^^\n" +
-			"Optional<T> is a value-based type which is a discouraged argument for the synchronized statement\n" +
-			"----------\n");
+			"""
+				----------
+				1. WARNING in X.java (at line 7)
+					synchronized (abc) { // no error given here.
+					              ^^^
+				Optional<T> is a value-based type which is a discouraged argument for the synchronized statement
+				----------
+				""");
 	}
 	public void testBug571507_003() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.HashSet;\n\n" +
-				"class X {\n" +
-				"  public static void main(String[] args){\n" +
-				"		String[] sentence = new String[10];\n" +
-				"       HashSet<String> abc = new HashSet<>();  \n" +
-				"		synchronized (abc) { // no error given here.\n" +
-				"		}\n" +
-				"  }\n"+
-				"}\n",
+				"""
+					import java.util.HashSet;
+					
+					class X {
+					  public static void main(String[] args){
+							String[] sentence = new String[10];
+					       HashSet<String> abc = new HashSet<>(); \s
+							synchronized (abc) { // no error given here.
+							}
+					  }
+					}
+					""",
 			});
 	}
 }

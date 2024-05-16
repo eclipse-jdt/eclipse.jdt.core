@@ -76,17 +76,21 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
 
 			createFolder("/mod.one/src/p/q");
 			createFile("/mod.one/src/module-info.java",
-					"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-					"module mod.one {\n" +
-					"	requires org.eclipse.jdt.annotation;\n" +
-					"	exports p.q;\n" +
-					"}\n");
+					"""
+						@org.eclipse.jdt.annotation.NonNullByDefault
+						module mod.one {
+							requires org.eclipse.jdt.annotation;
+							exports p.q;
+						}
+						""");
 
 			createFile("/mod.one/src/p/q/API.java",
-					"package p.q;\n" +
-					"public class API {\n" +
-					"	public String id(String in) { return in; }\n" +
-					"}\n");
+					"""
+						package p.q;
+						public class API {
+							public String id(String in) { return in; }
+						}
+						""");
 
 			p2 =  createJavaProject("mod.two", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			IClasspathAttribute[] attr = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
@@ -96,19 +100,23 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
 
 			createFolder("/mod.two/src/client");
 			createFile("/mod.two/src/module-info.java",
-					"module mod.two {\n" +
-					"		requires static org.eclipse.jdt.annotation;\n" +
-					"		requires mod.one;\n" +
-					"}\n");
+					"""
+						module mod.two {
+								requires static org.eclipse.jdt.annotation;
+								requires mod.one;
+						}
+						""");
 			String clientSource =
-					"package client;\n" +
-					"import p.q.API;\n" +
-					"public class Client {\n" +
-					"    	void foo(API api) {\n" +
-					"        api.id(api.id(\"\")); // OK\n" +
-					"        api.id(null); // NOK\n" +
-					"    	}\n" +
-					"}\n";
+					"""
+				package client;
+				import p.q.API;
+				public class Client {
+				    	void foo(API api) {
+				        api.id(api.id("")); // OK
+				        api.id(null); // NOK
+				    	}
+				}
+				""";
 			createFile("/mod.two/src/client/Client.java", clientSource);
 
 			this.problemRequestor.initialize(clientSource.toCharArray());
@@ -116,12 +124,14 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
 			getCompilationUnit("/mod.two/src/client/Client.java").getWorkingCopy(this.wcOwner, null);
 
 			assertProblems("Unexpected problems",
-					"----------\n" +
-					"1. ERROR in /mod.two/src/client/Client.java (at line 6)\n" +
-					"	api.id(null); // NOK\n" +
-					"	       ^^^^\n" +
-					"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
-					"----------\n");
+					"""
+						----------
+						1. ERROR in /mod.two/src/client/Client.java (at line 6)
+							api.id(null); // NOK
+							       ^^^^
+						Null type mismatch: required '@NonNull String' but the provided value is null
+						----------
+						""");
     	} finally {
     		if (p != null)
     			deleteProject(p);
@@ -142,16 +152,20 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
     		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
     		createJar(new String[] {
     				"/mod.one/src/module-info.java",
-					"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-					"module mod.one {\n" +
-					"	requires org.eclipse.jdt.annotation;\n" +
-					"	exports p.q;\n" +
-					"}\n",
+					"""
+						@org.eclipse.jdt.annotation.NonNullByDefault
+						module mod.one {
+							requires org.eclipse.jdt.annotation;
+							exports p.q;
+						}
+						""",
 					"/mod.one/src/p/q/API.java",
-					"package p.q;\n" +
-					"public class API {\n" +
-					"	public String id(String in) { return in; }\n" +
-					"}\n"
+					"""
+						package p.q;
+						public class API {
+							public String id(String in) { return in; }
+						}
+						"""
     			},
 				p2.getProject().getLocation().append("mod.one.jar").toOSString(),
     			new String[] {this.ANNOTATION_LIB, getExternalJCLPathString("9")},
@@ -166,19 +180,23 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
 
 			createFolder("/mod.two/src/client");
 			createFile("/mod.two/src/module-info.java",
-					"module mod.two {\n" +
-					"		requires static org.eclipse.jdt.annotation;\n" +
-					"		requires mod.one;\n" +
-					"}\n");
+					"""
+						module mod.two {
+								requires static org.eclipse.jdt.annotation;
+								requires mod.one;
+						}
+						""");
 			String clientSource =
-					"package client;\n" +
-					"import p.q.API;\n" +
-					"public class Client {\n" +
-					"    	void foo(API api) {\n" +
-					"        api.id(api.id(\"\")); // OK\n" +
-					"        api.id(null); // NOK\n" +
-					"    	}\n" +
-					"}\n";
+					"""
+				package client;
+				import p.q.API;
+				public class Client {
+				    	void foo(API api) {
+				        api.id(api.id("")); // OK
+				        api.id(null); // NOK
+				    	}
+				}
+				""";
 			createFile("/mod.two/src/client/Client.java", clientSource);
 
 			// full build:
@@ -193,12 +211,14 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
 			getCompilationUnit("/mod.two/src/client/Client.java").getWorkingCopy(this.wcOwner, null);
 
 			assertProblems("Unexpected problems",
-					"----------\n" +
-					"1. ERROR in /mod.two/src/client/Client.java (at line 6)\n" +
-					"	api.id(null); // NOK\n" +
-					"	       ^^^^\n" +
-					"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
-					"----------\n");
+					"""
+						----------
+						1. ERROR in /mod.two/src/client/Client.java (at line 6)
+							api.id(null); // NOK
+							       ^^^^
+						Null type mismatch: required '@NonNull String' but the provided value is null
+						----------
+						""");
     	} finally {
     		if (p != null)
     			deleteProject(p);

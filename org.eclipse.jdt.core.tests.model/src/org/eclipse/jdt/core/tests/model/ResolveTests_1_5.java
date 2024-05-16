@@ -145,14 +145,15 @@ public void test0003() throws JavaModelException {
 public void test0004() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0004/Test.java",
-			"package test0004;\n" +
-			"public class Test <T> {\n" +
-			"	test0004.Test.X<Object>.Y<Object> var;\n" +
-			"	public class X <TX> {\n" +
-			"		public class Y <TY> {\n" +
-			"		}\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test0004;
+				public class Test <T> {
+					test0004.Test.X<Object>.Y<Object> var;
+					public class X <TX> {
+						public class Y <TY> {
+						}
+					}
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -517,12 +518,13 @@ public void test0025() throws JavaModelException {
 public void test0026() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0026/Test.java",
-			"package test0026;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {\n" +
-			"	}\n" +
-			"	Test.Inner x;\n" +
-			"}");
+			"""
+				package test0026;
+				public class Test<T> {
+					public class Inner<U> {
+					}
+					Test.Inner x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Inn";
@@ -538,12 +540,13 @@ public void test0026() throws JavaModelException {
 public void test0027() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0027/Test.java",
-			"package test0027;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {\n" +
-			"	}\n" +
-			"	Test.Inner<Object> x;\n" +
-			"}");
+			"""
+				package test0027;
+				public class Test<T> {
+					public class Inner<U> {
+					}
+					Test.Inner<Object> x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Inn";
@@ -559,12 +562,13 @@ public void test0027() throws JavaModelException {
 public void test0028() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0028/Test.java",
-			"package test0028;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {\n" +
-			"	}\n" +
-			"	Test<Object>.Inner x;\n" +
-			"}");
+			"""
+				package test0028;
+				public class Test<T> {
+					public class Inner<U> {
+					}
+					Test<Object>.Inner x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Inn";
@@ -580,12 +584,13 @@ public void test0028() throws JavaModelException {
 public void test0029() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0029/Test.java",
-			"package test0029;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {\n" +
-			"	}\n" +
-			"	Test<Object>.Inner<Object> x;\n" +
-			"}");
+			"""
+				package test0029;
+				public class Test<T> {
+					public class Inner<U> {
+					}
+					Test<Object>.Inner<Object> x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Inn";
@@ -601,12 +606,13 @@ public void test0029() throws JavaModelException {
 public void test0030() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0030/Test.java",
-			"package test0030;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {\n" +
-			"	}\n" +
-			"	Test.Inner x;\n" +
-			"}");
+			"""
+				package test0030;
+				public class Test<T> {
+					public class Inner<U> {
+					}
+					Test.Inner x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Inner";
@@ -623,12 +629,13 @@ public void test0030() throws JavaModelException {
 public void test0031() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0031/Test.java",
-			"package test0031;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {\n" +
-			"	}\n" +
-			"	Test.Inner<Object> x;\n" +
-			"}");
+			"""
+				package test0031;
+				public class Test<T> {
+					public class Inner<U> {
+					}
+					Test.Inner<Object> x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Inner";
@@ -645,12 +652,13 @@ public void test0031() throws JavaModelException {
 public void test0032() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0032/Test.java",
-			"package test0032;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {	\n" +
-			"	}\n" +
-			"	Test<Object>.Inner x;\n" +
-			"}");
+			"""
+				package test0032;
+				public class Test<T> {
+					public class Inner<U> {\t
+					}
+					Test<Object>.Inner x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Inner";
@@ -667,12 +675,13 @@ public void test0032() throws JavaModelException {
 public void test0033() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0033/Test.java",
-			"package test0033;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {\n" +
-			"	}\n" +
-			"	Test<Object>.Inner<Object> x;\n" +
-			"}");
+			"""
+				package test0033;
+				public class Test<T> {
+					public class Inner<U> {
+					}
+					Test<Object>.Inner<Object> x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Inner";
@@ -689,12 +698,13 @@ public void test0033() throws JavaModelException {
 public void test0034() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0034/Test.java",
-			"package test0034;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {\n" +
-			"	}\n" +
-			"	Test.Inner x;\n" +
-			"}");
+			"""
+				package test0034;
+				public class Test<T> {
+					public class Inner<U> {
+					}
+					Test.Inner x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test.Inner";
@@ -711,12 +721,13 @@ public void test0034() throws JavaModelException {
 public void test0035() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0035/Test.java",
-			"package test0035;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {	\n" +
-			"	}\n" +
-			"	Test.Inner<Object> x;\n" +
-			"}");
+			"""
+				package test0035;
+				public class Test<T> {
+					public class Inner<U> {\t
+					}
+					Test.Inner<Object> x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test.Inner<Object>";
@@ -733,12 +744,13 @@ public void test0035() throws JavaModelException {
 public void test0036() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0036/Test.java",
-			"package test0036;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {	\n" +
-			"	}\n" +
-			"	Test<Object>.Inner x;\n" +
-			"}");
+			"""
+				package test0036;
+				public class Test<T> {
+					public class Inner<U> {\t
+					}
+					Test<Object>.Inner x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test<Object>.Inner";
@@ -755,12 +767,13 @@ public void test0036() throws JavaModelException {
 public void test0037() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0037/Test.java",
-			"package test0037;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {	\n" +
-			"	}\n" +
-			"	Test<Object>.Inner<Object> x;\n" +
-			"}");
+			"""
+				package test0037;
+				public class Test<T> {
+					public class Inner<U> {\t
+					}
+					Test<Object>.Inner<Object> x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test<Object>.Inner<Object>";
@@ -777,12 +790,13 @@ public void test0037() throws JavaModelException {
 public void test0038() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0038/Test.java",
-			"package test0038;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {\n" +
-			"	}\n" +
-			"	Test.Inner<Object> x;\n" +
-			"}");
+			"""
+				package test0038;
+				public class Test<T> {
+					public class Inner<U> {
+					}
+					Test.Inner<Object> x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test.Inner";
@@ -799,12 +813,13 @@ public void test0038() throws JavaModelException {
 public void test0039() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0039/Test.java",
-			"package test0039;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {\n" +
-			"	}\n" +
-			"	Test<Object>.Inner<Object> x;\n" +
-			"}");
+			"""
+				package test0039;
+				public class Test<T> {
+					public class Inner<U> {
+					}
+					Test<Object>.Inner<Object> x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test<Object>.Inner";
@@ -821,12 +836,13 @@ public void test0039() throws JavaModelException {
 public void test0040() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0040/Test.java",
-			"package test0040;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {\n" +
-			"	}\n" +
-			"	Test<Object>.Inner<Object> x;\n" +
-			"}");
+			"""
+				package test0040;
+				public class Test<T> {
+					public class Inner<U> {
+					}
+					Test<Object>.Inner<Object> x;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Inner<Object>";
@@ -843,18 +859,19 @@ public void test0040() throws JavaModelException {
 public void test0041() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0041/Test.java",
-			"package test0041;\n" +
-			"public class Test<T> {\n" +
-			"	void foo() {\n" +
-			"		class Local1<T1> {\n" +
-			"			class Local2<T2> {\n" +
-			"			}\n" +
-			"		}\n" +
-			"		class Local3<T3> {\n" +
-			"		} \n" +
-			"		Local1<Local3<Object>>.Local2<Local3<Object>> l;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test0041;
+				public class Test<T> {
+					void foo() {
+						class Local1<T1> {
+							class Local2<T2> {
+							}
+						}
+						class Local3<T3> {
+						}\s
+						Local1<Local3<Object>>.Local2<Local3<Object>> l;
+					}
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Local1<Local3<Object>>.Local2<Local3<Object>>";
@@ -871,12 +888,13 @@ public void test0041() throws JavaModelException {
 public void test0042() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0042/Test.java",
-			"package test0042;\n" +
-			"public class Test<T> {\n" +
-			"	public class Inner<U> {	\n" +
-			"	}\n" +
-			"	Test<? super String>.Inner<? extends String> v;\n" +
-			"}");
+			"""
+				package test0042;
+				public class Test<T> {
+					public class Inner<U> {\t
+					}
+					Test<? super String>.Inner<? extends String> v;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test<? super String>.Inner<? extends String>";
@@ -893,10 +911,11 @@ public void test0042() throws JavaModelException {
 public void test0043() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0043/Test.java",
-			"package test0043;\n" +
-			"public class Test<T> {\n" +
-			"	Test<T> var;\n" +
-			"}");
+			"""
+				package test0043;
+				public class Test<T> {
+					Test<T> var;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -913,12 +932,13 @@ public void test0043() throws JavaModelException {
 public void test0044() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0044/Test.java",
-			"package test0044;\n" +
-			"public class Test<T1> {\n" +
-			"}\n" +
-			"class Test2<T2> {\n" +
-			"	Test<T2> var;\n" +
-			"}");
+			"""
+				package test0044;
+				public class Test<T1> {
+				}
+				class Test2<T2> {
+					Test<T2> var;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -935,10 +955,11 @@ public void test0044() throws JavaModelException {
 public void test0045() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0045/Test.java",
-			"package test0045;\n" +
-			"public class Test<T1> {\n" +
-			"	String var;\n" +
-			"}");
+			"""
+				package test0045;
+				public class Test<T1> {
+					String var;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "var";
@@ -955,13 +976,14 @@ public void test0045() throws JavaModelException {
 public void test0046() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0046/Test.java",
-			"package test0046;\n" +
-			"public class Test<T1> {\n" +
-			"	String var;\n" +
-			"	void foo() {\n" +
-			"	  var = null;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test0046;
+				public class Test<T1> {
+					String var;
+					void foo() {
+					  var = null;
+					}
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "var";
@@ -978,14 +1000,15 @@ public void test0046() throws JavaModelException {
 public void test0047() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0047/Test.java",
-			"package test0047;\n" +
-			"public class Test<T1> {\n" +
-			"	public String var;\n" +
-			"	void foo() {\n" +
-			"	  Test<String> t = null;\n" +
-			"	  t.var = null;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test0047;
+				public class Test<T1> {
+					public String var;
+					void foo() {
+					  Test<String> t = null;
+					  t.var = null;
+					}
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "var";
@@ -1002,14 +1025,15 @@ public void test0047() throws JavaModelException {
 public void test0048() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0048/Test.java",
-			"package test0048;\n" +
-			"public class Test<T1> {\n" +
-			"	public String var;\n" +
-			"	void foo() {\n" +
-			"	  Test<?> t = new Test<String>;\n" +
-			"	  t.var = null;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test0048;
+				public class Test<T1> {
+					public String var;
+					void foo() {
+					  Test<?> t = new Test<String>;
+					  t.var = null;
+					}
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "var";
@@ -1026,14 +1050,15 @@ public void test0048() throws JavaModelException {
 public void test0049() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0049/Test.java",
-			"package test0049;\n" +
-			"public class Test<T1> {\n" +
-			"	public String var;\n" +
-			"	void foo() {\n" +
-			"	  Test<T1> t = null;\n" +
-			"	  t.var = null;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test0049;
+				public class Test<T1> {
+					public String var;
+					void foo() {
+					  Test<T1> t = null;
+					  t.var = null;
+					}
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "var";
@@ -1050,14 +1075,15 @@ public void test0049() throws JavaModelException {
 public void test0050() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0050/Test.java",
-			"package test0050;\n" +
-			"public class Test<T1> {\n" +
-			"	public String var;\n" +
-			"	void foo() {\n" +
-			"	  Test t = null;\n" +
-			"	  t.var = null;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test0050;
+				public class Test<T1> {
+					public String var;
+					void foo() {
+					  Test t = null;
+					  t.var = null;
+					}
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "var";
@@ -1074,16 +1100,17 @@ public void test0050() throws JavaModelException {
 public void test0051() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0051/Test.java",
-			"package test0051;\n" +
-			"public class Test {\n" +
-			"	void foo() {\n" +
-			"	  class Inner<T> {\n" +
-			"	    public String var;\n" +
-			"	  }" +
-			"	  Inner<Object> i = null;\n" +
-			"	  i.var = null;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test0051;
+				public class Test {
+					void foo() {
+					  class Inner<T> {
+					    public String var;
+					  }\
+					  Inner<Object> i = null;
+					  i.var = null;
+					}
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "var";
@@ -1100,16 +1127,17 @@ public void test0051() throws JavaModelException {
 public void test0052() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0052/Test.java",
-			"package test0052;\n" +
-			"public class Test {\n" +
-			"	void foo() {\n" +
-			"	  class Inner<T> {\n" +
-			"	    public T var;\n" +
-			"	  }" +
-			"	  Inner<Object> i = null;\n" +
-			"	  i.var = null;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test0052;
+				public class Test {
+					void foo() {
+					  class Inner<T> {
+					    public T var;
+					  }\
+					  Inner<Object> i = null;
+					  i.var = null;
+					}
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "var";
@@ -1126,17 +1154,18 @@ public void test0052() throws JavaModelException {
 public void test0053() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0053/Test.java",
-			"package test0053;\n" +
-			"public class Test<T> {\n" +
-			"	public void foo() {\n" +
-			"   }\n" +
-			"}\n" +
-			"class Test2<T> {\n" +
-			"  void bar() {\n" +
-			"    Test<String> var = null;\n" +
-			"    var.foo();\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0053;
+				public class Test<T> {
+					public void foo() {
+				   }
+				}
+				class Test2<T> {
+				  void bar() {
+				    Test<String> var = null;
+				    var.foo();
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "foo";
@@ -1153,17 +1182,18 @@ public void test0053() throws JavaModelException {
 public void test0054() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0054/Test.java",
-			"package test0054;\n" +
-			"public class Test<T> {\n" +
-			"	public void foo() {\n" +
-			"   }\n" +
-			"}\n" +
-			"class Test2<T> {\n" +
-			"  void bar() {\n" +
-			"    Test var = null;\n" +
-			"    var.foo();\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0054;
+				public class Test<T> {
+					public void foo() {
+				   }
+				}
+				class Test2<T> {
+				  void bar() {
+				    Test var = null;
+				    var.foo();
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "foo";
@@ -1180,17 +1210,18 @@ public void test0054() throws JavaModelException {
 public void test0055() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0055/Test.java",
-			"package test0055;\n" +
-			"public class Test<T> {\n" +
-			"	public void foo() {\n" +
-			"   }\n" +
-			"}\n" +
-			"class Test2<T> {\n" +
-			"  void bar() {\n" +
-			"    Test<T> var = null;\n" +
-			"    var.foo();\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0055;
+				public class Test<T> {
+					public void foo() {
+				   }
+				}
+				class Test2<T> {
+				  void bar() {
+				    Test<T> var = null;
+				    var.foo();
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "foo";
@@ -1207,15 +1238,16 @@ public void test0055() throws JavaModelException {
 public void test0056() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0056/Test.java",
-			"package test0056;\n" +
-			"public class Test<T> {\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    Test<T> var = null;\n" +
-			"    var.foo();\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0056;
+				public class Test<T> {
+				  public void foo() {
+				  }
+				  void bar() {
+				    Test<T> var = null;
+				    var.foo();
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "foo";
@@ -1232,17 +1264,18 @@ public void test0056() throws JavaModelException {
 public void test0057() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0057/Test.java",
-			"package test0057;\n" +
-			"public class Test<T1> {\n" +
-			"  public <T2> void foo() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Test2 {\n" +
-			"  void bar() {\n" +
-			"    Test<String> var = null;\n" +
-			"    var.<Object>foo();\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0057;
+				public class Test<T1> {
+				  public <T2> void foo() {
+				  }
+				}
+				class Test2 {
+				  void bar() {
+				    Test<String> var = null;
+				    var.<Object>foo();
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "foo";
@@ -1259,17 +1292,18 @@ public void test0057() throws JavaModelException {
 public void test0058() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0058/Test.java",
-			"package test0058;\n" +
-			"public class Test<T1> {\n" +
-			"  public <T2> void foo() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Test2 {\n" +
-			"  void bar() {\n" +
-			"    Test<String> var = null;\n" +
-			"    var.foo();\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0058;
+				public class Test<T1> {
+				  public <T2> void foo() {
+				  }
+				}
+				class Test2 {
+				  void bar() {
+				    Test<String> var = null;
+				    var.foo();
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "foo";
@@ -1286,17 +1320,18 @@ public void test0058() throws JavaModelException {
 public void test0059() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0059/Test.java",
-			"package test0059;\n" +
-			"public class Test {\n" +
-			"  public <T2> void foo() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Test2 {\n" +
-			"  void bar() {\n" +
-			"    Test var = null;\n" +
-			"    var.<String>foo();\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0059;
+				public class Test {
+				  public <T2> void foo() {
+				  }
+				}
+				class Test2 {
+				  void bar() {
+				    Test var = null;
+				    var.<String>foo();
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "foo";
@@ -1313,17 +1348,18 @@ public void test0059() throws JavaModelException {
 public void test0060() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0060/Test.java",
-			"package test0060;\n" +
-			"public class Test {\n" +
-			"  public <T2> void foo() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Test2 {\n" +
-			"  void bar() {\n" +
-			"    Test var = null;\n" +
-			"    var.foo();\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0060;
+				public class Test {
+				  public <T2> void foo() {
+				  }
+				}
+				class Test2 {
+				  void bar() {
+				    Test var = null;
+				    var.foo();
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "foo";
@@ -1340,13 +1376,14 @@ public void test0060() throws JavaModelException {
 public void test0061() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0061/Test.java",
-			"package test0061;\n" +
-			"public class Test {\n" +
-			"  public <T2> void foo() {\n" +
-			"    Test var;\n" +
-			"    var.<T2>foo();\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0061;
+				public class Test {
+				  public <T2> void foo() {
+				    Test var;
+				    var.<T2>foo();
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "foo";
@@ -1363,13 +1400,14 @@ public void test0061() throws JavaModelException {
 public void test0062() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0062/Test.java",
-			"package test0062;\n" +
-			"public class Test<T1> {\n" +
-			"  public <T2> void foo() {\n" +
-			"    Test var;\n" +
-			"    var.<T1>foo();\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0062;
+				public class Test<T1> {
+				  public <T2> void foo() {
+				    Test var;
+				    var.<T1>foo();
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "foo";
@@ -1386,17 +1424,18 @@ public void test0062() throws JavaModelException {
 public void test0063() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0063/Test.java",
-			"package test0063;\n" +
-			"public class Test<T1> {\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}\n" +
-			"class Test2 {\n" +
-			"  void bar() {\n" +
-			"    Test<String> var;\n" +
-			"    var.foo();\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0063;
+				public class Test<T1> {
+				  public void foo() {
+				  }
+				}
+				class Test2 {
+				  void bar() {
+				    Test<String> var;
+				    var.foo();
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "foo";
@@ -1413,14 +1452,15 @@ public void test0063() throws JavaModelException {
 public void test0064() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0064/Test.java",
-			"package test0064;\n" +
-			"public class Test {\n" +
-			"  public <U> Test(U u) {\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    new <String>Test(null);\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0064;
+				public class Test {
+				  public <U> Test(U u) {
+				  }
+				  void bar() {
+				    new <String>Test(null);
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -1437,14 +1477,15 @@ public void test0064() throws JavaModelException {
 public void test0065() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0065/Test.java",
-			"package test0065;\n" +
-			"public class Test {\n" +
-			"  public <U> Test(U u) {\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    new Test(null);\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0065;
+				public class Test {
+				  public <U> Test(U u) {
+				  }
+				  void bar() {
+				    new Test(null);
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -1461,14 +1502,15 @@ public void test0065() throws JavaModelException {
 public void test0066() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0066/Test.java",
-			"package test0066;\n" +
-			"public class Test<T> {\n" +
-			"  public <U> Test(U u) {\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    new <String>Test<String>(null);\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0066;
+				public class Test<T> {
+				  public <U> Test(U u) {
+				  }
+				  void bar() {
+				    new <String>Test<String>(null);
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -1485,14 +1527,15 @@ public void test0066() throws JavaModelException {
 public void test0067() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0067/Test.java",
-			"package test0067;\n" +
-			"public class Test<T> {\n" +
-			"  public <U> Test(U u) {\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    new Test<String>(null);\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0067;
+				public class Test<T> {
+				  public <U> Test(U u) {
+				  }
+				  void bar() {
+				    new Test<String>(null);
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -1509,14 +1552,15 @@ public void test0067() throws JavaModelException {
 public void test0068() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0068/Test.java",
-			"package test0068;\n" +
-			"public class Test<T> {\n" +
-			"  public <U> Test(U u) {\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    new Test(null);\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0068;
+				public class Test<T> {
+				  public <U> Test(U u) {
+				  }
+				  void bar() {
+				    new Test(null);
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -1533,18 +1577,19 @@ public void test0068() throws JavaModelException {
 public void test0069() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0069/Test.java",
-			"package test0069;\n" +
-			"public class Test<T> {\n" +
-			"  public <U> Test(U u) {\n" +
-			"  }\n" +
-			"  public class Inner<V> {\n" +
-			"    public <W> Inner(W w) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    new <String>Test<String>(null).new <String>Inner<String>(null);\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0069;
+				public class Test<T> {
+				  public <U> Test(U u) {
+				  }
+				  public class Inner<V> {
+				    public <W> Inner(W w) {
+				    }
+				  }
+				  void bar() {
+				    new <String>Test<String>(null).new <String>Inner<String>(null);
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Inner";
@@ -1561,14 +1606,15 @@ public void test0069() throws JavaModelException {
 public void test0070() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0070/Test.java",
-			"package test0070;\n" +
-			"public class Test {\n" +
-			"  public <U> Test(U u) {\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    new <String>Test(null){};\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0070;
+				public class Test {
+				  public <U> Test(U u) {
+				  }
+				  void bar() {
+				    new <String>Test(null){};
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -1585,14 +1631,15 @@ public void test0070() throws JavaModelException {
 public void test0071() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0071/Test.java",
-			"package test0071;\n" +
-			"public class Test {\n" +
-			"  public <U> Test(U u) {\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    new Test(null){};\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0071;
+				public class Test {
+				  public <U> Test(U u) {
+				  }
+				  void bar() {
+				    new Test(null){};
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -1609,14 +1656,15 @@ public void test0071() throws JavaModelException {
 public void test0072() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0072/Test.java",
-			"package test0072;\n" +
-			"public class Test<T> {\n" +
-			"  public <U> Test(U u) {\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    new <String>Test<String>(null){};\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0072;
+				public class Test<T> {
+				  public <U> Test(U u) {
+				  }
+				  void bar() {
+				    new <String>Test<String>(null){};
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -1633,14 +1681,15 @@ public void test0072() throws JavaModelException {
 public void test0073() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0073/Test.java",
-			"package test0073;\n" +
-			"public class Test<T> {\n" +
-			"  public <U> Test(U u) {\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    new Test<String>(null){};\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0073;
+				public class Test<T> {
+				  public <U> Test(U u) {
+				  }
+				  void bar() {
+				    new Test<String>(null){};
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -1657,14 +1706,15 @@ public void test0073() throws JavaModelException {
 public void test0074() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0074/Test.java",
-			"package test0074;\n" +
-			"public class Test<T> {\n" +
-			"  public <U> Test(U u) {\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    new Test(null){};\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0074;
+				public class Test<T> {
+				  public <U> Test(U u) {
+				  }
+				  void bar() {
+				    new Test(null){};
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Test";
@@ -1681,18 +1731,19 @@ public void test0074() throws JavaModelException {
 public void test0075() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0075/Test.java",
-			"package test0075;\n" +
-			"public class Test<T> {\n" +
-			"  public <U> Test(U u) {\n" +
-			"  }\n" +
-			"  public class Inner<V> {\n" +
-			"    public <W> Inner(W w) {\n" +
-			"    }\n" +
-			"  }\n" +
-			"  void bar() {\n" +
-			"    new <String>Test<String>(null).new <String>Inner<String>(null){};\n" +
-			"  }\n" +
-			"}");
+			"""
+				package test0075;
+				public class Test<T> {
+				  public <U> Test(U u) {
+				  }
+				  public class Inner<V> {
+				    public <W> Inner(W w) {
+				    }
+				  }
+				  void bar() {
+				    new <String>Test<String>(null).new <String>Inner<String>(null){};
+				  }
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Inner";
@@ -1709,12 +1760,13 @@ public void test0075() throws JavaModelException {
 public void test0076() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0076/Test.java",
-			"package test0076;\n" +
-			"public class Test<T> {\n" +
-			"  public class Inner<U, V> {\n" +
-			"  }\n" +
-			"  Test<? super String>.Inner<int[][], Test<String[]>> var;\n" +
-			"}");
+			"""
+				package test0076;
+				public class Test<T> {
+				  public class Inner<U, V> {
+				  }
+				  Test<? super String>.Inner<int[][], Test<String[]>> var;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "Inner";
@@ -1731,11 +1783,12 @@ public void test0076() throws JavaModelException {
 public void test0077() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0077/Test.java",
-			"package test0077;\n" +
-			"@interface MyAnn {\n" +
-			"}\n" +
-			"public @MyAnn class Test {\n" +
-			"}");
+			"""
+				package test0077;
+				@interface MyAnn {
+				}
+				public @MyAnn class Test {
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "MyAnn";
@@ -1752,12 +1805,13 @@ public void test0077() throws JavaModelException {
 public void test0078() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0078/Test.java",
-			"package test0078;\n" +
-			"@interface MyAnn {\n" +
-			"  String value();\n" +
-			"}\n" +
-			"public @MyAnn(\"\") class Test {\n" +
-			"}");
+			"""
+				package test0078;
+				@interface MyAnn {
+				  String value();
+				}
+				public @MyAnn("") class Test {
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "MyAnn";
@@ -1774,12 +1828,13 @@ public void test0078() throws JavaModelException {
 public void test0079() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0079/Test.java",
-			"package test0079;\n" +
-			"@interface MyAnn {\n" +
-			"  String value();\n" +
-			"}\n" +
-			"public @MyAnn class Test {\n" +
-			"}");
+			"""
+				package test0079;
+				@interface MyAnn {
+				  String value();
+				}
+				public @MyAnn class Test {
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "MyAnn";
@@ -1796,13 +1851,14 @@ public void test0079() throws JavaModelException {
 public void test0080() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0080/Test.java",
-			"package test0080;\n" +
-			"@interface MyAnn {\n" +
-			"  String value1();\n" +
-			"  String value2();\n" +
-			"}\n" +
-			"public @MyAnn(value1 = \"\", value2 = \"\") class Test {\n" +
-			"}");
+			"""
+				package test0080;
+				@interface MyAnn {
+				  String value1();
+				  String value2();
+				}
+				public @MyAnn(value1 = "", value2 = "") class Test {
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "MyAnn";
@@ -1819,13 +1875,14 @@ public void test0080() throws JavaModelException {
 public void test0081() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0081/Test.java",
-			"package test0080;\n" +
-			"@interface MyAnn {\n" +
-			"  String value1();\n" +
-			"  String value2();\n" +
-			"}\n" +
-			"public @MyAnn(value1 = \"\", value2 = \"\") class Test {\n" +
-			"}");
+			"""
+				package test0080;
+				@interface MyAnn {
+				  String value1();
+				  String value2();
+				}
+				public @MyAnn(value1 = "", value2 = "") class Test {
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "value1";
@@ -1842,40 +1899,44 @@ public void test0081() throws JavaModelException {
 public void test0082() throws JavaModelException {
 	IJavaElement[] elements = select(
 			"/Resolve/src2/test0082/Test.java",
-			"package test0082;\n" +
-			"public class Test<T> {\n" +
-			"}",
+			"""
+				package test0082;
+				public class Test<T> {
+				}""",
 			"Test");
 	assertEquals("test0082.Test<T>", ((IType)elements[0]).getFullyQualifiedParameterizedName());
 }
 public void test0083() throws JavaModelException {
 	IJavaElement[] elements = select(
 			"/Resolve/src2/test0083/Test.java",
-			"package test0083;\n" +
-			"public class Test<T> {\n" +
-			"  Test<String> field;\n" +
-			"}",
+			"""
+				package test0083;
+				public class Test<T> {
+				  Test<String> field;
+				}""",
 			"Test");
 	assertEquals("test0083.Test<java.lang.String>", ((IType)elements[0]).getFullyQualifiedParameterizedName());
 }
 public void test0084() throws JavaModelException {
 	IJavaElement[] elements = select(
 			"/Resolve/src2/test0084/Test.java",
-			"package test0084;\n" +
-			"public class Test<T> {\n" +
-			"  Test field;\n" +
-			"}",
+			"""
+				package test0084;
+				public class Test<T> {
+				  Test field;
+				}""",
 			"Test");
 	assertEquals("test0084.Test", ((IType)elements[0]).getFullyQualifiedParameterizedName());
 }
 public void test0085() throws JavaModelException {
 	IJavaElement[] elements = select(
 			"/Resolve/src2/test0085/Test.java",
-			"package test0085;\n" +
-			"public class Test<T> {\n" +
-			"  class Member {\n" +
-			"  }\n" +
-			"}",
+			"""
+				package test0085;
+				public class Test<T> {
+				  class Member {
+				  }
+				}""",
 			"Member");
 	assertEquals("test0085.Test<T>.Member", ((IType)elements[0]).getFullyQualifiedParameterizedName());
 }
@@ -1883,10 +1944,11 @@ public void test0085() throws JavaModelException {
 public void test0086() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0086/Test.java",
-			"package test0080;\n" +
-			"public class Test {\n" +
-			"   List<Integer> list;\n" +
-			"}");
+			"""
+				package test0080;
+				public class Test {
+				   List<Integer> list;
+				}""");
 
 	String str = this.wc.getSource();
 	String selection = "List";
@@ -1906,17 +1968,19 @@ public void test0087() throws JavaModelException {
 	try {
 		imported = getWorkingCopy(
 				"/Resolve/src2/p/MyClass0087.java",
-				"package p;\n" +
-				"public class MyClass0087 {\n" +
-				"   public static int bar = 0;\n" +
-				"}");
+				"""
+					package p;
+					public class MyClass0087 {
+					   public static int bar = 0;
+					}""");
 
 		IJavaElement[] elements = select(
 				"/Resolve/src2/test0087/Test.java",
-				"import static p.MyClass0087.bar;\n" +
-				"package test0087;\n" +
-				"public class Test {\n" +
-				"}",
+				"""
+					import static p.MyClass0087.bar;
+					package test0087;
+					public class Test {
+					}""",
 				"bar");
 
 		assertElementsEqual(
@@ -1936,18 +2000,20 @@ public void test0088() throws JavaModelException {
 	try {
 		imported = getWorkingCopy(
 				"/Resolve/src2/p/MyClass0088.java",
-				"package p;\n" +
-				"public class MyClass0088 {\n" +
-				"   public static void foo() {}\n" +
-				"   public static void foo(int i) {}\n" +
-				"}");
+				"""
+					package p;
+					public class MyClass0088 {
+					   public static void foo() {}
+					   public static void foo(int i) {}
+					}""");
 
 		IJavaElement[] elements = select(
 				"/Resolve/src2/test0088/Test.java",
-				"import static p.MyClass0088.foo;\n" +
-				"package test0088;\n" +
-				"public class Test {\n" +
-				"}",
+				"""
+					import static p.MyClass0088.foo;
+					package test0088;
+					public class Test {
+					}""",
 				"foo");
 
 		assertElementsEqual(
@@ -1966,14 +2032,15 @@ public void test0088() throws JavaModelException {
 public void test0089() throws JavaModelException {
 	IJavaElement[] elements = selectAfter(
 			"/Resolve/src2/test0089/Test.java",
-			"package test0089;\n" +
-			"public class Test<T> {\n" +
-			"  Test(String t) {}\n" +
-			"  Test(Test<String> ts) {}\n" +
-			"  void bar() {\n" +
-			"    new Test<String>(new Test<String>(\"\"));\n" +
-			"  }\n" +
-			"}",
+			"""
+				package test0089;
+				public class Test<T> {
+				  Test(String t) {}
+				  Test(Test<String> ts) {}
+				  void bar() {
+				    new Test<String>(new Test<String>(""));
+				  }
+				}""",
 			"  new Te");
 
 	assertElementsEqual(
@@ -1987,10 +2054,11 @@ public void test0089() throws JavaModelException {
 public void test0090() throws JavaModelException {
 	IJavaElement[] elements = selectAfter(
 			"/Resolve/src2/test0090/Test.java",
-			"package test0090;\n" +
-			"public class Test {\n" +
-			"  <T>Test(T t) {}\n" +
-			"}",
+			"""
+				package test0090;
+				public class Test {
+				  <T>Test(T t) {}
+				}""",
 			"T");
 
 	assertElementsEqual(
@@ -2006,16 +2074,18 @@ public void test0091() throws JavaModelException {
 	try {
 		imported = getWorkingCopy(
 				"/Resolve/src2/test0091/MyAnnot.java",
-				"package test0091;\n" +
-				"public @interface MyAnnot {\n" +
-				"}");
+				"""
+					package test0091;
+					public @interface MyAnnot {
+					}""");
 
 		IJavaElement[] elements = select(
 				"/Resolve/src2/test0091/Test.java",
-				"package test0091;\n" +
-				"@MyAnnot\n" +
-				"public class Test {\n" +
-				"}",
+				"""
+					package test0091;
+					@MyAnnot
+					public class Test {
+					}""",
 				"@MyAnnot");
 
 		assertElementsEqual(
@@ -2035,16 +2105,18 @@ public void test0092() throws JavaModelException {
 	try {
 		imported = getWorkingCopy(
 				"/Resolve/src2/test0092/MyAnnot.java",
-				"package test0092;\n" +
-				"public @interface MyAnnot {\n" +
-				"}");
+				"""
+					package test0092;
+					public @interface MyAnnot {
+					}""");
 
 		IJavaElement[] elements = select(
 				"/Resolve/src2/test0092/Test.java",
-				"package test0092;\n" +
-				"@MyAnnot @MyAnnot\n" +
-				"public class Test {\n" +
-				"}",
+				"""
+					package test0092;
+					@MyAnnot @MyAnnot
+					public class Test {
+					}""",
 				"MyAnnot @MyAnnot");
 
 		assertElementsEqual(
@@ -2064,22 +2136,25 @@ public void test0093() throws JavaModelException {
 	try {
 		imported = getWorkingCopy(
 				"/Resolve/src2/test0093/MyEnum.java",
-				"package test0093;\n" +
-				"public enum MyEnum {\n" +
-				"  MyEnumConstant;\n" +
-				"}");
+				"""
+					package test0093;
+					public enum MyEnum {
+					  MyEnumConstant;
+					}""");
 
 		IJavaElement[] elements = select(
 				"/Resolve/src2/test0093/Test.java",
-				"package test0093;\n" +
-				"public class Test {\n" +
-				"  void foo(MyEnum e) {\n" +
-				"    switch(e) {\n" +
-				"      case MyEnumConstant:\n" +
-				"        break;\n" +
-				"    }\n" +
-				"  }\n" +
-				"}\n",
+				"""
+					package test0093;
+					public class Test {
+					  void foo(MyEnum e) {
+					    switch(e) {
+					      case MyEnumConstant:
+					        break;
+					    }
+					  }
+					}
+					""",
 				"MyEnumConstant");
 
 		assertElementsEqual(
@@ -2096,13 +2171,15 @@ public void test0093() throws JavaModelException {
 public void test0094() throws JavaModelException {
 	IJavaElement[] elements = select(
 			"/Resolve/src2/test0094/Test.java",
-			"package test0094;\n" +
-			"package import;\n" +
-			"public class Test {\n" +
-			"  public void goo(ZZArrayList<String> a) {\n" +
-			"    a.get(0);\n" +
-			"  }\n" +
-			"}\n",
+			"""
+				package test0094;
+				package import;
+				public class Test {
+				  public void goo(ZZArrayList<String> a) {
+				    a.get(0);
+				  }
+				}
+				""",
 			"get");
 
 	assertElementsEqual(
@@ -2118,14 +2195,15 @@ public void test0094() throws JavaModelException {
 public void test0095() throws JavaModelException {
 	IJavaElement[] elements = select(
 			"/Resolve/src2/test0095/X.java",
-			"package test0095;\n" +
-			"public class X {\n" +
-			"	Y<?, ? extends Z<? super Exception>> y;\n" +
-			"}\n" +
-			"class Y<K, V> {\n" +
-			"}\n" +
-			"class Z<T> {\n" +
-			"}",
+			"""
+				package test0095;
+				public class X {
+					Y<?, ? extends Z<? super Exception>> y;
+				}
+				class Y<K, V> {
+				}
+				class Z<T> {
+				}""",
 			"Y<?, ? extends Z<? super Exception>>");
 
 	assertElementsEqual(
@@ -2148,12 +2226,13 @@ public void test0095() throws JavaModelException {
 public void test0096() throws JavaModelException {
 	IJavaElement[] elements = select(
 			"/Resolve/src2/test0096/X.java",
-			"package test0095;\n" +
-			"public class X<T> {\n" +
-			"  class Inner<U> {\n" +
-			"  }\n" +
-			"  X<String>.Inner var;\n" +
-			"}",
+			"""
+				package test0095;
+				public class X<T> {
+				  class Inner<U> {
+				  }
+				  X<String>.Inner var;
+				}""",
 			"Inner");
 
 	assertElementsEqual(
@@ -2169,17 +2248,21 @@ public void test0097() throws JavaModelException {
 	try {
 		imported = getWorkingCopy(
 				"/Resolve/src2/test0097/Key.java",
-				"public class Key<\n" +
-				"	TT extends Test<KK, TT>,\n" +
-				"	KK extends Key<TT, KK>> {\n" +
-				"}\n");
+				"""
+					public class Key<
+						TT extends Test<KK, TT>,
+						KK extends Key<TT, KK>> {
+					}
+					""");
 
 		IJavaElement[] elements = select(
 				"/Resolve/src2/test0097/Test.java",
-				"public class Test<\n" +
-				"	K extends Key<T, K>,\n" +
-				"	T extends Test<K, T>> {\n" +
-				"}\n",
+				"""
+					public class Test<
+						K extends Key<T, K>,
+						T extends Test<K, T>> {
+					}
+					""",
 				"Key");
 
 		assertElementsEqual(
@@ -2199,18 +2282,22 @@ public void test0098() throws JavaModelException {
 	try {
 		imported = getWorkingCopy(
 				"/Resolve/src2/test0098/Color.java",
-				"public enum Color<\n" +
-				"	BLUE,\n" +
-				"	RED;\n" +
-				"}\n");
+				"""
+					public enum Color<
+						BLUE,
+						RED;
+					}
+					""");
 
 		IJavaElement[] elements = select(
 				"/Resolve/src2/test0098/Test.java",
-				"public class Test<\n" +
-				"	void foo() {\n" +
-				"		Color.valueOf(\"RED\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class Test<
+						void foo() {
+							Color.valueOf("RED");
+						}
+					}
+					""",
 				"valueOf");
 
 		assertElementsEqual(
@@ -2228,11 +2315,13 @@ public void test0098() throws JavaModelException {
 public void test0099() throws JavaModelException {
 	IJavaElement[] elements = select(
 			"/Resolve/src2/test0099/Test.java",
-			"public class Test<\n" +
-			"	void foo() {\n" +
-			"		class Local<TLocal>{}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class Test<
+					void foo() {
+						class Local<TLocal>{}
+					}
+				}
+				""",
 			"TLocal");
 
 	assertElementsEqual(
@@ -2245,13 +2334,15 @@ public void test0099() throws JavaModelException {
 public void test0100() throws JavaModelException {
 	IJavaElement[] elements = select(
 			"/Resolve/src2/test0100/Test.java",
-			"public class Test<\n" +
-			"	void foo() {\n" +
-			"		class Local<TLocal>{\n" +
-			"			TLocal var;\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n",
+			"""
+				public class Test<
+					void foo() {
+						class Local<TLocal>{
+							TLocal var;
+						}
+					}
+				}
+				""",
 			"TLocal");
 
 	assertElementsEqual(
@@ -2287,13 +2378,14 @@ public void test0102() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL15_LIB"}, "", "1.5");
 		String source =
-			"public class X<E> {\n" +
-			"  private class Y {\n" +
-			"  }\n" +
-			"  Object foo() {\n" +
-			"    return new Y();\n" +
-			"  }\n" +
-			"}";
+			"""
+			public class X<E> {
+			  private class Y {
+			  }
+			  Object foo() {
+			    return new Y();
+			  }
+			}""";
 		addLibrary(project, "lib15.jar", "lib15.zip", new String[] {"X.java", source}, "1.5");
 		IClassFile classFile = getClassFile("P", "/P/lib15.jar", "", "X.class");
 		int start = source.indexOf("Y()");
@@ -2312,18 +2404,19 @@ public void test0103() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;\n"+
-		"public class Test {\n" +
-		"  <T extends Test1> void foo(T t) {}\n" +
-		"  <T extends Test2> void foo(T t) {}\n" +
-		"  void bar(Object o) {\n" +
-		"    foo(o);\n" +
-		"  }\n" +
-		"}\n" +
-		"class Test1 {\n" +
-		"}\n" +
-		"class Test2 {\n" +
-		"}");
+		"""
+			package test;
+			public class Test {
+			  <T extends Test1> void foo(T t) {}
+			  <T extends Test2> void foo(T t) {}
+			  void bar(Object o) {
+			    foo(o);
+			  }
+			}
+			class Test1 {
+			}
+			class Test2 {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo(o)");
@@ -2341,20 +2434,21 @@ public void test0104() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;\n"+
-		"public class Test {\n" +
-		"  <T extends Test1> T foo(Test3<T> t) {return null;}\n" +
-		"  <T extends Test2> T foo(Test3<T> t) {return null;}\n" +
-		"  void bar(Object o) {\n" +
-		"    foo(o);\n" +
-		"  }\n" +
-		"}\n" +
-		"class Test1 {\n" +
-		"}\n" +
-		"class Test2 {\n" +
-		"}\n" +
-		"class Test3 <U> {\n" +
-		"}");
+		"""
+			package test;
+			public class Test {
+			  <T extends Test1> T foo(Test3<T> t) {return null;}
+			  <T extends Test2> T foo(Test3<T> t) {return null;}
+			  void bar(Object o) {
+			    foo(o);
+			  }
+			}
+			class Test1 {
+			}
+			class Test2 {
+			}
+			class Test3 <U> {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo(o)");
@@ -2372,20 +2466,21 @@ public void test0105() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;\n"+
-		"public class Test {\n" +
-		"  <T extends Test1> T foo(Test3<T> t) {return null;}\n" +
-		"  <T extends Test2> T foo(Test3<T> t) {return null;}\n" +
-		"  void bar(Test3 o) {\n" +
-		"    foo(o);\n" +
-		"  }\n" +
-		"}\n" +
-		"class Test1 {\n" +
-		"}\n" +
-		"class Test2 {\n" +
-		"}\n" +
-		"class Test3 <U> {\n" +
-		"}");
+		"""
+			package test;
+			public class Test {
+			  <T extends Test1> T foo(Test3<T> t) {return null;}
+			  <T extends Test2> T foo(Test3<T> t) {return null;}
+			  void bar(Test3 o) {
+			    foo(o);
+			  }
+			}
+			class Test1 {
+			}
+			class Test2 {
+			}
+			class Test3 <U> {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo(o)");
@@ -2403,20 +2498,21 @@ public void test0106() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
-		"package test;\n"+
-		"public class Test {\n" +
-		"  <T extends Test1> T foo(Test3<T> t) {return null;}\n" +
-		"  <T extends Test2> T foo(Test3<T> t) {return null;}\n" +
-		"  void bar(Test3<Object> o) {\n" +
-		"    foo(o);\n" +
-		"  }\n" +
-		"}\n" +
-		"class Test1 {\n" +
-		"}\n" +
-		"class Test2 {\n" +
-		"}\n" +
-		"class Test3 <U> {\n" +
-		"}");
+		"""
+			package test;
+			public class Test {
+			  <T extends Test1> T foo(Test3<T> t) {return null;}
+			  <T extends Test2> T foo(Test3<T> t) {return null;}
+			  void bar(Test3<Object> o) {
+			    foo(o);
+			  }
+			}
+			class Test1 {
+			}
+			class Test2 {
+			}
+			class Test3 <U> {
+			}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo(o)");
@@ -2434,10 +2530,11 @@ public void test0107() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"import static test0107.q.Y.foo2;\n" +
-			"public class Test {\n" +
-			"}");
+			"""
+				package test;
+				import static test0107.q.Y.foo2;
+				public class Test {
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo2");
@@ -2455,10 +2552,11 @@ public void test0108() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"import static test0108.q.Y.foo2;\n" +
-			"public class Test {\n" +
-			"}");
+			"""
+				package test;
+				import static test0108.q.Y.foo2;
+				public class Test {
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo2");
@@ -2476,10 +2574,11 @@ public void test0109() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"import static test0109.q.Y.foo2;\n" +
-			"public class Test {\n" +
-			"}");
+			"""
+				package test;
+				import static test0109.q.Y.foo2;
+				public class Test {
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo2");
@@ -2497,10 +2596,11 @@ public void test0110() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"import static test0110.q.Y.foo2;\n" +
-			"public class Test {\n" +
-			"}");
+			"""
+				package test;
+				import static test0110.q.Y.foo2;
+				public class Test {
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo2");
@@ -2518,21 +2618,23 @@ public void test0111() throws CoreException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"\n" +
-			"public class T {" +
-			"	void m(@MyAnnot(\"unuse\") int arg) {\n" +
-			"		@MyAnnot(\"unused\") int local; \n" +
-			"	}\n" +
-			"}");
+			"""
+				package test;
+				
+				public class T {\
+					void m(@MyAnnot("unuse") int arg) {
+						@MyAnnot("unused") int local;\s
+					}
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/MyAnnot.java",
-			"package test;\n" +
-			"\n" +
-			"public @inteface MyAnnot {\n" +
-			"	String value();\n" +
-			"}");
+			"""
+				package test;
+				
+				public @inteface MyAnnot {
+					String value();
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("local");
@@ -2550,21 +2652,23 @@ public void test0112() throws CoreException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"\n" +
-			"public class T {" +
-			"	void m(@MyAnnot(\"unuse\") int arg) {\n" +
-			"		@MyAnnot(\"unused\") int local; \n" +
-			"	}\n" +
-			"}");
+			"""
+				package test;
+				
+				public class T {\
+					void m(@MyAnnot("unuse") int arg) {
+						@MyAnnot("unused") int local;\s
+					}
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/MyAnnot.java",
-			"package test;\n" +
-			"\n" +
-			"public @inteface MyAnnot {\n" +
-			"	String value();\n" +
-			"}");
+			"""
+				package test;
+				
+				public @inteface MyAnnot {
+					String value();
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("arg");
@@ -2583,19 +2687,21 @@ public void test0113() throws JavaModelException {
 	try {
 		definition = getWorkingCopy(
 			"/Resolve/src2/test0113/Test.java",
-			"package test0113;\n" +
-			"public class Test {\n" +
-			"  class Member<T> {\n" +
-			"  }\n" +
-			"}",
+			"""
+				package test0113;
+				public class Test {
+				  class Member<T> {
+				  }
+				}""",
 			this.wcOwner
 		);
 		IJavaElement[] elements = select(
 				"/Resolve/src2/test0113/Test2.java",
-				"package test0113;\n" +
-				"public class Test2 {\n" +
-				"  Test.Member<String> field;\n" +
-				"}",
+				"""
+					package test0113;
+					public class Test2 {
+					  Test.Member<String> field;
+					}""",
 				"Member");
 		assertEquals("test0113.Test.Member<java.lang.String>", ((IType)elements[0]).getFullyQualifiedParameterizedName());
 	} finally {
@@ -2610,21 +2716,23 @@ public void test0114() throws Exception {
 	try {
 		Util.createClassFolder(new String[] {
 			"test0114/Test.java",
-			"package test0114;\n" +
-			"public class Test {\n" +
-			"  class Member<T> {\n" +
-			"  }\n" +
-			"}"
+			"""
+				package test0114;
+				public class Test {
+				  class Member<T> {
+				  }
+				}"""
 			},
 			rootLocation.toOSString(),
 			"1.5");
 		rootResource.refreshLocal(IResource.DEPTH_INFINITE, null);
 		IJavaElement[] elements = select(
 				"/Resolve/src2/test0114/Test2.java",
-				"package test0114;\n" +
-				"public class Test2 {\n" +
-				"  Test.Member<String> field;\n" +
-				"}",
+				"""
+					package test0114;
+					public class Test2 {
+					  Test.Member<String> field;
+					}""",
 				"Member");
 		assertEquals("test0114.Test.Member<java.lang.String>", ((IType)elements[0]).getFullyQualifiedParameterizedName());
 	} finally {
@@ -2636,45 +2744,46 @@ public void test0115() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/X.java",
-			"package test;\n" +
-			"\n" +
-			"import java.io.IOException;\n" +
-			"\n" +
-			"interface TreeVisitor<T, U> {\n" +
-			"        public T visit(U location);\n" +
-			"}\n" +
-			"\n" +
-			"interface TreeVisitable<U> {\n" +
-			"        public <T> T visit(TreeVisitor<T, U> visitor) throws IOException;\n" +
-			"}\n" +
-			"\n" +
-			"abstract class Param implements TreeVisitable<Param> {\n" +
-			"        public final Param lookforParam(final String name) {\n" +
-			"                TreeVisitor<Param, Param> visitor = new TreeVisitor<Param,Param>() {\n" +
-			"                        public Param visit(Param location) {\n" +
-			"                                return null;\n" +
-			"                        }\n" +
-			"                };\n" +
-			"                return visit(visitor); // SELECT #visit(...)\n" +
-			"        }\n" +
-			"\n" +
-			"        public abstract <T> T visit(TreeVisitor<T, Param> visitor);\n" +
-			"}\n" +
-			"\n" +
-			"class StructParam extends Param {\n" +
-			"        public <T> T visit(TreeVisitor<T, Param> visitor) {\n" +
-			"                return null;\n" +
-			"        }\n" +
-			"}\n" +
-			"\n" +
-			"public class X {\n" +
-			"        public static void main(String[] args) {\n" +
-			"                StructParam p = new StructParam();\n" +
-			"                p.lookforParam(\"abc\");\n" +
-			"                System.out.println(\"done\");\n" +
-			"        }\n" +
-			"\n" +
-			"}");
+			"""
+				package test;
+				
+				import java.io.IOException;
+				
+				interface TreeVisitor<T, U> {
+				        public T visit(U location);
+				}
+				
+				interface TreeVisitable<U> {
+				        public <T> T visit(TreeVisitor<T, U> visitor) throws IOException;
+				}
+				
+				abstract class Param implements TreeVisitable<Param> {
+				        public final Param lookforParam(final String name) {
+				                TreeVisitor<Param, Param> visitor = new TreeVisitor<Param,Param>() {
+				                        public Param visit(Param location) {
+				                                return null;
+				                        }
+				                };
+				                return visit(visitor); // SELECT #visit(...)
+				        }
+				
+				        public abstract <T> T visit(TreeVisitor<T, Param> visitor);
+				}
+				
+				class StructParam extends Param {
+				        public <T> T visit(TreeVisitor<T, Param> visitor) {
+				                return null;
+				        }
+				}
+				
+				public class X {
+				        public static void main(String[] args) {
+				                StructParam p = new StructParam();
+				                p.lookforParam("abc");
+				                System.out.println("done");
+				        }
+				
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("visit(visitor); // SELECT #visit(...)");
@@ -2692,27 +2801,28 @@ public void test0116() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"\n" +
-			"import java.io.IOException;\n" +
-			"\n" +
-			"public abstract class Test implements A, B {\n" +
-			"	public void bar(String i) {\n" +
-			"		foo(i);\n" +
-			"	}\n" +
-			"}\n" +
-			"interface A {\n" +
-			"	public <T> void foo(T a) throws EA{\n" +
-			"	}\n" +
-			"}\n" +
-			"interface B {\n" +
-			"	public <T> void foo(T b) throws EB {\n" +
-			"	}\n" +
-			"}\n" +
-			"class EA extends Exception {\n" +
-			"}\n" +
-			"class EB extends Exception {\n" +
-			"}");
+			"""
+				package test;
+				
+				import java.io.IOException;
+				
+				public abstract class Test implements A, B {
+					public void bar(String i) {
+						foo(i);
+					}
+				}
+				interface A {
+					public <T> void foo(T a) throws EA{
+					}
+				}
+				interface B {
+					public <T> void foo(T b) throws EB {
+					}
+				}
+				class EA extends Exception {
+				}
+				class EB extends Exception {
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo(i)");
@@ -2730,21 +2840,23 @@ public void test0117() throws Exception {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"\n" +
-			"public class Test {\n" +
-			"	public void foo() {\n" +
-			"		@A(n=) String str;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test;
+				
+				public class Test {
+					public void foo() {
+						@A(n=) String str;
+					}
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/A.java",
-			"package test;\n" +
-			"\n" +
-			"public @interface A {\n" +
-			"	public String n();\n" +
-			"}");
+			"""
+				package test;
+				
+				public @interface A {
+					public String n();
+				}""");
 
 
 	String str = this.workingCopies[0].getSource();
@@ -2763,21 +2875,23 @@ public void test0118() throws Exception {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"\n" +
-			"public class Test {\n" +
-			"	public void foo() {\n" +
-			"		@A(n=) String str;\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test;
+				
+				public class Test {
+					public void foo() {
+						@A(n=) String str;
+					}
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/A.java",
-			"package test;\n" +
-			"\n" +
-			"public @interface A {\n" +
-			"	public String n();\n" +
-			"}");
+			"""
+				package test;
+				
+				public @interface A {
+					public String n();
+				}""");
 
 
 	String str = this.workingCopies[0].getSource();
@@ -2801,25 +2915,28 @@ public void test0119() throws Exception {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"public class Test  {\n" +
-			"	public List<String> foo() {\n" +
-			"		return Collections.emptyList();\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test;
+				public class Test  {
+					public List<String> foo() {
+						return Collections.emptyList();
+					}
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/Collections.java",
-			"package test;\n" +
-			"public class Collections  {\n" +
-			"	public static final <T> List<T> emptyList() {return null;}\n" +
-			"}");
+			"""
+				package test;
+				public class Collections  {
+					public static final <T> List<T> emptyList() {return null;}
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/List.java",
-			"package test;\n" +
-			"public class List<E>  {\n" +
-			"}");
+			"""
+				package test;
+				public class List<E>  {
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("emptyList");
@@ -2838,25 +2955,28 @@ public void test0120() throws Exception {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"public class Test  {\n" +
-			"	public void foo() {\n" +
-			"		List<String> local = Collections.emptyList();\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test;
+				public class Test  {
+					public void foo() {
+						List<String> local = Collections.emptyList();
+					}
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/Collections.java",
-			"package test;\n" +
-			"public class Collections  {\n" +
-			"	public static final <T> List<T> emptyList() {return null;}\n" +
-			"}");
+			"""
+				package test;
+				public class Collections  {
+					public static final <T> List<T> emptyList() {return null;}
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/List.java",
-			"package test;\n" +
-			"public class List<E>  {\n" +
-			"}");
+			"""
+				package test;
+				public class List<E>  {
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("emptyList");
@@ -2875,25 +2995,28 @@ public void test0121() throws Exception {
 	this.workingCopies = new ICompilationUnit[3];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"public class Test  {\n" +
-			"	List<String> field = Collections.emptyList();\n" +
-			"	public void foo() {\n" +
-			"	}\n" +
-			"}");
+			"""
+				package test;
+				public class Test  {
+					List<String> field = Collections.emptyList();
+					public void foo() {
+					}
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/Collections.java",
-			"package test;\n" +
-			"public class Collections  {\n" +
-			"	public static final <T> List<T> emptyList() {return null;}\n" +
-			"}");
+			"""
+				package test;
+				public class Collections  {
+					public static final <T> List<T> emptyList() {return null;}
+				}""");
 
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/List.java",
-			"package test;\n" +
-			"public class List<E>  {\n" +
-			"}");
+			"""
+				package test;
+				public class List<E>  {
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("emptyList");
@@ -2912,11 +3035,12 @@ public void test0122() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"public class Test  {\n" +
-			"	static <T> T foo() { return null; }\n" +
-			"	String[] strings = { foo() };\n" +
-			"}");
+			"""
+				package test;
+				public class Test  {
+					static <T> T foo() { return null; }
+					String[] strings = { foo() };
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo");
@@ -2935,15 +3059,17 @@ public void test0123() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
-			"package test;\n" +
-			"public class Test {\n" +
-			"        <T> T bar(T t) { return t; }\n" +
-			"        void foo(boolean b, Runnable r) {\n" +
-			"                Zork z = null;\n" +
-			"                String s = (String) bar(z); // 5\n" +
-			"        }\n" +
-			"}\n" +
-			"\n");
+			"""
+				package test;
+				public class Test {
+				        <T> T bar(T t) { return t; }
+				        void foo(boolean b, Runnable r) {
+				                Zork z = null;
+				                String s = (String) bar(z); // 5
+				        }
+				}
+				
+				""");
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("bar");
@@ -2962,11 +3088,12 @@ public void test0124() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/Test.java",
-			"public class Test {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		String str\ud842\udf9f = null;\n" +
-			"	}\n" +
-			"}");
+			"""
+				public class Test {
+					public static void main(String[] args) {
+						String str\ud842\udf9f = null;
+					}
+				}""");
 
 	String str = this.workingCopies[0].getSource();
 	String CONST1 = "String ";
@@ -3005,21 +3132,23 @@ public void test0125() throws CoreException {
 
 public void testBrokenSwitch0() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy("/Resolve/src/Test.java",
-			"interface ILog {\n" +
-			"	void log(String status);\n" +
-			"}\n" +
-			"public class Test {\n" +
-			"    private static ILog test() {\n" +
-			"        return new ILog() {\n" +
-			"            @Override\n" +
-			"            public void log(String status) {\n" +
-			"                switch (status.length()) { // here\n" +
-			"                case\n" +
-			"                }\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"}\n");
+			"""
+				interface ILog {
+					void log(String status);
+				}
+				public class Test {
+				    private static ILog test() {
+				        return new ILog() {
+				            @Override
+				            public void log(String status) {
+				                switch (status.length()) { // here
+				                case
+				                }
+				            }
+				        };
+				    }
+				}
+				""");
 	IJavaElement[] elements = codeSelect(cu, "length()", "length");
 	assertElementsEqual(
 				"Unexpected elements",
@@ -3029,22 +3158,24 @@ public void testBrokenSwitch0() throws JavaModelException {
 
 public void testBrokenSwitch1() throws JavaModelException {
 	ICompilationUnit cu = getWorkingCopy("/Resolve/src/Test.java",
-			"interface ILog {\n" +
-			"	void log(String status);\n" +
-			"}\n" +
-			"public class Test {\n" +
-			"    private static ILog test() {\n" +
-			"        return new ILog() {\n" +
-			"            @Override\n" +
-			"            public void log(String status) {\n" +
-			"                Boolean severity = Boolean.FALSE;" +
-			"                switch (status.length()) { // here\n" +
-			"                case\n" +
-			"                }\n" +
-			"            }\n" +
-			"        };\n" +
-			"    }\n" +
-			"}\n");
+			"""
+				interface ILog {
+					void log(String status);
+				}
+				public class Test {
+				    private static ILog test() {
+				        return new ILog() {
+				            @Override
+				            public void log(String status) {
+				                Boolean severity = Boolean.FALSE;\
+				                switch (status.length()) { // here
+				                case
+				                }
+				            }
+				        };
+				    }
+				}
+				""");
 	IJavaElement[] elements = codeSelect(cu, "length()", "length");
 	assertElementsEqual(
 				"Unexpected elements",

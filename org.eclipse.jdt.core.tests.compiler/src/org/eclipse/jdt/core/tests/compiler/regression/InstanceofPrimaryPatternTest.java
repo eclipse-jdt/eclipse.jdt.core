@@ -77,109 +77,126 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  public static void foo(Object obj) {\n" +
-				"		if (obj instanceof String s) {\n" +
-				"			System.out.println(s);\n" +
-				"		}\n " +
-				"	}\n" +
-				"  public static void main(String[] obj) {\n" +
-				"		foo(\"Hello World!\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+					  public static void foo(Object obj) {
+							if (obj instanceof String s) {
+								System.out.println(s);
+							}
+					 \
+						}
+					  public static void main(String[] obj) {
+							foo("Hello World!");
+						}
+					}
+					""",
 			},
 			"Hello World!",
 			options);
 	}
 	public void test002() {
 		String expectedDiagnostics = this.complianceLevel < ClassFileConstants.JDK20 ?
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	if (obj instanceof (String s)) {\n" +
-				"	                   ^\n" +
-				"Syntax error on token \"(\", delete this token\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 3)\n" +
-				"	if (obj instanceof (String s)) {\n" +
-				"	                             ^\n" +
-				"Syntax error on token \")\", delete this token\n" +
-				"----------\n" :
-							"----------\n" +
-							"1. ERROR in X.java (at line 3)\n" +
-							"	if (obj instanceof (String s)) {\n" +
-							"	        ^^^^^^^^^^\n" +
-							"Syntax error on token \"instanceof\", ReferenceType expected after this token\n" +
-							"----------\n";
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						if (obj instanceof (String s)) {
+						                   ^
+					Syntax error on token "(", delete this token
+					----------
+					2. ERROR in X.java (at line 3)
+						if (obj instanceof (String s)) {
+						                             ^
+					Syntax error on token ")", delete this token
+					----------
+					""" :
+							"""
+								----------
+								1. ERROR in X.java (at line 3)
+									if (obj instanceof (String s)) {
+									        ^^^^^^^^^^
+								Syntax error on token "instanceof", ReferenceType expected after this token
+								----------
+								""";
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  public static void foo(Object obj) {\n" +
-				"		if (obj instanceof (String s)) {\n" +
-				"			System.out.println(s);\n" +
-				"		}\n " +
-				"	}\n" +
-				"  public static void main(String[] obj) {\n" +
-				"		foo(\"Hello World!\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+					  public static void foo(Object obj) {
+							if (obj instanceof (String s)) {
+								System.out.println(s);
+							}
+					 \
+						}
+					  public static void main(String[] obj) {
+							foo("Hello World!");
+						}
+					}
+					""",
 			},
 			expectedDiagnostics);
 	}
 	public void test003() {
 
 		String expectedDiagnostics = this.complianceLevel < ClassFileConstants.JDK20 ?
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	if (obj instanceof ((String s))) {\n" +
-				"	        ^^^^^^^^^^\n" +
-				"Syntax error, insert \"Type\" to complete InstanceofClassic\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 3)\n" +
-				"	if (obj instanceof ((String s))) {\n" +
-				"	        ^^^^^^^^^^\n" +
-				"Syntax error, insert \") Statement\" to complete BlockStatements\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 3)\n" +
-				"	if (obj instanceof ((String s))) {\n" +
-				"	                     ^^^^^^\n" +
-				"Syntax error on token \"String\", ( expected after this token\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 3)\n" +
-				"	if (obj instanceof ((String s))) {\n" +
-				"	                               ^\n" +
-				"Syntax error, insert \"AssignmentOperator Expression\" to complete Assignment\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 3)\n" +
-				"	if (obj instanceof ((String s))) {\n" +
-				"	                               ^\n" +
-				"Syntax error, insert \";\" to complete Statement\n" +
-				"----------\n" :
-									"----------\n" +
-									"1. ERROR in X.java (at line 3)\n" +
-									"	if (obj instanceof ((String s))) {\n" +
-									"	                   ^\n" +
-									"Syntax error on token \"(\", invalid ReferenceType\n" +
-									"----------\n" +
-									"2. ERROR in X.java (at line 3)\n" +
-									"	if (obj instanceof ((String s))) {\n" +
-									"	                               ^\n" +
-									"Syntax error on token \")\", delete this token\n" +
-									"----------\n";
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						if (obj instanceof ((String s))) {
+						        ^^^^^^^^^^
+					Syntax error, insert "Type" to complete InstanceofClassic
+					----------
+					2. ERROR in X.java (at line 3)
+						if (obj instanceof ((String s))) {
+						        ^^^^^^^^^^
+					Syntax error, insert ") Statement" to complete BlockStatements
+					----------
+					3. ERROR in X.java (at line 3)
+						if (obj instanceof ((String s))) {
+						                     ^^^^^^
+					Syntax error on token "String", ( expected after this token
+					----------
+					4. ERROR in X.java (at line 3)
+						if (obj instanceof ((String s))) {
+						                               ^
+					Syntax error, insert "AssignmentOperator Expression" to complete Assignment
+					----------
+					5. ERROR in X.java (at line 3)
+						if (obj instanceof ((String s))) {
+						                               ^
+					Syntax error, insert ";" to complete Statement
+					----------
+					""" :
+									"""
+										----------
+										1. ERROR in X.java (at line 3)
+											if (obj instanceof ((String s))) {
+											                   ^
+										Syntax error on token "(", invalid ReferenceType
+										----------
+										2. ERROR in X.java (at line 3)
+											if (obj instanceof ((String s))) {
+											                               ^
+										Syntax error on token ")", delete this token
+										----------
+										""";
 
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  public static void foo(Object obj) {\n" +
-				"		if (obj instanceof ((String s))) {\n" +
-				"			System.out.println(s);\n" +
-				"		}\n " +
-				"	}\n" +
-				"  public static void main(String[] obj) {\n" +
-				"		foo(\"Hello World!\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+					  public static void foo(Object obj) {
+							if (obj instanceof ((String s))) {
+								System.out.println(s);
+							}
+					 \
+						}
+					  public static void main(String[] obj) {
+							foo("Hello World!");
+						}
+					}
+					""",
 			},
 			expectedDiagnostics);
 	}
@@ -187,51 +204,61 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  public static void foo(Object obj) {\n" +
-				"		if (obj instanceof var s) {\n" +
-				"			System.out.println(s);\n" +
-				"		}\n " +
-				"	}\n" +
-				"  public static void main(String[] obj) {\n" +
-				"		foo(\"Hello World!\");\n" +
-				"		Zork();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+					  public static void foo(Object obj) {
+							if (obj instanceof var s) {
+								System.out.println(s);
+							}
+					 \
+						}
+					  public static void main(String[] obj) {
+							foo("Hello World!");
+							Zork();
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	if (obj instanceof var s) {\n" +
-			"	                   ^^^\n" +
-			"\'var\' is not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 3)
+					if (obj instanceof var s) {
+					                   ^^^
+				'var' is not allowed here
+				----------
+				2. ERROR in X.java (at line 9)
+					Zork();
+					^^^^
+				The method Zork() is undefined for the type X
+				----------
+				""");
 	}
 	public void test009() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"  public static void foo(String s) {\n" +
-				"		if (s instanceof Object o) {\n" +
-				"			System.out.println(s1);\n" +
-				"		}\n " +
-				"	}\n" +
-				"  public static void main(String[] obj) {\n" +
-				"		foo(\"Hello World!\");\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+					  public static void foo(String s) {
+							if (s instanceof Object o) {
+								System.out.println(s1);
+							}
+					 \
+						}
+					  public static void main(String[] obj) {
+							foo("Hello World!");
+						}
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	System.out.println(s1);\n" +
-			"	                   ^^\n" +
-			"s1 cannot be resolved to a variable\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					System.out.println(s1);
+					                   ^^
+				s1 cannot be resolved to a variable
+				----------
+				""");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1076
 	// ECJ accepts invalid Java code instanceof final Type
@@ -239,20 +266,24 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"class Test {\n" +
-				"    void check() {\n" +
-				"        Number n = Integer.valueOf(1);\n" +
-				"        if (n instanceof final Integer) {}\n" +
-				"        if (n instanceof final Integer x) {}\n" +
-				"    }\n" +
-				"}\n",
+				"""
+					class Test {
+					    void check() {
+					        Number n = Integer.valueOf(1);
+					        if (n instanceof final Integer) {}
+					        if (n instanceof final Integer x) {}
+					    }
+					}
+					""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	if (n instanceof final Integer) {}\n" +
-			"	                 ^^^^^^^^^^^^^\n" +
-			"Syntax error, modifiers are not allowed here\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 4)
+					if (n instanceof final Integer) {}
+					                 ^^^^^^^^^^^^^
+				Syntax error, modifiers are not allowed here
+				----------
+				""");
 	}
 
 	public void testGH1621() {
@@ -312,12 +343,14 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				}
 				"""
 			},
-			"----------\n"
-			+ "1. ERROR in X.java (at line 17)\n"
-			+ "	zork();\n"
-			+ "	^^^^\n"
-			+ "The method zork() is undefined for the type X\n"
-			+ "----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 17)
+					zork();
+					^^^^
+				The method zork() is undefined for the type X
+				----------
+				""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
@@ -344,12 +377,14 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				}
 				"""
 			},
-			"----------\n"
-			+ "1. ERROR in X.java (at line 12)\n"
-			+ "	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n"
-			+ "	                                 ^\n"
-			+ "A pattern variable with the same name is already defined in the statement\n"
-			+ "----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 12)
+					} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+					                                 ^
+				A pattern variable with the same name is already defined in the statement
+				----------
+				""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
@@ -381,12 +416,14 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				}
 				"""
 			},
-			"----------\n"
-			+ "1. ERROR in X.java (at line 19)\n"
-			+ "	zork();\n"
-			+ "	^^^^\n"
-			+ "The method zork() is undefined for the type X\n"
-			+ "----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 19)
+					zork();
+					^^^^
+				The method zork() is undefined for the type X
+				----------
+				""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
@@ -415,12 +452,14 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				}
 				"""
 			},
-			"----------\n"
-			+ "1. ERROR in X.java (at line 13)\n"
-			+ "	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n"
-			+ "	                                 ^\n"
-			+ "A pattern variable with the same name is already defined in the statement\n"
-			+ "----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 13)
+					} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+					                                 ^
+				A pattern variable with the same name is already defined in the statement
+				----------
+				""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
@@ -475,22 +514,24 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 13)\n" +
-			"	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n" +
-			"	                                 ^\n" +
-			"A pattern variable with the same name is already defined in the statement\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 26)\n" +
-			"	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n" +
-			"	                                 ^\n" +
-			"A pattern variable with the same name is already defined in the statement\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 39)\n" +
-			"	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n" +
-			"	                                 ^\n" +
-			"A pattern variable with the same name is already defined in the statement\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 13)
+					} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+					                                 ^
+				A pattern variable with the same name is already defined in the statement
+				----------
+				2. ERROR in X.java (at line 26)
+					} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+					                                 ^
+				A pattern variable with the same name is already defined in the statement
+				----------
+				3. ERROR in X.java (at line 39)
+					} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+					                                 ^
+				A pattern variable with the same name is already defined in the statement
+				----------
+				""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
@@ -519,12 +560,14 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 13)\n" +
-			"	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n" +
-			"	                                 ^\n" +
-			"A pattern variable with the same name is already defined in the statement\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 13)
+					} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+					                                 ^
+				A pattern variable with the same name is already defined in the statement
+				----------
+				""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
@@ -641,11 +684,13 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				}
 				"""
 			},
-			"----------\n"
-			+ "1. ERROR in X.java (at line 22)\n"
-			+ "	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n"
-			+ "	                                 ^\n"
-			+ "A pattern variable with the same name is already defined in the statement\n"
-			+ "----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 22)
+					} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+					                                 ^
+				A pattern variable with the same name is already defined in the statement
+				----------
+				""");
 	}
 }

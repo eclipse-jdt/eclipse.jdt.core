@@ -146,12 +146,13 @@ public void setUpSuite() throws Exception {
 	createFolder("/Reconciler/src/p2");
 	createFile(
 		"/Reconciler/src/p1/X.java",
-		"package p1;\n" +
-		"import p2.*;\n" +
-		"public class X {\n" +
-		"  public void foo() {\n" +
-		"  }\n" +
-		"}"
+		"""
+			package p1;
+			import p2.*;
+			public class X {
+			  public void foo() {
+			  }
+			}"""
 	);
 	project14.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 	project14.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
@@ -164,30 +165,36 @@ public void setUpSuite() throws Exception {
 		"lib15src.zip",
 		new String[] {
 			"java/util/List.java",
-			"package java.util;\n" +
-			"public class List<T> {\n" +
-			"}",
+			"""
+				package java.util;
+				public class List<T> {
+				}""",
 			"java/util/Stack.java",
-			"package java.util;\n" +
-			"public class Stack<T> {\n" +
-			"}",
+			"""
+				package java.util;
+				public class Stack<T> {
+				}""",
 			"java/util/Map.java",
-			"package java.util;\n" +
-			"public interface Map<K,V> {\n" +
-			"}",
+			"""
+				package java.util;
+				public interface Map<K,V> {
+				}""",
 			"java/lang/annotation/Annotation.java",
-			"package java.lang.annotation;\n" +
-			"public interface Annotation {\n" +
-			"}",
+			"""
+				package java.lang.annotation;
+				public interface Annotation {
+				}""",
 			"java/lang/Deprecated.java",
-			"package java.lang;\n" +
-			"public @interface Deprecated {\n" +
-			"}",
+			"""
+				package java.lang;
+				public @interface Deprecated {
+				}""",
 			"java/lang/SuppressWarnings.java",
-			"package java.lang;\n" +
-			"public @interface SuppressWarnings {\n" +
-			"   String[] value();\n" +
-			"}"
+			"""
+				package java.lang;
+				public @interface SuppressWarnings {
+				   String[] value();
+				}"""
 		},
 		JavaCore.VERSION_1_5
 	);
@@ -237,13 +244,14 @@ public void tearDownSuite() throws Exception {
 public void testStatementsRecovery01() throws CoreException {
 	// Introduce syntax error
 	setWorkingCopyContents(
-		"package p1;\n" +
-		"import p2.*;\n" +
-		"public class X {\n" +
-		"  public void foo() {\n" +
-		"     UnknownType name\n" +
-		"  }\n" +
-		"}");
+		"""
+			package p1;
+			import p2.*;
+			public class X {
+			  public void foo() {
+			     UnknownType name
+			  }
+			}""");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, false, null, null);
 	assertWorkingCopyDeltas(
 		"Unexpected delta after syntax error",
@@ -251,12 +259,14 @@ public void testStatementsRecovery01() throws CoreException {
 	);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" +
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" +
-		"	UnknownType name\n" +
-		"	            ^^^^\n" +
-		"Syntax error, insert \";\" to complete BlockStatements\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in /Reconciler/src/p1/X.java (at line 5)
+				UnknownType name
+				            ^^^^
+			Syntax error, insert ";" to complete BlockStatements
+			----------
+			"""
 	);
 
 	clearDeltas();
@@ -267,13 +277,14 @@ public void testStatementsRecovery01() throws CoreException {
 public void testStatementsRecovery02() throws CoreException {
 	// Introduce syntax error
 	setWorkingCopyContents(
-		"package p1;\n" +
-		"import p2.*;\n" +
-		"public class X {\n" +
-		"  public void foo() {\n" +
-		"     UnknownType name\n" +
-		"  }\n" +
-		"}");
+		"""
+			package p1;
+			import p2.*;
+			public class X {
+			  public void foo() {
+			     UnknownType name
+			  }
+			}""");
 	this.workingCopy.reconcile(JLS3_INTERNAL, false, false, null, null);
 	assertWorkingCopyDeltas(
 		"Unexpected delta after syntax error",
@@ -281,12 +292,14 @@ public void testStatementsRecovery02() throws CoreException {
 	);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" +
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" +
-		"	UnknownType name\n" +
-		"	            ^^^^\n" +
-		"Syntax error, insert \";\" to complete BlockStatements\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in /Reconciler/src/p1/X.java (at line 5)
+				UnknownType name
+				            ^^^^
+			Syntax error, insert ";" to complete BlockStatements
+			----------
+			"""
 	);
 
 	clearDeltas();
@@ -297,13 +310,14 @@ public void testStatementsRecovery02() throws CoreException {
 public void testStatementsRecovery03() throws CoreException {
 	// Introduce syntax error
 	setWorkingCopyContents(
-		"package p1;\n" +
-		"import p2.*;\n" +
-		"public class X {\n" +
-		"  public void foo() {\n" +
-		"     UnknownType name\n" +
-		"  }\n" +
-		"}");
+		"""
+			package p1;
+			import p2.*;
+			public class X {
+			  public void foo() {
+			     UnknownType name
+			  }
+			}""");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, true, null, null);
 	assertWorkingCopyDeltas(
 		"Unexpected delta after syntax error",
@@ -311,17 +325,19 @@ public void testStatementsRecovery03() throws CoreException {
 	);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" +
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" +
-		"	UnknownType name\n" +
-		"	^^^^^^^^^^^\n" +
-		"UnknownType cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" +
-		"	UnknownType name\n" +
-		"	            ^^^^\n" +
-		"Syntax error, insert \";\" to complete BlockStatements\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in /Reconciler/src/p1/X.java (at line 5)
+				UnknownType name
+				^^^^^^^^^^^
+			UnknownType cannot be resolved to a type
+			----------
+			2. ERROR in /Reconciler/src/p1/X.java (at line 5)
+				UnknownType name
+				            ^^^^
+			Syntax error, insert ";" to complete BlockStatements
+			----------
+			"""
 	);
 
 	clearDeltas();
@@ -332,13 +348,14 @@ public void testStatementsRecovery03() throws CoreException {
 public void testStatementsRecovery04() throws CoreException {
 	// Introduce syntax error
 	setWorkingCopyContents(
-		"package p1;\n" +
-		"import p2.*;\n" +
-		"public class X {\n" +
-		"  public void foo() {\n" +
-		"     UnknownType name\n" +
-		"  }\n" +
-		"}");
+		"""
+			package p1;
+			import p2.*;
+			public class X {
+			  public void foo() {
+			     UnknownType name
+			  }
+			}""");
 	this.workingCopy.reconcile(JLS3_INTERNAL, false, true, null, null);
 	assertWorkingCopyDeltas(
 		"Unexpected delta after syntax error",
@@ -346,17 +363,19 @@ public void testStatementsRecovery04() throws CoreException {
 	);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" +
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" +
-		"	UnknownType name\n" +
-		"	^^^^^^^^^^^\n" +
-		"UnknownType cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in /Reconciler/src/p1/X.java (at line 5)\n" +
-		"	UnknownType name\n" +
-		"	            ^^^^\n" +
-		"Syntax error, insert \";\" to complete BlockStatements\n" +
-		"----------\n"
+		"""
+			----------
+			1. ERROR in /Reconciler/src/p1/X.java (at line 5)
+				UnknownType name
+				^^^^^^^^^^^
+			UnknownType cannot be resolved to a type
+			----------
+			2. ERROR in /Reconciler/src/p1/X.java (at line 5)
+				UnknownType name
+				            ^^^^
+			Syntax error, insert ";" to complete BlockStatements
+			----------
+			"""
 	);
 
 	clearDeltas();
