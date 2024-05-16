@@ -6031,7 +6031,7 @@ public void ldc2_w(long constant) {
 
 public void ldcForIndex(int index) {
 	this.stackDepth++;
-	this.operandStack.push(TypeBinding.INT);
+	this.operandStack.push(ConstantPool.JavaLangStringConstantPoolName);
 	if (this.stackDepth > this.stackMax) {
 		this.stackMax = this.stackDepth;
 	}
