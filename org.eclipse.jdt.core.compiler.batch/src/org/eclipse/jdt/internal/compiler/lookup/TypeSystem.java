@@ -21,6 +21,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.HashMap;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -453,7 +454,7 @@ public class TypeSystem {
 	}
 
 	// No need for an override in ATS, since interning is position specific and either the wildcard there is annotated or not.
-	public final CaptureBinding getCapturedWildcard(WildcardBinding wildcard, ReferenceBinding contextType, int start, int end, ASTNode cud, int id) {
+	public final CaptureBinding getCapturedWildcard(WildcardBinding wildcard, ReferenceBinding contextType, int start, int end, ASTNode cud, Supplier<Integer> idSupplier) {
 
 		WildcardBinding unannotatedWildcard = (WildcardBinding) getUnannotatedType(wildcard);
 		TypeBinding[] derivedTypes = this.types[unannotatedWildcard.id];  // by construction, cachedInfo != null now.
@@ -490,7 +491,7 @@ public class TypeSystem {
 			System.arraycopy(derivedTypes, 0, derivedTypes = new TypeBinding[length * 2], 0, length);
 			this.types[unannotatedWildcard.id] = derivedTypes;
 		}
-		return (CaptureBinding) (derivedTypes[i] = new CaptureBinding(wildcard, contextType, start, end, cud, id));
+		return (CaptureBinding) (derivedTypes[i] = new CaptureBinding(wildcard, contextType, start, end, cud, idSupplier.get()));
 		// the above constructor already registers the capture, don't repeat that here
 	}
 
