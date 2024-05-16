@@ -187,11 +187,12 @@ public class FilerTests extends TestBase
 		IPath projPath = proj.getFullPath();
 
 		env.addClass(projPath.append("src"), "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testGetResource01\", arg0 = \"g\", arg1 = \"Test.java\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testGetResource01", arg0 = "g", arg1 = "Test.java")\
+					public class Trigger {
+					}"""
 			);
 
 		AptConfig.setEnabled(jproj, true);
@@ -217,11 +218,12 @@ public class FilerTests extends TestBase
 		IPath projPath = proj.getFullPath();
 
 		env.addClass(projPath.append("src"), "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testGetResource02\", arg0 = \"t\", arg1 = \"Test.txt\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testGetResource02", arg0 = "t", arg1 = "Test.txt")\
+					public class Trigger {
+					}"""
 			);
 
 		AptConfig.setEnabled(jproj, true);
@@ -250,11 +252,12 @@ public class FilerTests extends TestBase
 		IPath projPath = proj.getFullPath();
 
 		env.addClass(projPath.append("src"), "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testCreateNonSourceFile\", arg0 = \"t\", arg1 = \"Test.txt\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testCreateNonSourceFile", arg0 = "t", arg1 = "Test.txt")\
+					public class Trigger {
+					}"""
 			);
 
 		AptConfig.setEnabled(jproj, true);
@@ -277,11 +280,12 @@ public class FilerTests extends TestBase
 		IPath projPath = proj.getFullPath();
 
 		env.addClass(projPath.append("src"), "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testNullParents\", arg0 = \"t\", arg1 = \"Test\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testNullParents", arg0 = "t", arg1 = "Test")\
+					public class Trigger {
+					}"""
 		);
 
 		AptConfig.setEnabled(jproj, true);
@@ -309,11 +313,12 @@ public class FilerTests extends TestBase
 		IPath projPath = proj.getFullPath();
 
 		env.addClass(projPath.append("src"), "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testURI\", arg0 = \"t\", arg1 = \"Test.txt\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testURI", arg0 = "t", arg1 = "Test.txt")\
+					public class Trigger {
+					}"""
 			);
 
 		IFolder textFileFolder = proj.getFolder("src/t");
@@ -342,11 +347,12 @@ public class FilerTests extends TestBase
 		IPath projPath = proj.getFullPath();
 
 		env.addClass(projPath.append("src"), "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testGetCharContentLarge\", arg0 = \"g\", arg1 = \"Test.java\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testGetCharContentLarge", arg0 = "g", arg1 = "Test.java")\
+					public class Trigger {
+					}"""
 			);
 
 		AptConfig.setEnabled(jproj, true);
@@ -368,11 +374,12 @@ public class FilerTests extends TestBase
 		IPath projPath = proj.getFullPath();
 
 		env.addClass(projPath.append("src"), "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"p\", arg1 = \"Trigger\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testBug534979", arg0 = "p", arg1 = "Trigger")\
+					public class Trigger {
+					}"""
 		);
 
 		AptConfig.setEnabled(jproj, true);
@@ -393,11 +400,12 @@ public class FilerTests extends TestBase
 		IPath root = projPath.append("src");
 		env.addClass(root, null, "module-info", "module example {requires annotations;}");
 		env.addClass(root, "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"java.util\", arg1 = \"HashMap\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testBug534979", arg0 = "java.util", arg1 = "HashMap")\
+					public class Trigger {
+					}"""
 		);
 
 		AptConfig.setEnabled(jproj, true);
@@ -417,11 +425,12 @@ public class FilerTests extends TestBase
 		IPath root = projPath.append("src");
 		env.addClass(root, null, "module-info", "module example {requires annotations;}");
 		env.addClass(root, "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"p\", arg1 = \"Trigger\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testBug534979", arg0 = "p", arg1 = "Trigger")\
+					public class Trigger {
+					}"""
 		);
 
 		AptConfig.setEnabled(jproj, true);
@@ -441,11 +450,12 @@ public class FilerTests extends TestBase
 		IPath root = projPath.append("src");
 		env.addClass(root, null, "module-info", "module example {requires annotations;}");
 		env.addClass(root, "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"p\", arg1 = \"Other\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testBug534979", arg0 = "p", arg1 = "Other")\
+					public class Trigger {
+					}"""
 		);
 
 		AptConfig.setEnabled(jproj, true);
@@ -465,11 +475,12 @@ public class FilerTests extends TestBase
 		IPath root = projPath.append("src");
 		env.addClass(root, null, "module-info", "module example {requires annotations;}");
 		env.addClass(root, "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"default package\", arg1 = \"Other\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testBug534979", arg0 = "default package", arg1 = "Other")\
+					public class Trigger {
+					}"""
 		);
 
 		AptConfig.setEnabled(jproj, true);
@@ -489,31 +500,34 @@ public class FilerTests extends TestBase
 		IPath root = projPath.append("src");
 		env.addClass(root, null, "module-info", "module example {requires annotations;}");
 		env.addClass(root, "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testBug542090a\", arg0 = \"p\", arg1 = \"Other\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testBug542090a", arg0 = "p", arg1 = "Other")\
+					public class Trigger {
+					}"""
 		);
 
 		AptConfig.setEnabled(jproj, true);
 		fullBuild();
 		env.addClass(root, "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testBug542090a\", arg0 = \"p\", arg1 = \"Other\")" +
-				"public class Trigger {\n" +
-				"}/*added comment */"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testBug542090a", arg0 = "p", arg1 = "Other")\
+					public class Trigger {
+					}/*added comment */"""
 		);
 		incrementalBuild();
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 
 		env.addClass(root, "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testBug542090b\", arg0 = \"p\", arg1 = \"Other\")" +
-				"public class Trigger {\n" +
-				"}/*added comment */"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testBug542090b", arg0 = "p", arg1 = "Other")\
+					public class Trigger {
+					}/*added comment */"""
 		);
 		incrementalBuild();
 		assertEquals("Processor reported errors", "FilerException invoking test method testBug542090b - see console for details", ProcessorTestStatus.getErrors());
@@ -528,11 +542,12 @@ public class FilerTests extends TestBase
 		IPath projPath = proj.getFullPath();
 
 		env.addClass(projPath.append("src"), "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testCreateClass1\", arg0 = \"p\", arg1 = \"Test.java\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testCreateClass1", arg0 = "p", arg1 = "Test.java")\
+					public class Trigger {
+					}"""
 			);
 		AptConfig.setEnabled(jproj, true);
 
@@ -547,10 +562,11 @@ public class FilerTests extends TestBase
 		ClassFile[] classFiles = this.debugRequestor.getClassFiles();
 		FilerTesterProc.classContent = classFiles[0].getBytes();
 		env.addClass(projPath.append(".apt_generated"), "g", "Test",
-				"package g;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testCreateClass1\",arg0 = \"g\",arg1 = \"Test.java\") " +
-				"public class Test { }"
+				"""
+					package g;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testCreateClass1",arg0 = "g",arg1 = "Test.java") \
+					public class Test { }"""
 		);
 
 		incrementalBuild();
@@ -568,11 +584,12 @@ public class FilerTests extends TestBase
 		IPath projPath = proj.getFullPath();
 
 		env.addClass(projPath.append("src"), "p", "Trigger",
-				"package p;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testCreateClass2\", arg0 = \"p\", arg1 = \"Test.java\")" +
-				"public class Trigger {\n" +
-				"}"
+				"""
+					package p;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testCreateClass2", arg0 = "p", arg1 = "Test.java")\
+					public class Trigger {
+					}"""
 			);
 		AptConfig.setEnabled(jproj, true);
 
@@ -587,10 +604,11 @@ public class FilerTests extends TestBase
 		ClassFile[] classFiles = this.debugRequestor.getClassFiles();
 		FilerTesterProc.classContent = classFiles[0].getBytes();
 		env.addClass(projPath.append(".apt_generated"), "g", "Test",
-				"package g;\n" +
-				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testCreateClass2\",arg0 = \"g\",arg1 = \"Test.java\") " +
-				"public class Test { }"
+				"""
+					package g;
+					import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+					@FilerTestTrigger(test = "testCreateClass2",arg0 = "g",arg1 = "Test.java") \
+					public class Test { }"""
 		);
 
 		incrementalBuild();

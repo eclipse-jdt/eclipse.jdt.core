@@ -43,13 +43,14 @@ public class FormatterOldBugsGistTests extends FormatterRegressionTests {
 
 	public void testComments() {
 		String source =
-			"/* This is a long comment added just to test whether the formmatting\n" +
-			"* for the long comment is handled properly without change in behaviour\n" +
-			" */\n" +
-			"public void foo() {\n" +
-			"//line\tcomment\n" +
-			"bar();/*block comment*/\n" +
-			"}";
+			"""
+			/* This is a long comment added just to test whether the formmatting
+			* for the long comment is handled properly without change in behaviour
+			 */
+			public void foo() {
+			//line	comment
+			bar();/*block comment*/
+			}""";
 		String expectedResult =
 			"/* This is a long comment added just to test whether the formmatting" + lineSeparator +
 			"* for the long comment is handled properly without change in behaviour" + lineSeparator +

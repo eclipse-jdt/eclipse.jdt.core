@@ -118,20 +118,22 @@ public void testBug570399_001() throws Exception {
 	IJavaProject p = createJava16Project("p");
 	try {
 		createFile("p/src/X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"    R r1 = new R( 2, 3); // Wrong error: The constructor MyRecord(int, int) is undefined\n"+
-				"    R r2 = new R();      // works\n"+
-				"    int total = r1.x()+r2.x()+r1.y()+r2.y();\n"+
-				"    System.out.println(\"Hi\"+total);\n"+
-				"  }\n"+
-				"}");
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					    R r1 = new R( 2, 3); // Wrong error: The constructor MyRecord(int, int) is undefined
+					    R r2 = new R();      // works
+					    int total = r1.x()+r2.x()+r1.y()+r2.y();
+					    System.out.println("Hi"+total);
+					  }
+					}""");
 		createFile("p/src/R.java",
-				"public record R(int x, int y) {\n"+
-				"    R() {\n"+
-				"        this(0, 0);\n"+
-				"    }\n"+
-				"}");
+				"""
+					public record R(int x, int y) {
+					    R() {
+					        this(0, 0);
+					    }
+					}""");
 
 		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -157,23 +159,25 @@ public void _testBug570399_002() throws Exception {
 	IJavaProject p = createJava16Project("p");
 	try {
 		createFile("p/src/X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"    R r1 = new R( 2, 3); // Wrong error: The constructor MyRecord(int, int) is undefined\n"+
-				"    R r2 = new R();      // works\n"+
-				"    int total = r1.x()+r2.x()+r1.y()+r2.y();\n"+
-				"    System.out.println(\"Hi\"+total);\n"+
-				"  }\n"+
-				"}");
+				"""
+					public class X {
+					 public static void main(String[] args) {
+					    R r1 = new R( 2, 3); // Wrong error: The constructor MyRecord(int, int) is undefined
+					    R r2 = new R();      // works
+					    int total = r1.x()+r2.x()+r1.y()+r2.y();
+					    System.out.println("Hi"+total);
+					  }
+					}""");
 		createFile("p/src/R.java",
-				"class  R {\n"+
-				"   int x, y;\n"+
-				"    int x() { return this.x;}\n"+
-				"    int y() { return this.y;}\n"+
-				"    R(int x, int y) {\n"+
-				"        this.x = x; this.y = y;\n"+
-				"    }\n"+
-				"}");
+				"""
+					class  R {
+					   int x, y;
+					    int x() { return this.x;}
+					    int y() { return this.y;}
+					    R(int x, int y) {
+					        this.x = x; this.y = y;
+					    }
+					}""");
 
 		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -199,38 +203,40 @@ public void testBug576448_001() throws Exception {
 	createFolder("/p/src/a");
 	try {
 		createFile("p/src/a/X.java",
-				"package a;\n"+
-				"import a.Interface.NestedInterface;\n"+
-				"import a.Interface.NestedInterface2;\n"+
-				"\n"+
-				"public record X(String someString, NestedInterface someInterface) implements NestedInterface2 {\n"+
-				" public X(NestedInterface someInterface) {\n"+
-				"   this(null, someInterface); // <- error here\n"+
-				" }\n"+
-				" public X(String someString, NestedInterface someInterface) {\n"+
-				"   this.someString = someString;\n"+
-				"   this.someInterface = someInterface;\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(\"hello\");\n"+
-				" }\n"+
-				"}");
+				"""
+					package a;
+					import a.Interface.NestedInterface;
+					import a.Interface.NestedInterface2;
+					
+					public record X(String someString, NestedInterface someInterface) implements NestedInterface2 {
+					 public X(NestedInterface someInterface) {
+					   this(null, someInterface); // <- error here
+					 }
+					 public X(String someString, NestedInterface someInterface) {
+					   this.someString = someString;
+					   this.someInterface = someInterface;
+					 }
+					 public static void main(String[] args) {
+					   System.out.println("hello");
+					 }
+					}""");
 		createFile("p/src/a/Interface.java",
-				"package a;\n"+
-				"public interface Interface {\n"+
-				" interface NestedInterface {\n"+
-				" }\n"+
-				" interface NestedInterface2 {\n"+
-				"   String someString();\n"+
-				"   NestedInterface someInterface();\n"+
-				"   static NestedInterface2 create(String s, NestedInterface n) {\n"+
-				"     return new X(s, n);\n"+
-				"   }\n"+
-				"   static NestedInterface2 create(NestedInterface n) {\n"+
-				"     return new X(n);\n"+
-				"   }\n"+
-				" }\n"+
-				"}");
+				"""
+					package a;
+					public interface Interface {
+					 interface NestedInterface {
+					 }
+					 interface NestedInterface2 {
+					   String someString();
+					   NestedInterface someInterface();
+					   static NestedInterface2 create(String s, NestedInterface n) {
+					     return new X(s, n);
+					   }
+					   static NestedInterface2 create(NestedInterface n) {
+					     return new X(n);
+					   }
+					 }
+					}""");
 
 		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -258,23 +264,25 @@ public void testissue342_001() throws Exception {
 	createFolder("/p/src/a");
 	try {
 		createFile("p/src/a/Sneaker.java",
-				"package a;\n"+
-				"\n"+
-				"public record Sneaker(String brand, float price, int ... sizes) {\n"+
-				" public void test () {\n"+
-				"   Sneaker sn = new Sneaker(\"Eclipse\", 100, 9, 10, 11);\n"+
-				"   System.out.println(sn.sizes().length);\n" +
-				" }\n"+
-				"}");
+				"""
+					package a;
+					
+					public record Sneaker(String brand, float price, int ... sizes) {
+					 public void test () {
+					   Sneaker sn = new Sneaker("Eclipse", 100, 9, 10, 11);
+					   System.out.println(sn.sizes().length);
+					 }
+					}""");
 		String mainSource =
-				"package a;\n"+
-				"\n"+
-				"public class Main {\n"+
-				"  public static void main(String[] args) {\n"+
-				"   Sneaker sn = new Sneaker(\"Eclipse\", 100, 1, 2, 3);\n"+
-				"   System.out.println(sn.sizes().length);\n" +
-				"  }\n"+
-				"}";
+				"""
+			package a;
+			
+			public class Main {
+			  public static void main(String[] args) {
+			   Sneaker sn = new Sneaker("Eclipse", 100, 1, 2, 3);
+			   System.out.println(sn.sizes().length);
+			  }
+			}""";
 		createFile("p/src/a/Main.java", mainSource);
 
 		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -304,28 +312,30 @@ public void testGH612_001() throws Exception {
 	createFolder("/p/src/a");
 	try {
 		String source =
-				"package a;\n"
-				+ "public class X {\n"
-				+ "    public static void main(String[] args) {\n"
-				+ "        Sub sub = new Sub();\n"
-				+ "        sub.method1();\n"
-				+ "    }\n"
-				+ "\n"
-				+ "    static class Outer<T> { \n"
-				+ "        class Inner {\n"
-				+ "            void sayHi() {\n"
-				+ "                System.out.println(\"hello world!\");\n"
-				+ "            }\n"
-				+ "        }\n"
-				+ "    }\n"
-				+ "\n"
-				+ "    static class Sub extends Outer<Sub.Inner> {\n"
-				+ "        void method1() {\n"
-				+ "            Inner inner = new Inner();\n"
-				+ "            inner.sayHi();\n"
-				+ "        }\n"
-				+ "    }\n"
-				+ "}\n";
+				"""
+			package a;
+			public class X {
+			    public static void main(String[] args) {
+			        Sub sub = new Sub();
+			        sub.method1();
+			    }
+			
+			    static class Outer<T> {\s
+			        class Inner {
+			            void sayHi() {
+			                System.out.println("hello world!");
+			            }
+			        }
+			    }
+			
+			    static class Sub extends Outer<Sub.Inner> {
+			        void method1() {
+			            Inner inner = new Inner();
+			            inner.sayHi();
+			        }
+			    }
+			}
+			""";
 		createFile("p/src/a/X.java",
 				source);
 		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -344,28 +354,30 @@ public void testGH612_002() throws Exception {
 	createFolder("/p/src/a");
 	try {
 		String source =
-				"package a;\n"
-				+ "public class X {\n"
-				+ "    public static void main(String[] args) {\n"
-				+ "        Sub sub = new Sub();\n"
-				+ "        sub.method1();\n"
-				+ "    }\n"
-				+ "\n"
-				+ "    static interface Outer<T> { \n"
-				+ "        class Inner {\n"
-				+ "            void sayHi() {\n"
-				+ "                System.out.println(\"hello world!\");\n"
-				+ "            }\n"
-				+ "        }\n"
-				+ "    }\n"
-				+ "\n"
-				+ "    static class Sub implements Outer<Sub.Inner> {\n"
-				+ "        void method1() {\n"
-				+ "            Inner inner = new Inner();\n"
-				+ "            inner.sayHi();\n"
-				+ "        }\n"
-				+ "    }\n"
-				+ "}\n";
+				"""
+			package a;
+			public class X {
+			    public static void main(String[] args) {
+			        Sub sub = new Sub();
+			        sub.method1();
+			    }
+			
+			    static interface Outer<T> {\s
+			        class Inner {
+			            void sayHi() {
+			                System.out.println("hello world!");
+			            }
+			        }
+			    }
+			
+			    static class Sub implements Outer<Sub.Inner> {
+			        void method1() {
+			            Inner inner = new Inner();
+			            inner.sayHi();
+			        }
+			    }
+			}
+			""";
 		createFile("p/src/a/X.java",
 				source);
 		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -385,18 +397,22 @@ public void testGHIssue1085() throws Exception {
 	IJavaProject p = createJava16Project("p");
 	try {
 		createFile("p/src/GenericRecord.java",
-				"public record GenericRecord<A>(int parameter) {\n" +
-				"    public GenericRecord() {\n" +
-				"        this(0);\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					public record GenericRecord<A>(int parameter) {
+					    public GenericRecord() {
+					        this(0);
+					    }
+					}
+					""");
 
 		createFile("p/src/Test.java",
-				"public class Test {\n" +
-				"    public void test() {\n" +
-				"        new GenericRecord<String>(0);\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					public class Test {
+					    public void test() {
+					        new GenericRecord<String>(0);
+					    }
+					}
+					""");
 
 		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -425,21 +441,25 @@ public void testGHIssue1085_2() throws Exception {
 	IJavaProject p = createJava16Project("p");
 	try {
 		createFile("p/src/GenericRecord.java",
-				"public record GenericRecord<A>(int parameter) {\n" +
-				"    public GenericRecord() {\n" +
-				"        this(0);\n" +
-				"    }\n" +
-				"    public GenericRecord(int parameter) {\n" +
-				"        this.parameter = parameter;\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					public record GenericRecord<A>(int parameter) {
+					    public GenericRecord() {
+					        this(0);
+					    }
+					    public GenericRecord(int parameter) {
+					        this.parameter = parameter;
+					    }
+					}
+					""");
 
 		createFile("p/src/Test.java",
-				"public class Test {\n" +
-				"    public void test() {\n" +
-				"        new GenericRecord<String>(0);\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					public class Test {
+					    public void test() {
+					        new GenericRecord<String>(0);
+					    }
+					}
+					""");
 
 		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -467,20 +487,24 @@ public void testGHIssue1085_3() throws Exception {
 	IJavaProject p = createJava16Project("p");
 	try {
 		createFile("p/src/GenericRecord.java",
-				"public record GenericRecord<A>(int parameter) {\n" +
-				"    public GenericRecord() {\n" +
-				"        this(0);\n" +
-				"    }\n" +
-				"    public GenericRecord {\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					public record GenericRecord<A>(int parameter) {
+					    public GenericRecord() {
+					        this(0);
+					    }
+					    public GenericRecord {
+					    }
+					}
+					""");
 
 		createFile("p/src/Test.java",
-				"public class Test {\n" +
-				"    public void test() {\n" +
-				"        new GenericRecord<String>(0);\n" +
-				"    }\n" +
-				"}\n");
+				"""
+					public class Test {
+					    public void test() {
+					        new GenericRecord<String>(0);
+					    }
+					}
+					""");
 
 		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -508,25 +532,29 @@ public void test578080() throws Exception {
 	IJavaProject p = createJava16Project("p");
 	try {
 		createFile("p/src/Diamond.java",
-				"public record Diamond<T> (T value) {\n" +
-				"	public Diamond {	\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					public record Diamond<T> (T value) {
+						public Diamond {\t
+						}
+					}
+					""");
 
 		createFile("p/src/DiamondTest.java",
-				"public class DiamondTest {\n" +
-				"	public void testDiamond(){\n" +
-				"		assertEquals(new Diamond<>(\"y\"), new Diamond<>(\"y\"));\n" +
-				"		final Diamond<String> hi = new Diamond<>(\"hello\");\n" +
-				"		assertNotNull(hi);\n" +
-				"	}\n" +
-				"\n" +
-				"	private void assertNotNull(Diamond<String> hi) {\n" +
-				"	}\n" +
-				"\n" +
-				"	private void assertEquals(Object o1, Object o2) {\n" +
-				"	} \n" +
-				"}\n");
+				"""
+					public class DiamondTest {
+						public void testDiamond(){
+							assertEquals(new Diamond<>("y"), new Diamond<>("y"));
+							final Diamond<String> hi = new Diamond<>("hello");
+							assertNotNull(hi);
+						}
+					
+						private void assertNotNull(Diamond<String> hi) {
+						}
+					
+						private void assertEquals(Object o1, Object o2) {
+						}\s
+					}
+					""");
 
 		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -555,33 +583,37 @@ public void test577351() throws Exception {
 	try {
 
 		createFile("p/src/TimeSeries.java",
-				"import java.util.Objects;\n" +
-				"\n" +
-				"public final class TimeSeries<T> {\n" +
-				"  public record Data<T>(long timestamp, T element) {\n" +
-				"    public Data {\n" +
-				"      Objects.requireNonNull(element);\n" +
-				"    }\n" +
-				"    @Override\n" +
-				"    public String toString() {\n" +
-				"      return timestamp + \" | \" + element;\n" +
-				"    }\n" +
-				"  }\n" +
-				"}\n");
+				"""
+					import java.util.Objects;
+					
+					public final class TimeSeries<T> {
+					  public record Data<T>(long timestamp, T element) {
+					    public Data {
+					      Objects.requireNonNull(element);
+					    }
+					    @Override
+					    public String toString() {
+					      return timestamp + " | " + element;
+					    }
+					  }
+					}
+					""");
 
 		createFile("p/src/TimeSeriesTest.java",
-				"public class TimeSeriesTest {\n" +
-				"	public interface Executable {\n" +
-				"		void execute() throws Throwable;\n" +
-				"	}\n" +
-				"\n" +
-				"	public void test() {\n" +
-				"		assertThrows(NullPointerException.class, () -> new TimeSeries.Data<>(0, null));\n" +
-				"	}\n" +
-				"\n" +
-				"	private void assertThrows(Class<NullPointerException> class1, Executable ex) {\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					public class TimeSeriesTest {
+						public interface Executable {
+							void execute() throws Throwable;
+						}
+					
+						public void test() {
+							assertThrows(NullPointerException.class, () -> new TimeSeries.Data<>(0, null));
+						}
+					
+						private void assertThrows(Class<NullPointerException> class1, Executable ex) {
+						}
+					}
+					"""
 				);
 
 		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);

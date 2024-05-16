@@ -53,14 +53,16 @@ protected void setUp() throws Exception {
  */
 public void test001() throws JavaModelException {
 	String source =
-		"package javadoc.fields;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion on empty tag name:\n" +
-		"	 * 	@\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields;
+		public class Test {
+			/**
+			 * Completion on empty tag name:
+			 * 	@
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/Test.java", source, true, "@");
 	assertResults(
 		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -78,28 +80,32 @@ public void test001() throws JavaModelException {
 
 public void test002() throws JavaModelException {
 	String source =
-		"package javadoc.fields;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion on impossible tag name:\n" +
-		"	 * 	@thr\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields;
+		public class Test {
+			/**
+			 * Completion on impossible tag name:
+			 * 	@thr
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/Test.java", source, true, "@thr");
 	assertResults("");
 }
 
 public void test003() throws JavaModelException {
 	String source =
-		"package javadoc.fields;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion on one letter:\n" +
-		"	 * 	@v\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields;
+		public class Test {
+			/**
+			 * Completion on one letter:
+			 * 	@v
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/Test.java", source, true, "@v");
 	assertResults(
 		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -108,14 +114,16 @@ public void test003() throws JavaModelException {
 
 public void test004() throws JavaModelException {
 	String source =
-		"package javadoc.fields;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion with several letters:\n" +
-		"	 * 	@ser\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields;
+		public class Test {
+			/**
+			 * Completion with several letters:
+			 * 	@ser
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/Test.java", source, true, "@ser");
 	assertResults(
 		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -125,14 +133,16 @@ public void test004() throws JavaModelException {
 
 public void test005() throws JavaModelException {
 	String source =
-		"package javadoc.fields;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion on full tag name:\n" +
-		"	 * 	@docRoot\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields;
+		public class Test {
+			/**
+			 * Completion on full tag name:
+			 * 	@docRoot
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/Test.java", source, true, "@docRoot");
 	assertResults(
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -142,14 +152,16 @@ public void test005() throws JavaModelException {
 public void test006() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_3);
 	String source =
-		"package javadoc.fields;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion on empty tag name:\n" +
-		"	 * 	@\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields;
+		public class Test {
+			/**
+			 * Completion on empty tag name:
+			 * 	@
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/Test.java", source, true, "@");
 	assertResults(
 		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -166,14 +178,16 @@ public void test006() throws JavaModelException {
 public void test007() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.fields;\n" +
-		"public class Test {\n" +
-		"	/**\n" +
-		"	 * Completion on empty tag name:\n" +
-		"	 * 	@\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields;
+		public class Test {
+			/**
+			 * Completion on empty tag name:
+			 * 	@
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/Test.java", source, true, "@");
 	assertResults(
 		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -196,14 +210,16 @@ public void test007() throws JavaModelException {
  */
 public void test010() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see Obj\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see Obj
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "Obj");
 	assertResults(
 		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
@@ -212,14 +228,16 @@ public void test010() throws JavaModelException {
 
 public void test011() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTest\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see BasicTest
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "BasicTest", 2);
 	assertResults(
 		"BasicTestFields[TYPE_REF]{BasicTestFields, javadoc.fields.tags, Ljavadoc.fields.tags.BasicTestFields;, null, null, "+this.positions+R_DRICUNR+"}\n" +
@@ -229,15 +247,17 @@ public void test011() throws JavaModelException {
 
 public void test012() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see javadoc.fields.tags.BasicTest\n" +
-		"	 * 		Note: JDT-UI failed on this one\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see javadoc.fields.tags.BasicTest
+			 * 		Note: JDT-UI failed on this one
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "javadoc.fields.tags.BasicTest");
 	assertResults(
 		"BasicTestFields[TYPE_REF]{BasicTestFields, javadoc.fields.tags, Ljavadoc.fields.tags.BasicTestFields;, null, null, "+this.positions+R_DRICNR+"}"
@@ -246,15 +266,17 @@ public void test012() throws JavaModelException {
 
 public void test013() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see java.la\n" +
-		"	 * 		Note: JDT-UI fails on this one\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see java.la
+			 * 		Note: JDT-UI fails on this one
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "java.la");
 	assertResults(
 		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DRICQNR+"}"
@@ -263,14 +285,16 @@ public void test013() throws JavaModelException {
 
 public void test014() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see pack.Bin\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see pack.Bin
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "pack.Bin");
 	assertSortedResults(
 		"Bin1[TYPE_REF]{pack.Bin1, pack, Lpack.Bin1;, null, null, "+this.positions+R_DRICQNR+"}\n" +
@@ -283,15 +307,17 @@ public void test014() throws JavaModelException {
 
 public void test015() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see I\n" +
-		"	 * 		Note: completion list shoud not include base types.\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see I
+			 * 		Note: completion list shoud not include base types.
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "I");
 	assertSortedResults(
 		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICUNR+"}\n" +
@@ -304,14 +330,15 @@ public void test015() throws JavaModelException {
  */
 public void test020() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #fo\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"}";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see #fo
+			 */
+			int foo;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "fo");
 	assertResults(
 		"foo[FIELD_REF]{foo, Ljavadoc.fields.tags.BasicTestFields;, I, foo, null, "+this.positions+R_DRICNRNS+"}"
@@ -320,14 +347,15 @@ public void test020() throws JavaModelException {
 
 public void test021() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestFields#fo\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"}";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see BasicTestFields#fo
+			 */
+			int foo;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "fo");
 	assertResults(
 		"foo[FIELD_REF]{foo, Ljavadoc.fields.tags.BasicTestFields;, I, foo, null, "+this.positions+R_DRICNRNS+"}"
@@ -336,14 +364,15 @@ public void test021() throws JavaModelException {
 
 public void test022() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see javadoc.fields.tags.BasicTestFields#fo\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"}";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see javadoc.fields.tags.BasicTestFields#fo
+			 */
+			int foo;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "fo");
 	assertResults(
 		"foo[FIELD_REF]{foo, Ljavadoc.fields.tags.BasicTestFields;, I, foo, null, "+this.positions+R_DRICNRNS+"}"
@@ -353,19 +382,21 @@ public void test022() throws JavaModelException {
 public void test023() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/fields/tags/BasicTestFields.java",
-			"package javadoc.fields.tags;\n" +
-			"public class BasicTestFields {\n" +
-			"	/**\n" +
-			"	 * Completion after:\n" +
-			"	 * 	@see OtherFields#oth\n" +
-			"	 */\n" +
-			"	int foo;\n" +
-			"}",
+			"""
+				package javadoc.fields.tags;
+				public class BasicTestFields {
+					/**
+					 * Completion after:
+					 * 	@see OtherFields#oth
+					 */
+					int foo;
+				}""",
 		"/Completion/src/javadoc/fields/tags/OtherFields.java",
-			"package javadoc.fields.tags;\n" +
-			"public class OtherFields {\n" +
-			"	int other;\n" +
-			"}"
+			"""
+				package javadoc.fields.tags;
+				public class OtherFields {
+					int other;
+				}"""
 	};
 	completeInJavadoc(sources, true, "oth");
 	assertResults(
@@ -375,15 +406,16 @@ public void test023() throws JavaModelException {
 
 public void test024() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see #\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"	Object obj;\n" +
-		"}";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see #
+			 */
+			int foo;
+			Object obj;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "#", 0); // completion on empty token
 	assertResults(
 		"obj[FIELD_REF]{obj, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, obj, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -405,15 +437,16 @@ public void test024() throws JavaModelException {
 
 public void test025() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestFields#\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"	Object obj;\n" +
-		"}";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see BasicTestFields#
+			 */
+			int foo;
+			Object obj;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "#", 0); // completion on empty token
 	assertResults(
 		"obj[FIELD_REF]{obj, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, obj, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -435,15 +468,16 @@ public void test025() throws JavaModelException {
 
 public void test026() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see javadoc.fields.tags.BasicTestFields#\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"	Object obj;\n" +
-		"}";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see javadoc.fields.tags.BasicTestFields#
+			 */
+			int foo;
+			Object obj;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "#", 0); // completion on empty token
 	assertResults(
 		"obj[FIELD_REF]{obj, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, obj, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -465,30 +499,32 @@ public void test026() throws JavaModelException {
 
 public void test027() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see BasicTestReferences#FIE\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"	Object obj;\n" +
-		"}";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see BasicTestReferences#FIE
+			 */
+			int foo;
+			Object obj;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "FIE");
 	assertResults("");
 }
 
 public void test028() throws JavaModelException {
 	String source =
-		"package javadoc.fields.tags;\n" +
-		"public class BasicTestFields {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	@see org.eclipse.jdt.core.tests.BasicTestReferences#FIE\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"	Object obj;\n" +
-		"}";
+		"""
+		package javadoc.fields.tags;
+		public class BasicTestFields {
+			/**
+			 * Completion after:
+			 * 	@see org.eclipse.jdt.core.tests.BasicTestReferences#FIE
+			 */
+			int foo;
+			Object obj;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "FIE");
 	assertResults(
 		"FIELD[FIELD_REF]{FIELD, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, I, FIELD, null, "+this.positions+R_DRICNR+"}"
@@ -505,16 +541,16 @@ public void test030() throws JavaModelException {
 		JavaCore.setOptions(options);
 
 		String source =
-			"package javadoc.fields.tags;\n" +
-			"public class BasicTestFields {\n" +
-			"	Object oneTwoThree;\n" +
-			"	/**\n" +
-			"	 * Completion after:\n" +
-			"	 * 	@see #oTT\n" +
-			"	 */\n" +
-			"	int foo;\n" +
-
-			"}";
+			"""
+			package javadoc.fields.tags;
+			public class BasicTestFields {
+				Object oneTwoThree;
+				/**
+				 * Completion after:
+				 * 	@see #oTT
+				 */
+				int foo;
+			}""";
 		completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "oTT");
 		assertResults(
 			"oneTwoThree[FIELD_REF]{oneTwoThree, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, oneTwoThree, null, "+this.positions+(R_DEFAULT + 25) + "}"

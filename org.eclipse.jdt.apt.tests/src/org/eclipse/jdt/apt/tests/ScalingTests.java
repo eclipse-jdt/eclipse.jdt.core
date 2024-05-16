@@ -75,10 +75,11 @@ public class ScalingTests extends APTTestBase {
 		IPath srcRoot = srcFolder.getFullPath();
 
 		String template =
-			"package p;\n" +
-			"import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\n" +
-			"@HelloWorldAnnotation(\"Generated%05d\")\n" +
-			"public class Test%05d { generatedfilepackage.Generated%05d _t; }";
+			"""
+			package p;
+			import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;
+			@HelloWorldAnnotation("Generated%05d")
+			public class Test%05d { generatedfilepackage.Generated%05d _t; }""";
 		for (int i = 1; i <= FILES_TO_GENERATE; ++i) {
 			String name = String.format("Test%05d", i);
 			String contents = String.format(template, i, i, FILES_TO_GENERATE - i + 1);

@@ -44,39 +44,41 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 	 */
 	public void testReferenceExpressions_test001_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);
-		String contents = "package test407131;\n" +
-				"\n" +
-				"interface J {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	static class Z {\n" +
-				"		public Z(int x) {\n" +
-				"			System.out.print(x);\n" +
-				"		}\n" +
-				"		public void foo(int x) {\n" +
-				"			System.out.print(x);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n" +
-				"class W<T> {\n" +
-				"	public W(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"unused\")\n" +
-				"	public static void main (String [] args) {\n" +
-				"		J j1 = W <Integer> :: <String> new;\n" +
-				"		J j2 = W <Integer> :: <String> new ;\n" +
-				"		J j3 = W <Integer> :: <String, Integer> new ;\n" +
-				"		J j4 = W <Integer> :: <String> new ;\n" +
-				"		J j5 = W <Integer> :: <String> new ;\n" +
-				"		J j6 = W <Integer> :: new;\n" +
-				"		J j7 = W <Integer> :: new;\n" +
-				"		J j8 = W <Integer> :: new;\n" +
-				"	}\n" +
-				"}\n" +
-				"\n" ;
+		String contents = """
+			package test407131;
+			
+			interface J {
+				void foo(int x);
+			}
+			class Y {
+				static class Z {
+					public Z(int x) {
+						System.out.print(x);
+					}
+					public void foo(int x) {
+						System.out.print(x);
+					}
+				}
+			}
+			class W<T> {
+				public W(int x) {}
+			}
+			
+			public class X {
+				@SuppressWarnings("unused")
+				public static void main (String [] args) {
+					J j1 = W <Integer> :: <String> new;
+					J j2 = W <Integer> :: <String> new ;
+					J j3 = W <Integer> :: <String, Integer> new ;
+					J j4 = W <Integer> :: <String> new ;
+					J j5 = W <Integer> :: <String> new ;
+					J j6 = W <Integer> :: new;
+					J j7 = W <Integer> :: new;
+					J j8 = W <Integer> :: new;
+				}
+			}
+			
+			""" ;
 		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu);
@@ -140,39 +142,41 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
-		contents = "package test407131;\n" +
-				"\n" +
-				"interface J {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	static class Z {\n" +
-				"		public Z(int x) {\n" +
-				"			System.out.print(x);\n" +
-				"		}\n" +
-				"		public void foo(int x) {\n" +
-				"			System.out.print(x);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n" +
-				"class W<T> {\n" +
-				"	public W(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"unused\")\n" +
-				"	public static void main (String [] args) {\n" +
-				"		J j1 = W <Integer> :: <Integer> new;\n" +
-				"		J j2 = W <Integer> :: <String, Integer> new ;\n" +
-				"		J j3 = W <Integer> :: <String> new ;\n" +
-				"		J j4 = W <Integer> :: <String> new ;\n" +
-				"		J j5 = W <Integer> :: new ;\n" +
-				"		J j6 = W <Integer> :: new;\n" +
-				"		J j7 = W <Integer> ::<String> new;\n" +
-				"		J j8 = Y.Z :: new;\n" +
-				"	}\n" +
-				"}\n" +
-				"\n" ;
+		contents = """
+			package test407131;
+			
+			interface J {
+				void foo(int x);
+			}
+			class Y {
+				static class Z {
+					public Z(int x) {
+						System.out.print(x);
+					}
+					public void foo(int x) {
+						System.out.print(x);
+					}
+				}
+			}
+			class W<T> {
+				public W(int x) {}
+			}
+			
+			public class X {
+				@SuppressWarnings("unused")
+				public static void main (String [] args) {
+					J j1 = W <Integer> :: <Integer> new;
+					J j2 = W <Integer> :: <String, Integer> new ;
+					J j3 = W <Integer> :: <String> new ;
+					J j4 = W <Integer> :: <String> new ;
+					J j5 = W <Integer> :: new ;
+					J j6 = W <Integer> :: new;
+					J j7 = W <Integer> ::<String> new;
+					J j8 = Y.Z :: new;
+				}
+			}
+			
+			""" ;
 		buf= new StringBuilder(contents);
 		assertEqualString(preview, buf.toString());
 	}
@@ -182,17 +186,19 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 	 */
 	public void testReferenceExpressions_test002_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);
-		String contents = "package test407131;\n" +
-				"interface I {\n" +
-				"	Object foo(int x);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"unused\")\n" +
-				"	public static void main (String [] args) {\n" +
-				"		I i1 = int[] :: new;\n" +
-				"	}\n" +
-				"}\n" +
-				"\n" ;
+		String contents = """
+			package test407131;
+			interface I {
+				Object foo(int x);
+			}
+			public class X {
+				@SuppressWarnings("unused")
+				public static void main (String [] args) {
+					I i1 = int[] :: new;
+				}
+			}
+			
+			""" ;
 		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu);
@@ -211,17 +217,19 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			rewrite.replace(arrayType.getElementType(), ast.newPrimitiveType(PrimitiveType.CHAR), null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		contents = "package test407131;\n" +
-				"interface I {\n" +
-				"	Object foo(int x);\n" +
-				"}\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"unused\")\n" +
-				"	public static void main (String [] args) {\n" +
-				"		I i1 = char[] :: new;\n" +
-				"	}\n" +
-				"}\n" +
-				"\n" ;
+		contents = """
+			package test407131;
+			interface I {
+				Object foo(int x);
+			}
+			public class X {
+				@SuppressWarnings("unused")
+				public static void main (String [] args) {
+					I i1 = char[] :: new;
+				}
+			}
+			
+			""" ;
 		buf= new StringBuilder(contents);
 		assertEqualString(preview, buf.toString());
 	}
@@ -231,27 +239,29 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 	 */
 	public void testReferenceExpressions_test003_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);
-		String contents = "package test407131;\n" +
-				"interface J {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public void foo(int x) {}\n" +
-				"}\n" +
-				"class Z {\n" +
-				"	public void bar(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"unused\")\n" +
-				"	public static void main (String [] args) {\n" +
-				"		Y y = new Y();\n" +
-				"		Z z = new Z();\n" +
-				"		J j1 = y :: foo;\n" +
-				"		J j2 = z :: <String> bar;\n" +
-				"	}\n" +
-				"}\n" +
-				"\n" ;
+		String contents = """
+			package test407131;
+			interface J {
+				void foo(int x);
+			}
+			class Y {
+				public void foo(int x) {}
+			}
+			class Z {
+				public void bar(int x) {}
+			}
+			
+			public class X {
+				@SuppressWarnings("unused")
+				public static void main (String [] args) {
+					Y y = new Y();
+					Z z = new Z();
+					J j1 = y :: foo;
+					J j2 = z :: <String> bar;
+				}
+			}
+			
+			""" ;
 		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu);
@@ -281,27 +291,29 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		contents = "package test407131;\n" +
-				"interface J {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public void foo(int x) {}\n" +
-				"}\n" +
-				"class Z {\n" +
-				"	public void bar(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"unused\")\n" +
-				"	public static void main (String [] args) {\n" +
-				"		Y y = new Y();\n" +
-				"		Z z = new Z();\n" +
-				"		J j1 = z ::<String> bar;\n" +
-				"		J j2 = y :: foo;\n" +
-				"	}\n" +
-				"}\n" +
-				"\n" ;
+		contents = """
+			package test407131;
+			interface J {
+				void foo(int x);
+			}
+			class Y {
+				public void foo(int x) {}
+			}
+			class Z {
+				public void bar(int x) {}
+			}
+			
+			public class X {
+				@SuppressWarnings("unused")
+				public static void main (String [] args) {
+					Y y = new Y();
+					Z z = new Z();
+					J j1 = z ::<String> bar;
+					J j2 = y :: foo;
+				}
+			}
+			
+			""" ;
 		buf= new StringBuilder(contents);
 		assertEqualString(preview, buf.toString());
 	}
@@ -311,31 +323,33 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 	 */
 	public void testReferenceExpressions_test004_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);
-		String contents = "package test407131;\n" +
-				"package test407131;\n" +
-				"\n" +
-				"interface J {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	static class Z {\n" +
-				"		public Z(int x) {}\n" +
-				"		public static void foo(int x) {}\n" +
-				"	}\n" +
-				"}\n" +
-				"class W<T> {\n" +
-				"	public static void bar(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"unused\")\n" +
-				"	public static void main (String [] args) {\n" +
-				"		J j1 = Y.@Marker Z :: foo;\n" +
-				"		J j2 = @Marker W :: <Integer> bar;\n" +
-				"	}\n" +
-				"@Target (ElementType.TYPE_USE)\n" +
-				"@interface @Marker {}\n" +
-				"}\n" ;
+		String contents = """
+			package test407131;
+			package test407131;
+			
+			interface J {
+				void foo(int x);
+			}
+			class Y {
+				static class Z {
+					public Z(int x) {}
+					public static void foo(int x) {}
+				}
+			}
+			class W<T> {
+				public static void bar(int x) {}
+			}
+			
+			public class X {
+				@SuppressWarnings("unused")
+				public static void main (String [] args) {
+					J j1 = Y.@Marker Z :: foo;
+					J j2 = @Marker W :: <Integer> bar;
+				}
+			@Target (ElementType.TYPE_USE)
+			@interface @Marker {}
+			}
+			""" ;
 		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu);
@@ -366,31 +380,33 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			rewrite.replace(typeMethodReference.getName(), ast.newSimpleName("foo"), null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		contents = "package test407131;\n" +
-				"package test407131;\n" +
-				"\n" +
-				"interface J {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	static class Z {\n" +
-				"		public Z(int x) {}\n" +
-				"		public static void foo(int x) {}\n" +
-				"	}\n" +
-				"}\n" +
-				"class W<T> {\n" +
-				"	public static void bar(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"public class X {\n" +
-				"	@SuppressWarnings(\"unused\")\n" +
-				"	public static void main (String [] args) {\n" +
-				"		J j1 = W ::<Integer> bar;\n" +
-				"		J j2 = Y.Z :: foo;\n" +
-				"	}\n" +
-				"@Target (ElementType.TYPE_USE)\n" +
-				"@interface @Marker {}\n" +
-				"}\n" ;
+		contents = """
+			package test407131;
+			package test407131;
+			
+			interface J {
+				void foo(int x);
+			}
+			class Y {
+				static class Z {
+					public Z(int x) {}
+					public static void foo(int x) {}
+				}
+			}
+			class W<T> {
+				public static void bar(int x) {}
+			}
+			
+			public class X {
+				@SuppressWarnings("unused")
+				public static void main (String [] args) {
+					J j1 = W ::<Integer> bar;
+					J j2 = Y.Z :: foo;
+				}
+			@Target (ElementType.TYPE_USE)
+			@interface @Marker {}
+			}
+			""" ;
 		buf= new StringBuilder(contents);
 		assertEqualString(preview, buf.toString());
 	}
@@ -400,25 +416,27 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 	 */
 	public void testReferenceExpressions_test005_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);
-		String contents = "package test407131;\n" +
-				"interface J {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"\n" +
-				"class XX {\n" +
-				"	public void foo(int x) {}\n" +
-				"	public void bar(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"public class X extends XX {\n" +
-				"       @SuppressWarnings(\"unused\")\n" +
-				"       public  void bar(int i) {\n" +
-				"           J jx = super :: <Integer> foo;\n" +
-				"           J jz = X.super :: bar;\n" +
-				"       }\n" +
-				"       public static void main (String [] args) {}\n" +
-				"}\n" +
-				"\n" ;
+		String contents = """
+			package test407131;
+			interface J {
+				void foo(int x);
+			}
+			
+			class XX {
+				public void foo(int x) {}
+				public void bar(int x) {}
+			}
+			
+			public class X extends XX {
+			       @SuppressWarnings("unused")
+			       public  void bar(int i) {
+			           J jx = super :: <Integer> foo;
+			           J jz = X.super :: bar;
+			       }
+			       public static void main (String [] args) {}
+			}
+			
+			""" ;
 		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu);
@@ -448,25 +466,27 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 
 		}
 		String preview = evaluateRewrite(cu, rewrite);
-		contents = "package test407131;\n" +
-				"interface J {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"\n" +
-				"class XX {\n" +
-				"	public void foo(int x) {}\n" +
-				"	public void bar(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"public class X extends XX {\n" +
-				"       @SuppressWarnings(\"unused\")\n" +
-				"       public  void bar(int i) {\n" +
-				"           J jx = X.super :: bar;\n" +
-				"           J jz = super ::<String> foo;\n" +
-				"       }\n" +
-				"       public static void main (String [] args) {}\n" +
-				"}\n" +
-				"\n" ;
+		contents = """
+			package test407131;
+			interface J {
+				void foo(int x);
+			}
+			
+			class XX {
+				public void foo(int x) {}
+				public void bar(int x) {}
+			}
+			
+			public class X extends XX {
+			       @SuppressWarnings("unused")
+			       public  void bar(int i) {
+			           J jx = X.super :: bar;
+			           J jz = super ::<String> foo;
+			       }
+			       public static void main (String [] args) {}
+			}
+			
+			""" ;
 		buf = new StringBuilder(contents);
 		assertEqualString(preview, buf.toString());
 	}
@@ -476,41 +496,43 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 	public void testReferenceExpressions_test006_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);
 		this.project1.setOption(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-		String contents = "package test407131;\n" +
-				"import java.lang.annotation.*;\n" +
-				"interface J {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	static class Z {\n" +
-				"		public Z(int x) {}\n" +
-				"		public static void foo(int x) {}\n" +
-				"	}\n" +
-				"}\n" +
-				"class W<T> {\n" +
-				"	public W(int x) {}\n" +
-				"	public static void bar(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"class XX {\n" +
-				"	public void foo(int x) {}\n" +
-				"	public void bar(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"public class X extends XX {\n" +
-				"	public static void main (String [] args) {}\n" +
-				"	@SuppressWarnings(\"unused\")\n" +
-				"	public void bar () {\n" +
-				"		J j1 = W <Integer> :: <String> new;\n" +
-				"		J j2 = Y.Z :: new;\n" +
-				"		J j3 = Y.@Marker Z :: foo;\n" +
-				"		J jx = super :: foo;\n" +
-				"		J jz = X.super :: bar;\n" +
-				"	}\n" +
-				"}\n" +
-				"@Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"}\n";
+		String contents = """
+			package test407131;
+			import java.lang.annotation.*;
+			interface J {
+				void foo(int x);
+			}
+			class Y {
+				static class Z {
+					public Z(int x) {}
+					public static void foo(int x) {}
+				}
+			}
+			class W<T> {
+				public W(int x) {}
+				public static void bar(int x) {}
+			}
+			
+			class XX {
+				public void foo(int x) {}
+				public void bar(int x) {}
+			}
+			
+			public class X extends XX {
+				public static void main (String [] args) {}
+				@SuppressWarnings("unused")
+				public void bar () {
+					J j1 = W <Integer> :: <String> new;
+					J j2 = Y.Z :: new;
+					J j3 = Y.@Marker Z :: foo;
+					J jx = super :: foo;
+					J jz = X.super :: bar;
+				}
+			}
+			@Target (ElementType.TYPE_USE)
+			@interface Marker {}
+			}
+			""";
 		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu);
@@ -574,41 +596,43 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
-		contents = "package test407131;\n" +
-				"import java.lang.annotation.*;\n" +
-				"interface J {\n" +
-				"	void foo(int x);\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	static class Z {\n" +
-				"		public Z(int x) {}\n" +
-				"		public static void foo(int x) {}\n" +
-				"	}\n" +
-				"}\n" +
-				"class W<T> {\n" +
-				"	public W(int x) {}\n" +
-				"	public static void bar(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"class XX {\n" +
-				"	public void foo(int x) {}\n" +
-				"	public void bar(int x) {}\n" +
-				"}\n" +
-				"\n" +
-				"public class X extends XX {\n" +
-				"	public static void main (String [] args) {}\n" +
-				"	@SuppressWarnings(\"unused\")\n" +
-				"	public void bar () {\n" +
-				"		J j1 = Y.@Marker Z::foo;\n" +
-				"		J j2 = super::foo;\n" +
-				"		J j3 = X.super::bar;\n" +
-				"		J jx = W<Integer>::<String>new;\n" +
-				"		J jz = Y.Z::foo;\n" +
-				"	}\n" +
-				"}\n" +
-				"@Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"}\n";
+		contents = """
+			package test407131;
+			import java.lang.annotation.*;
+			interface J {
+				void foo(int x);
+			}
+			class Y {
+				static class Z {
+					public Z(int x) {}
+					public static void foo(int x) {}
+				}
+			}
+			class W<T> {
+				public W(int x) {}
+				public static void bar(int x) {}
+			}
+			
+			class XX {
+				public void foo(int x) {}
+				public void bar(int x) {}
+			}
+			
+			public class X extends XX {
+				public static void main (String [] args) {}
+				@SuppressWarnings("unused")
+				public void bar () {
+					J j1 = Y.@Marker Z::foo;
+					J j2 = super::foo;
+					J j3 = X.super::bar;
+					J jx = W<Integer>::<String>new;
+					J jz = Y.Z::foo;
+				}
+			}
+			@Target (ElementType.TYPE_USE)
+			@interface Marker {}
+			}
+			""";
 		buf= new StringBuilder(contents);
 		assertEqualString(preview, buf.toString());
 	}

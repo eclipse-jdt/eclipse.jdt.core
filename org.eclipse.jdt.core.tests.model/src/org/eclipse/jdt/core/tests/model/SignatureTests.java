@@ -861,9 +861,11 @@ public void testGetSimpleName08() {
 public void testGetSimpleNames01() {
 	assertStringsEqual(
 		"Unexpected simple names",
-		"java\n" +
-		"lang\n" +
-		"Object\n",
+		"""
+			java
+			lang
+			Object
+			""",
 		Signature.getSimpleNames("java.lang.Object"));
 }
 public void testGetSimpleNames02() {
@@ -881,9 +883,11 @@ public void testGetSimpleNames03() {
 public void testGetSimpleNames04() {
 	assertStringsEqual(
 		"Unexpected simple names",
-		"java\n" +
-		"util\n" +
-		"List<java.lang.String>\n",
+		"""
+			java
+			util
+			List<java.lang.String>
+			""",
 		Signature.getSimpleNames("java.util.List<java.lang.String>"));
 }
 public void testGetSignaturesSimpleName01() {
@@ -1604,14 +1608,16 @@ public void testSourceMapperSigConversion01() {
 	char[][] typeNames = new char[][] {
 		"java.lang.String".toCharArray(),
 
-		("apache.Mapper" +
-		"<?,?,ap.Text,ap.ClusterObservations>" +
-		".Context"
+		("""
+			apache.Mapper\
+			<?,?,ap.Text,ap.ClusterObservations>\
+			.Context"""
 		).toCharArray(),
 
-		("apache.Mapper" +
-		"<?,?,ap.Text,ap.ClusterObservations>" +
-		".Context<java.lang.String>"
+		("""
+			apache.Mapper\
+			<?,?,ap.Text,ap.ClusterObservations>\
+			.Context<java.lang.String>"""
 		).toCharArray(),
 
 		("app.Mapper" +
@@ -1620,10 +1626,11 @@ public void testSourceMapperSigConversion01() {
 
 		"Context<String>".toCharArray(),
 
-		("Mapper" +
-		"<?,?,Text,ClusterObservations>" +
-		".Context"
-		+"<String>"
+		("""
+			Mapper\
+			<?,?,Text,ClusterObservations>\
+			.Context\
+			<String>"""
 		).toCharArray(),
 
 		"Iterable<Mapper<?,?,Text,ClusterObservations>.Context>".toCharArray(),

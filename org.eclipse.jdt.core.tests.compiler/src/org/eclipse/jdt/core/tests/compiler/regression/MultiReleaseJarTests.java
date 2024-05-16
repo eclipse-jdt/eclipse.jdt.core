@@ -41,25 +41,29 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		runNegativeTest(
 			new String[] {
 				"src/X.java",
-				  "import a.b.c.MultiVersion1.Inner;\n" +
-				  "import p.q.r.MultiVersion2.Inner;\n" +
-				  "public class X {\n" +
-				  "}\n"},
+				  """
+					import a.b.c.MultiVersion1.Inner;
+					import p.q.r.MultiVersion2.Inner;
+					public class X {
+					}
+					"""},
 			"\"" + OUTPUT_DIR +  File.separator + "src/X.java\"" +
 			" -classpath " + path + " --release 8 ",
 			"",
-			"----------\n" +
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 1)\n" +
-			"	import a.b.c.MultiVersion1.Inner;\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The import a.b.c.MultiVersion1.Inner cannot be resolved\n" +
-			"----------\n" +
-			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)\n" +
-			"	import p.q.r.MultiVersion2.Inner;\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The import p.q.r.MultiVersion2.Inner cannot be resolved\n" +
-			"----------\n" +
-			"2 problems (2 errors)\n",
+			"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 1)
+					import a.b.c.MultiVersion1.Inner;
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^
+				The import a.b.c.MultiVersion1.Inner cannot be resolved
+				----------
+				2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)
+					import p.q.r.MultiVersion2.Inner;
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^
+				The import p.q.r.MultiVersion2.Inner cannot be resolved
+				----------
+				2 problems (2 errors)
+				""",
 			false
 		   );
 	}
@@ -70,20 +74,24 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		runNegativeTest(
 			new String[] {
 				"src/X.java",
-				  "import a.b.c.MultiVersion1.Inner;\n" +
-				  "import p.q.r.MultiVersion2.Inner;\n" +
-				  "public class X {\n" +
-				  "}\n"},
+				  """
+					import a.b.c.MultiVersion1.Inner;
+					import p.q.r.MultiVersion2.Inner;
+					public class X {
+					}
+					"""},
 			"\"" + OUTPUT_DIR +  File.separator + "src/X.java\"" +
 			" -classpath " + path + " --release 9 ",
 			"",
-			"----------\n" +
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 1)\n" +
-			"	import a.b.c.MultiVersion1.Inner;\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The type a.b.c.MultiVersion1.Inner is not visible\n" +
-			"----------\n" +
-			"1 problem (1 error)\n",
+			"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 1)
+					import a.b.c.MultiVersion1.Inner;
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^
+				The type a.b.c.MultiVersion1.Inner is not visible
+				----------
+				1 problem (1 error)
+				""",
 			false
 		   );
 	}
@@ -94,11 +102,13 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		runConformTest(
 			new String[] {
 				"src/X.java",
-				  "import p.q.r.MultiVersion3.Inner;\n" +
-				  "public class X {\n" +
-				  "  Inner i = null;\n" +
-				  "  p.q.r.MultiVersion2.Inner i2 = null;\n" +
-				  "}\n"},
+				  """
+					import p.q.r.MultiVersion3.Inner;
+					public class X {
+					  Inner i = null;
+					  p.q.r.MultiVersion2.Inner i2 = null;
+					}
+					"""},
 			"\"" + OUTPUT_DIR +  File.separator + "src/X.java\"" +
 			" -classpath " + path + " --release 9 ",
 			"",
@@ -113,21 +123,25 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		runNegativeTest(
 			new String[] {
 				"src/X.java",
-				  "import p.q.r.MultiVersion3.Inner;\n" +
-				  "import p.q.r.MultiVersion2.Inner;\n" +
-				  "public class X {\n" +
-				  "  Inner i = null;\n" +
-				  "}\n"},
+				  """
+					import p.q.r.MultiVersion3.Inner;
+					import p.q.r.MultiVersion2.Inner;
+					public class X {
+					  Inner i = null;
+					}
+					"""},
 			"\"" + OUTPUT_DIR +  File.separator + "src/X.java\"" +
 			" -classpath " + path + " --release 9 ",
 			"",
-			"----------\n" +
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)\n" +
-			"	import p.q.r.MultiVersion2.Inner;\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The import p.q.r.MultiVersion2.Inner collides with another import statement\n" +
-			"----------\n" +
-			"1 problem (1 error)\n",
+			"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)
+					import p.q.r.MultiVersion2.Inner;
+					       ^^^^^^^^^^^^^^^^^^^^^^^^^
+				The import p.q.r.MultiVersion2.Inner collides with another import statement
+				----------
+				1 problem (1 error)
+				""",
 			false
 		   );
 	}
@@ -153,27 +167,32 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		runNegativeTest(
 			new String[] {
 				"src/MyModule/module-info.java",
-				"module MyModule {\n" +
-				"  requires Version9;\n" +
-				"}",
+				"""
+					module MyModule {
+					  requires Version9;
+					}""",
 				"src/MyModule/p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"  java.sql.Connection con = null;\n" +
-				"}\n"},
+				"""
+					package p;
+					public class X {
+					  java.sql.Connection con = null;
+					}
+					"""},
 			"  -d \"" + out.toString() + "\" " +
 			" --module-source-path \"" + directory.toString() +  "\" " +
 			" \"" + OUTPUT_DIR +  File.separator + "src" + File.separator + "MyModule" + File.separator + "module-info.java\"" +
 			" \"" + OUTPUT_DIR +  File.separator + "src" + File.separator + "MyModule" + File.separator + "p" + File.separator + "X.java\" "  +
 			" --module-path " + path + " --release 9 ",
 			"",
-			"----------\n" +
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/MyModule/p/X.java (at line 3)\n" +
-			"	java.sql.Connection con = null;\n" +
-			"	^^^^^^^^^^^^^^^^^^^\n" +
-			"The type java.sql.Connection is not accessible\n" +
-			"----------\n" +
-			"1 problem (1 error)\n",
+			"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/MyModule/p/X.java (at line 3)
+					java.sql.Connection con = null;
+					^^^^^^^^^^^^^^^^^^^
+				The type java.sql.Connection is not accessible
+				----------
+				1 problem (1 error)
+				""",
 			false
 		   );
 	}
@@ -199,14 +218,17 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		runConformTest(
 			new String[] {
 				"src/MyModule/module-info.java",
-				"module MyModule {\n" +
-				"  requires Version10;\n" +
-				"}",
+				"""
+					module MyModule {
+					  requires Version10;
+					}""",
 				"src/MyModule/p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"  java.sql.Connection con = null;\n" +
-				"}\n"},
+				"""
+					package p;
+					public class X {
+					  java.sql.Connection con = null;
+					}
+					"""},
 			"  -d \"" + out.toString() + "\" " +
 			" --module-source-path \"" + directory.toString() +  "\" " +
 			" \"" + OUTPUT_DIR +  File.separator + "src" + File.separator + "MyModule" + File.separator + "module-info.java\"" +

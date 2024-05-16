@@ -97,9 +97,10 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
 		sortMarkers(markers);
 		assertMarkers("Unexpected markers",
-				"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
-				"Null type mismatch: required \'@NonNull Test1\' but the provided value is null\n" +
-				"Potential null pointer access: The variable v may be null at this location",
+				"""
+					Null type mismatch: required '@NonNull Object' but the provided value is null
+					Null type mismatch: required '@NonNull Test1' but the provided value is null
+					Potential null pointer access: The variable v may be null at this location""",
 				markers);
 	}
 
@@ -118,9 +119,10 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 			IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
-					"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
-					"Null type mismatch: required \'@NonNull Test1\' but the provided value is null\n" +
-					"Potential null pointer access: The variable v may be null at this location",
+					"""
+						Null type mismatch: required '@NonNull Object' but the provided value is null
+						Null type mismatch: required '@NonNull Test1' but the provided value is null
+						Potential null pointer access: The variable v may be null at this location""",
 					markers);
 		} finally {
 			JavaCore.removeClasspathVariable("MY_PRJ_ROOT", null);
@@ -132,39 +134,45 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		myCreateJavaProject("TestLibs");
 		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "/TestLibs", new String[] {
 				"/UnannotatedLib/libs/Lib1.java",
-				"package libs;\n" +
-				"\n" +
-				"public interface Lib1 {\n" +
-				"	String one = \"1\";\n" +
-				"	String none = null;\n" +
-				"}\n"
+				"""
+					package libs;
+					
+					public interface Lib1 {
+						String one = "1";
+						String none = null;
+					}
+					"""
 			}, null);
 		createFileInProject("libs", "Lib1.eea",
-				"class libs/Lib1\n" +
-				"\n" +
-				"one\n" +
-				" Ljava/lang/String;\n" +
-				" L1java/lang/String;\n" +
-				"\n" +
-				"none\n" +
-				" Ljava/lang/String;\n" +
-				" L0java/lang/String;\n" +
-				"\n");
+				"""
+					class libs/Lib1
+					
+					one
+					 Ljava/lang/String;
+					 L1java/lang/String;
+					
+					none
+					 Ljava/lang/String;
+					 L0java/lang/String;
+					
+					""");
 		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 		ICompilationUnit unit = fragment.createCompilationUnit("Test1.java",
-				"package tests;\n" +
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"\n" +
-				"import libs.Lib1;\n" +
-				"\n" +
-				"public class Test1 {\n" +
-				"	@NonNull String test0() {\n" +
-				"		return Lib1.none;\n" +
-				"	}\n" +
-				"	@NonNull String test1() {\n" +
-				"		return Lib1.one;\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package tests;
+					import org.eclipse.jdt.annotation.*;
+					
+					import libs.Lib1;
+					
+					public class Test1 {
+						@NonNull String test0() {
+							return Lib1.none;
+						}
+						@NonNull String test1() {
+							return Lib1.one;
+						}
+					}
+					""",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
@@ -188,16 +196,18 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 					"}\n"
 				}, null);
 			createFileInProject("libs", "Lib1.eea",
-					"class libs/Lib1\n" +
-					"\n" +
-					"one\n" +
-					" Ljava/lang/String;\n" +
-					" L1java/lang/String;\n" +
-					"\n" +
-					"none\n" +
-					" Ljava/lang/String;\n" +
-					" L0java/lang/String;\n" +
-					"\n");
+					"""
+						class libs/Lib1
+						
+						one
+						 Ljava/lang/String;
+						 L1java/lang/String;
+						
+						none
+						 Ljava/lang/String;
+						 L0java/lang/String;
+						
+						""");
 			IPackageFragment fragment1 = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 
 			//  create project #2 (referring to the same lib, but without external annotations):
@@ -210,19 +220,21 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 			// test project #1:
 			ICompilationUnit unit = fragment1.createCompilationUnit("Test1.java",
-					"package tests;\n" +
-					"import org.eclipse.jdt.annotation.*;\n" +
-					"\n" +
-					"import libs.Lib1;\n" +
-					"\n" +
-					"public class Test1 {\n" +
-					"	@NonNull String test0() {\n" +
-					"		return Lib1.none;\n" +
-					"	}\n" +
-					"	@NonNull String test1() {\n" +
-					"		return Lib1.one;\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package tests;
+						import org.eclipse.jdt.annotation.*;
+						
+						import libs.Lib1;
+						
+						public class Test1 {
+							@NonNull String test0() {
+								return Lib1.none;
+							}
+							@NonNull String test1() {
+								return Lib1.one;
+							}
+						}
+						""",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 			CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
@@ -232,19 +244,21 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 			// test project #2:
 			unit = fragment2.createCompilationUnit("Test1.java",
-					"package tests;\n" +
-					"import org.eclipse.jdt.annotation.*;\n" +
-					"\n" +
-					"import libs.Lib1;\n" +
-					"\n" +
-					"public class Test1 {\n" +
-					"	@NonNull String test0() {\n" +
-					"		return Lib1.none;\n" +
-					"	}\n" +
-					"	@NonNull String test1() {\n" +
-					"		return Lib1.one;\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package tests;
+						import org.eclipse.jdt.annotation.*;
+						
+						import libs.Lib1;
+						
+						public class Test1 {
+							@NonNull String test0() {
+								return Lib1.none;
+							}
+							@NonNull String test1() {
+								return Lib1.one;
+							}
+						}
+						""",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 			reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			problems = reconciled.getProblems();
@@ -274,16 +288,18 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 					"}\n"
 				}, null);
 			createFileInProject("libs", "Lib1.eea",
-					"class libs/Lib1\n" +
-					"\n" +
-					"one\n" +
-					" Ljava/lang/String;\n" +
-					" L1java/lang/String;\n" +
-					"\n" +
-					"none\n" +
-					" Ljava/lang/String;\n" +
-					" L0java/lang/String;\n" +
-					"\n");
+					"""
+						class libs/Lib1
+						
+						one
+						 Ljava/lang/String;
+						 L1java/lang/String;
+						
+						none
+						 Ljava/lang/String;
+						 L0java/lang/String;
+						
+						""");
 			IPackageFragment fragment1 = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 
 			//  create project #2 (referring to the same lib, but without external annotations):
@@ -296,19 +312,21 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 			// test project #2:
 			ICompilationUnit unit = fragment2.createCompilationUnit("Test1.java",
-					"package tests;\n" +
-					"import org.eclipse.jdt.annotation.*;\n" +
-					"\n" +
-					"import libs.Lib1;\n" +
-					"\n" +
-					"public class Test1 {\n" +
-					"	@NonNull String test0() {\n" +
-					"		return Lib1.none;\n" +
-					"	}\n" +
-					"	@NonNull String test1() {\n" +
-					"		return Lib1.one;\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package tests;
+						import org.eclipse.jdt.annotation.*;
+						
+						import libs.Lib1;
+						
+						public class Test1 {
+							@NonNull String test0() {
+								return Lib1.none;
+							}
+							@NonNull String test1() {
+								return Lib1.one;
+							}
+						}
+						""",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 			CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
@@ -320,19 +338,21 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 			// test project #1:
 			unit = fragment1.createCompilationUnit("Test1.java",
-					"package tests;\n" +
-					"import org.eclipse.jdt.annotation.*;\n" +
-					"\n" +
-					"import libs.Lib1;\n" +
-					"\n" +
-					"public class Test1 {\n" +
-					"	@NonNull String test0() {\n" +
-					"		return Lib1.none;\n" +
-					"	}\n" +
-					"	@NonNull String test1() {\n" +
-					"		return Lib1.one;\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package tests;
+						import org.eclipse.jdt.annotation.*;
+						
+						import libs.Lib1;
+						
+						public class Test1 {
+							@NonNull String test0() {
+								return Lib1.none;
+							}
+							@NonNull String test1() {
+								return Lib1.one;
+							}
+						}
+						""",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 			reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			problems = reconciled.getProblems();
@@ -372,39 +392,45 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		myCreateJavaProject("TestLibs");
 		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
 				"/UnannotatedLib/libs/Lib1.java",
-				"package libs;\n" +
-				"\n" +
-				"public interface Lib1 {\n" +
-				"	String one = \"1\";\n" +
-				"	String none = null;\n" +
-				"}\n"
+				"""
+					package libs;
+					
+					public interface Lib1 {
+						String one = "1";
+						String none = null;
+					}
+					"""
 			}, null);
 		createFileInProject("annots/libs", "Lib1.eea",
-				"class libs/Lib1\n" +
-				"\n" +
-				"one\n" +
-				" Ljava/lang/String;\n" +
-				" L1java/lang/String;\n" +
-				"\n" +
-				"none\n" +
-				" Ljava/lang/String;\n" +
-				" L0java/lang/String;\n" +
-				"\n");
+				"""
+					class libs/Lib1
+					
+					one
+					 Ljava/lang/String;
+					 L1java/lang/String;
+					
+					none
+					 Ljava/lang/String;
+					 L0java/lang/String;
+					
+					""");
 		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 		ICompilationUnit unit = fragment.createCompilationUnit("Test1.java",
-				"package tests;\n" +
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"\n" +
-				"import libs.Lib1;\n" +
-				"\n" +
-				"public class Test1 {\n" +
-				"	@NonNull String test0() {\n" +
-				"		return Lib1.none;\n" +
-				"	}\n" +
-				"	@NonNull String test1() {\n" +
-				"		return Lib1.one;\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package tests;
+					import org.eclipse.jdt.annotation.*;
+					
+					import libs.Lib1;
+					
+					public class Test1 {
+						@NonNull String test0() {
+							return Lib1.none;
+						}
+						@NonNull String test1() {
+							return Lib1.one;
+						}
+					}
+					""",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
@@ -419,27 +445,31 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		myCreateJavaProject("TestLibs");
 		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
 				"/UnannotatedLib/libs/Lib1.java",
-				"package libs;\n" +
-				"\n" +
-				"public interface Lib1 {\n" +
-				"	public static class Nested {\n" +
-				"		public static String one = \"1\";\n" +
-				"	}\n" +
-				"}\n"
+				"""
+					package libs;
+					
+					public interface Lib1 {
+						public static class Nested {
+							public static String one = "1";
+						}
+					}
+					"""
 			}, null);
 
 		// acquire source AST:
 		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
-		String test1Content = "package tests;\n" +
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"\n" +
-				"import libs.Lib1;\n" +
-				"\n" +
-				"public class Test1 {\n" +
-				"	@NonNull String test0() {\n" +
-				"		return Lib1.Nested.one;\n" +
-				"	}\n" +
-				"}\n";
+		String test1Content = """
+			package tests;
+			import org.eclipse.jdt.annotation.*;
+			
+			import libs.Lib1;
+			
+			public class Test1 {
+				@NonNull String test0() {
+					return Lib1.Nested.one;
+				}
+			}
+			""";
 		ICompilationUnit cu = fragment.createCompilationUnit("Test1.java", test1Content,
 						true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 		ASTParser parser = ASTParser.newParser(getJLS8());
@@ -484,25 +514,29 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		myCreateJavaProject("TestLibs");
 		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
 				"/UnannotatedLib/libs/Lib1.java",
-				"package libs;\n" +
-				"\n" +
-				"public class Lib1<T> {\n" +
-				"	public Lib1<T> one;\n" +
-				"}\n"
+				"""
+					package libs;
+					
+					public class Lib1<T> {
+						public Lib1<T> one;
+					}
+					"""
 			}, null);
 
 		// acquire source AST:
 		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
-		String test1Content = "package tests;\n" +
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"\n" +
-				"import libs.Lib1;\n" +
-				"\n" +
-				"public class Test1 {\n" +
-				"	@NonNull Lib1<String> test0(Lib1<String> stringLib) {\n" +
-				"		return stringLib.one;\n" +
-				"	}\n" +
-				"}\n";
+		String test1Content = """
+			package tests;
+			import org.eclipse.jdt.annotation.*;
+			
+			import libs.Lib1;
+			
+			public class Test1 {
+				@NonNull Lib1<String> test0(Lib1<String> stringLib) {
+					return stringLib.one;
+				}
+			}
+			""";
 		ICompilationUnit cu = fragment.createCompilationUnit("Test1.java", test1Content,
 						true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 		ASTParser parser = ASTParser.newParser(getJLS8());
@@ -547,11 +581,13 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 	public void testAnnotateMethodReturn() throws Exception {
 		myCreateJavaProject("TestLibs");
 		String lib1Content =
-				"package libs;\n" +
-				"\n" +
-				"public interface Lib1<T> {\n" +
-				"	public Lib1<T> getLib();\n" +
-				"}\n";
+				"""
+			package libs;
+			
+			public interface Lib1<T> {
+				public Lib1<T> getLib();
+			}
+			""";
 		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
 				"/UnannotatedLib/libs/Lib1.java",
 				lib1Content
@@ -560,16 +596,18 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		// type check sources:
 		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 		ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
-				"package tests;\n" +
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"\n" +
-				"import libs.Lib1;\n" +
-				"\n" +
-				"public class Test1 {\n" +
-				"	@NonNull Lib1<String> test0(Lib1<String> stringLib) {\n" +
-				"		return stringLib.getLib();\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					package tests;
+					import org.eclipse.jdt.annotation.*;
+					
+					import libs.Lib1;
+					
+					public class Test1 {
+						@NonNull Lib1<String> test0(Lib1<String> stringLib) {
+							return stringLib.getLib();
+						}
+					}
+					""",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 		CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
@@ -624,11 +662,13 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 			myCreateJavaProject("TestLibs");
 			String lib1Content =
-					"package libs;\n" +
-					"\n" +
-					"public interface Lib1<T> {\n" +
-					"	public Lib1<T> getLib();\n" +
-					"}\n";
+					"""
+				package libs;
+				
+				public interface Lib1<T> {
+					public Lib1<T> getLib();
+				}
+				""";
 			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
 					"/UnannotatedLib/libs/Lib1.java",
 					lib1Content
@@ -639,16 +679,18 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 			// type check sources:
 			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 			ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
-					"package tests;\n" +
-					"import org.eclipse.jdt.annotation.*;\n" +
-					"\n" +
-					"import libs.Lib1;\n" +
-					"\n" +
-					"public class Test1 {\n" +
-					"	@NonNull Lib1<String> test0(Lib1<String> stringLib) {\n" +
-					"		return stringLib.getLib();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package tests;
+						import org.eclipse.jdt.annotation.*;
+						
+						import libs.Lib1;
+						
+						public class Test1 {
+							@NonNull Lib1<String> test0(Lib1<String> stringLib) {
+								return stringLib.getLib();
+							}
+						}
+						""",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 			CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
@@ -672,11 +714,13 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 			myCreateJavaProject("TestLibs");
 			String lib1Content =
-					"package libs;\n" +
-					"\n" +
-					"public interface Lib1<T> {\n" +
-					"	public Lib1<T> getLib();\n" +
-					"}\n";
+					"""
+				package libs;
+				
+				public interface Lib1<T> {
+					public Lib1<T> getLib();
+				}
+				""";
 			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
 					"/UnannotatedLib/libs/Lib1.java",
 					lib1Content
@@ -687,16 +731,18 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 			// type check sources:
 			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 			ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
-					"package tests;\n" +
-					"import org.eclipse.jdt.annotation.*;\n" +
-					"\n" +
-					"import libs.Lib1;\n" +
-					"\n" +
-					"public class Test1 {\n" +
-					"	@NonNull Lib1<String> test0(Lib1<String> stringLib) {\n" +
-					"		return stringLib.getLib();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package tests;
+						import org.eclipse.jdt.annotation.*;
+						
+						import libs.Lib1;
+						
+						public class Test1 {
+							@NonNull Lib1<String> test0(Lib1<String> stringLib) {
+								return stringLib.getLib();
+							}
+						}
+						""",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 			CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
@@ -719,34 +765,40 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 			myCreateJavaProject("TestLibs");
 			String lib1Content =
-					"package libs;\n" +
-					"\n" +
-					"public interface Lib1<T> {\n" +
-					"	public Lib1<T> getLib();\n" +
-					"}\n";
+					"""
+				package libs;
+				
+				public interface Lib1<T> {
+					public Lib1<T> getLib();
+				}
+				""";
 			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
 					"/UnannotatedLib/libs/Lib1.java",
 					lib1Content
 				}, null);
 			createFileInProject("annots/libs", "Lib1.eea",
-					"class libs/Lib1\n" +
-					"\n" +
-					"()V\n" +
-					"foo\n");
+					"""
+						class libs/Lib1
+						
+						()V
+						foo
+						""");
 
 			// type check sources:
 			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 			ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
-					"package tests;\n" +
-					"import org.eclipse.jdt.annotation.*;\n" +
-					"\n" +
-					"import libs.Lib1;\n" +
-					"\n" +
-					"public class Test1 {\n" +
-					"	@NonNull Lib1<String> test0(Lib1<String> stringLib) {\n" +
-					"		return stringLib.getLib();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package tests;
+						import org.eclipse.jdt.annotation.*;
+						
+						import libs.Lib1;
+						
+						public class Test1 {
+							@NonNull Lib1<String> test0(Lib1<String> stringLib) {
+								return stringLib.getLib();
+							}
+						}
+						""",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 			CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
@@ -769,34 +821,40 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 			myCreateJavaProject("TestLibs");
 			String lib1Content =
-					"package libs;\n" +
-					"\n" +
-					"public interface Lib1<T> {\n" +
-					"	public Lib1<T> getLib();\n" +
-					"}\n";
+					"""
+				package libs;
+				
+				public interface Lib1<T> {
+					public Lib1<T> getLib();
+				}
+				""";
 			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
 					"/UnannotatedLib/libs/Lib1.java",
 					lib1Content
 				}, null);
 			createFileInProject("annots/libs", "Lib1.eea",
-					"class libs/Lib1\n" +
-					"\n" +
-					"foo\n" +
-					" wrong()\n");
+					"""
+						class libs/Lib1
+						
+						foo
+						 wrong()
+						""");
 
 			// type check sources:
 			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 			ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
-					"package tests;\n" +
-					"import org.eclipse.jdt.annotation.*;\n" +
-					"\n" +
-					"import libs.Lib1;\n" +
-					"\n" +
-					"public class Test1 {\n" +
-					"	@NonNull Lib1<String> test0(Lib1<String> stringLib) {\n" +
-					"		return stringLib.getLib();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package tests;
+						import org.eclipse.jdt.annotation.*;
+						
+						import libs.Lib1;
+						
+						public class Test1 {
+							@NonNull Lib1<String> test0(Lib1<String> stringLib) {
+								return stringLib.getLib();
+							}
+						}
+						""",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 			CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
@@ -819,35 +877,41 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 			myCreateJavaProject("TestLibs");
 			String lib1Content =
-					"package libs;\n" +
-					"\n" +
-					"public interface Lib1<T> {\n" +
-					"	public Lib1<T> getLib();\n" +
-					"}\n";
+					"""
+				package libs;
+				
+				public interface Lib1<T> {
+					public Lib1<T> getLib();
+				}
+				""";
 			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
 					"/UnannotatedLib/libs/Lib1.java",
 					lib1Content
 				}, null);
 			createFileInProject("annots/libs", "Lib1.eea",
-					"class libs/Lib1\n" +
-					"\n" +
-					"foo\n" +
-					" ()V\n" +
-					" wrong()\n");
+					"""
+						class libs/Lib1
+						
+						foo
+						 ()V
+						 wrong()
+						""");
 
 			// type check sources:
 			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 			ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
-					"package tests;\n" +
-					"import org.eclipse.jdt.annotation.*;\n" +
-					"\n" +
-					"import libs.Lib1;\n" +
-					"\n" +
-					"public class Test1 {\n" +
-					"	@NonNull Lib1<String> test0(Lib1<String> stringLib) {\n" +
-					"		return stringLib.getLib();\n" +
-					"	}\n" +
-					"}\n",
+					"""
+						package tests;
+						import org.eclipse.jdt.annotation.*;
+						
+						import libs.Lib1;
+						
+						public class Test1 {
+							@NonNull Lib1<String> test0(Lib1<String> stringLib) {
+								return stringLib.getLib();
+							}
+						}
+						""",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 			CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
@@ -871,10 +935,12 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		// std API missing from jclMin:
 		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("java.lang", true, null);
 		ICompilationUnit unit = fragment.createCompilationUnit("Iterable.java",
-				"package java.lang;\n" +
-				"public interface Iterable<T> {\n" +
-				"	@org.eclipse.jdt.annotation.NonNull java.util.Iterator<T> iterator();\n" +
-				"}\n",
+				"""
+					package java.lang;
+					public interface Iterable<T> {
+						@org.eclipse.jdt.annotation.NonNull java.util.Iterator<T> iterator();
+					}
+					""",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 
 		createFileInProject("annots/java/util", "Iterator.eea",
@@ -888,61 +954,63 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 		fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 		unit = fragment.createCompilationUnit("B.java",
-				"package tests;\n" +
-				"\n" +
-				"import java.util.Iterator;\n" +
-				"\n" +
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"\n" +
-				"@NonNullByDefault\n" +
-				"public class B<E> extends A<E> {\n" +
-				"\n" +
-				"	public void barKOWithForLoop(I<? extends E> c) {\n" +
-				"		for (E e : c) {\n" +
-				"			foo(e); //<-- WRONG: Null type safety: The expression of type 'E' needs unchecked conversion to conform to '@NonNull E'\n" +
-				"		}\n" +
-				"	}\n" +
-				"\n" +
-				"	public void barOKWithWhileIteratorLoop(I<? extends E> c) {\n" +
-				"		Iterator<? extends E> it = c.iterator();\n" +
-				"		while (it.hasNext()) {\n" +
-				"			E e = it.next(); // <-- OK\n" +
-				"			foo(e);\n" +
-				"		}\n" +
-				"	}\n" +
-				"\n" +
-				"	public void foo(E e) { }\n" +
-				"}\n" +
-				"\n" +
-				"@NonNullByDefault\n" +
-				"abstract class A<E> implements I<E> {\n" +
-				"\n" +
-				"	@Nullable public E e;\n" +
-				"\n" +
-				"	public Iterator<E> iterator() {\n" +
-				"		return new Iterator<E>() {\n" +
-				"			public boolean hasNext() {\n" +
-				"				return false;\n" +
-				"			}\n" +
-				"			public E next() {\n" +
-				"				E e = A.this.e;\n" +
-				"				assert e != null;\n" +
-				"				return e;\n" +
-				"			}\n" +
-				"			public void remove() {}\n" +
-				"		};\n" +
-				"	}\n" +
-				"\n" +
-				"	public void foo(E e) {\n" +
-				"		throw new RuntimeException();\n" +
-				"	}\n" +
-				"}\n" +
-				"\n" +
-				"@NonNullByDefault\n" +
-				"interface I<E> extends Iterable<E> {\n" +
-				"	public Iterator<E> iterator();\n" +
-				"	public void foo(E e);\n" +
-				"}\n",
+				"""
+					package tests;
+					
+					import java.util.Iterator;
+					
+					import org.eclipse.jdt.annotation.*;
+					
+					@NonNullByDefault
+					public class B<E> extends A<E> {
+					
+						public void barKOWithForLoop(I<? extends E> c) {
+							for (E e : c) {
+								foo(e); //<-- WRONG: Null type safety: The expression of type 'E' needs unchecked conversion to conform to '@NonNull E'
+							}
+						}
+					
+						public void barOKWithWhileIteratorLoop(I<? extends E> c) {
+							Iterator<? extends E> it = c.iterator();
+							while (it.hasNext()) {
+								E e = it.next(); // <-- OK
+								foo(e);
+							}
+						}
+					
+						public void foo(E e) { }
+					}
+					
+					@NonNullByDefault
+					abstract class A<E> implements I<E> {
+					
+						@Nullable public E e;
+					
+						public Iterator<E> iterator() {
+							return new Iterator<E>() {
+								public boolean hasNext() {
+									return false;
+								}
+								public E next() {
+									E e = A.this.e;
+									assert e != null;
+									return e;
+								}
+								public void remove() {}
+							};
+						}
+					
+						public void foo(E e) {
+							throw new RuntimeException();
+						}
+					}
+					
+					@NonNullByDefault
+					interface I<E> extends Iterable<E> {
+						public Iterator<E> iterator();
+						public void foo(E e);
+					}
+					""",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();

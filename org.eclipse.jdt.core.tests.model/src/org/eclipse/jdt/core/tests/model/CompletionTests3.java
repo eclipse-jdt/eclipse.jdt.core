@@ -45,22 +45,26 @@ public void testBug338398a() throws CoreException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/A.java",
-			"package a;\n" +
-			"import static b.B.assertNotNull;\n"+
-			"public class A {\n" +
-			"	public void foo() {\n" +
-			"		 assertno\n" +
-			"   }" +
-			"}\n");
+			"""
+				package a;
+				import static b.B.assertNotNull;
+				public class A {
+					public void foo() {
+						 assertno
+				   }\
+				}
+				""");
 
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/b/B.java",
-				"package b;\n"+
-				"public class B {\n" +
-				"	static public void assertNotNull(Object object) {\n" +
-				"		// nothing to do here \n" +
-	    		"	}\n" +
-				"}\n");
+				"""
+					package b;
+					public class B {
+						static public void assertNotNull(Object object) {
+							// nothing to do here\s
+						}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -80,13 +84,15 @@ public void _testBug338398b() throws CoreException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/A_CLASS.java",
-			"package a;\n" +
-			"public class A_CLASS {\n" +
-			"	public A_CLASS() {}\n" +
-			"	/**" +
-			" 	 * A_CLASS#a_cl"  +
-			"	 */\n" +
-			"}\n");
+			"""
+				package a;
+				public class A_CLASS {
+					public A_CLASS() {}
+					/**\
+				 	 * A_CLASS#a_cl\
+					 */
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -106,13 +112,15 @@ public void _testBug338398c() throws CoreException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/A_CLASS.java",
-			"package a;\n" +
-			"public class A_CLASS {\n" +
-			"	/**" +
-			" 	 * @param my_s"  +
-			"	 */\n" +
-			"	public A_CLASS(String MY_STring) {}\n" +
-			"}\n");
+			"""
+				package a;
+				public class A_CLASS {
+					/**\
+				 	 * @param my_s\
+					 */
+					public A_CLASS(String MY_STring) {}
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -132,16 +140,18 @@ public void testBug504095() throws CoreException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/Bug504095.java",
-			"package a;\n" +
-			"import java.lang.reflect.Field;\n" +
-			"public class Bug504095 {\n" +
-			"	static @interface Parameter {}\n" +
-			"	void method(Class<?> clazz) {\n"  +
-			"		for (Field member : clazz.getDeclaredFields()) {\n" +
-			"			Parameter parameter = memb\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				package a;
+				import java.lang.reflect.Field;
+				public class Bug504095 {
+					static @interface Parameter {}
+					void method(Class<?> clazz) {
+						for (Field member : clazz.getDeclaredFields()) {
+							Parameter parameter = memb
+						}
+					}
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -161,23 +171,29 @@ public void testBug425035a() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
-				"package a;\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n");
+				"""
+					package a;
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/a/Annotation.java",
-				"package a;\n" +
-				"public @interface Annotation {\n" +
-				"	Values[] value();\n" +
-				"}\n");
+				"""
+					package a;
+					public @interface Annotation {
+						Values[] value();
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"package b;\n" +
-				"@Annotation()\n" +
-				"public class Test {\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					package b;
+					@Annotation()
+					public class Test {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -186,11 +202,12 @@ public void testBug425035a() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" +
-				"value[ANNOTATION_ATTRIBUTE_REF]{value = , La.Annotation;, [La.Values;, value, null, 52}\n" +
-				"Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}\n" +
-				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" +
-				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
+				"""
+					Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}
+					value[ANNOTATION_ATTRIBUTE_REF]{value = , La.Annotation;, [La.Values;, value, null, 52}
+					Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}
+					OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}
+					SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}""",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -202,23 +219,29 @@ public void testBug425035b() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
-				"package a;\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n");
+				"""
+					package a;
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/a/Annotation.java",
-				"package a;\n" +
-				"public @interface Annotation {\n" +
-				"	Values[] value();\n" +
-				"}\n");
+				"""
+					package a;
+					public @interface Annotation {
+						Values[] value();
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"package b;\n" +
-				"@Annotation({})\n" +
-				"public class Test {\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					package b;
+					@Annotation({})
+					public class Test {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -227,10 +250,11 @@ public void testBug425035b() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" +
-				"Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}\n" +
-				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" +
-				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
+				"""
+					Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}
+					Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}
+					OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}
+					SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}""",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -242,24 +266,30 @@ public void testBug425035c() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
-				"package a;\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n");
+				"""
+					package a;
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/a/Annotation.java",
-				"package a;\n" +
-				"public @interface Annotation {\n" +
-				"	Values[] value();\n" +
-				"}\n");
+				"""
+					package a;
+					public @interface Annotation {
+						Values[] value();
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"import a.Values;\n" +
-				"package b;\n" +
-				"@Annotation({Values.SOME_VALUE, })\n" +
-				"public class Test {\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					import a.Values;
+					package b;
+					@Annotation({Values.SOME_VALUE, })
+					public class Test {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -268,10 +298,11 @@ public void testBug425035c() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" +
-				"Values[TYPE_REF]{Values, a, La.Values;, null, null, 102}\n" +
-				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" +
-				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
+				"""
+					Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}
+					Values[TYPE_REF]{Values, a, La.Values;, null, null, 102}
+					OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}
+					SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}""",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -283,23 +314,29 @@ public void testBug425035d() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
-				"package a;\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n");
+				"""
+					package a;
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/a/Annotation.java",
-				"package a;\n" +
-				"public @interface Annotation {\n" +
-				"	Values[] x();\n" +
-				"}\n");
+				"""
+					package a;
+					public @interface Annotation {
+						Values[] x();
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"package b;\n" +
-				"@Annotation(x=)\n" +
-				"public class Test {\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					package b;
+					@Annotation(x=)
+					public class Test {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -308,10 +345,11 @@ public void testBug425035d() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" +
-				"Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}\n" +
-				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" +
-				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
+				"""
+					Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}
+					Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}
+					OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}
+					SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}""",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -323,23 +361,29 @@ public void testBug425035e() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
-				"package a;\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n");
+				"""
+					package a;
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/a/Annotation.java",
-				"package a;\n" +
-				"public @interface Annotation {\n" +
-				"	Values[] x();\n" +
-				"}\n");
+				"""
+					package a;
+					public @interface Annotation {
+						Values[] x();
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"package b;\n" +
-				"@Annotation(x={})\n" +
-				"public class Test {\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					package b;
+					@Annotation(x={})
+					public class Test {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -348,10 +392,11 @@ public void testBug425035e() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" +
-				"Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}\n" +
-				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" +
-				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
+				"""
+					Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}
+					Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}
+					OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}
+					SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}""",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -363,24 +408,30 @@ public void testBug425035f() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
-				"package a;\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n");
+				"""
+					package a;
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/a/Annotation.java",
-				"package a;\n" +
-				"public @interface Annotation {\n" +
-				"	Values[] x();\n" +
-				"}\n");
+				"""
+					package a;
+					public @interface Annotation {
+						Values[] x();
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"import a.Values;\n" +
-				"package b;\n" +
-				"@Annotation(x={Values.SOME_VALUE, })\n" +
-				"public class Test {\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					import a.Values;
+					package b;
+					@Annotation(x={Values.SOME_VALUE, })
+					public class Test {
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -389,10 +440,11 @@ public void testBug425035f() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" +
-				"Values[TYPE_REF]{Values, a, La.Values;, null, null, 102}\n" +
-				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" +
-				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
+				"""
+					Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}
+					Values[TYPE_REF]{Values, a, La.Values;, null, null, 102}
+					OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}
+					SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}""",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -404,25 +456,31 @@ public void testBug425035_method_a() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
-				"package a;\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n");
+				"""
+					package a;
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/a/Annotation.java",
-				"package a;\n" +
-				"public @interface Annotation {\n" +
-				"	Values[] value();\n" +
-				"}\n");
+				"""
+					package a;
+					public @interface Annotation {
+						Values[] value();
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"package b;\n" +
-				"public class Test {\n" +
-				"	public static final int i=0;\n" +
-				"	@Annotation()\n" +
-				"	void f() {}\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					package b;
+					public class Test {
+						public static final int i=0;
+						@Annotation()
+						void f() {}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -431,12 +489,13 @@ public void testBug425035_method_a() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" +
-				"i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}\n" +
-				"value[ANNOTATION_ATTRIBUTE_REF]{value = , La.Annotation;, [La.Values;, value, null, 52}\n" +
-				"Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}\n" +
-				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" +
-				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
+				"""
+					Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}
+					i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}
+					value[ANNOTATION_ATTRIBUTE_REF]{value = , La.Annotation;, [La.Values;, value, null, 52}
+					Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}
+					OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}
+					SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}""",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -448,25 +507,31 @@ public void testBug425035_method_b() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
-				"package a;\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n");
+				"""
+					package a;
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/a/Annotation.java",
-				"package a;\n" +
-				"public @interface Annotation {\n" +
-				"	Values[] value();\n" +
-				"}\n");
+				"""
+					package a;
+					public @interface Annotation {
+						Values[] value();
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"package b;\n" +
-				"public class Test {\n" +
-				"	public static final int i=0;\n" +
-				"	@Annotation({})\n" +
-				"	void f() {}\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					package b;
+					public class Test {
+						public static final int i=0;
+						@Annotation({})
+						void f() {}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -475,11 +540,12 @@ public void testBug425035_method_b() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" +
-				"i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}\n" +
-				"Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}\n" +
-				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" +
-				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
+				"""
+					Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}
+					i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}
+					Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}
+					OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}
+					SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}""",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -491,26 +557,32 @@ public void testBug425035_method_c() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
-				"package a;\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n");
+				"""
+					package a;
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/a/Annotation.java",
-				"package a;\n" +
-				"public @interface Annotation {\n" +
-				"	Values[] value();\n" +
-				"}\n");
+				"""
+					package a;
+					public @interface Annotation {
+						Values[] value();
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"import a.Values;\n" +
-				"package b;\n" +
-				"public class Test {\n" +
-				"	public static final int i=0;\n" +
-				"	@Annotation({Values.SOME_VALUE, })\n" +
-				"	void f() {}\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					import a.Values;
+					package b;
+					public class Test {
+						public static final int i=0;
+						@Annotation({Values.SOME_VALUE, })
+						void f() {}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -519,11 +591,12 @@ public void testBug425035_method_c() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" +
-				"i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}\n" +
-				"Values[TYPE_REF]{Values, a, La.Values;, null, null, 102}\n" +
-				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" +
-				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
+				"""
+					Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}
+					i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}
+					Values[TYPE_REF]{Values, a, La.Values;, null, null, 102}
+					OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}
+					SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}""",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -535,18 +608,20 @@ public void testBug425035_method_c2() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"import a.Values;\n" +
-				"package b;\n" +
-				"@Annotation({Values.SOME_})\n" +
-				"public class Test {\n" +
-				"}\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n" +
-				"@interface Annotation {\n" +
-				"	Values[] value();\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					import a.Values;
+					package b;
+					@Annotation({Values.SOME_})
+					public class Test {
+					}
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					@interface Annotation {
+						Values[] value();
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -567,25 +642,31 @@ public void testBug425035_method_d() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
-				"package a;\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n");
+				"""
+					package a;
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/a/Annotation.java",
-				"package a;\n" +
-				"public @interface Annotation {\n" +
-				"	Values[] x();\n" +
-				"}\n");
+				"""
+					package a;
+					public @interface Annotation {
+						Values[] x();
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"package b;\n" +
-				"public class Test {\n" +
-				"	public static final int i=0;\n" +
-				"	@Annotation(x=)\n" +
-				"	void f() {}\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					package b;
+					public class Test {
+						public static final int i=0;
+						@Annotation(x=)
+						void f() {}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -594,11 +675,12 @@ public void testBug425035_method_d() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" +
-				"i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}\n" +
-				"Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}\n" +
-				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" +
-				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
+				"""
+					Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}
+					i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}
+					Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}
+					OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}
+					SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}""",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -610,25 +692,31 @@ public void testBug425035_method_e() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
-				"package a;\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n");
+				"""
+					package a;
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/a/Annotation.java",
-				"package a;\n" +
-				"public @interface Annotation {\n" +
-				"	Values[] x();\n" +
-				"}\n");
+				"""
+					package a;
+					public @interface Annotation {
+						Values[] x();
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"package b;\n" +
-				"public class Test {\n" +
-				"	public static final int i=0;\n" +
-				"	@Annotation(x={})\n" +
-				"	void f() {}\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					package b;
+					public class Test {
+						public static final int i=0;
+						@Annotation(x={})
+						void f() {}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -637,11 +725,12 @@ public void testBug425035_method_e() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" +
-				"i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}\n" +
-				"Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}\n" +
-				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" +
-				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
+				"""
+					Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}
+					i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}
+					Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}
+					OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}
+					SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}""",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -653,26 +742,32 @@ public void testBug425035_method_f() throws CoreException {
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
-				"package a;\n" +
-				"public enum Values {\n" +
-				"	SOME_VALUE, OTHER_VALUE\n" +
-				"}\n");
+				"""
+					package a;
+					public enum Values {
+						SOME_VALUE, OTHER_VALUE
+					}
+					""");
 		this.workingCopies[1] = getWorkingCopy(
 				"/P/src/a/Annotation.java",
-				"package a;\n" +
-				"public @interface Annotation {\n" +
-				"	Values[] x();\n" +
-				"}\n");
+				"""
+					package a;
+					public @interface Annotation {
+						Values[] x();
+					}
+					""");
 		this.workingCopies[2] = getWorkingCopy(
 				"/P/src/b/Test.java",
-				"import a.Annotation;\n" +
-				"import a.Values;\n" +
-				"package b;\n" +
-				"public class Test {\n" +
-				"	public static final int i=0;\n" +
-				"	@Annotation(x={Values.SOME_VALUE, })\n" +
-				"	void f() {}\n" +
-				"}\n");
+				"""
+					import a.Annotation;
+					import a.Values;
+					package b;
+					public class Test {
+						public static final int i=0;
+						@Annotation(x={Values.SOME_VALUE, })
+						void f() {}
+					}
+					""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
@@ -681,11 +776,12 @@ public void testBug425035_method_f() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" +
-				"i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}\n" +
-				"Values[TYPE_REF]{Values, a, La.Values;, null, null, 102}\n" +
-				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" +
-				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
+				"""
+					Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}
+					i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}
+					Values[TYPE_REF]{Values, a, La.Values;, null, null, 102}
+					OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}
+					SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}""",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -697,19 +793,21 @@ public void testBug547256() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/jdt/Something.java",
-				"package jdt;\n" +
-				"public class Something {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		done: for (int i = 0; i < 5; ++i) {\n" +
-				"			if (i == 3) {\n" +
-				"				break done;\n" +
-				"			}\n" +
-				"			System.out.println(i);\n" +
-				"		}\n" +
-				"		arg\n" +
-				"		System.out.println(\"done\");\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					package jdt;
+					public class Something {
+						public static void main(String[] args) {
+							done: for (int i = 0; i < 5; ++i) {
+								if (i == 3) {
+									break done;
+								}
+								System.out.println(i);
+							}
+							arg
+							System.out.println("done");
+						}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF, true);
 		String str = this.workingCopies[0].getSource();
@@ -730,21 +828,23 @@ public void testBug574215() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/jdt/Something.java",
-				"package jdt;\n" +
-				"class S {\n" +
-				"	void foo() {}\n" +
-				"	String bar;\n" +
-				"}\n" +
-				"public class Something {\n" +
-				"	private void test(S s, int i) {\n" +
-				"		if (i > 2) {\n" +
-				"			System.out.println(\"a\");\n" +
-				"		} else {\n" +
-				"			s. // <--\n" +
-				"			System.out.println(\"b\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					package jdt;
+					class S {
+						void foo() {}
+						String bar;
+					}
+					public class Something {
+						private void test(S s, int i) {
+							if (i > 2) {
+								System.out.println("a");
+							} else {
+								s. // <--
+								System.out.println("b");
+							}
+						}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF, true);
 		String str = this.workingCopies[0].getSource();
@@ -752,19 +852,20 @@ public void testBug574215() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"bar[FIELD_REF]{bar, Ljdt.S;, Ljava.lang.String;, bar, null, 60}\n" +
-				"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
-				"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-				"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-				"foo[METHOD_REF]{foo(), Ljdt.S;, ()V, foo, null, 60}\n" +
-				"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n" +
-				"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
-				"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
-				"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
-				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
-				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
-				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
-				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+				"""
+					bar[FIELD_REF]{bar, Ljdt.S;, Ljava.lang.String;, bar, null, 60}
+					clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+					equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}
+					finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}
+					foo[METHOD_REF]{foo(), Ljdt.S;, ()V, foo, null, 60}
+					getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}
+					hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}
+					notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}
+					notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}
+					toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}
+					wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}
+					wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}
+					wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}""",
 				requestor.getResults());
 
 	} finally {
@@ -777,22 +878,24 @@ public void testBug574215_field() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/jdt/Something.java",
-				"package jdt;\n" +
-				"class S {\n" +
-				"	void foo() {}\n" +
-				"	String bar;\n" +
-				"}\n" +
-				"public class Something {\n" +
-				"	S s;\n" +
-				"	private void test(int i) {\n" +
-				"		if (i > 2) {\n" +
-				"			System.out.println(\"a\");\n" +
-				"		} else {\n" +
-				"			s. // <--\n" +
-				"			System.out.println(\"b\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					package jdt;
+					class S {
+						void foo() {}
+						String bar;
+					}
+					public class Something {
+						S s;
+						private void test(int i) {
+							if (i > 2) {
+								System.out.println("a");
+							} else {
+								s. // <--
+								System.out.println("b");
+							}
+						}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF, true);
 		String str = this.workingCopies[0].getSource();
@@ -800,19 +903,20 @@ public void testBug574215_field() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"bar[FIELD_REF]{bar, Ljdt.S;, Ljava.lang.String;, bar, null, 60}\n" +
-				"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
-				"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-				"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-				"foo[METHOD_REF]{foo(), Ljdt.S;, ()V, foo, null, 60}\n" +
-				"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n" +
-				"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
-				"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
-				"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
-				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
-				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
-				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
-				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+				"""
+					bar[FIELD_REF]{bar, Ljdt.S;, Ljava.lang.String;, bar, null, 60}
+					clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+					equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}
+					finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}
+					foo[METHOD_REF]{foo(), Ljdt.S;, ()V, foo, null, 60}
+					getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}
+					hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}
+					notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}
+					notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}
+					toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}
+					wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}
+					wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}
+					wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}""",
 				requestor.getResults());
 
 	} finally {
@@ -825,12 +929,14 @@ public void testBug574215_type_not_field() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/jdt/Something.java",
-				"package jdt;\n" +
-				"public class Something {\n" +
-				"	String jdt;\n" +
-				"	private void test(jdt.) {\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					package jdt;
+					public class Something {
+						String jdt;
+						private void test(jdt.) {
+						}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF, true);
 		String str = this.workingCopies[0].getSource();
@@ -851,22 +957,24 @@ public void testBug574215_withToken() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/jdt/Something.java",
-				"package jdt;\n" +
-				"class S {\n" +
-				"	void foo() {}\n" +
-				"	int found;\n" +
-				"	String bar;\n" +
-				"}\n" +
-				"public class Something {\n" +
-				"	private void test(S s, int i) {\n" +
-				"		if (i > 2) {\n" +
-				"			System.out.println(\"a\");\n" +
-				"		} else {\n" +
-				"			s.fo // <--\n" +
-				"			System.out.println(\"b\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					package jdt;
+					class S {
+						void foo() {}
+						int found;
+						String bar;
+					}
+					public class Something {
+						private void test(S s, int i) {
+							if (i > 2) {
+								System.out.println("a");
+							} else {
+								s.fo // <--
+								System.out.println("b");
+							}
+						}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF, true);
 		String str = this.workingCopies[0].getSource();
@@ -888,20 +996,21 @@ public void testBug574338() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/Snippet.java",
-				"public class Snippet {\n" +
-				"	private boolean flag;\n" +
-				"\n" +
-				"	private void test(List<String> c) {\n" +
-				"		if (flag) {\n" +
-				"			// content assist here\n" +
-				"			List<String> scs = c.subList(0, 1);\n" +
-				"		}\n" +
-				"	}\n" +
-				"\n" +
-				"	String test() {\n" +
-				"		return null;\n" +
-				"	}\n" +
-				"}"
+				"""
+					public class Snippet {
+						private boolean flag;
+					
+						private void test(List<String> c) {
+							if (flag) {
+								// content assist here
+								List<String> scs = c.subList(0, 1);
+							}
+						}
+					
+						String test() {
+							return null;
+						}
+					}"""
 				);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
 		requestor.allowAllRequiredProposals();
@@ -938,15 +1047,17 @@ public void testBug574338_from574215c14() throws CoreException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/Bug574338.java",
-			"package a;\n" +
-			"public class Bug574338 {\n" +
-			"	public void name(String fooo) {\n" +
-			"    if (fooo != null) {\n" +
-			"      fo\n" +
-			"      System.err.println(\"Done\");\n" +
-			"    }\n" +
-			"}\n" +
-			"}\n");
+			"""
+				package a;
+				public class Bug574338 {
+					public void name(String fooo) {
+				    if (fooo != null) {
+				      fo
+				      System.err.println("Done");
+				    }
+				}
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -967,17 +1078,19 @@ public void testBug574704() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/Cast.java",
-			"public class Cast {\n" +
-			"\n" +
-			"	Object field;\n" +
-			"\n" +
-			"	void test(Object o) {\n" +
-			"		if (true) {\n" +
-			"			 // content assist here does not offer o or field\n" +
-			"			((String) o).toCharArray();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class Cast {
+				
+					Object field;
+				
+					void test(Object o) {
+						if (true) {
+							 // content assist here does not offer o or field
+							((String) o).toCharArray();
+						}
+					}
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -1012,17 +1125,19 @@ public void testBug574704_withPrefix() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/Cast.java",
-			"public class Cast {\n" +
-			"\n" +
-			"	Object oField;\n" +
-			"\n" +
-			"	void test(Object oArg, String wrongArg) {\n" +
-			"		if (true) {\n" +
-			"			o // content assist here does not offer oArg or oField\n" +
-			"			((String) oArg).toCharArray();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class Cast {
+				
+					Object oField;
+				
+					void test(Object oArg, String wrongArg) {
+						if (true) {
+							o // content assist here does not offer oArg or oField
+							((String) oArg).toCharArray();
+						}
+					}
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -1046,17 +1161,19 @@ public void testBug574803() throws Exception {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/X.java",
-			"public class X {\n" +
-			"\n" +
-			"	\n" +
-			"	public static void fillAttributes(Object object) throws Exception {\n" +
-			"		for (Field field : object.getClass().getFields()) {\n" +
-			"			if (field.getType() == ) // no content assist\n" +
-			"			Object value = field.get(object);\n" +
-			"			System.out.println(value);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class X {
+				
+				\t
+					public static void fillAttributes(Object object) throws Exception {
+						for (Field field : object.getClass().getFields()) {
+							if (field.getType() == ) // no content assist
+							Object value = field.get(object);
+							System.out.println(value);
+						}
+					}
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -1080,28 +1197,30 @@ public void testBug575032() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/Overwrite.java",
-			"import java.util.HashMap;\n" +
-			"import java.util.Map;\n" +
-			"class AtomicInteger {\n" +
-			"	void set(int i) {}\n" +
-			"	int get() { return 0; }\n" +
-			"}\n" +
-			"\n" +
-			"public class Overwrite {\n" +
-			"\n" +
-			"	void test(Test t) {\n" +
-			"		Map<String, String> map = new HashMap<>();\n" +
-			"		\n" +
-			"		if (true) {\n" +
-			"			t.counter. // <<--\n" +
-			"			map.put(\"\", \"\");\n" +
-			"		}\n" +
-			"	}\n" +
-			"	\n" +
-			"	static class Test {\n" +
-			"		AtomicInteger counter = new AtomicInteger();\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.HashMap;
+				import java.util.Map;
+				class AtomicInteger {
+					void set(int i) {}
+					int get() { return 0; }
+				}
+				
+				public class Overwrite {
+				
+					void test(Test t) {
+						Map<String, String> map = new HashMap<>();
+					\t
+						if (true) {
+							t.counter. // <<--
+							map.put("", "");
+						}
+					}
+				\t
+					static class Test {
+						AtomicInteger counter = new AtomicInteger();
+					}
+				}
+				""");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -1177,14 +1296,16 @@ public void testBug574979() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/Bug.java",
-			"public class Bug {\n" +
-			"	void test (Object o) {\n" +
-			"		if (true) {\n" +
-			"			Str\n" +
-			"			((String) o).toCharArray();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				public class Bug {
+					void test (Object o) {
+						if (true) {
+							Str
+							((String) o).toCharArray();
+						}
+					}
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeAfter = "Str";
@@ -1204,18 +1325,20 @@ public void testBug575397a() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/ContentAssist.java",
-			"class Thread {\n" +
-			"	static void sleep(int millis) {}\n" +
-			"}\n" +
-			"public class ContentAssist {\n" +
-			"	protected void test() {\n" +
-			"		if (true) {\n" +
-			"			Thread.\n" +
-			"			someMethod();\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void someMethod() { }\n" +
-			"}\n");
+			"""
+				class Thread {
+					static void sleep(int millis) {}
+				}
+				public class ContentAssist {
+					protected void test() {
+						if (true) {
+							Thread.
+							someMethod();
+						}
+					}
+					void someMethod() { }
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeAfter = "Thread.";
@@ -1235,19 +1358,21 @@ public void testBug575397b() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/ContentAssist.java",
-			"class Thread {\n" +
-			"	static void sleep(int millis) {}\n" +
-			"	public enum State { NEW, BLOCKED }\n" +
-			"}\n" +
-			"public class ContentAssist {\n" +
-			"	protected void test() {\n" +
-			"		if (true) {\n" +
-			"			Thread.Sta\n" +
-			"			someMethod();\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void someMethod() { }\n" +
-			"}\n");
+			"""
+				class Thread {
+					static void sleep(int millis) {}
+					public enum State { NEW, BLOCKED }
+				}
+				public class ContentAssist {
+					protected void test() {
+						if (true) {
+							Thread.Sta
+							someMethod();
+						}
+					}
+					void someMethod() { }
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeAfter = "Thread.Sta";
@@ -1266,31 +1391,34 @@ public void testBug575397c() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/ContentAssist.java",
-			"class Thread {\n" +
-			"	static void sleep(int millis) {}\n" +
-			"	public enum State { NEW, BLOCKED }\n" +
-			"}\n" +
-			"public class ContentAssist {\n" +
-			"	protected void test() {\n" +
-			"		if (true) {\n" +
-			"			Thread.State.\n" +
-			"			someMethod();\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void someMethod() { }\n" +
-			"}\n");
+			"""
+				class Thread {
+					static void sleep(int millis) {}
+					public enum State { NEW, BLOCKED }
+				}
+				public class ContentAssist {
+					protected void test() {
+						if (true) {
+							Thread.State.
+							someMethod();
+						}
+					}
+					void someMethod() { }
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeAfter = "Thread.State.";
 		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"serialVersionUID[FIELD_REF]{serialVersionUID, Ljava.lang.Enum<LThread$State;>;, J, serialVersionUID, null, 49}\n" +
-			"BLOCKED[FIELD_REF]{BLOCKED, LThread$State;, LThread$State;, BLOCKED, null, 51}\n" +
-			"NEW[FIELD_REF]{NEW, LThread$State;, LThread$State;, NEW, null, 51}\n" +
-			"class[FIELD_REF]{class, null, Ljava.lang.Class<LThread$State;>;, class, null, 51}\n" +
-			"valueOf[METHOD_REF]{valueOf(), LThread$State;, (Ljava.lang.String;)LThread$State;, valueOf, (arg0), 51}\n" +
-			"values[METHOD_REF]{values(), LThread$State;, ()[LThread$State;, values, null, 51}",
+			"""
+				serialVersionUID[FIELD_REF]{serialVersionUID, Ljava.lang.Enum<LThread$State;>;, J, serialVersionUID, null, 49}
+				BLOCKED[FIELD_REF]{BLOCKED, LThread$State;, LThread$State;, BLOCKED, null, 51}
+				NEW[FIELD_REF]{NEW, LThread$State;, LThread$State;, NEW, null, 51}
+				class[FIELD_REF]{class, null, Ljava.lang.Class<LThread$State;>;, class, null, 51}
+				valueOf[METHOD_REF]{valueOf(), LThread$State;, (Ljava.lang.String;)LThread$State;, valueOf, (arg0), 51}
+				values[METHOD_REF]{values(), LThread$State;, ()[LThread$State;, values, null, 51}""",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1302,20 +1430,22 @@ public void testBug575631_comment0() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/ContentAssist.java",
-			"import java.util.Calendar;\n" +
-			"class ZoneId {}\n" +
-			"class LocalDateTime {\n" +
-			"	static LocalDateTime now() { return null; }\n" +
-			"	static LocalDateTime now(ZoneId id) { return null; }\n" +
-			"}\n" +
-			"public class ContentAssist {\n" +
-			"	public static void staticMethod() {\n" +
-			"		if (true) {\n" +
-			"			LocalDateTime.now\n" +
-			"			Calendar calendar = Calendar.getInstance();\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				import java.util.Calendar;
+				class ZoneId {}
+				class LocalDateTime {
+					static LocalDateTime now() { return null; }
+					static LocalDateTime now(ZoneId id) { return null; }
+				}
+				public class ContentAssist {
+					public static void staticMethod() {
+						if (true) {
+							LocalDateTime.now
+							Calendar calendar = Calendar.getInstance();
+						}
+					}
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeAfter = "LocalDateTime.now";
@@ -1335,29 +1465,32 @@ public void testBug575631_comment1a() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/missing_proposals_for_static_fields_and_methods.java",
-			"\n" +
-			"class System {\n" +
-			"	static Object out;\n" +
-			"	static Object getEnv() { return null; }\n" +
-			"}\n" +
-			"class missing_proposals_for_static_fields_and_methods {\n" +
-			"	void sample(String foo) {\n" +
-			"		if (foo == null) {\n" +
-			"			System. // <- missing: \"out\", \"getenv()\", etc. (similar to bug 574267)\n" +
-			"			System.out.println();\n" +
-			"		}\n" +
-			"		System. // <- here content assist works fine\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				
+				class System {
+					static Object out;
+					static Object getEnv() { return null; }
+				}
+				class missing_proposals_for_static_fields_and_methods {
+					void sample(String foo) {
+						if (foo == null) {
+							System. // <- missing: "out", "getenv()", etc. (similar to bug 574267)
+							System.out.println();
+						}
+						System. // <- here content assist works fine
+					}
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeAfter = "System.";
 		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"class[FIELD_REF]{class, null, Ljava.lang.Class<LSystem;>;, class, null, 51}\n" +
-			"getEnv[METHOD_REF]{getEnv(), LSystem;, ()Ljava.lang.Object;, getEnv, null, 51}\n" +
-			"out[FIELD_REF]{out, LSystem;, Ljava.lang.Object;, out, null, 51}",
+			"""
+				class[FIELD_REF]{class, null, Ljava.lang.Class<LSystem;>;, class, null, 51}
+				getEnv[METHOD_REF]{getEnv(), LSystem;, ()Ljava.lang.Object;, getEnv, null, 51}
+				out[FIELD_REF]{out, LSystem;, Ljava.lang.Object;, out, null, 51}""",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1369,31 +1502,34 @@ public void testBug575631_comment1b() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/missing_proposals_for_static_fields_and_methods.java",
-			"\n" +
-			"class System {\n" +
-			"	static Object out;\n" +
-			"	static Object getEnv() { return null; }\n" +
-			"}\n" +
-			"class missing_proposals_for_static_fields_and_methods {\n" +
-			"	void sample(String foo) {\n" +
-			"		if (foo == null) {\n" +
-			"			sample(\"\");\n" +
-			"		} else {\n" +
-			"			System. // <- missing: \"out\", \"getenv()\", etc. (similar to bug 574215)\n" +
-			"			System.out.println();\n" +
-			"		}\n" +
-			"		System. // <- here content assist works fine\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				
+				class System {
+					static Object out;
+					static Object getEnv() { return null; }
+				}
+				class missing_proposals_for_static_fields_and_methods {
+					void sample(String foo) {
+						if (foo == null) {
+							sample("");
+						} else {
+							System. // <- missing: "out", "getenv()", etc. (similar to bug 574215)
+							System.out.println();
+						}
+						System. // <- here content assist works fine
+					}
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeAfter = "System.";
 		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"class[FIELD_REF]{class, null, Ljava.lang.Class<LSystem;>;, class, null, 51}\n" +
-			"getEnv[METHOD_REF]{getEnv(), LSystem;, ()Ljava.lang.Object;, getEnv, null, 51}\n" +
-			"out[FIELD_REF]{out, LSystem;, Ljava.lang.Object;, out, null, 51}",
+			"""
+				class[FIELD_REF]{class, null, Ljava.lang.Class<LSystem;>;, class, null, 51}
+				getEnv[METHOD_REF]{getEnv(), LSystem;, ()Ljava.lang.Object;, getEnv, null, 51}
+				out[FIELD_REF]{out, LSystem;, Ljava.lang.Object;, out, null, 51}""",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1405,40 +1541,43 @@ public void testBug575631_comment3() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/X.java",
-			"class OutputStream {\n" +
-			"	void println() {}\n" +
-			"}\n" +
-			"interface Runnable { void run(); }\n" +
-			"class System {\n" +
-			"	static OutputStream out;\n" +
-			"	static Object getEnv() { return null; }\n" +
-			"}\n" +
-			"class X {\n" +
-			"	void foo() {\n" +
-			"		Runnable r = () -> {\n" +
-			"			System.out.\n" +
-			"			System.out.println();\n" +
-			"		};\n" +
-			"	}\n" +
-			"}\n");
+			"""
+				class OutputStream {
+					void println() {}
+				}
+				interface Runnable { void run(); }
+				class System {
+					static OutputStream out;
+					static Object getEnv() { return null; }
+				}
+				class X {
+					void foo() {
+						Runnable r = () -> {
+							System.out.
+							System.out.println();
+						};
+					}
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeAfter = "System.out.";
 		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
-			"println[METHOD_REF]{println(), LOutputStream;, ()V, println, null, 60}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			"""
+				clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+				equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}
+				finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}
+				getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}
+				notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}
+				notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}
+				println[METHOD_REF]{println(), LOutputStream;, ()V, println, null, 60}
+				toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}""",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1451,38 +1590,41 @@ public void testBug575631_comment3b() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/X.java",
-			"class OutputStream {\n" +
-			"	void println() {}\n" +
-			"}\n" +
-			"interface Runnable { void run(); }\n" +
-			"class System {\n" +
-			"	static OutputStream out;\n" +
-			"	static Object getEnv() { return null; }\n" +
-			"}\n" +
-			"class X {\n" +
-			"	Runnable r = () -> {\n" +
-			"		System.out.\n" +
-			"		System.out.println();\n" +
-			"	};\n" +
-			"}\n");
+			"""
+				class OutputStream {
+					void println() {}
+				}
+				interface Runnable { void run(); }
+				class System {
+					static OutputStream out;
+					static Object getEnv() { return null; }
+				}
+				class X {
+					Runnable r = () -> {
+						System.out.
+						System.out.println();
+					};
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeAfter = "System.out.";
 		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
-			"println[METHOD_REF]{println(), LOutputStream;, ()V, println, null, 60}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			"""
+				clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}
+				equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}
+				finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}
+				getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}
+				notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}
+				notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}
+				println[METHOD_REF]{println(), LOutputStream;, ()V, println, null, 60}
+				toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}""",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1495,21 +1637,23 @@ public void testBug575631_comment3c() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/X.java",
-			"class OutputStream {\n" +
-			"	void println() {}\n" +
-			"}\n" +
-			"interface Consumer { void consume(int); }\n" +
-			"class Number{}\n" +
-			"class System {\n" +
-			"	static OutputStream out;\n" +
-			"	static Object getEnv() { return null; }\n" +
-			"}\n" +
-			"class X {\n" +
-			"	Consumer r = (int number) -> {\n" +
-			"		Number \n" +
-			"		System.out.println();\n" +
-			"	};\n" +
-			"}\n");
+			"""
+				class OutputStream {
+					void println() {}
+				}
+				interface Consumer { void consume(int); }
+				class Number{}
+				class System {
+					static OutputStream out;
+					static Object getEnv() { return null; }
+				}
+				class X {
+					Consumer r = (int number) -> {
+						Number\s
+						System.out.println();
+					};
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeAfter = "Number ";
@@ -1531,14 +1675,16 @@ public void testBug575631_comment3d() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/X.java",
-			"interface BiConsumer { void consume(int,boolean); }\n" +
-			"class X {\n" +
-			"	BiConsumer r = (int number, boolean bool) -> {\n" +
-			"		bar( number);\n" +
-			"	};\n" +
-			"	void bar(int i, String s) {}\n" +
-			"	void bar(boolean b, int j) {}\n" +
-			"}\n");
+			"""
+				interface BiConsumer { void consume(int,boolean); }
+				class X {
+					BiConsumer r = (int number, boolean bool) -> {
+						bar( number);
+					};
+					void bar(int i, String s) {}
+					void bar(boolean b, int j) {}
+				}
+				""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeAfter = "bar(";

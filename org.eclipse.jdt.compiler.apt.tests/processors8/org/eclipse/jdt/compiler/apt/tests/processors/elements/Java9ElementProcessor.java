@@ -872,20 +872,21 @@ public class Java9ElementProcessor extends BaseProcessor {
 				Filer filer = processingEnv.getFiler();
 				JavaFileObject jfo = filer.createSourceFile("targets.bug535819.query.QEntity1", annotatedType);
 				Writer writer = jfo.openWriter();
-				writer.write("package targets.bug535819.query;\n" +
-						"  \n" +
-						"import targets.bug535819.Entity1;\n" +
-						"public class QEntity1 {\n" +
-						"  private static final QEntity1 _alias = new QEntity1(true);\n" +
-						"  public QEntity1() {\n" +
-						"    super(Entity1.class);\n" +
-						"  }\n" +
-						"  private QEntity1(boolean dummy) {\n" +
-						"    super(dummy);\n" +
-						"  }\n" +
-						"  public static class Alias {\n" +
-						"  }\n" +
-						"}");
+				writer.write("""
+					package targets.bug535819.query;
+					 \s
+					import targets.bug535819.Entity1;
+					public class QEntity1 {
+					  private static final QEntity1 _alias = new QEntity1(true);
+					  public QEntity1() {
+					    super(Entity1.class);
+					  }
+					  private QEntity1(boolean dummy) {
+					    super(dummy);
+					  }
+					  public static class Alias {
+					  }
+					}""");
 				writer.close();
 
 				jfo = filer.createSourceFile("targets.bug535819.assoc.QAssocEntity1", annotatedType);

@@ -25,42 +25,44 @@ public ExplicitConstructorInvocationSelectionTest(String testName) {
  */
 public void testNameSuper() {
 	runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	static Bar x;								\n" +
-		"	public class InnerBar {						\n" +
-		"		InnerBar(Bar x) {						\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"	public class SubInnerBar extends InnerBar {	\n" +
-		"		SubInnerBar() {							\n" +
-		"			Bar.super(fred());					\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				static Bar x;							\t
+				public class InnerBar {					\t
+					InnerBar(Bar x) {					\t
+					}									\t
+				}										\t
+				public class SubInnerBar extends InnerBar {\t
+					SubInnerBar() {						\t
+						Bar.super(fred());				\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// selectionStartBehind:
 		"Bar.super(",
 		// selectionEndBehind:
 		"fred",
 		// expectedSelectionNodeToString:
 		"<SelectOnMessageSend:fred()>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  public class InnerBar {\n" +
-		"    InnerBar(Bar x) {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public class SubInnerBar extends InnerBar {\n" +
-		"    SubInnerBar() {\n" +
-		"      Bar.super(<SelectOnMessageSend:fred()>);\n" +
-		"    }\n" +
-		"  }\n" +
-		"  static Bar x;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  public class InnerBar {
+			    InnerBar(Bar x) {
+			    }
+			  }
+			  public class SubInnerBar extends InnerBar {
+			    SubInnerBar() {
+			      Bar.super(<SelectOnMessageSend:fred()>);
+			    }
+			  }
+			  static Bar x;
+			  <clinit>() {
+			  }
+			  Bar() {
+			  }
+			}
+			""",
 		// expectedSelectionIdentifier:
 		"fred",
 		// expectedReplacedSource:
@@ -74,42 +76,44 @@ public void testNameSuper() {
  */
 public void testNameThis() {
 	runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	static Bar x;								\n" +
-		"	public class InnerBar {						\n" +
-		"		InnerBar(Bar x) {						\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"	public class SubInnerBar extends InnerBar {	\n" +
-		"		SubInnerBar() {							\n" +
-		"			Bar.this(fred());					\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				static Bar x;							\t
+				public class InnerBar {					\t
+					InnerBar(Bar x) {					\t
+					}									\t
+				}										\t
+				public class SubInnerBar extends InnerBar {\t
+					SubInnerBar() {						\t
+						Bar.this(fred());				\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// selectionStartBehind:
 		"Bar.this(",
 		// selectionEndBehind:
 		"fred",
 		// expectedSelectionNodeToString:
 		"<SelectOnMessageSend:fred()>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  public class InnerBar {\n" +
-		"    InnerBar(Bar x) {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public class SubInnerBar extends InnerBar {\n" +
-		"    SubInnerBar() {\n" +
-		"      Bar.this(<SelectOnMessageSend:fred()>);\n" +
-		"    }\n" +
-		"  }\n" +
-		"  static Bar x;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  public class InnerBar {
+			    InnerBar(Bar x) {
+			    }
+			  }
+			  public class SubInnerBar extends InnerBar {
+			    SubInnerBar() {
+			      Bar.this(<SelectOnMessageSend:fred()>);
+			    }
+			  }
+			  static Bar x;
+			  <clinit>() {
+			  }
+			  Bar() {
+			  }
+			}
+			""",
 		// expectedSelectionIdentifier:
 		"fred",
 		// expectedReplacedSource:
@@ -123,42 +127,44 @@ public void testNameThis() {
  */
 public void testPrimarySuper() {
 	runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	static Bar x;								\n" +
-		"	public class InnerBar {						\n" +
-		"		InnerBar(Bar x) {						\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"	public class SubInnerBar extends InnerBar {	\n" +
-		"		SubInnerBar(Bar x) {					\n" +
-		"			primary().super(fred());			\n" +
-		"		}										\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				static Bar x;							\t
+				public class InnerBar {					\t
+					InnerBar(Bar x) {					\t
+					}									\t
+				}										\t
+				public class SubInnerBar extends InnerBar {\t
+					SubInnerBar(Bar x) {				\t
+						primary().super(fred());		\t
+					}									\t
+				}										\t
+			}											\t
+			""",
 		// selectionStartBehind:
 		"super(",
 		// selectionEndBehind:
 		"fred",
 		// expectedSelectionNodeToString:
 		"<SelectOnMessageSend:fred()>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  public class InnerBar {\n" +
-		"    InnerBar(Bar x) {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public class SubInnerBar extends InnerBar {\n" +
-		"    SubInnerBar(Bar x) {\n" +
-		"      primary().super(<SelectOnMessageSend:fred()>);\n" +
-		"    }\n" +
-		"  }\n" +
-		"  static Bar x;\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  Bar() {\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  public class InnerBar {
+			    InnerBar(Bar x) {
+			    }
+			  }
+			  public class SubInnerBar extends InnerBar {
+			    SubInnerBar(Bar x) {
+			      primary().super(<SelectOnMessageSend:fred()>);
+			    }
+			  }
+			  static Bar x;
+			  <clinit>() {
+			  }
+			  Bar() {
+			  }
+			}
+			""",
 		// expectedSelectionIdentifier:
 		"fred",
 		// expectedReplacedSource:
@@ -172,24 +178,26 @@ public void testPrimarySuper() {
  */
 public void testSuper() {
 	runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	Bar() {										\n" +
-		"		super(fred());							\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				Bar() {									\t
+					super(fred());						\t
+				}										\t
+			}											\t
+			""",
 		// selectionStartBehind:
 		"super(",
 		// selectionEndBehind:
 		"fred",
 		// expectedSelectionNodeToString:
 		"<SelectOnMessageSend:fred()>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"    super(<SelectOnMessageSend:fred()>);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			    super(<SelectOnMessageSend:fred()>);
+			  }
+			}
+			""",
 		// expectedSelectionIdentifier:
 		"fred",
 		// expectedReplacedSource:
@@ -203,24 +211,26 @@ public void testSuper() {
  */
 public void testThis() {
 	runTestCheckMethodParse(
-		// compilationUnit:
-		"class Bar {									\n" +
-		"	Bar() {										\n" +
-		"		this(fred());							\n" +
-		"	}											\n" +
-		"}												\n",
+		"""
+			class Bar {								\t
+				Bar() {									\t
+					this(fred());						\t
+				}										\t
+			}											\t
+			""",
 		// selectionStartBehind:
 		"this(",
 		// selectionEndBehind:
 		"fred",
 		// expectedSelectionNodeToString:
 		"<SelectOnMessageSend:fred()>",
-		// expectedUnitDisplayString:
-		"class Bar {\n" +
-		"  Bar() {\n" +
-		"    this(<SelectOnMessageSend:fred()>);\n" +
-		"  }\n" +
-		"}\n",
+		"""
+			class Bar {
+			  Bar() {
+			    this(<SelectOnMessageSend:fred()>);
+			  }
+			}
+			""",
 		// expectedSelectionIdentifier:
 		"fred",
 		// expectedReplacedSource:

@@ -169,94 +169,112 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 				Util.createJar(
 					new String[] {
 						"p/A.java",
-						"package p;\n" +
-						"public class A {\n" +
-						"}",
+						"""
+							package p;
+							public class A {
+							}""",
 					},
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path: lib2.jar\n",
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path: lib2.jar
+							""",
 						"p/S1.java",
-						"package p;\n" +
-						"public class S1 {\n" +
-						"}",
+						"""
+							package p;
+							public class S1 {
+							}""",
 					},
 					LIB_DIR + "/lib1.jar",
 					JavaCore.VERSION_1_4);
 				Util.createJar(
 					new String[] {
 						"p/B.java",
-						"package p;\n" +
-						"public class B {\n" +
-						"}",
+						"""
+							package p;
+							public class B {
+							}""",
 						"p/R.java",
-						"package p;\n" +
-						"public class R {\n" +
-						"  public static final int R2 = 2;\n" +
-						"}",
+						"""
+							package p;
+							public class R {
+							  public static final int R2 = 2;
+							}""",
 					},
 					new String[] {
 						"p/S2.java",
-						"package p;\n" +
-						"public class S2 {\n" +
-						"}",
+						"""
+							package p;
+							public class S2 {
+							}""",
 					},
 					LIB_DIR + "/lib2.jar",
 					JavaCore.VERSION_1_4);
 				Util.createJar(
 					new String[] {
 						"p/C.java",
-						"package p;\n" +
-						"public class C {\n" +
-						"}",
+						"""
+							package p;
+							public class C {
+							}""",
 						"p/R.java",
-						"package p;\n" +
-						"public class R {\n" +
-						"  public static final int R3 = 3;\n" +
-						"}",
+						"""
+							package p;
+							public class R {
+							  public static final int R3 = 3;
+							}""",
 					},
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path: lib4.jar\n",
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path: lib4.jar
+							""",
 					},
 					LIB_DIR + "/lib3.jar",
 					JavaCore.VERSION_1_4);
 				Util.createJar(
 					new String[] {
 						"p/D.java",
-						"package p;\n" +
-						"public class D {\n" +
-						"}",
+						"""
+							package p;
+							public class D {
+							}""",
 					},
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path: lib1.jar lib3.jar\n",
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path: lib1.jar lib3.jar
+							""",
 					},
 					LIB_DIR + "/lib4.jar",
 					JavaCore.VERSION_1_4);
 				Util.createJar(
 					new String[] {
 						"p/C.java",
-						"package p;\n" +
-						"public class C {\n" +
-						"}",
+						"""
+							package p;
+							public class C {
+							}""",
 						"p/R.java",
-						"package p;\n" +
-						"public class R {\n" +
-						"  public static final int R3 = 3;\n" +
-						"}",
+						"""
+							package p;
+							public class R {
+							  public static final int R3 = 3;
+							}""",
 					},
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path: s/lib6.jar\n",
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path: s/lib6.jar
+							""",
 					},
 					LIB_DIR + "/lib5.jar",
 					JavaCore.VERSION_1_4);
@@ -264,39 +282,46 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 				Util.createJar(
 					new String[] {
 						"p/D.java",
-						"package p;\n" +
-						"public class D {\n" +
-						"}",
+						"""
+							package p;
+							public class D {
+							}""",
 					},
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path: ../lib7.jar\n",
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path: ../lib7.jar
+							""",
 					},
 					LIB_DIR + "/s/lib6.jar",
 					JavaCore.VERSION_1_4);
 				Util.createJar(
 					new String[] {
 						"p/A.java",
-						"package p;\n" +
-						"public class A {\n" +
-						"}",
+						"""
+							package p;
+							public class A {
+							}""",
 					},
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path: lib2.jar\n",
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path: lib2.jar
+							""",
 					},
 					LIB_DIR + "/lib7.jar",
 					JavaCore.VERSION_1_4);
 				Util.createJar(
 					new String[] {
 						"p/F.java",
-						"package p;\n" +
-						"public class F {\n" +
-						"}",
+						"""
+							package p;
+							public class F {
+							}""",
 					},
 					new String[] {
 						"META-INF/MANIFEST.MF",
@@ -309,47 +334,56 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 				Util.createJar(
 					new String[] {
 						"p/G.java",
-						"package p;\n" +
-						"public class G {\n" +
-						"}",
+						"""
+							package p;
+							public class G {
+							}""",
 					},
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path: lib1.jar\n" +
-						"Class-Path: lib3.jar\n",
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path: lib1.jar
+							Class-Path: lib3.jar
+							""",
 					},
 					LIB_DIR + "/lib9.jar",
 					JavaCore.VERSION_1_4);
 				Util.createJar(
 					new String[] {
 						"p/A.java",
-						"package p;\n" +
-						"public class A {\n" +
-						"}",
+						"""
+							package p;
+							public class A {
+							}""",
 					},
 					// spoiled jar: MANIFEST.MF is a directory
 					new String[] {
 						"META-INF/MANIFEST.MF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path: lib2.jar\n",
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path: lib2.jar
+							""",
 					},
 					LIB_DIR + "/lib10.jar",
 					JavaCore.VERSION_1_4);
 				Util.createJar(
 					new String[] {
 						"p/A.java",
-						"package p;\n" +
-						"public class A {\n" +
-						"}",
+						"""
+							package p;
+							public class A {
+							}""",
 					},
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path:\n",
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path:
+							""",
 					},
 					LIB_DIR + "/lib11.jar",
 					JavaCore.VERSION_1_4);
@@ -357,9 +391,11 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 					null,
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path:lib1.jar\n", // missing space
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path:lib1.jar
+							""", // missing space
 					},
 					LIB_DIR + "/lib12.jar",
 					JavaCore.VERSION_1_4);
@@ -367,9 +403,11 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 					null,
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path:lib1.jar lib1.jar\n", // missing space
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path:lib1.jar lib1.jar
+							""", // missing space
 					},
 					LIB_DIR + "/lib13.jar",
 					JavaCore.VERSION_1_4);
@@ -377,9 +415,11 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 					null,
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						" Class-Path: lib1.jar\n", // extra space at line start
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							 Class-Path: lib1.jar
+							""", // extra space at line start
 					},
 					LIB_DIR + "/lib14.jar",
 					JavaCore.VERSION_1_4);
@@ -387,29 +427,34 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 					null,
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path: lib1.jar", // missing newline at end
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path: lib1.jar""", // missing newline at end
 					},
 					LIB_DIR + "/lib15.jar",
 					JavaCore.VERSION_1_4);
 				Util.createJar(
 					new String[] {
 						"p/A.java",
-						"package p;\n" +
-						"public class A {\n" +
-						"}",
+						"""
+							package p;
+							public class A {
+							}""",
 					},
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path: \n" +
-						" lib2.jar\n",
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path:\s
+							 lib2.jar
+							""",
 						"p/S1.java",
-						"package p;\n" +
-						"public class S1 {\n" +
-						"}",
+						"""
+							package p;
+							public class S1 {
+							}""",
 					},
 					LIB_DIR + "/lib16.jar",
 					JavaCore.VERSION_1_4);
@@ -417,15 +462,18 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 				Util.createJar(
 					new String[] {
 						"p/A.java",
-						"package p;\n" +
-						"public class A {\n" +
-						"}",
+						"""
+							package p;
+							public class A {
+							}""",
 					},
 					new String[] {
 						"META-INF/MANIFEST.MF",
-						"Manifest-Version: 1.0\n" +
-						"Created-By: Eclipse JDT Test Harness\n" +
-						"Class-Path: ../lib2.jar\n",
+						"""
+							Manifest-Version: 1.0
+							Created-By: Eclipse JDT Test Harness
+							Class-Path: ../lib2.jar
+							""",
 					},
 					LIB_DIR + "/dir/lib17.jar",
 					JavaCore.VERSION_1_4);

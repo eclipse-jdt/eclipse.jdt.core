@@ -47,13 +47,14 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"    final boolean isA = true;\n" +
-				"    public static void main(String[] args) {\n" +
-				"        X x = new X();\n" +
-				"        System.out.print(x.isA ? \"SUCCESS\" : \"FAILURE\");\n" +
-				"    }\n" +
-				"}",
+				"""
+					public class X {
+					    final boolean isA = true;
+					    public static void main(String[] args) {
+					        X x = new X();
+					        System.out.print(x.isA ? "SUCCESS" : "FAILURE");
+					    }
+					}""",
 			},
 			"SUCCESS"
 		);
@@ -64,16 +65,17 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"class RecipeElement {\n" +
-				"    public static final RecipeElement[] NO_CHILDREN= new RecipeElement[0]; \n" +
-				"}\n" +
-				"class Ingredient extends RecipeElement { }\n" +
-				"class X extends RecipeElement {\n" +
-				"    private Ingredient[] fIngredients;\n" +
-				"    public RecipeElement[] getChildren() {\n" +
-				"        return fIngredients == null ? NO_CHILDREN : fIngredients;\n" +
-				"    }\n" +
-				"}",
+				"""
+					class RecipeElement {
+					    public static final RecipeElement[] NO_CHILDREN= new RecipeElement[0];\s
+					}
+					class Ingredient extends RecipeElement { }
+					class X extends RecipeElement {
+					    private Ingredient[] fIngredients;
+					    public RecipeElement[] getChildren() {
+					        return fIngredients == null ? NO_CHILDREN : fIngredients;
+					    }
+					}""",
 			},
 			""
 		);
@@ -86,17 +88,19 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	boolean isOdd(boolean what) {\n" +
-				"		return square(what ? new Integer(1) : new Integer(2)) % 2 == 1; // trouble here\n" +
-				"	}\n" +
-				"	<T> int square(int i) {\n" +
-				"		return i * i;\n" +
-				"	}\n" +
-				"	public static void main(String argv[]) {\n" +
-				"		System.out.println(new X().isOdd(true));\n" +
-				"	}\n" +
-				"}\n",
+				"""
+					public class X {
+						boolean isOdd(boolean what) {
+							return square(what ? new Integer(1) : new Integer(2)) % 2 == 1; // trouble here
+						}
+						<T> int square(int i) {
+							return i * i;
+						}
+						public static void main(String argv[]) {
+							System.out.println(new X().isOdd(true));
+						}
+					}
+					""",
 			},
 			"true"
 		);
@@ -110,42 +114,48 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 			this.runNegativeTest(
 					new String[] {
 						"X.java",
-						"class A{/**/}\n" +
-						"class B extends A {/**/}\n" +
-						"class G<T> {\n" +
-						"	G<B> gb=null;\n" +
-						"	G<? super A> gsa=null;\n" +
-						"	G<? super B> l = (true)? gsa : gb;\n" +
-						"}\n" +
-						"public class X {\n" +
-						"	public static void main(String[] args) {\n" +
-						"		System.out.println(\"OK\");\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							class A{/**/}
+							class B extends A {/**/}
+							class G<T> {
+								G<B> gb=null;
+								G<? super A> gsa=null;
+								G<? super B> l = (true)? gsa : gb;
+							}
+							public class X {
+								public static void main(String[] args) {
+									System.out.println("OK");
+								}
+							}
+							""",
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 6)\n" +
-					"	G<? super B> l = (true)? gsa : gb;\n" +
-					"	                 ^^^^^^^^^^^^^^^^\n" +
-					"Type mismatch: cannot convert from G<capture#2-of ? extends Object> to G<? super B>\n" +
-					"----------\n"
+					"""
+						----------
+						1. ERROR in X.java (at line 6)
+							G<? super B> l = (true)? gsa : gb;
+							                 ^^^^^^^^^^^^^^^^
+						Type mismatch: cannot convert from G<capture#2-of ? extends Object> to G<? super B>
+						----------
+						"""
 				);
 		} else {
 			this.runConformTest(
 					new String[] {
 							"X.java",
-							"class A{/**/}\n" +
-							"class B extends A {/**/}\n" +
-							"class G<T> {\n" +
-							"	G<B> gb=null;\n" +
-							"	G<? super A> gsa=null;\n" +
-							"	G<? super B> l = (true)? gsa : gb;\n" +
-							"}\n" +
-							"public class X {\n" +
-							"	public static void main(String[] args) {\n" +
-							"		System.out.println(\"OK\");\n" +
-							"	}\n" +
-							"}\n",
+							"""
+								class A{/**/}
+								class B extends A {/**/}
+								class G<T> {
+									G<B> gb=null;
+									G<? super A> gsa=null;
+									G<? super B> l = (true)? gsa : gb;
+								}
+								public class X {
+									public static void main(String[] args) {
+										System.out.println("OK");
+									}
+								}
+								""",
 					},
 					"OK"
 					);
@@ -160,49 +170,55 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 			this.runNegativeTest(
 					new String[] {
 						"X.java",
-						"public class X {\n" +
-						"    public static void main(String args[]) {\n" +
-						"    	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" +
-						"       System.out.println(\"OK\");\n" +
-						"    }\n" +
-						"}\n" +
-						"interface I<T> {}\n" +
-						"interface J<T> extends I<T> {}\n",
+						"""
+							public class X {
+							    public static void main(String args[]) {
+							    	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported
+							       System.out.println("OK");
+							    }
+							}
+							interface I<T> {}
+							interface J<T> extends I<T> {}
+							""",
 					},
-					"----------\n" +
-					"1. WARNING in X.java (at line 3)\n" +
-					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" +
-					"	          ^\n" +
-					"J is a raw type. References to generic type J<T> should be parameterized\n" +
-					"----------\n" +
-					"2. ERROR in X.java (at line 3)\n" +
-					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" +
-					"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Type mismatch: cannot convert from I<capture#1-of ? extends I> to I<? super J>\n" +
-					"----------\n" +
-					"3. WARNING in X.java (at line 3)\n" +
-					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" +
-					"	                           ^\n" +
-					"I is a raw type. References to generic type I<T> should be parameterized\n" +
-					"----------\n" +
-					"4. WARNING in X.java (at line 3)\n" +
-					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" +
-					"	                                         ^\n" +
-					"J is a raw type. References to generic type J<T> should be parameterized\n" +
-					"----------\n"
+					"""
+						----------
+						1. WARNING in X.java (at line 3)
+							I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported
+							          ^
+						J is a raw type. References to generic type J<T> should be parameterized
+						----------
+						2. ERROR in X.java (at line 3)
+							I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported
+							                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+						Type mismatch: cannot convert from I<capture#1-of ? extends I> to I<? super J>
+						----------
+						3. WARNING in X.java (at line 3)
+							I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported
+							                           ^
+						I is a raw type. References to generic type I<T> should be parameterized
+						----------
+						4. WARNING in X.java (at line 3)
+							I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported
+							                                         ^
+						J is a raw type. References to generic type J<T> should be parameterized
+						----------
+						"""
 				);
 		} else {
 			this.runConformTest(
 					new String[] {
 					"X.java",
-					"public class X {\n" +
-					"    public static void main(String args[]) {\n" +
-					"    	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" +
-					"       System.out.println(\"OK\");\n" +
-					"    }\n" +
-					"}\n" +
-					"interface I<T> {}\n" +
-					"interface J<T> extends I<T> {}\n",
+					"""
+						public class X {
+						    public static void main(String args[]) {
+						    	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported
+						       System.out.println("OK");
+						    }
+						}
+						interface I<T> {}
+						interface J<T> extends I<T> {}
+						""",
 					},
 					"OK"
 					);
@@ -213,18 +229,20 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 					"X.java",
-						"public class X {\n" +
-						"	static int foo(Object x) {\n" +
-						"		return 0;\n" +
-						"	}\n" +
-						"	static int foo(int e) { \n" +
-						"		return 1; \n" +
-						"	}\n" +
-						" 	public static void main(String args[]) {\n" +
-						" 		Object x = new Object();\n" +
-						"		System.out.println(foo(true ? x : new int[0]) != 0);\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X {
+								static int foo(Object x) {
+									return 0;
+								}
+								static int foo(int e) {\s
+									return 1;\s
+								}
+							 	public static void main(String args[]) {
+							 		Object x = new Object();
+									System.out.println(foo(true ? x : new int[0]) != 0);
+								}
+							}
+							""",
 				},
 				"false"
 				);
@@ -236,27 +254,31 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"interface BinaryOperation<T> {\n" +
-						"    T operate(T x, T y);\n" +
-						"}\n" +
-						"class StringCatenation implements BinaryOperation<String> { \n" +
-						"    public String operate(String x, String y) { return x + y; }\n" +
-						"}\n" +
-						"public class X {\n" +
-						"    public static void main(String argv[]) {\n" +
-						"    	foo(false ? (a,b)->a+b :new StringCatenation());\n" +
-						"    }\n" +
-						"    static void foo(BinaryOperation<Integer> x) {\n" +
-						"       x.operate(5, 15);\n" +
-						"    }\n" +
-						"}\n",
+						"""
+							interface BinaryOperation<T> {
+							    T operate(T x, T y);
+							}
+							class StringCatenation implements BinaryOperation<String> {\s
+							    public String operate(String x, String y) { return x + y; }
+							}
+							public class X {
+							    public static void main(String argv[]) {
+							    	foo(false ? (a,b)->a+b :new StringCatenation());
+							    }
+							    static void foo(BinaryOperation<Integer> x) {
+							       x.operate(5, 15);
+							    }
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	foo(false ? (a,b)->a+b :new StringCatenation());\n" +
-				"	                        ^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Type mismatch: cannot convert from StringCatenation to BinaryOperation<Integer>\n" +
-				"----------\n"
+				"""
+					----------
+					1. ERROR in X.java (at line 9)
+						foo(false ? (a,b)->a+b :new StringCatenation());
+						                        ^^^^^^^^^^^^^^^^^^^^^^
+					Type mismatch: cannot convert from StringCatenation to BinaryOperation<Integer>
+					----------
+					"""
 				);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426680, - [1.8][compiler] Incorrect handling of poly conditional leads to CCE
@@ -266,27 +288,31 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"interface BinaryOperation<T> {\n" +
-						"    T operate(T x, T y);\n" +
-						"}\n" +
-						"class StringCatenation implements BinaryOperation<String> { \n" +
-						"    public String operate(String x, String y) { return x + y; }\n" +
-						"}\n" +
-						"public class X {\n" +
-						"    public static void main(String argv[]) {\n" +
-						"    	foo(false ? new StringCatenation() : (a,b)->a+b);\n" +
-						"    }\n" +
-						"    static void foo(BinaryOperation<Integer> x) {\n" +
-						"       x.operate(5, 15);\n" +
-						"    }\n" +
-						"}\n",
+						"""
+							interface BinaryOperation<T> {
+							    T operate(T x, T y);
+							}
+							class StringCatenation implements BinaryOperation<String> {\s
+							    public String operate(String x, String y) { return x + y; }
+							}
+							public class X {
+							    public static void main(String argv[]) {
+							    	foo(false ? new StringCatenation() : (a,b)->a+b);
+							    }
+							    static void foo(BinaryOperation<Integer> x) {
+							       x.operate(5, 15);
+							    }
+							}
+							""",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	foo(false ? new StringCatenation() : (a,b)->a+b);\n" +
-				"	            ^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Type mismatch: cannot convert from StringCatenation to BinaryOperation<Integer>\n" +
-				"----------\n"
+				"""
+					----------
+					1. ERROR in X.java (at line 9)
+						foo(false ? new StringCatenation() : (a,b)->a+b);
+						            ^^^^^^^^^^^^^^^^^^^^^^
+					Type mismatch: cannot convert from StringCatenation to BinaryOperation<Integer>
+					----------
+					"""
 				);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427207, - [1.8][bytecode] Runtime type problem: Instruction type does not match stack map
@@ -297,25 +323,27 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 						"X.java",
-						"import java.util.function.Function;\n" +
-						"public class X {\n" +
-						"	public static void main(String[] args) {\n" +
-						"		System.out.println(test(1, X::intToSome));\n" +
-						"	}\n" +
-						"	static <T> Some test(T value, Function<T, Some> f) {\n" +
-						"		return (value == null) ? new Nothing() : f.apply(value);\n" +
-						"	}\n" +
-						"	static SomeInt intToSome(int i) {\n" +
-						"		return new SomeInt();\n" +
-						"	}\n" +
-						"	static abstract class Some {}\n" +
-						"	static class SomeInt extends Some {\n" +
-						"	    public String toString() {\n" +
-						"			return \"SomeInt instance\";\n" +
-						"        }\n" +
-						"   }\n" +
-						"	static class Nothing extends Some {}\n" +
-						"}\n",
+						"""
+							import java.util.function.Function;
+							public class X {
+								public static void main(String[] args) {
+									System.out.println(test(1, X::intToSome));
+								}
+								static <T> Some test(T value, Function<T, Some> f) {
+									return (value == null) ? new Nothing() : f.apply(value);
+								}
+								static SomeInt intToSome(int i) {
+									return new SomeInt();
+								}
+								static abstract class Some {}
+								static class SomeInt extends Some {
+								    public String toString() {
+										return "SomeInt instance";
+							        }
+							   }
+								static class Nothing extends Some {}
+							}
+							""",
 				},
 				"SomeInt instance");
 	}
@@ -327,28 +355,30 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 						"X.java",
-						"import java.util.function.Function;\n" +
-						"public class X {\n" +
-						"	public static void main(String[] args) {\n" +
-						"		System.out.println(test(1, X::intToSome));\n" +
-						"	}\n" +
-						"	static <T> Some test(T value, Function<T, Some> f) {\n" +
-						"		return id((value == null) ? new Nothing<>() : f.apply(value));\n" +
-						"	}\n" +
-						"	static <T> T id(T t) {\n" +
-						"		return t;\n" +
-						"	}\n" +
-						"	static SomeInt intToSome(int i) {\n" +
-						"		return new SomeInt();\n" +
-						"	}\n" +
-						"	static abstract class Some {}\n" +
-						"	static class SomeInt extends Some {\n" +
-						"	    public String toString() {\n" +
-						"		return \"SomeInt instance\";\n" +
-						"            }\n" +
-						"        }\n" +
-						"	static class Nothing<T> extends Some {}\n" +
-						"}\n",
+						"""
+							import java.util.function.Function;
+							public class X {
+								public static void main(String[] args) {
+									System.out.println(test(1, X::intToSome));
+								}
+								static <T> Some test(T value, Function<T, Some> f) {
+									return id((value == null) ? new Nothing<>() : f.apply(value));
+								}
+								static <T> T id(T t) {
+									return t;
+								}
+								static SomeInt intToSome(int i) {
+									return new SomeInt();
+								}
+								static abstract class Some {}
+								static class SomeInt extends Some {
+								    public String toString() {
+									return "SomeInt instance";
+							            }
+							        }
+								static class Nothing<T> extends Some {}
+							}
+							""",
 				},
 				"SomeInt instance");
 	}
@@ -360,29 +390,31 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 						"X.java",
-						"import java.util.function.Function;\n" +
-						"public class X {\n" +
-						"	public static void main(String[] args) {\n" +
-						"		System.out.println(test(1, X::intToSome));\n" +
-						"	}\n" +
-						"	static <T> Some test(T value, Function<T, Some> f) {\n" +
-						"		return (value == null) ? f.apply(value) : new Nothing();\n" +
-						"	}\n" +
-						"	static SomeInt intToSome(int i) {\n" +
-						"		return new SomeInt();\n" +
-						"	}\n" +
-						"	static abstract class Some {}\n" +
-						"	static class SomeInt extends Some {\n" +
-						"	    public String toString() {\n" +
-						"			return \"SomeInt instance\";\n" +
-						"        }\n" +
-						"   }\n" +
-						"	static class Nothing<T> extends Some {\n" +
-						"	    public String toString() {\n" +
-						"			return \"Nothing instance\";\n" +
-						"       }\n" +
-						"   }\n" +
-						"}\n",
+						"""
+							import java.util.function.Function;
+							public class X {
+								public static void main(String[] args) {
+									System.out.println(test(1, X::intToSome));
+								}
+								static <T> Some test(T value, Function<T, Some> f) {
+									return (value == null) ? f.apply(value) : new Nothing();
+								}
+								static SomeInt intToSome(int i) {
+									return new SomeInt();
+								}
+								static abstract class Some {}
+								static class SomeInt extends Some {
+								    public String toString() {
+										return "SomeInt instance";
+							        }
+							   }
+								static class Nothing<T> extends Some {
+								    public String toString() {
+										return "Nothing instance";
+							       }
+							   }
+							}
+							""",
 				},
 				"Nothing instance");
 	}
@@ -394,32 +426,34 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 						"X.java",
-						"import java.util.function.Function;\n" +
-						"public class X {\n" +
-						"	public static void main(String[] args) {\n" +
-						"		System.out.println(test(1, X::intToSome));\n" +
-						"	}\n" +
-						"	static <T> Some test(T value, Function<T, Some> f) {\n" +
-						"		return id((value == null) ? f.apply(value) : new Nothing<>());\n" +
-						"	}\n" +
-						"	static <T> T id(T t) {\n" +
-						"		return t;\n" +
-						"	}\n" +
-						"	static SomeInt intToSome(int i) {\n" +
-						"		return new SomeInt();\n" +
-						"	}\n" +
-						"	static abstract class Some {}\n" +
-						"	static class SomeInt extends Some {\n" +
-						"	    public String toString() {\n" +
-						"		return \"SomeInt instance\";\n" +
-						"            }\n" +
-						"        }\n" +
-						"	static class Nothing<T> extends Some {\n" +
-						"	    public String toString() {\n" +
-						"			return \"Nothing instance\";\n" +
-						"       }\n" +
-						"   }\n" +
-						"}\n",
+						"""
+							import java.util.function.Function;
+							public class X {
+								public static void main(String[] args) {
+									System.out.println(test(1, X::intToSome));
+								}
+								static <T> Some test(T value, Function<T, Some> f) {
+									return id((value == null) ? f.apply(value) : new Nothing<>());
+								}
+								static <T> T id(T t) {
+									return t;
+								}
+								static SomeInt intToSome(int i) {
+									return new SomeInt();
+								}
+								static abstract class Some {}
+								static class SomeInt extends Some {
+								    public String toString() {
+									return "SomeInt instance";
+							            }
+							        }
+								static class Nothing<T> extends Some {
+								    public String toString() {
+										return "Nothing instance";
+							       }
+							   }
+							}
+							""",
 				},
 				"Nothing instance");
 	}
@@ -431,28 +465,29 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 						"X.java",
-						"import java.util.function.Function;\n" +
-						"public class X {\n" +
-						"	public static void main(String[] args) {\n" +
-						"		System.out.println(test(1, X::intToSome));\n" +
-						"	}\n" +
-						"	static <T> Some test(T value, Function<T, Some> f) {\n" +
-						"		return id((value == null) ? new Nothing<>() : f.apply(value));\n" +
-						"	}\n" +
-						"	static <T> T id(T t) {\n" +
-						"		return t;\n" +
-						"	}\n" +
-						"	static SomeInt intToSome(int i) {\n" +
-						"		return new SomeInt();\n" +
-						"	}\n" +
-						"	static interface Some {}\n" +
-						"	static class SomeInt implements Some {\n" +
-						"		public String toString() {\n" +
-						"			return \"SomeInt instance\";\n" +
-						"		}\n" +
-						"	}\n" +
-						"	static class Nothing<T> implements Some {}\n" +
-						"}",
+						"""
+							import java.util.function.Function;
+							public class X {
+								public static void main(String[] args) {
+									System.out.println(test(1, X::intToSome));
+								}
+								static <T> Some test(T value, Function<T, Some> f) {
+									return id((value == null) ? new Nothing<>() : f.apply(value));
+								}
+								static <T> T id(T t) {
+									return t;
+								}
+								static SomeInt intToSome(int i) {
+									return new SomeInt();
+								}
+								static interface Some {}
+								static class SomeInt implements Some {
+									public String toString() {
+										return "SomeInt instance";
+									}
+								}
+								static class Nothing<T> implements Some {}
+							}""",
 				},
 				"SomeInt instance");
 	}
@@ -461,54 +496,62 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"	public X(Class clazz) {\n" +
-						"	}\n" +
-						"	public void error() {\n" +
-						"		boolean test = false;\n" +
-						"		int i = 1;\n" +
-						"		new X(test ? (i == 2 ? D.class : E.class) : null);\n" +
-						"	}\n" +
-						"	public class D {\n" +
-						"	}\n" +
-						"	public class E {\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X {
+								public X(Class clazz) {
+								}
+								public void error() {
+									boolean test = false;
+									int i = 1;
+									new X(test ? (i == 2 ? D.class : E.class) : null);
+								}
+								public class D {
+								}
+								public class E {
+								}
+							}
+							""",
 				},
 				this.complianceLevel < ClassFileConstants.JDK1_5 ? "" :
-					"----------\n" +
-					"1. WARNING in X.java (at line 2)\n" +
-					"	public X(Class clazz) {\n" +
-					"	         ^^^^^\n" +
-					"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-					"----------\n");
+					"""
+						----------
+						1. WARNING in X.java (at line 2)
+							public X(Class clazz) {
+							         ^^^^^
+						Class is a raw type. References to generic type Class<T> should be parameterized
+						----------
+						""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427438, - NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode
 	public void test015() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"public class X {\n" +
-						"	public X(Class clazz) {\n" +
-						"	}\n" +
-						"	public void error() {\n" +
-						"		boolean test = false;\n" +
-						"		int i = 1;\n" +
-						"		new X(test ? null : (i == 2 ? D.class : E.class));\n" +
-						"	}\n" +
-						"	public class D {\n" +
-						"	}\n" +
-						"	public class E {\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							public class X {
+								public X(Class clazz) {
+								}
+								public void error() {
+									boolean test = false;
+									int i = 1;
+									new X(test ? null : (i == 2 ? D.class : E.class));
+								}
+								public class D {
+								}
+								public class E {
+								}
+							}
+							""",
 				},
 				this.complianceLevel < ClassFileConstants.JDK1_5 ? "" :
-					"----------\n" +
-					"1. WARNING in X.java (at line 2)\n" +
-					"	public X(Class clazz) {\n" +
-					"	         ^^^^^\n" +
-					"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-					"----------\n");
+					"""
+						----------
+						1. WARNING in X.java (at line 2)
+							public X(Class clazz) {
+							         ^^^^^
+						Class is a raw type. References to generic type Class<T> should be parameterized
+						----------
+						""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427625, - NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode
 	public void test427625() {
@@ -519,20 +562,22 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
-						"import java.util.Collection;\n" +
-						"import java.util.List;\n" +
-						"public class X {\n" +
-						"	public void error(Collection<Object> c) {\n" +
-						"		boolean b  =true;\n" +
-						"		c.add(b ? Integer.valueOf(1)\n" +
-						"		        : c==null ? null \n" +
-						"				  : c instanceof List ? Integer.valueOf(1) \n" +
-						"				                      : o()); \n" +
-						"	}\n" +
-						"	public Object o() {\n" +
-						"		return null;\n" +
-						"	}\n" +
-						"}\n",
+						"""
+							import java.util.Collection;
+							import java.util.List;
+							public class X {
+								public void error(Collection<Object> c) {
+									boolean b  =true;
+									c.add(b ? Integer.valueOf(1)
+									        : c==null ? null\s
+											  : c instanceof List ? Integer.valueOf(1)\s
+											                      : o());\s
+								}
+								public Object o() {
+									return null;
+								}
+							}
+							""",
 				},
 				"",
 				null, true, options);
@@ -542,24 +587,27 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"class Y {\n" +
-				"	String f() {\n" +
-				"		return \"\";\n" +
-				"	}\n" +
-				"}\n" +
-				"public class X {\n" +
-				"void f(String x) {}\n" +
-				"	void bar(Y y) {\n" +
-				"		f(y.f2() == 1 ? null : y.f());\n" +
-				"	}\n" +
-				"}",
+				"""
+					class Y {
+						String f() {
+							return "";
+						}
+					}
+					public class X {
+					void f(String x) {}
+						void bar(Y y) {
+							f(y.f2() == 1 ? null : y.f());
+						}
+					}""",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	f(y.f2() == 1 ? null : y.f());\n" +
-			"	    ^^\n" +
-			"The method f2() is undefined for the type Y\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in X.java (at line 9)
+					f(y.f2() == 1 ? null : y.f());
+					    ^^
+				The method f2() is undefined for the type Y
+				----------
+				""");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437444#c113, - Error building JRE8
 	public void test437444_c113() {
@@ -568,16 +616,18 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 					"X.java",
-					"public class X extends Y {\n" +
-					"    public X(Z[] n) {\n" +
-					"        super((n == null) ? null : n.clone());\n" +
-					"    }\n" +
-					"}\n" +
-					"class Y  {\n" +
-					"    public Y(Z[] notifications) {\n" +
-					"    }\n" +
-					"}\n" +
-					"interface Z {}\n",
+					"""
+						public class X extends Y {
+						    public X(Z[] n) {
+						        super((n == null) ? null : n.clone());
+						    }
+						}
+						class Y  {
+						    public Y(Z[] notifications) {
+						    }
+						}
+						interface Z {}
+						""",
 			},
 			"");
 	}
@@ -587,16 +637,18 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 					"X.java",
-					"public class X extends Y {\n" +
-					"    public X(int[] n) {\n" +
-					"        super((n == null) ? null : n.clone());\n" +
-					"    }\n" +
-					"}\n" +
-					"class Y  {\n" +
-					"    public Y(int[] notifications) {\n" +
-					"    }\n" +
-					"}\n" +
-					"interface Z {}\n",
+					"""
+						public class X extends Y {
+						    public X(int[] n) {
+						        super((n == null) ? null : n.clone());
+						    }
+						}
+						class Y  {
+						    public Y(int[] notifications) {
+						    }
+						}
+						interface Z {}
+						""",
 			},
 			"");
 	}
@@ -607,15 +659,17 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 						"Main.java",
-						"public class Main {\n" +
-						"	public static void main(String[] args) {\n" +
-						"		try {\n" +
-						"			if ((false) ? true: null);\n" +
-						"		} catch(NullPointerException npe) {\n" +
-						"			System.out.println(\"Success\");\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n"
+						"""
+							public class Main {
+								public static void main(String[] args) {
+									try {
+										if ((false) ? true: null);
+									} catch(NullPointerException npe) {
+										System.out.println("Success");
+									}
+								}
+							}
+							"""
 				},
 				"Success");
 	}

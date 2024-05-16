@@ -166,15 +166,17 @@ public class ParticipantBuildTests extends BuilderTests {
 			);
 
 		env.addClass(root, "test", "ClassWithNestedAnnotation", //$NON-NLS-1$ //$NON-NLS-2$
-			"package test;\n" + //$NON-NLS-1$
-			"public class ClassWithNestedAnnotation {\n" + //$NON-NLS-1$
-			"	public final int FOUR = 4; \n " + //$NON-NLS-1$
-			"	public @interface NestedAnnotation {\n" + //$NON-NLS-1$
-			"		public enum Character { Winnie, Tiger, Piglet, Eore; }\n" + //$NON-NLS-1$
-			"		Character value() default Character.Eore; \n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"}" //$NON-NLS-1$
-			);
+					"""
+			package test;
+			public class ClassWithNestedAnnotation {
+				public final int FOUR = 4;\s
+			 \
+				public @interface NestedAnnotation {
+					public enum Character { Winnie, Tiger, Piglet, Eore; }
+					Character value() default Character.Eore;\s
+				}
+			}""" //$NON-NLS-1$
+					);
 
 		// install compilationParticipant
 		TestCompilationParticipant1.PARTICIPANT = new CompilationParticipant() {
@@ -342,10 +344,12 @@ public class ParticipantBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"@GeneratedAnnotation\n" + //$NON-NLS-1$
-			"public class Test { public void method() { p1.p2.GeneratedType.method(); } }\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			@GeneratedAnnotation
+			public class Test { public void method() { p1.p2.GeneratedType.method(); } }
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root, "p1", "GeneratedAnnotation", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
@@ -389,10 +393,12 @@ public class ParticipantBuildTests extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 		env.addClass(root, "p1", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" + //$NON-NLS-1$
-			"@GeneratedAnnotation\n" + //$NON-NLS-1$
-			"public class Test { public void method() {  } }\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			@GeneratedAnnotation
+			public class Test { public void method() {  } }
+			""" //$NON-NLS-1$
+					);
 		env.addClass(root, "p1", "GeneratedAnnotation", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
 			"@interface GeneratedAnnotation{}\n" //$NON-NLS-1$

@@ -23,9 +23,11 @@ public GenericsSelectionTest(String testName) {
 public void test0001() {
 
 	String str =
-		"public class X {		\n" +
-		"  Z<Object> z;								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  Z<Object> z;							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -33,11 +35,13 @@ public void test0001() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <SelectOnType:Z<Object>> z;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <SelectOnType:Z<Object>> z;
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Z";
 	String testName = "<select type>";
 
@@ -60,11 +64,13 @@ public void test0001() {
 public void test0002() {
 
 	String str =
-		"public class X {		\n" +
-		"  void foo(){;								\n" +
-		"    Z<Object> z;								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  void foo(){;							\t
+		    Z<Object> z;							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -72,13 +78,15 @@ public void test0002() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <SelectOnType:Z<Object>> z;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <SelectOnType:Z<Object>> z;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Z";
 	String testName = "<select type>";
 
@@ -101,9 +109,11 @@ public void test0002() {
 public void test0003() {
 
 	String str =
-		"public class X {		\n" +
-		"  Y.Z<Object> z;								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  Y.Z<Object> z;							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -111,11 +121,13 @@ public void test0003() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <SelectOnType:Y.Z<Object>> z;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <SelectOnType:Y.Z<Object>> z;
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y.Z";
 	String testName = "<select type>";
 
@@ -138,11 +150,13 @@ public void test0003() {
 public void test0004() {
 
 	String str =
-		"public class X {		\n" +
-		"  void foo(){;								\n" +
-		"    Y.Z<Object> z;								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  void foo(){;							\t
+		    Y.Z<Object> z;							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -150,13 +164,15 @@ public void test0004() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <SelectOnType:Y.Z<Object>> z;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <SelectOnType:Y.Z<Object>> z;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y.Z";
 	String testName = "<select type>";
 
@@ -179,9 +195,11 @@ public void test0004() {
 public void test0005() {
 
 	String str =
-		"public class X {		\n" +
-		"  Y<Object>.Z z;								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  Y<Object>.Z z;							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -189,11 +207,13 @@ public void test0005() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <SelectOnType:Y<Object>.Z> z;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <SelectOnType:Y<Object>.Z> z;
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y<Object>.Z";
 	String testName = "<select type>";
 
@@ -216,11 +236,13 @@ public void test0005() {
 public void test0006() {
 
 	String str =
-		"public class X {		\n" +
-		"  void foo(){;								\n" +
-		"    Y<Object>.Z z;								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  void foo(){;							\t
+		    Y<Object>.Z z;							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -228,13 +250,15 @@ public void test0006() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <SelectOnType:Y<Object>.Z> z;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <SelectOnType:Y<Object>.Z> z;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y<Object>.Z";
 	String testName = "<select type>";
 
@@ -257,9 +281,11 @@ public void test0006() {
 public void test0007() {
 
 	String str =
-		"public class X {		\n" +
-		"  Y<Object>.Z<Object> z;								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  Y<Object>.Z<Object> z;							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -267,11 +293,13 @@ public void test0007() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <SelectOnType:Y<Object>.Z<Object>> z;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <SelectOnType:Y<Object>.Z<Object>> z;
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y<Object>.Z";
 	String testName = "<select type>";
 
@@ -294,11 +322,13 @@ public void test0007() {
 public void test0008() {
 
 	String str =
-		"public class X {		\n" +
-		"  void foo(){;								\n" +
-		"    Y<Object>.Z<Object> z;								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  void foo(){;							\t
+		    Y<Object>.Z<Object> z;							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -306,13 +336,15 @@ public void test0008() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <SelectOnType:Y<Object>.Z<Object>> z;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <SelectOnType:Y<Object>.Z<Object>> z;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y<Object>.Z";
 	String testName = "<select type>";
 
@@ -335,9 +367,11 @@ public void test0008() {
 public void test0009() {
 
 	String str =
-		"public class X {		\n" +
-		"  Z<Object> z;								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  Z<Object> z;							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -345,11 +379,13 @@ public void test0009() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <SelectOnType:Z<Object>> z;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <SelectOnType:Z<Object>> z;
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Z";
 	String testName = "<select type>";
 
@@ -372,11 +408,13 @@ public void test0009() {
 public void test0010() {
 
 	String str =
-		"public class X {		\n" +
-		"  void foo(){;								\n" +
-		"    Z<Object> z;								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  void foo(){;							\t
+		    Z<Object> z;							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -384,13 +422,15 @@ public void test0010() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <SelectOnType:Z<Object>> z;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <SelectOnType:Z<Object>> z;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Z";
 	String testName = "<select type>";
 
@@ -413,9 +453,11 @@ public void test0010() {
 public void test0011() {
 
 	String str =
-		"public class X {		\n" +
-		"  Y.Z<Object> z;								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  Y.Z<Object> z;							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -423,11 +465,13 @@ public void test0011() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <SelectOnType:Y.Z<Object>> z;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <SelectOnType:Y.Z<Object>> z;
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y.Z";
 	String testName = "<select type>";
 
@@ -450,11 +494,13 @@ public void test0011() {
 public void test0012() {
 
 	String str =
-		"public class X {		\n" +
-		"  void foo(){;								\n" +
-		"    Y.Z<Object> z;								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  void foo(){;							\t
+		    Y.Z<Object> z;							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -462,13 +508,15 @@ public void test0012() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <SelectOnType:Y.Z<Object>> z;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <SelectOnType:Y.Z<Object>> z;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y.Z";
 	String testName = "<select type>";
 
@@ -491,9 +539,11 @@ public void test0012() {
 public void test0013() {
 
 	String str =
-		"public class X {		\n" +
-		"  Y<Object>.Z z;								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  Y<Object>.Z z;							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -501,11 +551,13 @@ public void test0013() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <SelectOnType:Y<Object>.Z> z;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <SelectOnType:Y<Object>.Z> z;
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y<Object>.Z";
 	String testName = "<select type>";
 
@@ -528,11 +580,13 @@ public void test0013() {
 public void test0014() {
 
 	String str =
-		"public class X {		\n" +
-		"  void foo(){;								\n" +
-		"    Y<Object>.Z z;								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  void foo(){;							\t
+		    Y<Object>.Z z;							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -540,13 +594,15 @@ public void test0014() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <SelectOnType:Y<Object>.Z> z;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <SelectOnType:Y<Object>.Z> z;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y<Object>.Z";
 	String testName = "<select type>";
 
@@ -569,9 +625,11 @@ public void test0014() {
 public void test0015() {
 
 	String str =
-		"public class X {		\n" +
-		"  Y<Object>.Z<Object> z;								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  Y<Object>.Z<Object> z;							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -579,11 +637,13 @@ public void test0015() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <SelectOnType:Y<Object>.Z<Object>> z;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <SelectOnType:Y<Object>.Z<Object>> z;
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y<Object>.Z";
 	String testName = "<select type>";
 
@@ -606,11 +666,13 @@ public void test0015() {
 public void test0016() {
 
 	String str =
-		"public class X {		\n" +
-		"  void foo(){;								\n" +
-		"    Y<Object>.Z<Object> z;								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  void foo(){;							\t
+		    Y<Object>.Z<Object> z;							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -618,13 +680,15 @@ public void test0016() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <SelectOnType:Y<Object>.Z<Object>> z;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public X() {
+		  }
+		  void foo() {
+		    <SelectOnType:Y<Object>.Z<Object>> z;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y<Object>.Z";
 	String testName = "<select type>";
 
@@ -644,13 +708,15 @@ public void test0016() {
 public void test0017() {
 
 	String str =
-		"public class X {		\n" +
-		"  public <T>X() {								\n" +
-		"  }           								\n" +
-		"  void foo(){;								\n" +
-		"    new <Object>X();								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  public <T>X() {							\t
+		  }           							\t
+		  void foo(){;							\t
+		    new <Object>X();							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "X";
 
@@ -658,13 +724,15 @@ public void test0017() {
 
 	String completionIdentifier = "X";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public <T>X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <SelectOnAllocationExpression:new <Object>X()>;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public <T>X() {
+		  }
+		  void foo() {
+		    <SelectOnAllocationExpression:new <Object>X()>;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "new <Object>X()";
 	String testName = "<select type>";
 
@@ -684,13 +752,15 @@ public void test0017() {
 public void test0018() {
 
 	String str =
-		"public class X <U>{		\n" +
-		"  public <T>X() {								\n" +
-		"  }           								\n" +
-		"  void foo(){;								\n" +
-		"    new <Object>X<String>();								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X <U>{	\t
+		  public <T>X() {							\t
+		  }           							\t
+		  void foo(){;							\t
+		    new <Object>X<String>();							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "X";
 
@@ -698,13 +768,15 @@ public void test0018() {
 
 	String completionIdentifier = "X";
 	String expectedUnitDisplayString =
-		"public class X<U> {\n" +
-		"  public <T>X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <SelectOnAllocationExpression:new <Object>X<String>()>;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X<U> {
+		  public <T>X() {
+		  }
+		  void foo() {
+		    <SelectOnAllocationExpression:new <Object>X<String>()>;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "new <Object>X<String>()";
 	String testName = "<select type>";
 
@@ -724,15 +796,17 @@ public void test0018() {
 public void test0019() {
 
 	String str =
-		"public class X {		\n" +
-		"  public class Inner {								\n" +
-		"    public <U> Inner() {  								\n" +
-		"    }           								\n" +
-		"  }           								\n" +
-		"  void foo(X x){;								\n" +
-		"    x.new <Object>Inner();								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  public class Inner {							\t
+		    public <U> Inner() {  							\t
+		    }           							\t
+		  }           							\t
+		  void foo(X x){;							\t
+		    x.new <Object>Inner();							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "Inner";
 
@@ -740,17 +814,19 @@ public void test0019() {
 
 	String completionIdentifier = "Inner";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public class Inner {\n" +
-		"    public <U>Inner() {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo(X x) {\n" +
-		"    <SelectOnQualifiedAllocationExpression:x.new <Object>Inner()>;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public class Inner {
+		    public <U>Inner() {
+		    }
+		  }
+		  public X() {
+		  }
+		  void foo(X x) {
+		    <SelectOnQualifiedAllocationExpression:x.new <Object>Inner()>;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "x.new <Object>Inner()";
 	String testName = "<select type>";
 
@@ -770,15 +846,17 @@ public void test0019() {
 public void test0020() {
 
 	String str =
-		"public class X {		\n" +
-		"  public class Inner<T> {								\n" +
-		"    public <U> Inner() {  								\n" +
-		"    }           								\n" +
-		"  }           								\n" +
-		"  void foo(X x){;								\n" +
-		"    x.new <Object>Inner<String>();								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  public class Inner<T> {							\t
+		    public <U> Inner() {  							\t
+		    }           							\t
+		  }           							\t
+		  void foo(X x){;							\t
+		    x.new <Object>Inner<String>();							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "Inner";
 
@@ -786,17 +864,19 @@ public void test0020() {
 
 	String completionIdentifier = "Inner";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public class Inner<T> {\n" +
-		"    public <U>Inner() {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo(X x) {\n" +
-		"    <SelectOnQualifiedAllocationExpression:x.new <Object>Inner<String>()>;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  public class Inner<T> {
+		    public <U>Inner() {
+		    }
+		  }
+		  public X() {
+		  }
+		  void foo(X x) {
+		    <SelectOnQualifiedAllocationExpression:x.new <Object>Inner<String>()>;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "x.new <Object>Inner<String>()";
 	String testName = "<select type>";
 
@@ -816,15 +896,17 @@ public void test0020() {
 public void test0021() {
 
 	String str =
-		"public class X<V> {		\n" +
-		"  public class Inner<T> {								\n" +
-		"    public <U> Inner() {  								\n" +
-		"    }           								\n" +
-		"  }           								\n" +
-		"  void foo(){;								\n" +
-		"    new X<String>().new <Object>Inner<String>();								\n" +
-		"  }           								\n" +
-		"}											\n";
+		"""
+		public class X<V> {	\t
+		  public class Inner<T> {							\t
+		    public <U> Inner() {  							\t
+		    }           							\t
+		  }           							\t
+		  void foo(){;							\t
+		    new X<String>().new <Object>Inner<String>();							\t
+		  }           							\t
+		}										\t
+		""";
 
 	String selection = "Inner";
 
@@ -832,17 +914,19 @@ public void test0021() {
 
 	String completionIdentifier = "Inner";
 	String expectedUnitDisplayString =
-		"public class X<V> {\n" +
-		"  public class Inner<T> {\n" +
-		"    public <U>Inner() {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <SelectOnQualifiedAllocationExpression:new X<String>().new <Object>Inner<String>()>;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X<V> {
+		  public class Inner<T> {
+		    public <U>Inner() {
+		    }
+		  }
+		  public X() {
+		  }
+		  void foo() {
+		    <SelectOnQualifiedAllocationExpression:new X<String>().new <Object>Inner<String>()>;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "new X<String>().new <Object>Inner<String>()";
 	String testName = "<select type>";
 
@@ -865,9 +949,11 @@ public void test0021() {
 public void test0022() {
 
 	String str =
-		"public class X {		\n" +
-		"  Y.Z z;								\n" +
-		"}											\n";
+		"""
+		public class X {	\t
+		  Y.Z z;							\t
+		}										\t
+		""";
 
 	String selection = "Z";
 
@@ -875,11 +961,13 @@ public void test0022() {
 
 	String completionIdentifier = "Z";
 	String expectedUnitDisplayString =
-		"public class X {\n" +
-		"  <SelectOnType:Y.Z> z;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		public class X {
+		  <SelectOnType:Y.Z> z;
+		  public X() {
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Y.Z";
 	String testName = "<select type>";
 
@@ -900,12 +988,13 @@ public void test0022() {
 public void test0023() {
 
 	String str =
-		"package test;\n" +
-		"public class Test  {\n" +
-		"	public List<String> foo() {\n" +
-		"		return Collections.emptyList();\n" +
-		"	}\n" +
-		"}";
+		"""
+		package test;
+		public class Test  {
+			public List<String> foo() {
+				return Collections.emptyList();
+			}
+		}""";
 
 	String selection = "emptyList";
 
@@ -913,14 +1002,16 @@ public void test0023() {
 
 	String completionIdentifier = "emptyList";
 	String expectedUnitDisplayString =
-		"package test;\n" +
-		"public class Test {\n" +
-		"  public Test() {\n" +
-		"  }\n" +
-		"  public List<String> foo() {\n" +
-		"    return <SelectOnMessageSend:Collections.emptyList()>;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		package test;
+		public class Test {
+		  public Test() {
+		  }
+		  public List<String> foo() {
+		    return <SelectOnMessageSend:Collections.emptyList()>;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "Collections.emptyList()";
 	String testName = "<select method>";
 
@@ -941,15 +1032,17 @@ public void test0023() {
 public void test0024() {
 
 	String str =
-		"import java.util.List;\n" +
-		"public class X {\n" +
-		"        <T> T bar(T t) { return t; }\n" +
-		"        void foo(boolean b, Runnable r) {\n" +
-		"                Zork z = null;\n" +
-		"                String s = (String) bar(z); // 5\n" +
-		"        }\n" +
-		"}\n" +
-		"\n";
+		"""
+		import java.util.List;
+		public class X {
+		        <T> T bar(T t) { return t; }
+		        void foo(boolean b, Runnable r) {
+		                Zork z = null;
+		                String s = (String) bar(z); // 5
+		        }
+		}
+		
+		""";
 
 	String selection = "bar";
 
@@ -957,17 +1050,19 @@ public void test0024() {
 
 	String completionIdentifier = "bar";
 	String expectedUnitDisplayString =
-		"import java.util.List;\n" +
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  <T>T bar(T t) {\n" +
-		"  }\n" +
-		"  void foo(boolean b, Runnable r) {\n" +
-		"    Zork z;\n" +
-		"    String s = (String) <SelectOnMessageSend:bar(z)>;\n" +
-		"  }\n" +
-		"}\n";
+		"""
+		import java.util.List;
+		public class X {
+		  public X() {
+		  }
+		  <T>T bar(T t) {
+		  }
+		  void foo(boolean b, Runnable r) {
+		    Zork z;
+		    String s = (String) <SelectOnMessageSend:bar(z)>;
+		  }
+		}
+		""";
 	String expectedReplacedSource = "bar(z)";
 	String testName = "<select method>";
 

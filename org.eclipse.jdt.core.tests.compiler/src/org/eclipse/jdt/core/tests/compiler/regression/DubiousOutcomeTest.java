@@ -64,11 +64,13 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in Outer.java (at line 8)\n" +
-			"	error(supplier.get(), \"\");\n" +
-			"	^^^^^\n" +
-			"The method error(List<V>, T) in the type Outer is not applicable for the arguments (capture#1-of ? extends List<? extends Serializable>, String)\n" +
-			"----------\n");
+			"""
+				----------
+				1. ERROR in Outer.java (at line 8)
+					error(supplier.get(), "");
+					^^^^^
+				The method error(List<V>, T) in the type Outer is not applicable for the arguments (capture#1-of ? extends List<? extends Serializable>, String)
+				----------
+				""");
 	}
 }

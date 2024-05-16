@@ -57,27 +57,29 @@ public class PTBKeyHashCalculationTest extends TestCase {
 		final IPath root = projPath.append("src");
 
 		this.env.addClass(root, "test", "MainClass",
-				"package test;\n" +
-				"public abstract class MainClass {\n" +
-				"    protected Object createField(Object o) { return null; }\n" +
-				"}"
+				"""
+					package test;
+					public abstract class MainClass {
+					    protected Object createField(Object o) { return null; }
+					}"""
 		);
 
 		this.env.addClass(root, "test", "BaseClass",
-				"package test;\n" +
-				"import java.util.Iterator;\n" +
-				"public class BaseClass<I extends BaseClass<I, J>, J> {\n" +
-				"    protected abstract class MyIterator implements Iterator<I> {\n" +
-				"        @Override public boolean hasNext() { return false; }\n" +
-				"        @Override public I next() { return null; }\n" +
-				"    }\n" +
-				"    protected class SomeOtherClass {\n" +
-				"        public final void doSomething() { System.out.println(\"test\"); }\n" +
-				"    }\n" +
-				"    private class OtherIterator extends MyIterator {\n" +
-				"        @Override public I next() { return null; }\n" +
-				"    }\n" +
-				"}"
+				"""
+					package test;
+					import java.util.Iterator;
+					public class BaseClass<I extends BaseClass<I, J>, J> {
+					    protected abstract class MyIterator implements Iterator<I> {
+					        @Override public boolean hasNext() { return false; }
+					        @Override public I next() { return null; }
+					    }
+					    protected class SomeOtherClass {
+					        public final void doSomething() { System.out.println("test"); }
+					    }
+					    private class OtherIterator extends MyIterator {
+					        @Override public I next() { return null; }
+					    }
+					}"""
 		);
 
 		// issues are only observable with a higher amount of classes

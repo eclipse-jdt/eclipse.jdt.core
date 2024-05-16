@@ -104,12 +104,14 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 	}
 
 	public void testBug417937a_since_8() throws Exception {
-		String contents = "package pack1;\n" +
-				"public class X{\n" +
-				"	public void foo( pack2.pack3.@Marker B arg , A a) {}\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n";
+		String contents = """
+			package pack1;
+			public class X{
+				public void foo( pack2.pack3.@Marker B arg , A a) {}
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 		createFolder("/" + PROJECT + "/src/pack1");
 		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
 		contents = "package pack1;\n" +
@@ -145,28 +147,34 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		assertEquals("@Marker B", actualType.toString());
 		assertTrue(actualType.isSimpleType());
 		apply(rewrite);
-		String contentsA = "package pack1;\n" +
-				"\n" +
-				"import pack2.pack3.B;\n" +
-				"\n" +
-				"public class A{}\n";
+		String contentsA = """
+			package pack1;
+			
+			import pack2.pack3.B;
+			
+			public class A{}
+			""";
 		assertEqualStringIgnoreDelim(cu.getSource(), contentsA);
 	}
 
 	public void testBug417937b_since_8() throws Exception {
-		String contents = "package pack1;\n" +
-				"public class X{\n" +
-				"	public void foo( pack2.pack3.@Marker B arg , A a) {}\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n";
+		String contents = """
+			package pack1;
+			public class X{
+				public void foo( pack2.pack3.@Marker B arg , A a) {}
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 		createFolder("/" + PROJECT + "/src/pack1");
 		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
-		contents = "package pack1;\n" +
-				"import pack3.pack4.B;\n" +
-				"public class A{\n" +
-				"	public void foo(B arg) {}\n" +
-				"}\n";
+		contents = """
+			package pack1;
+			import pack3.pack4.B;
+			public class A{
+				public void foo(B arg) {}
+			}
+			""";
 		createFile("/" + PROJECT + "/src/pack1/A.java", contents);
 		contents = "package pack2/pack3;\n" +
 				"public class B {}\n";
@@ -202,28 +210,34 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		assertEquals("pack2.pack3.@Marker B", actualType.toString());
 		assertTrue(actualType.isNameQualifiedType());
 		apply(rewrite);
-		String contentsA = "package pack1;\n" +
-				"import pack3.pack4.B;\n" +
-				"public class A{\n" +
-				"	public void foo(B arg) {}\n" +
-				"}\n";
+		String contentsA = """
+			package pack1;
+			import pack3.pack4.B;
+			public class A{
+				public void foo(B arg) {}
+			}
+			""";
 		assertEqualStringIgnoreDelim(cu.getSource(), contentsA);
 	}
 
 	public void testBug417937b1_since_8() throws Exception {
-		String contents = "package pack1;\n" +
-				"public class X{\n" +
-				"	public void foo( pack2.pack3.@Marker B @Marker [] arg , A a) {}\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n";
+		String contents = """
+			package pack1;
+			public class X{
+				public void foo( pack2.pack3.@Marker B @Marker [] arg , A a) {}
+			}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Marker {}
+			""";
 		createFolder("/" + PROJECT + "/src/pack1");
 		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
-		contents = "package pack1;\n" +
-				"import pack3.pack4.B;\n" +
-				"public class A{\n" +
-				"	public void foo(B arg) {}\n" +
-				"}\n";
+		contents = """
+			package pack1;
+			import pack3.pack4.B;
+			public class A{
+				public void foo(B arg) {}
+			}
+			""";
 		createFile("/" + PROJECT + "/src/pack1/A.java", contents);
 		contents = "package pack2/pack3;\n" +
 				"public class B {}\n";
@@ -259,11 +273,13 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		assertEquals("pack2.pack3.@Marker B @Marker []", actualType.toString());
 		assertTrue(actualType.isArrayType());
 		apply(rewrite);
-		String contentsA = "package pack1;\n" +
-				"import pack3.pack4.B;\n" +
-				"public class A{\n" +
-				"	public void foo(B arg) {}\n" +
-				"}\n";
+		String contentsA = """
+			package pack1;
+			import pack3.pack4.B;
+			public class A{
+				public void foo(B arg) {}
+			}
+			""";
 		assertEqualStringIgnoreDelim(cu.getSource(), contentsA);
 	}
 
@@ -286,14 +302,16 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		contents = "package pack1;\n" +
 				"public class A{}\n";
 		createFile("/" + PROJECT + "/src/pack1/A.java", contents);
-		contents = "package pack2;\n" +
-				"public class B1 {\n" +
-				"	public class B2 {\n" +
-				"		public class B3 {\n" +
-				"			\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n";
+		contents = """
+			package pack2;
+			public class B1 {
+				public class B2 {
+					public class B3 {
+					\t
+					}
+				}
+			}
+			""";
 		createFolder("/" + PROJECT + "/src/pack2");
 		createFile("/" + PROJECT + "/src/pack2/B1.java", contents);
 
@@ -371,23 +389,27 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 	}
 
 	public void testBug417937d001_since_8() throws Exception {
-		String contents = "package pack1;\n" +
-				"public class X{\n" +
-				"public void foo000( pack3.C1<pack2.B1>.C2<pack2.B1.B2>.C3<pack2.B1> arg, A a) {}\n" +
-				"}\n";
+		String contents = """
+			package pack1;
+			public class X{
+			public void foo000( pack3.C1<pack2.B1>.C2<pack2.B1.B2>.C3<pack2.B1> arg, A a) {}
+			}
+			""";
 		createFolder("/" + PROJECT + "/src/pack1");
 		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
 		contents = "package pack1;\n" +
 				"public class A{}\n";
 		createFile("/" + PROJECT + "/src/pack1/A.java", contents);
-		contents = "package pack2;\n" +
-				"public class B1 {\n" +
-				"	public class B2 {\n" +
-				"		public class B3 {\n" +
-				"			\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n";
+		contents = """
+			package pack2;
+			public class B1 {
+				public class B2 {
+					public class B3 {
+					\t
+					}
+				}
+			}
+			""";
 		createFolder("/" + PROJECT + "/src/pack2");
 		createFile("/" + PROJECT + "/src/pack2/B1.java", contents);
 		contents = "package pack3;\n" +
@@ -428,13 +450,15 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		ImportRewrite rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
 		Type actualType = rewrite.addImport(typeBinding, astRoot.getAST());
 		apply(rewrite);
-		String contentsA = "package pack1;\n" +
-				"\n" +
-				"import pack2.B1;\n" +
-				"import pack2.B1.B2;\n" +
-				"import pack3.C1;\n" +
-				"\n" +
-				"public class A{}\n";
+		String contentsA = """
+			package pack1;
+			
+			import pack2.B1;
+			import pack2.B1.B2;
+			import pack3.C1;
+			
+			public class A{}
+			""";
 		cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
 		assertEqualStringIgnoreDelim(cu.getSource(), contentsA);
 		assertEquals("C1<B1>.C2<B2>.C3<B1>", actualType.toString());
@@ -442,23 +466,27 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 	}
 
 	public void testBug417937d002_since_8() throws Exception {
-		String contents = "package pack1;\n" +
-				"public class X{\n" +
-				"public void foo001( pack4.D1.D2<pack2.B1>.D3<pack2.B1> arg, A a) {}\n" +
-				"}\n";
+		String contents = """
+			package pack1;
+			public class X{
+			public void foo001( pack4.D1.D2<pack2.B1>.D3<pack2.B1> arg, A a) {}
+			}
+			""";
 		createFolder("/" + PROJECT + "/src/pack1");
 		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
 		contents = "package pack1;\n" +
 				"public class A{}\n";
 		createFile("/" + PROJECT + "/src/pack1/A.java", contents);
-		contents = "package pack2;\n" +
-				"public class B1 {\n" +
-				"	public class B2 {\n" +
-				"		public class B3 {\n" +
-				"			\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n";
+		contents = """
+			package pack2;
+			public class B1 {
+				public class B2 {
+					public class B3 {
+					\t
+					}
+				}
+			}
+			""";
 		createFolder("/" + PROJECT + "/src/pack2");
 		createFile("/" + PROJECT + "/src/pack2/B1.java", contents);
 		contents = "package pack3;\n" +
@@ -499,12 +527,14 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		ImportRewrite rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
 		Type actualType = rewrite.addImport(typeBinding, astRoot.getAST());
 		apply(rewrite);
-		String contentsA = "package pack1;\n" +
-				"\n" +
-				"import pack2.B1;\n" +
-				"import pack4.D1.D2;\n" +
-				"\n" +
-				"public class A{}\n";
+		String contentsA = """
+			package pack1;
+			
+			import pack2.B1;
+			import pack4.D1.D2;
+			
+			public class A{}
+			""";
 		cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
 		assertEqualStringIgnoreDelim(cu.getSource(), contentsA);
 		assertEquals("D2<B1>.D3<B1>", actualType.toString());
@@ -512,27 +542,33 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 	}
 
 	public void testBug417937e_since_8() throws Exception {
-		String contents = "package pack1;\n" +
-				"import pack2.B1;\n" +
-				"public class X{\n" +
-				"    public void foo001(B1<C1>.B2<C1>.@Annot(true) B3<C1> arg, A a) {}\n" +
-				"}\n" +
-				"class C1{}\n" +
-				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-				"@interface Annot {\n	boolean value() default false;\n}\n" +
-				"}\n";
+		String contents = """
+			package pack1;
+			import pack2.B1;
+			public class X{
+			    public void foo001(B1<C1>.B2<C1>.@Annot(true) B3<C1> arg, A a) {}
+			}
+			class C1{}
+			@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)
+			@interface Annot {
+				boolean value() default false;
+			}
+			}
+			""";
 		createFolder("/" + PROJECT + "/src/pack1");
 		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
 		contents = "package pack1;\n" +
 				"public class A{}\n";
 		createFile("/" + PROJECT + "/src/pack1/A.java", contents);
-		contents = "package pack2;\n" +
-				"public class B1<T> {\n" +
-				"	public class B2<P> {\n" +
-				"		public class B3<Q> {\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n";
+		contents = """
+			package pack2;
+			public class B1<T> {
+				public class B2<P> {
+					public class B3<Q> {
+					}
+				}
+			}
+			""";
 		createFolder("/" + PROJECT + "/src/pack2");
 		createFile("/" + PROJECT + "/src/pack2/B1.java", contents);
 
@@ -582,11 +618,13 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		contents = "package pack1;\n" +
 				"public class A{}\n";
 		createFile("/" + PROJECT + "/src/pack1/A.java", contents);
-		contents = "package pack2;\n" +
-				"public class B {\n" +
-				"	public class C {\n" +
-				"	}\n" +
-				"}\n";
+		contents = """
+			package pack2;
+			public class B {
+				public class C {
+				}
+			}
+			""";
 		createFolder("/" + PROJECT + "/src/pack2");
 		createFile("/" + PROJECT + "/src/pack2/B.java", contents);
 
@@ -669,37 +707,42 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 	}
 
 	public void testBug426510a() throws Exception {
-		String contents = "package pack1;\n" +
-				"public class X{\n" +
-				"	public void foo001(@pack2.Marker Object o2, A arg) {}\n" +
-				"	public void foo002(@pack2.Annot2({1,2}) Object o2, A arg) {}\n" +
-				"	public void foo003(@pack2.Annot1(value = true, value2 = 1) Object o2, A arg) {}\n" +
-				"}\n";
+		String contents = """
+			package pack1;
+			public class X{
+				public void foo001(@pack2.Marker Object o2, A arg) {}
+				public void foo002(@pack2.Annot2({1,2}) Object o2, A arg) {}
+				public void foo003(@pack2.Annot1(value = true, value2 = 1) Object o2, A arg) {}
+			}
+			""";
 		createFolder("/" + PROJECT + "/src/pack1");
 		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
 		contents = "package pack1;\n" +
 				"public class A{}\n";
 		createFile("/" + PROJECT + "/src/pack1/A.java", contents);
-		contents = "package pack2;\n" +
-				"import java.lang.annotation.*;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"public @interface Marker {}";
+		contents = """
+			package pack2;
+			import java.lang.annotation.*;
+			@Target(ElementType.TYPE_USE)
+			public @interface Marker {}""";
 		createFolder("/" + PROJECT + "/src/pack2");
 		createFile("/" + PROJECT + "/src/pack2/Marker.java", contents);
-		contents = "package pack2;\n" +
-				"import java.lang.annotation.*;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"public @interface Annot1 {\n" +
-				"	boolean value() default false;\n" +
-				"	int value2();\n" +
-				"}";
+		contents = """
+			package pack2;
+			import java.lang.annotation.*;
+			@Target(ElementType.TYPE_USE)
+			public @interface Annot1 {
+				boolean value() default false;
+				int value2();
+			}""";
 		createFile("/" + PROJECT + "/src/pack2/Annot1.java", contents);
-		contents = "package pack2;\n" +
-				"import java.lang.annotation.*;\n" +
-				"@Target(ElementType.TYPE_USE)\n" +
-				"public @interface Annot2 {\n" +
-				"	int[] value() default {1,2};\n" +
-				"}";
+		contents = """
+			package pack2;
+			import java.lang.annotation.*;
+			@Target(ElementType.TYPE_USE)
+			public @interface Annot2 {
+				int[] value() default {1,2};
+			}""";
 		createFile("/" + PROJECT + "/src/pack2/Annot2.java", contents);
 
 		ASTParser parser = ASTParser.newParser(getJLS8());
@@ -723,11 +766,13 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 			assertEquals("@Marker", annotation.toString());
 
 			apply(rewrite);
-			contents = "package pack1;\n" +
-					"\n" +
-					"import pack2.Marker;\n" +
-					"\n" +
-					"public class A{}\n";
+			contents = """
+				package pack1;
+				
+				import pack2.Marker;
+				
+				public class A{}
+				""";
 			cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
 			assertEqualStringIgnoreDelim(cu.getSource(), contents);
 		}
@@ -742,11 +787,13 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 			assertEquals("@Annot2({1,2})", annotation.toString());
 
 			apply(rewrite);
-			contents = "package pack1;\n" +
-					"\n" +
-					"import pack2.Annot2;\n" +
-					"\n" +
-					"public class A{}\n";
+			contents = """
+				package pack1;
+				
+				import pack2.Annot2;
+				
+				public class A{}
+				""";
 			cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
 			assertEqualStringIgnoreDelim(cu.getSource(), contents);
 		}
@@ -761,11 +808,13 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 			assertEquals("@Annot1(value=true,value2=1)", annotation.toString());
 
 			apply(rewrite);
-			contents = "package pack1;\n" +
-					"\n" +
-					"import pack2.Annot1;\n" +
-					"\n" +
-					"public class A{}\n";
+			contents = """
+				package pack1;
+				
+				import pack2.Annot1;
+				
+				public class A{}
+				""";
 			cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
 			assertEqualStringIgnoreDelim(cu.getSource(), contents);
 		}
@@ -773,19 +822,21 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 
 	public void testBug474270_since_8() throws Exception {
 		String contents =
-				"package pack1;\n" +
-				"import java.util.Comparator;\n" +
-				"interface Comparator<T> {\n" +
-				"    int compare(T o1, T o2);\n" +
-				"    public static <T extends Comparable<? super T>> Comparator<T> naturalOrder() {\n" +
-				"		return null;\n" +
-				"    }\n" +
-				"}\n" +
-				"public class X {\n" +
-				"    Comparator mComparator1 = null;\n" +
-				"	 Comparator mComparator2 = (pObj1, pObj2) -> mComparator1.compare(pObj1, pObj2);\n" +
-				"    X() {mComparator1 = Comparator.naturalOrder();}\n" +
-				"}\n";
+				"""
+			package pack1;
+			import java.util.Comparator;
+			interface Comparator<T> {
+			    int compare(T o1, T o2);
+			    public static <T extends Comparable<? super T>> Comparator<T> naturalOrder() {
+					return null;
+			    }
+			}
+			public class X {
+			    Comparator mComparator1 = null;
+				 Comparator mComparator2 = (pObj1, pObj2) -> mComparator1.compare(pObj1, pObj2);
+			    X() {mComparator1 = Comparator.naturalOrder();}
+			}
+			""";
 		createFolder("/" + PROJECT + "/src/pack1");
 		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
 
@@ -803,9 +854,11 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		MethodInvocation invocation = (MethodInvocation) assignment.getRightHandSide();
 		ITypeBinding typeBinding = invocation.resolveTypeBinding();
 		typeBinding = typeBinding.getDeclaredMethods()[0].getParameterTypes()[0];
-		contents = "package pack2;\n" +
-				"\n" +
-				"public class A{}\n";
+		contents = """
+			package pack2;
+			
+			public class A{}
+			""";
 		createFolder("/" + PROJECT + "/src/pack2");
 		createFile("/" + PROJECT + "/src/pack2/A.java", contents);
 		cu = getCompilationUnit("/" + PROJECT + "/src/pack2/A.java");
@@ -852,19 +905,19 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 	 * Import should not be added in the default package
 	 */
 	public void testBug563375() throws Exception {
-		String contents = ""+
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		var i_S = i_s();\n" +
-				"		System.out.println(i_S.toString());\n" +
-				"		}\n" +
-				"	\n" +
-				"	static class I_S {}\n" +
-				"	\n" +
-				"	private static I_S i_s() {\n" +
-				"		return new I_S();\n" +
-				"	}\n" +
-				"}";
+		String contents = """
+			public class X {
+				public static void main(String[] args) {
+					var i_S = i_s();
+					System.out.println(i_S.toString());
+					}
+			\t
+				static class I_S {}
+			\t
+				private static I_S i_s() {
+					return new I_S();
+				}
+			}""";
 		createFile("/" + PROJECT + "/src/X.java", contents);
 
 		ICompilationUnit cu= getCompilationUnit("/" + PROJECT + "/src/X.java");

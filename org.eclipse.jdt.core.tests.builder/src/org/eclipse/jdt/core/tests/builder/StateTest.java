@@ -75,13 +75,14 @@ public class StateTest extends BuilderTests {
 		);
 
 		env.addClass(interfaceProjectPath, "c", "Impl1", //$NON-NLS-1$ //$NON-NLS-2$
-			"package c;\n" +
-			"import a.Interfaze;\n" +
-			"public class Impl1 implements Interfaze {\n" +
-			"	@Override\n" +
-			"	public void callMe() {\n" +
-			"	}\n" +
-			"}"
+			"""
+				package c;
+				import a.Interfaze;
+				public class Impl1 implements Interfaze {
+					@Override
+					public void callMe() {
+					}
+				}"""
 		);
 
 		env.addClass(implementationProjectPath, "b", "Impl2", //$NON-NLS-1$ //$NON-NLS-2$
@@ -158,18 +159,22 @@ public class StateTest extends BuilderTests {
 		String projectLoc = project.getProject().getLocation().toString();
 		Util.createJar(new String[] {
 				"pgen/CGen.java",
-				"package pgen;\n" +
-				"public class CGen {\n" +
-				"	public String get(String in) { return in; }\n" +
-				"}\n"
+				"""
+					package pgen;
+					public class CGen {
+						public String get(String in) { return in; }
+					}
+					"""
 			},
 			new String[] {
 				"pgen/CGen.eea",
-				"class pgen/CGen\n" +
-				"\n" +
-				"get\n" +
-				" (Ljava/lang/String;)Ljava/lang/String;\n" +
-				" (L1java/lang/String;)L1java/lang/String;\n"
+				"""
+					class pgen/CGen
+					
+					get
+					 (Ljava/lang/String;)Ljava/lang/String;
+					 (L1java/lang/String;)L1java/lang/String;
+					"""
 			},
 			projectLoc+"/lib/prj1.jar",
 			"1.8");
@@ -182,18 +187,22 @@ public class StateTest extends BuilderTests {
 
 		Util.createJar(new String[] {
 				"pgen2/CGen2.java",
-				"package pgen2;\n" +
-				"public class CGen2 {\n" +
-				"	public String get2(Exception in) { return in.toString(); }\n" +
-				"}\n"
+				"""
+					package pgen2;
+					public class CGen2 {
+						public String get2(Exception in) { return in.toString(); }
+					}
+					"""
 			},
 			new String[] {
 				"pgen2/CGen2.eea",
-				"class pgen2/CGen2\n" +
-				"\n" +
-				"get2\n" +
-				" (Ljava/lang/Exception;)Ljava/lang/String;\n" +
-				" (L1java/lang/Exception;)L1java/lang/String;\n",
+				"""
+					class pgen2/CGen2
+					
+					get2
+					 (Ljava/lang/Exception;)Ljava/lang/String;
+					 (L1java/lang/Exception;)L1java/lang/String;
+					""",
 			},
 			projectLoc+"/lib/prj2.jar",
 			"1.8");
@@ -207,20 +216,22 @@ public class StateTest extends BuilderTests {
 
 		env.addFolder(project.getPath(), "src/p");
 		env.addFile(project.getPath().append("src").append("p"), "Use.java",
-				"package p;\n" +
-				"import pgen.CGen;\n" +
-				"import pgen2.CGen2;\n" +
-				"import org.eclipse.jdt.annotation.NonNull;\n" +
-				"public class Use {\n" +
-				"	public @NonNull String test(CGen c) {\n" +
-				"		String s = c.get(null);\n" +
-				"		return s;\n" +
-				"	}\n" +
-				"	public @NonNull String test2(CGen2 c) {\n" +
-				"		String s = c.get2(null);\n" +
-				"		return s;\n" +
-				"	}\n" +
-				"}\n");
+				"""
+					package p;
+					import pgen.CGen;
+					import pgen2.CGen2;
+					import org.eclipse.jdt.annotation.NonNull;
+					public class Use {
+						public @NonNull String test(CGen c) {
+							String s = c.get(null);
+							return s;
+						}
+						public @NonNull String test2(CGen2 c) {
+							String s = c.get2(null);
+							return s;
+						}
+					}
+					""");
 		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		writeReadAndCompareExternalAnnotationLocations(project.getProject());
 	}

@@ -79,22 +79,26 @@ protected void setUp() throws Exception {
 		createFolder("/TestProject/src0/org/eclipse/jdt/core/test0");
 		createFile(
 			"/TestProject/src0/org/eclipse/jdt/core/test0/Foo.java",
-			"package org.eclipse.jdt.core.test0;\n" +
-			"public class Foo {\n" +
-			"	class InFoo {}\n" +
-			"}\n" +
-			"class Secondary {\n" +
-			"	class InSecondary {}\n" +
-			"}\n"
+			"""
+				package org.eclipse.jdt.core.test0;
+				public class Foo {
+					class InFoo {}
+				}
+				class Secondary {
+					class InSecondary {}
+				}
+				"""
 		);
 		createFile(
 			"/TestProject/src1/Foo.java",
-			"public class Foo {\n" +
-			"	class InFoo {}\n" +
-			"}\n" +
-			"class Secondary {\n" +
-			"	class InSecondary {}\n" +
-			"}\n"
+			"""
+				public class Foo {
+					class InFoo {}
+				}
+				class Secondary {
+					class InSecondary {}
+				}
+				"""
 		);
 		int length = SF_LENGTH - 1;
 		createFolder("/TestProject/src"+length+"/org/eclipse/jdt/core/test"+length);
@@ -571,11 +575,12 @@ public void testFindTypeWithDot() throws JavaModelException, CoreException {
 		this.createFolder("/P/p");
 		this.createFile(
 			"/P/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"  public class Y {\n" +
-			"  }\n" +
-			"}"
+			"""
+				package p;
+				public class X {
+				  public class Y {
+				  }
+				}"""
 		);
 		IType type = javaProject.findType("p.X.Y");
 		assertEquals(
@@ -1136,12 +1141,14 @@ public void testFindSecondaryType_Bug72179() throws JavaModelException, CoreExce
 		createFolder("/P/p1");
 		createFile(
 			"/P/p1/jc.java",
-			"package p1;\n" +
-			"class jc008{}\n" +
-			"class jc009{}\n" +
-			"class jc010 extends jc009 {\n" +
-			"	jc008 a;\n" +
-			"}\n"
+			"""
+				package p1;
+				class jc008{}
+				class jc009{}
+				class jc010 extends jc009 {
+					jc008 a;
+				}
+				"""
 		);
 		IType type = javaProject.findType("p1", "jc008", new NullProgressMonitor());
 		assertTrue("type 'jc008' should exist!", type != null && type.exists());
@@ -1202,24 +1209,26 @@ public void testBug152841() throws Exception{
 		IPackageFragmentRoot root = (IPackageFragmentRoot) project.getChildren()[0];
 		IPackageFragment pack= root.createPackageFragment("p", true, null);
 
-		String source= "package p;\n" +
-		"//use Object\n" +
-		"class A {\n" +
-		"	public void foo(){};\n" +
-		"}";
+		String source= """
+			package p;
+			//use Object
+			class A {
+				public void foo(){};
+			}""";
 		pack.createCompilationUnit("A.java", source, true, null);
 
-		source= "package p;\n" +
-		"\n" +
-		"class Test{\n" +
-		"	void test(){\n" +
-		"		A a= new A();\n" +
-		"		test(a);\n" +
-		"	}\n" +
-		"	void test(Object o){\n" +
-		"		o.hashCode();\n" +
-		"	}\n" +
-		"}";
+		source= """
+			package p;
+			
+			class Test{
+				void test(){
+					A a= new A();
+					test(a);
+				}
+				void test(Object o){
+					o.hashCode();
+				}
+			}""";
 		ICompilationUnit cu= pack.createCompilationUnit("Test.java", source, true, null);
 
 		ASTParser parser= ASTParser.newParser(JLS3_INTERNAL);
@@ -1227,21 +1236,22 @@ public void testBug152841() throws Exception{
 		parser.setResolveBindings(true);
 		parser.createAST(null);
 
-		source= "package p;\n" +
-		"//use C\n" +
-		"interface I{}\n" +
-		"class C implements I{\n" +
-		"}\n" +
-		"class B extends C{\n" +
-		"}\n" +
-		"class A extends B{" +
-		"}\n" +
-		"class Test{\n" +
-		"	void f(){\n" +
-		"		A c= new A();\n" +
-		"		c.toString();\n" +
-		"	}\n" +
-		"}";
+		source= """
+			package p;
+			//use C
+			interface I{}
+			class C implements I{
+			}
+			class B extends C{
+			}
+			class A extends B{\
+			}
+			class Test{
+				void f(){
+					A c= new A();
+					c.toString();
+				}
+			}""";
 
 		ICompilationUnit unit= pack.createCompilationUnit("I.java", source, true, null);
 		IType type= project.findType("p.I", (IProgressMonitor) null);
@@ -1314,17 +1324,21 @@ public void testBug306477() throws Exception {
 		createFolder("/P/p");
 		createFile(
 			"/P/p/Alice.java",
-			"package p;\n" +
-			"class Alice {\n" +
-			"	Object j = Bob.CHARLIE;\n" +
-			"}\n"
+			"""
+				package p;
+				class Alice {
+					Object j = Bob.CHARLIE;
+				}
+				"""
 		);
 		createFile(
 			"/P/p/Misc.java",
-			"package p;\n" +
-			"enum Bob {\n" +
-			"	CHARLIE;\n" +
-			"}\n"
+			"""
+				package p;
+				enum Bob {
+					CHARLIE;
+				}
+				"""
 		);
 
 		// find secondary enum

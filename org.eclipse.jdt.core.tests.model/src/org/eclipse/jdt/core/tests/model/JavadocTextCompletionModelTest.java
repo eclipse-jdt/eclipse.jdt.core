@@ -49,11 +49,13 @@ protected void setUp() throws Exception {
  */
 public void test001() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"/**\n" +
-		" * Completion on @ inside text\n" +
-		" */\n" +
-		"public class BasicTestTextIns {}\n";
+		"""
+		package javadoc.text;
+		/**
+		 * Completion on @ inside text
+		 */
+		public class BasicTestTextIns {}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@");
 	assertResults(
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -65,11 +67,13 @@ public void test001() throws JavaModelException {
 
 public void test002() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"/**\n" +
-		" * Completion on @s inside text\n" +
-		" */\n" +
-		"public class BasicTestTextIns {}\n";
+		"""
+		package javadoc.text;
+		/**
+		 * Completion on @s inside text
+		 */
+		public class BasicTestTextIns {}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@s");
 	assertResults("");
 }
@@ -77,13 +81,15 @@ public void test002() throws JavaModelException {
 public void test003() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_4);
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion on @ inside text\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion on @ inside text
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@");
 	assertResults(
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -96,13 +102,15 @@ public void test003() throws JavaModelException {
 public void test004() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_4);
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion on @d inside text\n" +
-		"	 */\n" +
-		"	int field;\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion on @d inside text
+			 */
+			int field;
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@d");
 	assertResults(
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -111,13 +119,15 @@ public void test004() throws JavaModelException {
 
 public void test005() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion on empty tag name: @\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion on empty tag name: @
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@");
 	assertResults(
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -130,26 +140,30 @@ public void test005() throws JavaModelException {
 
 public void test006() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion on impossible tag name: @ret\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion on impossible tag name: @ret
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@ret");
 	assertResults("");
 }
 
 public void test007() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion on one letter: @l\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion on one letter: @l
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@l");
 	assertResults(
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -159,13 +173,15 @@ public void test007() throws JavaModelException {
 
 public void test008() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion on started inline tag: {@li\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion on started inline tag: {@li
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "{@li");
 	assertResults(
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -175,14 +191,16 @@ public void test008() throws JavaModelException {
 
 public void test009() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion with several letters:\n" +
-		"	 *		@param str @inh\n" +
-		"	 */\n" +
-		"	public void foo(String str) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion with several letters:
+			 *		@param str @inh
+			 */
+			public void foo(String str) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "@inh");
 	assertResults(
 		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -191,14 +209,16 @@ public void test009() throws JavaModelException {
 
 public void test010() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion with several letters:\n" +
-		"	 *		@param str {@inh\n" +
-		"	 */\n" +
-		"	public void foo(String str) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion with several letters:
+			 *		@param str {@inh
+			 */
+			public void foo(String str) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "{@inh");
 	assertResults(
 		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -207,13 +227,15 @@ public void test010() throws JavaModelException {
 
 public void test011() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion on full tag name: {@docRoot}\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion on full tag name: {@docRoot}
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "{@docRoot");
 	assertResults(
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}"
@@ -225,12 +247,14 @@ public void test011() throws JavaModelException {
  */
 public void test020() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"/**\n" +
-		" * Completion after: BasicTestTextIns\n" +
-		" */\n" +
-		"public class BasicTestTextIns {\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		/**
+		 * Completion after: BasicTestTextIns
+		 */
+		public class BasicTestTextIns {
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns");
 	assertSortedResults(
 		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns}, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DRICENUNRIT+"}\n" +
@@ -240,14 +264,16 @@ public void test020() throws JavaModelException {
 
 public void test021() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"/**\n" +
-		" * Completion after: {@link BasicTestTextIns\n" +
-		" */\n" +
-		"public class BasicTestTextIns {\n" +
-		"}\n" +
-		"class BasicTestTextInsException extends Exception{\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		/**
+		 * Completion after: {@link BasicTestTextIns
+		 */
+		public class BasicTestTextIns {
+		}
+		class BasicTestTextInsException extends Exception{
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns");
 	assertSortedResults(
 		"BasicTestTextIns[TYPE_REF]{BasicTestTextIns, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DRICENUNR+"}\n" +
@@ -257,15 +283,17 @@ public void test021() throws JavaModelException {
 
 public void test022() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"/**\n" +
-		" * Completion after: @link BasicTestTextIns\n" +
-		" */\n" +
-		"public class BasicTestTextIns {\n" +
-		"	public void foo() throws BasicTestTextInsException {}\n" +
-		"}\n" +
-		"class BasicTestTextInsException extends Exception{\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		/**
+		 * Completion after: @link BasicTestTextIns
+		 */
+		public class BasicTestTextIns {
+			public void foo() throws BasicTestTextInsException {}
+		}
+		class BasicTestTextInsException extends Exception{
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns");
 	assertSortedResults(
 		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns}, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+(R_DRICENUNR+R_INLINE_TAG)+"}\n" +
@@ -277,15 +305,17 @@ public void test022() throws JavaModelException {
 
 public void test023() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: @link BasicTestTextIns\n" +
-		"	 */\n" +
-		"	public void foo() throws BasicTestTextInsException {}\n" +
-		"}\n" +
-		"class BasicTestTextInsException extends Exception{\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: @link BasicTestTextIns
+			 */
+			public void foo() throws BasicTestTextInsException {}
+		}
+		class BasicTestTextInsException extends Exception{
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns", 2); // 2nd occurrence
 	assertSortedResults(
 		"BasicTestTextInsException[JAVADOC_TYPE_REF]{{@link BasicTestTextInsException}, javadoc.text, Ljavadoc.text.BasicTestTextInsException;, null, null, "+this.positions+R_DRICUNREETIT+"}\n" +
@@ -297,13 +327,15 @@ public void test023() throws JavaModelException {
 
 public void test024() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"/**\n" +
-		" * Completion after: @see BasicTestTextIns\n" +
-		" */\n" +
-		"public class BasicTestTextIns {\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		/**
+		 * Completion after: @see BasicTestTextIns
+		 */
+		public class BasicTestTextIns {
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns");
 	assertSortedResults(
 		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns}, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DRICENUNRIT+"}\n" +
@@ -313,13 +345,15 @@ public void test024() throws JavaModelException {
 
 public void test025() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: @see BasicTestTextIns\n" +
-		"	 */\n" +
-		"	public void foo() {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: @see BasicTestTextIns
+			 */
+			public void foo() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns", 2); // 2nd occurrence
 	assertSortedResults(
 		"BasicTestTextIns[JAVADOC_TYPE_REF]{{@link BasicTestTextIns}, javadoc.text, Ljavadoc.text.BasicTestTextIns;, null, null, "+this.positions+R_DRICENUNRIT+"}\n" +
@@ -329,14 +363,16 @@ public void test025() throws JavaModelException {
 
 public void test026() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"/**\n" +
-		" * Completion after: java.la\n" +
-		" */\n" +
-		"public class BasicTestTextIns {\n" +
-		"	public void foo() throws InterruptedException {\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		/**
+		 * Completion after: java.la
+		 */
+		public class BasicTestTextIns {
+			public void foo() throws InterruptedException {
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "java.la");
 	assertSortedResults(
 		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DRICQNR+"}"
@@ -345,14 +381,16 @@ public void test026() throws JavaModelException {
 
 public void test027() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"/**\n" +
-		" * Completion after: java.lang.I\n" +
-		" */\n" +
-		"public class BasicTestTextIns {\n" +
-		"	public void foo() throws InterruptedException {\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		/**
+		 * Completion after: java.lang.I
+		 */
+		public class BasicTestTextIns {
+			public void foo() throws InterruptedException {
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "java.lang.I");
 	assertSortedResults(
 		"IllegalMonitorStateException[JAVADOC_TYPE_REF]{{@link IllegalMonitorStateException}, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICNRIT+"}\n" +
@@ -364,14 +402,16 @@ public void test027() throws JavaModelException {
 
 public void test028() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: java.lang.I\n" +
-		"	 */\n" +
-		"	public void foo() throws InterruptedException {\n" +
-		"	}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: java.lang.I
+			 */
+			public void foo() throws InterruptedException {
+			}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "java.lang.I");
 	assertSortedResults(
 		"InterruptedException[JAVADOC_TYPE_REF]{{@link InterruptedException}, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICNREETIT+"}\n" +
@@ -386,13 +426,14 @@ public void test028() throws JavaModelException {
  */
 public void test030() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: #fo\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"}";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: #fo
+			 */
+			int foo;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#fo");
 	assertSortedResults(
 		"foo[JAVADOC_FIELD_REF]{{@link #foo}, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DRICNRNSIT+"}"
@@ -401,13 +442,14 @@ public void test030() throws JavaModelException {
 
 public void test031() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: BasicTestTextIns#fo\n" +
-		"	 */\n" +
-		"	static int foo;\n" +
-		"}";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: BasicTestTextIns#fo
+			 */
+			static int foo;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#fo");
 	assertSortedResults(
 		"foo[JAVADOC_FIELD_REF]{{@link BasicTestTextIns#foo}, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DRICNRIT+"}\n" +
@@ -417,13 +459,14 @@ public void test031() throws JavaModelException {
 
 public void test032() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: javadoc.text.BasicTestTextIns#fo\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"}";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: javadoc.text.BasicTestTextIns#fo
+			 */
+			int foo;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.BasicTestTextIns#fo");
 	assertSortedResults(
 		"foo[JAVADOC_FIELD_REF]{{@link javadoc.text.BasicTestTextIns#foo}, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DRICNRNSIT+"}"
@@ -433,18 +476,20 @@ public void test032() throws JavaModelException {
 public void test033() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/text/BasicTestTextIns.java",
-			"package javadoc.text;\n" +
-			"public class BasicTestTextIns {\n" +
-			"	/**\n" +
-			"	 * Completion after: OtherFields#fo\n" +
-			"	 */\n" +
-			"	int foo;\n" +
-			"}",
+			"""
+				package javadoc.text;
+				public class BasicTestTextIns {
+					/**
+					 * Completion after: OtherFields#fo
+					 */
+					int foo;
+				}""",
 		"/Completion/src/javadoc/text/OtherFields.java",
-			"package javadoc.text;\n" +
-			"public class OtherFields {\n" +
-			"	static int foo;\n" +
-			"}"
+			"""
+				package javadoc.text;
+				public class OtherFields {
+					static int foo;
+				}"""
 	};
 	completeInJavadoc(sources, true, "OtherFields#fo");
 	assertSortedResults(
@@ -455,14 +500,15 @@ public void test033() throws JavaModelException {
 
 public void test034() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: {@value #fo\n" +
-		"	 *		Note: this test must be run with 1.4 compliance\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"}";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: {@value #fo
+			 *		Note: this test must be run with 1.4 compliance
+			 */
+			int foo;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "fo");
 	assertSortedResults(
 		"foo[FIELD_REF]{foo, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DRICNRNS+"}"
@@ -472,14 +518,15 @@ public void test034() throws JavaModelException {
 public void test035() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: {@value #fo\n" +
-		"	 *		Note: this test must be run with 1.5 compliance\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"}";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: {@value #fo
+			 *		Note: this test must be run with 1.5 compliance
+			 */
+			int foo;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "fo");
 	assertSortedResults(
 		"foo[FIELD_REF]{foo, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DRICNRNS+"}"
@@ -488,13 +535,14 @@ public void test035() throws JavaModelException {
 
 public void test036() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link BasicTestTextIns#fo\n" +
-		"	 */\n" +
-		"	static int foo;\n" +
-		"}";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: {@link BasicTestTextIns#fo
+			 */
+			static int foo;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "fo");
 	assertSortedResults(
 		"foo[FIELD_REF]{foo, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DRICNR+"}"
@@ -503,13 +551,14 @@ public void test036() throws JavaModelException {
 
 public void test037() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link javadoc.text.BasicTestTextIns#fo }\n" +
-		"	 */\n" +
-		"	int foo;\n" +
-		"}";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: {@link javadoc.text.BasicTestTextIns#fo }
+			 */
+			int foo;
+		}""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "fo");
 	assertSortedResults(
 		"foo[FIELD_REF]{foo, Ljavadoc.text.BasicTestTextIns;, I, foo, null, "+this.positions+R_DRICNRNS+"}"
@@ -520,19 +569,21 @@ public void test038() throws JavaModelException {
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
 	String[] sources = {
 		"/Completion/src/javadoc/text/BasicTestTextIns.java",
-			"package javadoc.text;\n" +
-			"public class BasicTestTextIns {\n" +
-			"	/**\n" +
-			"	 * Completion after: {@value OtherFields#fo\n" +
-		"	 *		Note: this test must be run with 1.5 compliance\n" +
-			"	 */\n" +
-			"	int foo;\n" +
-			"}",
+			"""
+				package javadoc.text;
+				public class BasicTestTextIns {
+					/**
+					 * Completion after: {@value OtherFields#fo
+					 *		Note: this test must be run with 1.5 compliance
+					 */
+					int foo;
+				}""",
 		"/Completion/src/javadoc/text/OtherFields.java",
-			"package javadoc.text;\n" +
-			"public class OtherFields {\n" +
-			"	static int foo;\n" +
-			"}"
+			"""
+				package javadoc.text;
+				public class OtherFields {
+					static int foo;
+				}"""
 	};
 	completeInJavadoc(sources, true, "fo");
 	assertSortedResults(
@@ -545,28 +596,32 @@ public void test038() throws JavaModelException {
  */
 public void test040() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: meth\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: meth
+			 */
+			void method() {}
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "meth");
 	assertSortedResults("");
 }
 
 public void test041() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: #meth\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: #meth
+			 */
+			void method() {}
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#meth");
 	assertSortedResults(
 		"method[JAVADOC_METHOD_REF]{{@link #method()}, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DRICNRNSIT+"}"
@@ -575,14 +630,16 @@ public void test041() throws JavaModelException {
 
 public void test042() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: #meth with text after\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: #meth with text after
+			 */
+			void method() {}
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#meth");
 	assertSortedResults(
 		"method[JAVADOC_METHOD_REF]{{@link #method()}, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DRICNRNSIT+"}"
@@ -591,14 +648,16 @@ public void test042() throws JavaModelException {
 
 public void test043() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: #method\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: #method
+			 */
+			void method() {}
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#meth");
 	assertSortedResults(
 		"method[JAVADOC_METHOD_REF]{{@link #method()}, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DRICNRNSIT+"}"
@@ -607,14 +666,16 @@ public void test043() throws JavaModelException {
 
 public void test044() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: BasicTestTextIns#param\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: BasicTestTextIns#param
+			 */
+			void method() {}
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#param");
 	assertSortedResults(
 		"paramMethod[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#paramMethod(String, boolean, Object)}, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DRICNRNSIT+"}"
@@ -623,14 +684,16 @@ public void test044() throws JavaModelException {
 
 public void test045() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: javadoc.text.BasicTestTextIns#meth\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: javadoc.text.BasicTestTextIns#meth
+			 */
+			void method() {}
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.BasicTestTextIns#meth");
 	assertSortedResults(
 		"method[JAVADOC_METHOD_REF]{{@link javadoc.text.BasicTestTextIns#method()}, Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DRICNRNSIT+"}"
@@ -639,14 +702,16 @@ public void test045() throws JavaModelException {
 
 public void test046() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link #param\n" +
-		"	 */\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after: {@link #param
+			 */
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "param");
 	assertSortedResults(
 		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DRICNRNS+"}"
@@ -655,14 +720,16 @@ public void test046() throws JavaModelException {
 
 public void test047() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link BasicTestTextIns#meth\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: {@link BasicTestTextIns#meth
+			 */
+			void method() {}
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "meth");
 	assertSortedResults(
 		"method[METHOD_REF]{method(), Ljavadoc.text.BasicTestTextIns;, ()V, method, null, "+this.positions+R_DRICNRNS+"}"
@@ -671,14 +738,16 @@ public void test047() throws JavaModelException {
 
 public void test048() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link javadoc.text.BasicTestTextIns#param }\n" +
-		"	 */\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after: {@link javadoc.text.BasicTestTextIns#param }
+			 */
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "param");
 	assertSortedResults(
 		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DRICNRNS+"}"
@@ -688,18 +757,20 @@ public void test048() throws JavaModelException {
 public void test049() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/text/BasicTestTextIns.java",
-			"package javadoc.text;\n" +
-			"public class BasicTestTextIns {\n" +
-			"	/**\n" +
-			"	 * Completion after: OtherTypes#meth\n" +
-			"	 */\n" +
-			"	void foo() {};\n" +
-			"}",
+			"""
+				package javadoc.text;
+				public class BasicTestTextIns {
+					/**
+					 * Completion after: OtherTypes#meth
+					 */
+					void foo() {};
+				}""",
 		"/Completion/src/javadoc/text/OtherTypes.java",
-			"package javadoc.text;\n" +
-			"public class OtherTypes {\n" +
-			"	void method() {};\n" +
-			"}"
+			"""
+				package javadoc.text;
+				public class OtherTypes {
+					void method() {};
+				}"""
 	};
 	completeInJavadoc(sources, true, "OtherTypes#meth");
 	assertSortedResults(
@@ -710,18 +781,20 @@ public void test049() throws JavaModelException {
 public void test050() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/text/BasicTestTextIns.java",
-			"package javadoc.text;\n" +
-			"public class BasicTestTextIns {\n" +
-			"	/**\n" +
-			"	 * Completion after: {@link OtherTypes#method }\n" +
-			"	 */\n" +
-			"	void foo() {};\n" +
-			"}",
+			"""
+				package javadoc.text;
+				public class BasicTestTextIns {
+					/**
+					 * Completion after: {@link OtherTypes#method }
+					 */
+					void foo() {};
+				}""",
 		"/Completion/src/javadoc/text/OtherTypes.java",
-			"package javadoc.text;\n" +
-			"public class OtherTypes {\n" +
-			"	void method() {};\n" +
-			"}"
+			"""
+				package javadoc.text;
+				public class OtherTypes {
+					void method() {};
+				}"""
 	};
 	completeInJavadoc(sources, true, "meth");
 	assertSortedResults(
@@ -731,14 +804,16 @@ public void test050() throws JavaModelException {
 
 public void test051() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: #\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: #
+			 */
+			void method() {}
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#");
 	assertSortedResults(
 		"clone[JAVADOC_METHOD_REF]{{@link #clone()}, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNSIT+"}\n" +
@@ -760,14 +835,16 @@ public void test051() throws JavaModelException {
 
 public void test052() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: #method\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: #method
+			 */
+			void method() {}
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#");
 	assertSortedResults(
 		"clone[JAVADOC_METHOD_REF]{{@link #clone()}, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNSIT+"}\n" +
@@ -789,14 +866,16 @@ public void test052() throws JavaModelException {
 
 public void test053() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link BasicTestTextIns#\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: {@link BasicTestTextIns#
+			 */
+			void method() {}
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#", 0); //empty token
 	assertSortedResults(
 		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -818,14 +897,16 @@ public void test053() throws JavaModelException {
 
 public void test054() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link javadoc.text.BasicTestTextIns# }\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: {@link javadoc.text.BasicTestTextIns# }
+			 */
+			void method() {}
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#", 0); //empty token
 	assertSortedResults(
 		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -847,14 +928,16 @@ public void test054() throws JavaModelException {
 
 public void test055() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after: #paramMethod(\n" +
-		"	 */\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after: #paramMethod(
+			 */
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#paramMethod(");
 	assertSortedResults(
 		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object)}, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DRICENUNRIT+"}"
@@ -863,14 +946,16 @@ public void test055() throws JavaModelException {
 
 public void test056() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link #paramMethod(Str\n" +
-		"	 */\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after: {@link #paramMethod(Str
+			 */
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "Str");
 	assertSortedResults(
 		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICUNR+"}"
@@ -879,14 +964,16 @@ public void test056() throws JavaModelException {
 
 public void test057() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link #paramMethod(String s\n" +
-		"	 */\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after: {@link #paramMethod(String s
+			 */
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "paramMethod(String s");
 	assertSortedResults(
 		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DRICENUNR+"}"
@@ -895,14 +982,16 @@ public void test057() throws JavaModelException {
 
 public void test058() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after: #paramMethod(String str, \n" +
-		"	 */\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after: #paramMethod(String str,\s
+			 */
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#paramMethod(String str,");
 	assertSortedResults(
 		"paramMethod[JAVADOC_METHOD_REF]{{@link #paramMethod(String, boolean, Object)}, Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DRICENUNRIT+"}"
@@ -911,14 +1000,16 @@ public void test058() throws JavaModelException {
 
 public void test059() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link #paramMethod(String,\n" +
-		"	 */\n" +
-		"	void paramMethod(String str, boolean flag, Object obj) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after: {@link #paramMethod(String,
+			 */
+			void paramMethod(String str, boolean flag, Object obj) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "paramMethod(String,");
 	assertSortedResults(
 		"paramMethod[METHOD_REF]{paramMethod(String, boolean, Object), Ljavadoc.text.BasicTestTextIns;, (Ljava.lang.String;ZLjava.lang.Object;)V, paramMethod, (str, flag, obj), "+this.positions+R_DRICENUNR+"}"
@@ -930,14 +1021,16 @@ public void test059() throws JavaModelException {
  */
 public void test070() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: #BasicTest\n" +
-		"	 */\n" +
-		"	BasicTestTextIns() {}\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: #BasicTest
+			 */
+			BasicTestTextIns() {}
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTest");
 	assertSortedResults(
 		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+R_DRINRIT+"}\n" +
@@ -947,14 +1040,16 @@ public void test070() throws JavaModelException {
 
 public void test071() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link BasicTestTextIns#BasicTest\n" +
-		"	 */\n" +
-		"	BasicTestTextIns() {}\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: {@link BasicTestTextIns#BasicTest
+			 */
+			BasicTestTextIns() {}
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTest", 3); // 3rd occurence
 	assertSortedResults(
 		"BasicTestTextIns[METHOD_REF<CONSTRUCTOR>]{BasicTestTextIns(int, float, Class), Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+R_DRINR+"}\n" +
@@ -964,14 +1059,16 @@ public void test071() throws JavaModelException {
 
 public void test072() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: {@linkplain javadoc.text.BasicTestTextIns#BasicTest }\n" +
-		"	 */\n" +
-		"	BasicTestTextIns() {}\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: {@linkplain javadoc.text.BasicTestTextIns#BasicTest }
+			 */
+			BasicTestTextIns() {}
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTest", 3); // 3rd occurence
 	assertSortedResults(
 		"BasicTestTextIns[METHOD_REF<CONSTRUCTOR>]{BasicTestTextIns(int, float, Class), Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+R_DRINR+"}\n" +
@@ -982,18 +1079,20 @@ public void test072() throws JavaModelException {
 public void test073() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/text/BasicTestTextIns.java",
-			"package javadoc.text;\n" +
-			"public class BasicTestTextIns {\n" +
-			"	/**\n" +
-			"	 * Completion after: OtherTypes#Other\n" +
-			"	 */\n" +
-			"	void foo() {};\n" +
-			"}",
+			"""
+				package javadoc.text;
+				public class BasicTestTextIns {
+					/**
+					 * Completion after: OtherTypes#Other
+					 */
+					void foo() {};
+				}""",
 		"/Completion/src/javadoc/text/OtherTypes.java",
-			"package javadoc.text;\n" +
-			"public class OtherTypes {\n" +
-			"	OtherTypes() {};\n" +
-			"}"
+			"""
+				package javadoc.text;
+				public class OtherTypes {
+					OtherTypes() {};
+				}"""
 	};
 	completeInJavadoc(sources, true, "OtherTypes#O");
 	assertSortedResults(
@@ -1004,17 +1103,19 @@ public void test073() throws JavaModelException {
 public void test074() throws JavaModelException {
 	String[] sources = {
 		"/Completion/src/javadoc/text/BasicTestTextIns.java",
-			"package javadoc.text;\n" +
-			"public class BasicTestTextIns {\n" +
-			"	/**\n" +
-			"	 * Completion after: {@link OtherTypes#O implicit default constructor\n" +
-			"	 */\n" +
-			"	void foo() {};\n" +
-			"}",
+			"""
+				package javadoc.text;
+				public class BasicTestTextIns {
+					/**
+					 * Completion after: {@link OtherTypes#O implicit default constructor
+					 */
+					void foo() {};
+				}""",
 		"/Completion/src/javadoc/text/OtherTypes.java",
-			"package javadoc.text;\n" +
-			"public class OtherTypes {\n" +
-			"}"
+			"""
+				package javadoc.text;
+				public class OtherTypes {
+				}"""
 	};
 	completeInJavadoc(sources, true, "O", 2); // 2nd occurence
 	assertSortedResults(
@@ -1024,14 +1125,16 @@ public void test074() throws JavaModelException {
 
 public void test075() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: #\n" +
-		"	 */\n" +
-		"	BasicTestTextIns() {}\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: #
+			 */
+			BasicTestTextIns() {}
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#");
 	assertSortedResults(
 		"clone[JAVADOC_METHOD_REF]{{@link #clone()}, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNSIT+"}\n" +
@@ -1052,14 +1155,16 @@ public void test075() throws JavaModelException {
 
 public void test076() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: #blabla\n" +
-		"	 */\n" +
-		"	BasicTestTextIns() {}\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: #blabla
+			 */
+			BasicTestTextIns() {}
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#");
 	assertSortedResults(
 		"clone[JAVADOC_METHOD_REF]{{@link #clone()}, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNSIT+"}\n" +
@@ -1080,14 +1185,16 @@ public void test076() throws JavaModelException {
 
 public void test077() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link # }\n" +
-		"	 */\n" +
-		"	BasicTestTextIns() {}\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after: {@link # }
+			 */
+			BasicTestTextIns() {}
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#", 0); // empty token
 	assertSortedResults(
 		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -1108,14 +1215,16 @@ public void test077() throws JavaModelException {
 
 public void test078() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after: {@link #BasicTestTextIns(\n" +
-		"	 */\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after: {@link #BasicTestTextIns(
+			 */
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns(");
 	assertSortedResults(
 		"BasicTestTextIns[METHOD_REF<CONSTRUCTOR>]{BasicTestTextIns(int, float, Class), Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+R_DRINR+"}"
@@ -1124,15 +1233,17 @@ public void test078() throws JavaModelException {
 
 public void test079() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after: BasicTestTextIns#BasicTestTextIns(int,\n" +
-		"	 */\n" +
-		"	BasicTestTextIns() {}\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after: BasicTestTextIns#BasicTestTextIns(int,
+			 */
+			BasicTestTextIns() {}
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#BasicTestTextIns(int,");
 	assertSortedResults(
 		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+R_DRINRIT+"}"
@@ -1141,16 +1252,18 @@ public void test079() throws JavaModelException {
 
 public void test080() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after: BasicTestTextIns#BasicTestTextIns(int,\n" +
-		"	 * 	Note: completion takes place just after opening brace\n" +
-		"	 */\n" +
-		"	BasicTestTextIns() {}\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after: BasicTestTextIns#BasicTestTextIns(int,
+			 * 	Note: completion takes place just after opening brace
+			 */
+			BasicTestTextIns() {}
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#BasicTestTextIns(");
 	assertSortedResults(
 			"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+R_DRINRIT+"}\n" +
@@ -1160,14 +1273,16 @@ public void test080() throws JavaModelException {
 
 public void test081() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	javadoc.text.BasicTestTextIns#BasicTestTextIns(\n" +
-		"	 */\n" +
-		"	void method() {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			/**
+			 * Completion after:
+			 * 	javadoc.text.BasicTestTextIns#BasicTestTextIns(
+			 */
+			void method() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "javadoc.text.BasicTestTextIns#BasicTestTextIns(");
 	assertSortedResults(
 		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link javadoc.text.BasicTestTextIns#BasicTestTextIns()}, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+R_DRINRIT+"}"
@@ -1176,15 +1291,17 @@ public void test081() throws JavaModelException {
 
 public void test082() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	#BasicTestTextIns(int, float, java.lang.\n" +
-		"	 */\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after:
+			 * 	#BasicTestTextIns(int, float, java.lang.
+			 */
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTestTextIns(int, float, java.lang.");
 	assertSortedResults(
 		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+R_DRINRIT+"}"
@@ -1193,15 +1310,17 @@ public void test082() throws JavaModelException {
 
 public void test083() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	#BasicTestTextIns(int, float, java.lang.Cla\n" +
-		"	 */\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after:
+			 * 	#BasicTestTextIns(int, float, java.lang.Cla
+			 */
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTestTextIns(int, float, java.lang.Cla");
 	assertSortedResults(
 		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+R_DRINRIT+"}"
@@ -1210,16 +1329,18 @@ public void test083() throws JavaModelException {
 
 public void test084() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	#BasicTestTextIns(int, float, Class)\n" +
-		"	 * 	Note: completion takes place before closing parenthesis\n" +
-		"	 */\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after:
+			 * 	#BasicTestTextIns(int, float, Class)
+			 * 	Note: completion takes place before closing parenthesis
+			 */
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTestTextIns(int, float, Class");
 	assertSortedResults(
 		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link #BasicTestTextIns(int, float, Class)}, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+R_DRINRIT+"}"
@@ -1228,36 +1349,40 @@ public void test084() throws JavaModelException {
 
 public void test085() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public class BasicTestTextIns {\n" +
-		"	void method() {}\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	#BasicTestTextIns(int, float, Class)\n" +
-		"	 * 	Note: completion takes place after closing parenthesis\n" +
-		"	 */\n" +
-		"	BasicTestTextIns(int xxx, float real, Class clazz) {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public class BasicTestTextIns {
+			void method() {}
+			/**
+			 * Completion after:
+			 * 	#BasicTestTextIns(int, float, Class)
+			 * 	Note: completion takes place after closing parenthesis
+			 */
+			BasicTestTextIns(int xxx, float real, Class clazz) {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTestTextIns(int, float, Class)");
 	assertSortedResults("");
 }
 
 public void test086() throws JavaModelException {
 	String source =
-		"package javadoc.text;\n" +
-		"public abstract class BasicTest extends BasicTestSecondaryClass implements BasicTestSecondaryInterface{\n" +
-		"	/**\n" +
-		"	 * Completion after:\n" +
-		"	 * 	#meth\n" +
-		"	 */\n" +
-		"	BasicTest() {}\n" +
-		"}\n" +
-		"class BasicTestSecondaryClass\n" +
-		"	void method1() {}\n" +
-		"}\n" +
-		"interface BasicTestSecondaryInterface\n" +
-		"	void method2() {}\n" +
-		"}\n";
+		"""
+		package javadoc.text;
+		public abstract class BasicTest extends BasicTestSecondaryClass implements BasicTestSecondaryInterface{
+			/**
+			 * Completion after:
+			 * 	#meth
+			 */
+			BasicTest() {}
+		}
+		class BasicTestSecondaryClass
+			void method1() {}
+		}
+		interface BasicTestSecondaryInterface
+			void method2() {}
+		}
+		""";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#meth");
 	assertSortedResults(
 			"method1[JAVADOC_METHOD_REF]{{@link #method1()}, Ljavadoc.text.BasicTestSecondaryClass;, ()V, method1, null, "+this.positions+R_DRICNRNSIT+"}\n" +

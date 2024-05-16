@@ -28,45 +28,46 @@ public class CodeExample {
 	public static final String CODE_FULL_NAME = CODE_PACKAGE + "." + CODE_CLASS_NAME;
 
 	public static final String CODE =
-		"package mirrortestpackage;\n" +
-        "\n" +
-        "import java.io.Serializable;\n" +
-        "import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorTestAnnotation;\n" +
-        "\n" +
-        "public class MirrorTestClass implements Serializable {\n" +
-        "\n" +
-        "    public static final String STATIC_FIELD = \"Static Field\";\n" +
-        "\n" +
-        "    private static final long serialVersionUID = 42L;\n" +
-        "\n" +
-        "    public String field;\n" +
-        "\n" +
-        "    public MirrorTestClass() {\n" +
-        "        field = \"Field\";\n" +
-        "    }\n" +
-        "\n" +
-        "    @MirrorTestAnnotation\n" +
-        "    public static Object staticMethod() {\n" +
-        "        return null;\n" +
-        "    }\n" +
-        "\n" +
-        "    public String stringMethod() {\n" +
-        "        return null;\n" +
-        "    }\n" +
-        "\n" +
-		"\n" +
-        "    public String toString() {\n" +
-        "        return null;\n" +
-        "    }\n" +
-        "\n" +
-        "    public static class InnerClass extends MirrorTestClass {\n" +
-		"\n" +
-        "        private static final long serialVersionUID = 148L;\n" +
-        "\n" +
-        "        public static Object staticMethod() {\n" +
-        "            return null;\n" +
-        "        }\n" +
-        "\n" +
-        "    }\n" +
-        "}";
+		"""
+		package mirrortestpackage;
+		
+		import java.io.Serializable;
+		import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorTestAnnotation;
+		
+		public class MirrorTestClass implements Serializable {
+		
+		    public static final String STATIC_FIELD = "Static Field";
+		
+		    private static final long serialVersionUID = 42L;
+		
+		    public String field;
+		
+		    public MirrorTestClass() {
+		        field = "Field";
+		    }
+		
+		    @MirrorTestAnnotation
+		    public static Object staticMethod() {
+		        return null;
+		    }
+		
+		    public String stringMethod() {
+		        return null;
+		    }
+		
+		
+		    public String toString() {
+		        return null;
+		    }
+		
+		    public static class InnerClass extends MirrorTestClass {
+		
+		        private static final long serialVersionUID = 148L;
+		
+		        public static Object staticMethod() {
+		            return null;
+		        }
+		
+		    }
+		}""";
 }

@@ -87,10 +87,12 @@ public class MultiProjectTests extends BuilderTests {
 		//           Step 2
 		//----------------------------
 		env.addClass(root1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"public class A {\n"+ //$NON-NLS-1$
-			"   int x;\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			public class A {
+			   int x;
+			}
+			""" //$NON-NLS-1$
+					);
 		env.waitForManualRefresh();
 		incrementalBuild();
 		env.waitForAutoBuild();
@@ -153,16 +155,20 @@ public class MultiProjectTests extends BuilderTests {
 		//----------------------------
 		// non-structural change should not fool dependent projcts
 		env.addClass(root1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"public class A {\n"+ //$NON-NLS-1$
-			"   // add comment (non-structural change)\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			public class A {
+			   // add comment (non-structural change)
+			}
+			""" //$NON-NLS-1$
+					);
 		// structural change, but no actual dependents
 		env.addClass(root1, "", "Unreferenced", //$NON-NLS-1$ //$NON-NLS-2$
-			"public class Unreferenced {\n"+ //$NON-NLS-1$
-			"   int x; //structural change\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			public class Unreferenced {
+			   int x; //structural change
+			}
+			""" //$NON-NLS-1$
+					);
 		env.waitForManualRefresh();
 		incrementalBuild();
 		env.waitForAutoBuild();
@@ -187,10 +193,12 @@ public class MultiProjectTests extends BuilderTests {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
 		env.addClass(root1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"public class A {\n"+ //$NON-NLS-1$
-			"   public int x;\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			public class A {
+			   public int x;
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project2
@@ -200,12 +208,14 @@ public class MultiProjectTests extends BuilderTests {
 		env.addRequiredProject(project2Path, project1Path);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
 		IPath b = env.addClass(root2, "", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			"public class B {\n"+ //$NON-NLS-1$
-			"   public void foo(){\n"+ //$NON-NLS-1$
-			"      int x = new A().x;\n"+ //$NON-NLS-1$
-			"   }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			public class B {
+			   public void foo(){
+			      int x = new A().x;
+			   }
+			}
+			""" //$NON-NLS-1$
+					);
 		env.waitForManualRefresh();
 		fullBuild();
 		env.waitForAutoBuild();
@@ -244,11 +254,13 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
 
 		IPath c1 = env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"  W w;\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			public class X {
+			  W w;
+			}
+			""" //$NON-NLS-1$
+					);
 
 		//----------------------------
 		//         Project2
@@ -261,11 +273,13 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
 
 		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"public class Y {\n"+ //$NON-NLS-1$
-			"  W w;\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			public class Y {
+			  W w;
+			}
+			""" //$NON-NLS-1$
+					);
 
 		//----------------------------
 		//         Project3
@@ -278,11 +292,13 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
 
 		IPath c3 = env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p3;\n"+ //$NON-NLS-1$
-			"public class Z {\n"+ //$NON-NLS-1$
-			"  W w;\n" + //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p3;
+			public class Z {
+			  W w;
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.setBuildOrder(new String[]{"P1", "P3", "P2"});//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 		env.waitForManualRefresh();
@@ -362,14 +378,16 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
 
 		env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"import p2.Y;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"  public void bar(Y y){\n"+ //$NON-NLS-1$
-			"    y.zork();\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			import p2.Y;
+			public class X {
+			  public void bar(Y y){
+			    y.zork();
+			  }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		//----------------------------
 		//         Project2
@@ -382,17 +400,19 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
 
 		env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.X;\n"+ //$NON-NLS-1$
-			"import p3.Z;\n"+ //$NON-NLS-1$
-			"public class Y extends Z{\n"+ //$NON-NLS-1$
-			"  public X zork(){\n"+ //$NON-NLS-1$
-			"    X x = foo();\n"+ //$NON-NLS-1$
-			"    x.bar(this);\n"+ //$NON-NLS-1$
-			"    return x;\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.X;
+			import p3.Z;
+			public class Y extends Z{
+			  public X zork(){
+			    X x = foo();
+			    x.bar(this);
+			    return x;
+			  }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		//----------------------------
 		//         Project3
@@ -405,14 +425,16 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
 
 		env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p3;\n"+ //$NON-NLS-1$
-			"import p1.X;\n"+ //$NON-NLS-1$
-			"public class Z {\n"+ //$NON-NLS-1$
-			"  public X foo(){\n"+ //$NON-NLS-1$
-			"    return null;\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p3;
+			import p1.X;
+			public class Z {
+			  public X foo(){
+			    return null;
+			  }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		// for Project1
 		env.addRequiredProject(p1, p2);
@@ -432,20 +454,23 @@ public class MultiProjectTests extends BuilderTests {
 			expectingCompilingOrder(new String[] { "/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P3/src/p3/Z.java",
 					"/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P1/src/p1/X.java", "/P3/src/p3/Z.java" });
 			expectingOnlySpecificProblemFor(p1, new Problem("p1",
-					"One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}
+						->{P1, P3}""",
 					p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 			expectingOnlySpecificProblemFor(p2,new Problem("p2",
-					"One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}""",
 					p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 			expectingOnlySpecificProblemFor(p3,new Problem("p3",
-					"One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:
+						->{P1, P2, P3}
+						->{P1, P3}""",
 					p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 
 			JavaCore.setOptions(options);
@@ -475,14 +500,16 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
 
 		env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"import p2.Y;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"  public void bar(Y y, int i){\n"+ //$NON-NLS-1$
-			"    y.zork();\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			import p2.Y;
+			public class X {
+			  public void bar(Y y, int i){
+			    y.zork();
+			  }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		//----------------------------
 		//         Project2
@@ -495,17 +522,19 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
 
 		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.X;\n"+ //$NON-NLS-1$
-			"import p3.Z;\n"+ //$NON-NLS-1$
-			"public class Y extends Z{\n"+ //$NON-NLS-1$
-			"  public X zork(){\n"+ //$NON-NLS-1$
-			"    X x = foo();\n"+ //$NON-NLS-1$
-			"    x.bar(this);\n"+ //$NON-NLS-1$
-			"    return x;\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.X;
+			import p3.Z;
+			public class Y extends Z{
+			  public X zork(){
+			    X x = foo();
+			    x.bar(this);
+			    return x;
+			  }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		//----------------------------
 		//         Project3
@@ -518,14 +547,16 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
 
 		env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p3;\n"+ //$NON-NLS-1$
-			"import p1.X;\n"+ //$NON-NLS-1$
-			"public class Z {\n"+ //$NON-NLS-1$
-			"  public X foo(){\n"+ //$NON-NLS-1$
-			"    return null;\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p3;
+			import p1.X;
+			public class Z {
+			  public X foo(){
+			    return null;
+			  }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		// for Project1
 		env.addRequiredProject(p1, p2);
@@ -544,23 +575,26 @@ public class MultiProjectTests extends BuilderTests {
 			expectingCompilingOrder(new String[] { "/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P3/src/p3/Z.java",
 					"/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P1/src/p1/X.java", "/P3/src/p3/Z.java" });
 			expectingOnlySpecificProblemFor(p1,new Problem("p1",
-					"One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}
+						->{P1, P3}""",
 					p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
 					new Problem("p2", "The method bar(Y, int) in the type X is not applicable for the arguments (Y)", c2, 106, 109, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 					new Problem("p2",
-							"One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:\n" +
-							"->{P1, P2}\n" +
-							"->{P1, P2, P3}",
+							"""
+								One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:
+								->{P1, P2}
+								->{P1, P2, P3}""",
 							p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)
 			});
 			expectingOnlySpecificProblemFor(p3,new Problem("p3",
-					"One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P1, P3}", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
+					"""
+						One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:
+						->{P1, P2, P3}
+						->{P1, P3}""", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 
 			JavaCore.setOptions(options);
 		} finally {
@@ -589,14 +623,16 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
 
 		env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"import p2.Y;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"  public void bar(Y y){\n"+ //$NON-NLS-1$
-			"    y.zork();\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			import p2.Y;
+			public class X {
+			  public void bar(Y y){
+			    y.zork();
+			  }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		//----------------------------
 		//         Project2
@@ -609,17 +645,19 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
 
 		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.X;\n"+ //$NON-NLS-1$
-			"import p3.Z;\n"+ //$NON-NLS-1$
-			"public class Y extends Z{\n"+ //$NON-NLS-1$
-			"  public X zork(){\n"+ //$NON-NLS-1$
-			"    X x = foo();\n"+ //$NON-NLS-1$
-			"    x.bar(this);\n"+ //$NON-NLS-1$
-			"    return x;\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.X;
+			import p3.Z;
+			public class Y extends Z{
+			  public X zork(){
+			    X x = foo();
+			    x.bar(this);
+			    return x;
+			  }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		//----------------------------
 		//         Project3
@@ -632,14 +670,16 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
 
 		env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p3;\n"+ //$NON-NLS-1$
-			"import p1.X;\n"+ //$NON-NLS-1$
-			"public class Z {\n"+ //$NON-NLS-1$
-			"  public X foo(){\n"+ //$NON-NLS-1$
-			"    return null;\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p3;
+			import p1.X;
+			public class Z {
+			  public X foo(){
+			    return null;
+			  }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		// for Project1
 		env.addRequiredProject(p1, p2);
@@ -659,52 +699,60 @@ public class MultiProjectTests extends BuilderTests {
 			expectingCompilingOrder(new String[] { "/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P3/src/p3/Z.java",
 					"/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P1/src/p1/X.java", "/P3/src/p3/Z.java" });
 			expectingOnlySpecificProblemFor(p1,new Problem("p1",
-					"One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}
+						->{P1, P3}""",
 					p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 			expectingOnlySpecificProblemFor(p2,new Problem("p2",
-					"One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}""",
 					p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 			expectingOnlySpecificProblemFor(p3,new Problem("p3",
-					"One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:
+						->{P1, P2, P3}
+						->{P1, P3}""",
 					p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 
 			env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-				"package p1;\n"+ //$NON-NLS-1$
-				"import p2.Y;\n"+ //$NON-NLS-1$
-				"public class X {\n"+ //$NON-NLS-1$
-				"  public void bar(Y y, int i){\n"+ //$NON-NLS-1$
-				"    y.zork();\n"+ //$NON-NLS-1$
-				"  }\n"+ //$NON-NLS-1$
-				"}\n" //$NON-NLS-1$
-				);
+							"""
+				package p1;
+				import p2.Y;
+				public class X {
+				  public void bar(Y y, int i){
+				    y.zork();
+				  }
+				}
+				""" //$NON-NLS-1$
+							);
 			incrementalBuild();
 			env.waitForAutoBuild();
 			expectingCompilingOrder(new String[] { "/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P3/src/p3/Z.java" });
 			expectingOnlySpecificProblemFor(p1,new Problem("p1",
-					"One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}
+						->{P1, P3}""",
 					p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
 					new Problem("p2", "The method bar(Y, int) in the type X is not applicable for the arguments (Y)", c2, 106, 109, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 					new Problem("p2",
-							"One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:\n" +
-							"->{P1, P2}\n" +
-							"->{P1, P2, P3}",
+							"""
+								One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:
+								->{P1, P2}
+								->{P1, P2, P3}""",
 							p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)
 			});
 			expectingOnlySpecificProblemFor(p3,new Problem("p3",
-					"One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:
+						->{P1, P2, P3}
+						->{P1, P3}""",
 					p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 
 			JavaCore.setOptions(options);
@@ -743,17 +791,19 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
 
 		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p1.X;\n"+ //$NON-NLS-1$
-			"import p3.Z;\n"+ //$NON-NLS-1$
-			"public class Y extends Z{\n"+ //$NON-NLS-1$
-			"  public X zork(){\n"+ //$NON-NLS-1$
-			"    X x = foo();\n"+ //$NON-NLS-1$
-			"    x.bar(this);\n"+ //$NON-NLS-1$
-			"    return x;\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p1.X;
+			import p3.Z;
+			public class Y extends Z{
+			  public X zork(){
+			    X x = foo();
+			    x.bar(this);
+			    return x;
+			  }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		//----------------------------
 		//         Project3
@@ -766,14 +816,16 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
 
 		IPath c3 = env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p3;\n"+ //$NON-NLS-1$
-			"import p1.X;\n"+ //$NON-NLS-1$
-			"public class Z {\n"+ //$NON-NLS-1$
-			"  public X foo(){\n"+ //$NON-NLS-1$
-			"    return null;\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p3;
+			import p1.X;
+			public class Z {
+			  public X foo(){
+			    return null;
+			  }
+			}
+			""" //$NON-NLS-1$
+					);
 
 		// for Project1
 		env.addRequiredProject(p1, p2);
@@ -792,10 +844,11 @@ public class MultiProjectTests extends BuilderTests {
 
 			expectingCompilingOrder(new String[] { "/P2/src/p2/Y.java", "/P3/src/p3/Z.java", "/P2/src/p2/Y.java" });
 			expectingOnlySpecificProblemFor(p1,new Problem("p1",
-					"One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}
+						->{P1, P3}""",
 					p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
 				new Problem("p2", "X cannot be resolved to a type", c2, 87, 88, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
@@ -803,49 +856,56 @@ public class MultiProjectTests extends BuilderTests {
 				new Problem("p2", "The import p1 cannot be resolved", c2, 19, 21, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p2", "X cannot be resolved to a type", c2, 73, 74, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p2",
-						"One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:\n" +
-						"->{P1, P2}\n" +
-						"->{P1, P2, P3}",
+						"""
+							One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:
+							->{P1, P2}
+							->{P1, P2, P3}""",
 						p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)
 			});
 			expectingOnlySpecificProblemsFor(p3,new Problem[]{
 				new Problem("p3", "X cannot be resolved to a type", c3, 51, 52, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p3", "The import p1 cannot be resolved", c3, 19, 21, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p3",
-						"One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:\n" +
-						"->{P1, P2, P3}\n" +
-						"->{P1, P3}",
+						"""
+							One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:
+							->{P1, P2, P3}
+							->{P1, P3}""",
 						p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)
 			});
 
 			env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-				"package p1;\n"+ //$NON-NLS-1$
-				"import p2.Y;\n"+ //$NON-NLS-1$
-				"public class X {\n"+ //$NON-NLS-1$
-				"  public void bar(Y y){\n"+ //$NON-NLS-1$
-				"    y.zork();\n"+ //$NON-NLS-1$
-				"  }\n"+ //$NON-NLS-1$
-				"}\n" //$NON-NLS-1$
-				);
+							"""
+				package p1;
+				import p2.Y;
+				public class X {
+				  public void bar(Y y){
+				    y.zork();
+				  }
+				}
+				""" //$NON-NLS-1$
+							);
 			incrementalBuild();
 			env.waitForAutoBuild();
 			expectingCompilingOrder(new String[] { "/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P3/src/p3/Z.java",
 					"/P1/src/p1/X.java", "/P2/src/p2/Y.java" });
 			expectingOnlySpecificProblemFor(p1,new Problem("p1",
-					"One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}
+						->{P1, P3}""",
 					p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 			expectingOnlySpecificProblemFor(p2,new Problem("p2",
-					"One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}""",
 					p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 			expectingOnlySpecificProblemFor(p3,new Problem("p3",
-					"One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:
+						->{P1, P2, P3}
+						->{P1, P3}""",
 					p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));
 
 			JavaCore.setOptions(options);
@@ -875,13 +935,15 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
 
 		IPath c1 = env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-				"package p1;\n" + //$NON-NLS-1$
-						"import p2.*;\n" + //$NON-NLS-1$
-						"import p22.*;\n" + //$NON-NLS-1$
-						"public class X {\n" + //$NON-NLS-1$
-						"  Y y;\n" + //$NON-NLS-1$
-						"}\n" //$NON-NLS-1$
-		);
+						"""
+			package p1;
+			import p2.*;
+			import p22.*;
+			public class X {
+			  Y y;
+			}
+			""" //$NON-NLS-1$
+				);
 
 		// ----------------------------
 		// Project2
@@ -894,13 +956,15 @@ public class MultiProjectTests extends BuilderTests {
 		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
 
 		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-				"package p2;\n" + //$NON-NLS-1$
-						"import p1.*;\n" + //$NON-NLS-1$
-						"import p11.*;\n" + //$NON-NLS-1$
-						"public class Y {\n" + //$NON-NLS-1$
-						"  X x;\n" + //$NON-NLS-1$
-						"}\n" //$NON-NLS-1$
-		);
+						"""
+			package p2;
+			import p1.*;
+			import p11.*;
+			public class Y {
+			  X x;
+			}
+			""" //$NON-NLS-1$
+				);
 
 		// for Project1
 		env.addRequiredProject(p1, p2);
@@ -929,15 +993,19 @@ public class MultiProjectTests extends BuilderTests {
 							p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING) });
 
 			env.addClass(root1, "p11", "XX", //$NON-NLS-1$ //$NON-NLS-2$
-					"package p11;\n" + //$NON-NLS-1$
-							"public class XX {\n" + //$NON-NLS-1$
-							"}\n" //$NON-NLS-1$
-			);
+								"""
+				package p11;
+				public class XX {
+				}
+				""" //$NON-NLS-1$
+						);
 			env.addClass(root2, "p22", "YY", //$NON-NLS-1$ //$NON-NLS-2$
-					"package p22;\n" + //$NON-NLS-1$
-							"public class YY {\n" + //$NON-NLS-1$
-							"}\n" //$NON-NLS-1$
-			);
+								"""
+				package p22;
+				public class YY {
+				}
+				""" //$NON-NLS-1$
+						);
 
 			incrementalBuild();
 			env.waitForAutoBuild();
@@ -1009,10 +1077,12 @@ public void testCycle6() throws JavaModelException {
 	env.setOutputFolder(p2, "bin");
 
 	env.addClass(root2, "java/lang", "Class",
-		"package java.lang;\n" +
-		"public class Class {\n" +
-		"  String getName() { return \"\"; };\n" +
-		"}\n"
+		"""
+			package java.lang;
+			public class Class {
+			  String getName() { return ""; };
+			}
+			"""
 		);
 
 	//----------------------------
@@ -1025,9 +1095,11 @@ public void testCycle6() throws JavaModelException {
 	env.setOutputFolder(p3, "bin");
 
 	env.addClass(root3, "java/lang", "String",
-		"package java.lang;\n" +
-		"public class String {\n" +
-		"}\n"
+		"""
+			package java.lang;
+			public class String {
+			}
+			"""
 		);
 
 	// Dependencies
@@ -1046,27 +1118,30 @@ public void testCycle6() throws JavaModelException {
 		env.waitForAutoBuild();
 		expectingOnlySpecificProblemsFor(p1,new Problem[]{
 			new Problem("p1",
-					"One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}\n" +
-					"P1->{P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}
+						P1->{P2, P3}
+						->{P1, P3}""",
 					p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)
 		});
 		expectingOnlySpecificProblemsFor(p2,new Problem[]{
 			new Problem("p2",
-					"One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P2, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}
+						->{P2, P3}""",
 					p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)
 		});
 		expectingOnlySpecificProblemsFor(p3,new Problem[]{
 			new Problem("p3",
-					"One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:
+						->{P1, P2, P3}
+						->{P2, P3}
+						->{P1, P3}""",
 					p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)
 		});
 
@@ -1115,10 +1190,12 @@ public void testCycle7() throws JavaModelException {
 	env.setOutputFolder(p2, "bin");
 
 	env.addClass(root2, "java/lang", "Class",
-		"package java.lang;\n" +
-		"public class Class {\n" +
-		"  String getName() { return \"\"; };\n" +
-		"}\n"
+		"""
+			package java.lang;
+			public class Class {
+			  String getName() { return ""; };
+			}
+			"""
 		);
 
 	//----------------------------
@@ -1131,15 +1208,19 @@ public void testCycle7() throws JavaModelException {
 	env.setOutputFolder(p3, "bin");
 
 	env.addClass(root3, "java/lang", "String",
-		"package java.lang;\n" +
-		"public class String {\n" +
-		"}\n"
+		"""
+			package java.lang;
+			public class String {
+			}
+			"""
 		);
 
 	env.addClass(root3, "java/lang", "Throwable",
-		"package java.lang;\n" +
-		"public class Throwable {\n" +
-		"}\n"
+		"""
+			package java.lang;
+			public class Throwable {
+			}
+			"""
 			);
 	// Dependencies
 	IPath[] accessiblePaths = new IPath[] {new Path("java/lang/*")};
@@ -1157,27 +1238,30 @@ public void testCycle7() throws JavaModelException {
 		env.waitForAutoBuild();
 		expectingOnlySpecificProblemsFor(p1,new Problem[]{
 			new Problem("p1",
-					"One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}\n" +
-					"P1->{P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}
+						P1->{P2, P3}
+						->{P1, P3}""",
 					p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)
 		});
 		expectingOnlySpecificProblemsFor(p2,new Problem[]{
 			new Problem("p2",
-					"One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2}\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P2, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P2'. The paths towards the cycle and cycle are:
+						->{P1, P2}
+						->{P1, P2, P3}
+						->{P2, P3}""",
 					p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)
 		});
 		expectingOnlySpecificProblemsFor(p3,new Problem[]{
 			new Problem("p3",
-					"One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:\n" +
-					"->{P1, P2, P3}\n" +
-					"->{P2, P3}\n" +
-					"->{P1, P3}",
+					"""
+						One or more cycles were detected in the build path of project 'P3'. The paths towards the cycle and cycle are:
+						->{P1, P2, P3}
+						->{P2, P3}
+						->{P1, P3}""",
 					p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)
 		});
 
@@ -1252,15 +1336,19 @@ public void testCycle7() throws JavaModelException {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
 		env.addClass(root1, "p.api", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p.api;\n" + //$NON-NLS-1$
-			"public class A {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p.api;
+			public class A {
+			}
+			""" //$NON-NLS-1$
+					);
 		env.addClass(root1, "p.internal", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p.internal;\n" + //$NON-NLS-1$
-			"public class B {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p.internal;
+			public class B {
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project2
@@ -1299,15 +1387,19 @@ public void testCycle7() throws JavaModelException {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
 		env.addClass(root1, "p.api", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p.api;\n" + //$NON-NLS-1$
-			"public class A {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p.api;
+			public class A {
+			}
+			""" //$NON-NLS-1$
+					);
 		env.addClass(root1, "p.internal", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p.internal;\n" + //$NON-NLS-1$
-			"public class B {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p.internal;
+			public class B {
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project2
@@ -1354,15 +1446,19 @@ public void testCycle7() throws JavaModelException {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
 		env.addClass(root1, "p.api", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p.api;\n" + //$NON-NLS-1$
-			"public class A {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p.api;
+			public class A {
+			}
+			""" //$NON-NLS-1$
+					);
 		env.addClass(root1, "p.internal", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p.internal;\n" + //$NON-NLS-1$
-			"public class B {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p.internal;
+			public class B {
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project2
@@ -1408,15 +1504,19 @@ public void testCycle7() throws JavaModelException {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
 		env.addClass(root1, "p.api", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p.api;\n" + //$NON-NLS-1$
-			"public class A {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p.api;
+			public class A {
+			}
+			""" //$NON-NLS-1$
+					);
 		env.addClass(root1, "p.internal", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p.internal;\n" + //$NON-NLS-1$
-			"public class B {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p.internal;
+			public class B {
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project2
@@ -1455,15 +1555,19 @@ public void testCycle7() throws JavaModelException {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
 		env.addClass(root1, "p.api", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p.api;\n" + //$NON-NLS-1$
-			"public class A {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p.api;
+			public class A {
+			}
+			""" //$NON-NLS-1$
+					);
 		env.addClass(root1, "p.internal", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p.internal;\n" + //$NON-NLS-1$
-			"public class B {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p.internal;
+			public class B {
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project2
@@ -1510,15 +1614,19 @@ public void testCycle7() throws JavaModelException {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
 		env.addClass(root1, "p.api", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p.api;\n" + //$NON-NLS-1$
-			"public class A {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p.api;
+			public class A {
+			}
+			""" //$NON-NLS-1$
+					);
 		env.addClass(root1, "p.internal", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p.internal;\n" + //$NON-NLS-1$
-			"public class B {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p.internal;
+			public class B {
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project2
@@ -1566,10 +1674,12 @@ public void testCycle7() throws JavaModelException {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
 		env.addClass(root1, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;\n" + //$NON-NLS-1$
-			"public class A {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p;
+			public class A {
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project2
@@ -1578,10 +1688,12 @@ public void testCycle7() throws JavaModelException {
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
 		env.addClass(root2, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;\n" + //$NON-NLS-1$
-			"public class A {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p;
+			public class A {
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project3
@@ -1592,10 +1704,12 @@ public void testCycle7() throws JavaModelException {
 		env.addRequiredProject(project3Path, project2Path, new Path("**/p/A"), IAccessRule.K_ACCESSIBLE);
 		IPath root3 = env.getPackageFragmentRootPath(project3Path, ""); //$NON-NLS-1$
 		env.addClass(root3, "p3", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p3;\n" + //$NON-NLS-1$
-			"public class B extends p.A {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p3;
+			public class B extends p.A {
+			}
+			""" //$NON-NLS-1$
+					);
 		env.waitForManualRefresh();
 		fullBuild();
 		env.waitForAutoBuild();
@@ -1618,10 +1732,12 @@ public void testCycle7() throws JavaModelException {
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
 		env.addClass(root1, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;\n" + //$NON-NLS-1$
-			"public class A {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p;
+			public class A {
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project2
@@ -1630,10 +1746,12 @@ public void testCycle7() throws JavaModelException {
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
 		env.addClass(root2, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p;\n" + //$NON-NLS-1$
-			"public class A {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p;
+			public class A {
+			}
+			""" //$NON-NLS-1$
+					);
 
 			//----------------------------
 			//         Project3
@@ -1644,10 +1762,12 @@ public void testCycle7() throws JavaModelException {
 		env.addRequiredProject(project3Path, project2Path, new Path("**/p/A"), IAccessRule.K_DISCOURAGED);
 		IPath root3 = env.getPackageFragmentRootPath(project3Path, ""); //$NON-NLS-1$
 		IPath b = env.addClass(root3, "p3", "B", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p3;\n" + //$NON-NLS-1$
-			"public class B extends p.A {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p3;
+			public class B extends p.A {
+			}
+			""" //$NON-NLS-1$
+					);
 		env.waitForManualRefresh();
 		fullBuild();
 		env.waitForAutoBuild();
@@ -1684,24 +1804,30 @@ public void testCycle7() throws JavaModelException {
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
 
 		IPath x = env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"import p2.*;\n"+ //$NON-NLS-1$
-			"public class X extends Y{\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p1;
+			import p2.*;
+			public class X extends Y{
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"import p3.*;\n"+ //$NON-NLS-1$
-			"public class Y extends Z {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p2;
+			import p3.*;
+			public class Y extends Z {
+			}
+			""" //$NON-NLS-1$
+					);
 
 		env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p3;\n"+ //$NON-NLS-1$
-			"public class Z {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+					"""
+			package p3;
+			public class Z {
+			}
+			""" //$NON-NLS-1$
+					);
 
 		try {
 			env.waitForManualRefresh();
@@ -1731,9 +1857,11 @@ public void test100_class_folder_exported() throws JavaModelException {
 		env.addPackage(
 			env.getPackageFragmentRootPath(P1, ""), "p"),
 		"A",
-		"package p;\n" +
-		"public class A {\n" +
-		"}\n"
+		"""
+			package p;
+			public class A {
+			}
+			"""
 		);
 	env.waitForManualRefresh();
 	fullBuild();
@@ -1747,10 +1875,11 @@ public void test100_class_folder_exported() throws JavaModelException {
 	env.addClass(
 		env.getPackageFragmentRootPath(P2, ""),
 		"X",
-		"import p.A;\n" +
-		"public class X {\n" +
-		"  A f;\n" +
-		"}");
+		"""
+			import p.A;
+			public class X {
+			  A f;
+			}""");
 	env.waitForManualRefresh();
 	fullBuild();
 	env.waitForAutoBuild();
@@ -1770,9 +1899,11 @@ public void test101_class_folder_non_exported() throws JavaModelException {
 		env.addPackage(
 			env.getPackageFragmentRootPath(P1, ""), "p"),
 		"A",
-		"package p;\n" +
-		"public class A {\n" +
-		"}\n"
+		"""
+			package p;
+			public class A {
+			}
+			"""
 		);
 	fullBuild();
 	expectingNoProblems();
@@ -1784,10 +1915,11 @@ public void test101_class_folder_non_exported() throws JavaModelException {
 	IPath c = env.addClass(
 		env.getPackageFragmentRootPath(P2, ""),
 		"X",
-		"import p.A;\n" +
-		"public class X {\n" +
-		"  A f;\n" +
-		"}");
+		"""
+			import p.A;
+			public class X {
+			  A f;
+			}""");
 	env.waitForManualRefresh();
 	fullBuild();
 	env.waitForAutoBuild();
@@ -1837,9 +1969,11 @@ public void test102_missing_required_binaries() throws JavaModelException {
 		);
 
 	IPath y = env.addClass(root3, "", "Y",
-		"public class Y extends X {\n" +
-		"  X m = new X() {};\n" +
-		"}\n"
+		"""
+			public class Y extends X {
+			  X m = new X() {};
+			}
+			"""
 		);
 
 	try {
@@ -1898,10 +2032,12 @@ public void test103_missing_required_binaries() throws JavaModelException {
 		);
 
 	IPath y = env.addClass(root3, "", "Y",
-		"public class Y {\n" +
-		"  X m = new X() {};\n" +
-		"  X n = new X() {};\n" +
-		"}\n"
+		"""
+			public class Y {
+			  X m = new X() {};
+			  X n = new X() {};
+			}
+			"""
 		);
 
 	try {
@@ -1950,37 +2086,45 @@ public void test104_missing_required_binaries() throws CoreException {
 	env.setOutputFolder(p2, "bin");
 
 	env.addClass(root0, "jre17", "AutoClosable",
-			"package jre17;\n" +
-			"public interface AutoClosable {\n" +
-			"	void closeIt();\n" +
-			"}\n"
+			"""
+				package jre17;
+				public interface AutoClosable {
+					void closeIt();
+				}
+				"""
 			);
 
 	env.addClass(root1, "org.eclipse.jgit.lib", "Repository",
-			"package org.eclipse.jgit.lib;\n" +
-			"import jre17.AutoClosable;\n" +
-			"public abstract class Repository implements AutoClosable {\n" +
-			"	public void resolve(final String revstr) { }\n" +
-			"}\n"
+			"""
+				package org.eclipse.jgit.lib;
+				import jre17.AutoClosable;
+				public abstract class Repository implements AutoClosable {
+					public void resolve(final String revstr) { }
+				}
+				"""
 			);
 
 	IPath gca = env.addClass(root2, "org.eclipse.releng.tools.git", "GitCopyrightAdapter",
-			"package org.eclipse.releng.tools.git;\n" +
-			"import org.eclipse.jgit.lib.Repository;\n" +
-			"public class GitCopyrightAdapter {\n" +
-			"	void foo(Repository repo) {\n" +
-			"		repo.resolve(\"Head\");\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package org.eclipse.releng.tools.git;
+				import org.eclipse.jgit.lib.Repository;
+				public class GitCopyrightAdapter {
+					void foo(Repository repo) {
+						repo.resolve("Head");
+					}
+				}
+				"""
 			);
 	env.addClass(root2, "org.eclipse.releng.tools.preferences", "Messages",
-			"package org.eclipse.releng.tools.preferences;\n" +
-			"final class Messages {\n" +
-			"	{\n" +
-			"		@SuppressWarnings(\"unused\")\n" +
-			"		Object o = \"\"; // triggers the bug\n" +
-			"	}\n" +
-			"}\n"
+			"""
+				package org.eclipse.releng.tools.preferences;
+				final class Messages {
+					{
+						@SuppressWarnings("unused")
+						Object o = ""; // triggers the bug
+					}
+				}
+				"""
 			);
 
 	try {
@@ -2019,10 +2163,12 @@ public void test438923() throws JavaModelException {
 	env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
 
 	env.addClass(root1, "p1", "P1I0", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n" +
-			"public interface P1I0 {\n" +
-			"  interface II {/*empty*/}\n" +
-			"}\n"
+			"""
+				package p1;
+				public interface P1I0 {
+				  interface II {/*empty*/}
+				}
+				"""
 		);
 
 	//----------------------------
@@ -2036,11 +2182,13 @@ public void test438923() throws JavaModelException {
 	env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
 
 	env.addClass(root2, "p2", "P2C0", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n" +
-			"import p1.P1I0;\n" +
-			"public class P2C0 {\n" +
-			"  public void z(final P1I0.II [] ii) {/*empty*/}\n" +
-			"}\n"
+			"""
+				package p2;
+				import p1.P1I0;
+				public class P2C0 {
+				  public void z(final P1I0.II [] ii) {/*empty*/}
+				}
+				"""
 		);
 
 	//----------------------------
@@ -2054,10 +2202,12 @@ public void test438923() throws JavaModelException {
 	env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
 
 	env.addClass(root3, "p3", "P3C0", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p3;\n" +
-			"import p2.P2C0;\n" +
-			"public class P3C0\n" +
-			"  extends P2C0 {/*empty*/}\n"
+			"""
+				package p3;
+				import p2.P2C0;
+				public class P3C0
+				  extends P2C0 {/*empty*/}
+				"""
 		);
 
 	// for Project1
@@ -2085,9 +2235,11 @@ public void test461074() throws JavaModelException {
 	env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
 
 	env.addClass(root1, "pack.missing", "MissingType", //$NON-NLS-1$ //$NON-NLS-2$
-			"package pack.missing;\n" +
-			"public class MissingType {\n" +
-			"}\n"
+			"""
+				package pack.missing;
+				public class MissingType {
+				}
+				"""
 		);
 
 	//----------------------------
@@ -2101,18 +2253,22 @@ public void test461074() throws JavaModelException {
 	env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
 
 	env.addClass(root2, "pack.lib", "TopClass", //$NON-NLS-1$ //$NON-NLS-2$
-			"package pack.lib;\n" +
-			"public class TopClass {\n" +
-			"  Object get() { return null; }\n" +
-			"}\n"
+			"""
+				package pack.lib;
+				public class TopClass {
+				  Object get() { return null; }
+				}
+				"""
 		);
 	env.addClass(root2, "pack.lib", "SuperClass", //$NON-NLS-1$ //$NON-NLS-2$
-			"package pack.lib;\n" +
-			"import pack.missing.MissingType;\n" +
-			"public class SuperClass extends TopClass {\n" +
-			"  @Override\n" +
-			"  MissingType get() { return null; }\n" +
-			"}\n"
+			"""
+				package pack.lib;
+				import pack.missing.MissingType;
+				public class SuperClass extends TopClass {
+				  @Override
+				  MissingType get() { return null; }
+				}
+				"""
 		);
 
 	//----------------------------
@@ -2126,9 +2282,11 @@ public void test461074() throws JavaModelException {
 	env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
 
 	env.addClass(root3, "pack.test", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-			"package pack.test;\n" +
-			"import pack.lib.SuperClass;\n" +
-			"public class Test extends SuperClass {/*empty*/}\n"
+			"""
+				package pack.test;
+				import pack.lib.SuperClass;
+				public class Test extends SuperClass {/*empty*/}
+				"""
 		);
 
 	// for Project1
@@ -2156,9 +2314,11 @@ public void test461074_error() throws JavaModelException {
 	env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
 
 	env.addClass(root1, "pack.missing", "MissingType", //$NON-NLS-1$ //$NON-NLS-2$
-			"package pack.missing;\n" +
-			"public class MissingType {\n" +
-			"}\n"
+			"""
+				package pack.missing;
+				public class MissingType {
+				}
+				"""
 		);
 
 	//----------------------------
@@ -2172,18 +2332,22 @@ public void test461074_error() throws JavaModelException {
 	env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
 
 	env.addClass(root2, "pack.lib", "TopClass", //$NON-NLS-1$ //$NON-NLS-2$
-			"package pack.lib;\n" +
-			"public abstract class TopClass {\n" +
-			"  abstract Object get();\n" +
-			"}\n"
+			"""
+				package pack.lib;
+				public abstract class TopClass {
+				  abstract Object get();
+				}
+				"""
 		);
 	env.addClass(root2, "pack.lib", "SuperClass", //$NON-NLS-1$ //$NON-NLS-2$
-			"package pack.lib;\n" +
-			"import pack.missing.MissingType;\n" +
-			"public class SuperClass extends TopClass {\n" +
-			"  @Override\n" +
-			"  MissingType get() { return null; }\n" +
-			"}\n"
+			"""
+				package pack.lib;
+				import pack.missing.MissingType;
+				public class SuperClass extends TopClass {
+				  @Override
+				  MissingType get() { return null; }
+				}
+				"""
 		);
 
 	//----------------------------
@@ -2197,9 +2361,11 @@ public void test461074_error() throws JavaModelException {
 	env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
 
 	IPath test = env.addClass(root3, "pack.test", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-			"package pack.test;\n" +
-			"import pack.lib.SuperClass;\n" +
-			"public class Test extends SuperClass {/*empty*/}\n"
+			"""
+				package pack.test;
+				import pack.lib.SuperClass;
+				public class Test extends SuperClass {/*empty*/}
+				"""
 		);
 
 	// for Project1

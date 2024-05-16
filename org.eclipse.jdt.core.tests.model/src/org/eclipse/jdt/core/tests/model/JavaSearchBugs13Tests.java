@@ -137,35 +137,38 @@ public class JavaSearchBugs13Tests extends AbstractJavaSearchTests {
 		//old style switch case without preview search for yield field.
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n"+
-						" static int  yield;\n"+
-						" public static int   yield() { \n"+
-						"	  return 7; \n"+
-						" } \n"+
-						"  public static void main(String[] args) { \n"+
-						"     int week = 1;	\n"+
-						"    switch (week) { \n"+
-						"      case 1:       \n"+
-						"     	 yield = 88; \n"+
-						"    	 break; \n"+
-						"     case 2:  \n"+
-						"   	 yield = yield();\n"+
-						"   	 break; \n"+
-						"    default:  \n"+
-						"  	 yield = 88; \n"+
-						"     break; \n" +
-						" } \n" +
-						" System.out.println(yield); \n"+
-						"	}\n"+
-						"}\n"
+				"""
+					public class X {
+					 static int  yield;
+					 public static int   yield() {\s
+						  return 7;\s
+					 }\s
+					  public static void main(String[] args) {\s
+					     int week = 1;\t
+					    switch (week) {\s
+					      case 1:      \s
+					     	 yield = 88;\s
+					    	 break;\s
+					     case 2: \s
+					   	 yield = yield();
+					   	 break;\s
+					    default: \s
+					  	 yield = 88;\s
+					     break;\s
+					 }\s
+					 System.out.println(yield);\s
+						}
+					}
+					"""
 				);
 
 		try {
 			search("yield", FIELD, REFERENCES);
-			assertSearchResults("src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" +
-					"src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" +
-					"src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" +
-					"src/X.java void X.main(String[]) [yield] EXACT_MATCH");
+			assertSearchResults("""
+				src/X.java void X.main(String[]) [yield] EXACT_MATCH
+				src/X.java void X.main(String[]) [yield] EXACT_MATCH
+				src/X.java void X.main(String[]) [yield] EXACT_MATCH
+				src/X.java void X.main(String[]) [yield] EXACT_MATCH""");
 		} finally {
 		}
 	}
@@ -174,27 +177,29 @@ public class JavaSearchBugs13Tests extends AbstractJavaSearchTests {
 		//old style switch case without preview search for yield method.
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n"+
-						" static int  yield;\n"+
-						" public static int   yield() { \n"+
-						"	  return 7; \n"+
-						" } \n"+
-						"  public static void main(String[] args) { \n"+
-						"     int week = 1;	\n"+
-						"    switch (week) { \n"+
-						"      case 1:       \n"+
-						"     	 yield = 88; \n"+
-						"    	 break; \n"+
-						"     case 2:  \n"+
-						"   	 yield = yield();\n"+
-						"   	 break; \n"+
-						"    default:  \n"+
-						"  	 yield = 88; \n"+
-						"     break; \n" +
-						" } \n" +
-						" System.out.println(yield); \n"+
-						"	}\n"+
-						"}\n"
+				"""
+					public class X {
+					 static int  yield;
+					 public static int   yield() {\s
+						  return 7;\s
+					 }\s
+					  public static void main(String[] args) {\s
+					     int week = 1;\t
+					    switch (week) {\s
+					      case 1:      \s
+					     	 yield = 88;\s
+					    	 break;\s
+					     case 2: \s
+					   	 yield = yield();
+					   	 break;\s
+					    default: \s
+					  	 yield = 88;\s
+					     break;\s
+					 }\s
+					 System.out.println(yield);\s
+						}
+					}
+					"""
 				);
 
 		try {

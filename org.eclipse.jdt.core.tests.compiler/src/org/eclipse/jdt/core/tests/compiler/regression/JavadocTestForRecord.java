@@ -147,8 +147,14 @@ public class JavadocTestForRecord extends JavadocTest {
 			return;
 		}
 		this.runNegativeTest(new String[] { "X.java", "public record X() {\n" + "}\n" },
-				"----------\n" + "1. ERROR in X.java (at line 1)\n" + "	public record X() {\n" + "	              ^\n"
-						+ "Javadoc: Missing comment for public declaration\n" + "----------\n",
+				"""
+					----------
+					1. ERROR in X.java (at line 1)
+						public record X() {
+						              ^
+					Javadoc: Missing comment for public declaration
+					----------
+					""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -158,10 +164,23 @@ public class JavadocTestForRecord extends JavadocTest {
 		}
 		this.runNegativeTest(
 				new String[] { "X.java",
-						"	/**\n" + "	 * @param radius radius of X\n" + "	 */\n" + "public record X(int radius) {\n"
-								+ "	public void foo() {\n" + "	}\n" + "}\n" },
-				"----------\n" + "1. ERROR in X.java (at line 5)\n" + "	public void foo() {\n" + "	            ^^^^^\n"
-						+ "Javadoc: Missing comment for public declaration\n" + "----------\n",
+						"""
+								/**
+								 * @param radius radius of X
+								 */
+							public record X(int radius) {
+								public void foo() {
+								}
+							}
+							""" },
+				"""
+					----------
+					1. ERROR in X.java (at line 5)
+						public void foo() {
+						            ^^^^^
+					Javadoc: Missing comment for public declaration
+					----------
+					""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -170,9 +189,18 @@ public class JavadocTestForRecord extends JavadocTest {
 			return;
 		}
 		runConformTest(new String[] { "X.java",
-				"		/**  \n" + "		 *   \n" + "		 */  \n" + "public record X() {\n" + "		/**  \n"
-						+ "		 *   @param args \n" + "		 */  \n" + "  public static void main(String[] args){\n"
-						+ "     System.out.println(0);\n" + "  }\n" + "}" },
+				"""
+							/** \s
+							 *  \s
+							 */ \s
+					public record X() {
+							/** \s
+							 *   @param args\s
+							 */ \s
+					  public static void main(String[] args){
+					     System.out.println(0);
+					  }
+					}""" },
 				"0");
 	}
 
@@ -181,16 +209,19 @@ public class JavadocTestForRecord extends JavadocTest {
 			return;
 		}
 		runConformTest(new String[] { "X.java",
-				"		/**  \n" +
-				"		 * @param a\n" +
-				"		 */  \n" +
-				"		public record X(int a) {\n" +
-				"			/**  \n" +
-				"			 *   @param args \n" + "		 */  \n" +
-				"			public static void main(String[] args){\n" +
-				"				System.out.println(0);\n" +
-				"			}\n" +
-				"		}" },
+				"""
+							/** \s
+							 * @param a
+							 */ \s
+							public record X(int a) {
+								/** \s
+								 *   @param args\s
+							 */ \s
+								public static void main(String[] args){
+									System.out.println(0);
+								}
+							}\
+					""" },
 				"0");
 	}
 
@@ -199,22 +230,26 @@ public class JavadocTestForRecord extends JavadocTest {
 			return;
 		}
 		runNegativeTest(new String[] { "X.java",
-				"		/**  \n" +
-				"		 */  \n" +
-				"		public record X(int a) {\n" +
-				"			/**  \n" +
-				"			 *   @param args \n" +
-				"			 */  \n" +
-				"			public static void main(String[] args){\n" +
-				"				System.out.println(0);\n" +
-				"			}\n" +
-				"		}" },
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	public record X(int a) {\n" +
-				"	                    ^\n" +
-				"Javadoc: Missing tag for parameter a\n" +
-				"----------\n",
+				"""
+							/** \s
+							 */ \s
+							public record X(int a) {
+								/** \s
+								 *   @param args\s
+								 */ \s
+								public static void main(String[] args){
+									System.out.println(0);
+								}
+							}\
+					""" },
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						public record X(int a) {
+						                    ^
+					Javadoc: Missing tag for parameter a
+					----------
+					""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -223,24 +258,28 @@ public class JavadocTestForRecord extends JavadocTest {
 			return;
 		}
 		runNegativeTest(new String[] { "X.java",
-				"		/**  \n" +
-				"		 * @param a\n" +
-				"		 * @param a\n" +
-				"		 */  \n" +
-				"		public record X(int a) {\n" +
-				"			/**  \n" +
-				"			 *   @param args \n" +
-				"			 */  \n" +
-				"			public static void main(String[] args){\n" +
-				"				System.out.println(0);\n" +
-				"			}\n" +
-				"		}" },
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	* @param a\n" +
-				"	         ^\n" +
-				"Javadoc: Duplicate tag for parameter\n" +
-				"----------\n",
+				"""
+							/** \s
+							 * @param a
+							 * @param a
+							 */ \s
+							public record X(int a) {
+								/** \s
+								 *   @param args\s
+								 */ \s
+								public static void main(String[] args){
+									System.out.println(0);
+								}
+							}\
+					""" },
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						* @param a
+						         ^
+					Javadoc: Duplicate tag for parameter
+					----------
+					""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
@@ -249,24 +288,28 @@ public class JavadocTestForRecord extends JavadocTest {
 			return;
 		}
 		runNegativeTest(new String[] { "X.java",
-				"		/**  \n" +
-				"		 * @param a\n" +
-				"		 * @param b\n" +
-				"		 */  \n" +
-				"		public record X(int a) {\n" +
-				"			/**  \n" +
-				"			 *   @param args \n" +
-				"			 */  \n" +
-				"			public static void main(String[] args){\n" +
-				"				System.out.println(0);\n" +
-				"			}\n" +
-				"		}" },
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	* @param b\n" +
-				"	         ^\n" +
-				"Javadoc: Invalid param tag name\n" +
-				"----------\n",
+				"""
+							/** \s
+							 * @param a
+							 * @param b
+							 */ \s
+							public record X(int a) {
+								/** \s
+								 *   @param args\s
+								 */ \s
+								public static void main(String[] args){
+									System.out.println(0);
+								}
+							}\
+					""" },
+				"""
+					----------
+					1. ERROR in X.java (at line 3)
+						* @param b
+						         ^
+					Javadoc: Invalid param tag name
+					----------
+					""",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	public void test_bug572367() {
@@ -276,16 +319,19 @@ public class JavadocTestForRecord extends JavadocTest {
 
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
 		runConformTest(new String[] { "X.java",
-				"		/**  \n" +
-				"		 * @param a\n" +
-				"		 */  \n" +
-				"		public record X(int a) {\n" +
-				"			/**  \n" +
-				"			 *   @param args \n" + "		 */  \n" +
-				"			public static void main(String[] args){\n" +
-				"				System.out.println(0);\n" +
-				"			}\n" +
-				"		}" },
+				"""
+							/** \s
+							 * @param a
+							 */ \s
+							public record X(int a) {
+								/** \s
+								 *   @param args\s
+							 */ \s
+								public static void main(String[] args){
+									System.out.println(0);
+								}
+							}\
+					""" },
 				"0");
 	}
 
