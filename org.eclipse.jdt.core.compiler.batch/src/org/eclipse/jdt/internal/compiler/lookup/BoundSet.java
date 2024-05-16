@@ -1277,12 +1277,17 @@ class BoundSet {
 		ReferenceBinding[] superInterfaces = s.superInterfaces();
 		if (superInterfaces != null) {
 			for (ReferenceBinding superInterface : superInterfaces) {
-				result = superTypesWithCommonGenericType(superInterface, t);
-				if (result != null)
-					return result;
+				TypeBinding[] tmp = superTypesWithCommonGenericType(superInterface, t);
+				if (tmp != null) {
+					if (result == null // first result?
+							|| (tmp[0].isCompatibleWith(result[0]) && tmp[1].isCompatibleWith(result[1]))) // second result better than first?
+					{
+						result = tmp;
+					}
+				}
 			}
 		}
-		return null;
+		return result;
 	}
 
 	public TypeBinding getEquivalentOuterVariable(InferenceVariable variable, InferenceVariable[] outerVariables) {
