@@ -259,6 +259,22 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	@Override
+	IMethodBinding resolveConstructor(SuperConstructorInvocation expression) {
+		resolve();
+		JCTree javacElement = this.converter.domToJavac.get(expression);
+		if (javacElement instanceof JCMethodInvocation javacMethodInvocation) {
+			javacElement = javacMethodInvocation.getMethodSelect();
+		}
+		if (javacElement instanceof JCIdent ident && ident.sym instanceof MethodSymbol methodSymbol) {
+			return canonicalize(new JavacMethodBinding(ident.type.asMethodType(), methodSymbol, this));
+		}
+		if (javacElement instanceof JCFieldAccess fieldAccess && fieldAccess.sym instanceof MethodSymbol methodSymbol) {
+			return canonicalize(new JavacMethodBinding(fieldAccess.type.asMethodType(), methodSymbol, this));
+		}
+		return null;
+	}
+
+	@Override
 	IBinding resolveName(Name name) {
 		resolve();
 		JCTree tree = this.converter.domToJavac.get(name);
@@ -470,7 +486,7 @@ public class JavacBindingResolver extends BindingResolver {
 		com.sun.tools.javac.code.Symtab symtab = com.sun.tools.javac.code.Symtab.instance(this.context);
 		com.sun.tools.javac.code.Type type = switch (typeName) {
 		case "byte", "java.lang.Byte" -> symtab.byteType;
-		case "char", "java.lang.Char" -> symtab.charType;
+		case "char", "java.lang.Character" -> symtab.charType;
 		case "double", "java.lang.Double" -> symtab.doubleType;
 		case "float", "java.lang.Float" -> symtab.floatType;
 		case "int", "java.lang.Integer" -> symtab.intType;
@@ -487,7 +503,7 @@ public class JavacBindingResolver extends BindingResolver {
 		case "java.lang.Error" -> symtab.errorType;
 		case "java.lang.Class" -> symtab.classType;
 		case "java.lang.Cloneable" -> symtab.cloneableType;
-		case "java.lang.Serializable" -> symtab.serializableType;
+		case "java.io.Serializable" -> symtab.serializableType;
 		default -> null;
 		};
 		if (type == null) {
