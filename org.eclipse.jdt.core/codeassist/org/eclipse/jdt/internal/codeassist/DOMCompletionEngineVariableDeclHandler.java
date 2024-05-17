@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.codeassist.DOMCompletionEngine.Bindings;
 /**
  * This class define methods which are used for handling dom based completions for variable declarations.
  */
-public final class DOMCompletionEngineVariableDeclHandler {
+final class DOMCompletionEngineVariableDeclHandler {
 
     /**
      * Find variable names for given variable binding.
