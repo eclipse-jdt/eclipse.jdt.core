@@ -553,6 +553,12 @@ class JavacConverter {
 //				annotationTypeMemberDeclaration2.setDefault(convert(memberValue));
 //			}
 
+		} else if (res instanceof RecordDeclaration recordDecl) {
+			for (JCTree node : javacClassDecl.getMembers()) {
+				if (node instanceof JCVariableDecl vd) {
+					recordDecl.recordComponents().add(convertVariableDeclaration(vd));
+				}
+			}
 		}
 		// TODO Javadoc
 		return res;
