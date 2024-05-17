@@ -67,7 +67,7 @@ public class JavacProblemConverter {
                 diagnostic.getCode(),
                 problemId,
                 new String[0],
-                toSeverity(diagnostic),
+                toJavadocSeverity(diagnostic),
                 diagnosticPosition.getOffset(),
                 diagnosticPosition.getOffset() + diagnosticPosition.getLength(),
                 (int) diagnostic.getLineNumber(),
@@ -198,6 +198,14 @@ public class JavacProblemConverter {
 			default -> ProblemSeverities.Error;
 		};
 	}
+	
+	private static int toJavadocSeverity(Diagnostic<? extends JavaFileObject> diagnostic) {
+        return switch (diagnostic.getKind()) {
+            case ERROR, WARNING, MANDATORY_WARNING -> ProblemSeverities.Warning;
+            case NOTE -> ProblemSeverities.Info;
+            default -> ProblemSeverities.Warning;
+        };
+    }
 
 	/**
 	 * See the link below for Javac problem list:
