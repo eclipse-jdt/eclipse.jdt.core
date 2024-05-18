@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -47,7 +48,6 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -57,9 +57,7 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
-import org.eclipse.jdt.internal.codeassist.impl.Engine;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 
@@ -82,6 +80,7 @@ public class DOMCompletionEngine implements Runnable {
 	private String prefix;
 	private ASTNode toComplete;
 	private final DOMCompletionEngineVariableDeclHandler variableDeclHandler;
+	private final DOMCompletionEngineRecoveredNodeScanner recoveredNodeScanner;
 
 	static class Bindings {
 		private HashSet<IMethodBinding> methods = new HashSet<>();
@@ -140,6 +139,7 @@ public class DOMCompletionEngine implements Runnable {
 		// ...
 		this.nestedEngine = new CompletionEngine(this.nameEnvironment, this.requestor, this.modelUnit.getOptions(true), this.modelUnit.getJavaProject(), workingCopyOwner, monitor);
 		this.variableDeclHandler = new DOMCompletionEngineVariableDeclHandler();
+		this.recoveredNodeScanner = new DOMCompletionEngineRecoveredNodeScanner(modelUnit, offset);
 	}
 
 	private Collection<? extends IBinding> visibleBindings(ASTNode node) {
@@ -277,9 +277,23 @@ public class DOMCompletionEngine implements Runnable {
 						.map(name -> toProposal(binding, name)).forEach(this.requestor::accept);
 			}
 		}
-
 		ASTNode current = this.toComplete;
-		ASTNode parent = current;
+		while (current != null) {
+			scope.addAll(visibleBindings(current));
+			current = current.getParent();
+		}
+		var suitableBinding = this.recoveredNodeScanner.findClosestSuitableBinding(context, scope);
+		if (suitableBinding != null) {
+			processMembers(suitableBinding, scope);
+			scope.stream()
+					.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(),
+							binding.getName().toCharArray()))
+					.map(binding -> toProposal(binding)).forEach(this.requestor::accept);
+			this.requestor.endReporting();
+			return;
+		}
+
+		ASTNode parent = this.toComplete;
 		while (parent != null) {
 			if (parent instanceof AbstractTypeDeclaration typeDecl) {
 				processMembers(typeDecl.resolveBinding(), scope);
@@ -311,6 +325,17 @@ public class DOMCompletionEngine implements Runnable {
 			ILog.get().error(ex.getMessage(), ex);
 		}
 		this.requestor.endReporting();
+	}
+
+	private boolean processExpressionStatementMembers(ExpressionStatement es, Bindings scope) {
+		var binding = es.getExpression().resolveTypeBinding();
+		if (binding != null) {
+			processMembers(binding, scope);
+			scope.stream().filter(b -> this.pattern.matchesName(this.prefix.toCharArray(), b.getName().toCharArray()))
+					.map(this::toProposal).forEach(this.requestor::accept);
+			return true;
+		}
+		return false;
 	}
 
 	private Stream<IType> findTypes(String namePrefix, String packageName) {
@@ -369,6 +394,10 @@ public class DOMCompletionEngine implements Runnable {
 			completion += "()"; //$NON-NLS-1$
 		}
 		res.setCompletion(completion.toCharArray());
+		if (binding instanceof IMethodBinding mb) {
+			res.setParameterNames(DOMCompletionEngineMethodDeclHandler.findVariableNames(mb).stream()
+					.map(String::toCharArray).toArray(i -> new char[i][]));
+		}
 		res.setSignature(
 			binding instanceof IMethodBinding methodBinding ?
 				Signature.createMethodSignature(
@@ -377,7 +406,9 @@ public class DOMCompletionEngine implements Runnable {
 						.map(String::toCharArray)
 						.map(type -> Signature.createTypeSignature(type, true).toCharArray())
 						.toArray(char[][]::new),
-					Signature.createTypeSignature(methodBinding.getReturnType().getQualifiedName().toCharArray(), true).toCharArray()) :
+								Signature.createTypeSignature(qualifiedTypeName(methodBinding.getReturnType()), true)
+										.toCharArray())
+						:
 			binding instanceof IVariableBinding variableBinding ?
 				Signature.createTypeSignature(variableBinding.getType().getQualifiedName().toCharArray(), true).toCharArray() :
 			binding instanceof ITypeBinding typeBinding ?
@@ -415,7 +446,17 @@ public class DOMCompletionEngine implements Runnable {
 					this.toComplete.getAST().resolveWellKnownType(Object.class.getName())) +
 				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) + //no access restriction for class field
 				CompletionEngine.R_NON_INHERITED);
+		// set defaults for now to avoid error downstream
+		res.setRequiredProposals(new CompletionProposal[0]);
 		return res;
+	}
+
+	private String qualifiedTypeName(ITypeBinding typeBinding) {
+		if (typeBinding.isTypeVariable()) {
+			return typeBinding.getName();
+		} else {
+			return typeBinding.getQualifiedName();
+		}
 	}
 
 	private CompletionProposal toProposal(IType type) {
@@ -435,6 +476,8 @@ public class DOMCompletionEngine implements Runnable {
 		}
 		res.completionEngine = this.nestedEngine;
 		res.nameLookup = this.nameEnvironment.nameLookup;
+		// set defaults for now to avoid error downstream
+		res.setRequiredProposals(new CompletionProposal[0]);
 		return res;
 	}
 
@@ -444,35 +487,6 @@ public class DOMCompletionEngine implements Runnable {
 		res.setCompletion(packageName.toCharArray());
 		res.setDeclarationSignature(packageName.toCharArray());
 		configureProposal(res, completing);
-		return res;
-	}
-
-	private CompletionProposal toVariableNameProposal(String name, VariableDeclaration variable, ASTNode completing) {
-		InternalCompletionProposal res = new InternalCompletionProposal(CompletionProposal.VARIABLE_DECLARATION,
-				this.offset);
-		res.setName(name.toCharArray());
-		res.setCompletion(name.toCharArray());
-
-		if (variable instanceof SingleVariableDeclaration sv) {
-			var binding = sv.resolveBinding();
-			if (binding == null) {
-				return res;
-			}
-			if (binding.getType().getPackage() != null) {
-				res.setPackageName(binding.getType().getPackage().getName().toCharArray());
-			}
-			if (binding.getType() instanceof TypeBinding tb) {
-				res.setSignature(Engine.getSignature(tb));
-				res.setRelevance(
-						CompletionEngine.computeBaseRelevance() + CompletionEngine.computeRelevanceForResolution()
-								+ this.nestedEngine.computeRelevanceForInterestingProposal()
-								+ CompletionEngine.computeRelevanceForCaseMatching(this.prefix.toCharArray(),
-										binding.getName().toCharArray(), this.assistOptions)
-								+ computeRelevanceForExpectingType((ITypeBinding) tb)
-								+ CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE)
-								+ RelevanceConstants.R_NON_INHERITED);
-			}
-		}
 		return res;
 	}
 
