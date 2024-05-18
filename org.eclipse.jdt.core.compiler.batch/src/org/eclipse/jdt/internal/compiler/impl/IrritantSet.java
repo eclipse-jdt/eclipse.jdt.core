@@ -73,6 +73,7 @@ public class IrritantSet {
 	public static final IrritantSet UNQUALIFIED_FIELD_ACCESS = new IrritantSet(CompilerOptions.UnqualifiedFieldAccess);
 	public static final IrritantSet RESOURCE = new IrritantSet(CompilerOptions.UnclosedCloseable);
 	public static final IrritantSet UNLIKELY_ARGUMENT_TYPE = new IrritantSet(CompilerOptions.UnlikelyCollectionMethodArgumentType);
+	public static final IrritantSet DUBIOUS_REFERENCE_COMPARISON = new IrritantSet(CompilerOptions.DubiousReferenceComparison);
 	public static final IrritantSet API_LEAK = new IrritantSet(CompilerOptions.APILeak);
 	public static final IrritantSet MODULE = new IrritantSet(CompilerOptions.UnstableAutoModuleName);
 
@@ -88,7 +89,7 @@ public class IrritantSet {
 			CompilerOptions.UnlikelyEqualsArgumentType
 			| CompilerOptions.SuppressWarningsNotAnalysed
 			| CompilerOptions.AnnotatedTypeArgumentToUnannotated)
-		// group-3 warnings enabled by default
+		// group-3 infos enabled by default
 		.set(CompilerOptions.DubiousReferenceComparison)
 		;
 
@@ -199,7 +200,9 @@ public class IrritantSet {
 			.set(CompilerOptions.MissingJavadocTags);
 
 		UNLIKELY_ARGUMENT_TYPE
-			.set(CompilerOptions.UnlikelyEqualsArgumentType)
+			.set(CompilerOptions.UnlikelyEqualsArgumentType);
+
+		DUBIOUS_REFERENCE_COMPARISON
 			.set(CompilerOptions.DubiousReferenceComparison);
 	}
 	// Internal state

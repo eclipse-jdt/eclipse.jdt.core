@@ -1356,6 +1356,8 @@ public void test0036_declared_thrown_checked_exceptions() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=115814
 public void test0037() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportDubiousReferenceComparison, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1412,7 +1414,10 @@ public void test0037() {
 			"	Zork z;\n" +
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
-			"----------\n");
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
 }
 
 /**
@@ -3426,6 +3431,16 @@ public void testGH2167() {
 						Number x2 = 12345L;
 					    return x1 == x2;
 					}
+					public boolean a10() {
+						Number x1 = 12345L;
+					    java.io.Serializable x2 = 12346L;
+					    return x1 == x2;
+					}
+					public boolean a11() {
+						String[] x1 = new String[]{"a", "b"};
+					    String[] x2 = new String[]{"a", "b"};
+					    return x1 == x2;
+					}
 					private Long getId() {
 					    return 12345L;
 					}
@@ -3505,6 +3520,16 @@ public void testGH2167() {
 				return x1 == x2;
 				       ^^^^^^^^
 			Dubious operand types for '==': java.io.Serializable and java.lang.Number are references
+			----------
+			10. ERROR in A.java (at line 50)
+				return x1 == x2;
+				       ^^^^^^^^
+			Dubious operand types for '==': java.lang.Number and java.io.Serializable are references
+			----------
+			11. ERROR in A.java (at line 55)
+				return x1 == x2;
+				       ^^^^^^^^
+			Dubious operand types for '==': java.lang.String[] and java.lang.String[] are references
 			""";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();

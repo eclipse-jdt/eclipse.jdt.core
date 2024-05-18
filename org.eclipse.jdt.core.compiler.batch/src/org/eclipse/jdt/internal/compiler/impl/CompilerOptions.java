@@ -1272,7 +1272,7 @@ public class CompilerOptions {
 				if ("rawtypes".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.RAW;
 				if ("reference-comparison".equals(warningToken)) //$NON-NLS-1$
-					return IrritantSet.UNLIKELY_ARGUMENT_TYPE;
+					return IrritantSet.DUBIOUS_REFERENCE_COMPARISON;
 				if ("resource".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.RESOURCE;
 				if ("restriction".equals(warningToken)) //$NON-NLS-1$
@@ -2380,7 +2380,7 @@ public class CompilerOptions {
 		buf.append("\n\t- unlikely argument type for collection methods: ").append(getSeverityString(UnlikelyCollectionMethodArgumentType)); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument type for collection methods, strict check against expected type: ").append(this.reportUnlikelyCollectionMethodArgumentTypeStrict ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument types for equals(): ").append(getSeverityString(UnlikelyEqualsArgumentType)); //$NON-NLS-1$
-		buf.append("\n\t- dubious operand type for equal expression: ").append(getSeverityString(DubiousReferenceComparison)); //$NON-NLS-1$
+		buf.append("\n\t- dubious operand type for reference comparison: ").append(getSeverityString(DubiousReferenceComparison)); //$NON-NLS-1$
 		buf.append("\n\t- API leak: ").append(getSeverityString(APILeak)); //$NON-NLS-1$
 		buf.append("\n\t- unstable auto module name: ").append(getSeverityString(UnstableAutoModuleName)); //$NON-NLS-1$
 		buf.append("\n\t- SuppressWarnings not fully analysed: ").append(getSeverityString(SuppressWarningsNotAnalysed)); //$NON-NLS-1$

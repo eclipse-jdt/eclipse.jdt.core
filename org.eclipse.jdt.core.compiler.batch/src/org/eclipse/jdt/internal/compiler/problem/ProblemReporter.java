@@ -11647,11 +11647,11 @@ public void unlikelyArgumentType(Expression argument, MethodBinding method, Type
 			argument.sourceEnd);
 }
 
-public void dubiousComparison(EqualExpression comparison, String operator, char[] leftType, char[] rightType) {
+public void dubiousComparison(EqualExpression comparison, String operator, TypeBinding leftType, TypeBinding rightType) {
 	this.handle(
 			IProblem.DubiousReferenceComparison,
-			NoArgument,
-			new String[] {operator, new String(leftType), new String(rightType)},
+			new String[] {operator, new String(leftType.shortReadableName()), new String(rightType.shortReadableName())},
+			new String[] {operator, new String(leftType.readableName()), new String(rightType.readableName())},
 			comparison.sourceStart,
 			comparison.sourceEnd);
 }

@@ -3973,6 +3973,9 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 					CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement,
 					CompilerOptions.DISABLED);
 				return;
+			} else if (token.equals("dubiousReferenceComparison")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportDubiousReferenceComparison, severity, isEnabling);
+				return;
 			}
 			break;
 		case 'e' :
@@ -4467,9 +4470,6 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				return;
 			} else if (token.equals("unlikelyEqualsArgumentType")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUnlikelyEqualsArgumentType, severity, isEnabling);
-				return;
-			} else if (token.equals("dubiousReferenceComparison")) { //$NON-NLS-1$
-				setSeverity(CompilerOptions.OPTION_ReportDubiousReferenceComparison, severity, isEnabling);
 				return;
 			} else if (token.equals("unnecessaryElse")) {//$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUnnecessaryElse, severity, isEnabling);

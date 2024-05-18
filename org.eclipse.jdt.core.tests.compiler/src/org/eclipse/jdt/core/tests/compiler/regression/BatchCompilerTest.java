@@ -843,13 +843,15 @@ public void test012b(){
         "      boxing               autoboxing conversion\n" +
         "      charConcat         + char[] in String concat\n" +
         "      compareIdentical   + comparing identical expressions\n" +
-        "      compareWrapped     + comparing wrapped primitive expressions\n" +
         "      conditionAssign      possible accidental boolean assignment\n" +
         "      constructorName    + method with constructor name\n" +
         "      deadCode           + dead code excluding trivial if (DEBUG) check\n" +
         "      dep-ann              missing @Deprecated annotation\n" +
         "      deprecation        + deprecation outside deprecated code\n" +
         "      discouraged        + use of types matching a discouraged access rule\n" +
+        "      dubiousReferenceComparison\n" +
+        "                         + dubious reference comparison of primitive wrappers\n" +
+        "                           or strings\n" +
         "      emptyBlock           undocumented empty block\n" +
         "      enumIdentifier       ''enum'' used as identifier\n" +
         "      enumSwitch           incomplete enum switch\n" +
@@ -13523,6 +13525,57 @@ public void testGitHub1122(){
 		+ "----------\n"
 		+ "2 problems (2 errors)\n"
 		+ "",
+		true);
+}
+public void testGitHub2176WarningEnabled(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+			    public boolean isX() {
+			        Long x1 = Long.valueOf(12345L);
+			        Long x2 = Long.valueOf(67890L);
+			        return x1 == x2;
+		        }
+			}
+			"""
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\"  -warn:+dubiousReferenceComparison",
+		"",
+		"""
+		----------
+		1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)
+			return x1 == x2;
+			       ^^^^^^^^
+		Dubious operand types for '==': java.lang.Long and java.lang.Long are references
+		----------
+		1 problem (1 warning)
+		""",
+		true);
+}
+
+/**
+ * Test case for enabling the dubious reference comparison warning.
+ */
+public void testGitHub2176WarningDisabled(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+			    public boolean isX() {
+			        Long x1 = Long.valueOf(12345L);
+			        Long x2 = Long.valueOf(67890L);
+			        return x1 == x2;
+		        }
+			}
+			"""
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\" -info:-dubiousReferenceComparison",
+		"",
+		"""
+		""",
 		true);
 }
 }
