@@ -1465,7 +1465,6 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportUnlikelyCollectionMethodArgumentType, getSeverityString(UnlikelyCollectionMethodArgumentType));
 		optionsMap.put(OPTION_ReportUnlikelyCollectionMethodArgumentTypeStrict, this.reportUnlikelyCollectionMethodArgumentTypeStrict ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnlikelyEqualsArgumentType, getSeverityString(UnlikelyEqualsArgumentType));
-		optionsMap.put(OPTION_ReportDubiousReferenceComparison, getSeverityString(DubiousReferenceComparison));
 		optionsMap.put(OPTION_ReportAPILeak, getSeverityString(APILeak));
 		optionsMap.put(OPTION_ReportUnstableAutoModuleName, getSeverityString(UnstableAutoModuleName));
 		optionsMap.put(OPTION_EnablePreviews, this.enablePreviewFeatures ? ENABLED : DISABLED);
