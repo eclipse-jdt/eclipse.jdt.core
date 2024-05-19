@@ -508,17 +508,23 @@ static class JavacCompiler {
 			}
 		}
 		if (version == JavaCore.VERSION_17) {
-			if ("17-ea".equals(rawVersion)) {
-				return 0000;
-			}
-			if ("17".equals(rawVersion)) {
-				return 0000;
-			}
-			if ("17.0.1".equals(rawVersion)) {
-				return 0100;
-			}
-			if ("17.0.2".equals(rawVersion)) {
-				return 0200;
+			switch (rawVersion) {
+				case "17-ea":
+					return 0000;
+				case "17":
+					return 0000;
+				case "17.0.1":
+					return 0100;
+				case "17.0.2":
+					return 0200;
+				case "17.0.3":
+					return 0300;
+				case "17.0.4":
+					return 0400;
+				case "17.0.5":
+					return 0500;
+				case "17.0.6":
+					return 0600;
 			}
 		}
 		if (version == JavaCore.VERSION_18) {
@@ -561,6 +567,11 @@ static class JavacCompiler {
 			}
 			if ("20.0.2".equals(rawVersion)) {
 				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_21) {
+			switch (rawVersion) {
+				case "21": return 0;
 			}
 		}
 		if (version == JavaCore.VERSION_22) {
