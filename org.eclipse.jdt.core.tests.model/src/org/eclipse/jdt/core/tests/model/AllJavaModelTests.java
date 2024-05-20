@@ -225,6 +225,9 @@ private static Class[] getAllTestClasses() {
 		ExternalAnnotations18Test.class,
 		ExternalAnnotations9Test.class,
 
+		// @Owning annotations:
+		ExternalAnnotationsOwningTest.class,
+
 		// Java model changes related to Java 8
 		JavaElement8Tests.class,
 

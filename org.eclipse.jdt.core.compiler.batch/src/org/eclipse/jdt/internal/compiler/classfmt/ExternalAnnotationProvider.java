@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.SignatureWrapper;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -45,6 +46,11 @@ public class ExternalAnnotationProvider {
 
 	/** Representation of a 'nonnull' annotation, independent of the concrete annotation name used in Java sources. */
 	public static final char NONNULL = '1';
+
+	/** Representation of a 'notowning' annotation, independent of the concrete annotation name used in Java sources. */
+	public static final char NOTOWNING = '8';
+	/** Representation of an 'owning' annotation, independent of the concrete annotation name used in Java sources. */
+	public static final char OWNING = '9';
 
 	/**
 	 * Represents absence of a null annotation. Useful for removing an existing null annotation.
@@ -390,6 +396,8 @@ public class ExternalAnnotationProvider {
 		public ITypeAnnotationWalker toNextNestedType() { return this; }
 		@Override
 		public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId, boolean mayApplyArrayContentsDefaultNullness) { return NO_ANNOTATIONS; }
+		@Override
+		public long getDeclarationAnnotationsAtCursor() { return 0; }
 	}
 
 	abstract class BasicAnnotationWalker implements ITypeAnnotationWalker {
@@ -493,6 +501,7 @@ public class ExternalAnnotationProvider {
 
 		@Override
 		public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId, boolean mayApplyArrayContentsDefaultNullness) {
+			// FIXME: include owning if position is receiver argument
 			if (this.pos != -1 && this.pos < this.source.length-2) {
 				switch (this.source[this.pos]) {
 					case 'T':
@@ -510,6 +519,24 @@ public class ExternalAnnotationProvider {
 				}
 			}
 			return NO_ANNOTATIONS;
+		}
+
+		@Override
+		public long getDeclarationAnnotationsAtCursor() {
+			if (this.pos != -1 && this.pos < this.source.length-2) {
+				switch (this.source[this.pos]) {
+					// only at toplevel of a type as these are not real type annotations:
+					case 'T':
+					case 'L':
+						switch (this.source[this.pos+1]) {
+							case OWNING:
+								return TagBits.AnnotationOwning;
+							case NOTOWNING:
+								return TagBits.AnnotationNotOwning;
+						}
+				}
+			}
+			return 0;
 		}
 		int skipNullAnnotation(int cur) {
 			if (cur >= this.source.length)

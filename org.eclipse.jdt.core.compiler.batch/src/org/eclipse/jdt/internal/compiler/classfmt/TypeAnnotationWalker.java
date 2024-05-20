@@ -273,4 +273,9 @@ public class TypeAnnotationWalker implements ITypeAnnotationWalker {
 			System.arraycopy(filtered, 0, filtered = new IBinaryAnnotation[count], 0, count);
 		return filtered;
 	}
+
+	@Override
+	public long getDeclarationAnnotationsAtCursor() {
+		return 0;
+	}
 }
