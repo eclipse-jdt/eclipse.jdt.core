@@ -33,6 +33,7 @@ import com.sun.source.util.JavacTask;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
+import com.sun.tools.javac.code.Symbol.ModuleSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
@@ -214,6 +215,8 @@ public class JavacBindingResolver extends BindingResolver {
 	public IBinding getBinding(final Symbol owner, final com.sun.tools.javac.code.Type type) {
 		if (owner instanceof final PackageSymbol other) {
 			return canonicalize(new JavacPackageBinding(other, this));
+		} else if (owner instanceof ModuleSymbol typeSymbol) {
+			return canonicalize(new JavacModuleBinding(typeSymbol, this));
 		} else if (owner instanceof TypeSymbol typeSymbol) {
 			return canonicalize(new JavacTypeBinding(typeSymbol.type, this));
 		} else if (owner instanceof final MethodSymbol other) {
@@ -497,9 +500,10 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	public <T extends IBinding> T canonicalize(T binding) {
-		T cachedBinding = (T) this.bindingCache.get(binding.getKey());
+		String k = binding.getKey();
+		T cachedBinding = (T) this.bindingCache.get(k);
 		if (cachedBinding == null) {
-			this.bindingCache.put(binding.getKey(), binding);
+			this.bindingCache.put(k, binding);
 			return binding;
 		}
 		return cachedBinding;

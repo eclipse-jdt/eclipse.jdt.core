@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac.dom;
 
+import java.util.List;
 import java.util.Objects;
 
 import javax.lang.model.element.ModuleElement.DirectiveKind;
@@ -22,6 +23,7 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 
+import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Directive.ExportsDirective;
 import com.sun.tools.javac.code.Directive.OpensDirective;
 import com.sun.tools.javac.code.Directive.ProvidesDirective;
@@ -33,7 +35,6 @@ import com.sun.tools.javac.code.Symbol.ModuleSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ModuleType;
-
 public class JavacModuleBinding implements IModuleBinding {
 
 	private static final ITypeBinding[] NO_TYPE_ARGUMENTS = new ITypeBinding[0];
@@ -58,7 +59,8 @@ public class JavacModuleBinding implements IModuleBinding {
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		// TODO - don't see any way to get this?
-		return null; //new IAnnotationBinding[0];
+		List<Attribute.Compound> list = moduleSymbol.getRawAttributes();
+		return list.stream().map((x) -> new JavacAnnotationBinding(x, this.resolver, this)).toArray(JavacAnnotationBinding[]::new);
 	}
 
 	@Override
@@ -94,8 +96,7 @@ public class JavacModuleBinding implements IModuleBinding {
 
 	@Override
 	public String getKey() {
-		// TODO Auto-generated method stub
-		return null;
+		return "\"" + this.getName();
 	}
 
 	@Override
