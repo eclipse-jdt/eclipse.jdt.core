@@ -142,7 +142,7 @@ public class JavacBindingResolver extends BindingResolver {
 		// TODO fields, methods, variables...
 		return Optional.empty();
 	}
-
+	
 	@Override
 	ITypeBinding resolveType(Type type) {
 		resolve();
@@ -174,6 +174,27 @@ public class JavacBindingResolver extends BindingResolver {
 		return super.resolveType(type);
 	}
 
+	@Override
+	ITypeBinding resolveType(AnnotationTypeDeclaration type) {
+		resolve();
+		JCTree javacNode = this.converter.domToJavac.get(type);
+		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
+			return canonicalize(new JavacTypeBinding(jcClassDecl.type, this));
+		}
+		return null;
+	}
+
+	@Override
+	ITypeBinding resolveType(RecordDeclaration type) {
+		resolve();
+		JCTree javacNode = this.converter.domToJavac.get(type);
+		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
+			return canonicalize(new JavacTypeBinding(jcClassDecl.type, this));
+		}
+		return null;
+	}
+
+	
 	@Override
 	ITypeBinding resolveType(TypeDeclaration type) {
 		resolve();
