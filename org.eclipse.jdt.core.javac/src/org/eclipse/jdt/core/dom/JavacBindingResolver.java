@@ -32,9 +32,12 @@ import org.eclipse.jdt.internal.javac.dom.JavacVariableBinding;
 import com.sun.source.util.JavacTask;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type.PackageType;
+import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.ModuleSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
+import com.sun.tools.javac.code.Symbol.ModuleSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.ModuleType;
@@ -148,6 +151,9 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree jcTree = this.converter.domToJavac.get(type);
 		if (jcTree instanceof JCIdent ident && ident.type != null) {
+			if (ident.type instanceof PackageType) {
+				return null;
+			}
 			return canonicalize(new JavacTypeBinding(ident.type, this));
 		}
 		if (jcTree instanceof JCFieldAccess access && access.type != null) {
@@ -374,9 +380,13 @@ public class JavacBindingResolver extends BindingResolver {
 				return null;
 			}
 		}
-		return this.converter.domToJavac.get(expr) instanceof JCExpression jcExpr ?
-				canonicalize(new JavacTypeBinding(jcExpr.type, this)) :
-			null;
+		if (this.converter.domToJavac.get(expr) instanceof JCExpression jcExpr) {
+			if (jcExpr.type instanceof PackageType) {
+				return null;
+			}
+			return canonicalize(new JavacTypeBinding(jcExpr.type, this));
+		}
+		return null;
 	}
 
 	@Override

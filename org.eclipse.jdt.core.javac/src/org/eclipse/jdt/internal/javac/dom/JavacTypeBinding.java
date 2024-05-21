@@ -44,6 +44,7 @@ import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.TypeVar;
@@ -65,6 +66,9 @@ public class JavacTypeBinding implements ITypeBinding {
 	}
 
 	private JavacTypeBinding(final Type type, final TypeSymbol typeSymbol, JavacBindingResolver resolver) {
+		if (type instanceof PackageType) {
+			throw new IllegalArgumentException("Use JavacPackageBinding");
+		}
 		this.type = type;
 		this.typeSymbol = typeSymbol;
 		this.resolver = resolver;
@@ -193,6 +197,10 @@ public class JavacTypeBinding implements ITypeBinding {
 			case TypeKind.VOID: builder.append('V'); return;
 			default: // fall through to unsupported operation exception
 			}
+		}
+		if (typeToBuild.isNullOrReference()) {
+			// should be null, since we've handled references
+			return;
 		}
 		throw new UnsupportedOperationException("Unimplemented method 'getKey'");
 	}
@@ -415,6 +423,9 @@ public class JavacTypeBinding implements ITypeBinding {
 	public String getQualifiedName() {
 		if (this.typeSymbol.owner instanceof MethodSymbol) {
 			return "";
+		}
+		if (this.type instanceof NullType) {
+			return "null";
 		}
 		return this.typeSymbol.getQualifiedName().toString();
 	}
