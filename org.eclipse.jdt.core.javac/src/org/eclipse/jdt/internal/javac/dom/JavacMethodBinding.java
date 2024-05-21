@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -127,6 +128,7 @@ public class JavacMethodBinding implements IMethodBinding {
 	public IJavaElement getJavaElement() {
 		IJavaElement parent = this.resolver.getBinding(this.methodSymbol.owner, this.methodType).getJavaElement();
 		if (parent instanceof IType type) {
+			// prefer DOM object (for type parameters)
 			MethodDeclaration methodDeclaration = (MethodDeclaration)this.resolver.findDeclaringNode(this);
 			if (methodDeclaration != null) {
 				String[] params = ((List<SingleVariableDeclaration>)methodDeclaration.parameters()).stream() //
@@ -134,6 +136,13 @@ public class JavacMethodBinding implements IMethodBinding {
 						.toArray(String[]::new);
 				return type.getMethod(this.methodSymbol.getSimpleName().toString(), params);
 			}
+			// fail back to symbol args (type params erased)
+			return type.getMethod(this.methodSymbol.getSimpleName().toString(),
+					this.methodSymbol.params().stream()
+							.map(varSymbol -> varSymbol.type)
+							.map(t -> t.tsym.name.toString())
+							.map(t -> Signature.createTypeSignature(t, false))
+							.toArray(String[]::new));
 		}
 		return null;
 	}
