@@ -2490,7 +2490,7 @@ class JavacConverter {
 		Modifier res = modifierToDom(javac);
 		if (startPos >= 0) {
 			// This needs work... It's not a great solution.
-			if( endPos >= startPos && endPos >= 0 && endPos < this.rawText.length()) {
+			if( endPos >= startPos && endPos >= 0 && endPos <= this.rawText.length()) {
 				String sub = this.rawText.substring(startPos, endPos);
 				int indOf = sub.indexOf(res.getKeyword().toString());
 				if( indOf != -1 ) {
