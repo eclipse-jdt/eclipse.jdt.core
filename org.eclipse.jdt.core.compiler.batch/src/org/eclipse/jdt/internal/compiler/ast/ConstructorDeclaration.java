@@ -459,7 +459,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 				codeStream.stmtInPreConContext = statement.inPreConstructorContext;
 				statement.generateCode(this.scope, codeStream);
 				codeStream.stmtInPreConContext = false;
-				if (!this.compilationResult.hasErrors() && codeStream.stackDepth != 0) {
+				if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
 					this.scope.problemReporter().operandStackSizeInappropriate(this);
 				}
 			}

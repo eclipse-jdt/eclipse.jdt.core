@@ -222,6 +222,7 @@ public class CompilerOptions {
 
 	public static final String OPTION_UseStringConcatFactory = "org.eclipse.jdt.core.compiler.codegen.useStringConcatFactory"; //$NON-NLS-1$
 
+	public static final String OPTION_validateOperandStack = "org.eclipse.jdt.core.compiler.codegen.validateOperandStack"; //$NON-NLS-1$
 	/**
 	 * Possible values for configurable options
 	 */
@@ -584,6 +585,9 @@ public class CompilerOptions {
 
 	/** Should the compiler use the StringConcatFactory for String concatenation expressions in the produced binary */
 	public boolean useStringConcatFactory;
+
+	/** Should the compiler validate VM's (simulated) operand stack during code generation? */
+	public boolean validateOperandStack;
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
@@ -1462,6 +1466,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportSuppressWarningNotFullyAnalysed, getSeverityString(SuppressWarningsNotAnalysed));
 		optionsMap.put(OPTION_IgnoreUnnamedModuleForSplitPackage, this.ignoreUnnamedModuleForSplitPackage ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_UseStringConcatFactory, this.useStringConcatFactory ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_validateOperandStack, this.validateOperandStack ? ENABLED : DISABLED);
 		return optionsMap;
 	}
 
@@ -1668,6 +1673,7 @@ public class CompilerOptions {
 		this.enableJdtDebugCompileMode = false;
 		this.ignoreUnnamedModuleForSplitPackage = false;
 		this.useStringConcatFactory = true;
+		this.validateOperandStack = true;
 	}
 
 	public void set(Map<String, String> optionsMap) {
@@ -2231,6 +2237,14 @@ public class CompilerOptions {
 				this.useStringConcatFactory = false;
 			}
 		}
+
+		if ((optionValue = optionsMap.get(OPTION_validateOperandStack)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.validateOperandStack = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.validateOperandStack = false;
+			}
+		}
 	}
 
 	private String[] stringToNameList(String optionValue) {
@@ -2373,6 +2387,7 @@ public class CompilerOptions {
 		buf.append("\n\t- SuppressWarnings not fully analysed: ").append(getSeverityString(SuppressWarningsNotAnalysed)); //$NON-NLS-1$
 		buf.append("\n\t- ignore package from unnamed module: ").append(this.ignoreUnnamedModuleForSplitPackage ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- use StringConcatFactory for String concatenation expressions: ").append(this.useStringConcatFactory ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- validate virtual machine's operand stack during code generation: ").append(this.validateOperandStack ? ENABLED : DISABLED); //$NON-NLS-1$
 		return buf.toString();
 	}
 
