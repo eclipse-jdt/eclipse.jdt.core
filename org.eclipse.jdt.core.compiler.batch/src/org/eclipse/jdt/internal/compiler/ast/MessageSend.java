@@ -97,6 +97,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
@@ -807,25 +808,14 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (this.constant != Constant.NotAConstant) {
 		this.constant = Constant.NotAConstant;
 		long sourceLevel = scope.compilerOptions().sourceLevel;
-		boolean receiverCast = false;
 		if (this.receiver instanceof CastExpression) {
 			this.receiver.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
-			receiverCast = true;
 		}
 		this.actualReceiverType = this.receiver.resolveType(scope);
 		if (this.actualReceiverType instanceof InferenceVariable) {
 				return null; // not yet ready for resolving
 		}
 		this.receiverIsType = this.receiver.isType();
-		if (receiverCast && this.actualReceiverType != null) {
-			// due to change of declaring class with receiver type, only identity cast should be notified
-			TypeBinding resolvedType2 = ((CastExpression)this.receiver).expression.resolvedType;
-			if (TypeBinding.equalsEquals(resolvedType2, this.actualReceiverType)) {
-				if (!scope.environment().usesNullTypeAnnotations() || !NullAnnotationMatching.analyse(this.actualReceiverType, resolvedType2, -1).isAnyMismatch()) {
-					scope.problemReporter().unnecessaryCast((CastExpression) this.receiver);
-				}
-			}
-		}
 		// resolve type arguments (for generic constructor call)
 		if (this.typeArguments != null) {
 			int length = this.typeArguments.length;
@@ -977,6 +967,12 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 
+	if (this.receiver instanceof CastExpression castedRecevier) {
+		// this check was suppressed while resolving receiver, check now based on the resolved method
+		if (isUnnecessaryReceiverCast(scope, castedRecevier.expression.resolvedType))
+			scope.problemReporter().unnecessaryCast(castedRecevier);
+	}
+
 	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
 		ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(this.binding, scope);
 		if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
@@ -1094,6 +1090,26 @@ public TypeBinding resolveType(BlockScope scope) {
 	return (this.resolvedType.tagBits & TagBits.HasMissingType) == 0
 				? this.resolvedType
 				: null;
+}
+
+protected boolean isUnnecessaryReceiverCast(BlockScope scope, TypeBinding uncastedReceiverType) {
+	if (uncastedReceiverType == null || !uncastedReceiverType.isCompatibleWith(this.binding.declaringClass)) {
+		return false;
+	}
+	if (uncastedReceiverType.isRawType() && this.binding.declaringClass.isParameterizedType()) {
+		return false;
+	}
+	MethodBinding otherMethod = scope.getMethod(uncastedReceiverType, this.selector, this.argumentTypes, this);
+	if (!otherMethod.isValidBinding()) {
+		return false;
+	}
+	if (scope.environment().usesNullTypeAnnotations()
+			&& NullAnnotationMatching.analyse(this.actualReceiverType, uncastedReceiverType, -1).isAnyMismatch()) {
+		return false;
+	}
+	return otherMethod == this.binding
+			|| MethodVerifier.doesMethodOverride(this.binding, otherMethod, scope.environment())
+			|| MethodVerifier.doesMethodOverride(otherMethod, this.binding, scope.environment());
 }
 
 protected TypeBinding handleNullnessCodePatterns(BlockScope scope, TypeBinding returnType) {
