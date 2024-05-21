@@ -3076,7 +3076,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	void test(E<Integer,Integer> e) { e.id(Integer.valueOf(111)); }\n" +
 				"	void test(M<Integer,Integer> m) {\n" +
 				"		m.id(Integer.valueOf(111));\n" +
-				"		((E<Integer, Integer>) m).id(Integer.valueOf(111));\n" +
+				"		((E<Integer, Integer>) m).id(Integer.valueOf(111));\n" + // cast needed for disambiguation
 				"	}\n" +
 				"	void test(N<Integer> n) { n.id(Integer.valueOf(111)); }\n" +
 				"}\n" +

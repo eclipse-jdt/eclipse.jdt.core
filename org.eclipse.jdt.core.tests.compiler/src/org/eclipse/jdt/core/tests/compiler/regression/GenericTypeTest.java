@@ -22763,19 +22763,7 @@ public void test0705() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
 public void test0706() {
-	String outputExpectedBelow17 = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-			"----------\n" +
-			"1. WARNING in X.java (at line 9)\n" +
-			"	class BB extends AA<CC> { <U> BB test() {return null;} }\n" +
-			"	                                 ^^^^^^\n" +
-			"Name clash: The method test() of type BB has the same erasure as test() of type AA<T> but does not override it\n" +
-			"----------\n":
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	class BB extends AA<CC> { <U> BB test() {return null;} }\n" +
-				"	                                 ^^^^^^\n" +
-				"Name clash: The method test() of type BB has the same erasure as test() of type AA<T> but does not override it\n" +
-				"----------\n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22783,16 +22771,14 @@ public void test0706() {
 			"	void foo() {\n" +
 			"		BB bb = new BB();\n" +
 			"		bb.<Object>test();\n" +
-			"		((AA<CC>) bb).test();\n" +
+			"		((AA<CC>) bb).test();\n" + // cast relevant for disambiguation
 			"	}\n" +
 			"}\n" +
 			"class AA<T> { AA<Object> test() {return null;} }\n" +
 			"class BB extends AA<CC> { <U> BB test() {return null;} }\n" +
 			"class CC {}\n",
 		},
-		(this.complianceLevel < ClassFileConstants.JDK1_7)
-		? outputExpectedBelow17
-		: "----------\n" +
+		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
 		"	bb.<Object>test();\n" +
 		"	           ^^^^\n" +
@@ -29732,7 +29718,10 @@ public void test0899() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97693
 public void test0900() {
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.IGNORE);
+	runner.testFiles =
 		new String[] {
 			"X.java", // =================
 			"public class X<R> {\n" +
@@ -29753,7 +29742,8 @@ public void test0900() {
 			"		Zork z;\n" +
 			"	}\n" +
 			"}\n",
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" +
 		"1. WARNING in X.java (at line 11)\n" +
 		"	((Comparable<R>) new Implements()).toString();\n" +
@@ -29769,7 +29759,8 @@ public void test0900() {
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"----------\n";
+	runner.runNegativeTest();
 }
 // Object array vs Object into generic method
 public void test0901() {
