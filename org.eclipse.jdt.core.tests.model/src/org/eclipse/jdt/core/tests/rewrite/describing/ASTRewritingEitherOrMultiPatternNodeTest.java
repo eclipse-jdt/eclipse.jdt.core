@@ -21,14 +21,11 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.GuardedPattern;
-import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.TypePattern;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
@@ -65,7 +62,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 					  public static void main(String[] args) {
 					    Object notification = "Email notification";
 					    switch (notification) {
-					    	case PushNotification _, EmailNotification _, SMSNotification(String _) : System.out.println("Eclipse");
+					    	case PushNotification _, EmailNotification _, SMSNotification(String _) when notification instanceof Object : System.out.println("Eclipse");
 					    	default : System.out.println("Unknown notification type");
 					    }
 					  }
@@ -112,7 +109,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 					  public static void main(String[] args) {
 					    Object notification = "Email notification";
 					    switch (notification) {
-					    	case PushNotification _, EmailNotification _, SMSNotification(String _) -> System.out.println("Eclipse");
+					    	case PushNotification _, EmailNotification _, SMSNotification(String _) when notification instanceof Object -> System.out.println("Eclipse");
 					    	default -> System.out.println("Unknown notification type");
 					    }
 					  }
@@ -135,23 +132,46 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 
 		{
 			SwitchStatement switchStatement = (SwitchStatement) blockStatements.get(1);
-			List statements= switchStatement.statements();
+			List<?> statements= switchStatement.statements();
 			assertTrue("Number of statements not 4", statements.size() == 4);
 
 			SwitchCase caseStatement= (SwitchCase)statements.get(0);
-			GuardedPattern guardedPattern = ast.newGuardedPattern();
-			TypePattern typePattern = ast.newTypePattern();
-			SingleVariableDeclaration patternVariable = ast.newSingleVariableDeclaration();
-			patternVariable.setType(ast.newSimpleType(ast.newSimpleName("Integer")));
-			patternVariable.setName(ast.newSimpleName("i"));
-			typePattern.setPatternVariable(patternVariable);
-			guardedPattern.setPattern(typePattern);
-			InfixExpression infixExpression = ast.newInfixExpression();
-			infixExpression.setOperator(InfixExpression.Operator.GREATER);
-			infixExpression.setLeftOperand(ast.newSimpleName("i"));
-			infixExpression.setRightOperand(ast.newNumberLiteral("10"));//$NON-NLS
-			guardedPattern.setExpression(infixExpression);
+			List<?> firstCaseExpression = caseStatement.expressions();
+			GuardedPattern guardedPattern = (GuardedPattern) firstCaseExpression.get(0);
+//			InfixExpression infixExpression = ast.newInfixExpression();
+//			guardedPattern.setExpression(infixExpression);
+			guardedPattern.setExpression(null);
 			rewrite.replace((ASTNode) caseStatement.expressions().get(0),guardedPattern, null);
+//			Expression instanceOfExpression = guardedPattern.getExpression();
+//			instanceOfExpression.r
+			System.out.println("sasi");
+			//EitherOrMultiPattern node = (EitherOrMultiPattern) switchCase.getExpression();
 		}
+
+		String newlyCreatedAST = """
+					public class X {
+					  public static void main(String[] args) {
+					    Object notification = "Email notification";
+					    switch (notification) {
+					    	case PushNotification _, EmailNotification _, SMSNotification(String _) when true -> System.out.println("Eclipse");
+					    	default -> System.out.println("Unknown notification type");
+					    }
+					  }
+					}
+					class PushNotification {
+					  String pMessage;
+					  public PushNotification(String message) {
+					    this.pMessage = message;
+					  }
+					}
+					class EmailNotification {
+						String eMessage;
+						public EmailNotification(String eMessage) {
+							this.eMessage = eMessage;
+						}
+					}
+					record SMSNotification(Object smsMessage) {}
+				""";
+		assertEqualString(preview, newlyCreatedAST);
 	}
 }
