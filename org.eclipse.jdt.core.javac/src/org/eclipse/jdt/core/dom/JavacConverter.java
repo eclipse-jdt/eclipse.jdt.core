@@ -1741,7 +1741,7 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCTry tryStatement) {
-			return convertTryStatement(tryStatement);
+			return convertTryStatement(tryStatement, parent);
 		}
 		if (javac instanceof JCSynchronized jcSynchronized) {
 			SynchronizedStatement res = this.ast.newSynchronizedStatement();
@@ -2009,7 +2009,7 @@ class JavacConverter {
 		return res;
 	}
 
-	private TryStatement convertTryStatement(JCTry javac) {
+	private TryStatement convertTryStatement(JCTry javac, ASTNode parent) {
 		TryStatement res = this.ast.newTryStatement();
 		commonSettings(res, javac);
 		res.setBody(convertBlock(javac.getBlock()));
@@ -2018,15 +2018,19 @@ class JavacConverter {
 		}
 
 		if( this.ast.apiLevel >= AST.JLS4_INTERNAL) {
-			javac.getResources().stream().map(this::convertTryResource)
-				.filter(Objects::nonNull)
-				.forEach(res.resources()::add);
+			Iterator<JCTree> it = javac.getResources().iterator();
+			while(it.hasNext()) {
+				ASTNode working = convertTryResource(it.next(), parent);
+				if( working != null ) {
+					res.resources().add(working);
+				}
+			}
 		}
 		javac.getCatches().stream().map(this::convertCatcher).forEach(res.catchClauses()::add);
 		return res;
 	}
 
-	private ASTNode /*VariableDeclarationExpression or Name*/ convertTryResource(JCTree javac) {
+	private ASTNode /*VariableDeclarationExpression or Name*/ convertTryResource(JCTree javac, ASTNode parent) {
 		if (javac instanceof JCFieldAccess || javac instanceof JCIdent) {
 			return toName(javac);
 		}
@@ -2056,8 +2060,16 @@ class JavacConverter {
 				fragment = this.ast.newVariableDeclarationFragment();
 			}
 			VariableDeclarationExpression res = this.ast.newVariableDeclarationExpression(fragment);
-			res.setType(convertToType(decl.getType()));
 			commonSettings(res, javac);
+			res.setType(convertToType(decl.getType()));
+			if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
+				res.modifiers().addAll(convert(decl.getModifiers(), res));
+			} else {
+				JCModifiers mods = decl.getModifiers();
+				int[] total = new int[] {0};
+				mods.getFlags().forEach(x -> {total[0] += modifierToFlagVal(x);});
+				res.internalSetModifiers(total[0]);
+			}
 			return res;
 		}
 		if (javac instanceof JCErroneous error && error.getErrorTrees().isEmpty()) {
@@ -2478,10 +2490,12 @@ class JavacConverter {
 		Modifier res = modifierToDom(javac);
 		if (startPos >= 0) {
 			// This needs work... It's not a great solution.
-			String sub = this.rawText.substring(startPos, endPos);
-			int indOf = sub.indexOf(res.getKeyword().toString());
-			if( indOf != -1 ) {
-				res.setSourceRange(startPos+indOf, res.getKeyword().toString().length());
+			if( endPos >= startPos && endPos >= 0 && endPos < this.rawText.length()) {
+				String sub = this.rawText.substring(startPos, endPos);
+				int indOf = sub.indexOf(res.getKeyword().toString());
+				if( indOf != -1 ) {
+					res.setSourceRange(startPos+indOf, res.getKeyword().toString().length());
+				}
 			}
 		}
 		return res;
