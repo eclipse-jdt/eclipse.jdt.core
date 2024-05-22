@@ -24,18 +24,18 @@ import org.eclipse.core.runtime.Path;
 
 public class FileIndexLocation extends IndexLocation {
 	final File indexFile;
-	final String canonicalPath;
+	final Path indexPath;
 
 	public FileIndexLocation(File file) {
 		super(file);
 		this.indexFile = file;
-		this.canonicalPath = computeCanonicalFilePath(file);
+		this.indexPath = computeIndexPath(file);
 	}
 
 	public FileIndexLocation(URL url, File file) {
 		super(url);
 		this.indexFile = file;
-		this.canonicalPath = computeCanonicalFilePath(file);
+		this.indexPath = computeIndexPath(file);
 	}
 
 	public FileIndexLocation(File file, boolean participantIndex) {
@@ -84,18 +84,13 @@ public class FileIndexLocation extends IndexLocation {
 		return new FileInputStream(this.indexFile);
 	}
 
-	private static String computeCanonicalFilePath(File indexFile) {
-		try {
-			return indexFile.getCanonicalPath();
-		} catch (IOException e) {
-			// ignore
-		}
-		return null;
+	private static Path computeIndexPath(File indexFile) {
+		return new Path(indexFile.toString());
 	}
 
 	@Override
-	public String getCanonicalFilePath() {
-		return this.canonicalPath;
+	public Path getIndexPath() {
+		return this.indexPath;
 	}
 
 	@Override
@@ -115,10 +110,10 @@ public class FileIndexLocation extends IndexLocation {
 
 	@Override
 	public boolean startsWith(IPath path) {
-		if (this.canonicalPath==null) {
+		if (this.indexPath==null) {
 			return false;
 		}
-		return path.isPrefixOf(new Path(this.canonicalPath));
+		return path.isPrefixOf(this.indexPath);
 	}
 
 }

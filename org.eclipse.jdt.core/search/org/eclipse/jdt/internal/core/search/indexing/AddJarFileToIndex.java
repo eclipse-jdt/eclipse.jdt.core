@@ -161,7 +161,6 @@ class AddJarFileToIndex extends BinaryContainer {
 					// external file -> it is ok to use toFile()
 					zip = new ZipFile(this.containerPath.toFile());
 					zipFilePath = (Path) this.containerPath;
-					// path is already canonical since coming from a library classpath entry
 				}
 
 				if (this.isCancelled) {
@@ -227,7 +226,7 @@ class AddJarFileToIndex extends BinaryContainer {
 				IPath indexPath = null;
 				IndexLocation indexLocation;
 				if ((indexLocation = index.getIndexLocation()) != null) {
-					indexPath = new Path(indexLocation.getCanonicalFilePath());
+					indexPath = indexLocation.getIndexPath();
 				}
 				boolean hasModuleInfoClass = false;
 				for (Enumeration<? extends ZipEntry> e = zip.entries(); e.hasMoreElements();) {

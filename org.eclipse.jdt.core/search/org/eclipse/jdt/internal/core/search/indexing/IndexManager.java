@@ -441,7 +441,6 @@ public synchronized Index getIndex(IPath containerPath, boolean reuseExistingFil
  * Warning: Does not check whether index is consistent (not being used)
  */
 public synchronized Index getIndex(IPath containerPath, IndexLocation indexLocation, boolean reuseExistingFile, boolean createIfMissing) {
-	// Path is already canonical per construction
 	Index index = getIndex(indexLocation);
 	if (index == null) {
 		Object state = getIndexStates().get(indexLocation);
@@ -894,7 +893,6 @@ public synchronized Index recreateIndex(IPath containerPath) {
 	// only called to over write an existing cached index...
 	String containerPathString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 	try {
-		// Path is already canonical
 		IndexLocation indexLocation = computeIndexLocation(containerPath);
 		Index index = getIndex(indexLocation);
 		ReadWriteMonitor monitor = index == null ? null : index.monitor;
@@ -1098,7 +1096,6 @@ public synchronized boolean resetIndex(IPath containerPath) {
 	// only called to over write an existing cached index...
 	String containerPathString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 	try {
-		// Path is already canonical
 		IndexLocation indexLocation = computeIndexLocation(containerPath);
 		Index index = getIndex(indexLocation);
 		if (VERBOSE) {
@@ -1275,7 +1272,7 @@ public void scheduleDocumentIndexing(final SearchDocument searchDocument, IPath 
 			if (index == null) return true;
 			ReadWriteMonitor monitor = index.monitor;
 			if (monitor == null) return true; // index got deleted since acquired
-			final Path indexPath = new Path(indexLocation.getCanonicalFilePath());
+			final Path indexPath = indexLocation.getIndexPath();
 			try {
 				monitor.enterWrite(); // ask permission to write
 				indexDocument(searchDocument, searchParticipant, index, indexPath);
