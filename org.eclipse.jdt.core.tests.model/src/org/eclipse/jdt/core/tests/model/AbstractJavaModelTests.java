@@ -3500,8 +3500,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		} else {
 			if (compliance.equals("22")) {
 				// Reuse the same 17 stuff as of now. No real need for a new one
-				newJclLibString = "JCL_21_LIB";
-				newJclSrcString = "JCL_21_SRC";
+				newJclLibString = "JCL_22_LIB";
+				newJclSrcString = "JCL_22_SRC";
 			} else			if (compliance.equals("21")) {
 				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL_21_LIB";
@@ -3720,10 +3720,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		} else if ("22".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL_22_LIB") == null) {
-				setupExternalJCL("jclMin21");
+				setupExternalJCL("jclMin22");
 				JavaCore.setClasspathVariables(
-					new String[] {"JCL_21_LIB", "JCL_21_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath("21"), getExternalJCLSourcePath("21"), getExternalJCLRootSourcePath()},
+					new String[] {"JCL_22_LIB", "JCL_22_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("22"), getExternalJCLSourcePath("22"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {

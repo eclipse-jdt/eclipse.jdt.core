@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
@@ -307,7 +306,16 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 						new IPath[] {getConverterJCLPath("21"), getConverterJCLSourcePath("21"), getConverterJCLRootSourcePath()},
 						null);
 			}
-		} else if (JavaCore.getClasspathVariable("CONVERTER_JCL_LIB") == null) {
+		}  else if ("22".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("CONVERTER_JCL_22_LIB") == null) {
+				setupExternalJCL("converterJclMin22");
+				JavaCore.setClasspathVariables(
+						new String[] {"CONVERTER_JCL_22_LIB", "CONVERTER_JCL_22_SRC", "CONVERTER_JCL_22_SRCROOT"},
+						new IPath[] {getConverterJCLPath("22"), getConverterJCLSourcePath("22"), getConverterJCLRootSourcePath()},
+						null);
+			}
+		}
+		else if (JavaCore.getClasspathVariable("CONVERTER_JCL_LIB") == null) {
 			setupExternalJCL("converterJclMin");
 			JavaCore.setClasspathVariables(
 				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"},
