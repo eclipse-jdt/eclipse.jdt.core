@@ -8029,5 +8029,37 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"With 42 & 42 = 42");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2476
+	// [Switch expressions] java.lang.VerifyError: Bad type on operand stack
+	public void testIssue2476() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						boolean b = args != null;
+						foo(X[].class, b ? switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						} : 10);
+					}
+
+					static void foo(Class<?> c, int v) {
+						System.out.println(c);
+						System.out.println(v);
+					}
+				}
+				"""
+				},
+				"class [LX;\n42");
+	}
 
 }

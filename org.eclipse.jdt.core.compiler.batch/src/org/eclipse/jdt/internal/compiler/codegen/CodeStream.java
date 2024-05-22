@@ -2004,7 +2004,6 @@ public void generateClassLiteralAccessForType(Scope scope, TypeBinding accessedT
 		goto_(endLabel);
 
 		int savedStackDepth = this.stackDepth;
-		int switchSaveTypeBindingsStackSize = this.operandStack.size();
 
 		// Generate the body of the exception handler
 		/* ClassNotFoundException on stack -- the class literal could be doing more things
@@ -2029,7 +2028,6 @@ public void generateClassLiteralAccessForType(Scope scope, TypeBinding accessedT
 		athrow();
 		endLabel.place();
 		this.stackDepth = savedStackDepth;
-		popTypeBinding(this.operandStack.size() - switchSaveTypeBindingsStackSize);
 	}
 }
 
@@ -5976,7 +5974,7 @@ public void ldc(TypeBinding typeBinding) {
 	this.countLabels = 0;
 	int index = this.constantPool.literalIndexForType(typeBinding);
 	this.stackDepth++;
-	this.operandStack.push(typeBinding);
+	this.operandStack.push(getPopularBinding(ConstantPool.JavaLangClassConstantPoolName));
 	if (this.stackDepth > this.stackMax)
 		this.stackMax = this.stackDepth;
 	if (index > 255) {
