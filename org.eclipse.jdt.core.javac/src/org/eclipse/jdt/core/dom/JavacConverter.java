@@ -343,7 +343,11 @@ class JavacConverter {
 	void commonSettings(ASTNode res, JCTree javac) {
 		if( javac != null ) {
 			if (javac.getStartPosition() >= 0) {
-				int length = javac.getEndPosition(this.javacCompilationUnit.endPositions) - javac.getStartPosition();
+				int endPos = javac.getEndPosition(this.javacCompilationUnit.endPositions);
+				if( endPos < 0 ) {
+					endPos = javac.getStartPosition() + javac.toString().length();
+				}
+				int length = endPos - javac.getStartPosition();
 				res.setSourceRange(javac.getStartPosition(), Math.max(0, length));
 			}
 			this.domToJavac.put(res, javac);
@@ -361,21 +365,28 @@ class JavacConverter {
 			return res;
 		}
 		if (expression instanceof JCFieldAccess fieldAccess) {
-			Name qualifier = toName(fieldAccess.getExpression());
+			JCExpression faExpression = fieldAccess.getExpression();
 			SimpleName n = (SimpleName)convertName(fieldAccess.getIdentifier());
 			if (n == null) {
 				n = this.ast.newSimpleName("NOT_SET");
 			}
-			// TODO set range for simpleName
+			commonSettings(n, fieldAccess);
+			
+			Name qualifier = toName(faExpression);
 			QualifiedName res = this.ast.newQualifiedName(qualifier, n);
+			commonSettings(res, fieldAccess.getExpression());
 			extraSettings.accept(res, fieldAccess);
 			return res;
 		}
 		if (expression instanceof JCAnnotatedType jcat) {
-			return toName(jcat.underlyingType, extraSettings);
+			Name n = toName(jcat.underlyingType, extraSettings);
+			commonSettings(n, jcat.underlyingType);
+			return n;
 		}
 		if (expression instanceof JCTypeApply jcta) {
-			return toName(jcta.clazz, extraSettings);
+			Name n = toName(jcta.clazz, extraSettings);
+			commonSettings(n, jcta.clazz);
+			return n;
 		}
 		throw new UnsupportedOperationException("toName for " + expression + " (" + expression.getClass().getName() + ")");
 	}
@@ -2276,10 +2287,11 @@ class JavacConverter {
 					if( jcass.lhs instanceof JCIdent jcid ) {
 						final MemberValuePair pair = new MemberValuePair(this.ast);
 						final SimpleName simpleName = new SimpleName(this.ast);
+						commonSettings(simpleName, jcid);
 						simpleName.internalSetIdentifier(new String(jcid.getName().toString()));
 						int start = jcid.pos;
 						int end = start + jcid.getName().toString().length();
-						simpleName.setSourceRange(start, end - start + 1);
+						simpleName.setSourceRange(start, end - start );
 						pair.setName(simpleName);
 						Expression value = null;
 						if (jcass.rhs instanceof JCNewArray jcNewArray) {
@@ -2290,6 +2302,7 @@ class JavacConverter {
 						} else {
 							value = convertExpression(jcass.rhs);
 						}
+						commonSettings(value, jcass.rhs);
 						pair.setValue(value);
 						start = value.getStartPosition();
 						end = value.getStartPosition() + value.getLength() - 1;
@@ -2623,23 +2636,30 @@ class JavacConverter {
 
 	private EnumConstantDeclaration convertEnumConstantDeclaration(JCTree var, ASTNode parent, EnumDeclaration enumDecl) {
 		EnumConstantDeclaration enumConstantDeclaration = null;
+		String enumName = null;
 		if( var instanceof JCVariableDecl enumConstant ) {
 			if( enumConstant.getType() instanceof JCIdent jcid) {
 				String o = jcid.getName().toString();
 				String o2 = enumDecl.getName().toString();
 				if( o.equals(o2)) {
 					enumConstantDeclaration = new EnumConstantDeclaration(this.ast);
+					commonSettings(enumConstantDeclaration, enumConstant);
 					final SimpleName typeName = new SimpleName(this.ast);
-					typeName.internalSetIdentifier(enumConstant.getName().toString());
-					int start = enumConstant.getStartPosition();
-					int end = enumConstant.getEndPosition(this.javacCompilationUnit.endPositions);
-					enumConstantDeclaration.setSourceRange(start, end-start);
+					enumName = enumConstant.getName().toString();
+					typeName.internalSetIdentifier(enumName);
+					typeName.setSourceRange(enumConstant.getStartPosition(), Math.max(0, enumName.length()));
 					enumConstantDeclaration.setName(typeName);
 				}
 				if( enumConstant.init instanceof JCNewClass jcnc ) {
 					if( jcnc.def instanceof JCClassDecl jccd) {
 						AnonymousClassDeclaration e = createAnonymousClassDeclaration(jccd, enumConstantDeclaration);
 						if( e != null ) {
+							if( enumName != null ) {
+								String preTrim = this.rawText.substring(e.getStartPosition() + enumName.length());
+								String trimmed = preTrim.stripLeading();
+								int toSkip = preTrim.length() - trimmed.length();
+								e.setSourceRange(e.getStartPosition() + enumName.length() + toSkip, e.getLength() - enumName.length() - toSkip);
+							}
 							enumConstantDeclaration.setAnonymousClassDeclaration(e);
 						}
 					}

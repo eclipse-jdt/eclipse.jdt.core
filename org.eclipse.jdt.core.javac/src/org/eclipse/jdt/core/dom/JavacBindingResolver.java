@@ -389,7 +389,19 @@ public class JavacBindingResolver extends BindingResolver {
 		return null;
 	}
 
-
+	@Override
+	IMethodBinding resolveConstructor(EnumConstantDeclaration enumConstantDeclaration) {
+		resolve();
+		JCTree javacElement = this.converter.domToJavac.get(enumConstantDeclaration);
+		if( javacElement instanceof JCVariableDecl jcvd ) {
+			javacElement = jcvd.init;
+		}
+		return javacElement instanceof JCNewClass jcExpr
+				&& !jcExpr.constructor.type.isErroneous()?
+						this.bindings.getMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor) :
+				null;
+	}
+	
 	@Override
 	IMethodBinding resolveConstructor(SuperConstructorInvocation expression) {
 		resolve();
@@ -410,9 +422,18 @@ public class JavacBindingResolver extends BindingResolver {
 	IBinding resolveName(Name name) {
 		resolve();
 		JCTree tree = this.converter.domToJavac.get(name);
+		if( tree != null ) {
+			return resolveNameToJavac(name, tree);
+		}
 		if (tree == null) {
 			tree = this.converter.domToJavac.get(name.getParent());
 		}
+		if( tree != null )
+			return resolveNameToJavac(name, tree);
+		return null;
+	}
+	
+	IBinding resolveNameToJavac(Name name, JCTree tree) {
 		if (tree instanceof JCIdent ident && ident.sym != null) {
 			return this.bindings.getBinding(ident.sym, ident.type != null ? ident.type : ident.sym.type);
 		}
