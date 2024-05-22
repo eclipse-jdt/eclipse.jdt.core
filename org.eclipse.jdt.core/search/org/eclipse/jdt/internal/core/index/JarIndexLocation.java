@@ -105,7 +105,7 @@ public class JarIndexLocation extends IndexLocation {
 	}
 
 	@Override
-	public String getCanonicalFilePath() {
+	public Path getIndexPath() {
 		return null;
 	}
 
