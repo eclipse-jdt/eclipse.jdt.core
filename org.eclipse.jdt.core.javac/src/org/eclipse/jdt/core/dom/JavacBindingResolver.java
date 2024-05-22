@@ -456,6 +456,17 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	@Override
+	IVariableBinding resolveVariable(EnumConstantDeclaration enumConstant) {
+		resolve();
+		if (this.converter.domToJavac.get(enumConstant) instanceof JCVariableDecl decl) {
+			if (!decl.type.isErroneous() || this.isRecoveringBindings) {
+				return this.bindings.getVariableBinding(decl.sym);
+			}
+		}
+		return null;
+	}
+	
+	@Override
 	IVariableBinding resolveVariable(VariableDeclaration variable) {
 		resolve();
 		if (this.converter.domToJavac.get(variable) instanceof JCVariableDecl decl) {
