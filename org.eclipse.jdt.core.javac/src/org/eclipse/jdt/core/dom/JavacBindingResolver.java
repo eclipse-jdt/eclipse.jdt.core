@@ -380,6 +380,17 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	@Override
+	IMethodBinding resolveMember(AnnotationTypeMemberDeclaration member) {
+		resolve();
+		JCTree javacElement = this.converter.domToJavac.get(member);
+		if (javacElement instanceof JCMethodDecl methodDecl) {
+			return this.bindings.getMethodBinding(methodDecl.type.asMethodType(), methodDecl.sym);
+		}
+		return null;
+	}
+
+
+	@Override
 	IMethodBinding resolveConstructor(SuperConstructorInvocation expression) {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(expression);
