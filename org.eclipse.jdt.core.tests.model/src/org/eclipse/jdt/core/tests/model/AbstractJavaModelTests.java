@@ -4023,6 +4023,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	@SuppressWarnings("restriction")
 	public void waitForCharsetDeltaJob() throws CoreException {
 		try {
+			Job.getJobManager().wakeUp(org.eclipse.core.internal.resources.CharsetDeltaJob.FAMILY_CHARSET_DELTA);
 			Job.getJobManager().join(org.eclipse.core.internal.resources.CharsetDeltaJob.FAMILY_CHARSET_DELTA, null);
 		} catch (OperationCanceledException | InterruptedException e) {
 			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, e.getMessage(), e));
@@ -4036,6 +4037,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		boolean wasInterrupted = false;
 		do {
 			try {
+				Job.getJobManager().wakeUp(ResourcesPlugin.FAMILY_AUTO_BUILD);
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
 				JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
 				wasInterrupted = false;
@@ -4051,6 +4053,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		boolean wasInterrupted = false;
 		do {
 			try {
+				Job.getJobManager().wakeUp(ResourcesPlugin.FAMILY_MANUAL_REFRESH);
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_MANUAL_REFRESH, null);
 				JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
 				wasInterrupted = false;
