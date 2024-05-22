@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.javac;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -58,15 +57,18 @@ public class JavacCompiler extends Compiler {
 	public void compile(ICompilationUnit[] sourceUnits) {
 		Context javacContext = new Context();
 		Map<ICompilationUnit, List<IProblem>> javacProblems = new HashMap<>();
+		JavacProblemConverter problemConverter = new JavacProblemConverter(this.compilerConfig.getOptions(), javacContext);
 		javacContext.put(DiagnosticListener.class, diagnostic -> {
 			if (diagnostic.getSource() instanceof JavacFileObject fileObject) {
-				JavacProblem javacProblem = JavacProblemConverter.createJavacProblem(diagnostic, javacContext);
-				List<IProblem> previous = javacProblems.get(fileObject.getOriginalUnit());
-				if (previous == null) {
-					previous = new ArrayList<>();
-					javacProblems.put(fileObject.getOriginalUnit(), previous);
+				JavacProblem javacProblem = problemConverter.createJavacProblem(diagnostic);
+				if (javacProblem != null) {
+					List<IProblem> previous = javacProblems.get(fileObject.getOriginalUnit());
+					if (previous == null) {
+						previous = new ArrayList<>();
+						javacProblems.put(fileObject.getOriginalUnit(), previous);
+					}
+					previous.add(javacProblem);
 				}
-				previous.add(javacProblem);
 			}
 		});
 		IJavaProject javaProject = Stream.of(sourceUnits).filter(SourceFile.class::isInstance).map(

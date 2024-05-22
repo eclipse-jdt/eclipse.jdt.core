@@ -15,7 +15,6 @@ import static com.sun.tools.javac.tree.JCTree.Tag.TYPEARRAY;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -32,13 +31,11 @@ import java.util.function.Predicate;
 import javax.lang.model.type.TypeKind;
 
 import org.eclipse.core.runtime.ILog;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
 import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
-import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 
 import com.sun.source.tree.CaseTree.CaseKind;
 import com.sun.source.tree.ModuleTree.ModuleKind;
@@ -135,7 +132,7 @@ class JavacConverter {
 	private final Context context;
 	final Map<ASTNode, JCTree> domToJavac = new HashMap<>();
 	final String rawText;
-	private Set<JCDiagnostic> javadocDiagnostics = new HashSet<>();
+	final Set<JCDiagnostic> javadocDiagnostics = new HashSet<>();
 
 	public JavacConverter(AST ast, JCCompilationUnit javacCompilationUnit, Context context, String rawText) {
 		this.ast = ast;
@@ -170,24 +167,7 @@ class JavacConverter {
 			.filter(Objects::nonNull)
 			.forEach(res.types()::add);
 		res.accept(new FixPositions());
-		populateJavadocDiagnostics(res);
-		
 	}
-
-	private void populateJavadocDiagnostics(CompilationUnit cu) {
-	    Set<IProblem> javadocProblems = new HashSet<IProblem>();
-	    for (JCDiagnostic jcDiag: javadocDiagnostics) {
-	        IProblem javacProblem = JavacProblemConverter.createJavadocProblem(jcDiag);
-	        javadocProblems.add(javacProblem);
-	    }
-	    var newProblems = Arrays.copyOf(cu.getProblems(), cu.getProblems().length + javadocProblems.size());
-	    int i = cu.getProblems().length;
-	    for (IProblem problem: javadocProblems) {
-	        newProblems[i++] = problem;
-	    }
-	    cu.setProblems(newProblems);
-        
-    }
 
     private int[] toLineEndPosTable(LineMap lineMap, int fileLength) {
 		List<Integer> lineEnds = new ArrayList<>();

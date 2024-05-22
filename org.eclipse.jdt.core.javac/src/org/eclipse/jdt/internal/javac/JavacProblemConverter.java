@@ -15,12 +15,15 @@ package org.eclipse.jdt.internal.javac;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import com.sun.tools.javac.code.Kinds;
@@ -41,9 +44,29 @@ import com.sun.tools.javac.util.Position;
 public class JavacProblemConverter {
 	private static final String COMPILER_WARN_NON_SERIALIZABLE_INSTANCE_FIELD = "compiler.warn.non.serializable.instance.field";
 	private static final String COMPILER_WARN_MISSING_SVUID = "compiler.warn.missing.SVUID";
+	private final CompilerOptions compilerOptions;
+	private final Context context;
 
-	public static JavacProblem createJavacProblem(Diagnostic<? extends JavaFileObject> diagnostic, Context context) {
+	public JavacProblemConverter(Map<String, String> options, Context context) {
+		this(new CompilerOptions(options), context);
+	}
+	public JavacProblemConverter(CompilerOptions options, Context context) {
+		this.compilerOptions = options;
+		this.context = context;
+	}
+
+	/**
+	 * 
+	 * @param diagnostic
+	 * @param context
+	 * @return a JavacProblem matching the given diagnostic, or <code>null</code> if problem is ignored
+	 */
+	public JavacProblem createJavacProblem(Diagnostic<? extends JavaFileObject> diagnostic) {
 		int problemId = toProblemId(diagnostic);
+		int severity = toSeverity(problemId, diagnostic);
+		if (severity == ProblemSeverities.Ignore || severity == ProblemSeverities.Optional) {
+			return null;
+		}
 		org.eclipse.jface.text.Position diagnosticPosition = getDiagnosticPosition(diagnostic, context);
 		return new JavacProblem(
 				diagnostic.getSource().getName().toCharArray(),
@@ -51,30 +74,17 @@ public class JavacProblemConverter {
 				diagnostic.getCode(),
 				problemId,
 				new String[0],
-				toSeverity(diagnostic),
+				severity,
 				diagnosticPosition.getOffset(),
 				diagnosticPosition.getOffset() + diagnosticPosition.getLength(),
 				(int) diagnostic.getLineNumber(),
 				(int) diagnostic.getColumnNumber());
 	}
 	
-	public static JavacProblem createJavadocProblem(Diagnostic<? extends JavaFileObject> diagnostic) {
-        int problemId = toProblemId(diagnostic);
-        org.eclipse.jface.text.Position diagnosticPosition = getDefaultPosition(diagnostic);
-        return new JavacProblem(
-                diagnostic.getSource().getName().toCharArray(),
-                diagnostic.getMessage(Locale.getDefault()),
-                diagnostic.getCode(),
-                problemId,
-                new String[0],
-                toJavadocSeverity(diagnostic),
-                diagnosticPosition.getOffset(),
-                diagnosticPosition.getOffset() + diagnosticPosition.getLength(),
-                (int) diagnostic.getLineNumber(),
-                (int) diagnostic.getColumnNumber());
-    }
-
 	private static org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic, Context context) {
+		if (diagnostic.getCode().contains(".dc")) { //javadoc
+			return getDefaultPosition(diagnostic);
+		}
 		switch (diagnostic) {
 		case JCDiagnostic jcDiagnostic -> {
 			switch (jcDiagnostic.getDiagnosticPosition()) {
@@ -196,7 +206,15 @@ public class JavacProblemConverter {
 		return getDefaultPosition(jcDiagnostic);
 	}
 
-	private static int toSeverity(Diagnostic<? extends JavaFileObject> diagnostic) {
+	private int toSeverity(int jdtProblemId, Diagnostic<? extends JavaFileObject> diagnostic) {
+		if (jdtProblemId != 0) {
+			int irritant = ProblemReporter.getIrritant(jdtProblemId);
+			if (irritant != 0) {
+				int res = this.compilerOptions.getSeverity(irritant);
+				res &= ~ProblemSeverities.Optional; // reject optional flag at this stage
+				return res;
+			}
+		}
 		return switch (diagnostic.getKind()) {
 			case ERROR -> ProblemSeverities.Error;
 			case WARNING, MANDATORY_WARNING -> ProblemSeverities.Warning;
@@ -205,14 +223,6 @@ public class JavacProblemConverter {
 		};
 	}
 	
-	private static int toJavadocSeverity(Diagnostic<? extends JavaFileObject> diagnostic) {
-        return switch (diagnostic.getKind()) {
-            case ERROR, WARNING, MANDATORY_WARNING -> ProblemSeverities.Warning;
-            case NOTE -> ProblemSeverities.Info;
-            default -> ProblemSeverities.Warning;
-        };
-    }
-
 	/**
 	 * See the link below for Javac problem list:
 	 * https://github.com/openjdk/jdk/blob/master/src/jdk.compiler/share/classes/com/sun/tools/javac/resources/compiler.properties
@@ -256,6 +266,26 @@ public class JavacProblemConverter {
 			case "compiler.err.annotation.value.must.be.name.value" -> IProblem.UndefinedAnnotationMember;
 			case "compiler.err.multicatch.types.must.be.disjoint" -> IProblem.InvalidUnionTypeReferenceSequence;
 			case "compiler.err.unreported.exception.implicit.close" -> IProblem.UnhandledExceptionOnAutoClose;
+			// next are javadoc; defaulting to JavadocUnexpectedText when no better problem could be found
+			case "compiler.err.dc.bad.entity" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.bad.inline.tag" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.identifier.expected" -> IProblem.JavadocMissingIdentifier;
+			case "compiler.err.dc.invalid.html" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.malformed.html" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.missing.semicolon" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.no.content" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.no.tag.name" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.no.url" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.no.title" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.gt.expected" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.ref.bad.parens" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.ref.syntax.error" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.ref.unexpected.input" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.unexpected.content" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.unterminated.inline.tag" -> IProblem.JavadocUnterminatedInlineTag;
+			case "compiler.err.dc.unterminated.signature" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.unterminated.string" -> IProblem.JavadocUnexpectedText;
+			case "compiler.err.dc.ref.annotations.not.allowed" -> IProblem.JavadocUnexpectedText;
 			default -> 0;
 		};
 	}

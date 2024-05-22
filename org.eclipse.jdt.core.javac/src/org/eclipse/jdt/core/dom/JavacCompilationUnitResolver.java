@@ -18,9 +18,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,6 +63,7 @@ import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
+import com.sun.tools.javac.util.JCDiagnostic;
 
 /**
  * Allows to create and resolve DOM ASTs using Javac
@@ -262,12 +266,16 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		Context context = new Context();
 		Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> result = new HashMap<>(sourceUnits.length, 1.f);
 		Map<JavaFileObject, CompilationUnit> filesToUnits = new HashMap<>();
+		var problemConverter = new JavacProblemConverter(compilerOptions, context);
 		DiagnosticListener<JavaFileObject> diagnosticListener = diagnostic -> {
 			findTargetDOM(filesToUnits, diagnostic).ifPresent(dom -> {
-				IProblem[] previous = dom.getProblems();
-				IProblem[] newProblems = Arrays.copyOf(previous, previous.length + 1);
-				newProblems[newProblems.length - 1] = JavacProblemConverter.createJavacProblem(diagnostic, context);
-				dom.setProblems(newProblems);
+				var newProblem = problemConverter.createJavacProblem(diagnostic);
+				if (newProblem != null) {
+					IProblem[] previous = dom.getProblems();
+					IProblem[] newProblems = Arrays.copyOf(previous, previous.length + 1);
+					newProblems[newProblems.length - 1] = newProblem;
+					dom.setProblems(newProblems);
+				}
 			});
 		};
 		// must be 1st thing added to context
@@ -324,6 +332,17 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 				JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText);
 				converter.populateCompilationUnit(res, javacCompilationUnit);
+				// javadoc problems explicitly set as they're not sent to DiagnosticListener (maybe find a flag to do it?)
+				var javadocProblems = converter.javadocDiagnostics.stream()
+						.map(problemConverter::createJavacProblem)
+						.filter(Objects::nonNull)
+						.toArray(IProblem[]::new);
+				if (javadocProblems.length > 0) {
+					int initialSize = res.getProblems().length;
+					var newProblems = Arrays.copyOf(res.getProblems(), initialSize + javadocProblems.length);
+					System.arraycopy(javadocProblems, 0, newProblems, initialSize, javadocProblems.length);
+				    res.setProblems(newProblems);
+			    }
 				List<org.eclipse.jdt.core.dom.Comment> comments = new ArrayList<>();
 				res.accept(new ASTVisitor() {
 					@Override
