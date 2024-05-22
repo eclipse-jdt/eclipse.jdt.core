@@ -57,8 +57,10 @@ import com.sun.tools.javac.tree.JCTree.JCModuleDecl;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCPackageDecl;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
+import com.sun.tools.javac.tree.JCTree.JCTypeApply;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.util.Context;
 
 /**
@@ -246,6 +248,13 @@ public class JavacBindingResolver extends BindingResolver {
 		if (jcTree instanceof JCArrayTypeTree arrayType && arrayType.type != null) {
 			return this.bindings.getTypeBinding(arrayType.type);
 		}
+		if (jcTree instanceof JCWildcard wcType && wcType.type != null) {
+			return this.bindings.getTypeBinding(wcType.type);
+		}
+		if (jcTree instanceof JCTypeApply jcta && jcta.type != null) {
+			return this.bindings.getTypeBinding(jcta.type);
+		}
+		
 //			return this.flowResult.stream().map(env -> env.enclClass)
 //				.filter(Objects::nonNull)
 //				.map(decl -> decl.type)
@@ -428,8 +437,10 @@ public class JavacBindingResolver extends BindingResolver {
 		if (tree == null) {
 			tree = this.converter.domToJavac.get(name.getParent());
 		}
-		if( tree != null )
-			return resolveNameToJavac(name, tree);
+		if( tree != null ) {
+			IBinding ret = resolveNameToJavac(name, tree);
+			return ret;
+		}
 		return null;
 	}
 	
@@ -451,6 +462,9 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		if (tree instanceof JCVariableDecl variableDecl && variableDecl.sym != null) {
 			return this.bindings.getBinding(variableDecl.sym, variableDecl.type);
+		}
+		if (tree instanceof JCTypeParameter variableDecl && variableDecl.type != null && variableDecl.type.tsym != null) {
+			return this.bindings.getBinding(variableDecl.type.tsym, variableDecl.type);
 		}
 		return null;
 	}
