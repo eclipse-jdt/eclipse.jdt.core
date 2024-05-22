@@ -1264,10 +1264,7 @@ public AbstractMethodDeclaration sourceMethod() {
 	if (isSynthetic()) {
 		return null;
 	}
-	SourceTypeBinding sourceType;
-	try {
-		sourceType = (SourceTypeBinding) this.declaringClass;
-	} catch (ClassCastException e) {
+	if (!(this.declaringClass instanceof SourceTypeBinding sourceType)) {
 		return null;
 	}
 
