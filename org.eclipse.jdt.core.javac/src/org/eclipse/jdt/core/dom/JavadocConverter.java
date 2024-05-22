@@ -42,6 +42,7 @@ import com.sun.tools.javac.tree.DCTree.DCThrows;
 import com.sun.tools.javac.tree.DCTree.DCUnknownBlockTag;
 import com.sun.tools.javac.tree.DCTree.DCUnknownInlineTag;
 import com.sun.tools.javac.tree.DCTree.DCUses;
+import com.sun.tools.javac.tree.DCTree.DCVersion;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.JCDiagnostic;
 
@@ -135,6 +136,9 @@ class JavadocConverter {
 		} else if (javac instanceof DCSince since) {
 			res.setTagName(TagElement.TAG_SINCE);
 			since.body.stream().map(this::convertElement).forEach(res.fragments::add);
+		} else if (javac instanceof DCVersion version) {
+		    res.setTagName(TagElement.TAG_VERSION);
+		    version.body.stream().map(this::convertElement).forEach(res.fragments::add);
 		}  else if (javac instanceof DCSee see) {
 			res.setTagName(TagElement.TAG_SEE);
 			see.reference.stream().map(this::convertElement).forEach(res.fragments::add);
