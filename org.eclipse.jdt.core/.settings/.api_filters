@@ -109,6 +109,44 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/AbstractUnnamedTypeDeclaration.java" type="org.eclipse.jdt.core.dom.AbstractUnnamedTypeDeclaration">
+        <filter comment="Preview Feature - API should not have been created in the first place " id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.AbstractUnnamedTypeDeclaration"/>
+                <message_argument value="bodyDeclarations()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Preview Feature - API should not have been created in the first place " id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.AbstractUnnamedTypeDeclaration"/>
+                <message_argument value="getBodyDeclarationsProperty()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Preview Feature - API should not have been created in the first place " id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.AbstractUnnamedTypeDeclaration"/>
+                <message_argument value="isLocalTypeDeclaration()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Preview Feature - API should not have been created in the first place " id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.AbstractUnnamedTypeDeclaration"/>
+                <message_argument value="isMemberTypeDeclaration()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Preview Feature - API should not have been created in the first place " id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.AbstractUnnamedTypeDeclaration"/>
+                <message_argument value="isPackageMemberTypeDeclaration()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Preview Feature - API should not have been created in the first place " id="338948223">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.AbstractUnnamedTypeDeclaration"/>
+                <message_argument value="AbstractUnnamedTypeDeclaration(AST)"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/Annotation.java" type="org.eclipse.jdt.core.dom.Annotation">
         <filter id="576725006">
             <message_arguments>

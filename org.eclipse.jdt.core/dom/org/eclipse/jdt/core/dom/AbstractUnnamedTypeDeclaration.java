@@ -3,6 +3,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
+ * @noreference This class is not intended to be referenced by clients.
  * @since 3.38
  */
 @SuppressWarnings("rawtypes")

@@ -73,7 +73,6 @@ import org.eclipse.jdt.core.dom.TextBlock;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.ImplicitTypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
@@ -192,7 +191,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	@SuppressWarnings("deprecation")
 	private boolean checkInstanceofImplicityTypeDeclaration(ASTNode parent) {
-		return parent instanceof ImplicitTypeDeclaration;
+		return parent instanceof org.eclipse.jdt.core.dom.ImplicitTypeDeclaration;
 	}
 
 	private boolean sameChunk(BodyDeclaration bd1, BodyDeclaration bd2) {
@@ -784,7 +783,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public boolean visit(ImplicitTypeDeclaration node) {
+	public boolean visit(org.eclipse.jdt.core.dom.ImplicitTypeDeclaration node) {
 		handleBodyDeclarations(node.bodyDeclarations());
 		return true;
 	}
