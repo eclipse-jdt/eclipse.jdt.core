@@ -64,6 +64,10 @@ public class JavacProblemConverter {
 	 * @return a JavacProblem matching the given diagnostic, or <code>null</code> if problem is ignored
 	 */
 	public JavacProblem createJavacProblem(Diagnostic<? extends JavaFileObject> diagnostic) {
+		// Ignore "documentation comment is not attached to any declaration" warnings
+		if (diagnostic.getCode().equals("compiler.warn.dangling.doc.comment")) {
+			return null;
+		}
 		int problemId = toProblemId(diagnostic);
 		int severity = toSeverity(problemId, diagnostic);
 		if (severity == ProblemSeverities.Ignore || severity == ProblemSeverities.Optional) {
