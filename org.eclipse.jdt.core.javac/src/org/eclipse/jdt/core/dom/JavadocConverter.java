@@ -22,6 +22,7 @@ import com.sun.tools.javac.tree.DCTree;
 import com.sun.tools.javac.tree.DCTree.DCAuthor;
 import com.sun.tools.javac.tree.DCTree.DCBlockTag;
 import com.sun.tools.javac.tree.DCTree.DCDeprecated;
+import com.sun.tools.javac.tree.DCTree.DCComment;
 import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.DCTree.DCEndElement;
 import com.sun.tools.javac.tree.DCTree.DCEntity;
@@ -283,6 +284,11 @@ class JavadocConverter {
 	        res.setText(res.text);
 	        diagnostics.add(erroneous.diag);
 	        return res;
+		} else if (javac instanceof DCComment comment) {
+            TextElement res = this.ast.newTextElement();
+            commonSettings(res, comment);
+            res.setText(res.text);
+            return res;
 		} else {
 			Optional<TagElement> inlineTag = convertInlineTag(javac);
 			if (inlineTag.isPresent()) {
