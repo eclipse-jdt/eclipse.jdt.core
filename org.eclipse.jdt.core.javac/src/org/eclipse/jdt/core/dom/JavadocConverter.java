@@ -43,6 +43,7 @@ import com.sun.tools.javac.tree.DCTree.DCThrows;
 import com.sun.tools.javac.tree.DCTree.DCUnknownBlockTag;
 import com.sun.tools.javac.tree.DCTree.DCUnknownInlineTag;
 import com.sun.tools.javac.tree.DCTree.DCUses;
+import com.sun.tools.javac.tree.DCTree.DCValue;
 import com.sun.tools.javac.tree.DCTree.DCVersion;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.JCDiagnostic;
@@ -184,6 +185,8 @@ class JavadocConverter {
 			res.setTagName(TagElement.TAG_LINK);
 			res.fragments().add(convertElement(link.ref));
 			link.label.stream().map(this::convertElement).forEach(res.fragments()::add);
+		} else if (javac instanceof DCValue) {
+            res.setTagName(TagElement.TAG_VALUE);
 		} else if (javac instanceof DCInheritDoc inheritDoc) {
 			res.setTagName(TagElement.TAG_INHERITDOC);
 		} else if (javac instanceof DCSnippet snippet) {
