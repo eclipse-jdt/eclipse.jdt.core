@@ -966,7 +966,7 @@ class BoundSet {
 
 		List<Pair<TypeBinding>> superPairs = allSuperPairsWithCommonGenericType(s_cap, t_cap);
 		if (superPairs.isEmpty())
-			return null;
+			return Collections.emptyList();
 		List<ConstraintTypeFormula> result = new ArrayList<>();
 		for (Pair<TypeBinding> pair : superPairs) {
 			// future JLS should apply upwards projection according to https://mail.openjdk.org/pipermail/compiler-dev/2024-May/026579.html
