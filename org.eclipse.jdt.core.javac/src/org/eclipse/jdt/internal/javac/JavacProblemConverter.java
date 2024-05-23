@@ -34,6 +34,7 @@ import com.sun.tools.javac.parser.ScannerFactory;
 import com.sun.tools.javac.parser.Tokens.Token;
 import com.sun.tools.javac.parser.Tokens.TokenKind;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
@@ -42,6 +43,7 @@ import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.Position;
 
 public class JavacProblemConverter {
+	private static final String COMPILER_ERR_MISSING_RET_STMT = "compiler.err.missing.ret.stmt";
 	private static final String COMPILER_WARN_NON_SERIALIZABLE_INSTANCE_FIELD = "compiler.warn.non.serializable.instance.field";
 	private static final String COMPILER_WARN_MISSING_SVUID = "compiler.warn.missing.SVUID";
 	private final CompilerOptions compilerOptions;
@@ -95,6 +97,10 @@ public class JavacProblemConverter {
 				return getDiagnosticPosition(jcDiagnostic, JCVariableDecl);
 			}
 			default -> {
+				org.eclipse.jface.text.Position result = getMissingReturnMethodDiagnostic(jcDiagnostic, context);
+				if (result != null) {
+					return result;
+				}
 				return getPositionUsingScanner(jcDiagnostic, context);
 			}
 			}
@@ -138,6 +144,65 @@ public class JavacProblemConverter {
 			ILog.get().error(ex.getMessage(), ex);
 		}
 		return getDefaultPosition(jcDiagnostic);
+	}
+
+	private static org.eclipse.jface.text.Position getMissingReturnMethodDiagnostic(JCDiagnostic jcDiagnostic, Context context) {
+		// https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/313
+		if (COMPILER_ERR_MISSING_RET_STMT.equals(jcDiagnostic.getCode())) {
+			JCTree tree = jcDiagnostic.getDiagnosticPosition().getTree();
+			if (tree instanceof JCBlock) {
+				try {
+					int startOffset = tree.getStartPosition();
+					DiagnosticSource source = jcDiagnostic.getDiagnosticSource();
+					JavaFileObject fileObject = source.getFile();
+					CharSequence charContent = fileObject.getCharContent(true);
+					ScannerFactory scannerFactory = ScannerFactory.instance(context);
+					Scanner javacScanner = scannerFactory.newScanner(charContent, true);
+					Token t = javacScanner.token();
+					Token lparen = null;
+					Token rparen = null;
+					Token name = null;
+					while (t.kind != TokenKind.EOF && t.endPos <= startOffset) {
+						javacScanner.nextToken();
+						t = javacScanner.token();
+						switch (t.kind) {
+						case TokenKind.IDENTIFIER: {
+							if (lparen == null) {
+								name = t;
+							}
+							break;
+						}
+						case TokenKind.LPAREN: {
+							lparen = t;
+							break;
+						}
+						case TokenKind.RPAREN: {
+							if (name != null) {
+								rparen = t;
+							}
+							break;
+						}
+						case TokenKind.RBRACE:
+						case TokenKind.SEMI: {
+							name = null;
+							lparen = null;
+							rparen = null;
+							break;
+						}
+						default:
+							break;
+						}
+					}
+					if (lparen != null && name != null && rparen != null) {
+						return new org.eclipse.jface.text.Position(Math.min(charContent.length() - 1, name.pos), Math.max(0, rparen.endPos - name.pos - 1));
+					}
+				} catch (IOException ex) {
+					ILog.get().error(ex.getMessage(), ex);
+				}
+			}
+			return getDefaultPosition(jcDiagnostic);
+		}
+		return null;
 	}
 
 	/**
@@ -286,6 +351,7 @@ public class JavacProblemConverter {
 			case "compiler.err.dc.unterminated.signature" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.unterminated.string" -> IProblem.JavadocUnexpectedText;
 			case "compiler.err.dc.ref.annotations.not.allowed" -> IProblem.JavadocUnexpectedText;
+			case COMPILER_ERR_MISSING_RET_STMT -> IProblem.ShouldReturnValue;
 			default -> 0;
 		};
 	}
