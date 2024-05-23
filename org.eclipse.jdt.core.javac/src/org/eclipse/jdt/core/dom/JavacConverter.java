@@ -1046,6 +1046,22 @@ class JavacConverter {
 				res.setName((SimpleName)convertName(fieldAccess.getIdentifier()));
 				return res;
 			}
+			if (fieldAccess.getExpression() instanceof JCIdent parentFieldAccess && Objects.equals(Names.instance(this.context)._this, parentFieldAccess.getName())) {
+				FieldAccess res = this.ast.newFieldAccess();
+				commonSettings(res, javac);
+				res.setExpression(convertExpression(parentFieldAccess));
+				if (convertName(fieldAccess.getIdentifier()) instanceof SimpleName name) {
+					res.setName(name);
+				}
+				return res;
+			}
+			if (fieldAccess.getExpression() instanceof JCIdent qualifier) {
+				Name qualifierName = convertName(qualifier.getName());
+				SimpleName qualifiedName = (SimpleName)convertName(fieldAccess.getIdentifier());
+				QualifiedName res = this.ast.newQualifiedName(qualifierName, qualifiedName);
+				commonSettings(res, javac);
+				return res;
+			}
 			FieldAccess res = this.ast.newFieldAccess();
 			commonSettings(res, javac);
 			res.setExpression(convertExpression(fieldAccess.getExpression()));
@@ -1386,7 +1402,7 @@ class JavacConverter {
 				switchExpr = jcp.getExpression();
 			}
 			res.setExpression(convertExpression(switchExpr));
-			
+
 			List<JCCase> cases = jcSwitch.getCases();
 			Iterator<JCCase> it = cases.iterator();
 			ArrayList<JCTree> bodyList = new ArrayList<>();
@@ -1401,7 +1417,7 @@ class JavacConverter {
 					bodyList.add(switchCase.getBody());
 				}
 			}
-			
+
 			Iterator<JCTree> stmtIterator = bodyList.iterator();
 			while(stmtIterator.hasNext()) {
 				JCTree next = stmtIterator.next();
@@ -1425,16 +1441,16 @@ class JavacConverter {
 		}
 		return null;
 	}
-	
+
 	private Expression convertExpressionOrNull(JCExpression javac) {
 		return convertExpressionImpl(javac);
 	}
-	
+
 	private Expression convertExpression(JCExpression javac) {
 		Expression ret = convertExpressionImpl(javac);
 		if( ret != null )
 			return ret;
-		
+
 		// Handle errors or default situation
 		if (javac instanceof JCErroneous error) {
 			if (error.getErrorTrees().size() == 1) {
@@ -2346,7 +2362,7 @@ class JavacConverter {
 			return a1.getStartPosition() - a2.getStartPosition();
 		});
 	}
-	
+
 	private void convertModifiers(JCModifiers modifiers, ASTNode parent, List<IExtendedModifier> res) {
 		Iterator<javax.lang.model.element.Modifier> mods = modifiers.getFlags().iterator();
 		while(mods.hasNext()) {
@@ -2361,7 +2377,7 @@ class JavacConverter {
 		sortModifierNodesByPosition(res);
 		return res;
 	}
-	
+
 	private void convertModifierAnnotations(JCModifiers modifiers, ASTNode parent, List<IExtendedModifier> res) {
 		modifiers.getAnnotations().stream().map(this::convert).forEach(res::add);
 	}

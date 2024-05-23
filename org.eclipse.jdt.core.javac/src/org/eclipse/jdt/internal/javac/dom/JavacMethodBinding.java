@@ -17,6 +17,7 @@ import java.util.Set;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -287,7 +288,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	@Override
 	public ITypeBinding[] getExceptionTypes() {
 		ASTNode node = this.resolver.findNode(this.methodSymbol);
-		if (node instanceof MethodDeclaration method) {
+		if (node.getAST().apiLevel() >= AST.JLS8 && node instanceof MethodDeclaration method) {
 			return ((List<Type>)method.thrownExceptionTypes()).stream()
 				.map(Type::resolveBinding)
 				.toArray(ITypeBinding[]::new);
