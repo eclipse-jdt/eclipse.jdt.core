@@ -5,6 +5,9 @@ import java.util.List;
 
 /**
  * @since 3.38
+ * @deprecated This is a preview feature
+ * @noreference This class is not intended to be referenced by clients.
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class ImplicitTypeDeclaration extends AbstractUnnamedTypeDeclaration {
 

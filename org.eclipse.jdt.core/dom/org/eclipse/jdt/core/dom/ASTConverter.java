@@ -222,6 +222,7 @@ class ASTConverter {
 		convert(typeDeclaration.javadoc, typeDecl);
 	}
 
+	@SuppressWarnings("deprecation")
 	protected void buildBodyDeclarations(
 			org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration implicitTypeDeclaration,
 			ImplicitTypeDeclaration newImplicitTypeDeclaration,
@@ -3574,6 +3575,7 @@ class ASTConverter {
 		return typeDecl;
 	}
 
+	@SuppressWarnings("deprecation")
 	private ASTNode convertToImplicitTypeDeclaration(org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration implicitTypeDeclaration) {
 		ImplicitTypeDeclaration typeDecl = new ImplicitTypeDeclaration(this.ast);
 		ASTNode oldReferenceContext = this.referenceContext;

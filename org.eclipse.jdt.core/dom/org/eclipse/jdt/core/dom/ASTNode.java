@@ -1104,6 +1104,7 @@ public abstract class ASTNode {
 	 * @since 3.38
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
+	@SuppressWarnings("javadoc")
 	public static final int UNNAMED_CLASS = 118;
 
 	/**
@@ -1353,9 +1354,14 @@ public abstract class ASTNode {
 			case EitherOr_MultiPattern:
 				return EitherOrMultiPattern.class;
 			case UNNAMED_CLASS :
-				return ImplicitTypeDeclaration.class;
+				return getImplicitTypeDeclaration();
 		}
 		throw new IllegalArgumentException();
+	}
+
+	@SuppressWarnings("deprecation")
+	private static Class getImplicitTypeDeclaration() {
+		return ImplicitTypeDeclaration.class;
 	}
 
 	/**

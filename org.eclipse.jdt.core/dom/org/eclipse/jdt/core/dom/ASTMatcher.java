@@ -3249,8 +3249,10 @@ public class ASTMatcher {
 	 * Returns whether the given node and the other object match.
 	 * @param node the node to check
 	 * @param other the other object
+	 * @noreference This method is not intended to be referenced by clients.
 	 * @since 3.38
 	 */
+	@SuppressWarnings("deprecation")
 	public boolean match(ImplicitTypeDeclaration node, Object other) {
 		if (!(other instanceof ImplicitTypeDeclaration)) {
 			return false;

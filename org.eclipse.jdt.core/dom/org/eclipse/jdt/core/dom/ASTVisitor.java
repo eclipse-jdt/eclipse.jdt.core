@@ -2159,9 +2159,10 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
+	 * @noreference This method is not intended to be referenced by clients.
 	 * @since 3.38
 	 */
-	public boolean visit(ImplicitTypeDeclaration implicitTypeDeclaration) {
+	public boolean visit(@SuppressWarnings("deprecation") ImplicitTypeDeclaration implicitTypeDeclaration) {
 		return true;
 	}
 
@@ -3627,7 +3628,9 @@ public abstract class ASTVisitor {
 	 *
 	 * @param node the node to visit
 	 * @since 3.38
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
+	@SuppressWarnings("deprecation")
 	public void endVisit(ImplicitTypeDeclaration node) {
 		// default implementation: do nothing
 	}

@@ -183,11 +183,16 @@ public class LineBreaksPreparator extends ASTVisitor {
 		}
 		if (previous != null) {
 			ASTNode parent = previous.getParent();
-			if (!(parent instanceof TypeDeclaration && this.tm.isFake((TypeDeclaration) parent) || parent instanceof ImplicitTypeDeclaration)) {
+			if (!(parent instanceof TypeDeclaration && this.tm.isFake((TypeDeclaration) parent) || checkInstanceofImplicityTypeDeclaration(parent))) {
 				Token lastToken = this.tm.lastTokenIn(parent, -1);
 				putBlankLinesBefore(lastToken, this.options.blank_lines_after_last_class_body_declaration);
 			}
 		}
+	}
+
+	@SuppressWarnings("deprecation")
+	private boolean checkInstanceofImplicityTypeDeclaration(ASTNode parent) {
+		return parent instanceof ImplicitTypeDeclaration;
 	}
 
 	private boolean sameChunk(BodyDeclaration bd1, BodyDeclaration bd2) {
@@ -777,6 +782,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean visit(ImplicitTypeDeclaration node) {
 		handleBodyDeclarations(node.bodyDeclarations());
