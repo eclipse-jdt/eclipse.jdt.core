@@ -1,4 +1,4 @@
-class A {
+public class A {
 	String method(Object element, int columnIndex) {
 		return element instanceof String data ?
 			switch (columnIndex) {

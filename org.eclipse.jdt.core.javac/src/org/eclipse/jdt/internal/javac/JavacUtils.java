@@ -13,18 +13,24 @@ package org.eclipse.jdt.internal.javac;
 import java.io.File;
 import java.lang.Runtime.Version;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Queue;
 import java.util.function.Predicate;
 
 import javax.tools.JavaFileManager;
 import javax.tools.StandardLocation;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CompilerConfiguration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -165,26 +171,39 @@ public class JavacUtils {
 		return list == null || list.isEmpty();
 	}
 
-	private static List<File> classpathEntriesToFiles(JavaProject project, Predicate<IClasspathEntry> select) {
+	private static Collection<File> classpathEntriesToFiles(JavaProject project, Predicate<IClasspathEntry> select) {
 		try {
-			IClasspathEntry[] selected = Arrays.stream(project.getRawClasspath())
-				.filter(select)
-				.toArray(IClasspathEntry[]::new);
-			return Arrays.stream(project.resolveClasspath(selected))
-				.map(IClasspathEntry::getPath)
-				.map(path -> {
+			LinkedHashSet<File> res = new LinkedHashSet<>();
+			Queue<IClasspathEntry> toProcess = new LinkedList<>();
+			toProcess.addAll(Arrays.asList(project.resolveClasspath(project.getExpandedClasspath())));
+			while (!toProcess.isEmpty()) {
+				IClasspathEntry current = toProcess.poll();
+				if (current.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+					IResource referencedResource = project.getProject().getParent().findMember(current.getPath());
+					if (referencedResource instanceof IProject referencedProject) {
+						JavaProject referencedJavaProject = (JavaProject) JavaCore.create(referencedProject);
+						if (referencedJavaProject.exists()) {
+							for (IClasspathEntry transitiveEntry : referencedJavaProject.resolveClasspath(referencedJavaProject.getExpandedClasspath()) ) {
+								if (transitiveEntry.isExported() || transitiveEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+									toProcess.add(transitiveEntry);
+								}
+							}
+						}
+					}
+				} else if (select.test(current)) {
+					IPath path = current.getPath();
 					File asFile = path.toFile();
 					if (asFile.exists()) {
-						return asFile;
+						res.add(asFile);
+					} else {
+						IResource asResource = project.getProject().getParent().findMember(path);
+						if (asResource.exists()) {
+							res.add(asResource.getLocation().toFile());
+						}
 					}
-					IResource asResource = project.getProject().getParent().findMember(path);
-					if (asResource != null) {
-						return asResource.getLocation().toFile();
-					}
-					return null;
-				}).filter(Objects::nonNull)
-				.filter(File::exists)
-				.toList();
+				}
+			}
+			return res;
 		} catch (JavaModelException ex) {
 			ILog.get().error(ex.getMessage(), ex);
 			return List.of();

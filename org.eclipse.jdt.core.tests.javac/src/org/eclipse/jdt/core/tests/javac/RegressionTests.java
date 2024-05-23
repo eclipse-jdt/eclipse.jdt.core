@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -34,6 +35,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.core.CompilationUnit;
@@ -70,8 +72,23 @@ public class RegressionTests {
 		var domUnit = parser.createAST(null);
 	}
 
+	@Test
+	public void testBuildReferenceOtherProjectSource() throws Exception {
+		IWorkspaceDescription wsDesc = ResourcesPlugin.getWorkspace().getDescription();
+		wsDesc.setAutoBuilding(false);
+		ResourcesPlugin.getWorkspace().setDescription(wsDesc);
+		project.build(IncrementalProjectBuilder.CLEAN_BUILD, null);
+		IProject dependent = importProject("projects/dependent");
+		// at this stage, no .class file exists, so we test that resolution through sourcePath/referenced projects work
+		CompilationUnit unit = (CompilationUnit)JavaCore.create(dependent).findElement(Path.fromOSString("D.java"));
+		unit.becomeWorkingCopy(null);
+		var dom = unit.reconcile(AST.getJLSLatest(), true, unit.getOwner(), null);
+		assertArrayEquals(new IProblem[0], dom.getProblems());
+	}
+
+
 	static IProject importProject(String locationInBundle) throws URISyntaxException, IOException, CoreException {
-		File file = new File(FileLocator.toFileURL(RegressionTests.class.getResource("/projects/dummy/.project")).toURI());
+		File file = new File(FileLocator.toFileURL(RegressionTests.class.getResource("/" + locationInBundle + "/.project")).toURI());
 		IPath dotProjectPath = Path.fromOSString(file.getAbsolutePath());
 		IProjectDescription projectDescription = ResourcesPlugin.getWorkspace()
 				.loadProjectDescription(dotProjectPath);
