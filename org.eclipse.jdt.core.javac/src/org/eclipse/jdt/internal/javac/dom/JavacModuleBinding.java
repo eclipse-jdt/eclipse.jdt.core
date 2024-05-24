@@ -32,10 +32,9 @@ import com.sun.tools.javac.code.Directive.UsesDirective;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol.ModuleSymbol;
-import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ModuleType;
-public class JavacModuleBinding implements IModuleBinding {
+public abstract class JavacModuleBinding implements IModuleBinding {
 
 	private static final ITypeBinding[] NO_TYPE_ARGUMENTS = new ITypeBinding[0];
 	final JavacBindingResolver resolver;
@@ -60,7 +59,7 @@ public class JavacModuleBinding implements IModuleBinding {
 	public IAnnotationBinding[] getAnnotations() {
 		// TODO - don't see any way to get this?
 		List<Attribute.Compound> list = moduleSymbol.getRawAttributes();
-		return list.stream().map((x) -> new JavacAnnotationBinding(x, this.resolver, this)).toArray(JavacAnnotationBinding[]::new);
+		return list.stream().map(x -> this.resolver.bindings.getAnnotationBinding(x, this)).toArray(JavacAnnotationBinding[]::new);
 	}
 
 	@Override
@@ -113,20 +112,26 @@ public class JavacModuleBinding implements IModuleBinding {
 
 	@Override
 	public IModuleBinding[] getRequiredModules() {
-		RequiresDirective[] arr = this.moduleSymbol.getDirectives().stream().filter((x) -> x.getKind() == DirectiveKind.REQUIRES).map((x) -> (RequiresDirective)x).toArray(RequiresDirective[]::new);
+		RequiresDirective[] arr = this.moduleSymbol.getDirectives().stream() //
+					.filter(x -> x.getKind() == DirectiveKind.REQUIRES) //
+					.map(x -> (RequiresDirective)x) //
+					.toArray(RequiresDirective[]::new);
 		IModuleBinding[] arr2 = new IModuleBinding[arr.length];
 		for( int i = 0; i < arr.length; i++ ) {
-			arr2[i] = new JavacModuleBinding((ModuleType)arr[i].module.type, this.resolver);
+			arr2[i] = this.resolver.bindings.getModuleBinding((ModuleType)arr[i].module.type);
 		}
 		return arr2;
 	}
 
 	@Override
 	public IPackageBinding[] getExportedPackages() {
-		ExportsDirective[] arr = this.moduleSymbol.getDirectives().stream().filter((x) -> x.getKind() == DirectiveKind.EXPORTS).map((x) -> (ExportsDirective)x).toArray(ExportsDirective[]::new);
+		ExportsDirective[] arr = this.moduleSymbol.getDirectives().stream() //
+				.filter(x -> x.getKind() == DirectiveKind.EXPORTS) //
+				.map(x -> (ExportsDirective)x) //
+				.toArray(ExportsDirective[]::new);
 		IPackageBinding[] arr2 = new IPackageBinding[arr.length];
 		for( int i = 0; i < arr.length; i++ ) {
-			arr2[i] = new JavacPackageBinding((PackageSymbol)arr[i].packge, this.resolver);
+			arr2[i] = this.resolver.bindings.getPackageBinding(arr[i].packge);
 		}
 		return arr2;
 	}
@@ -135,10 +140,10 @@ public class JavacModuleBinding implements IModuleBinding {
 	public String[] getExportedTo(IPackageBinding packageBinding) {
 		ExportsDirective[] arr = this.moduleSymbol.getDirectives().stream().filter((x) -> x.getKind() == DirectiveKind.EXPORTS).map((x) -> (ExportsDirective)x).toArray(ExportsDirective[]::new);
 		for( int i = 0; i < arr.length; i++ ) {
-			JavacPackageBinding tmp = new JavacPackageBinding((PackageSymbol)arr[i].packge, this.resolver);
+			JavacPackageBinding tmp = this.resolver.bindings.getPackageBinding(arr[i].packge);
 			if( tmp.isUnnamed() == packageBinding.isUnnamed() && 
 					tmp.getName().equals(packageBinding.getName())) {
-				return arr[i].getTargetModules().stream().map((x) -> x.toString()).toArray(String[]::new);
+				return arr[i].getTargetModules().stream().map(ModuleSymbol::toString).toArray(String[]::new);
 			}
 		}
 		return new String[0];
@@ -149,7 +154,7 @@ public class JavacModuleBinding implements IModuleBinding {
 		OpensDirective[] arr = this.moduleSymbol.getDirectives().stream().filter((x) -> x.getKind() == DirectiveKind.OPENS).map((x) -> (OpensDirective)x).toArray(OpensDirective[]::new);
 		IPackageBinding[] arr2 = new IPackageBinding[arr.length];
 		for( int i = 0; i < arr.length; i++ ) {
-			arr2[i] = new JavacPackageBinding((PackageSymbol)arr[i].packge, this.resolver);
+			arr2[i] = this.resolver.bindings.getPackageBinding(arr[i].packge);
 		}
 		return arr2;
 	}
@@ -158,7 +163,7 @@ public class JavacModuleBinding implements IModuleBinding {
 	public String[] getOpenedTo(IPackageBinding packageBinding) {
 		OpensDirective[] arr = this.moduleSymbol.getDirectives().stream().filter((x) -> x.getKind() == DirectiveKind.OPENS).map((x) -> (OpensDirective)x).toArray(OpensDirective[]::new);
 		for( int i = 0; i < arr.length; i++ ) {
-			JavacPackageBinding tmp = new JavacPackageBinding((PackageSymbol)arr[i].packge, this.resolver);
+			JavacPackageBinding tmp = this.resolver.bindings.getPackageBinding(arr[i].packge);
 			if( tmp.isUnnamed() == packageBinding.isUnnamed() && 
 					tmp.getName().equals(packageBinding.getName())) {
 				return arr[i].getTargetModules().stream().map((x) -> x.toString()).toArray(String[]::new);
@@ -172,7 +177,7 @@ public class JavacModuleBinding implements IModuleBinding {
 		UsesDirective[] arr = this.moduleSymbol.getDirectives().stream().filter((x) -> x.getKind() == DirectiveKind.USES).map((x) -> (UsesDirective)x).toArray(UsesDirective[]::new);
 		ITypeBinding[] arr2 = new ITypeBinding[arr.length];
 		for( int i = 0; i < arr.length; i++ ) {
-			arr2[i] = new JavacTypeBinding(arr[i].getService().type, this.resolver);
+			arr2[i] = this.resolver.bindings.getTypeBinding(arr[i].getService().type);
 		}
 		return arr2;
 	}
@@ -182,7 +187,7 @@ public class JavacModuleBinding implements IModuleBinding {
 		ProvidesDirective[] arr = this.moduleSymbol.getDirectives().stream().filter((x) -> x.getKind() == DirectiveKind.PROVIDES).map((x) -> (ProvidesDirective)x).toArray(ProvidesDirective[]::new);
 		ITypeBinding[] arr2 = new ITypeBinding[arr.length];
 		for( int i = 0; i < arr.length; i++ ) {
-			arr2[i] = new JavacTypeBinding(arr[i].getService().type, this.resolver);
+			arr2[i] = this.resolver.bindings.getTypeBinding(arr[i].getService().type);
 		}
 		return arr2;
 	}
@@ -191,10 +196,10 @@ public class JavacModuleBinding implements IModuleBinding {
 	public ITypeBinding[] getImplementations(ITypeBinding service) {
 		ProvidesDirective[] arr = this.moduleSymbol.getDirectives().stream().filter((x) -> x.getKind() == DirectiveKind.PROVIDES).map((x) -> (ProvidesDirective)x).toArray(ProvidesDirective[]::new);
 		for( int i = 0; i < arr.length; i++ ) {
-			JavacTypeBinding tmp = new JavacTypeBinding(arr[i].getService().type, this.resolver);
+			JavacTypeBinding tmp = this.resolver.bindings.getTypeBinding(arr[i].getService().type);
 			if(service.getKey().equals(tmp.getKey())) {
 				// we have our match
-				JavacTypeBinding[] ret = arr[i].getImplementations().stream().map(x -> new JavacTypeBinding((ClassType)x.type, this.resolver)).toArray(JavacTypeBinding[]::new);
+				JavacTypeBinding[] ret = arr[i].getImplementations().stream().map(x -> this.resolver.bindings.getTypeBinding((ClassType)x.type)).toArray(JavacTypeBinding[]::new);
 				return ret;
 			}
 		}

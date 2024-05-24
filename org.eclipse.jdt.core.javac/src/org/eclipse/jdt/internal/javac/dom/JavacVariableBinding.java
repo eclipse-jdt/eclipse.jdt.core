@@ -42,7 +42,7 @@ import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 
-public class JavacVariableBinding implements IVariableBinding {
+public abstract class JavacVariableBinding implements IVariableBinding {
 
 	public final VarSymbol variableSymbol;
 	private final JavacBindingResolver resolver;
@@ -66,7 +66,7 @@ public class JavacVariableBinding implements IVariableBinding {
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		return this.variableSymbol.getAnnotationMirrors().stream()
-				.map(am -> this.resolver.canonicalize(new JavacAnnotationBinding(am, resolver, this)))
+				.map(am -> this.resolver.bindings.getAnnotationBinding(am, this))
 				.toArray(IAnnotationBinding[]::new);
 	}
 
@@ -125,7 +125,7 @@ public class JavacVariableBinding implements IVariableBinding {
 			}
 		}
 		if (this.variableSymbol.owner instanceof TypeSymbol parentType) {//field
-			return new JavacTypeBinding(parentType.type, this.resolver).getJavaElement().getField(this.variableSymbol.name.toString());
+			return this.resolver.bindings.getTypeBinding(parentType.type).getJavaElement().getField(this.variableSymbol.name.toString());
 		}
 
 		return null;
@@ -188,7 +188,7 @@ public class JavacVariableBinding implements IVariableBinding {
 		Symbol parentSymbol = this.variableSymbol.owner;
 		do {
 			if (parentSymbol instanceof ClassSymbol clazz) {
-				return this.resolver.canonicalize(new JavacTypeBinding(clazz.type, this.resolver));
+				return this.resolver.bindings.getTypeBinding(clazz.type);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
@@ -197,7 +197,7 @@ public class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public ITypeBinding getType() {
-		return this.resolver.canonicalize(new JavacTypeBinding(this.variableSymbol.type, this.resolver));
+		return this.resolver.bindings.getTypeBinding(this.variableSymbol.type);
 	}
 
 	@Override
@@ -218,7 +218,7 @@ public class JavacVariableBinding implements IVariableBinding {
 		Symbol parentSymbol = this.variableSymbol.owner;
 		do {
 			if (parentSymbol instanceof MethodSymbol method) {
-				return this.resolver.canonicalize(new JavacMethodBinding(method.type.asMethodType(), method, this.resolver));
+				return this.resolver.bindings.getMethodBinding(method.type.asMethodType(), method);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);

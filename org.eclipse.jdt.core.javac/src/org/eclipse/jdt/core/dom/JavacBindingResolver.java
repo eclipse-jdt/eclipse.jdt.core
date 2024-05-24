@@ -27,20 +27,22 @@ import org.eclipse.jdt.internal.javac.dom.JavacMethodBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacModuleBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacPackageBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacTypeBinding;
+import org.eclipse.jdt.internal.javac.dom.JavacTypeVariableBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacVariableBinding;
 
 import com.sun.source.util.JavacTask;
 import com.sun.tools.javac.code.Attribute;
+import com.sun.tools.javac.code.Attribute.Compound;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type.PackageType;
-import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.ModuleSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
-import com.sun.tools.javac.code.Symbol.ModuleSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
+import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.ModuleType;
+import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
@@ -73,6 +75,86 @@ public class JavacBindingResolver extends BindingResolver {
 	public final IJavaProject javaProject;
 	private JavacConverter converter;
 	boolean isRecoveringBindings = false;
+
+	public class Bindings {
+		private Map<String, JavacAnnotationBinding> annotationBindings = new HashMap<>();
+		public JavacAnnotationBinding getAnnotationBinding(Compound ann, IBinding recipient) {
+			JavacAnnotationBinding newInstance = new JavacAnnotationBinding(ann, JavacBindingResolver.this, recipient) { };
+			annotationBindings.putIfAbsent(newInstance.getKey(), newInstance);
+			return annotationBindings.get(newInstance.getKey());
+		}
+		//
+		private Map<String, JavacMemberValuePairBinding> memberValuePairBindings = new HashMap<>();
+		public JavacMemberValuePairBinding getMemberValuePairBinding(MethodSymbol key, Attribute value) {
+			JavacMemberValuePairBinding newInstance = new JavacMemberValuePairBinding(key, value, JavacBindingResolver.this) { };
+			memberValuePairBindings.putIfAbsent(newInstance.getKey(), newInstance);
+			return memberValuePairBindings.get(newInstance.getKey());
+		}
+		//
+		private Map<String, JavacMethodBinding> methodBindings = new HashMap<>();
+		public JavacMethodBinding getMethodBinding(MethodType methodType, MethodSymbol methodSymbol) {
+			JavacMethodBinding newInstance = new JavacMethodBinding(methodType, methodSymbol, JavacBindingResolver.this) { };
+			methodBindings.putIfAbsent(newInstance.getKey(), newInstance);
+			return methodBindings.get(newInstance.getKey());
+		}
+		//
+		private Map<String, JavacModuleBinding> moduleBindings = new HashMap<>();
+		public JavacModuleBinding getModuleBinding(ModuleType moduleType) {
+			JavacModuleBinding newInstance = new JavacModuleBinding(moduleType, JavacBindingResolver.this) { };
+			moduleBindings.putIfAbsent(newInstance.getKey(), newInstance);
+			return moduleBindings.get(newInstance.getKey());
+		}
+		public JavacModuleBinding getModuleBinding(ModuleSymbol moduleSymbol) {
+			JavacModuleBinding newInstance = new JavacModuleBinding(moduleSymbol, JavacBindingResolver.this) { };
+			moduleBindings.putIfAbsent(newInstance.getKey(), newInstance);
+			return moduleBindings.get(newInstance.getKey());
+		}
+		//
+		private Map<String, JavacPackageBinding> packageBindings = new HashMap<>();
+		public JavacPackageBinding getPackageBinding(PackageSymbol packageSymbol) {
+			JavacPackageBinding newInstance = new JavacPackageBinding(packageSymbol, JavacBindingResolver.this) { };
+			packageBindings.putIfAbsent(newInstance.getKey(), newInstance);
+			return packageBindings.get(newInstance.getKey());
+		}
+		//
+		private Map<String, JavacTypeBinding> typeBinding = new HashMap<>();
+		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type) {
+			JavacTypeBinding newInstance = new JavacTypeBinding(type, JavacBindingResolver.this) { };
+			typeBinding.putIfAbsent(newInstance.getKey(), newInstance);
+			return typeBinding.get(newInstance.getKey());
+		}
+		//
+		private Map<String, JavacTypeVariableBinding> typeVariableBindings = new HashMap<>();
+		public JavacTypeVariableBinding getTypeVariableBinding(TypeVariableSymbol typeVariableSymbol) {
+			JavacTypeVariableBinding newInstance = new JavacTypeVariableBinding(typeVariableSymbol) { };
+			typeVariableBindings.putIfAbsent(newInstance.getKey(), newInstance);
+			return typeVariableBindings.get(newInstance.getKey());
+		}
+		//
+		private Map<String, JavacVariableBinding> variableBindings = new HashMap<>();
+		public JavacVariableBinding getVariableBinding(VarSymbol varSymbol) {
+			JavacVariableBinding newInstance = new JavacVariableBinding(varSymbol, JavacBindingResolver.this) { };
+			variableBindings.putIfAbsent(newInstance.getKey(), newInstance);
+			return variableBindings.get(newInstance.getKey());
+		}
+		
+		public IBinding getBinding(final Symbol owner, final com.sun.tools.javac.code.Type type) {
+			if (owner instanceof final PackageSymbol other) {
+				return getPackageBinding(other);
+			} else if (owner instanceof ModuleSymbol typeSymbol) {
+				return getModuleBinding(typeSymbol);
+			} else if (owner instanceof TypeSymbol typeSymbol) {
+				return getTypeBinding(typeSymbol.type);
+			} else if (owner instanceof final MethodSymbol other) {
+				return getMethodBinding(type instanceof com.sun.tools.javac.code.Type.MethodType methodType ? methodType : owner.type.asMethodType(), other);
+			} else if (owner instanceof final VarSymbol other) {
+				return getVariableBinding(other);
+			}
+			return null;
+		}
+
+	}
+	public final Bindings bindings = new Bindings(); 
 
 	public JavacBindingResolver(IJavaProject javaProject, JavacTask javacTask, Context context, JavacConverter converter) {
 		this.javac = javacTask;
@@ -154,16 +236,16 @@ public class JavacBindingResolver extends BindingResolver {
 			if (ident.type instanceof PackageType) {
 				return null;
 			}
-			return canonicalize(new JavacTypeBinding(ident.type, this));
+			return this.bindings.getTypeBinding(ident.type);
 		}
 		if (jcTree instanceof JCFieldAccess access && access.type != null) {
-			return canonicalize(new JavacTypeBinding(access.type, this));
+			return this.bindings.getTypeBinding(access.type);
 		}
 		if (jcTree instanceof JCPrimitiveTypeTree primitive && primitive.type != null) {
-			return canonicalize(new JavacTypeBinding(primitive.type, this));
+			return this.bindings.getTypeBinding(primitive.type);
 		}
 		if (jcTree instanceof JCArrayTypeTree arrayType && arrayType.type != null) {
-			return canonicalize(new JavacTypeBinding(arrayType.type, this));
+			return this.bindings.getTypeBinding(arrayType.type);
 		}
 //			return this.flowResult.stream().map(env -> env.enclClass)
 //				.filter(Objects::nonNull)
@@ -185,7 +267,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(type);
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
-			return canonicalize(new JavacTypeBinding(jcClassDecl.type, this));
+			return this.bindings.getTypeBinding(jcClassDecl.type);
 		}
 		return null;
 	}
@@ -195,7 +277,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(type);
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
-			return canonicalize(new JavacTypeBinding(jcClassDecl.type, this));
+			return this.bindings.getTypeBinding(jcClassDecl.type);
 		}
 		return null;
 	}
@@ -206,7 +288,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(type);
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
-			return canonicalize(new JavacTypeBinding(jcClassDecl.type, this));
+			return this.bindings.getTypeBinding(jcClassDecl.type);
 		}
 		return null;
 	}
@@ -216,7 +298,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(enumDecl);
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
-			return canonicalize(new JavacTypeBinding(jcClassDecl.type, this));
+			return this.bindings.getTypeBinding(jcClassDecl.type);
 		}
 		return null;
 	}
@@ -226,7 +308,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(anonymousClassDecl);
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
-			return canonicalize(new JavacTypeBinding(jcClassDecl.type, this));
+			return this.bindings.getTypeBinding(jcClassDecl.type);
 		}
 		return null;
 	}
@@ -234,22 +316,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(typeParameter);
 		if (javacNode instanceof JCTypeParameter jcClassDecl) {
-			return new JavacTypeBinding(jcClassDecl.type, this);
-		}
-		return null;
-	}
-
-	public IBinding getBinding(final Symbol owner, final com.sun.tools.javac.code.Type type) {
-		if (owner instanceof final PackageSymbol other) {
-			return canonicalize(new JavacPackageBinding(other, this));
-		} else if (owner instanceof ModuleSymbol typeSymbol) {
-			return canonicalize(new JavacModuleBinding(typeSymbol, this));
-		} else if (owner instanceof TypeSymbol typeSymbol) {
-			return canonicalize(new JavacTypeBinding(typeSymbol.type, this));
-		} else if (owner instanceof final MethodSymbol other) {
-			return canonicalize(new JavacMethodBinding(type instanceof com.sun.tools.javac.code.Type.MethodType methodType ? methodType : owner.type.asMethodType(), other, this));
-		} else if (owner instanceof final VarSymbol other) {
-			return canonicalize(new JavacVariableBinding(other, this));
+			return this.bindings.getTypeBinding(jcClassDecl.type);
 		}
 		return null;
 	}
@@ -259,7 +326,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(fieldAccess);
 		if (javacElement instanceof JCFieldAccess javacFieldAccess && javacFieldAccess.sym instanceof VarSymbol varSymbol) {
-			return canonicalize(new JavacVariableBinding(varSymbol, this));
+			return this.bindings.getVariableBinding(varSymbol);
 		}
 		return null;
 	}
@@ -269,7 +336,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(fieldAccess);
 		if (javacElement instanceof JCFieldAccess javacFieldAccess && javacFieldAccess.sym instanceof VarSymbol varSymbol) {
-			return new JavacVariableBinding(varSymbol, this);
+			return this.bindings.getVariableBinding(varSymbol);
 		}
 		return null;
 	}
@@ -282,10 +349,10 @@ public class JavacBindingResolver extends BindingResolver {
 			javacElement = javacMethodInvocation.getMethodSelect();
 		}
 		if (javacElement instanceof JCIdent ident && ident.sym instanceof MethodSymbol methodSymbol) {
-			return canonicalize(new JavacMethodBinding(ident.type.asMethodType(), methodSymbol, this));
+			return this.bindings.getMethodBinding(ident.type.asMethodType(), methodSymbol);
 		}
 		if (javacElement instanceof JCFieldAccess fieldAccess && fieldAccess.sym instanceof MethodSymbol methodSymbol) {
-			return canonicalize(new JavacMethodBinding(fieldAccess.type.asMethodType(), methodSymbol, this));
+			return this.bindings.getMethodBinding(fieldAccess.type.asMethodType(), methodSymbol);
 		}
 		return null;
 	}
@@ -295,7 +362,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(method);
 		if (javacElement instanceof JCMethodDecl methodDecl) {
-			return canonicalize(new JavacMethodBinding(methodDecl.type.asMethodType(), methodDecl.sym, this));
+			return this.bindings.getMethodBinding(methodDecl.type.asMethodType(), methodDecl.sym);
 		}
 		return null;
 	}
@@ -308,10 +375,10 @@ public class JavacBindingResolver extends BindingResolver {
 			javacElement = javacMethodInvocation.getMethodSelect();
 		}
 		if (javacElement instanceof JCIdent ident && ident.sym instanceof MethodSymbol methodSymbol) {
-			return canonicalize(new JavacMethodBinding(ident.type.asMethodType(), methodSymbol, this));
+			return this.bindings.getMethodBinding(ident.type.asMethodType(), methodSymbol);
 		}
 		if (javacElement instanceof JCFieldAccess fieldAccess && fieldAccess.sym instanceof MethodSymbol methodSymbol) {
-			return canonicalize(new JavacMethodBinding(fieldAccess.type.asMethodType(), methodSymbol, this));
+			return this.bindings.getMethodBinding(fieldAccess.type.asMethodType(), methodSymbol);
 		}
 		return null;
 	}
@@ -324,22 +391,22 @@ public class JavacBindingResolver extends BindingResolver {
 			tree = this.converter.domToJavac.get(name.getParent());
 		}
 		if (tree instanceof JCIdent ident && ident.sym != null) {
-			return getBinding(ident.sym, ident.type != null ? ident.type : ident.sym.type);
+			return this.bindings.getBinding(ident.sym, ident.type != null ? ident.type : ident.sym.type);
 		}
 		if (tree instanceof JCFieldAccess fieldAccess && fieldAccess.sym != null) {
-			return getBinding(fieldAccess.sym, fieldAccess.type);
+			return this.bindings.getBinding(fieldAccess.sym, fieldAccess.type);
 		}
 		if (tree instanceof JCMethodInvocation methodInvocation && methodInvocation.meth.type != null) {
-			return getBinding(((JCFieldAccess)methodInvocation.meth).sym, methodInvocation.meth.type);
+			return this.bindings.getBinding(((JCFieldAccess)methodInvocation.meth).sym, methodInvocation.meth.type);
 		}
 		if (tree instanceof JCClassDecl classDecl && classDecl.sym != null) {
-			return getBinding(classDecl.sym, classDecl.type);
+			return this.bindings.getBinding(classDecl.sym, classDecl.type);
 		}
 		if (tree instanceof JCMethodDecl methodDecl && methodDecl.sym != null) {
-			return getBinding(methodDecl.sym, methodDecl.type);
+			return this.bindings.getBinding(methodDecl.sym, methodDecl.type);
 		}
 		if (tree instanceof JCVariableDecl variableDecl && variableDecl.sym != null) {
-			return getBinding(variableDecl.sym, variableDecl.type);
+			return this.bindings.getBinding(variableDecl.sym, variableDecl.type);
 		}
 		return null;
 	}
@@ -349,7 +416,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		if (this.converter.domToJavac.get(variable) instanceof JCVariableDecl decl) {
 			if (!decl.type.isErroneous() || this.isRecoveringBindings) {
-				return canonicalize(new JavacVariableBinding(decl.sym, this));
+				return this.bindings.getVariableBinding(decl.sym);
 			}
 		}
 		return null;
@@ -359,7 +426,7 @@ public class JavacBindingResolver extends BindingResolver {
 	public IPackageBinding resolvePackage(PackageDeclaration decl) {
 		resolve();
 		if (this.converter.domToJavac.get(decl) instanceof JCPackageDecl jcPackageDecl) {
-			return canonicalize(new JavacPackageBinding(jcPackageDecl.packge, this));
+			return this.bindings.getPackageBinding(jcPackageDecl.packge);
 		}
 		return null;
 	}
@@ -384,7 +451,7 @@ public class JavacBindingResolver extends BindingResolver {
 			if (jcExpr.type instanceof PackageType) {
 				return null;
 			}
-			return canonicalize(new JavacTypeBinding(jcExpr.type, this));
+			return this.bindings.getTypeBinding(jcExpr.type);
 		}
 		return null;
 	}
@@ -394,7 +461,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		return this.converter.domToJavac.get(expression) instanceof JCNewClass jcExpr
 				&& !jcExpr.constructor.type.isErroneous()?
-						canonicalize(new JavacMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor, this)) :
+						this.bindings.getMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor) :
 				null;
 	}
 
@@ -469,7 +536,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if( javacElement instanceof JCModuleDecl jcmd) {
 			Object o = jcmd.sym.type;
 			if( o instanceof ModuleType mt ) {
-				return new JavacModuleBinding(mt, this);
+				return this.bindings.getModuleBinding(mt);
 			}
 		} 
 		return null;
@@ -490,18 +557,18 @@ public class JavacBindingResolver extends BindingResolver {
 		if (attribute instanceof Attribute.Constant constant) {
 			return constant.value;
 		} else if (attribute instanceof Attribute.Class clazz) {
-			return canonicalize(new JavacTypeBinding(clazz.classType, this));
+			return this.bindings.getTypeBinding(clazz.classType);
 		} else if (attribute instanceof Attribute.Enum enumm) {
-			return canonicalize(new JavacVariableBinding(enumm.value, this));
+			return this.bindings.getVariableBinding(enumm.value);
 		} else if (attribute instanceof Attribute.Array array) {
 			return Stream.of(array.values) //
 					.map(nestedAttr -> {
 						if (attribute instanceof Attribute.Constant constant) {
 							return constant.value;
 						} else if (attribute instanceof Attribute.Class clazz) {
-							return canonicalize(new JavacTypeBinding(clazz.classType, this));
+							return this.bindings.getTypeBinding(clazz.classType);
 						} else if (attribute instanceof Attribute.Enum enumerable) {
-							return canonicalize(new JavacVariableBinding(enumerable.value, this));
+							return this.bindings.getVariableBinding(enumerable.value);
 						}
 						throw new IllegalArgumentException("Unexpected attribute type: " + nestedAttr.getClass().getCanonicalName());
 					}) //
@@ -515,12 +582,12 @@ public class JavacBindingResolver extends BindingResolver {
 		var javac = this.converter.domToJavac.get(importDeclaration.getName());
 		if (javac instanceof JCFieldAccess fieldAccess) {
 			if (fieldAccess.sym != null) {
-				return getBinding(fieldAccess.sym, null);
+				return this.bindings.getBinding(fieldAccess.sym, null);
 			}
 			if (importDeclaration.isStatic()) {
 				com.sun.tools.javac.code.Type type = fieldAccess.getExpression().type;
 				if (type != null) {
-					return Arrays.stream(new JavacTypeBinding(type, this).getDeclaredMethods())
+					return Arrays.stream(this.bindings.getTypeBinding(type).getDeclaredMethods())
 						.filter(method -> Objects.equals(fieldAccess.getIdentifier().toString(), method.getName()))
 						.findAny()
 						.orElse(null);
@@ -528,16 +595,6 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 		}
 		return null;
-	}
-
-	public <T extends IBinding> T canonicalize(T binding) {
-		String k = binding.getKey();
-		T cachedBinding = (T) this.bindingCache.get(k);
-		if (cachedBinding == null) {
-			this.bindingCache.put(k, binding);
-			return binding;
-		}
-		return cachedBinding;
 	}
 
 	@Override
@@ -568,6 +625,6 @@ public class JavacBindingResolver extends BindingResolver {
 		if (type == null) {
 			return null;
 		}
-		return canonicalize(new JavacTypeBinding(type, this));
+		return this.bindings.getTypeBinding(type);
 	}
 }

@@ -22,14 +22,14 @@ import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 
-public class JavacMemberValuePairBinding implements IMemberValuePairBinding {
+public abstract class JavacMemberValuePairBinding implements IMemberValuePairBinding {
 
 	public final JavacMethodBinding method;
 	public final Attribute value;
 	private final JavacBindingResolver resolver;
 
 	public JavacMemberValuePairBinding(MethodSymbol key, Attribute value, JavacBindingResolver resolver) {
-		this.method = resolver.canonicalize(new JavacMethodBinding(key.type.asMethodType(), key, resolver));
+		this.method = resolver.bindings.getMethodBinding(key.type.asMethodType(), key);
 		this.value = value;
 		this.resolver = resolver;
 	}

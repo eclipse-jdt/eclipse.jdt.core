@@ -40,7 +40,7 @@ import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.MethodType;
 
-public class JavacMethodBinding implements IMethodBinding {
+public abstract class JavacMethodBinding implements IMethodBinding {
 
 	private static final ITypeBinding[] NO_TYPE_ARGUMENTS = new ITypeBinding[0];
 
@@ -68,7 +68,7 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
-		return methodSymbol.getAnnotationMirrors().stream().map(ann -> this.resolver.canonicalize(new JavacAnnotationBinding(ann, this.resolver, this))).toArray(IAnnotationBinding[]::new);
+		return methodSymbol.getAnnotationMirrors().stream().map(ann -> this.resolver.bindings.getAnnotationBinding(ann, this)).toArray(IAnnotationBinding[]::new);
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public IJavaElement getJavaElement() {
-		IJavaElement parent = this.resolver.getBinding(this.methodSymbol.owner, this.methodType).getJavaElement();
+		IJavaElement parent = this.resolver.bindings.getBinding(this.methodSymbol.owner, this.methodType).getJavaElement();
 		if (parent instanceof IType type) {
 			// prefer DOM object (for type parameters)
 			MethodDeclaration methodDeclaration = (MethodDeclaration)this.resolver.findDeclaringNode(this);
@@ -171,7 +171,7 @@ public class JavacMethodBinding implements IMethodBinding {
 		if (!methodSymbol.getTypeParameters().isEmpty()) {
 			builder.append('<');
 			for (var typeParam : methodSymbol.getTypeParameters()) {
-				JavacTypeVariableBinding typeVarBinding = new JavacTypeVariableBinding(typeParam);
+				JavacTypeVariableBinding typeVarBinding = resolver.bindings.getTypeVariableBinding(typeParam);
 				builder.append(typeVarBinding.getKey());
 			}
 			builder.append('>');
@@ -232,7 +232,7 @@ public class JavacMethodBinding implements IMethodBinding {
 		Symbol parentSymbol = this.methodSymbol.owner;
 		do {
 			if (parentSymbol instanceof ClassSymbol clazz) {
-				return this.resolver.canonicalize(new JavacTypeBinding(clazz.type, this.resolver));
+				return this.resolver.bindings.getTypeBinding(clazz.type);
 			}
 			parentSymbol = parentSymbol.owner;
 		} while (parentSymbol != null);
@@ -245,9 +245,9 @@ public class JavacMethodBinding implements IMethodBinding {
 			return null;
 		}
 		if (this.methodSymbol.owner instanceof MethodSymbol methodSymbol) {
-			return this.resolver.canonicalize(new JavacMethodBinding(methodSymbol.type.asMethodType(), methodSymbol, resolver));
+			return this.resolver.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol);
 		} else if (this.methodSymbol.owner instanceof VarSymbol variableSymbol) {
-			return this.resolver.canonicalize(new JavacVariableBinding(variableSymbol, resolver));
+			return this.resolver.bindings.getVariableBinding(variableSymbol);
 		}
 		throw new IllegalArgumentException("Unexpected owner type: " + this.methodSymbol.owner.getClass().getCanonicalName());
 	}
@@ -261,7 +261,7 @@ public class JavacMethodBinding implements IMethodBinding {
 	public IAnnotationBinding[] getParameterAnnotations(int paramIndex) {
 		VarSymbol parameter = this.methodSymbol.params.get(paramIndex);
 		return parameter.getAnnotationMirrors().stream() //
-				.map(annotation -> this.resolver.canonicalize(new JavacAnnotationBinding(annotation, this.resolver, this))) //
+				.map(annotation -> this.resolver.bindings.getAnnotationBinding(annotation, this)) //
 				.toArray(IAnnotationBinding[]::new);
 	}
 
@@ -269,18 +269,18 @@ public class JavacMethodBinding implements IMethodBinding {
 	public ITypeBinding[] getParameterTypes() {
 		return this.methodSymbol.params().stream()
 			.map(param -> param.type)
-			.map(type -> this.resolver.canonicalize(new JavacTypeBinding(type, this.resolver)))
+			.map(this.resolver.bindings::getTypeBinding)
 			.toArray(ITypeBinding[]::new);
 	}
 
 	@Override
 	public ITypeBinding getDeclaredReceiverType() {
-		return this.resolver.canonicalize(new JavacTypeBinding(this.methodSymbol.getReceiverType(), this.resolver));
+		return this.resolver.bindings.getTypeBinding(this.methodSymbol.getReceiverType());
 	}
 
 	@Override
 	public ITypeBinding getReturnType() {
-		return this.resolver.canonicalize(new JavacTypeBinding(this.methodSymbol.getReturnType(), this.resolver));
+		return this.resolver.bindings.getTypeBinding(this.methodSymbol.getReturnType());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -298,7 +298,7 @@ public class JavacMethodBinding implements IMethodBinding {
 	@Override
 	public ITypeBinding[] getTypeParameters() {
 		return this.methodSymbol.getTypeParameters().stream()
-				.map(symbol -> this.resolver.canonicalize(new JavacTypeBinding(symbol.type, this.resolver)))
+				.map(symbol -> this.resolver.bindings.getTypeBinding(symbol.type))
 				.toArray(ITypeBinding[]::new);
 	}
 
@@ -323,7 +323,7 @@ public class JavacMethodBinding implements IMethodBinding {
 			return NO_TYPE_ARGUMENTS;
 		}
 		return this.methodType.getTypeArguments().stream()
-				.map(type -> this.resolver.canonicalize(new JavacTypeBinding(type, this.resolver)))
+				.map(this.resolver.bindings::getTypeBinding)
 				.toArray(ITypeBinding[]::new);
 	}
 
@@ -365,7 +365,7 @@ public class JavacMethodBinding implements IMethodBinding {
 			return new IVariableBinding[0];
 		}
 		return this.methodSymbol.capturedLocals.stream() //
-				.map(capturedLocal -> this.resolver.canonicalize(new JavacVariableBinding(capturedLocal, this.resolver))) //
+				.map(this.resolver.bindings::getVariableBinding) //
 				.toArray(IVariableBinding[]::new);
 	}
 

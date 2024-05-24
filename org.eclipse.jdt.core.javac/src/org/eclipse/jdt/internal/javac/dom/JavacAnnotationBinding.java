@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.dom.JavacBindingResolver;
 
 import com.sun.tools.javac.code.Attribute.Compound;
 
-public class JavacAnnotationBinding implements IAnnotationBinding {
+public abstract class JavacAnnotationBinding implements IAnnotationBinding {
 
 	private final JavacBindingResolver resolver;
 	private final Compound annotation;
@@ -99,13 +99,13 @@ public class JavacAnnotationBinding implements IAnnotationBinding {
 	@Override
 	public IMemberValuePairBinding[] getAllMemberValuePairs() {
 		return this.annotation.getElementValues().entrySet().stream()
-			.map(entry -> this.resolver.canonicalize(new JavacMemberValuePairBinding(entry.getKey(), entry.getValue(), this.resolver)))
+			.map(entry -> this.resolver.bindings.getMemberValuePairBinding(entry.getKey(), entry.getValue()))
 			.toArray(IMemberValuePairBinding[]::new);
 	}
 
 	@Override
 	public ITypeBinding getAnnotationType() {
-		return this.resolver.canonicalize(new JavacTypeBinding(this.annotation.type, this.resolver));
+		return this.resolver.bindings.getTypeBinding(this.annotation.type);
 	}
 
 	@Override

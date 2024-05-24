@@ -21,10 +21,10 @@ import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
  * Note that this isn't API and isn't part of the IBinding tree type.
  * The sole purpose of this class is to help calculate getKey.
  */
-class JavacTypeVariableBinding {
+public abstract class JavacTypeVariableBinding {
 	private TypeVariableSymbol typeVar;
 
-	JavacTypeVariableBinding(TypeVariableSymbol typeVar) {
+	public JavacTypeVariableBinding(TypeVariableSymbol typeVar) {
 		this.typeVar = typeVar;
 	}
 

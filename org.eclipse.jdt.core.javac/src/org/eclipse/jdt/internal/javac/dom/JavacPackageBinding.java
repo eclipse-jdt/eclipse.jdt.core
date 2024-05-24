@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.dom.JavacBindingResolver;
 
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
 
-public class JavacPackageBinding implements IPackageBinding {
+public abstract class JavacPackageBinding implements IPackageBinding {
 
 	public final PackageSymbol packageSymbol;
 	final JavacBindingResolver resolver;
@@ -48,7 +48,7 @@ public class JavacPackageBinding implements IPackageBinding {
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		return this.packageSymbol.getAnnotationMirrors().stream()
-				.map(am -> this.resolver.canonicalize(new JavacAnnotationBinding(am, resolver, this)))
+				.map(am -> this.resolver.bindings.getAnnotationBinding(am, this))
 				.toArray(IAnnotationBinding[]::new);
 	}
 
@@ -101,7 +101,7 @@ public class JavacPackageBinding implements IPackageBinding {
 	}
 	
 	public IModuleBinding getModule() {
-		return new JavacModuleBinding(this.packageSymbol.modle, this.resolver);
+		return this.resolver.bindings.getModuleBinding(this.packageSymbol.modle);
 	}
 
 	@Override
