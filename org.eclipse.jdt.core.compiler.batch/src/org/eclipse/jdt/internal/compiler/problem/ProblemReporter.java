@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -3432,6 +3436,16 @@ public void illegalVoidExpression(ASTNode location) {
 		location.sourceEnd);
 }
 public void importProblem(ImportReference importRef, Binding expectedImport) {
+	if ((importRef.modifiers & ClassFileConstants.AccModule) != 0 && expectedImport == null) {
+		String[] arguments = new String[]{CharOperation.toString(importRef.tokens)};
+		this.handleUntagged(
+		        IProblem.ImportNotFound,
+		        arguments,
+		        arguments,
+		        importRef.sourceStart,
+		        importRef.sourceEnd);
+		return;
+	}
 	if (expectedImport instanceof FieldBinding) {
 		int id = IProblem.UndefinedField;
 		FieldBinding field = (FieldBinding) expectedImport;
@@ -11740,6 +11754,15 @@ public void conflictingPackageInModules(char[][] wellKnownTypeName, CompilationU
 	}
 }
 
+public void moduleDoesNotReadOther(ImportReference importReference, ModuleBinding currentModule, ModuleBinding otherModule) {
+	String[] arguments = new String[] { String.valueOf(currentModule.moduleName), String.valueOf(otherModule.moduleName) };
+	this.handle(
+		IProblem.ModuleNotRead,
+		arguments,
+		arguments,
+		importReference.sourceStart,
+		importReference.sourceEnd);
+}
 public void switchExpressionIncompatibleResultExpressions(SwitchExpression expression) {
 	TypeBinding type = expression.resultExpressions.get(0).resolvedType;
 	this.handle(

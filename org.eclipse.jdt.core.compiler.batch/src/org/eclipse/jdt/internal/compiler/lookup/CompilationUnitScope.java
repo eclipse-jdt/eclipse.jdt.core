@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -34,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.*;
 
@@ -284,7 +289,12 @@ private int resolveImports(int numberOfStatements, ImportBinding[] resolvedImpor
 			}
 		}
 
-		if ((importReference.bits & ASTNode.OnDemand) != 0) {
+		if ((importReference.modifiers & ClassFileConstants.AccModule) != 0) {
+			ModuleBinding module = this.environment.getModule(CharOperation.concatWith(compoundName, '.'));
+			if (module == null)
+				continue;
+			resolvedImports[index++] = new ImportBinding(compoundName, true, module, importReference);
+		} else if ((importReference.bits & ASTNode.OnDemand) != 0) {
 			if (CharOperation.equals(compoundName, this.currentPackageName)) {
 				continue;
 			}
@@ -475,7 +485,22 @@ void faultInImports() {
 				}
 			}
 		}
-		if ((importReference.bits & ASTNode.OnDemand) != 0) {
+		if ((importReference.modifiers & ClassFileConstants.AccModule) != 0) {
+			problemReporter().validateJavaFeatureSupport(JavaFeature.MODULE_IMPORTS, importReference.sourceStart, importReference.sourceEnd);
+			if (!(JavaFeature.MODULE_IMPORTS.isSupported(compilerOptions().sourceLevel, compilerOptions().enablePreviewFeatures))) {
+				continue nextImport;
+			}
+			ModuleBinding importedModule = this.environment.getModule(CharOperation.concatWith(compoundName, '.'));
+			if (importedModule == null) {
+				problemReporter().importProblem(importReference, null);
+				continue nextImport;
+			}
+			if (!module().reads(importedModule)) {
+				problemReporter().moduleDoesNotReadOther(importReference, module(), importedModule);
+				continue nextImport;
+			}
+			recordImportBinding(new ImportBinding(compoundName, true, importedModule, importReference));
+		} else if ((importReference.bits & ASTNode.OnDemand) != 0) {
 			Binding importBinding = findImport(compoundName, compoundName.length);
 			if (!importBinding.isValidBinding()) {
 				problemReporter().importProblem(importReference, importBinding);

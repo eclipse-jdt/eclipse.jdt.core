@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
@@ -124,7 +128,7 @@ public class Scanner implements TerminalTokens {
 	 * The current context of the scanner w.r.t restricted keywords
 	 */
 	enum ScanContext {
-		EXPECTING_KEYWORD, EXPECTING_IDENTIFIER, AFTER_REQUIRES, INACTIVE
+		EXPECTING_KEYWORD, EXPECTING_IDENTIFIER, AFTER_REQUIRES, AFTER_IMPORT, INACTIVE
 	}
 	protected ScanContext scanContext = null;
 	protected boolean insideModuleInfo = false;
@@ -2776,11 +2780,13 @@ void updateScanContext(int token) {
 		case TokenNamewith:
 		case TokenNametransitive:
 		case TokenNameDOT:
-		case TokenNameimport:
 		case TokenNameAT:
 		case TokenNameAT308:
 		case TokenNameCOMMA:
 			this.scanContext = ScanContext.EXPECTING_IDENTIFIER;
+			break;
+		case TokenNameimport:
+			this.scanContext = ScanContext.AFTER_IMPORT;
 			break;
 		case TokenNameIdentifier:
 			this.scanContext = ScanContext.EXPECTING_KEYWORD;
@@ -3590,7 +3596,8 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 		case 'm': //module
 			switch (length) {
 				case 6 :
-					if (areRestrictedModuleKeywordsActive()
+					if ((areRestrictedModuleKeywordsActive()
+							|| this.lookBack[1] == TokenNameimport) // JEP 467: import module
 						&& (data[++index] == 'o')
 						&& (data[++index] == 'd')
 						&& (data[++index] == 'u')
@@ -5408,19 +5415,23 @@ int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 			if (this.scanContext != ScanContext.AFTER_REQUIRES) {
 				token = TokenNameIdentifier;
 			} else {
-				getVanguardParser();
-				this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1, true, ScanContext.EXPECTING_IDENTIFIER);
-				try {
-					int lookAhead = this.vanguardScanner.getNextToken();
-					if (lookAhead == TokenNameSEMICOLON)
+				if (lookAhead(true, ScanContext.EXPECTING_IDENTIFIER) == TokenNameSEMICOLON)
+					token = TokenNameIdentifier;
+			}
+			break;
+		case TokenNamemodule:
+			switch (this.scanContext) {
+				case EXPECTING_KEYWORD:
+					break;
+				case AFTER_IMPORT:
+					if (lookAhead(true, ScanContext.EXPECTING_IDENTIFIER) == TokenNameDOT)
 						token = TokenNameIdentifier;
-				} catch (InvalidInputException e) {
-					//
-				}
+					break;
+				default:
+					token = TokenNameIdentifier;
 			}
 			break;
 		case TokenNameopen:
-		case TokenNamemodule:
 		case TokenNameexports:
 		case TokenNameopens:
 		case TokenNamerequires:
@@ -5434,6 +5445,15 @@ int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 			break;
 	}
 	return token;
+}
+int lookAhead(boolean isModuleInfo, ScanContext context) {
+	getVanguardParser();
+	this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1, isModuleInfo, context);
+	try {
+		return this.vanguardScanner.getNextToken();
+	} catch (InvalidInputException e) {
+		return TokenNameNotAToken;
+	}
 }
 int disambiguatesRestrictedIdentifierWithLookAhead(Predicate<Integer> checkPrecondition, int restrictedIdentifierToken, Goal goal) {
 	if (checkPrecondition.test(restrictedIdentifierToken)) {
