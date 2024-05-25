@@ -16,6 +16,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.Messages;
@@ -85,6 +86,10 @@ public enum JavaFeature {
 			Messages.bind(Messages.statements_before_super),
 			new char[][] {},
 			true),
+	MODULE_IMPORTS(ClassFileConstants.JDK23,
+			Messages.bind(Messages.module_imports),
+			CharOperation.NO_CHAR_CHAR,
+			true)
     ;
 
 	final long compliance;

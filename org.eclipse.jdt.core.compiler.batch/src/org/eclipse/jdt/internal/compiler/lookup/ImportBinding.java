@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -49,7 +53,9 @@ public char[] getSimpleName() {
 }
 @Override
 public char[] readableName() {
-	if (this.onDemand)
+	if (this.resolvedImport instanceof ModuleBinding)
+		return CharOperation.concat("module ".toCharArray(), CharOperation.concatWith(this.compoundName, '.')); //$NON-NLS-1$
+	else if (this.onDemand)
 		return CharOperation.concat(CharOperation.concatWith(this.compoundName, '.'), ".*".toCharArray()); //$NON-NLS-1$
 	else
 		return CharOperation.concatWith(this.compoundName, '.');

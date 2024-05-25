@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -3586,7 +3590,15 @@ public abstract class Scope {
 					if (someImport.onDemand) {
 						Binding resolvedImport = someImport.getResolvedImport();
 						ReferenceBinding temp = null;
-						if (resolvedImport instanceof PackageBinding) {
+						if (resolvedImport instanceof ModuleBinding) {
+							for (PackageBinding packageBinding : ((ModuleBinding) resolvedImport).getExports()) {
+								if (packageBinding.enclosingModule.isPackageExportedTo(packageBinding, module())) {
+									temp = findType(name, packageBinding, currentPackage);
+									if (temp != null && temp.isValidBinding())
+										break;
+								}
+							}
+						} else if (resolvedImport instanceof PackageBinding) {
 							temp = findType(name, (PackageBinding) resolvedImport, currentPackage);
 						} else if (someImport.isStatic()) {
 							// Imports are always resolved in the CU Scope (bug 520874)

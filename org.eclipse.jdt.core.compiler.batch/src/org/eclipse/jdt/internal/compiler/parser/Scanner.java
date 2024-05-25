@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
@@ -3590,7 +3594,8 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 		case 'm': //module
 			switch (length) {
 				case 6 :
-					if (areRestrictedModuleKeywordsActive()
+					if ((areRestrictedModuleKeywordsActive()
+							|| this.lookBack[1] == TokenNameimport) // JEP 467: import module
 						&& (data[++index] == 'o')
 						&& (data[++index] == 'd')
 						&& (data[++index] == 'u')

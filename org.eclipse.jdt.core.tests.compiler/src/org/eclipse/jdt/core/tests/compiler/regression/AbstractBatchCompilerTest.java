@@ -634,8 +634,8 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 					+ "\n------------- but was:  -------------\n"
 					+ outOutputString
 					+ "\n--------- (cut and paste:) ----------\n"
-					+ Util.displayString(outputDirNormalizer
-							.normalized(outOutputString))
+					+ outputDirNormalizer
+							.normalized(outOutputString)
 					+ "\n------------- [END OUT] -------------\n"
 					+   "------------ [START ERR] ------------\n"
 					+   "------------- Expected: -------------\n"
@@ -643,8 +643,8 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 					+ "\n------------- but was:  -------------\n"
 					+ errOutputString
 					+ "\n--------- (cut and paste:) ----------\n"
-					+ Util.displayString(outputDirNormalizer
-							.normalized(errOutputString))
+					+ outputDirNormalizer
+							.normalized(errOutputString)
 					+ "\n------------- [END ERR] -------------\n");
 		}
 		if (shouldCompileOK)

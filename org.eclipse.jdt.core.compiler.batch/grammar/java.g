@@ -2548,6 +2548,21 @@ StaticImportOnDemandDeclarationName ::= 'import' 'static' Name '.' RejectTypeAnn
 /:$compliance 1.5:/
 
 -----------------------------------------------
+-- 23 preview feature (JEP 476: Module Import Declarations)
+-----------------------------------------------
+ImportDeclaration -> SingleModuleImportDeclaration
+
+SingleModuleImportDeclaration ::= SingleModuleImportDeclarationName ';'
+/.$putCase consumeImportDeclaration(); $break ./
+/:$readableName SingleModuleImportDeclaration:/
+/:$compliance 23:/
+
+SingleModuleImportDeclarationName ::= 'import' 'module' Name RejectTypeAnnotations
+/.$putCase consumeSingleModuleImportDeclarationName(); $break ./
+/:$readableName SingleModuleImportDeclarationName:/
+/:$compliance 23:/
+
+-----------------------------------------------
 -- 1.5 features : generics
 -----------------------------------------------
 TypeArguments ::= '<' TypeArgumentList1

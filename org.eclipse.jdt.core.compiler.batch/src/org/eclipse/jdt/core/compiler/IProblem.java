@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added the following constants
@@ -2150,6 +2154,10 @@ void setSourceStart(int sourceStart);
 	int UnstableAutoModuleName = ModuleRelated + 1461;
 	/** @since  3.24 */
 	int ConflictingPackageInModules = ModuleRelated + 1462;
+
+	// module imports
+	/** @since 3.38 @noreference This field is not intended to be referenced by clients.*/
+	int ModuleNotRead = ModuleRelated + 1463;
 
 	// doc variant of an above constant:
 	/** @since 3.22 */
