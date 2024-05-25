@@ -328,6 +328,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_21;
 		} else if(rawVersion.startsWith("22")) {
 			return JavaCore.VERSION_22;
+		} else if(rawVersion.startsWith("23")) {
+			return JavaCore.VERSION_23;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -569,6 +571,11 @@ static class JavacCompiler {
 		}
 		if (version == JavaCore.VERSION_22) {
 			if ("22".equals(rawVersion)) {
+				return 0000;
+			}
+		}
+		if (version == JavaCore.VERSION_23) {
+			if ("23-ea".equals(rawVersion)) {
 				return 0000;
 			}
 		}

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -3570,7 +3574,9 @@ public abstract class Scope {
 					if (someImport.onDemand) {
 						Binding resolvedImport = someImport.getResolvedImport();
 						ReferenceBinding temp = null;
-						if (resolvedImport instanceof PackageBinding) {
+						if (resolvedImport instanceof ModuleBinding) {
+							temp = findTypeInModule(name, (ModuleBinding) resolvedImport, currentPackage);
+						} else if (resolvedImport instanceof PackageBinding) {
 							temp = findType(name, (PackageBinding) resolvedImport, currentPackage);
 						} else if (someImport.isStatic()) {
 							// Imports are always resolved in the CU Scope (bug 520874)
@@ -3646,6 +3652,37 @@ public abstract class Scope {
 				typeOrPackageCache.put(name, foundType);
 		}
 		return foundType;
+	}
+
+	private ReferenceBinding findTypeInModule(char[] name, ModuleBinding moduleBinding, PackageBinding currentPackage) {
+		ReferenceBinding type = null;
+		for (PackageBinding packageBinding : moduleBinding.getExports()) {
+			if (packageBinding.enclosingModule.isPackageExportedTo(packageBinding, module())) {
+				ReferenceBinding temp = findType(name, packageBinding, currentPackage);
+				if (temp != null && temp.canBeSeenBy(currentPackage)) {// imported only if accessible
+					if (type != null) {
+						// Answer error binding -- import on demand conflict; name found in two exported packages.
+						return new ProblemReferenceBinding(new char[][]{name}, temp, ProblemReasons.Ambiguous);
+					}
+					type = temp;
+				}
+			}
+		}
+		for (ModuleBinding required : moduleBinding.getRequiresTransitive()) {
+			ReferenceBinding temp = findTypeInModule(name, required, currentPackage);
+			if (temp != null) {
+				if (temp.problemId() == ProblemReasons.Ambiguous)
+					return temp; // don't look further
+				if (temp.canBeSeenBy(currentPackage)) {
+					if (type != null) {
+						// Answer error binding -- import on demand conflict; name found in two modules.
+						return new ProblemReferenceBinding(new char[][]{name}, temp, ProblemReasons.Ambiguous);
+					}
+					type = temp;
+				}
+			}
+		}
+		return type;
 	}
 
 	private boolean isUnnecessarySamePackageImport(Binding resolvedImport, Scope unitScope) {

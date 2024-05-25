@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -91,7 +95,7 @@ public interface TerminalTokens {
 							TokenNameextends = 93,
 							TokenNamefalse = 54,
 							TokenNamefinal = 45,
-							TokenNamefinally = 117,
+							TokenNamefinally = 118,
 							TokenNamefloat = 111,
 							TokenNamefor = 86,
 							TokenNamegoto = 137,
@@ -119,14 +123,14 @@ public interface TerminalTokens {
 							TokenNamesynchronized = 41,
 							TokenNamethis = 37,
 							TokenNamethrow = 79,
-							TokenNamethrows = 118,
+							TokenNamethrows = 119,
 							TokenNametransient = 52,
 							TokenNametrue = 56,
 							TokenNametry = 89,
 							TokenNamevoid = 116,
 							TokenNamevolatile = 53,
 							TokenNamewhile = 80,
-							TokenNamemodule = 119,
+							TokenNamemodule = 117,
 							TokenNameopen = 122,
 							TokenNamerequires = 123,
 							TokenNametransitive = 129,
@@ -169,7 +173,7 @@ public interface TerminalTokens {
 							TokenNameMINUS = 5,
 							TokenNameNOT = 67,
 							TokenNameREMAINDER = 9,
-							TokenNameXOR = 24,
+							TokenNameXOR = 25,
 							TokenNameAND = 22,
 							TokenNameMULTIPLY = 8,
 							TokenNameOR = 28,
@@ -178,12 +182,12 @@ public interface TerminalTokens {
 							TokenNameGREATER = 15,
 							TokenNameLESS = 11,
 							TokenNameLPAREN = 23,
-							TokenNameRPAREN = 25,
+							TokenNameRPAREN = 26,
 							TokenNameLBRACE = 42,
 							TokenNameRBRACE = 33,
 							TokenNameLBRACKET = 6,
 							TokenNameRBRACKET = 70,
-							TokenNameSEMICOLON = 26,
+							TokenNameSEMICOLON = 24,
 							TokenNameQUESTION = 29,
 							TokenNameCOLON = 66,
 							TokenNameCOMMA = 32,

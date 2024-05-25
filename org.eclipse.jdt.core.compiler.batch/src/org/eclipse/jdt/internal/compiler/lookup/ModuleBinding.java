@@ -73,6 +73,10 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			return Binding.NO_MODULES;
 		}
 		@Override
+		public boolean reads(ModuleBinding otherModule) {
+			return true;
+		}
+		@Override
 		public boolean canAccess(PackageBinding pkg) {
 			if (pkg instanceof SplitPackageBinding) {
 				for (PackageBinding p : ((SplitPackageBinding) pkg).incarnations) {
@@ -905,5 +909,14 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				holder = new AnnotationHolder();
 		}
 		storeAnnotationHolder(binding, holder.setAnnotations(annotations));
+	}
+	public boolean reads(ModuleBinding otherModule) {
+		if (otherModule == this)
+			return true;
+		for (ModuleBinding required : getAllRequiredModules()) {
+			if (required == otherModule)
+				return true;
+		}
+		return false;
 	}
 }

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -87,13 +91,16 @@ public class ImportReference extends ASTNode {
 	}
 
 	public StringBuilder print(int tab, StringBuilder output, boolean withOnDemand) {
-
+		boolean isModule = (this.modifiers & ClassFileConstants.AccModule) != 0;
+		if (isModule) {
+			output.append("module "); //$NON-NLS-1$
+		}
 		/* when withOnDemand is false, only the name is printed */
 		for (int i = 0; i < this.tokens.length; i++) {
 			if (i > 0) output.append('.');
 			output.append(this.tokens[i]);
 		}
-		if (withOnDemand && ((this.bits & ASTNode.OnDemand) != 0)) {
+		if (withOnDemand && !isModule && ((this.bits & ASTNode.OnDemand) != 0)) {
 			output.append(".*"); //$NON-NLS-1$
 		}
 		return output;
