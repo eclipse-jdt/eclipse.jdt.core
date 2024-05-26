@@ -3591,13 +3591,7 @@ public abstract class Scope {
 						Binding resolvedImport = someImport.getResolvedImport();
 						ReferenceBinding temp = null;
 						if (resolvedImport instanceof ModuleBinding) {
-							for (PackageBinding packageBinding : ((ModuleBinding) resolvedImport).getExports()) {
-								if (packageBinding.enclosingModule.isPackageExportedTo(packageBinding, module())) {
-									temp = findType(name, packageBinding, currentPackage);
-									if (temp != null && temp.isValidBinding())
-										break;
-								}
-							}
+							temp = findTypeInModule(name, (ModuleBinding) resolvedImport, currentPackage);
 						} else if (resolvedImport instanceof PackageBinding) {
 							temp = findType(name, (PackageBinding) resolvedImport, currentPackage);
 						} else if (someImport.isStatic()) {
@@ -3674,6 +3668,22 @@ public abstract class Scope {
 				typeOrPackageCache.put(name, foundType);
 		}
 		return foundType;
+	}
+
+	private ReferenceBinding findTypeInModule(char[] name, ModuleBinding moduleBinding, PackageBinding currentPackage) {
+		for (PackageBinding packageBinding : moduleBinding.getExports()) {
+			if (packageBinding.enclosingModule.isPackageExportedTo(packageBinding, module())) {
+				ReferenceBinding temp = findType(name, packageBinding, currentPackage);
+				if (temp != null && temp.canBeSeenBy(currentPackage)) // imported only if accessible
+					return temp;
+			}
+		}
+		for (ModuleBinding required : moduleBinding.getRequiresTransitive()) {
+			ReferenceBinding temp = findTypeInModule(name, required, currentPackage);
+			if (temp != null)
+				return temp;
+		}
+		return null;
 	}
 
 	private boolean isUnnecessarySamePackageImport(Binding resolvedImport, Scope unitScope) {

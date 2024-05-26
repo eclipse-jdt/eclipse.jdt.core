@@ -73,6 +73,10 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			return Binding.NO_MODULES;
 		}
 		@Override
+		public boolean reads(ModuleBinding otherModule) {
+			return true;
+		}
+		@Override
 		public boolean canAccess(PackageBinding pkg) {
 			if (pkg instanceof SplitPackageBinding) {
 				for (PackageBinding p : ((SplitPackageBinding) pkg).incarnations) {

@@ -332,7 +332,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"cannot find symbol"); // javac 23 ea build 24 additionally reports "module mod.one does not read: mod.one"
 	}
 
-	public void test005_selfImportInModule() {
+	public void test006_selfImportInModule() {
 		String modsDir = OUTPUT_DIR +  File.separator + "mods";
 		String modOneDir = modsDir + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
@@ -368,5 +368,273 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				OUTPUT_DIR,
 				JavacTestOptions.JavacHasABug.JavacBugReflexiveRead);// javac 23 ea build 24 reports "module mod.one does not read: mod.one"
+	}
+
+	public void test007_shadowing() {
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, srcDir + File.separator + "p1", "Connection.java",
+				"""
+					package p1;
+					public class Connection {
+						public void foo() {}
+					}
+					""");
+		writeFileCollecting(files, srcDir, "module-info.java",
+				"""
+					module mod.one {
+						requires java.sql;
+					}
+					""");
+		writeFileCollecting(files, srcDir + File.separator + "p2", "Client.java",
+				"""
+					package p2;
+					import module java.sql;
+					import p1.Connection;
+					@SuppressWarnings("preview")
+					class Client {
+						void m(Connection c, ConnectionBuilder builder) { // ConnectionBuiler is from java.sql
+							c.foo(); // ensure we select p1.Connection
+						}
+					}
+					""");
+		StringBuilder commandLine = new StringBuilder();
+		commandLine.append(" -23 --enable-preview ");
+
+		runConformModuleTest(
+				files,
+				commandLine,
+				"",
+				"",
+				OUTPUT_DIR);
+	}
+
+	public void test008_ambiguous() {
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, srcDir + File.separator + "p1", "Connection.java",
+				"""
+					package p1;
+					public class Connection {
+						public void foo() {}
+					}
+					""");
+		writeFileCollecting(files, srcDir, "module-info.java",
+				"""
+					module mod.one {
+						requires java.sql;
+					}
+					""");
+		writeFileCollecting(files, srcDir + File.separator + "p2", "Client.java",
+				"""
+					package p2;
+					import module java.sql;
+					import p1.*;
+					@SuppressWarnings("preview")
+					class Client {
+						void m(Connection c) {
+							c.foo(); // ensure we select p1.Connection
+						}
+					}
+					""");
+		StringBuilder commandLine = new StringBuilder();
+		commandLine.append(" -23 --enable-preview ");
+
+		runNegativeModuleTest(
+				files,
+				commandLine,
+				"",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p2/Client.java (at line 6)
+						void m(Connection c) {
+						       ^^^^^^^^^^
+					The type Connection is ambiguous
+					----------
+					1 problem (1 error)
+					""",
+				"reference to Connection is ambiguous",
+				OUTPUT_DIR);
+	}
+
+	public void test009_notAccessible() {
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		String modOneDir = srcDir + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, modOneDir, "module-info.java",
+				"""
+					module mod.one {
+						exports p1;
+					}
+					""");
+		writeFileCollecting(files, modOneDir + File.separator + "p1", "NoAccess.java",
+				"""
+					package p1;
+					class NoAccess {
+					}
+					""");
+		writeFileCollecting(files, modOneDir + File.separator + "p1", "Access.java",
+				"""
+					package p1;
+					public class Access {
+					}
+					""");
+		String modTwoDir = srcDir + File.separator + "mod.two";
+		writeFileCollecting(files, modTwoDir, "module-info.java",
+				"""
+					module mod.two {
+						requires mod.one;
+					}
+					""");
+		writeFileCollecting(files, modTwoDir + File.separator + "p2", "Client.java",
+				"""
+					package p2;
+					import module mod.one;
+					@SuppressWarnings("preview")
+					class Client {
+						Access good;
+						NoAccess bad;
+					}
+					""");
+		StringBuilder commandLine = new StringBuilder();
+		commandLine.append(" -23 --enable-preview");
+		commandLine.append(" --module-source-path ").append(srcDir);
+		commandLine.append(" -d ").append(OUTPUT_DIR+File.separator+"bin");
+
+		runNegativeModuleTest(
+				files,
+				commandLine,
+				"",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/p2/Client.java (at line 6)
+						NoAccess bad;
+						^^^^^^^^
+					NoAccess cannot be resolved to a type
+					----------
+					1 problem (1 error)
+					""",
+				"cannot find symbol",
+				OUTPUT_DIR);
+	}
+
+	public void test010_transitive() {
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		String modOneDir = srcDir + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, modOneDir, "module-info.java",
+				"""
+					module mod.one {
+						exports p1;
+					}
+					""");
+		writeFileCollecting(files, modOneDir + File.separator + "p1", "Access.java",
+				"""
+					package p1;
+					public class Access {
+					}
+					""");
+		String modTwoDir = srcDir + File.separator + "mod.two";
+		writeFileCollecting(files, modTwoDir, "module-info.java",
+				"""
+					module mod.two {
+						requires transitive mod.one;
+					}
+					""");
+		String modThreeDir = srcDir + File.separator + "mod.three";
+		writeFileCollecting(files, modThreeDir, "module-info.java",
+				"""
+					module mod.three {
+						requires mod.two;
+					}
+					""");
+		writeFileCollecting(files, modThreeDir + File.separator + "p2", "Client.java",
+				"""
+					package p2;
+					import module mod.two;
+					@SuppressWarnings("preview")
+					class Client {
+						Access good;
+					}
+					""");
+		StringBuilder commandLine = new StringBuilder();
+		commandLine.append(" -23 --enable-preview");
+		commandLine.append(" --module-source-path ").append(srcDir);
+		commandLine.append(" -d ").append(OUTPUT_DIR+File.separator+"bin");
+
+		runConformModuleTest(
+				files,
+				commandLine,
+				"",
+				"",
+				OUTPUT_DIR);
+	}
+
+	public void test011_redundant() {
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, OUTPUT_DIR + File.separator + "p", "X.java",
+				"""
+					package p;
+					import module java.sql;
+					import module java.sql; // redundant
+					@SuppressWarnings("preview")
+					public class X {
+						public static void main(String[] args) {
+							@SuppressWarnings("unused")
+							Connection con = null;
+							Zork zork;
+						}
+					}
+					""");
+		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
+				"""
+					module mod.one {
+						requires java.sql;
+					}
+					""");
+
+		StringBuilder commandLine = new StringBuilder();
+		commandLine.append(" -23 --enable-preview");
+
+		runNegativeModuleTest(
+				files,
+				commandLine,
+				"",
+				"""
+					----------
+					1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 3)
+						import module java.sql; // redundant
+						              ^^^^^^^^
+					The import java.sql is never used
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)
+						Zork zork;
+						^^^^
+					Zork cannot be resolved to a type
+					----------
+					2 problems (1 error, 1 warning)
+					""",
+				"cannot find symbol",
+				OUTPUT_DIR);
+	}
+
+	public void test012_inUnnamedModule() {
+		runConformModuleTest(
+			new String[] {
+				"p/X.java",
+				"""
+					package p;
+					import module java.sql;
+					@SuppressWarnings("preview")
+					public class X {
+						Connection con = null;
+					}
+					"""
+	        },
+			" -23 --enable-preview "
+	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
+	        "",
+	        "",
+	        true);
 	}
 }
