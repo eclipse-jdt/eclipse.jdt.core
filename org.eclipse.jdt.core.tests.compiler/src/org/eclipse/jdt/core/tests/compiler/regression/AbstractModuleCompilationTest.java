@@ -104,19 +104,27 @@ public abstract class AbstractModuleCompilationTest extends AbstractBatchCompile
 		}
 	}
 
-	protected void runConformModuleTest(List<String> testFileNames, StringBuilder commandLine, String expectedFailureOutOutputString, String expectedFailureErrOutputString, boolean shouldFlushOutputDirectory) {
+	protected void runConformModuleTest(List<String> testFileNames, StringBuilder commandLine, String expectedFailureOutOutputString, String expectedFailureErrOutputString) {
 		runConformModuleTest(testFileNames, commandLine,
-				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, OUTPUT_DIR + File.separator + "javac");
+				expectedFailureOutOutputString, expectedFailureErrOutputString, OUTPUT_DIR + File.separator + "javac");
 	}
 
-	protected void runConformModuleTest(List<String> testFileNames, StringBuilder commandLine, String expectedFailureOutOutputString, String expectedFailureErrOutputString, boolean shouldFlushOutputDirectory,
+	protected void runConformModuleTest(List<String> testFileNames, StringBuilder commandLine,
+			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			String output) {
-				for (String file : testFileNames)
-					commandLine.append(" \"").append(file).append("\"");
-				runConformModuleTest(new String[0], commandLine.toString(),
-						expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory,
-						output, JavacTestOptions.DEFAULT, null);
-			}
+		runConformModuleTest(testFileNames, commandLine,
+				expectedFailureOutOutputString, expectedFailureErrOutputString, output,
+				JavacTestOptions.DEFAULT);
+	}
+	protected void runConformModuleTest(List<String> testFileNames, StringBuilder commandLine,
+			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
+			String output, JavacTestOptions javacTestOptions) {
+		for (String file : testFileNames)
+			commandLine.append(" \"").append(file).append("\"");
+		runConformModuleTest(new String[0], commandLine.toString(),
+				expectedFailureOutOutputString, expectedFailureErrOutputString, false,
+				output, javacTestOptions, null);
+	}
 
 	protected Set<String> runConformModuleTest(String[] testFiles, String commandLine, String expectedFailureOutOutputString, String expectedFailureErrOutputString, boolean shouldFlushOutputDirectory) {
 		return runConformModuleTest(testFiles, commandLine, expectedFailureErrOutputString, expectedFailureErrOutputString,
@@ -154,8 +162,13 @@ public abstract class AbstractModuleCompilationTest extends AbstractBatchCompile
 													false); // don't repeat filenames on the command line
 							log = trimJavacLog(log);
 							if (compileResult != 0 && !log.isEmpty()) {
-								System.err.println("Previous error was from "+testName());
-								fail("Unexpected error from javac");
+								JavacTestOptions.Excuse excuse = options.excuseFor(javacCompiler);
+								boolean hasError = log.toString().lines().anyMatch(l -> l.contains("error:"));
+								int mismatch = hasError ? JavacTestOptions.MismatchType.JavacErrorsEclipseNone : JavacTestOptions.MismatchType.JavacWarningsEclipseNone;
+								handleMismatch(javacCompiler, testName(), testFiles,
+										"", expectedFailureOutOutputString, expectedFailureErrOutputString,
+										log, "", "",
+										excuse, mismatch);
 							}
 						} catch (IOException | InterruptedException e) {
 							e.printStackTrace();
@@ -176,24 +189,23 @@ public abstract class AbstractModuleCompilationTest extends AbstractBatchCompile
 		return log;
 	}
 
-	protected void runNegativeModuleTest(List<String> testFileNames, StringBuilder commandLine, String expectedFailureOutOutputString, String expectedFailureErrOutputString, boolean shouldFlushOutputDirectory,
-			String javacErrorMatch) {
+	protected void runNegativeModuleTest(List<String> testFileNames, StringBuilder commandLine, String expectedFailureOutOutputString, String expectedFailureErrOutputString, String javacErrorMatch) {
 				runNegativeModuleTest(testFileNames, commandLine, expectedFailureOutOutputString,
-						expectedFailureErrOutputString, shouldFlushOutputDirectory, javacErrorMatch, OUTPUT_DIR + File.separator + "javac");
+						expectedFailureErrOutputString, javacErrorMatch, OUTPUT_DIR + File.separator + "javac");
 			}
 
-	protected void runNegativeModuleTest(List<String> testFileNames, StringBuilder commandLine, String expectedFailureOutOutputString, String expectedFailureErrOutputString, boolean shouldFlushOutputDirectory,
-			String javacErrorMatch, String output) {
+	protected void runNegativeModuleTest(List<String> testFileNames, StringBuilder commandLine, String expectedFailureOutOutputString, String expectedFailureErrOutputString, String javacErrorMatch,
+			String output) {
 				runNegativeModuleTest(testFileNames, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString,
-						shouldFlushOutputDirectory, javacErrorMatch, output, JavacTestOptions.DEFAULT);
+						javacErrorMatch, output, JavacTestOptions.DEFAULT);
 			}
 
-	protected void runNegativeModuleTest(List<String> testFileNames, StringBuilder commandLine, String expectedFailureOutOutputString, String expectedFailureErrOutputString, boolean shouldFlushOutputDirectory,
-			String javacErrorMatch, String output, JavacTestOptions options) {
+	protected void runNegativeModuleTest(List<String> testFileNames, StringBuilder commandLine, String expectedFailureOutOutputString, String expectedFailureErrOutputString, String javacErrorMatch,
+			String output, JavacTestOptions options) {
 				for (String file : testFileNames)
 					commandLine.append(" \"").append(file).append("\"");
 				runNegativeModuleTest(new String[0], commandLine.toString(),
-						expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, javacErrorMatch, output,
+						expectedFailureOutOutputString, expectedFailureErrOutputString, false, javacErrorMatch, output,
 						options);
 			}
 

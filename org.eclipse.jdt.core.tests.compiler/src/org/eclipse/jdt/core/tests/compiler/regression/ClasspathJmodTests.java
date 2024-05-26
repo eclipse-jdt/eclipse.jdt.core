@@ -85,7 +85,6 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 				buffer,
 				"",
 				"",
-				false,
 				"p.X");
 	}
 	@Override
@@ -129,7 +128,6 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 				"java.sql cannot be resolved to a type\n" +
 				"----------\n" +
 				"2 problems (2 errors)\n",
-				false,
 				"p.X");
 	}
 	@Override
@@ -174,7 +172,6 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 				"java.sql cannot be resolved to a type\n" +
 				"----------\n" +
 				"2 problems (2 errors)\n",
-				false,
 				"p.X");
 	}
 	@Override
@@ -212,7 +209,6 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 				"java.sql cannot be resolved to a type\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"p.X");
 	}
 	@Override
@@ -261,7 +257,6 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 }

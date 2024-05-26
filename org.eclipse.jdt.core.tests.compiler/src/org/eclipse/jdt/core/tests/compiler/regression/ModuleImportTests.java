@@ -18,6 +18,8 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import junit.framework.Test;
@@ -245,4 +247,88 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	        "imported module not found");
 	}
 
+	public void test004_selfImport_OK() {
+		String modsDir = OUTPUT_DIR +  File.separator + "mods";
+		String modOneDir = modsDir + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, modOneDir + File.separator + "p1", "X1.java",
+				"""
+					package p1;
+					public class X1 {}
+					""");
+		writeFileCollecting(files, modOneDir + File.separator + "p2", "X2.java",
+				"""
+					package p2;
+					public class X2 {}
+					""");
+		writeFileCollecting(files, modOneDir + File.separator + "p", "X.java",
+				"""
+					package p;
+					import module mod.one;
+					@SuppressWarnings("preview")
+					public class X {
+						X1 x1;
+						X2 x2;
+					}
+					""");
+		writeFileCollecting(files, modOneDir, "module-info.java",
+				"""
+					module mod.one {
+						exports p1;
+						exports p2 to mod.one;
+					}
+					""");
+		StringBuilder commandLine = new StringBuilder();
+		commandLine.append(" -23 --enable-preview ");
+		runConformModuleTest(
+				files,
+				commandLine,
+				"",
+				"",
+				OUTPUT_DIR,
+				JavacTestOptions.JavacHasABug.JavacBugReflexiveRead);// javac 23 ea build 24 reports "module mod.one does not read: mod.one"
+	}
+
+	public void test005_selfImport_NOK() {
+		String modsDir = OUTPUT_DIR +  File.separator + "mods";
+		String modOneDir = modsDir + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, modOneDir + File.separator + "p1", "X1.java",
+				"""
+					package p1;
+					public class X1 {}
+					""");
+		writeFileCollecting(files, modOneDir + File.separator + "p", "X.java",
+				"""
+					package p;
+					import module mod.one;
+					@SuppressWarnings("preview")
+					public class X {
+						X1 x1;
+					}
+					""");
+		writeFileCollecting(files, modOneDir, "module-info.java",
+				"""
+					module mod.one {
+						exports p1 to mod.other;
+					}
+					""");
+		StringBuilder commandLine = new StringBuilder();
+		commandLine.append(" -23 --enable-preview ");
+
+		runNegativeModuleTest(
+				files,
+				commandLine,
+				"",
+				"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/mods/mod.one/p/X.java (at line 5)
+					X1 x1;
+					^^
+				X1 cannot be resolved to a type
+				----------
+				1 problem (1 error)
+				""",
+				"cannot find symbol"); // javac 23 ea build 24 additionally reports "module mod.one does not read: mod.one"
+	}
 }

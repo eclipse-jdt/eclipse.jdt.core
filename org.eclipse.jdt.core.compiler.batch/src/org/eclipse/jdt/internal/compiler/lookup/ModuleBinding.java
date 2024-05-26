@@ -907,6 +907,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		storeAnnotationHolder(binding, holder.setAnnotations(annotations));
 	}
 	public boolean reads(ModuleBinding otherModule) {
+		if (otherModule == this)
+			return true;
 		for (ModuleBinding required : getAllRequiredModules()) {
 			if (required == otherModule)
 				return true;

@@ -1160,7 +1160,9 @@ protected static class JavacTestOptions {
 					new JavacBug8226510(" --release 12 --enable-preview -Xlint:-preview") : null,
 		    JavacBug8299416 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8299416
 					new JavacBugExtraJavacOptionsPlusMismatch(" --release 20 --enable-preview -Xlint:-preview",
-							MismatchType.EclipseErrorsJavacNone| MismatchType.EclipseErrorsJavacWarnings) : null;
+							MismatchType.EclipseErrorsJavacNone| MismatchType.EclipseErrorsJavacWarnings) : null,
+			JavacBugReflexiveRead = RUN_JAVAC ? // https://mail.openjdk.org/pipermail/amber-spec-experts/2024-May/004133.html
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone) : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug

@@ -23,6 +23,7 @@ import java.util.Set;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
@@ -197,7 +198,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
-		runConformModuleTest(files, buffer, "", "", false);
+		runConformModuleTest(files, buffer, "", "");
 	}
 	public void test007() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -247,7 +248,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type p.X is not accessible\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"p.X");
 	}
 	public void test008() {
@@ -295,8 +295,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 	public void test008a() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -346,7 +345,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"invalid location for system libraries: ---OUTPUT_DIR_PLACEHOLDER---/system\n",
-				false,
 				"system");
 	}
 	public void test009() {
@@ -389,8 +387,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 	private void createUnnamedLibrary(String unnamedLoc, String unnamedBin) {
 		writeFile(unnamedLoc + File.separator + "s" + File.separator + "t", "Tester.java",
@@ -521,7 +518,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"",
-				false, outDir);
+				outDir);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=487421
 	public void test011() {
@@ -588,7 +585,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"mod.two cannot be resolved to a module\n" +
 				"----------\n" +
 				"2 problems (2 errors)\n",
-				false,
 				"module");
 	}
 	// Modules used as regular -classpath as opposed to --module-path. The files being compiled
@@ -621,7 +617,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"",
-				false,
 				outDir);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=495500
@@ -722,8 +717,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 	public void test015() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -774,7 +768,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type p.X is not accessible\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"cannot be resolved",
 				OUTPUT_DIR + File.separator + out,
 				JavacTestOptions.JavacHasABug.JavacBug8207032);
@@ -822,8 +815,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 	public void test017() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -875,7 +867,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type p.X is not accessible\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"visible",
 				OUTPUT_DIR + File.separator + out);
 	}
@@ -934,8 +925,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 	/*
 	 * Unnamed module tries to access a type from an unexported package successfully due to --add-exports
@@ -1006,7 +996,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"",
-				false,
 				OUTPUT_DIR + File.separator + out);
 	}
 
@@ -1056,7 +1045,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The package s is not accessible\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"package s",
 				 OUTPUT_DIR + File.separator + out,
 				 JavacTestOptions.JavacHasABug.JavacBug8204534);
@@ -1103,7 +1091,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type com.sun.security.ntlm.NTLMException is not accessible\n" +
 				"----------\n" +
 				"2 problems (2 errors)\n",
-				false,
 				"package com.sun.security.ntlm");
 				/* javac9:
 				 * src/mod.one/p/X.java:2: error: package com.sun.security.ntlm is not visible
@@ -1157,7 +1144,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"incorrectly formatted option: --add-exports mod.one=mod.two,mod.three\n",
-				false,
 				"option");
 	}
 	public void test021() {
@@ -1193,7 +1179,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"incorrectly formatted option: --add-reads mod.one/mod.two\n",
-				false,
 				"option");
 	}
 	public void test022() {
@@ -1230,7 +1215,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"can specify a package in a module only once with --add-export\n",
-				false,
 				"export");
 	}
 	public void test023() {
@@ -1259,7 +1243,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"option -extdirs not supported at compliance level 9 and above\n",
-				false,
 				"extdirs");
 	}
 	public void test024() {
@@ -1288,7 +1271,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"option -bootclasspath not supported at compliance level 9 and above\n",
-				false,
 				"not allowed"); // when specifying -bootclasspath javac answers: "option --boot-class-path not allowed with target 1.9" (two bugs)
 	}
 	public void test025() {
@@ -1317,7 +1299,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"option -endorseddirs not supported at compliance level 9 and above\n",
-				false,
 				"endorseddirs");
 	}
 	public void test026() {
@@ -1383,7 +1364,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type p1.X1 is not accessible\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"visible",
 				outDir);
 	}
@@ -1443,7 +1423,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"The type java.sql.Connection is not accessible\n" +
 			"----------\n" +
 			"2 problems (1 error, 1 warning)\n",
-			false,
 			"visible");
 	}
 	public void test030() {
@@ -1503,7 +1482,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"Connection cannot be resolved to a type\n"+
 			"----------\n"+
 			"2 problems (2 errors)\n",
-			false,
 			"visible",
 			OUTPUT_DIR + File.separator + out);
 	}
@@ -1563,7 +1541,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"Connection cannot be resolved to a type\n"+
 			"----------\n"+
 			"2 problems (2 errors)\n",
-			false,
 			"visible",
 			OUTPUT_DIR + File.separator + out);
 	}
@@ -1597,7 +1574,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			buffer,
 			"",
 			"",
-			false,
 			OUTPUT_DIR + File.separator + out);
 	}
 	/**
@@ -1653,7 +1629,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type a.A is not accessible\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"package a does not exist");
 	}
 	/**
@@ -1711,7 +1686,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type a.A is not accessible\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"does not read");
 	}
 	/**
@@ -1764,8 +1738,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 	public void testBug515985() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1815,8 +1788,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 
 	public void testApiLeak1() {
@@ -1877,8 +1849,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"	               ^^^^^\n" +
 				"The type Other is not exported from this module\n" +
 				"----------\n" +
-				"1 problem (1 warning)\n",
-				false);
+				"1 problem (1 warning)\n");
 	}
 
 	/**
@@ -1960,7 +1931,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The method m1(impl.SomeImpl) in the type C1 is not applicable for the arguments (impl.SomeImpl)\n" +
 				"----------\n" +
 				"2 problems (1 error, 0 warnings, 1 info)\n",
-				false,
 				"incompatible",
 				OUTPUT_DIR + File.separator + out);
 	}
@@ -2056,7 +2026,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The package pm is accessible from more than one module: mod.one, mod.two, mod.x\n" +
 				"----------\n" +
 				"3 problems (3 errors)\n",
-				false,
 				"reads package pm");
 	}
 
@@ -2154,7 +2123,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The package pm is accessible from more than one module: mod.one, mod.two\n" +
 				"----------\n" +
 				"5 problems (5 errors)\n",
-				false,
 				"reads package pm");
 	}
 	// conflict foreign<->local package
@@ -2203,7 +2171,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The package pm conflicts with a package accessible from another module: mod.one\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"",
 				OUTPUT_DIR + File.separator + out);
 	}
@@ -2246,8 +2213,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 		Util.flushDirectoryContent(srcDir);
 		files.clear();
 		writeFileCollecting(files, directory + File.separator + "p", "X.java",
@@ -2270,7 +2236,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The package pm is accessible from more than one module: mod.x, mod.y\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"package conflict");
 	}
 	/**
@@ -2306,8 +2271,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 		Util.flushDirectoryContent(srcDir);
 		files.clear();
 		writeFileCollecting(files, directory + File.separator + "p", "X.java",
@@ -2330,7 +2294,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"pm cannot be resolved to a type\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"package conflict");
 	}
 	public void testPackageConflict5() {
@@ -2372,8 +2335,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 		Util.flushDirectoryContent(srcDir);
 		files.clear();
 		writeFileCollecting(files, directory + File.separator + "p", "X.java",
@@ -2391,7 +2353,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"The package pm is accessible from more than one module: mod.y, mod.x\n",
-				false,
 				"reads package pm from both");
 		buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
@@ -2405,7 +2366,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"invalid module name: mod.z\n",
-				false,
 				"module not found");
 	}
 	public void testPackageConflict6() {
@@ -2447,8 +2407,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 		Util.flushDirectoryContent(srcDir);
 		files.clear();
 		writeFileCollecting(files, directory + File.separator + "p", "X.java",
@@ -2472,7 +2431,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The package pm is accessible from more than one module: mod.x, mod.y\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"package conflict");
 	}
 	public void testPackageConflict7() {
@@ -2514,8 +2472,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 		Util.flushDirectoryContent(srcDir);
 		files.clear();
 		writeFileCollecting(files, directory + File.separator + "p", "X.java",
@@ -2533,7 +2490,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"The package pm is accessible from more than one module: mod.y, mod.x\n",
-				false,
 				"reads package pm from both");
 	}
 	public void testPackageTypeConflict1() {
@@ -2585,8 +2541,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 
 	public void testBug519922() {
@@ -2619,7 +2574,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"org.eclipse cannot be resolved to a type\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"does not exist");
 	}
 	public void testMixedSourcepath() {
@@ -2649,7 +2603,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"cannot specify both -source-path and --module-source-path\n",
-				false,
 				"cannot specify both",
 				OUTPUT_DIR + File.separator + out);
 	}
@@ -2721,7 +2674,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type C2 is not exported from this module\n" +
 				"----------\n" +
 				"4 problems (4 errors)\n",
-				false,
 				"is not exported");
 	}
 
@@ -2772,7 +2724,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type C0 is not accessible to clients that require this module\n" +
 				"----------\n" +
 				"2 problems (2 errors)\n",
-				false,
 				"not accessible to clients");
 	}
 
@@ -2814,8 +2765,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 
 	// details: nested types
@@ -2864,7 +2814,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type C1.C3.C4 is not accessible to clients that require this module\n" +
 				"----------\n" +
 				"2 problems (2 errors)\n",
-				false,
 				"one is not accessible to clients");
 	}
 
@@ -2928,7 +2877,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type C1 from module mod.one may not be accessible to clients due to missing \'requires transitive\'\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"is not indirectly exported");
 	}
 
@@ -2980,7 +2928,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type C0 is not accessible to clients that require this module\n" +
 				"----------\n" +
 				"2 problems (2 errors)\n",
-				false,
 				"is not accessible to clients");
 	}
 
@@ -3014,8 +2961,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 
 		runConformModuleTest(files, buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 
 	public void testBug486013_comment27() {
@@ -3043,8 +2989,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 
 		runConformModuleTest(files, buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 	public void testBug518295a() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
@@ -3136,7 +3081,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"",
-				false,
 				outDir);
 	}
 	public void testUnnamedPackage_Bug520839() {
@@ -3172,7 +3116,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"Must declare a named package because this compilation unit is associated to the named module \'mod.one\'\n" +
 			"----------\n" +
 			"1 problem (1 error)\n",
-			false,
 			"unnamed package is not allowed in named modules",
 			OUTPUT_DIR + File.separator + out);
 	}
@@ -3221,7 +3164,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"Name of automatic module \'lib.x\' is unstable, it is derived from the module\'s file name.\n" +
 			"----------\n" +
 			"1 problem (1 info)\n",
-			false,
 			OUTPUT_DIR + File.separator + out);
 	}
 	public void testBug521458a() {
@@ -3252,7 +3194,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"module name mod._3_ does not match expected name mod.three\n",
-				false,
 				"does not match expected name");
 	}
 	/*
@@ -3286,7 +3227,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"module name mod.3 does not match expected name mod.three\r\n",
-				false,
 				outDir);
 	}
 public void testBug521362_emptyFile() {
@@ -3321,7 +3261,6 @@ public void testBug521362_emptyFile() {
 			"The package p1 does not exist or is empty\n" +
 			"----------\n" +
 			"1 problem (1 error)\n",
-			false,
 			"empty",
 			OUTPUT_DIR + File.separator + out);
 	}
@@ -3357,7 +3296,6 @@ public void testBug521362_emptyFile() {
 			"The package p1 does not exist or is empty\n" +
 			"----------\n" +
 			"1 problem (1 error)\n",
-			false,
 			"package is empty",
 			OUTPUT_DIR + File.separator + out);
 	}
@@ -3403,7 +3341,6 @@ public void testBug521362_emptyFile() {
 			"The package p2 does not exist or is empty\n" +
 			"----------\n" +
 			"2 problems (2 errors)\n",
-			false,
 			"package is empty",
 			OUTPUT_DIR + File.separator + out);
 	}
@@ -3449,7 +3386,6 @@ public void testBug521362_emptyFile() {
 			"The package p2 does not exist or is empty\n" +
 			"----------\n" +
 			"2 problems (2 errors)\n",
-			false,
 			"package is empty",
 			OUTPUT_DIR + File.separator + out);
 	}
@@ -3534,7 +3470,6 @@ public void testBug521362_emptyFile() {
 				----------
 				4 problems (4 errors)
 				""",
-				false,
 				"modules are not supported");
 	}
 	public void testBug522472c() {
@@ -3580,8 +3515,7 @@ public void testBug521362_emptyFile() {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 
 		Util.flushDirectoryContent(srcDir);
 		files.clear();
@@ -3623,7 +3557,6 @@ public void testBug521362_emptyFile() {
 				"The package x.y.z is accessible from more than one module: mod.one, mod.one.a\n" +
 				"----------\n" +
 				"2 problems (2 errors)\n",
-				false,
 				"module mod.two reads package x.y.z from both mod.one and mod.one.a");
 	}
 	public void testReleaseOption1() throws Exception {
@@ -3952,6 +3885,11 @@ public void testBug521362_emptyFile() {
 				"	}\n" +
 				"}");
 		runner.commandLine.append(" --release 8 ");
+		// javac:
+		// warning: [options] source value 8 is obsolete and will be removed in a future release
+		// warning: [options] target value 8 is obsolete and will be removed in a future release
+		// warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+		runner.javacTestOptions = Excuse.JavacHasWarningsEclipseNotConfigured;
 	    runner.runConformModuleTest();
 	}
 	// Test from https://bugs.eclipse.org/bugs/show_bug.cgi?id=526997
@@ -4185,7 +4123,6 @@ public void testBug521362_emptyFile() {
 				"java.sql cannot be resolved to a module\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"module not found");
 	}
 	public void testLimitModules2() {
@@ -4224,7 +4161,6 @@ public void testBug521362_emptyFile() {
 				"The import java.sql cannot be resolved\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"is not visible");
 	}
 	public void testLimitModules3() {
@@ -4255,8 +4191,7 @@ public void testBug521362_emptyFile() {
 			.append(" --module-source-path " + "\"" + directory + "\"");
 		runConformModuleTest(files, buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 	public void testLimitModules4() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
@@ -4284,8 +4219,7 @@ public void testBug521362_emptyFile() {
 			.append(" --module-source-path " + "\"" + srcDir + "\" ");
 		runConformModuleTest(files, buffer,
 				"",
-				"",
-				false);
+				"");
 	}
 	public void testLimitModules5() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
@@ -4320,7 +4254,6 @@ public void testBug521362_emptyFile() {
 				"mod.two cannot be resolved to a module\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"");
 	}
 	public void testBug519600() {
@@ -4395,8 +4328,7 @@ public void testBug521362_emptyFile() {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 		String expectedOutput = "// Compiled from module-info.java (version 9 : 53.0, no super bit)\n" +
 				" module mod.one  {\n" +
 				"  // Version: \n" +
@@ -4618,7 +4550,6 @@ public void testBug521362_emptyFile() {
 		runNegativeModuleTest(files, buffer,
 				"",
 				"\'---OUTPUT_DIR_PLACEHOLDER---/src/test/p/Test.java\' does not belong to a module on the module source path\n",
-				false,
 				"not in a module on the module source path");
 	}
 	public void testBug520858d() {
@@ -4655,7 +4586,6 @@ public void testBug521362_emptyFile() {
 		runNegativeModuleTest(Collections.emptyList(), buffer,
 			"",
 			"\'---OUTPUT_DIR_PLACEHOLDER---/src/test/p/Test.java\' does not belong to a module on the module source path\n",
-			false,
 			"not in a module on the module source path");
 	}
 	public void testBug520858e() {
@@ -4693,7 +4623,6 @@ public void testBug521362_emptyFile() {
 		runNegativeModuleTest(Collections.emptyList(), buffer,
 			"",
 			"\'---OUTPUT_DIR_PLACEHOLDER---/src/test/p/Test.java\' does not belong to a module on the module source path\n",
-			false,
 			"not in a module on the module source path");
 	}
 	public void testBug530575() {
@@ -4761,7 +4690,6 @@ public void testBug521362_emptyFile() {
 				buffer,
 				"",
 				"",
-				false,
 				OUTPUT_DIR + "javac");
 	}
 	/*
@@ -5048,7 +4976,7 @@ public void testBug521362_emptyFile() {
 			.append(" --module-source-path " + "\"" + directory + "\" ")
 			.append(" --module-version 47.11 ");
 		String outText = isJRE9Plus ? "" : "Could not invoke method java.lang.module.ModuleDescriptor.Version.parse(), cannot validate module version.\n";
-		runConformModuleTest(files, buffer, outText, "", false);
+		runConformModuleTest(files, buffer, outText, "");
 
 		IClassFileReader cfr = ToolFactory.createDefaultClassFileReader(binDir + File.separator + "mod.one" + File.separator + "module-info.class", IClassFileReader.CLASSFILE_ATTRIBUTES);
 		assertNotNull("Error reading module-info.class", cfr);
@@ -5091,9 +5019,9 @@ public void testBug521362_emptyFile() {
 			.append(" --module-source-path " + "\"" + directory + "\" ")
 			.append(" --module-version fourtyseven.11 ");
 		if (isJRE9Plus) {
-			runNegativeModuleTest(files, buffer, "", "fourtyseven.11: Version string does not start with a number\n", false, "bad value");
+			runNegativeModuleTest(files, buffer, "", "fourtyseven.11: Version string does not start with a number\n", "bad value");
 		} else {
-			runConformModuleTest(files, buffer, "Could not invoke method java.lang.module.ModuleDescriptor.Version.parse(), cannot validate module version.\n", "", false);
+			runConformModuleTest(files, buffer, "Could not invoke method java.lang.module.ModuleDescriptor.Version.parse(), cannot validate module version.\n", "");
 		}
 	}
 	public void testPackageTypeConflict2() {
@@ -5143,7 +5071,6 @@ public void testBug521362_emptyFile() {
 				"The package p1.p2.t3 collides with a type\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"package p1.p2.t3 clashes with class of same name");
 	}
 	public void testBug550178() throws Exception {
@@ -5177,7 +5104,6 @@ public void testBug521362_emptyFile() {
 				"The package pkg.invalid does not exist or is empty\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false,
 				"");
 	}
 	public void testRelease565930_1() throws Exception {
@@ -5363,8 +5289,7 @@ public void testBug521362_emptyFile() {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 
 		Util.flushDirectoryContent(srcDir);
 		files.clear();
@@ -5404,7 +5329,6 @@ public void testBug521362_emptyFile() {
 				+ "The import x.y.z is never used\n"
 				+ "----------\n"
 				+ "2 problems (2 warnings)\n",
-				false,
 				"package conflict");
 	}
 	/*
@@ -5452,8 +5376,7 @@ public void testBug521362_emptyFile() {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				false);
+				"");
 
 		Util.flushDirectoryContent(srcDir);
 		files.clear();
@@ -5500,7 +5423,6 @@ public void testBug521362_emptyFile() {
 				"The import x.y.z cannot be resolved\n" +
 				"----------\n" +
 				"3 problems (3 errors)\n",
-				false,
 				"package conflict");
 	}
 	public void testBug522472d() {
@@ -5577,7 +5499,6 @@ public void testBug521362_emptyFile() {
 				"The package x.y.z is accessible from more than one module: mod.one, mod.one.a\n" +
 				"----------\n" +
 				"3 problems (3 errors)\n",
-				false,
 				"conflict");
 	}
 	public void testIssue2357_001() throws Exception {
