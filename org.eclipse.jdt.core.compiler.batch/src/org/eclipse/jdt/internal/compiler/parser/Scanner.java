@@ -5415,21 +5415,17 @@ int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 			if (this.scanContext != ScanContext.AFTER_REQUIRES) {
 				token = TokenNameIdentifier;
 			} else {
-				getVanguardParser();
-				this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1, true, ScanContext.EXPECTING_IDENTIFIER);
-				try {
-					int lookAhead = this.vanguardScanner.getNextToken();
-					if (lookAhead == TokenNameSEMICOLON)
-						token = TokenNameIdentifier;
-				} catch (InvalidInputException e) {
-					//
-				}
+				if (lookAhead(true, ScanContext.EXPECTING_IDENTIFIER) == TokenNameSEMICOLON)
+					token = TokenNameIdentifier;
 			}
 			break;
 		case TokenNamemodule:
 			switch (this.scanContext) {
 				case EXPECTING_KEYWORD:
+					break;
 				case AFTER_IMPORT:
+					if (lookAhead(true, ScanContext.EXPECTING_IDENTIFIER) == TokenNameDOT)
+						token = TokenNameIdentifier;
 					break;
 				default:
 					token = TokenNameIdentifier;
@@ -5449,6 +5445,15 @@ int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 			break;
 	}
 	return token;
+}
+int lookAhead(boolean isModuleInfo, ScanContext context) {
+	getVanguardParser();
+	this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1, isModuleInfo, context);
+	try {
+		return this.vanguardScanner.getNextToken();
+	} catch (InvalidInputException e) {
+		return TokenNameNotAToken;
+	}
 }
 int disambiguatesRestrictedIdentifierWithLookAhead(Predicate<Integer> checkPrecondition, int restrictedIdentifierToken, Goal goal) {
 	if (checkPrecondition.test(restrictedIdentifierToken)) {
