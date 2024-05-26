@@ -128,7 +128,7 @@ public class Scanner implements TerminalTokens {
 	 * The current context of the scanner w.r.t restricted keywords
 	 */
 	enum ScanContext {
-		EXPECTING_KEYWORD, EXPECTING_IDENTIFIER, AFTER_REQUIRES, INACTIVE
+		EXPECTING_KEYWORD, EXPECTING_IDENTIFIER, AFTER_REQUIRES, AFTER_IMPORT, INACTIVE
 	}
 	protected ScanContext scanContext = null;
 	protected boolean insideModuleInfo = false;
@@ -2780,11 +2780,13 @@ void updateScanContext(int token) {
 		case TokenNamewith:
 		case TokenNametransitive:
 		case TokenNameDOT:
-		case TokenNameimport:
 		case TokenNameAT:
 		case TokenNameAT308:
 		case TokenNameCOMMA:
 			this.scanContext = ScanContext.EXPECTING_IDENTIFIER;
+			break;
+		case TokenNameimport:
+			this.scanContext = ScanContext.AFTER_IMPORT;
 			break;
 		case TokenNameIdentifier:
 			this.scanContext = ScanContext.EXPECTING_KEYWORD;
@@ -5424,8 +5426,16 @@ int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 				}
 			}
 			break;
-		case TokenNameopen:
 		case TokenNamemodule:
+			switch (this.scanContext) {
+				case EXPECTING_KEYWORD:
+				case AFTER_IMPORT:
+					break;
+				default:
+					token = TokenNameIdentifier;
+			}
+			break;
+		case TokenNameopen:
 		case TokenNameexports:
 		case TokenNameopens:
 		case TokenNamerequires:

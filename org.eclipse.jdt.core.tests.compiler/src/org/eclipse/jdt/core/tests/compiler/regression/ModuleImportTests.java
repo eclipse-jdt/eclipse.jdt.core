@@ -331,4 +331,42 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				""",
 				"cannot find symbol"); // javac 23 ea build 24 additionally reports "module mod.one does not read: mod.one"
 	}
+
+	public void test005_selfImportInModule() {
+		String modsDir = OUTPUT_DIR +  File.separator + "mods";
+		String modOneDir = modsDir + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, modOneDir + File.separator + "api", "IService.java",
+				"""
+					package api;
+					public interface IService {}
+					""");
+		writeFileCollecting(files, modOneDir + File.separator + "impl", "ServiceImpl.java",
+				"""
+					package impl;
+					import api.IService;
+					public class ServiceImpl implements IService {
+						public static IService provider() { return new ServiceImpl(); }
+					}
+					""");
+		writeFileCollecting(files, modOneDir, "module-info.java",
+				"""
+					import module mod.one;
+					@SuppressWarnings("preview")
+					module mod.one {
+						exports api;
+						exports impl to mod.one;
+						provides IService with ServiceImpl;
+					}
+					""");
+		StringBuilder commandLine = new StringBuilder();
+		commandLine.append(" -23 --enable-preview ");
+		runConformModuleTest(
+				files,
+				commandLine,
+				"",
+				"",
+				OUTPUT_DIR,
+				JavacTestOptions.JavacHasABug.JavacBugReflexiveRead);// javac 23 ea build 24 reports "module mod.one does not read: mod.one"
+	}
 }
