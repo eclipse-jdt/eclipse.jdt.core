@@ -50,6 +50,7 @@ import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
+import com.sun.tools.javac.tree.JCTree.JCMemberReference;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCModuleDecl;
@@ -364,6 +365,16 @@ public class JavacBindingResolver extends BindingResolver {
 		JCTree javacElement = this.converter.domToJavac.get(method);
 		if (javacElement instanceof JCMethodDecl methodDecl) {
 			return this.bindings.getMethodBinding(methodDecl.type.asMethodType(), methodDecl.sym);
+		}
+		return null;
+	}
+
+	@Override
+	IMethodBinding resolveMethod(MethodReference methodReference) {
+		resolve();
+		JCTree javacElement = this.converter.domToJavac.get(methodReference);
+		if (javacElement instanceof JCMemberReference memberRef && memberRef.sym instanceof MethodSymbol methodSymbol) {
+			return this.bindings.getMethodBinding(memberRef.referentType.asMethodType(), methodSymbol);
 		}
 		return null;
 	}

@@ -40,6 +40,7 @@ import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.MethodType;
+import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.util.Names;
 
 public abstract class JavacMethodBinding implements IMethodBinding {
@@ -142,9 +143,11 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			return type.getMethod(this.methodSymbol.getSimpleName().toString(),
 					this.methodSymbol.params().stream()
 							.map(varSymbol -> varSymbol.type)
-							.map(t -> type.isBinary() ?
-									Signature.createTypeSignature(t.toString(), true) :
-									Signature.createTypeSignature(t.tsym.name.toString(), false))
+							.map(t ->
+								t instanceof TypeVar typeVar ? Signature.C_TYPE_VARIABLE + typeVar.tsym.name.toString() + ";" : // check whether a better constructor exists for it
+								type.isBinary() ?
+										Signature.createTypeSignature(t.toString(), true) :
+										Signature.createTypeSignature(t.tsym.name.toString(), false))
 							.toArray(String[]::new));
 		}
 		return null;

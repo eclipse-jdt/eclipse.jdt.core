@@ -1301,10 +1301,20 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCMemberReference jcMemberReference) {
+			JCExpression qualifierExpression = jcMemberReference.getQualifierExpression();
 			if (Objects.equals(Names.instance(this.context).init, jcMemberReference.getName())) {
 				CreationReference res = this.ast.newCreationReference();
 				commonSettings(res, javac);
-				res.setType(convertToType(jcMemberReference.getQualifierExpression()));
+				res.setType(convertToType(qualifierExpression));
+				if (jcMemberReference.getTypeArguments() != null) {
+					jcMemberReference.getTypeArguments().map(this::convertToType).forEach(res.typeArguments()::add);
+				}
+				return res;
+			} else if (qualifierExpression.getKind() == Kind.PARAMETERIZED_TYPE || qualifierExpression.getKind() == Kind.ARRAY_TYPE) {
+				TypeMethodReference res = this.ast.newTypeMethodReference();
+				commonSettings(res, javac);
+				res.setType(convertToType(qualifierExpression));
+				res.setName((SimpleName)convertName(jcMemberReference.getName()));
 				if (jcMemberReference.getTypeArguments() != null) {
 					jcMemberReference.getTypeArguments().map(this::convertToType).forEach(res.typeArguments()::add);
 				}
@@ -1440,10 +1450,6 @@ class JavacConverter {
 			return res;
 		}
 		return null;
-	}
-
-	private Expression convertExpressionOrNull(JCExpression javac) {
-		return convertExpressionImpl(javac);
 	}
 
 	private Expression convertExpression(JCExpression javac) {
