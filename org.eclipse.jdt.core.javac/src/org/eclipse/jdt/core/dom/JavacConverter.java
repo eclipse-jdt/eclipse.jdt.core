@@ -770,7 +770,7 @@ class JavacConverter {
 		if (javac.getBody() != null) {
 			Block b = convertBlock(javac.getBody());
 			if (b != null) {
-				AbstractUnnamedTypeDeclaration td = findSurroundingTypeDeclaration(parent);
+				AbstractTypeDeclaration td = findSurroundingTypeDeclaration(parent);
 				boolean isInterface = td instanceof TypeDeclaration td1 && td1.isInterface();
 				long modFlags = javac.getModifiers() == null ? 0 : javac.getModifiers().flags;
 				boolean isAbstractOrNative = (modFlags & (Flags.ABSTRACT | Flags.NATIVE)) != 0;
@@ -806,10 +806,10 @@ class JavacConverter {
 		return res;
 	}
 
-	private AbstractUnnamedTypeDeclaration findSurroundingTypeDeclaration(ASTNode parent) {
+	private AbstractTypeDeclaration findSurroundingTypeDeclaration(ASTNode parent) {
 		if( parent == null )
 			return null;
-		if( parent instanceof AbstractUnnamedTypeDeclaration t) {
+		if( parent instanceof AbstractTypeDeclaration t) {
 			return t;
 		}
 		return findSurroundingTypeDeclaration(parent.getParent());
