@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2023 IBM Corporation and others.
+ * Copyright (c) 2021, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -15,6 +19,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -31,6 +36,16 @@ public abstract class Pattern extends Expression {
 	public int index = -1; // index of this in enclosing record pattern, or -1 for top level patterns
 
 	public boolean isUnguarded = true; // no guard or guard is compile time constant true.
+
+	public enum PrimitiveConversionRoute {
+		IDENTITY_CONVERSION,
+		WIDENING_PRIMITIVE_CONVERSION,
+		NARROWING_PRIMITVE_CONVERSION,
+		WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION,
+		BOXING_CONVERSION,
+		BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION,
+		NO_CONVERSION_ROUTE
+	}
 
 	public Pattern getEnclosingPattern() {
 		return this.enclosingPattern;
@@ -121,5 +136,19 @@ public abstract class Pattern extends Expression {
 
 	public void setIsGuarded() {
 		this.isUnguarded = false;
+	}
+	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding src, TypeBinding dst, BlockScope scope) {
+		if (!(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
+				scope.compilerOptions().sourceLevel,
+				scope.compilerOptions().enablePreviewFeatures))) {
+			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
+		}
+		if (src.isBaseType() && dst.isBaseType()) {
+			if (TypeBinding.equalsEquals(src, dst)) {
+				return PrimitiveConversionRoute.IDENTITY_CONVERSION;
+			}
+
+		}
+		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 	}
 }

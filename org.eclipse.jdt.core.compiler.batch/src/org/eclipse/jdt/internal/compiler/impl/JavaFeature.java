@@ -85,6 +85,10 @@ public enum JavaFeature {
 			Messages.bind(Messages.statements_before_super),
 			new char[][] {},
 			true),
+	PRIMITIVES_IN_PATTERNS(ClassFileConstants.JDK23,
+			Messages.bind(Messages.primitives_in_patterns),
+			new char[][] {},
+			true),
     ;
 
 	final long compliance;
