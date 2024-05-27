@@ -23,12 +23,21 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
+import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.builder.AbstractImageBuilder;
 
 /**
  * Basic tests of the image builder.
@@ -685,6 +694,72 @@ public class BasicBuildTests extends BuilderTests {
 			expectingNoProblems();
 		} finally {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = save;
+		}
+	}
+
+	public void testCustomCompiler() throws JavaModelException {
+		final String CUSTOM_COMPILER_KEY = AbstractImageBuilder.class.getSimpleName() + ".compiler";
+		final String CUSTOM_COMPILER_VALUE = MockCompiler.class.getName();
+		try {
+			System.setProperty(CUSTOM_COMPILER_KEY, CUSTOM_COMPILER_VALUE);
+			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+			env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+			// remove old package fragment root so that names don't collide
+			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+			IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+			IPath path = env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
+					"package p1;\n"+ //$NON-NLS-1$
+					"public class Hello {\n"+ //$NON-NLS-1$
+					"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
+					"      System.out.println(\"Hello world\");\n"+ //$NON-NLS-1$
+					"   }\n"+ //$NON-NLS-1$
+					"}\n" //$NON-NLS-1$
+					);
+
+			fullBuild(projectPath);
+
+			Problem[] problems = allSortedProblems(new IPath[] {path});
+
+			expectingProblemsFor(
+					path,
+					"Problem : Compilation error from MockCompiler [ resource : </Project/src/p1/Hello.java> range : <0,1> category : <60> severity : <2>]"
+				);
+		} finally {
+			System.clearProperty(CUSTOM_COMPILER_KEY);
+		}
+	}
+
+	public static class MockCompiler extends org.eclipse.jdt.internal.compiler.Compiler {
+		private CompilerConfiguration compilerConfig;
+
+		public MockCompiler(INameEnvironment environment, IErrorHandlingPolicy policy, CompilerConfiguration compilerConfig,
+				ICompilerRequestor requestor, IProblemFactory problemFactory) {
+			super(environment, policy, compilerConfig.getOptions(), requestor, problemFactory);
+			this.compilerConfig = compilerConfig;
+		}
+
+		@Override
+		public void compile(ICompilationUnit[] sourceUnits) {
+			for (int i = 0; i < sourceUnits.length; i++) {
+				ICompilationUnit in = sourceUnits[i];
+				CompilationResult result = new CompilationResult(in, i, sourceUnits.length, Integer.MAX_VALUE);
+				if (i == 0) {
+					CategorizedProblem problem = new DefaultProblem(in.getFileName(),
+							"Compilation error from MockCompiler",
+							0,
+							new String[0],
+							ProblemSeverities.Error,
+							0, 0, 0, 0);
+					result.problems = new CategorizedProblem[] { problem };
+					result.problemCount = result.problems.length;
+				}
+
+				this.requestor.acceptResult(result);
+			}
 		}
 	}
 }

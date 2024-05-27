@@ -5,6 +5,7 @@ Bundle-SymbolicName: org.eclipse.jdt.core.tests.builder; singleton:=true
 Bundle-Version: 3.12.500.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
+Fragment-Host: org.eclipse.jdt.core
 Export-Package: org.eclipse.jdt.core.tests.builder
 Require-Bundle: org.junit;bundle-version="3.8.1",
  org.eclipse.jdt.core;bundle-version="[3.36.0,4.0.0)",
