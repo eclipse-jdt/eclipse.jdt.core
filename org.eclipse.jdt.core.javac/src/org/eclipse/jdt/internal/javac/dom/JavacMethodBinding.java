@@ -142,8 +142,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			return type.getMethod(this.methodSymbol.getSimpleName().toString(),
 					this.methodSymbol.params().stream()
 							.map(varSymbol -> varSymbol.type)
-							.map(t -> t.tsym.name.toString())
-							.map(t -> Signature.createTypeSignature(t, false))
+							.map(t -> type.isBinary() ?
+									Signature.createTypeSignature(t.toString(), true) :
+									Signature.createTypeSignature(t.tsym.name.toString(), false))
 							.toArray(String[]::new));
 		}
 		return null;
@@ -294,6 +295,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	@Override
 	public ITypeBinding[] getExceptionTypes() {
 		ASTNode node = this.resolver.findNode(this.methodSymbol);
+		if (node == null) { // initializer?
+			return new ITypeBinding[0];
+		}
 		if (node.getAST().apiLevel() >= AST.JLS8 && node instanceof MethodDeclaration method) {
 			return ((List<Type>)method.thrownExceptionTypes()).stream()
 				.map(Type::resolveBinding)
