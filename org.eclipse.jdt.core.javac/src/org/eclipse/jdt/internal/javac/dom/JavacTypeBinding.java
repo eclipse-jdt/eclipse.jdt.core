@@ -46,6 +46,7 @@ import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.code.Type.JCVoidType;
 import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
@@ -214,6 +215,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding createArrayType(final int dimension) {
+		if (this.type instanceof JCVoidType) {
+			return null;
+		}
 		Type type = this.type;
 		for (int i = 0; i < dimension; i++) {
 			type = this.types.makeArrayType(type);
@@ -299,7 +303,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getDeclaredTypes() {
-		return StreamSupport.stream(this.typeSymbol.members().getSymbols().spliterator(), false)
+		var members = this.typeSymbol.members();
+		if (members == null) {
+			return new ITypeBinding[0];
+		}
+		return StreamSupport.stream(members.getSymbols().spliterator(), false)
 			.filter(TypeSymbol.class::isInstance)
 			.map(TypeSymbol.class::cast)
 			.map(sym -> this.resolver.bindings.getTypeBinding(sym.type))
@@ -478,18 +486,21 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getTypeBounds() {
-		Type z1 = ((ClassType)this.type).supertype_field;
-		List<Type> z2 = ((ClassType)this.type).interfaces_field;
-		ArrayList<JavacTypeBinding> l = new ArrayList<>();
-		if( z1 != null ) {
-			l.add(this.resolver.bindings.getTypeBinding(z1));
-		}
-		if( z2 != null ) {
-			for( int i = 0; i < z2.size(); i++ ) {
-				l.add(this.resolver.bindings.getTypeBinding(z2.get(i)));
+		if (this.type instanceof ClassType classType) {
+			Type z1 = classType.supertype_field;
+			List<Type> z2 = classType.interfaces_field;
+			ArrayList<JavacTypeBinding> l = new ArrayList<>();
+			if( z1 != null ) {
+				l.add(this.resolver.bindings.getTypeBinding(z1));
 			}
+			if( z2 != null ) {
+				for( int i = 0; i < z2.size(); i++ ) {
+					l.add(this.resolver.bindings.getTypeBinding(z2.get(i)));
+				}
+			}
+			return l.toArray(JavacTypeBinding[]::new);
 		}
-		return (JavacTypeBinding[]) l.toArray(new JavacTypeBinding[l.size()]);
+		return new ITypeBinding[0];
 	}
 
 	@Override

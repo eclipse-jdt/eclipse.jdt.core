@@ -71,7 +71,6 @@ public class JavacBindingResolver extends BindingResolver {
 	// date from it.
 	public final Context context;
 	private Map<Symbol, ASTNode> symbolToDom;
-	private final Map<String, IBinding> bindingCache;
 	public final IJavaProject javaProject;
 	private JavacConverter converter;
 	boolean isRecoveringBindings = false;
@@ -161,7 +160,6 @@ public class JavacBindingResolver extends BindingResolver {
 		this.context = context;
 		this.javaProject = javaProject;
 		this.converter = converter;
-		this.bindingCache = new HashMap<>();
 	}
 
 	private void resolve() {
@@ -259,6 +257,9 @@ public class JavacBindingResolver extends BindingResolver {
 //		if (type instanceof QualifiedType qualifiedType) {
 //			JCTree jcTree = this.converter.domToJavac.get(qualifiedType);
 //		}
+		if (type instanceof PrimitiveType primitive) { // a type can be requested even if there is no token for it in JCTree
+			return resolveWellKnownType(primitive.getPrimitiveTypeCode().toString());
+		}
 		return super.resolveType(type);
 	}
 
@@ -447,11 +448,15 @@ public class JavacBindingResolver extends BindingResolver {
 				return null;
 			}
 		}
-		if (this.converter.domToJavac.get(expr) instanceof JCExpression jcExpr) {
+		var jcTree = this.converter.domToJavac.get(expr);
+		if (jcTree instanceof JCExpression jcExpr) {
 			if (jcExpr.type instanceof PackageType) {
 				return null;
 			}
 			return this.bindings.getTypeBinding(jcExpr.type);
+		}
+		if (jcTree instanceof JCVariableDecl jcVariableDecl) {
+			return this.bindings.getTypeBinding(jcVariableDecl.type);
 		}
 		return null;
 	}
@@ -463,6 +468,22 @@ public class JavacBindingResolver extends BindingResolver {
 				&& !jcExpr.constructor.type.isErroneous()?
 						this.bindings.getMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor) :
 				null;
+	}
+
+	@Override
+	IMethodBinding resolveConstructor(ConstructorInvocation invocation) {
+		resolve();
+		JCTree javacElement = this.converter.domToJavac.get(invocation);
+		if (javacElement instanceof JCMethodInvocation javacMethodInvocation) {
+			javacElement = javacMethodInvocation.getMethodSelect();
+		}
+		if (javacElement instanceof JCIdent ident && ident.sym instanceof MethodSymbol methodSymbol) {
+			return this.bindings.getMethodBinding(ident.type.asMethodType(), methodSymbol);
+		}
+		if (javacElement instanceof JCFieldAccess fieldAccess && fieldAccess.sym instanceof MethodSymbol methodSymbol) {
+			return this.bindings.getMethodBinding(fieldAccess.type.asMethodType(), methodSymbol);
+		}
+		return null;
 	}
 
 	public Types getTypes() {

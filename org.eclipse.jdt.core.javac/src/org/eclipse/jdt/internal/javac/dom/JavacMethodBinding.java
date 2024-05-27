@@ -40,6 +40,7 @@ import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.MethodType;
+import com.sun.tools.javac.util.Names;
 
 public abstract class JavacMethodBinding implements IMethodBinding {
 
@@ -169,28 +170,30 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		if (!methodSymbol.isConstructor()) {
 			builder.append(methodSymbol.getSimpleName());
 		}
-		if (!methodSymbol.getTypeParameters().isEmpty()) {
-			builder.append('<');
-			for (var typeParam : methodSymbol.getTypeParameters()) {
-				JavacTypeVariableBinding typeVarBinding = resolver.bindings.getTypeVariableBinding(typeParam);
-				builder.append(typeVarBinding.getKey());
+		if (methodSymbol.type != null) { // initializer
+			if (!methodSymbol.getTypeParameters().isEmpty()) {
+				builder.append('<');
+				for (var typeParam : methodSymbol.getTypeParameters()) {
+					JavacTypeVariableBinding typeVarBinding = resolver.bindings.getTypeVariableBinding(typeParam);
+					builder.append(typeVarBinding.getKey());
+				}
+				builder.append('>');
 			}
-			builder.append('>');
-		}
-		builder.append('(');
-		for (var param : methodSymbol.getParameters()) {
-			JavacTypeBinding.getKey(builder, param.type, false);
-		}
-		builder.append(')');
-		if (!(methodSymbol.getReturnType() instanceof JCNoType)) {
-			JavacTypeBinding.getKey(builder, methodSymbol.getReturnType(), false);
-		}
-		if (
-				methodSymbol.getThrownTypes().stream().anyMatch(a -> !a.getParameterTypes().isEmpty())
-			) {
-			builder.append('^');
-			for (var thrownException : methodSymbol.getThrownTypes()) {
-				builder.append(thrownException.tsym.getQualifiedName());
+			builder.append('(');
+			for (var param : methodSymbol.getParameters()) {
+				JavacTypeBinding.getKey(builder, param.type, false);
+			}
+			builder.append(')');
+			if (!(methodSymbol.getReturnType() instanceof JCNoType)) {
+				JavacTypeBinding.getKey(builder, methodSymbol.getReturnType(), false);
+			}
+			if (
+					methodSymbol.getThrownTypes().stream().anyMatch(a -> !a.getParameterTypes().isEmpty())
+				) {
+				builder.append('^');
+				for (var thrownException : methodSymbol.getThrownTypes()) {
+					builder.append(thrownException.tsym.getQualifiedName());
+				}
 			}
 		}
 	}
@@ -225,6 +228,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public String getName() {
+		if (Objects.equals(Names.instance(this.resolver.context).init, this.methodSymbol.getSimpleName())) {
+			return this.getDeclaringClass().getName();
+		}
 		return this.methodSymbol.getSimpleName().toString();
 	}
 
