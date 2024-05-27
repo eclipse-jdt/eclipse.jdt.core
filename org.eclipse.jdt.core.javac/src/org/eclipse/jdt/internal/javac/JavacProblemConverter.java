@@ -58,7 +58,7 @@ public class JavacProblemConverter {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param diagnostic
 	 * @param context
 	 * @return a JavacProblem matching the given diagnostic, or <code>null</code> if problem is ignored
@@ -86,7 +86,7 @@ public class JavacProblemConverter {
 				(int) diagnostic.getLineNumber(),
 				(int) diagnostic.getColumnNumber());
 	}
-	
+
 	private static org.eclipse.jface.text.Position getDiagnosticPosition(Diagnostic<? extends JavaFileObject> diagnostic, Context context) {
 		if (diagnostic.getCode().contains(".dc")) { //javadoc
 			return getDefaultPosition(diagnostic);
@@ -105,7 +105,9 @@ public class JavacProblemConverter {
 				if (result != null) {
 					return result;
 				}
-				return getPositionUsingScanner(jcDiagnostic, context);
+				if (jcDiagnostic.getStartPosition() == jcDiagnostic.getEndPosition()) {
+					return getPositionUsingScanner(jcDiagnostic, context);
+				}
 			}
 			}
 		}
@@ -135,7 +137,7 @@ public class JavacProblemConverter {
 				Token prev = javacScanner.prevToken();
 				if( prev != null ) {
 					if( t.endPos == prev.endPos && t.pos == prev.pos && t.kind.equals(prev.kind)) {
-						t = null; // We're stuck in a loop. Give up. 
+						t = null; // We're stuck in a loop. Give up.
 					}
 				}
 			}
@@ -291,7 +293,7 @@ public class JavacProblemConverter {
 			default -> ProblemSeverities.Error;
 		};
 	}
-	
+
 	/**
 	 * See the link below for Javac problem list:
 	 * https://github.com/openjdk/jdk/blob/master/src/jdk.compiler/share/classes/com/sun/tools/javac/resources/compiler.properties
