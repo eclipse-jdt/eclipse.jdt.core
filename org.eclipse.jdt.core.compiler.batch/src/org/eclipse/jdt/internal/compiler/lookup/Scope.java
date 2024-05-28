@@ -3671,19 +3671,34 @@ public abstract class Scope {
 	}
 
 	private ReferenceBinding findTypeInModule(char[] name, ModuleBinding moduleBinding, PackageBinding currentPackage) {
+		ReferenceBinding type = null;
 		for (PackageBinding packageBinding : moduleBinding.getExports()) {
 			if (packageBinding.enclosingModule.isPackageExportedTo(packageBinding, module())) {
 				ReferenceBinding temp = findType(name, packageBinding, currentPackage);
-				if (temp != null && temp.canBeSeenBy(currentPackage)) // imported only if accessible
-					return temp;
+				if (temp != null && temp.canBeSeenBy(currentPackage)) {// imported only if accessible
+					if (type != null) {
+						// Answer error binding -- import on demand conflict; name found in two exported packages.
+						return new ProblemReferenceBinding(new char[][]{name}, temp, ProblemReasons.Ambiguous);
+					}
+					type = temp;
+				}
 			}
 		}
 		for (ModuleBinding required : moduleBinding.getRequiresTransitive()) {
 			ReferenceBinding temp = findTypeInModule(name, required, currentPackage);
-			if (temp != null)
-				return temp;
+			if (temp != null) {
+				if (temp.problemId() == ProblemReasons.Ambiguous)
+					return temp; // don't look further
+				if (temp.canBeSeenBy(currentPackage)) {
+					if (type != null) {
+						// Answer error binding -- import on demand conflict; name found in two modules.
+						return new ProblemReferenceBinding(new char[][]{name}, temp, ProblemReasons.Ambiguous);
+					}
+					type = temp;
+				}
+			}
 		}
-		return null;
+		return type;
 	}
 
 	private boolean isUnnecessarySamePackageImport(Binding resolvedImport, Scope unitScope) {

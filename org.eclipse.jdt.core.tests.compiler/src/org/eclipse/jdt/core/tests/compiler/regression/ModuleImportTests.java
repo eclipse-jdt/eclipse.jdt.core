@@ -457,7 +457,82 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				OUTPUT_DIR);
 	}
 
-	public void test009_notAccessible() {
+	public void test009_ambiguous_modules() {
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		List<String> files = new ArrayList<>();
+		String modOneDir = srcDir + File.separator + "mod.one";
+		writeFileCollecting(files, modOneDir, "module-info.java",
+				"""
+					module mod.one {
+						exports p1;
+						exports p2;
+						requires transitive java.sql;
+					}
+					""");
+		writeFileCollecting(files, modOneDir + File.separator + "p1", "Connection.java",
+				"""
+					package p1;
+					public class Connection {
+					}
+					""");
+		writeFileCollecting(files, modOneDir + File.separator + "p1", "Other.java",
+				"""
+					package p1;
+					public class Other {
+					}
+					""");
+		writeFileCollecting(files, modOneDir + File.separator + "p2", "Other.java",
+				"""
+					package p2;
+					public class Other{
+					}
+					""");
+
+		String modTwoDir = srcDir + File.separator + "mod.two";
+		writeFileCollecting(files, modTwoDir, "module-info.java",
+				"""
+					module mod.two {
+						requires mod.one;
+					}
+					""");
+		writeFileCollecting(files, modTwoDir + File.separator + "p3", "Client.java",
+				"""
+					package p3;
+					import module mod.one;
+					@SuppressWarnings("preview")
+					class Client {
+						Connection conn; // module conflict mod.one java.sql
+						Other other; // package conflict mod.one/p1 mod.one/p2
+					}
+					""");
+		StringBuilder commandLine = new StringBuilder();
+		commandLine.append(" -23 --enable-preview ");
+		commandLine.append(" --module-source-path \"").append(srcDir).append("\"");
+		commandLine.append(" -d \"").append(OUTPUT_DIR).append(File.separatorChar).append("bin").append("\"");
+
+		runNegativeModuleTest(
+				files,
+				commandLine,
+				"",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/p3/Client.java (at line 5)
+						Connection conn; // module conflict mod.one java.sql
+						^^^^^^^^^^
+					The type Connection is ambiguous
+					----------
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/p3/Client.java (at line 6)
+						Other other; // package conflict mod.one/p1 mod.one/p2
+						^^^^^
+					The type Other is ambiguous
+					----------
+					2 problems (2 errors)
+					""",
+				"reference to Connection is ambiguous",
+				OUTPUT_DIR);
+	}
+
+	public void test010_notAccessible() {
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		String modOneDir = srcDir + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
@@ -518,7 +593,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				OUTPUT_DIR);
 	}
 
-	public void test010_transitive() {
+	public void test011_transitive() {
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		String modOneDir = srcDir + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
@@ -570,7 +645,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				OUTPUT_DIR);
 	}
 
-	public void test011_redundant() {
+	public void test012_redundant() {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR + File.separator + "p", "X.java",
 				"""
@@ -618,7 +693,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				OUTPUT_DIR);
 	}
 
-	public void test012_inUnnamedModule() {
+	public void test013_inUnnamedModule() {
 		runConformModuleTest(
 			new String[] {
 				"p/X.java",
