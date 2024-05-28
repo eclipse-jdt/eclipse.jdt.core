@@ -289,7 +289,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		List<JavaFileObject> fileObjects = new ArrayList<>(); // we need an ordered list of them
 		for (var sourceUnit : sourceUnits) {
-			var unitFile = new File(new String(sourceUnit.getFileName()));
+			File unitFile = new File(new String(sourceUnit.getFileName()));
 			Path sourceUnitPath;
 			if (!unitFile.getName().endsWith(".java") || sourceUnit.getFileName() == null || sourceUnit.getFileName().length == 0) {
 				sourceUnitPath = Path.of(new File("whatever.java").toURI());
@@ -298,7 +298,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			}
 			var fileObject = fileManager.getJavaFileObject(sourceUnitPath);
 			fileManager.cache(fileObject, CharBuffer.wrap(sourceUnit.getContents()));
-			AST ast = createAST(compilerOptions, apiLevel, context);
+			AST ast = createAST(compilerOptions, apiLevel, context, flags);
 			CompilationUnit res = ast.newCompilationUnit();
 			result.put(sourceUnit, res);
 			filesToUnits.put(fileObject, res);
@@ -397,8 +397,9 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		return Optional.empty();
 	}
 
-	private AST createAST(Map<String, String> options, int level, Context context) {
+	private AST createAST(Map<String, String> options, int level, Context context, int flags) {
 		AST ast = AST.newAST(level, JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
+		ast.setFlag(flags);
 		String sourceModeSetting = options.get(JavaCore.COMPILER_SOURCE);
 		long sourceLevel = CompilerOptions.versionToJdkLevel(sourceModeSetting);
 		if (sourceLevel == 0) {
