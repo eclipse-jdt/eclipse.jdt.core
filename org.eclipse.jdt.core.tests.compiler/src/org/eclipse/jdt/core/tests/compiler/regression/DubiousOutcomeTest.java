@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.DubiousOutcome;
+
 import junit.framework.Test;
 
 /**
@@ -45,8 +47,8 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 
 	public void testGH1591() {
 		// javac accepts
-		runNegativeTest(
-			new String[] {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
 				"Outer.java",
 				"""
 				import java.io.Serializable;
@@ -63,13 +65,16 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 
 					}
 				"""
-			},
+			};
+		runner.expectedCompilerLog =
 			"----------\n" +
 			"1. ERROR in Outer.java (at line 8)\n" +
 			"	error(supplier.get(), \"\");\n" +
 			"	^^^^^\n" +
 			"The method error(List<V>, T) in the type Outer is not applicable for the arguments (capture#1-of ? extends List<? extends Serializable>, String)\n" +
-			"----------\n");
+			"----------\n";
+		runner.javacTestOptions = DubiousOutcome.EclipseErrorsJavacNone;
+		runner.runNegativeTest();
 	}
 
 	public void testHohwille_20160104() {
@@ -83,8 +88,8 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 			    V extends Object declared in interface GenericInterface
 			1 error
 		 */
-		runConformTest(
-			new String[] {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
 				"CombinedInterface.java",
 				"""
 				interface GenericInterface<V> {
@@ -99,7 +104,9 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 					}
 				}
 				"""
-			});
+			};
+		runner.javacTestOptions = DubiousOutcome.JavacErrorsEclipseNone;
+		runner.runConformTest();
 	}
 
 	public void testHohwille_20180606() {
@@ -119,8 +126,8 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 			    A extends Object declared in class GenericTest
 			2 errors
 		 */
-		runConformTest(
-			new String[] {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
 				"GenericTest.java",
 				"""
 				public class GenericTest<A, B extends A> {
@@ -133,7 +140,9 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 					}
 				}
 				"""
-			});
+			};
+		runner.javacTestOptions = DubiousOutcome.JavacErrorsEclipseNone;
+		runner.runConformTest();
 	}
 	public void testHohwille_20231104() {
 		/* see https://github.com/m-m-m/util/issues/166#issuecomment-1793234294
@@ -162,8 +171,8 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 			    V#2 extends Object declared in method <V#2,P#2>create(Class<P#2>,PropertyTypeInfo<V#2>)
 			2 errors
 		 */
-		runConformTest(
-			new String[] {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
 				"PropertyFactoryManager.java",
 				"""
 				interface WritableObservableValue<V> { }
@@ -196,7 +205,9 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 					}
 				}
 				"""
-			});
+			};
+		runner.javacTestOptions = DubiousOutcome.JDK8319461;
+		runner.runConformTest();
 	}
 	public void testJDK8319461() {
 		/* Hohwille's reduction of the above
@@ -221,8 +232,8 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 			1 error
 			1 warning
 		 */
-		runConformTest(
-			new String[] {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
 				"JDK8319461.java",
 				"""
 				public class JDK8319461 {
@@ -239,6 +250,8 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 					public interface Factory<V, P extends WritableProperty<V>> { }
 				}
 				"""
-			});
+			};
+		runner.javacTestOptions = DubiousOutcome.JDK8319461;
+		runner.runConformTest();
 	}
 }

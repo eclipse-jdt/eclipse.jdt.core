@@ -837,6 +837,19 @@ protected static class JavacTestOptions {
 	Excuse excuseFor(JavacCompiler compiler) {
 		return null;
 	}
+	/** Difference were we're not sure which is correct, but want to be informed if either compiler changes. */
+	public static class DubiousOutcome extends Excuse {
+		DubiousOutcome(int mismatchType) {
+			super(mismatchType);
+		}
+		public static DubiousOutcome
+		EclipseErrorsJavacNone = RUN_JAVAC ?
+				new DubiousOutcome(MismatchType.EclipseErrorsJavacNone) : null,
+		JavacErrorsEclipseNone = RUN_JAVAC ?
+				new DubiousOutcome(MismatchType.JavacErrorsEclipseNone) : null,
+		JDK8319461 = RUN_JAVAC ? // https://bugs.openjdk.org/browse/JDK-8319461
+				new DubiousOutcome(MismatchType.JavacErrorsEclipseNone) : null;
+	}
 	public static class EclipseHasABug extends Excuse {
 		EclipseHasABug(int mismatchType) {
 			super(mismatchType);
