@@ -20,12 +20,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
@@ -36,11 +36,10 @@ import javax.tools.ToolProvider;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
@@ -56,6 +55,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
+import org.eclipse.jdt.internal.core.util.BindingKeyParser;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 import org.eclipse.jdt.internal.javac.JavacUtils;
 
@@ -84,23 +84,26 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		int length = sourceFilePaths.length;
 		List<org.eclipse.jdt.internal.compiler.env.ICompilationUnit> sourceUnitList = new ArrayList<>(length);
 		for (int i = 0; i < length; i++) {
-			char[] contents = null;
-			String encoding = encodings != null ? encodings[i] : null;
-			String sourceUnitPath = sourceFilePaths[i];
-			try {
-				contents = Util.getFileCharContent(new File(sourceUnitPath), encoding);
-			} catch(IOException e) {
-				// go to the next unit
-				continue;
-			}
-			if (contents == null) {
-				// go to the next unit
-				continue;
-			}
-			sourceUnitList.add(new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(contents, sourceUnitPath, encoding));
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit obj = createSourceUnit(sourceFilePaths[i], encodings[i]);
+			if( obj != null ) 
+				sourceUnitList.add(obj);
 		}
 		return sourceUnitList;
 	}
+	
+	private org.eclipse.jdt.internal.compiler.env.ICompilationUnit createSourceUnit(String sourceFilePath, String encoding) {
+		char[] contents = null;
+		try {
+			contents = Util.getFileCharContent(new File(sourceFilePath), encoding);
+		} catch(IOException e) {
+			return null;
+		}
+		if (contents == null) {
+			return null;
+		}
+		return new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(contents, sourceFilePath, encoding);
+	}
+
 	
 	@Override
 	public void resolve(String[] sourceFilePaths, String[] encodings, String[] bindingKeys, FileASTRequestor requestor,
@@ -133,7 +136,6 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			Map<String, String> compilerOptions, IJavaProject project, WorkingCopyOwner workingCopyOwner, int flags,
 			IProgressMonitor monitor) {
 		Map<ICompilationUnit, CompilationUnit> units = parse(compilationUnits, apiLevel, compilerOptions, flags, monitor);
-		units.values().forEach(this::resolveBindings);
 		if (requestor != null) {
 			final JavacBindingResolver[] bindingResolver = new JavacBindingResolver[1];
 			bindingResolver[0] = null;
@@ -142,21 +144,26 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					bindingResolver[0] = (JavacBindingResolver)b.ast.getBindingResolver();
 				}
 				requestor.acceptAST(a,b);	
-				resolveBindings(b, bindingKeys, requestor);
+				resolveBindings(b, bindingKeys, requestor, apiLevel);
 			});
 
 			resolveRequestedBindingKeys(bindingResolver[0], bindingKeys, 
 					(a,b) -> requestor.acceptBinding(a,b),
-					new Classpath[0],
+					new Classpath[0], // TODO need some classpaths
 					new CompilerOptions(compilerOptions),
 					units.values(), monitor);
+		} else {
+			Iterator<CompilationUnit> it = units.values().iterator();
+			while(it.hasNext()) {
+				resolveBindings(it.next(), apiLevel);
+			}
 		}
 	}
 	
 	
 	private void resolveRequestedBindingKeys(JavacBindingResolver bindingResolver, String[] bindingKeys, GenericRequestor requestor,
 			Classpath[] cp,CompilerOptions opts,
-			Collection<CompilationUnit> res,
+			Collection<CompilationUnit> units,
 			IProgressMonitor monitor) {
 		if (bindingResolver == null) {
 			var compiler = ToolProvider.getSystemJavaCompiler();
@@ -166,7 +173,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 
 		HashMap<String, IBinding> bindingMap = new HashMap<>();
-		for (CompilationUnit cu : res) {
+		for (CompilationUnit cu : units) {
 			cu.accept(new BindingBuilder(bindingMap));
 		}
 
@@ -201,17 +208,24 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				// from parsed files
 				requestor.acceptBinding(bindingKey, bindingFromMap);
 			} else {
-				// from ECJ
-				char[] charArrayFQN = Signature.toCharArray(bindingKey.toCharArray());
-				char[][] twoDimensionalCharArrayFQN = Stream.of(new String(charArrayFQN).split("/")) //
-						.map(myString -> myString.toCharArray()) //
-						.toArray(char[][]::new);
+				
+				CustomBindingKeyParser bkp = new CustomBindingKeyParser(bindingKey);
+				bkp.parse(true);
+				char[][] name = bkp.compoundName;
 
-				NameEnvironmentAnswer answer = environment.findType(twoDimensionalCharArrayFQN);
-				IBinaryType binaryType = answer.getBinaryType();
-				if (binaryType != null) {
-					BinaryTypeBinding binding = lu.cacheBinaryType(binaryType, null);
-					requestor.acceptBinding(bindingKey, new TypeBinding(bindingResolver, binding));
+//				// from ECJ
+//				char[] charArrayFQN = Signature.toCharArray(bindingKey.toCharArray());
+//				char[][] twoDimensionalCharArrayFQN = Stream.of(new String(charArrayFQN).split("/")) //
+//						.map(myString -> myString.toCharArray()) //
+//						.toArray(char[][]::new);
+//				char[][] twoDimensionalCharArrayFQN = new char[][] {};
+				NameEnvironmentAnswer answer = environment.findType(name);
+				if( answer != null ) {
+					IBinaryType binaryType = answer.getBinaryType();
+					if (binaryType != null) {
+						BinaryTypeBinding binding = lu.cacheBinaryType(binaryType, null);
+						requestor.acceptBinding(bindingKey, new TypeBinding(bindingResolver, binding));
+					}
 				}
 			}
 
@@ -219,10 +233,30 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 	}
 
+	private static class CustomBindingKeyParser extends BindingKeyParser {
+
+		private char[] secondarySimpleName;
+		private char[][] compoundName;
+
+		public CustomBindingKeyParser(String key) {
+			super(key);
+		}
+
+		@Override
+		public void consumeSecondaryType(char[] simpleTypeName) {
+			this.secondarySimpleName = simpleTypeName;
+		}
+
+		@Override
+		public void consumeFullyQualifiedName(char[] fullyQualifiedName) {
+			this.compoundName = CharOperation.splitOn('/', fullyQualifiedName);
+		}
+	}
+	
 	@Override
 	public void parse(ICompilationUnit[] compilationUnits, ASTRequestor requestor, int apiLevel,
 			Map<String, String> compilerOptions, int flags, IProgressMonitor monitor) {
-		var units = parse(compilationUnits, apiLevel, compilerOptions, flags, monitor);
+		Map<ICompilationUnit, CompilationUnit>  units = parse(compilationUnits, apiLevel, compilerOptions, flags, monitor);
 		if (requestor != null) {
 			units.forEach(requestor::acceptAST);
 		}
@@ -255,8 +289,14 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	@Override
 	public void parse(String[] sourceFilePaths, String[] encodings, FileASTRequestor requestor, int apiLevel,
 			Map<String, String> compilerOptions, int flags, IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'parse'");
+		
+		for( int i = 0; i < sourceFilePaths.length; i++ ) {
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit ast = createSourceUnit(sourceFilePaths[i], encodings[i]);
+			Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> res = 
+					parse(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] {ast}, apiLevel, compilerOptions, flags, (IJavaProject)null, monitor);
+			CompilationUnit result = res.get(ast);
+			requestor.acceptAST(sourceFilePaths[i], result);
+		}
 	}
 
 
@@ -269,11 +309,11 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 	}
 	
-	private void resolveBindings(CompilationUnit unit) {
-		resolveBindings(unit, new String[0], null);
+	private void resolveBindings(CompilationUnit unit, int apiLevel) {
+		resolveBindings(unit, new String[0], null, apiLevel);
 	}
 	
-	private void resolveBindings(CompilationUnit unit, String[] bindingKeys, ASTRequestor requestor) {
+	private void resolveBindings(CompilationUnit unit, String[] bindingKeys, ASTRequestor requestor, int apiLevel) {
 		List<String> keys = Arrays.asList(bindingKeys);
 		
 		if (unit.getPackage() != null) {
@@ -287,9 +327,11 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				respondBinding(tb, keys, requestor);
 			}
 		} 
-		if (unit.getAST().apiLevel >= AST.JLS9 && unit.getModule() != null) {
-			IModuleBinding mb = unit.getModule().resolveBinding();
-			respondBinding(mb, keys, requestor);
+		if( apiLevel >= AST.JLS9_INTERNAL) {
+			if (unit.getModule() != null) {
+				IModuleBinding mb = unit.getModule().resolveBinding();
+				respondBinding(mb, keys, requestor);
+			}
 		}
 	}
 
@@ -303,7 +345,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				apiLevel, compilerOptions, flags, project, monitor).get(sourceUnit);
 		if (initialNeedsToResolveBinding) {
 			((JavacBindingResolver)res.ast.getBindingResolver()).isRecoveringBindings = (flags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0;
-			resolveBindings(res);
+			resolveBindings(res, apiLevel);
 		}
 		// For comparison
 //		CompilationUnit res2  = CompilationUnitResolver.FACADE.toCompilationUnit(sourceUnit, initialNeedsToResolveBinding, project, classpaths, nodeSearcher, apiLevel, compilerOptions, typeRootWorkingCopyOwner, typeRootWorkingCopyOwner, flags, monitor);
