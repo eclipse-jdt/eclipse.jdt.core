@@ -46,6 +46,7 @@ import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.JCVoidType;
 import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
@@ -621,7 +622,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isNullType() {
-		return this.type instanceof NullType;
+		return this.type instanceof NullType || (this.type instanceof ErrorType et && et.getOriginalType() instanceof NullType);
 	}
 
 	@Override
