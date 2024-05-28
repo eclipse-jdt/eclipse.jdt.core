@@ -56,7 +56,7 @@ class JavadocConverter {
 	private final int initialOffset;
 	private final int endOffset;
 	
-	private Set<JCDiagnostic> diagnostics = new HashSet<>();
+	final private Set<JCDiagnostic> diagnostics = new HashSet<>();
 
 	JavadocConverter(JavacConverter javacConverter, DCDocComment docComment) {
 		this.javacConverter = javacConverter;
@@ -83,13 +83,13 @@ class JavadocConverter {
 			String rawContent = this.javacConverter.rawText.substring(this.initialOffset, this.endOffset);
 			res.setComment(rawContent);
 		}
-		IDocElement[] elements = Stream.of(docComment.preamble, docComment.fullBody, docComment.postamble, docComment.tags)
+		List<IDocElement> elements = Stream.of(docComment.preamble, docComment.fullBody, docComment.postamble, docComment.tags)
 			.flatMap(List::stream)
 			.map(this::convertElement)
-			.toArray(IDocElement[]::new);
+			.toList();
 		TagElement host = null;
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] instanceof TagElement tag && !isInline(tag)) {
+		for (IDocElement docElement : elements) {
+			if (docElement instanceof TagElement tag && !isInline(tag)) {
 				if (host != null) {
 					res.tags().add(host);
 					host = null;
@@ -98,11 +98,13 @@ class JavadocConverter {
 			} else {
 				if (host == null) {
 					host = this.ast.newTagElement();
-					if( elements[i] instanceof ASTNode astn) {
+					if(docElement instanceof ASTNode astn) {
 						host.setSourceRange(astn.getStartPosition(), astn.getLength());
 					}
+				} else if (docElement instanceof ASTNode extraNode){
+					host.setSourceRange(host.getStartPosition(), extraNode.getStartPosition() + extraNode.getLength() - host.getStartPosition());
 				}
-				host.fragments().add(elements[i]);
+				host.fragments().add(docElement);
 			}
 		}
 		if (host != null) {
@@ -174,6 +176,7 @@ class JavadocConverter {
 	private Optional<TagElement> convertInlineTag(DCTree javac) {
 		TagElement res = this.ast.newTagElement();
 		commonSettings(res, javac);
+		res.setSourceRange(res.getStartPosition(), res.getLength() + 1); // include `@` prefix
 		if (javac instanceof DCLiteral literal) {
 			res.setTagName(switch (literal.getKind()) {
 				case CODE -> TagElement.TAG_CODE;
@@ -232,7 +235,8 @@ class JavadocConverter {
 	
 	private IDocElement convertElement(DCTree javac) {
 		if (javac instanceof DCText text) {
-			JavaDocTextElement res = this.ast.newJavaDocTextElement();
+			//JavaDocTextElement res = this.ast.newJavaDocTextElement();
+			TextElement res = this.ast.newTextElement();
 			commonSettings(res, javac);
 			res.setText(text.getBody());
 			return res;
@@ -246,15 +250,21 @@ class JavadocConverter {
 				if (signature.charAt(signature.length() - 1) == ')') {
 					MethodRef res = this.ast.newMethodRef();
 					commonSettings(res, javac);
-					SimpleName name = this.ast.newSimpleName(reference.memberName.toString());
-					name.setSourceRange(this.docComment.getSourcePosition(javac.getStartPosition()), Math.max(0, reference.memberName.toString().length()));
-					res.setName(name);
+					int currentOffset = this.docComment.getSourcePosition(reference.getStartPosition());
 					if (reference.qualifierExpression != null) {
 						Name qualifierExpressionName = toName(reference.qualifierExpression, res.getStartPosition());
-						qualifierExpressionName.setSourceRange(this.docComment.getSourcePosition(reference.pos), Math.max(0, reference.qualifierExpression.toString().length()));
+						qualifierExpressionName.setSourceRange(currentOffset, Math.max(0, reference.qualifierExpression.toString().length()));
 						res.setQualifier(qualifierExpressionName);
+						currentOffset += qualifierExpressionName.getLength();
 					}
-					reference.paramTypes.stream().map(this::toMethodRefParam).forEach(res.parameters()::add);
+					currentOffset++; // #
+					SimpleName name = this.ast.newSimpleName(reference.memberName.toString());
+					name.setSourceRange(currentOffset, Math.max(0, reference.memberName.toString().length()));
+					currentOffset += name.getLength();
+					res.setName(name);
+					currentOffset++; // (
+					final int offset = currentOffset;
+					reference.paramTypes.stream().map(param -> toMethodRefParam(param, offset)).forEach(res.parameters()::add);
 					return res;
 				} else {
 					MemberRef res = this.ast.newMemberRef();
@@ -313,9 +323,16 @@ class JavadocConverter {
 		return res;
 	}
 
-	private MethodRefParameter toMethodRefParam(JCTree type) {
+	private MethodRefParameter toMethodRefParam(JCTree type, int fromOffset) {
 		MethodRefParameter res = this.ast.newMethodRefParameter();
+		res.setSourceRange(type.getStartPosition(), type.toString().length());
 		res.setType(this.javacConverter.convertToType(type));
+		res.accept(new ASTVisitor(true) {
+			@Override
+			public void preVisit(ASTNode node) {
+				node.setSourceRange(node.getStartPosition() + fromOffset, node.toString().length());
+			}
+		});
 		return res;
 	}
 }
