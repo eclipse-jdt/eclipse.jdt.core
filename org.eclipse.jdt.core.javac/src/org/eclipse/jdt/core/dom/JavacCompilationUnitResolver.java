@@ -18,12 +18,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -63,7 +61,6 @@ import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
-import com.sun.tools.javac.util.JCDiagnostic;
 
 /**
  * Allows to create and resolve DOM ASTs using Javac
@@ -397,7 +394,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		long sourceLevel = CompilerOptions.versionToJdkLevel(sourceModeSetting);
 		if (sourceLevel == 0) {
 			// unknown sourceModeSetting
-			sourceLevel = ClassFileConstants.JDK21; // TODO latest
+			sourceLevel = ClassFileConstants.getLatestJDKLevel();
 		}
 		ast.scanner.sourceLevel = sourceLevel;
 		String compliance = options.get(JavaCore.COMPILER_COMPLIANCE);
