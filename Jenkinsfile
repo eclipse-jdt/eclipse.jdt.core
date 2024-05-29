@@ -46,7 +46,6 @@ pipeline {
 			}
 			post {
 				always {
-					archiveArtifacts artifacts: '*.log,*/target/work/data/.metadata/*.log,*/tests/target/work/data/.metadata/*.log,apiAnalyzer-workspace/.metadata/*.log,repository/target/repository/**,**/target/artifactcomparison/**', allowEmptyArchive: true
 					// The following lines use the newest build on master that did not fail a reference
 					// To not fail master build on failed test maven needs to be started with "-Dmaven.test.failure.ignore=true" it will then only marked unstable.
 					// To not fail the build also "unstable: true" is used to only mark the build unstable instead of failing when qualityGates are missed
@@ -67,7 +66,11 @@ pipeline {
 					
 					unset JAVA_TOOL_OPTIONS
 					unset _JAVA_OPTIONS
-					mvn install -DskipTests -Djava.io.tmpdir=$WORKSPACE/tmp
+					# force qualifier to start with `z` so we identify it more easily and it always seem more recent than upstrea
+					mvn install -DskipTests -Djava.io.tmpdir=$WORKSPACE/tmp \
+						-Dtycho.buildqualifier.format="'z'yyyyMMdd-HHmm" \
+						-Pp2-repo \
+						-pl org.eclipse.jdt.core,org.eclipse.jdt.core.javac,repository
 
 					mvn verify --batch-mode -f org.eclipse.jdt.core.tests.javac \
 						--fail-at-end -Ptest-on-javase-22 -Pbree-libs \
@@ -77,6 +80,7 @@ pipeline {
 			}
 			post {
 				always {
+					archiveArtifacts artifacts: '*.log,*/target/work/data/.metadata/*.log,*/tests/target/work/data/.metadata/*.log,apiAnalyzer-workspace/.metadata/*.log,repository/target/repository/**,**/target/artifactcomparison/**', allowEmptyArchive: true
 					junit 'org.eclipse.jdt.core.tests.javac/target/surefire-reports/*.xml'
 				}
 			}
