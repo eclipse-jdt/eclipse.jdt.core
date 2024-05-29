@@ -1612,10 +1612,20 @@ class JavacConverter {
 			}
 		}
 		if (value instanceof String string) {
-			StringLiteral res = this.ast.newStringLiteral();
-			commonSettings(res, literal);
-			res.setLiteralValue(string);  // TODO: we want the token here
-			return res;
+			if (this.rawText.charAt(literal.pos) == '"'
+					&& this.rawText.charAt(literal.pos + 1) == '"'
+					&& this.rawText.charAt(literal.pos + 2) == '"') {
+				TextBlock res = this.ast.newTextBlock();
+				commonSettings(res, literal);
+				String rawValue = this.rawText.substring(literal.pos, literal.getEndPosition(this.javacCompilationUnit.endPositions));
+				res.internalSetEscapedValue(rawValue, string);
+				return res;
+			} else {
+				StringLiteral res = this.ast.newStringLiteral();
+				commonSettings(res, literal);
+				res.setLiteralValue(string);  // TODO: we want the token here
+				return res;
+			}
 		}
 		if (value instanceof Boolean string) {
 			BooleanLiteral res = this.ast.newBooleanLiteral(string.booleanValue());
