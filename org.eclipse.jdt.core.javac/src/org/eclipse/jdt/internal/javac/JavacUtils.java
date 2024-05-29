@@ -69,17 +69,23 @@ public class JavacUtils {
 		options.put("allowStringFolding", Boolean.FALSE.toString());
 		final Version complianceVersion;
 		String compliance = compilerOptions.get(CompilerOptions.OPTION_Compliance);
+		if (CompilerOptions.VERSION_1_8.equals(compliance)) {
+			compliance = "8";
+		}
 		if (CompilerOptions.ENABLED.equals(compilerOptions.get(CompilerOptions.OPTION_Release))
 			&& compliance != null && !compliance.isEmpty()) {
 			complianceVersion = Version.parse(compliance);
 			options.put(Option.RELEASE, compliance);
 		} else {
 			String source = compilerOptions.get(CompilerOptions.OPTION_Source);
+			if (CompilerOptions.VERSION_1_8.equals(source)) {
+				source = "8";
+			}
 			if (source != null && !source.isBlank()) {
 				complianceVersion = Version.parse(source);
-				if (complianceVersion.compareToIgnoreOptional(Version.parse("1.8")) < 0) {
-					ILog.get().warn("Unsupported source level: " + source + ", using 1.8 instead");
-					options.put(Option.SOURCE, "1.8");
+				if (complianceVersion.compareToIgnoreOptional(Version.parse("8")) < 0) {
+					ILog.get().warn("Unsupported source level: " + source + ", using 8 instead");
+					options.put(Option.SOURCE, "8");
 				} else {
 					options.put(Option.SOURCE, source);
 				}
@@ -87,11 +93,14 @@ public class JavacUtils {
 				complianceVersion = Runtime.version();
 			}
 			String target = compilerOptions.get(CompilerOptions.OPTION_TargetPlatform);
+			if (CompilerOptions.VERSION_1_8.equals(target)) {
+				target = "8";
+			}
 			if (target != null && !target.isEmpty()) {
 				Version version = Version.parse(target);
-				if (version.compareToIgnoreOptional(Version.parse("1.8")) < 0) {
-					ILog.get().warn("Unsupported target level: " + target + ", using 1.8 instead");
-					options.put(Option.TARGET, "1.8");
+				if (version.compareToIgnoreOptional(Version.parse("8")) < 0) {
+					ILog.get().warn("Unsupported target level: " + target + ", using 8 instead");
+					options.put(Option.TARGET, "8");
 				} else {
 					options.put(Option.TARGET, target);
 				}
