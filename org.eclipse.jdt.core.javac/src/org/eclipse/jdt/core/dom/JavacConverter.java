@@ -371,7 +371,7 @@ class JavacConverter {
 				n = this.ast.newSimpleName("NOT_SET");
 			}
 			commonSettings(n, fieldAccess);
-			
+
 			Name qualifier = toName(faExpression);
 			QualifiedName res = this.ast.newQualifiedName(qualifier, n);
 			commonSettings(res, fieldAccess.getExpression());
@@ -472,6 +472,8 @@ class JavacConverter {
 					javacClassDecl.getPermitsClause().stream()
 						.map(this::convertToType)
 						.forEach(typeDeclaration.permittedTypes()::add);
+					int sealedOffset = this.rawText.substring(javacClassDecl.pos).indexOf("permits") + javacClassDecl.pos;
+					typeDeclaration.setRestrictedIdentifierStartPosition(sealedOffset);
 				}
 			}
 			if (javacClassDecl.getMembers() != null) {
