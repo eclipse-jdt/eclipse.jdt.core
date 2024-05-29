@@ -722,11 +722,44 @@ public class BasicBuildTests extends BuilderTests {
 
 			fullBuild(projectPath);
 
-			Problem[] problems = allSortedProblems(new IPath[] {path});
-
 			expectingProblemsFor(
 					path,
 					"Problem : Compilation error from MockCompiler [ resource : </Project/src/p1/Hello.java> range : <0,1> category : <60> severity : <2>]"
+				);
+		} finally {
+			System.clearProperty(CUSTOM_COMPILER_KEY);
+		}
+	}
+
+	public void testFallbackForProblematicCompiler() throws JavaModelException {
+		final String CUSTOM_COMPILER_KEY = AbstractImageBuilder.class.getSimpleName() + ".compiler";
+		final String CUSTOM_COMPILER_VALUE = "x.y.NotFoundCompiler";
+		try {
+			System.setProperty(CUSTOM_COMPILER_KEY, CUSTOM_COMPILER_VALUE);
+			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+			env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+			// remove old package fragment root so that names don't collide
+			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+			IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+			IPath path = env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
+					"package p1;\n"+ //$NON-NLS-1$
+					"public class Hello {\n"+ //$NON-NLS-1$
+					"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
+					"      int unUsedVarable;\n"+ //$NON-NLS-1$
+					"   }\n"+ //$NON-NLS-1$
+					"}\n" //$NON-NLS-1$
+					);
+
+			fullBuild(projectPath);
+
+			// If the custom compiler is not found, should fall back to the default ECJ
+			expectingProblemsFor(
+					path,
+					"Problem : The value of the local variable unUsedVarable is not used [ resource : </Project/src/p1/Hello.java> range : <87,100> category : <120> severity : <1>]"
 				);
 		} finally {
 			System.clearProperty(CUSTOM_COMPILER_KEY);
