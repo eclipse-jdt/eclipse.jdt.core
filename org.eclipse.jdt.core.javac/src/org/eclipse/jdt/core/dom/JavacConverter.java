@@ -472,8 +472,10 @@ class JavacConverter {
 					javacClassDecl.getPermitsClause().stream()
 						.map(this::convertToType)
 						.forEach(typeDeclaration.permittedTypes()::add);
-					int sealedOffset = this.rawText.substring(javacClassDecl.pos).indexOf("permits") + javacClassDecl.pos;
-					typeDeclaration.setRestrictedIdentifierStartPosition(sealedOffset);
+					if (!javacClassDecl.getPermitsClause().isEmpty()) {
+						int permitsOffset = this.rawText.substring(javacClassDecl.pos).indexOf("permits") + javacClassDecl.pos;
+						typeDeclaration.setRestrictedIdentifierStartPosition(permitsOffset);
+					}
 				}
 			}
 			if (javacClassDecl.getMembers() != null) {
