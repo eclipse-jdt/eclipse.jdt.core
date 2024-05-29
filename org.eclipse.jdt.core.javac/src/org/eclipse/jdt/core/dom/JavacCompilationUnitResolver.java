@@ -404,6 +404,7 @@ class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		if (sourceLevel == 0) {
 			// unknown sourceModeSetting
 			sourceLevel = ClassFileConstants.getLatestJDKLevel();
+		}
 		ast.scanner.sourceLevel = sourceLevel;
 		String compliance = options.get(JavaCore.COMPILER_COMPLIANCE);
 		long complianceLevel = CompilerOptions.versionToJdkLevel(compliance);
