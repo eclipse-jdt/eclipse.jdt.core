@@ -436,6 +436,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (this.type instanceof NullType) {
 			return "null";
 		}
+		if (this.type instanceof ArrayType at) {
+			return at.elemtype.tsym.getQualifiedName().toString() + "[]";
+		}
+
 		return this.typeSymbol.getQualifiedName().toString();
 	}
 
