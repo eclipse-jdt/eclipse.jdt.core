@@ -128,7 +128,7 @@ public class JavacProblemConverter {
 			DiagnosticSource source = jcDiagnostic.getDiagnosticSource();
 			JavaFileObject fileObject = source.getFile();
 			CharSequence charContent = fileObject.getCharContent(true);
-			ScannerFactory scannerFactory = ScannerFactory.instance(context);
+			ScannerFactory scannerFactory = ScannerFactory.instance(new Context());
 			Scanner javacScanner = scannerFactory.newScanner(charContent, true);
 			Token t = javacScanner.token();
 			while (t != null && t.kind != TokenKind.EOF && t.endPos <= preferedOffset) {
