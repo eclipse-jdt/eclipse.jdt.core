@@ -206,7 +206,7 @@ public class JavacUtils {
 						res.add(asFile);
 					} else {
 						IResource asResource = project.getProject().getParent().findMember(path);
-						if (asResource.exists()) {
+						if (asResource != null && asResource.exists()) {
 							res.add(asResource.getLocation().toFile());
 						}
 					}
