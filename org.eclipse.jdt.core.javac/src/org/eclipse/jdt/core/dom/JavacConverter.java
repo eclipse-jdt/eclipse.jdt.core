@@ -342,13 +342,14 @@ class JavacConverter {
 
 	void commonSettings(ASTNode res, JCTree javac) {
 		if( javac != null ) {
-			if (javac.getStartPosition() >= 0) {
+			int start = javac.getStartPosition();
+			if (start >= 0) {
 				int endPos = javac.getEndPosition(this.javacCompilationUnit.endPositions);
 				if( endPos < 0 ) {
-					endPos = javac.getStartPosition() + javac.toString().length();
+					endPos = start + javac.toString().length();
 				}
-				int length = endPos - javac.getStartPosition();
-				res.setSourceRange(javac.getStartPosition(), Math.max(0, length));
+				int length = endPos - start;
+				res.setSourceRange(start, Math.max(0, length));
 			}
 			this.domToJavac.put(res, javac);
 			setJavadocForNode(javac, res);
@@ -551,7 +552,15 @@ class JavacConverter {
 		} else if (res instanceof RecordDeclaration recordDecl) {
 			for (JCTree node : javacClassDecl.getMembers()) {
 				if (node instanceof JCVariableDecl vd) {
-					recordDecl.recordComponents().add(convertVariableDeclaration(vd));
+					SingleVariableDeclaration vdd = (SingleVariableDeclaration)convertVariableDeclaration(vd);
+					// Records cannot have modifiers
+					vdd.modifiers().clear();
+					recordDecl.recordComponents().add(vdd);
+				} else {
+					ASTNode converted = convertBodyDeclaration(node, res);
+					if( converted != null ) {
+						res.bodyDeclarations.add(converted);
+					}
 				}
 			}
 		}
@@ -666,8 +675,8 @@ class JavacConverter {
 		}
 		return null;
 	}
-
-	private String getMethodDeclName(JCMethodDecl javac, ASTNode parent) {
+	
+	private String getMethodDeclName(JCMethodDecl javac, ASTNode parent, boolean records) {
 		String name = javac.getName().toString();
 		boolean javacIsConstructor = Objects.equals(javac.getName(), Names.instance(this.context).init);
 		if( javacIsConstructor) {
@@ -675,8 +684,16 @@ class JavacConverter {
 			String parentName = getNodeName(parent);
 			String tmpString1 = this.rawText.substring(javac.pos);
 			int openParen = tmpString1.indexOf("(");
+			int openBrack = tmpString1.indexOf("{");
+			int endPos = -1;
 			if( openParen != -1 ) {
-				String methodName = tmpString1.substring(0, openParen).trim();
+				endPos = openParen;
+			}
+			if( records && openBrack != -1 ) {
+				endPos = endPos == -1 ? openBrack : Math.min(openBrack, endPos);
+			}
+			if( endPos != -1 ) {
+				String methodName = tmpString1.substring(0, endPos).trim();
 				if( !methodName.equals(parentName)) {
 					return methodName;
 				}
@@ -696,13 +713,22 @@ class JavacConverter {
 		}
 
 		String javacName = javac.getName().toString();
-		String methodDeclName = getMethodDeclName(javac, parent);
+		String methodDeclName = getMethodDeclName(javac, parent, parent instanceof RecordDeclaration);
 		boolean methodDeclNameMatchesInit = Objects.equals(methodDeclName, Names.instance(this.context).init.toString());
 		boolean javacNameMatchesInit = javacName.equals("<init>");
 		boolean javacNameMatchesError = javacName.equals("<error>");
 		boolean javacNameMatchesInitAndMethodNameMatchesTypeName = javacNameMatchesInit && methodDeclName.equals(getNodeName(parent));
 		boolean isConstructor = methodDeclNameMatchesInit || javacNameMatchesInitAndMethodNameMatchesTypeName;
 		res.setConstructor(isConstructor);
+		boolean isCompactConstructor = false;
+		if(isConstructor && parent instanceof RecordDeclaration) {
+			String postName = this.rawText.substring(javac.pos + methodDeclName.length()).trim();
+			String firstChar = postName != null && postName.length() > 0 ? postName.substring(0,1) : null;
+			isCompactConstructor = ("{".equals(firstChar));
+			if( this.ast.apiLevel >= AST.JLS16_INTERNAL) {
+				res.setCompactConstructor(isCompactConstructor);
+			}
+		}
 		boolean malformed = false;
 		if(isConstructor && !javacNameMatchesInitAndMethodNameMatchesTypeName) {
 			malformed = true;
@@ -765,7 +791,10 @@ class JavacConverter {
 			}
 		}
 
-		javac.getParameters().stream().map(this::convertVariableDeclaration).forEach(res.parameters()::add);
+		if( !isCompactConstructor) {
+			// Compact constructor does not show the parameters even though javac finds them
+			javac.getParameters().stream().map(this::convertVariableDeclaration).forEach(res.parameters()::add);
+		}
 
 		if( javac.getTypeParameters() != null ) {
 			Iterator<JCTypeParameter> i = javac.getTypeParameters().iterator();
@@ -844,7 +873,9 @@ class JavacConverter {
 		if (convertName(javac.getName()) instanceof SimpleName simpleName) {
 			int endPos = javac.getEndPosition(this.javacCompilationUnit.endPositions);
 			int length = simpleName.toString().length();
-			simpleName.setSourceRange(endPos - length, length);
+			if( endPos != -1 ) {
+				simpleName.setSourceRange(endPos - length, length);
+			}
 			res.setName(simpleName);
 		}
 		if( this.ast.apiLevel != AST.JLS2_INTERNAL) {

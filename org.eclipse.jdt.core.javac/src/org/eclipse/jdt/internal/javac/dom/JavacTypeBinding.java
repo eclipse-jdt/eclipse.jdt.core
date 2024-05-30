@@ -11,6 +11,8 @@
 package org.eclipse.jdt.internal.javac.dom;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.StreamSupport;
@@ -22,6 +24,7 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -288,7 +291,13 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (this.typeSymbol.members() == null) {
 			return new IMethodBinding[0];
 		}
-		return StreamSupport.stream(this.typeSymbol.members().getSymbols().spliterator(), false)
+		ArrayList<Symbol> l = new ArrayList<>();
+		this.typeSymbol.members().getSymbols().forEach(l::add);
+		// This is very very questionable, but trying to find
+		// the order of these members in the file has been challenging
+		Collections.reverse(l);
+		
+		return StreamSupport.stream(l.spliterator(), false)
 			.filter(MethodSymbol.class::isInstance)
 			.map(MethodSymbol.class::cast)
 			.map(sym -> this.resolver.bindings.getMethodBinding(sym.type.asMethodType(), sym))
