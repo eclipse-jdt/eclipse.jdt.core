@@ -5455,6 +5455,48 @@ public void invokeStringValueOf(int typeID) {
 			getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
 }
 
+public void invokeExactConversionsSupport(int typeFromTo) {
+	// invokestatic: java/lang/runtime/ExactConversionsSupport.is{Functions}(argumentType)
+	char[] signature;
+	int receiverAndArgsSize = 1;
+	int typeID = 0;
+	int returnTypeSize = 1;
+	char[] methodName;
+	switch (typeFromTo) { // TODO: put this in an array of records.
+		case TypeIds.Int2Float :
+			methodName = ConstantPool.isIntToFloatExact;
+			signature = ConstantPool.isIntToFloatExactSignature;
+			typeID = TypeIds.T_int;
+			break;
+		case TypeIds.Long2Float :
+			methodName = ConstantPool.isLongToFloatExact;
+			signature = ConstantPool.isLongToFloatExactSignature;
+			typeID = TypeIds.T_long;
+			break;
+		case TypeIds.Long2Double :
+			methodName = ConstantPool.isLongToDoubleExact;
+			signature = ConstantPool.isLongToDoubleExactSignature;
+			typeID = TypeIds.T_long;
+			break;
+		case TypeIds.Float2Double :
+			methodName = ConstantPool.isFloatToDoubleExact;
+			signature = ConstantPool.isFloatToDoubleExactSignature;
+			typeID = TypeIds.T_float;
+			break;
+		default :
+			return; // should not occur
+	}
+	invoke(
+			Opcodes.OPC_invokestatic,
+			receiverAndArgsSize, // receiverAndArgsSize
+			returnTypeSize, // return type size
+			ConstantPool.ExactConversionsSupport,
+			methodName,
+			signature,
+			typeID,
+			getPopularBinding(ConstantPool.ExactConversionsSupport));
+}
+
 public void invokeThrowableToString() {
 	char[] declaringClass = ConstantPool.JavaLangThrowableConstantPoolName;
 	invoke(

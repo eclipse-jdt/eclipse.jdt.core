@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -330,6 +334,16 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 			"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/String;)Ljava/lang/invoke/CallSite;".toCharArray(); //$NON-NLS-1$
 
 	public static final char[] PROCESS = "process".toCharArray(); //$NON-NLS-1$
+
+	public static final char[] ExactConversionsSupport = "java/lang/runtime/ExactConversionsSupport".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToFloatExact = "isIntToFloatExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToFloatExactSignature = "(I)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToFloatExact = "isLongToFloatExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToFloatExactSignature = "(J)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToDoubleExact = "isLongToDoubleExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToDoubleExactSignature = "(J)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToDoubleExact = "isFloatToDoubleExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToDoubleExactSignature = "(Z)J".toCharArray(); //$NON-NLS-1$
 
 	/**
 	 * ConstantPool constructor comment.

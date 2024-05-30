@@ -20,6 +20,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -46,6 +47,8 @@ public abstract class Pattern extends Expression {
 		BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION,
 		NO_CONVERSION_ROUTE
 	}
+
+	record TestContextRecord(TypeBinding left, TypeBinding right, PrimitiveConversionRoute route) {}
 
 	public Pattern getEnclosingPattern() {
 		return this.enclosingPattern;
@@ -137,17 +140,18 @@ public abstract class Pattern extends Expression {
 	public void setIsGuarded() {
 		this.isUnguarded = false;
 	}
-	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding src, TypeBinding dst, BlockScope scope) {
+	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding left, TypeBinding right, BlockScope scope) {
 		if (!(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
 				scope.compilerOptions().sourceLevel,
 				scope.compilerOptions().enablePreviewFeatures))) {
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		}
-		if (src.isBaseType() && dst.isBaseType()) {
-			if (TypeBinding.equalsEquals(src, dst)) {
+		if (left.isBaseType() && right.isBaseType()) {
+			if (TypeBinding.equalsEquals(left, right)) {
 				return PrimitiveConversionRoute.IDENTITY_CONVERSION;
 			}
-
+			if (BaseTypeBinding.isWidening(left.id, right.id))
+				return PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION;
 		}
 		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 	}

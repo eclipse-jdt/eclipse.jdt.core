@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.Pattern.PrimitiveConversionRoute;
+import org.eclipse.jdt.internal.compiler.ast.Pattern.TestContextRecord;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -48,7 +49,8 @@ public class InstanceOfExpression extends OperatorExpression {
 
 	private static final char[] SECRET_EXPRESSION_VALUE = " secretExpressionValue".toCharArray(); //$NON-NLS-1$
 	private LocalVariableBinding secretExpressionValue = null;
-	private PrimitiveConversionRoute primitiveConversionRoute = PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
+
+	private TestContextRecord testContextRecord;
 
 public InstanceOfExpression(Expression expression, TypeReference type) {
 	this.expression = expression;
@@ -167,7 +169,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	}
 
 	BranchLabel internalFalseLabel = falseLabel != null ? falseLabel : this.pattern != null ? new BranchLabel(codeStream) : null;
-	generateTypeCheck(codeStream);
+	generateTypeCheck(currentScope, codeStream);
 
 	if (this.pattern != null) {
 		codeStream.ifeq(internalFalseLabel);
@@ -177,6 +179,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		} else {
 			this.expression.generateCode(currentScope, codeStream, true);
 		}
+		generateTestingConversion(currentScope, codeStream);
 		this.pattern.generateCode(currentScope, codeStream, trueLabel, internalFalseLabel);
 	} else if (!valueRequired) {
 		codeStream.pop();
@@ -213,14 +216,16 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		internalFalseLabel.place();
 }
 
-private void generateTypeCheck(CodeStream codeStream) {
-	switch (this.primitiveConversionRoute) {
+private void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
+	PrimitiveConversionRoute route = this.testContextRecord != null ?
+			this.testContextRecord.route() : PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
+	switch (route) {
 		case IDENTITY_CONVERSION:
 			storeExpressionValue(codeStream);
 			codeStream.iconst_1();
 			break;
 		case WIDENING_PRIMITIVE_CONVERSION:
-			//TODO
+			generateExactConversions(scope, codeStream);
 			break;
 		case NARROWING_PRIMITVE_CONVERSION:
 			//TODO
@@ -239,6 +244,53 @@ private void generateTypeCheck(CodeStream codeStream) {
 			codeStream.instance_of(this.type, this.type.resolvedType);
 			break;
 	}
+}
+
+private void generateExactConversions(BlockScope scope, CodeStream codeStream) {
+	TypeBinding left = this.testContextRecord.left();
+	TypeBinding right = this.testContextRecord.right();
+	if (BaseTypeBinding.isExactWidening(left.id, right.id)) {
+		storeExpressionValue(codeStream);
+		codeStream.iconst_1();
+	} else {
+		codeStream.invokeExactConversionsSupport(BaseTypeBinding.getRightToLeft(left.id, right.id));
+	}
+}
+
+private void generateTestingConversion(BlockScope scope, CodeStream codeStream) {
+	PrimitiveConversionRoute route = this.testContextRecord != null ?
+			this.testContextRecord.route() :PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
+	switch (route) {
+		case IDENTITY_CONVERSION:
+			// Do nothing
+			break;
+		case WIDENING_PRIMITIVE_CONVERSION:
+			conversionCode(scope, codeStream);
+			break;
+		case NARROWING_PRIMITVE_CONVERSION:
+			//TODO
+			break;
+		case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
+			//TODO
+			break;
+		case BOXING_CONVERSION:
+			//TODO
+			break;
+		case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
+			//TODO
+			break;
+		case NO_CONVERSION_ROUTE:
+		default:
+			break;
+	}
+}
+
+private void conversionCode(BlockScope scope, CodeStream codeStream) {
+	TypeBinding left = this.testContextRecord.left();
+	TypeBinding right = this.testContextRecord.right();
+	this.expression.computeConversion(scope, left, right);
+	int i = this.expression.implicitConversion;
+	codeStream.generateImplicitConversion(i);
 }
 
 private void storeExpressionValue(CodeStream codeStream) {
@@ -269,7 +321,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	TypeBinding expressionType = this.expression.resolveType(scope);
 	if (this.pattern != null) {
-		this.pattern.setExpressionContext(ExpressionContext.INSTANCEOF_CONTEXT);
+		this.pattern.setExpressionContext(ExpressionContext.TESTING_CONTEXT);
 		this.pattern.setExpectedType(this.expression.resolvedType);
 		this.pattern.resolveType(scope);
 
@@ -302,16 +354,24 @@ public TypeBinding resolveType(BlockScope scope) {
 		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
 				|| checkedType.isBaseType()
 				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null, true)) {
-			this.primitiveConversionRoute = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
-			if (this.primitiveConversionRoute == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
-				scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
-			} else {
-				addSecretExpressionValue(scope, expressionType);
-			}
+			processPrimitives(scope, checkedType, expressionType);
 		}
 	}
 
 	return this.resolvedType = TypeBinding.BOOLEAN;
+}
+
+private void processPrimitives(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType) {
+	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
+	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
+
+	if (route == PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION) {
+//				this.expression.computeConversion(scope, expressionType, checkedType);
+	} else if (route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
+		scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
+	} else {
+		addSecretExpressionValue(scope, expressionType);
+	}
 }
 
 private void addSecretExpressionValue(BlockScope scope, TypeBinding expressionType) {

@@ -578,7 +578,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1.0");
 	}
 	// Widening primitive conversions
-	public void test211() {
+	public void test021() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -599,7 +599,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test212() {
+	public void test022() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -619,7 +619,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test213() {
+	public void test023() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -640,7 +640,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test214() {
+	public void test024() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -660,7 +660,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test215() {
+	public void test025() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -681,7 +681,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test216() {
+	public void test026() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -701,7 +701,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test217() {
+	public void test027() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -722,7 +722,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test218() {
+	public void test028() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -742,7 +742,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test219() {
+	public void test029() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -763,7 +763,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test220() {
+	public void test030() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -783,7 +783,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test221() {
+	public void test031() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -804,7 +804,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test222() {
+	public void test032() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -824,7 +824,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test223() {
+	public void test033() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -845,7 +845,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test224() {
+	public void test034() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -865,7 +865,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test225() {
+	public void test035() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -886,7 +886,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test226() {
+	public void test036() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -906,7 +906,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test227() {
+	public void test037() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -927,7 +927,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test228() {
+	public void test038() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -947,7 +947,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test229() {
+	public void test039() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -968,7 +968,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test230() {
+	public void test040() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -988,7 +988,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test231() {
+	public void test041() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1009,7 +1009,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test232() {
+	public void test042() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1029,7 +1029,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test233() {
+	public void test043() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1050,7 +1050,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test234() {
+	public void test044() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1070,7 +1070,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test235() {
+	public void test045() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1091,7 +1091,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test236() {
+	public void test046() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1111,7 +1111,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test237() {
+	public void test047() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1132,7 +1132,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test238() {
+	public void test048() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1152,7 +1152,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void test239() {
+	public void test049() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1173,7 +1173,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test240() {
+	public void test050() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1193,7 +1193,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test241() {
+	public void test051() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1214,7 +1214,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test242() {
+	public void test052() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1234,7 +1234,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test243() {
+	public void test053() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1255,7 +1255,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test244() {
+	public void test054() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1275,7 +1275,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test245() {
+	public void test055() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1296,7 +1296,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test246() {
+	public void test056() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1316,7 +1316,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test247() {
+	public void test057() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1337,7 +1337,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test248() {
+	public void test058() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1357,7 +1357,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
-	public void test249() {
+	public void test059() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1378,7 +1378,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"-1.0");
 	}
-	public void test250() {
+	public void test060() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1398,7 +1398,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"-1.0");
 	}
-	public void test251() {
+	public void test061() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1419,7 +1419,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"-1.0");
 	}
-	public void test252() {
+	public void test062() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1439,7 +1439,696 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"-1.0");
 	}
-	public void testSpec001() {
+
+	// Widening with functions
+	public void test063() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static short foo() {
+						if (getByte() instanceof short) {
+							short s = (short) getByte();
+							return s;
+						}
+						return -1;
+					}
+					public static byte getByte() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo());
+					}
+				}
+				"""
+			},
+			"1");
+	}
+	public void test064() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static short foo() {
+						if (getByte() instanceof short s) {
+							return s;
+						}
+						return -1;
+					}
+					public static byte getByte() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo());
+					}
+				}
+				"""
+			},
+			"1");
+	}
+	public void test065() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static int foo() {
+						if (getByte()  instanceof int) {
+							int i = (int)getByte() ;
+							return i;
+						}
+						return -1;
+					}
+					public static byte getByte() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo());
+					}
+				}
+				"""
+			},
+			"1");
+	}
+	public void test066() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static int foo() {
+						if (getByte()  instanceof int i) {
+							return i;
+						}
+						return -1;
+					}
+					public static byte getByte() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo());
+					}
+				}
+				"""
+			},
+			"1");
+	}
+	public void test067() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static long foo() {
+						if (getByte()  instanceof long) {
+							long l = (long)getByte() ;
+							return l;
+						}
+						return -1;
+					}
+					public static byte getByte() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo());
+					}
+				}
+				"""
+			},
+			"1");
+	}
+	public void test068() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static long foo() {
+						if (getByte()  instanceof long l) {
+							return l;
+						}
+						return -1;
+					}
+					public static byte getByte() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo());
+					}
+				}
+				"""
+			},
+			"1");
+	}
+	public void test069() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static float foo() {
+						if (getByte() instanceof float) {
+							float f = (float)getByte() ;
+							return f;
+						}
+						return -1;
+					}
+					public static byte getByte() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo());
+					}
+				}
+				"""
+			},
+			"1.0");
+	}
+	public void test070() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static float foo() {
+						if (getByte()  instanceof float f) {
+							return f;
+						}
+						return -1;
+					}
+					public static byte getByte() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo());
+					}
+				}
+				"""
+			},
+			"1.0");
+	}
+	public void test071() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static double foo() {
+						if (getByte()  instanceof double) {
+							double d = (double)getByte() ;
+							return d;
+						}
+						return -1;
+					}
+					public static byte getByte() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo());
+					}
+				}
+				"""
+			},
+			"1.0");
+	}
+	public void test072() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static double foo() {
+						if (getByte()  instanceof double d) {
+							return d;
+						}
+						return -1;
+					}
+					public static byte getByte() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo());
+					}
+				}
+				"""
+			},
+			"1.0");
+	}
+	public void test073() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static int fooInt() {
+						if (getShort() instanceof int) {
+							int i = (int) getShort();
+							return i;
+						}
+						return -1;
+					}
+					public static long fooLong() {
+						if (getShort() instanceof long) {
+							long l = (long)getShort();
+							return l;
+						}
+						return -1;
+					}
+					public static float fooFloat() {
+						if (getShort() instanceof float) {
+							float f = (float)getShort();
+							return f;
+						}
+						return -1;
+					}
+					public static double fooDouble() {
+						if (getShort() instanceof double) {
+							double d = (double)getShort();
+							return d;
+						}
+						return -1;
+					}
+					public static short getShort() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.fooInt());
+						System.out.println(X.fooLong());
+						System.out.println(X.fooFloat());
+						System.out.println(X.fooDouble());
+					}
+				}
+				"""
+			},
+			"1\n"
+			+ "1\n"
+			+ "1.0\n"
+			+ "1.0");
+	}
+	public void test074() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static int fooInt() {
+						if (getShort() instanceof int i) {
+							return i;
+						}
+						return -1;
+					}
+					public static long fooLong() {
+						if (getShort() instanceof long l) {
+							return l;
+						}
+						return -1;
+					}
+					public static float fooFloat() {
+						if (getShort() instanceof float f) {
+							return f;
+						}
+						return -1;
+					}
+					public static double fooDouble() {
+						if (getShort() instanceof double d) {
+							return d;
+						}
+						return -1;
+					}
+					public static short getShort() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.fooInt());
+						System.out.println(X.fooLong());
+						System.out.println(X.fooFloat());
+						System.out.println(X.fooDouble());
+					}
+				}
+				"""
+			},
+			"1\n"
+			+ "1\n"
+			+ "1.0\n"
+			+ "1.0");
+	}
+	public void test075() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static int fooInt() {
+						if (getChar() instanceof int) {
+							int i = (int) getChar();
+							return i;
+						}
+						return -1;
+					}
+					public static long fooLong() {
+						if (getChar() instanceof long) {
+							long l = (long)getChar();
+							return l;
+						}
+						return -1;
+					}
+					public static float fooFloat() {
+						if (getChar() instanceof float) {
+							float f = (float)getChar();
+							return f;
+						}
+						return -1;
+					}
+					public static double fooDouble() {
+						if (getChar() instanceof double) {
+							double d = (double)getChar();
+							return d;
+						}
+						return -1;
+					}
+					public static char getChar() {
+						return (char)1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.fooInt());
+						System.out.println(X.fooLong());
+						System.out.println(X.fooFloat());
+						System.out.println(X.fooDouble());
+					}
+				}
+				"""
+			},
+			"1\n"
+			+ "1\n"
+			+ "1.0\n"
+			+ "1.0");
+	}
+	public void test076() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static int fooInt() {
+						if (getChar() instanceof int i) {
+							return i;
+						}
+						return -1;
+					}
+					public static long fooLong() {
+						if (getChar() instanceof long l) {
+							return l;
+						}
+						return -1;
+					}
+					public static float fooFloat() {
+						if (getChar() instanceof float f) {
+							return f;
+						}
+						return -1;
+					}
+					public static double fooDouble() {
+						if (getChar() instanceof double d) {
+							return d;
+						}
+						return -1;
+					}
+					public static char getChar() {
+						return (char)1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.fooInt());
+						System.out.println(X.fooLong());
+						System.out.println(X.fooFloat());
+						System.out.println(X.fooDouble());
+					}
+				}
+				"""
+			},
+			"1\n"
+			+ "1\n"
+			+ "1.0\n"
+			+ "1.0");
+	}
+	public void test077() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static long fooLong() {
+						if (getInt() instanceof long) {
+							long l = (long)getInt();
+							return l;
+						}
+						return -1;
+					}
+					public static float fooFloat() {
+						if (getInt() instanceof float) {
+							float f = (float)getInt();
+							return f;
+						}
+						return -1;
+					}
+					public static double fooDouble() {
+						if (getInt() instanceof double) {
+							double d = (double)getInt();
+							return d;
+						}
+						return -1;
+					}
+					public static int getInt() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.fooLong());
+						System.out.println(X.fooFloat());
+						System.out.println(X.fooDouble());
+					}
+				}
+				"""
+			},
+			"1\n"
+			+ "1.0\n"
+			+ "1.0");
+	}
+	public void test078() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static long fooLong() {
+						if (getInt() instanceof long l) {
+							return l;
+						}
+						return -1;
+					}
+					public static float fooFloat() {
+						if (getInt() instanceof float f) {
+							return f;
+						}
+						return -1;
+					}
+					public static double fooDouble() {
+						if (getInt() instanceof double d) {
+							return d;
+						}
+						return -1;
+					}
+					public static int getInt() {
+						return 1;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.fooLong());
+						System.out.println(X.fooFloat());
+						System.out.println(X.fooDouble());
+					}
+				}
+				"""
+			},
+			"1\n"
+			+ "1.0\n"
+			+ "1.0");
+	}
+	public void test079() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static float fooFloat() {
+						if (getLong() instanceof float) {
+							float f = (float)getLong();
+							return f;
+						}
+						return -1;
+					}
+					public static double fooDouble() {
+						if (getLong() instanceof double) {
+							double d = (double) getLong();
+							return d;
+						}
+						return -1;
+					}
+					public static long getLong() {
+						return 1L;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.fooFloat());
+						System.out.println(X.fooDouble());
+					}
+				}
+				"""
+			},
+			"1.0\n"
+			+ "1.0");
+	}
+
+	public void test080() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static float fooFloat() {
+						if (getLong() instanceof float f) {
+							return f;
+						}
+						return -1;
+					}
+					public static double fooDouble() {
+						if (getLong() instanceof double d) {
+							return d;
+						}
+						return -1;
+					}
+					public static long getLong() {
+						return 1L;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.fooFloat());
+						System.out.println(X.fooDouble());
+					}
+				}
+				"""
+			},
+			"1.0\n"
+			+ "1.0");
+	}
+	public void test081() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static double fooDouble() {
+						if (getFloat() instanceof double) {
+							double d = (double) getFloat();
+							return d;
+						}
+						return -1;
+					}
+					public static float getFloat() {
+						return 1.0f;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.fooDouble());
+					}
+				}
+				"""
+			},
+			"1.0");
+	}
+	public void test082() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static double fooDouble() {
+						if (getFloat() instanceof double d) {
+							return d;
+						}
+						return -1;
+					}
+					public static float getFloat() {
+						return 1.0f;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.fooDouble());
+					}
+				}
+				"""
+			},
+			"1.0");
+	}
+	public void test083() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static float foo(int i) {
+						if (i instanceof float) {
+							float f = (float)i;
+							return f;
+						}
+						return -1;
+					}
+					public static void main(String[] args) {
+						int i = 1234567890;
+						System.out.println(X.foo(i));
+					}
+				}
+				"""
+			},
+			"-1.0");
+	}
+	public void test084() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static float foo(int i) {
+						if (i instanceof float f) {
+							return f;
+						}
+						return -1;
+					}
+					public static void main(String[] args) {
+						int i = 1234567890;
+						System.out.println(X.foo(i));
+					}
+				}
+				"""
+			},
+			"-1.0");
+	}
+	public void test085() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static float foo(int i) {
+						if (i instanceof float) {
+							float f = (float)i;
+							return f;
+						}
+						return -1;
+					}
+					public static void main(String[] args) {
+						int i = Integer.MAX_VALUE;
+						System.out.println(X.foo(i));
+					}
+				}
+				"""
+			},
+			"-1.0");
+	}
+	public void test086() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static float foo(int i) {
+						if (i instanceof float f) {
+							return f;
+						}
+						return -1;
+					}
+					public static void main(String[] args) {
+						int i = Integer.MAX_VALUE;
+						System.out.println(X.foo(i));
+					}
+				}
+				"""
+			},
+			"-1.0");
+	}
+
+	public void _testSpec001() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1462,7 +2151,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
-	public void testSpec002() {
+	public void _testSpec002() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1486,7 +2175,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
-	public void testSpec003() {
+	public void _testSpec003() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1514,7 +2203,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"JsonNumber[d=30.0]");
 	}
-	public void testSpec004() {
+	public void _testSpec004() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1549,7 +2238,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"30");
 	}
-	public void testSpec005() {
+	public void _testSpec005() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1583,7 +2272,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"double:30.0");
 	}
-	public void testSpec006() {
+	public void _testSpec006() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -1619,7 +2308,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"int:30");
 	}
-	public void testSpec00X() {
+	public void _testSpec00X() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
