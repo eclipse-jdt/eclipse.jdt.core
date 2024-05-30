@@ -137,10 +137,10 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 				String[] params = ((List<SingleVariableDeclaration>)methodDeclaration.parameters()).stream() //
 						.map(param -> Util.getSignature(param.getType())) //
 						.toArray(String[]::new);
-				return type.getMethod(this.methodSymbol.getSimpleName().toString(), params);
+				return type.getMethod(getName(), params);
 			}
 			// fail back to symbol args (type params erased)
-			return type.getMethod(this.methodSymbol.getSimpleName().toString(),
+			return type.getMethod(getName(),
 					this.methodSymbol.params().stream()
 							.map(varSymbol -> varSymbol.type)
 							.map(t ->
