@@ -330,7 +330,7 @@ class JavadocConverter {
 		res.accept(new ASTVisitor(true) {
 			@Override
 			public void preVisit(ASTNode node) {
-				node.setSourceRange(node.getStartPosition() + fromOffset, node.toString().length());
+				node.setSourceRange(Math.max(0, node.getStartPosition()) + fromOffset, node.toString().length());
 			}
 		});
 		return res;

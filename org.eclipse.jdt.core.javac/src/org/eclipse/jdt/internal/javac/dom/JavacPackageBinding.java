@@ -134,4 +134,8 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 		return isUnnamed()? new String[0] : this.packageSymbol.getQualifiedName().toString().split("."); //$NON-NLS-1$
 	}
 
+	@Override
+	public String toString() {
+		return "package " + getName();
+	}
 }

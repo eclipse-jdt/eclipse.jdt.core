@@ -45,6 +45,7 @@ import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
@@ -253,6 +254,9 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		if (jcTree instanceof JCTypeApply jcta && jcta.type != null) {
 			return this.bindings.getTypeBinding(jcta.type);
+		}
+		if (jcTree instanceof JCAnnotatedType annotated && annotated.type != null) {
+			return this.bindings.getTypeBinding(annotated.type);
 		}
 		
 //			return this.flowResult.stream().map(env -> env.enclClass)

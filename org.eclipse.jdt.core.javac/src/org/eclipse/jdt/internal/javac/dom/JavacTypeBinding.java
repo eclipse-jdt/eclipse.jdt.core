@@ -440,7 +440,16 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return at.elemtype.tsym.getQualifiedName().toString() + "[]";
 		}
 
-		return this.typeSymbol.getQualifiedName().toString();
+		StringBuilder res = new StringBuilder(this.type.toString());
+		// remove annotations here
+		int annotationIndex = -1;
+		while ((annotationIndex = res.lastIndexOf("@")) >= 0) {
+			int nextSpace = res.indexOf(" ", annotationIndex);
+			if (nextSpace >= 0) {
+				res.delete(annotationIndex, nextSpace + 1);
+			}
+		}
+		return res.toString();
 	}
 
 	@Override

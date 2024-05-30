@@ -631,7 +631,7 @@ class JavacConverter {
 			res.setBody(convertBlock(block));
 			return res;
 		}
-		if (tree instanceof JCErroneous erroneous) {
+		if (tree instanceof JCErroneous erroneous || tree instanceof JCSkip) {
 			return null;
 		}
 		ILog.get().error("Unsupported " + tree + " of type" + tree.getClass());
@@ -828,7 +828,7 @@ class JavacConverter {
 	}
 
 	private VariableDeclaration convertVariableDeclarationForLambda(JCVariableDecl javac) {
-		if( javac.type == null ) {
+		if( javac.getType() == null ) {
 			return createVariableDeclarationFragment(javac);
 		} else {
 			return convertVariableDeclaration(javac);
@@ -869,8 +869,15 @@ class JavacConverter {
 				res.setType(convertToType(unwrapDimensions(jcatt, dims)));
 			}
 		} else if ( (javac.mods.flags & VARARGS) != 0) {
+			JCTree type = javac.getType();
+			if (type instanceof JCAnnotatedType annotatedType) {
+				annotatedType.getAnnotations().stream()
+					.map(this::convert)
+					.forEach(res.varargsAnnotations()::add);
+				type = annotatedType.getUnderlyingType();
+			}
 			// We have varity
-			if( javac.getType() instanceof JCArrayTypeTree arr) {
+			if(type instanceof JCArrayTypeTree arr) {
 				res.setType(convertToType(arr.elemtype));
 			}
 			if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
@@ -1372,6 +1379,9 @@ class JavacConverter {
 				.map(JCVariableDecl.class::cast)
 				.map(this::convertVariableDeclarationForLambda)
 				.forEach(res.parameters()::add);
+			int arrowIndex = this.rawText.indexOf("->", jcLambda.getStartPosition());
+			int parenthesisIndex = this.rawText.indexOf(")", jcLambda.getStartPosition());
+			res.setParentheses(parenthesisIndex >= 0 && parenthesisIndex < arrowIndex);
 			ASTNode body = jcLambda.getBody() instanceof JCExpression expr ? convertExpression(expr) :
 				jcLambda.getBody() instanceof JCStatement stmt ? convertStatement(stmt, res) :
 				null;
@@ -2173,13 +2183,18 @@ class JavacConverter {
 			}
 			// case of not translatable name, eg because of generics
 			// TODO find a better check instead of relying on exception
-			if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
-				QualifiedType res = this.ast.newQualifiedType(convertToType(qualified.getExpression()), (SimpleName)convertName(qualified.getIdentifier()));
-				commonSettings(res, qualified);
+			Type qualifierType = convertToType(qualified.getExpression());
+			if(qualifierType instanceof SimpleType simpleType && (ast.apiLevel() < AST.JLS8 || simpleType.annotations().isEmpty())) {
+				simpleType.delete();
+				Name parentName = simpleType.getName();
+				parentName.setParent(null, null);
+				QualifiedName name = this.ast.newQualifiedName(simpleType.getName(), (SimpleName)convertName(qualified.getIdentifier()));
+				SimpleType res = this.ast.newSimpleType(name);
+				commonSettings(res, javac);
 				return res;
 			} else {
-				SimpleType res = this.ast.newSimpleType(toName(qualified));
-				commonSettings(res, javac);
+				QualifiedType res = this.ast.newQualifiedType(qualifierType, (SimpleName)convertName(qualified.getIdentifier()));
+				commonSettings(res, qualified);
 				return res;
 			}
 		}
@@ -2252,7 +2267,7 @@ class JavacConverter {
 			if( createNameQualifiedType && this.ast.apiLevel >= AST.JLS8_INTERNAL) {
 				JCExpression jcpe = jcAnnotatedType.underlyingType;
 				if( jcpe instanceof JCFieldAccess jcfa2) {
-					if( jcfa2.selected instanceof JCAnnotatedType) {
+					if( jcfa2.selected instanceof JCAnnotatedType || jcfa2.selected instanceof JCTypeApply) {
 						QualifiedType nameQualifiedType = new QualifiedType(this.ast);
 						commonSettings(nameQualifiedType, javac);
 						nameQualifiedType.setQualifier(convertToType(jcfa2.selected));
@@ -2265,13 +2280,16 @@ class JavacConverter {
 						nameQualifiedType.setName(this.ast.newSimpleName(jcfa2.name.toString()));
 						res = nameQualifiedType;
 					}
+				} else if (jcpe instanceof JCIdent simpleType) {
+					res = this.ast.newSimpleType(convertName(simpleType.getName()));
+					commonSettings(res, javac);
 				}
 			} else {
-				convertToType(jcAnnotatedType.getUnderlyingType());
+				res = convertToType(jcAnnotatedType.getUnderlyingType());
 			}
-			if (res instanceof AnnotatableType annotatableType) {
+			if (res instanceof AnnotatableType annotatableType && this.ast.apiLevel() >= AST.JLS8) {
 				for (JCAnnotation annotation : jcAnnotatedType.getAnnotations()) {
-					annotatableType.annotations.add(convert(annotation));
+					annotatableType.annotations().add(convert(annotation));
 				}
 			} else if (res instanceof ArrayType arrayType) {
 				if (!arrayType.dimensions().isEmpty()) {

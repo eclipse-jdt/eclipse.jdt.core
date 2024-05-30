@@ -281,4 +281,9 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 		if (isDeprecated) res |= org.eclipse.jdt.core.Flags.AccDeprecated;
 		return res;
 	}
+
+	@Override
+	public String toString() {
+		return getType().getQualifiedName() + " " + getName();
+	}
 }
