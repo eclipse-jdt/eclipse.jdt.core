@@ -153,31 +153,29 @@ public void processAnnotations(BuildContext[] files) {
 }
 
 /**
- * Provisional API for experimental support for an alternative compiler
- * and can be removed without notice.
- *
- * Returns where to find annotation processors. If this is not specified,
- * then the class path is searched for processors.
+ * Requests the participant to supply the locations where to find annotation
+ * processors. If this is not specified, then the class path is searched for
+ * processors.
  *
  * @param project the project to participate in
  * @param isTest whether the annotation processor path is for test code
  * @return the annotation processor paths
  * @since 3.38
+ * @noreference Provisional API for experimental support for an alternative compiler. This method is not intended to be referenced by clients.
  */
 public String[] getAnnotationProcessorPaths(IJavaProject project, boolean isTest) {
 	return null;
 }
 
 /**
- * Provisional API for experimental support for an alternative compiler,
- * and can be removed without notice.
- *
- * Returns the locations to place the generated source files.
+ * Requests the participant to supply the locations to place the generated
+ * source files.
  *
  * @param project the project to participate in
  * @param isTest whether the generated source paths are for test code
  * @return the locations to place the generated source files
  * @since 3.38
+ * @noreference Provisional API for experimental support for an alternative compiler. This method is not intended to be referenced by clients.
  */
 public String[] getGeneratedSourcePaths(IJavaProject project, boolean isTest) {
 	return null;

@@ -218,7 +218,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 		List<String> processorPaths = new ArrayList<>();
 		FactoryPath factoryPath = FactoryPathUtil.getFactoryPath(project);
 		if (factoryPath == null) {
-			return super.getAnnotationProcessorPaths(project, isTest);
+			return null;
 		}
 
 		factoryPath.getEnabledContainers().keySet().forEach(container -> {
@@ -233,7 +233,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 			return processorPaths.toArray(new String[processorPaths.size()]);
 		}
 
-		return super.getAnnotationProcessorPaths(project, isTest);
+		return null;
 	}
 
 	@Override
