@@ -592,8 +592,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isClass() {
+		// records count as classes, so they are not excluded here
 		return this.typeSymbol instanceof final ClassSymbol classSymbol
-				&& !(classSymbol.isEnum() || classSymbol.isRecord() || classSymbol.isInterface());
+				&& !(classSymbol.isEnum() || classSymbol.isInterface());
 	}
 
 	@Override
@@ -634,7 +635,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isMember() {
-		return this.typeSymbol.owner instanceof ClassSymbol;
+		if (isClass() || isInterface() || isEnum()) {
+			return this.typeSymbol.owner instanceof ClassSymbol;
+		}
+		return false;
 	}
 
 	@Override
@@ -692,7 +696,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public boolean isWildcardType() {
 		return this.type instanceof WildcardType;
 	}
-	
+
+	@Override
 	public IModuleBinding getModule() {
 		Symbol o = this.type.tsym.owner;
 		if( o instanceof PackageSymbol ps) {

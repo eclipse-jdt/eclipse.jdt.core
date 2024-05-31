@@ -349,6 +349,9 @@ class JavacConverter {
 					endPos = start + javac.toString().length();
 				}
 				int length = endPos - start;
+				if (start + Math.max(0, length) > this.rawText.length()) {
+					length = this.rawText.length() - start;
+				}
 				res.setSourceRange(start, Math.max(0, length));
 			}
 			this.domToJavac.put(res, javac);
@@ -675,7 +678,7 @@ class JavacConverter {
 		}
 		return null;
 	}
-	
+
 	private String getMethodDeclName(JCMethodDecl javac, ASTNode parent, boolean records) {
 		String name = javac.getName().toString();
 		boolean javacIsConstructor = Objects.equals(javac.getName(), Names.instance(this.context).init);
@@ -2701,7 +2704,7 @@ class JavacConverter {
 		public boolean visit(Modifier modifier) {
 			int parentStart = modifier.getParent().getStartPosition();
 			int relativeStart = this.contents.substring(parentStart, parentStart + modifier.getParent().getLength()).indexOf(modifier.getKeyword().toString());
-			if (relativeStart >= 0) {
+			if (relativeStart >= 0 && relativeStart < modifier.getParent().getLength()) {
 				modifier.setSourceRange(parentStart + relativeStart, modifier.getKeyword().toString().length());
 			} else {
 				ILog.get().warn("Couldn't compute position of " + modifier);
