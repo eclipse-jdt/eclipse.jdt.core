@@ -2936,4 +2936,28 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertArrayEquals(new IMethod[] { secondMethod }, matchingMethods);
 	}
 
+	public void testSimilarMethodQualifiedInner() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/P/src/p1/CreateOverride.java",
+			"""
+				package p1;
+				class B1 {
+					class Inner {}
+				}
+				class B2 {}
+				public class CreateOverride {
+					static class A {
+						public void foo(B1 b1, B1.Inner inner, B2 b2) {}
+					}
+				}
+			""");
+		ASTParser parser = createASTParser();
+		parser.setResolveBindings(true);
+		parser.setBindingsRecovery(true);
+		parser.setSource(this.workingCopies[0]);
+		CompilationUnit dom = (CompilationUnit)parser.createAST(null);
+		MethodDeclaration methodDecl = (MethodDeclaration) NodeFinder.perform(dom, this.workingCopies[0].getSource().indexOf("foo"), "foo".length()).getParent();
+		IMethod sourceMethod = this.workingCopies[0].getType("CreateOverride").getType("A").getMethods()[0];
+		assertEquals(sourceMethod, methodDecl.resolveBinding().getMethodDeclaration().getJavaElement());
+	}
 }
