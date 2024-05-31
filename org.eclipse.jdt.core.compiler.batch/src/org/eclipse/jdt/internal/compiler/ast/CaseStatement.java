@@ -222,7 +222,7 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 		if (caseType.isValidBinding()) {
 			if (e instanceof Pattern) {
 				for (Pattern p : ((Pattern) e).getAlternatives()) {
-					Constant con =  resolveConstantExpression(scope, p.resolvedType, switchExpressionType, switchStatement, p);
+					Constant con =  resolveCasePattern(scope, p.resolvedType, switchExpressionType, switchStatement, p, ((Pattern) e).isUnguarded());
 					if (con != Constant.NotAConstant) {
 						int index = switchStatement.constantIndex++;
 						cases.add(new ResolvedCase(con, p, p.resolvedType, index, false));
@@ -273,8 +273,7 @@ public Constant resolveConstantExpression(BlockScope scope,
 	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(options);
 	if (patternSwitchAllowed) {
 		if (expression instanceof Pattern) {
-			return resolveConstantExpression(scope, caseType, switchType,
-					switchStatement,(Pattern) expression);
+			throw new AssertionError("Unexpected control flow"); //$NON-NLS-1$
 		} else if (expression instanceof NullLiteral) {
 			if (!caseType.isCompatibleWith(switchType, scope)) {
 				scope.problemReporter().typeMismatchError(TypeBinding.NULL, switchType, expression, null);
@@ -333,11 +332,8 @@ public Constant resolveConstantExpression(BlockScope scope,
 	return Constant.NotAConstant;
 }
 
-private Constant resolveConstantExpression(BlockScope scope,
-		TypeBinding caseType,
-		TypeBinding switchExpressionType,
-		SwitchStatement switchStatement,
-		Pattern e) {
+private Constant resolveCasePattern(BlockScope scope, TypeBinding caseType, TypeBinding switchExpressionType, SwitchStatement switchStatement, Pattern e, boolean isUnguarded) {
+
 	Constant constant = Constant.NotAConstant;
 
 	TypeBinding type = e.resolvedType;
@@ -346,7 +342,9 @@ private Constant resolveConstantExpression(BlockScope scope,
 		constant = IntConstant.fromValue(switchStatement.constantIndex);
 		switchStatement.caseLabelElements.add(e);
 
-		switchStatement.caseLabelElementTypes.add(type);
+		if (isUnguarded)
+			switchStatement.caseLabelElementTypes.add(type);
+
 		TypeBinding expressionType = switchStatement.expression.resolvedType;
 		// The following code is copied from InstanceOfExpression#resolve()
 		// But there are enough differences to warrant a copy
