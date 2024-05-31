@@ -1266,7 +1266,7 @@ public class SwitchStatement extends Expression {
 					// no longer holds true when we throw in a pattern expression to the mix.
 					// And if there is a total pattern, then we don't have to check further.
 					if (!((this.switchBits & TotalPattern) != 0) &&
-							(this.containsPatterns ||
+							((this.containsPatterns || this.containsNull) ||
 							(constantCount >= this.caseCount &&
 							constantCount != ((ReferenceBinding)expressionType).enumConstantCount()))) {
 						FieldBinding[] enumFields = ((ReferenceBinding)expressionType.erasure()).fields();
@@ -1282,7 +1282,10 @@ public class SwitchStatement extends Expression {
 								// enum constant did not get referenced from switch
 								boolean suppress = (this.defaultCase != null && (this.defaultCase.bits & DocumentedCasesOmitted) != 0);
 								if (!suppress) {
-									reportMissingEnumConstantCase(upperScope, enumConstant);
+									if (isEnhanced)
+										upperScope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
+									else
+										reportMissingEnumConstantCase(upperScope, enumConstant);
 								}
 							}
 						}
