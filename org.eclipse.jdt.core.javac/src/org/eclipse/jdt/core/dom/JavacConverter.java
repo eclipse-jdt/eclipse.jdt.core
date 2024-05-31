@@ -444,6 +444,7 @@ class JavacConverter {
 				if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
 					javacClassDecl.getImplementsClause().stream()
 						.map(this::convertToType)
+						.filter(Objects::nonNull)
 						.forEach(typeDeclaration.superInterfaceTypes()::add);
 				} else {
 					Iterator<JCExpression> it = javacClassDecl.getImplementsClause().iterator();
@@ -471,6 +472,7 @@ class JavacConverter {
 				if( this.ast.apiLevel >= AST.JLS17_INTERNAL) {
 					javacClassDecl.getPermitsClause().stream()
 						.map(this::convertToType)
+						.filter(Objects::nonNull)
 						.forEach(typeDeclaration.permittedTypes()::add);
 					if (!javacClassDecl.getPermitsClause().isEmpty()) {
 						int permitsOffset = this.rawText.substring(javacClassDecl.pos).indexOf("permits") + javacClassDecl.pos;
@@ -804,7 +806,10 @@ class JavacConverter {
 			if (this.ast.apiLevel < AST.JLS8_INTERNAL) {
 				res.thrownExceptions().add(toName(thrown));
 			} else {
-				res.thrownExceptionTypes().add(convertToType(thrown));
+				Type type = convertToType(thrown);
+				if (type != null) {
+					res.thrownExceptionTypes().add(type);
+				}
 			}
 		}
 		if( malformed ) {
@@ -1086,7 +1091,10 @@ class JavacConverter {
 					commonSettings(res2, javac);
 					methodInvocation.getArguments().stream().map(this::convertExpression).forEach(res2.arguments()::add);
 					if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
-						methodInvocation.getTypeArguments().stream().map(this::convertToType).forEach(res2.typeArguments()::add);
+						methodInvocation.getTypeArguments().stream()
+							.map(this::convertToType)
+							.filter(Objects::nonNull)
+							.forEach(res2.typeArguments()::add);
 					}
 					if( superCall1 ) {
 						res2.setQualifier(toName(fa.getExpression()));
@@ -1114,7 +1122,10 @@ class JavacConverter {
 					commonSettings(res2, javac);
 					methodInvocation.getArguments().stream().map(this::convertExpression).forEach(res.arguments()::add);
 					if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
-						methodInvocation.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
+						methodInvocation.getTypeArguments().stream()
+							.map(this::convertToType)
+							.filter(Objects::nonNull)
+							.forEach(res.typeArguments()::add);
 					}
 					if( superCall1 ) {
 						res2.setQualifier(toName(fa.getExpression()));
@@ -1134,7 +1145,10 @@ class JavacConverter {
 			}
 			if (methodInvocation.getTypeArguments() != null) {
 				if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
-					methodInvocation.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
+					methodInvocation.getTypeArguments().stream()
+						.map(this::convertToType)
+						.filter(Objects::nonNull)
+						.forEach(res.typeArguments()::add);
 				}
 			}
 			return res;
@@ -1311,7 +1325,10 @@ class JavacConverter {
 				commonSettings(res, javac);
 				res.setType(convertToType(qualifierExpression));
 				if (jcMemberReference.getTypeArguments() != null) {
-					jcMemberReference.getTypeArguments().map(this::convertToType).forEach(res.typeArguments()::add);
+					jcMemberReference.getTypeArguments().stream()
+						.map(this::convertToType)
+						.filter(Objects::nonNull)
+						.forEach(res.typeArguments()::add);
 				}
 				return res;
 			} else if (qualifierExpression.getKind() == Kind.PARAMETERIZED_TYPE || qualifierExpression.getKind() == Kind.ARRAY_TYPE) {
@@ -1320,7 +1337,10 @@ class JavacConverter {
 				res.setType(convertToType(qualifierExpression));
 				res.setName((SimpleName)convertName(jcMemberReference.getName()));
 				if (jcMemberReference.getTypeArguments() != null) {
-					jcMemberReference.getTypeArguments().map(this::convertToType).forEach(res.typeArguments()::add);
+					jcMemberReference.getTypeArguments().stream()
+						.map(this::convertToType)
+						.filter(Objects::nonNull)
+						.forEach(res.typeArguments()::add);
 				}
 				return res;
 			} else {
@@ -1329,7 +1349,10 @@ class JavacConverter {
 				res.setExpression(convertExpression(jcMemberReference.getQualifierExpression()));
 				res.setName((SimpleName)convertName(jcMemberReference.getName()));
 				if (jcMemberReference.getTypeArguments() != null) {
-					jcMemberReference.getTypeArguments().map(this::convertToType).forEach(res.typeArguments()::add);
+					jcMemberReference.getTypeArguments().stream()
+						.map(this::convertToType)
+						.filter(Objects::nonNull)
+						.forEach(res.typeArguments()::add);
 				}
 				return res;
 			}
@@ -1570,7 +1593,10 @@ class JavacConverter {
 
 		//res.setFlags(javac.getFlags() | ASTNode.MALFORMED);
 		if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
-			javac.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
+			javac.getTypeArguments().stream()
+				.map(this::convertToType)
+				.filter(Objects::nonNull)
+				.forEach(res.typeArguments()::add);
 		}
 		if( javac.getMethodSelect() instanceof JCFieldAccess jcfa && jcfa.selected != null ) {
 			res.setExpression(convertExpression(jcfa.selected));
@@ -1584,7 +1610,10 @@ class JavacConverter {
 		commonSettings(res, javac);
 		javac.getArguments().stream().map(this::convertExpression).forEach(res.arguments()::add);
 		if( this.ast.apiLevel > AST.JLS2_INTERNAL) {
-			javac.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
+			javac.getTypeArguments().stream()
+				.map(this::convertToType)
+				.filter(Objects::nonNull)
+				.forEach(res.typeArguments()::add);
 		}
 		return res;
 	}
@@ -2162,7 +2191,10 @@ class JavacConverter {
 		if (javac instanceof JCTypeUnion union) {
 			UnionType res = this.ast.newUnionType();
 			commonSettings(res, javac);
-			union.getTypeAlternatives().stream().map(this::convertToType).forEach(res.types()::add);
+			union.getTypeAlternatives().stream()
+				.map(this::convertToType)
+				.filter(Objects::nonNull)
+				.forEach(res.types()::add);
 			return res;
 		}
 		if (javac instanceof JCArrayTypeTree jcArrayType) {
@@ -2184,7 +2216,10 @@ class JavacConverter {
 			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
 				ParameterizedType res = this.ast.newParameterizedType(convertToType(jcTypeApply.getType()));
 				commonSettings(res, javac);
-				jcTypeApply.getTypeArguments().stream().map(this::convertToType).forEach(res.typeArguments()::add);
+				jcTypeApply.getTypeArguments().stream()
+					.map(this::convertToType)
+					.filter(Objects::nonNull)
+					.forEach(res.typeArguments()::add);
 				return res;
 			} else {
 				return convertToType(jcTypeApply.clazz);
@@ -2205,7 +2240,10 @@ class JavacConverter {
 		if (javac instanceof JCTypeIntersection jcTypeIntersection) {
 			IntersectionType res = this.ast.newIntersectionType();
 			commonSettings(res, javac);
-			jcTypeIntersection.getBounds().stream().map(this::convertToType).forEach(res.types()::add);
+			jcTypeIntersection.getBounds().stream()
+				.map(this::convertToType)
+				.filter(Objects::nonNull)
+				.forEach(res.types()::add);
 			return res;
 		}
 		if (javac instanceof JCAnnotatedType jcAnnotatedType) {
