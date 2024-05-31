@@ -372,10 +372,13 @@ class JavacConverter {
 			}
 			commonSettings(n, fieldAccess);
 
-			Name qualifier = toName(faExpression);
+			Name qualifier = toName(faExpression, extraSettings);
 			QualifiedName res = this.ast.newQualifiedName(qualifier, n);
 			commonSettings(res, fieldAccess.getExpression());
 			extraSettings.accept(res, fieldAccess);
+			// fix name position according to qualifier position
+			int nameIndex = this.rawText.indexOf(fieldAccess.getIdentifier().toString(), qualifier.getStartPosition() + qualifier.getLength());
+			n.setSourceRange(nameIndex, fieldAccess.getIdentifier().toString().length());
 			return res;
 		}
 		if (expression instanceof JCAnnotatedType jcat) {
