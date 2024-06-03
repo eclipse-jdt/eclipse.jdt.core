@@ -1798,6 +1798,21 @@ class JavacConverter {
 		}
 		if (javac instanceof JCVariableDecl jcVariableDecl) {
 			VariableDeclarationFragment fragment = createVariableDeclarationFragment(jcVariableDecl);
+			List<ASTNode> sameStartPosition = new ArrayList<>();
+			if( parent instanceof Block decl) {
+				decl.statements().stream().filter(x -> x instanceof VariableDeclarationStatement)
+				.filter(x -> ((VariableDeclarationStatement)x).getType().getStartPosition() == jcVariableDecl.vartype.getStartPosition())
+				.forEach(x -> sameStartPosition.add((ASTNode)x));
+			}
+			if( sameStartPosition.size() >= 1 ) {
+				VariableDeclarationStatement fd = (VariableDeclarationStatement)sameStartPosition.get(0);
+				if( fd != null ) {
+					fd.fragments().add(fragment);
+					int newParentEnd = fragment.getStartPosition() + fragment.getLength();
+					fd.setSourceRange(fd.getStartPosition(), newParentEnd - fd.getStartPosition() + 1);
+				}
+				return null;
+			}
 			VariableDeclarationStatement res = this.ast.newVariableDeclarationStatement(fragment);
 			commonSettings(res, javac);
 			if (jcVariableDecl.vartype != null) {
