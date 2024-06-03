@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac.dom;
 
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
@@ -85,7 +87,9 @@ public abstract class JavacAnnotationBinding implements IAnnotationBinding {
 	@Override
 	public String getKey() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(this.recipient.getKey());
+		if (this.recipient != null) {
+			builder.append(this.recipient.getKey());
+		}
 		builder.append('@');
 		builder.append(this.getAnnotationType().getKey());
 		return builder.toString();
@@ -118,4 +122,14 @@ public abstract class JavacAnnotationBinding implements IAnnotationBinding {
 		return getAnnotationType().getName();
 	}
 
+	@Override
+	public String toString() {
+		String res = '@' + getName();
+		if (getAllMemberValuePairs().length > 0) {
+			res += '(' + Arrays.stream(getAllMemberValuePairs()).map(IMemberValuePairBinding::toString).collect(Collectors.joining(",")) + ')';
+		} else if (Arrays.stream(getAnnotationType().getDeclaredMethods()).anyMatch(method -> "value".equals(method.getName()) && method.getParameterNames().length == 0)) {
+			res += "()";
+		}
+		return res;
+	}
 }

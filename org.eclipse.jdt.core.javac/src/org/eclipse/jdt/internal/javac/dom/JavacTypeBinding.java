@@ -11,10 +11,11 @@
 package org.eclipse.jdt.internal.javac.dom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import javax.lang.model.type.NullType;
@@ -94,7 +95,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
-		return typeSymbol.getAnnotationMirrors().stream()
+		return this.type.getAnnotationMirrors().stream()
 				.map(am -> this.resolver.bindings.getAnnotationBinding(am, this))
 				.toArray(IAnnotationBinding[]::new);
 	}
@@ -446,7 +447,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return "null";
 		}
 		if (this.type instanceof ArrayType at) {
-			return at.elemtype.tsym.getQualifiedName().toString() + "[]";
+			return this.resolver.bindings.getTypeBinding(at.getComponentType()).getQualifiedName() + "[]";
 		}
 
 		StringBuilder res = new StringBuilder(this.type.toString());
@@ -704,6 +705,15 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return this.resolver.bindings.getModuleBinding(ps.modle);
 		}
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		return Arrays.stream(getAnnotations()) //
+					.map(Object::toString) //
+					.map(ann -> ann + " ") //
+					.collect(Collectors.joining())
+				+ getQualifiedName();
 	}
 
 }

@@ -46,11 +46,13 @@ import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
+import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
+import com.sun.tools.javac.tree.JCTree.JCLambda;
 import com.sun.tools.javac.tree.JCTree.JCMemberReference;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
@@ -240,7 +242,7 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 			return this.bindings.getTypeBinding(ident.type);
 		}
-		if (jcTree instanceof JCFieldAccess access && access.type != null) {
+		if (jcTree instanceof JCFieldAccess access) {
 			return this.bindings.getTypeBinding(access.type);
 		}
 		if (jcTree instanceof JCPrimitiveTypeTree primitive && primitive.type != null) {
@@ -379,6 +381,19 @@ public class JavacBindingResolver extends BindingResolver {
 		JCTree javacElement = this.converter.domToJavac.get(method);
 		if (javacElement instanceof JCMethodDecl methodDecl) {
 			return this.bindings.getMethodBinding(methodDecl.type.asMethodType(), methodDecl.sym);
+		}
+		return null;
+	}
+
+	@Override
+	IMethodBinding resolveMethod(LambdaExpression lambda) {
+		resolve();
+		JCTree javacElement = this.converter.domToJavac.get(lambda);
+		if (javacElement instanceof JCLambda jcLambda) {
+			JavacTypeBinding typeBinding = this.bindings.getTypeBinding(jcLambda.type);
+			if (typeBinding != null && typeBinding.getDeclaredMethods().length == 1) {
+				return typeBinding.getDeclaredMethods()[0];
+			}
 		}
 		return null;
 	}
@@ -725,5 +740,15 @@ public class JavacBindingResolver extends BindingResolver {
 			return null;
 		}
 		return this.bindings.getTypeBinding(type);
+	}
+	
+	@Override
+	IAnnotationBinding resolveAnnotation(Annotation annotation) {
+		resolve();
+		var javac = this.converter.domToJavac.get(annotation);
+		if (javac instanceof JCAnnotation jcAnnotation) {
+			return this.bindings.getAnnotationBinding(jcAnnotation.attribute, null);
+		}
+		return null;
 	}
 }

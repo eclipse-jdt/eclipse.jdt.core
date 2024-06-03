@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac.dom;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
@@ -401,4 +403,31 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			.toArray(String[]::new);
 	}
 
+	@Override
+	public String toString() {
+		return modifiersAsString() + getReturnType().getName() + ' ' + getName().toString() + '('
+				+ Arrays.stream(getParameterTypes()).map(ITypeBinding::getName).collect(Collectors.joining(","))
+				+ ") ";
+	}
+
+	protected String modifiersAsString() {
+		String res = "";
+		int modifiers = getModifiers();
+		if (Modifier.isPublic(modifiers)) {
+			res += "public ";
+		}
+		if (Modifier.isProtected(modifiers)) {
+			res += "protected ";
+		}
+		if (Modifier.isPrivate(modifiers)) {
+			res += "private ";
+		}
+		if (Modifier.isStatic(modifiers)) {
+			res += "static ";
+		}
+		if (Modifier.isAbstract(modifiers)) {
+			res += "abstract ";
+		}
+		return res;
+	}
 }

@@ -114,4 +114,8 @@ public abstract class JavacMemberValuePairBinding implements IMemberValuePairBin
 		return this.value == this.method.methodSymbol.defaultValue;
 	}
 
+	@Override
+	public String toString() {
+		return getName() + " = " + getValue().toString(); //$NON-NLS-1$
+	}
 }

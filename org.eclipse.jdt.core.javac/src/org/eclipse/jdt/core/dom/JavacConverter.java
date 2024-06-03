@@ -579,14 +579,18 @@ class JavacConverter {
 		int end = typeParameter.pos + typeParameter.getName().length();
 		simpleName.setSourceRange(start, end - start);
 		ret.setName(simpleName);
-		int annotationsStart = start;
-		List bounds = typeParameter.bounds;
-		Iterator i = bounds.iterator();
+		List<JCExpression> bounds = typeParameter.getBounds();
+		Iterator<JCExpression> i = bounds.iterator();
 		while(i.hasNext()) {
 			JCTree t = (JCTree)i.next();
 			Type type = convertToType(t);
 			ret.typeBounds().add(type);
 			end = typeParameter.getEndPosition(this.javacCompilationUnit.endPositions);
+		}
+		if (typeParameter.getAnnotations() != null && this.ast.apiLevel() >= AST.JLS8) {
+			typeParameter.getAnnotations().stream()
+				.map(this::convert)
+				.forEach(ret.modifiers()::add);
 		}
 //		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = typeParameter.annotations;
 //		if (annotations != null) {
@@ -798,6 +802,20 @@ class JavacConverter {
 			// Compact constructor does not show the parameters even though javac finds them
 			javac.getParameters().stream().map(this::convertVariableDeclaration).forEach(res.parameters()::add);
 		}
+		if (javac.getReceiverParameter() != null) {
+			Type receiverType = convertToType(javac.getReceiverParameter().getType());
+			if (receiverType instanceof AnnotatableType annotable) {
+				javac.getReceiverParameter().getModifiers().getAnnotations().stream() //
+					.map(this::convert)
+					.forEach(annotable.annotations()::add);
+			}
+			if (receiverType != null) {
+				res.setReceiverType(receiverType);
+			}
+			if (javac.getReceiverParameter().getNameExpression() instanceof JCFieldAccess qualifiedName) {
+				res.setReceiverQualifier((SimpleName)toName(qualifiedName.getExpression()));
+			}
+		}
 
 		if( javac.getTypeParameters() != null ) {
 			Iterator<JCTypeParameter> i = javac.getTypeParameters().iterator();
@@ -924,7 +942,10 @@ class JavacConverter {
 			// the array dimensions are part of the type
 			if (javac.getType() != null) {
 				if( !(javac.getType() instanceof JCErroneous)) {
-					res.setType(convertToType(javac.getType()));
+					Type type = convertToType(javac.getType());
+					if (type != null) {
+						res.setType(type);
+					}
 				}
 			}
 		}
@@ -1415,6 +1436,7 @@ class JavacConverter {
 		}
 		if (javac instanceof JCLambda jcLambda) {
 			LambdaExpression res = this.ast.newLambdaExpression();
+			commonSettings(res, javac);
 			jcLambda.getParameters().stream()
 				.filter(JCVariableDecl.class::isInstance)
 				.map(JCVariableDecl.class::cast)
@@ -2318,10 +2340,12 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCAnnotatedType jcAnnotatedType) {
-			boolean createNameQualifiedType = jcAnnotatedType.getAnnotations() != null && jcAnnotatedType.getAnnotations().size() > 0;
 			Type res = null;
-			if( createNameQualifiedType && this.ast.apiLevel >= AST.JLS8_INTERNAL) {
-				JCExpression jcpe = jcAnnotatedType.underlyingType;
+			JCExpression jcpe = jcAnnotatedType.getUnderlyingType();
+			if( jcAnnotatedType.getAnnotations() != null //
+				&& !jcAnnotatedType.getAnnotations().isEmpty() //
+				&& this.ast.apiLevel >= AST.JLS8_INTERNAL
+				&& !(jcpe instanceof JCWildcard)) {
 				if( jcpe instanceof JCFieldAccess jcfa2) {
 					if( jcfa2.selected instanceof JCAnnotatedType || jcfa2.selected instanceof JCTypeApply) {
 						QualifiedType nameQualifiedType = new QualifiedType(this.ast);
@@ -2348,7 +2372,7 @@ class JavacConverter {
 					annotatableType.annotations().add(convert(annotation));
 				}
 			} else if (res instanceof ArrayType arrayType) {
-				if (!arrayType.dimensions().isEmpty()) {
+				if (this.ast.apiLevel() >= AST.JLS8 && !arrayType.dimensions().isEmpty()) {
 					for (JCAnnotation annotation : jcAnnotatedType.getAnnotations()) {
 						((Dimension)arrayType.dimensions().get(0)).annotations().add(convert(annotation));
 					}
