@@ -891,8 +891,8 @@ public class Util {
 							return ClassFileConstants.JDK9;
 						} else {
 							jar = JavaModelManager.getJavaModelManager().getZipFile(path);
-							for (Enumeration e= jar.entries(); e.hasMoreElements();) {
-								ZipEntry member= (ZipEntry) e.nextElement();
+							for (Enumeration<? extends ZipEntry> e= jar.entries(); e.hasMoreElements();) {
+								ZipEntry member= e.nextElement();
 								String entryName= member.getName();
 								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
 									reader = ClassFileReader.read(jar, entryName);
