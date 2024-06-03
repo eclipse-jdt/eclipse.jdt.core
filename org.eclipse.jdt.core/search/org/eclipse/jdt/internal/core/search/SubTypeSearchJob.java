@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.core.index.MetaIndex;
 
 public class SubTypeSearchJob extends PatternSearchJob {
 
-Set<Index> indexes = Collections.synchronizedSet(new LinkedHashSet<>(5));
+private final Set<Index> indexes = Collections.synchronizedSet(new LinkedHashSet<>(5));
 
 public SubTypeSearchJob(SearchPattern pattern, SearchParticipant participant, IJavaSearchScope scope, IndexQueryRequestor requestor) {
 	super(pattern, participant, scope, requestor);
@@ -55,11 +55,11 @@ public Index[] getIndexes(IProgressMonitor progressMonitor) {
 	return this.indexes.toArray(new Index[0]);
 }
 @Override
-public boolean search(Index index, IndexQueryRequestor queryRequestor, IProgressMonitor progressMonitor) {
+public boolean search(Index index, IndexQueryRequestor queryRequestor, IProgressMonitor progressMonitor, boolean parallel) {
 	if (index == null) return COMPLETE;
 	if (this.indexes.add(index)) {
 		index.startQuery();
 	}
-	return super.search(index, queryRequestor, progressMonitor);
+	return super.search(index, queryRequestor, progressMonitor, parallel);
 }
 }
