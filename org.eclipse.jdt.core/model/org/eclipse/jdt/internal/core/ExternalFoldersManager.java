@@ -60,11 +60,11 @@ public class ExternalFoldersManager {
 	private static final boolean WINDOWS = System.getProperty("os.name").toLowerCase().contains("windows");  //$NON-NLS-1$//$NON-NLS-2$
 	private static final String EXTERNAL_PROJECT_NAME = ".org.eclipse.jdt.core.external.folders"; //$NON-NLS-1$
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$
-	private Map<IPath, IFolder> folders;
+	private volatile Map<IPath, IFolder> folders;
 	private Set<IPath> pendingFolders; // subset of keys of 'folders', for which linked folders haven't been created yet.
 	private final AtomicInteger counter = new AtomicInteger(0);
 	/* Singleton instance */
-	private static ExternalFoldersManager MANAGER;
+	private static final ExternalFoldersManager INSTANCE= new ExternalFoldersManager();
 	private RefreshJob refreshJob;
 
 	private ExternalFoldersManager() {
@@ -101,11 +101,8 @@ public class ExternalFoldersManager {
 		}
 	}
 
-	public static synchronized ExternalFoldersManager getExternalFoldersManager() {
-		if (MANAGER == null) {
-			 MANAGER = new ExternalFoldersManager();
-		}
-		return MANAGER;
+	public static ExternalFoldersManager getExternalFoldersManager() {
+		return INSTANCE;
 	}
 
 	/**

@@ -49,9 +49,8 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 	public final File file;
 	protected ZipFile annotationZipFile;
 	protected final boolean closeZipFileAtEnd;
-	protected static Map<String, Map<String,IModule>> ModulesCache = new ConcurrentHashMap<>();
+	protected static final Map<String, Map<String,IModule>> ModulesCache = new ConcurrentHashMap<>();
 	public final Set<String> moduleNamesCache;
-	//private Set<String> packageCache;
 	protected List<String> annotationPaths;
 
 	public ClasspathJrt(File file, boolean closeZipFileAtEnd,
@@ -298,49 +297,6 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 		}
 		return result;
 	}
-//	protected void addToPackageCache(String fileName, boolean endsWithSep) {
-//		int last = endsWithSep ? fileName.length() : fileName.lastIndexOf('/');
-//		while (last > 0) {
-//			// extract the package name
-//			String packageName = fileName.substring(0, last);
-//			if (this.packageCache.contains(packageName))
-//				return;
-//			this.packageCache.add(packageName);
-//			last = packageName.lastIndexOf('/');
-//		}
-//	}
-//	public synchronized boolean isPackage(String qualifiedPackageName) {
-//		if (this.packageCache != null)
-//			return this.packageCache.contains(qualifiedPackageName);
-//
-//		this.packageCache = new HashSet<>(41);
-//		this.packageCache.add(Util.EMPTY_STRING);
-//
-//			try {
-//				JRTUtil.walkModuleImage(this.file, new JRTUtil.JrtFileVisitor<java.nio.file.Path>() {
-//
-//					@Override
-//					public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
-//						addToPackageCache(dir.toString(), true);
-//						return FileVisitResult.CONTINUE;
-//					}
-//
-//					@Override
-//					public FileVisitResult visitFile(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
-//						return FileVisitResult.CONTINUE;
-//					}
-//
-//					@Override
-//					public FileVisitResult visitModule(java.nio.file.Path mod) throws IOException {
-//						return FileVisitResult.CONTINUE;
-//					}
-//
-//				}, JRTUtil.NOTIFY_PACKAGES);
-//			} catch (IOException e) {
-//				// Ignore and move on
-//			}
-//		return this.packageCache.contains(qualifiedPackageName);
-//	}
 	@Override
 	public void reset() {
 		if (this.closeZipFileAtEnd) {

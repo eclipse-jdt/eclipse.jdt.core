@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
  */
 public class Index {
 
-public String containerPath;
+public final String containerPath;
 public volatile ReadWriteMonitor monitor;
 
 // Separator to use after the container path

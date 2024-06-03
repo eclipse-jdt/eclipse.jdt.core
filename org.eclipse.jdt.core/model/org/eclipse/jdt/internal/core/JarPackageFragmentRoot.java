@@ -68,16 +68,16 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 */
 	protected final IPath jarPath;
 
-	boolean knownToBeModuleLess;
+	private volatile boolean knownToBeModuleLess;
 
-	private boolean multiVersion;
+	private volatile boolean multiVersion;
 
 	/**
 	 * Reflects the extra attributes of the classpath entry declaring this root.
 	 * Caution, this field is used in {@link #hashCode()} and {@link #equals(Object)} to avoid overzealous sharing.
 	 * Can be null, if lookup via the corresponding classpath entry failed.
 	 */
-	final protected IClasspathAttribute[] extraAttributes;
+	protected final IClasspathAttribute[] extraAttributes;
 
 	/**
 	 * Constructs a package fragment root which is the root of the Java package directory hierarchy
