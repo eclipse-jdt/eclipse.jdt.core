@@ -7837,4 +7837,197 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				+ "Illegal enclosing instance specification for type X.Y\n"
 				+ "----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2423
+	// [Switch-expression] Internal compiler error: java.lang.ClassCastException while compiling switch expression with exception handling
+	public void testIssue2423() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					static String getString(int i) {
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+						return new String[] { "Hello", "World" }[i];
+					}
+					public static void main(String [] args) {
+						System.out.println(getString(0));
+					}
+				}
+				"""
+				},
+				"42\n"
+				+ "Hello");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2447
+	// [Switch-expressions] Internal inconsistency warning at compile time and verify error at runtime
+	public void testIssue2447() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					static void foo(long l) {
+
+					}
+					public static void main(String[] args) {
+						long [] larray = { 10 };
+
+						foo(larray[0] = 10);
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+					}
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2451
+	// Internal compiler error: java.lang.AssertionError: Anomalous/Inconsistent operand stack!
+	public void testIssue2451() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				import java.util.HashMap;
+				import java.util.Map;
+
+				public class X {
+
+					static void foo(long l) {
+
+					}
+
+					private static Map<String, Long> getLevelMapTable() {
+						Map<String, Long> t = new HashMap<>();
+						t.put(null, 0l);
+
+
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+						return null;
+					}
+
+					public static void main(String[] args) {
+						getLevelMapTable();
+					}
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2453
+	// [Switch-expressions] Internal inconsistency warning at compile time and verify error at runtime
+	public void testIssue2453() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						System.out.println(double.class);
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+					}
+				}
+				"""
+				},
+				"double\n42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2455
+	// [Switch-expressions] java.lang.VerifyError: Bad type on operand stack
+	public void testIssue2455() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					static void foo(String s, int i) {
+						System.out.println("String = " + s + " int = " + i);
+					}
+					public static void main(String[] args) {
+
+						foo("Hello", switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+					}
+				}
+				"""
+				},
+				"String = Hello int = 42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2485
+	// Empty stack error compiling project with broken classpath
+	public void testIssue2485() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static int convertOpcode(int from, int to) {
+				        return switch (from) {
+				            case 42 ->
+			                    switch (to) {
+			                        case 42 -> 42;
+			                        default -> throw new UnsupportedOperationException();
+			                    };
+				            default -> throw new UnsupportedOperationException();
+				        };
+				    }
+				    public static void main(String [] args) {
+				        System.out.println("With 42 & 42 = " + convertOpcode(42, 42));
+			        }
+				}
+				"""
+				},
+				"With 42 & 42 = 42");
+	}
+
 }

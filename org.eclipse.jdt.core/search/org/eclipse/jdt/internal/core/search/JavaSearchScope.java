@@ -432,7 +432,7 @@ private String convertInternalToExternalPath(String given) {
 		if (targetResource != null) {
 			IPath targetLocation = targetResource.getLocation();
 			if (targetLocation != null) {
-				return targetLocation.toOSString();
+				return targetLocation.toString();
 			}
 		}
 	}

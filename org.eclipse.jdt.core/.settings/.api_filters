@@ -99,28 +99,6 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/TypePattern.java" type="org.eclipse.jdt.core.dom.TypePattern">
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.TypePattern"/>
-                <message_argument value="patternVariables()"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="model/org/eclipse/jdt/core/compiler/ITerminalSymbols.java" type="org.eclipse.jdt.core.compiler.ITerminalSymbols">
-        <filter id="405864542">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.ITerminalSymbols"/>
-                <message_argument value="TokenNameStringTemplate"/>
-            </message_arguments>
-        </filter>
-        <filter id="405864542">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.ITerminalSymbols"/>
-                <message_argument value="TokenNameTextBlockTemplate"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AbstractTagElement.java" type="org.eclipse.jdt.core.dom.AbstractTagElement">
         <filter id="576725006">
             <message_arguments>
@@ -146,6 +124,13 @@
             <message_arguments>
                 <message_argument value="ASTNode"/>
                 <message_argument value="AbstractTextElement"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/AbstractTypeDeclaration.java" type="org.eclipse.jdt.core.dom.AbstractTypeDeclaration">
+        <filter comment="API Fix " id="338849923">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.AbstractTypeDeclaration"/>
             </message_arguments>
         </filter>
     </resource>
@@ -356,6 +341,20 @@
             <message_arguments>
                 <message_argument value="ISourceRange"/>
                 <message_argument value="SourceRange"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/core/compiler/ITerminalSymbols.java" type="org.eclipse.jdt.core.compiler.ITerminalSymbols">
+        <filter id="405864542">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.ITerminalSymbols"/>
+                <message_argument value="TokenNameStringTemplate"/>
+            </message_arguments>
+        </filter>
+        <filter id="405864542">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.ITerminalSymbols"/>
+                <message_argument value="TokenNameTextBlockTemplate"/>
             </message_arguments>
         </filter>
     </resource>

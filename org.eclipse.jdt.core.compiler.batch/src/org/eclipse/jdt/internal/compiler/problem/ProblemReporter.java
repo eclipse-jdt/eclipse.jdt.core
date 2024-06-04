@@ -2025,6 +2025,8 @@ String deprecatedSinceValue(Supplier<AnnotationBinding[]> annotations) {
 		ReferenceContext contextSave = this.referenceContext;
 		try {
 			for (AnnotationBinding annotationBinding : annotations.get()) {
+				if (annotationBinding == null)
+					continue;
 				if (annotationBinding.getAnnotationType().id == TypeIds.T_JavaLangDeprecated) {
 					for (ElementValuePair elementValuePair : annotationBinding.getElementValuePairs()) {
 						if (CharOperation.equals(elementValuePair.getName(), TypeConstants.SINCE) && elementValuePair.value instanceof StringConstant)
@@ -8106,6 +8108,15 @@ public void resourceHasToImplementAutoCloseable(TypeBinding binding, ASTNode ref
 			new String[] {new String(binding.shortReadableName())},
 			reference.sourceStart,
 			reference.sourceEnd);
+}
+public void resourceNotAValue(NameReference node) {
+	String[] arguments = { node.toString() };
+	this.handle(
+			IProblem.ResourceIsNotAValue,
+			arguments,
+			arguments,
+			node.sourceStart,
+			node.sourceEnd);
 }
 private int retrieveClosingAngleBracketPosition(int start) {
 	if (this.referenceContext == null) return start;

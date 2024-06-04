@@ -1702,4 +1702,35 @@ public void testGH1568_5() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2443
+// ArrayStoreException in SelectionParser.buildMoreCompletionContext
+public void testGH2443() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+					"""
+					 public class X {
+
+						public static void main(String[] args) {
+
+							for (String sourcePath : args) {
+								new X() {
+									public void foo(String file) {
+										file.hashCode();
+									}
+
+								};
+							}
+						}
+					}
+					""");
+	String str = this.wc.getSource();
+	String selection = "file";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"file [in foo(String) [in <anonymous #1> [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]]]",
+		elements
+	);
+}
 }
