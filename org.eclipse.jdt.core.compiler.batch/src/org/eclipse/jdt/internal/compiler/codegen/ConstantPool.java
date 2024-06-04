@@ -345,6 +345,46 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] isFloatToDoubleExact = "isFloatToDoubleExact".toCharArray(); //$NON-NLS-1$
 	public static final char[] isFloatToDoubleExactSignature = "(Z)J".toCharArray(); //$NON-NLS-1$
 
+	public static final char[] isDoubleToByteExact = "isDoubleToByteExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToByteExactSignature = "(D)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToShortExact = "isDoubleToShortExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToShortExactSignature = "(D)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToCharExact = "isDoubleToCharExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToCharExactSignature = "(D)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToIntExact = "isDoubleToIntExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToIntExactSignature = "(D)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToLongExact = "isDoubleToLongExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToLongExactSignature = "(D)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToFloatExact = "isDoubleToFloatExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToFloatExactSignature = "(D)Z".toCharArray(); //$NON-NLS-1$
+
+	public static final char[] isFloatToByteExact = "isFloatToByteExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToByteExactSignature = "(F)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToShortExact = "isFloatToShortExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToShortExactSignature = "(F)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToCharExact = "isFloatToCharExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToCharExactSignature = "(F)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToIntExact = "isFloatToIntExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToIntExactSignature = "(F)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToLongExact = "isFloatToLongExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToLongExactSignature = "(F)Z".toCharArray(); //$NON-NLS-1$
+
+	public static final char[] isLongToByteExact = "isLongToByteExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToByteExactSignature = "(J)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToShortExact = "isLongToShortExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToShortExactSignature = "(J)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToCharExact = "isLongToCharExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToCharExactSignature = "(J)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToIntExact = "isLongToIntExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToIntExactSignature = "(J)Z".toCharArray(); //$NON-NLS-1$
+
+	public static final char[] isIntToByteExact = "isIntToByteExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToByteExactSignature = "(I)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToShortExact = "isIntToShortExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToShortExactSignature = "(I)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToCharExact = "isIntToCharExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToCharExactSignature = "(I)Z".toCharArray(); //$NON-NLS-1$
+
 	/**
 	 * ConstantPool constructor comment.
 	 */

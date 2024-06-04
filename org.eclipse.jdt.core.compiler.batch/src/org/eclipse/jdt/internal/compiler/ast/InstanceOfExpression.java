@@ -225,10 +225,8 @@ private void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
 			codeStream.iconst_1();
 			break;
 		case WIDENING_PRIMITIVE_CONVERSION:
-			generateExactConversions(scope, codeStream);
-			break;
 		case NARROWING_PRIMITVE_CONVERSION:
-			//TODO
+			generateExactConversions(scope, codeStream);
 			break;
 		case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
 			//TODO
@@ -265,10 +263,8 @@ private void generateTestingConversion(BlockScope scope, CodeStream codeStream) 
 			// Do nothing
 			break;
 		case WIDENING_PRIMITIVE_CONVERSION:
-			conversionCode(scope, codeStream);
-			break;
 		case NARROWING_PRIMITVE_CONVERSION:
-			//TODO
+			conversionCode(scope, codeStream);
 			break;
 		case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
 			//TODO
@@ -354,18 +350,19 @@ public TypeBinding resolveType(BlockScope scope) {
 		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
 				|| checkedType.isBaseType()
 				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null, true)) {
-			processPrimitives(scope, checkedType, expressionType);
+			checkForPrimitives(scope, checkedType, expressionType);
 		}
 	}
 
 	return this.resolvedType = TypeBinding.BOOLEAN;
 }
 
-private void processPrimitives(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType) {
+private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType) {
 	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
 	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
 
-	if (route == PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION) {
+	if (route == PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION
+			|| route == PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION) {
 //				this.expression.computeConversion(scope, expressionType, checkedType);
 	} else if (route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
 		scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);

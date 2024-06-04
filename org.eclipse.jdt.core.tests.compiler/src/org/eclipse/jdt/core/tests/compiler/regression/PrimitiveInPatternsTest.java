@@ -2127,7 +2127,1094 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"-1.0");
 	}
+	// Narrowing Primitive Double
 
+	public void testX001() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte d2b(double d) {
+						if (d instanceof byte) {
+							byte r = (byte) d;
+							return r;
+						}
+						return 0;
+					}
+					public static short d2s(double d) {
+						if (d instanceof short) {
+							short r = (short) d;
+							return r;
+						}
+						return 0;
+					}
+					public static char d2c(double d) {
+						if (d instanceof char) {
+							char r = (char) d;
+							return r;
+						}
+						return 0;
+					}
+					public static int d2i(double d) {
+						if (d instanceof int) {
+							int r = (int) d;
+							return r;
+						}
+						return 0;
+					}
+					public static long d2l(double d) {
+						if (d instanceof long) {
+							long r = (long) d;
+							return r;
+						}
+						return 0;
+					}
+					public static float d2f(double d) {
+						if (d instanceof float) {
+							float r = (float) d;
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						double d = 49;
+						System.out.println(X.d2b(d));
+						System.out.println(X.d2s(d));
+						System.out.println(X.d2c(d));
+						System.out.println(X.d2i(d));
+						System.out.println(X.d2l(d));
+						System.out.println(X.d2f(d));
+					}
+				}
+				"""
+			},
+			"49\n" +
+			"49\n" +
+			"1\n" +
+			"49\n" +
+			"49\n" +
+			"49.0");
+	}
+	public void testX002() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte d2b(double d) {
+						if (d instanceof byte r) {
+							return r;
+						}
+						return 0;
+					}
+					public static short d2s(double d) {
+						if (d instanceof short r) {
+							return r;
+						}
+						return 0;
+					}
+					public static char d2c(double d) {
+						if (d instanceof char r) {
+							return r;
+						}
+						return 0;
+					}
+					public static int d2i(double d) {
+						if (d instanceof int r) {
+							return r;
+						}
+						return 0;
+					}
+					public static long d2l(double d) {
+						if (d instanceof long r) {
+							return r;
+						}
+						return 0;
+					}
+					public static float d2f(double d) {
+						if (d instanceof float r) {
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						double d = 49;
+						System.out.println(X.d2b(d));
+						System.out.println(X.d2s(d));
+						System.out.println(X.d2c(d));
+						System.out.println(X.d2i(d));
+						System.out.println(X.d2l(d));
+						System.out.println(X.d2f(d));
+					}
+				}
+				"""
+			},
+			"49\n" +
+			"49\n" +
+			"1\n" +
+			"49\n" +
+			"49\n" +
+			"49.0");
+	}
+
+	public void testX003() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte d2b() {
+						if (getDouble() instanceof byte) {
+							byte r = (byte) getDouble();
+							return r;
+						}
+						return 0;
+					}
+					public static short d2s() {
+						if (getDouble() instanceof short) {
+							short r = (short) getDouble();
+							return r;
+						}
+						return 0;
+					}
+					public static char d2c() {
+						if (getDouble() instanceof char) {
+							char r = (char) getDouble();
+							return r;
+						}
+						return 0;
+					}
+					public static int d2i() {
+						if (getDouble() instanceof int) {
+							int r = (int) getDouble();
+							return r;
+						}
+						return 0;
+					}
+					public static long d2l() {
+						if (getDouble() instanceof long) {
+							long r = (long) getDouble();
+							return r;
+						}
+						return 0;
+					}
+					public static float d2f() {
+						if (getDouble() instanceof float) {
+							float r = (float) getDouble();
+							return r;
+						}
+						return 0;
+					}
+					private static double getDouble() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.d2b());
+						System.out.println(X.d2s());
+						System.out.println(X.d2c());
+						System.out.println(X.d2i());
+						System.out.println(X.d2l());
+						System.out.println(X.d2f());
+					}
+				}
+				"""
+			},
+			"49\n" +
+			"49\n" +
+			"1\n" +
+			"49\n" +
+			"49\n" +
+			"49.0");
+	}
+	public void testX004() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte d2b() {
+						if (getDouble() instanceof byte r) {
+							return r;
+						}
+						return 0;
+					}
+					public static short d2s() {
+						if (getDouble() instanceof short r) {
+							return r;
+						}
+						return 0;
+					}
+					public static char d2c() {
+						if (getDouble() instanceof char r) {
+							return r;
+						}
+						return 0;
+					}
+					public static int d2i() {
+						if (getDouble() instanceof int r) {
+							return r;
+						}
+						return 0;
+					}
+					public static long d2l() {
+						if (getDouble() instanceof long r) {
+							return r;
+						}
+						return 0;
+					}
+					public static float d2f() {
+						if (getDouble() instanceof float r) {
+							return r;
+						}
+						return 0;
+					}
+					private static double getDouble() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.d2b());
+						System.out.println(X.d2s());
+						System.out.println(X.d2c());
+						System.out.println(X.d2i());
+						System.out.println(X.d2l());
+						System.out.println(X.d2f());
+					}
+				}
+				"""
+			},
+			"49\n" +
+			"49\n" +
+			"1\n" +
+			"49\n" +
+			"49\n" +
+			"49.0");
+	}
+
+
+	//Narrowing float
+	public void testF001() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte f2b(float f) {
+						if (f instanceof byte) {
+							byte r = (byte) f;
+							return r;
+						}
+						return 0;
+					}
+					public static short f2s(float f) {
+						if (f instanceof short) {
+							short r = (short) f;
+							return r;
+						}
+						return 0;
+					}
+					public static char f2c(float f) {
+						if (f instanceof char) {
+							char r = (char) f;
+							return r;
+						}
+						return 0;
+					}
+					public static int f2i(float f) {
+						if (f instanceof int) {
+							int r = (int) f;
+							return r;
+						}
+						return 0;
+					}
+					public static long f2l(float f) {
+						if (f instanceof long) {
+							long r = (long) f;
+							return r;
+						}
+						return 0;
+					}
+					public static float f2f(float f) {
+						if (f instanceof float) {
+							float r = (float) f;
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						float f = 49;
+						System.out.println(X.f2b(f));
+						System.out.println(X.f2s(f));
+						System.out.println(X.f2c(f));
+						System.out.println(X.f2i(f));
+						System.out.println(X.f2l(f));
+						System.out.println(X.f2f(f));
+
+					}
+				}
+				"""
+			},
+				"49\n" +
+				"49\n" +
+				"1\n" +
+				"49\n" +
+				"49\n" +
+				"49.0");
+	}
+	public void testF002() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte f2b(float f) {
+						if (f instanceof byte r) {
+							return r;
+						}
+						return 0;
+					}
+					public static short f2s(float f) {
+						if (f instanceof short r) {
+							return r;
+						}
+						return 0;
+					}
+					public static char f2c(float f) {
+						if (f instanceof char r) {
+							return r;
+						}
+						return 0;
+					}
+					public static int f2i(float f) {
+						if (f instanceof int r) {
+							return r;
+						}
+						return 0;
+					}
+					public static long f2l(float f) {
+						if (f instanceof long r) {
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						float f = 49;
+						System.out.println(X.f2b(f));
+						System.out.println(X.f2s(f));
+						System.out.println(X.f2c(f));
+						System.out.println(X.f2i(f));
+						System.out.println(X.f2l(f));
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"49\n" +
+				"1\n" +
+				"49\n" +
+				"49");
+	}
+	public void testF003() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte f2b() {
+						if (getFloat() instanceof byte) {
+							byte r = (byte) getFloat();
+							return r;
+						}
+						return 0;
+					}
+					public static short f2s() {
+						if (getFloat() instanceof short) {
+							short r = (short) getFloat();
+							return r;
+						}
+						return 0;
+					}
+					public static char f2c() {
+						if (getFloat() instanceof char) {
+							char r = (char) getFloat();
+							return r;
+						}
+						return 0;
+					}
+					public static int f2i() {
+						if (getFloat() instanceof int) {
+							int r = (int) getFloat();
+							return r;
+						}
+						return 0;
+					}
+					public static long f2l() {
+						if (getFloat() instanceof long) {
+							long r = (long) getFloat();
+							return r;
+						}
+						return 0;
+					}
+					private static float getFloat() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.f2b());
+						System.out.println(X.f2s());
+						System.out.println(X.f2c());
+						System.out.println(X.f2i());
+						System.out.println(X.f2l());
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"49\n" +
+				"1\n" +
+				"49\n" +
+				"49");
+	}
+	public void testF004() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte f2b() {
+						if (getFloat() instanceof byte r) {
+							return r;
+						}
+						return 0;
+					}
+					public static short f2s() {
+						if (getFloat() instanceof short r) {
+							return r;
+						}
+						return 0;
+					}
+					public static char f2c() {
+						if (getFloat() instanceof char r) {
+							return r;
+						}
+						return 0;
+					}
+					public static int f2i() {
+						if (getFloat() instanceof int r) {
+							return r;
+						}
+						return 0;
+					}
+					public static long f2l() {
+						if (getFloat() instanceof long r) {
+							return r;
+						}
+						return 0;
+					}
+					private static float getFloat() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.f2b());
+						System.out.println(X.f2s());
+						System.out.println(X.f2c());
+						System.out.println(X.f2i());
+						System.out.println(X.f2l());
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"49\n" +
+				"1\n" +
+				"49\n" +
+				"49");
+	}
+
+	// Narrowing Long
+	public void testL001() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte l2b(long l) {
+						if (l instanceof byte) {
+							byte r = (byte) l;
+							return r;
+						}
+						return 0;
+					}
+					public static short l2s(long l) {
+						if (l instanceof short) {
+							short r = (short) l;
+							return r;
+						}
+						return 0;
+					}
+					public static char l2c(long l) {
+						if (l instanceof char) {
+							char r = (char) l;
+							return r;
+						}
+						return 0;
+					}
+					public static int l2i(long l) {
+						if (l instanceof int) {
+							int r = (int) l;
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						long l = 49;
+						System.out.println(X.l2b(l));
+						System.out.println(X.l2s(l));
+						System.out.println(X.l2c(l));
+						System.out.println(X.l2i(l));
+
+					}
+				}
+				"""
+			},
+				"49\n" +
+				"49\n" +
+				"1\n" +
+				"49");
+	}
+	public void testL002() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte l2b(long l) {
+						if (l instanceof byte r) {
+							return r;
+						}
+						return 0;
+					}
+					public static short l2s(long l) {
+						if (l instanceof short r) {
+							return r;
+						}
+						return 0;
+					}
+					public static char l2c(long l) {
+						if (l instanceof char r) {
+							return r;
+						}
+						return 0;
+					}
+					public static int l2i(long l) {
+						if (l instanceof int r) {
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						long l = 49;
+						System.out.println(X.l2b(l));
+						System.out.println(X.l2s(l));
+						System.out.println(X.l2c(l));
+						System.out.println(X.l2i(l));
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"49\n" +
+				"1\n" +
+				"49");
+	}
+	public void testL003() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte l2b() {
+						if (getLong() instanceof byte) {
+							byte r = (byte) getLong();
+							return r;
+						}
+						return 0;
+					}
+					public static short l2s() {
+						if (getLong() instanceof short) {
+							short r = (short) getLong();
+							return r;
+						}
+						return 0;
+					}
+					public static char l2c() {
+						if (getLong() instanceof char) {
+							char r = (char) getLong();
+							return r;
+						}
+						return 0;
+					}
+					public static int l2i() {
+						if (getLong() instanceof int) {
+							int r = (int) getLong();
+							return r;
+						}
+						return 0;
+					}
+					private static long getLong() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.l2b());
+						System.out.println(X.l2s());
+						System.out.println(X.l2c());
+						System.out.println(X.l2i());
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"49\n" +
+				"1\n" +
+				"49");
+	}
+	public void testL004() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte l2b() {
+						if (getLong() instanceof byte r) {
+							return r;
+						}
+						return 0;
+					}
+					public static short l2s() {
+						if (getLong() instanceof short r) {
+							return r;
+						}
+						return 0;
+					}
+					public static char l2c() {
+						if (getLong() instanceof char r) {
+							return r;
+						}
+						return 0;
+					}
+					public static int l2i() {
+						if (getLong() instanceof int r) {
+							return r;
+						}
+						return 0;
+					}
+					private static long getLong() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.l2b());
+						System.out.println(X.l2s());
+						System.out.println(X.l2c());
+						System.out.println(X.l2i());
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"49\n" +
+				"1\n" +
+				"49");
+	}
+	// Narrowing int
+	public void testI001() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte i2b(int i) {
+						if (i instanceof byte) {
+							byte r = (byte) i;
+							return r;
+						}
+						return 0;
+					}
+					public static short i2s(int i) {
+						if (i instanceof short) {
+							short r = (short) i;
+							return r;
+						}
+						return 0;
+					}
+					public static char i2c(int i) {
+						if (i instanceof char) {
+							char r = (char) i;
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						int i = 49;
+						System.out.println(X.i2b(i));
+						System.out.println(X.i2s(i));
+						System.out.println(X.i2c(i));
+
+					}
+				}
+				"""
+			},
+				"49\n" +
+				"49\n" +
+				"1");
+	}
+	public void testI002() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte i2b(int i) {
+						if (i instanceof byte r) {
+							return r;
+						}
+						return 0;
+					}
+					public static short i2s(int i) {
+						if (i instanceof short r) {
+							return r;
+						}
+						return 0;
+					}
+					public static char i2c(int i) {
+						if (i instanceof char r) {
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						int i = 49;
+						System.out.println(X.i2b(i));
+						System.out.println(X.i2s(i));
+						System.out.println(X.i2c(i));
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"49\n" +
+				"1");
+	}
+	public void testI003() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte i2b() {
+						if (getInt() instanceof byte) {
+							byte r = (byte) getInt();
+							return r;
+						}
+						return 0;
+					}
+					public static short i2s() {
+						if (getInt() instanceof short) {
+							short r = (short) getInt();
+							return r;
+						}
+						return 0;
+					}
+					public static char i2c() {
+						if (getInt() instanceof char) {
+							char r = (char) getInt();
+							return r;
+						}
+						return 0;
+					}
+					private static int getInt() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.i2b());
+						System.out.println(X.i2s());
+						System.out.println(X.i2c());
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"49\n" +
+				"1");
+	}
+	public void testI004() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte i2b() {
+						if (getInt() instanceof byte r) {
+							return r;
+						}
+						return 0;
+					}
+					public static short i2s() {
+						if (getInt() instanceof short r) {
+							return r;
+						}
+						return 0;
+					}
+					public static char i2c() {
+						if (getInt() instanceof char r) {
+							return r;
+						}
+						return 0;
+					}
+					private static int getInt() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.i2b());
+						System.out.println(X.i2s());
+						System.out.println(X.i2c());
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"49\n" +
+				"1");
+	}
+	// Narrowing char
+	public void testC001() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte c2b(char c) {
+						if (c instanceof byte) {
+							byte r = (byte) c;
+							return r;
+						}
+						return 0;
+					}
+					public static short c2s(char c) {
+						if (c instanceof short) {
+							short r = (short) c;
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						char c = 49;
+						System.out.println(X.c2b(c));
+						System.out.println(X.c2s(c));
+
+					}
+				}
+				"""
+			},
+				"49\n" +
+				"49");
+	}
+	public void testC002() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte c2b(char c) {
+						if (c instanceof byte r) {
+							return r;
+						}
+						return 0;
+					}
+					public static short c2s(char c) {
+						if (c instanceof short r) {
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						char c = 49;
+						System.out.println(X.c2b(c));
+						System.out.println(X.c2s(c));
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"49");
+	}
+	public void testC003() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte c2b() {
+						if (getChar() instanceof byte) {
+							byte r = (byte) getChar();
+							return r;
+						}
+						return 0;
+					}
+					public static short c2s() {
+						if (getChar() instanceof short) {
+							short r = (short) getChar();
+							return r;
+						}
+						return 0;
+					}
+					private static char getChar() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.c2b());
+						System.out.println(X.c2s());
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"49");
+	}
+	public void testC004() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte c2b() {
+						if (getChar() instanceof byte r) {
+							return r;
+						}
+						return 0;
+					}
+					public static short c2s() {
+						if (getChar() instanceof short r) {
+							return r;
+						}
+						return 0;
+					}
+					private static char getChar() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.c2b());
+						System.out.println(X.c2s());
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"49");
+	}
+
+	// Narrowing short
+	public void testS001() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte s2b(short s) {
+						if (s instanceof byte) {
+							byte r = (byte) s;
+							return r;
+						}
+						return 0;
+					}
+					public static char s2c(short s) {
+						if (s instanceof char) {
+							char r = (char) s;
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						short s = 49;
+						System.out.println(X.s2b(s));
+						System.out.println(X.s2c(s));
+
+					}
+				}
+				"""
+			},
+				"49\n" +
+				"1");
+	}
+	public void testS002() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte s2b(short s) {
+						if (s instanceof byte r) {
+							return r;
+						}
+						return 0;
+					}
+					public static char s2c(short s) {
+						if (s instanceof char r) {
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						short s = 49;
+						System.out.println(X.s2b(s));
+						System.out.println(X.s2c(s));
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"1");
+	}
+	public void testS003() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte s2b() {
+						if (getShort() instanceof byte) {
+							byte r = (byte) getShort();
+							return r;
+						}
+						return 0;
+					}
+					public static char s2c() {
+						if (getShort() instanceof char) {
+							char r = (char) getShort();
+							return r;
+						}
+						return 0;
+					}
+					private static short getShort() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.s2b());
+						System.out.println(X.s2c());
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"1");
+	}
+	public void testS004() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static byte s2b() {
+						if (getShort() instanceof byte r) {
+							return r;
+						}
+						return 0;
+					}
+					public static char s2c() {
+						if (getShort() instanceof char r) {
+							return r;
+						}
+						return 0;
+					}
+					private static short getShort() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.s2b());
+						System.out.println(X.s2c());
+					}
+				}
+     			"""
+			},
+				"49\n" +
+				"1");
+	}
+
+	// test from spec
 	public void _testSpec001() {
 		runConformTest(new String[] {
 			"X.java",
