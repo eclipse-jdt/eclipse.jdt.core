@@ -172,9 +172,8 @@ public class DoStatement extends Statement {
 				b = this.body;
 				if (b == null) {
 					preLazyInit();
-					b = new Block(this.ast);
+					b = postLazyInit(new Block(this.ast), BODY_PROPERTY);
 					this.body = b;
-					postLazyInit(b, BODY_PROPERTY);
 				}
 			}
 		}
@@ -221,8 +220,7 @@ public class DoStatement extends Statement {
             synchronized (this) {
                 if (this.expression == null) {
                     preLazyInit();
-                    this.expression = new SimpleName(this.ast);
-                    postLazyInit(this.expression, EXPRESSION_PROPERTY);
+                    this.expression = postLazyInit(new SimpleName(this.ast), EXPRESSION_PROPERTY);
                 }
             }
         }

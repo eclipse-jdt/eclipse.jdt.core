@@ -189,8 +189,8 @@ public class RecordPattern extends Pattern {
 			synchronized (this) {
 				if (this.patternType == null) {
 					preLazyInit();
-					this.patternType= this.ast.newPrimitiveType(PrimitiveType.INT);
-					postLazyInit(this.patternType, PATTERN_TYPE_PROPERTY);
+					this.patternType = postLazyInit(this.ast.newPrimitiveType(PrimitiveType.INT),
+							PATTERN_TYPE_PROPERTY);
 				}
 			}
 		}

@@ -233,9 +233,8 @@ public class SwitchCase extends Statement {
 			synchronized (this) {
 				if (!this.expressionInitialized) {
 					preLazyInit();
-					this.optionalExpression = new SimpleName(this.ast);
+					this.optionalExpression = postLazyInit(new SimpleName(this.ast), EXPRESSION_PROPERTY);
 					this.expressionInitialized = true;
-					postLazyInit(this.optionalExpression, EXPRESSION_PROPERTY);
 				}
 			}
 		}

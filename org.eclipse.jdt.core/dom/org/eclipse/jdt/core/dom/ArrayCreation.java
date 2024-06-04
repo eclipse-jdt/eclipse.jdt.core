@@ -206,9 +206,8 @@ public class ArrayCreation extends Expression {
 			synchronized (this) {
 				if (this.arrayType == null) {
 					preLazyInit();
-					this.arrayType = this.ast.newArrayType(
-							this.ast.newPrimitiveType(PrimitiveType.INT));
-					postLazyInit(this.arrayType, TYPE_PROPERTY);
+					this.arrayType = postLazyInit(this.ast.newArrayType(this.ast.newPrimitiveType(PrimitiveType.INT)),
+							TYPE_PROPERTY);
 				}
 			}
 		}

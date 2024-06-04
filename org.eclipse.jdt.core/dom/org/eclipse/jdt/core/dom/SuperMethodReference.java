@@ -229,8 +229,7 @@ public class SuperMethodReference extends MethodReference {
 			synchronized (this) {
 				if (this.methodName == null) {
 					preLazyInit();
-					this.methodName = new SimpleName(this.ast);
-					postLazyInit(this.methodName, NAME_PROPERTY);
+					this.methodName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

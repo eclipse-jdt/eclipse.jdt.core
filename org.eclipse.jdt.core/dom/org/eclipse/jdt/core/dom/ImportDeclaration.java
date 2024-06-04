@@ -226,9 +226,9 @@ public class ImportDeclaration extends ASTNode {
 			synchronized (this) {
 				if (this.importName == null) {
 					preLazyInit();
-					this.importName =this.ast.newQualifiedName(
-							new SimpleName(this.ast), new SimpleName(this.ast));
-					postLazyInit(this.importName, NAME_PROPERTY);
+					this.importName = postLazyInit(
+							this.ast.newQualifiedName(new SimpleName(this.ast), new SimpleName(this.ast)),
+							NAME_PROPERTY);
 				}
 			}
 		}

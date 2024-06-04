@@ -203,8 +203,7 @@ public class SuperFieldAccess extends Expression {
 			synchronized (this) {
 				if (this.fieldName == null) {
 					preLazyInit();
-					this.fieldName = new SimpleName(this.ast);
-					postLazyInit(this.fieldName, NAME_PROPERTY);
+					this.fieldName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

@@ -273,8 +273,7 @@ public class PostfixExpression extends Expression {
 			synchronized (this) {
 				if (this.operand == null) {
 					preLazyInit();
-					this.operand= new SimpleName(this.ast);
-					postLazyInit(this.operand, OPERAND_PROPERTY);
+					this.operand = postLazyInit(new SimpleName(this.ast), OPERAND_PROPERTY);
 				}
 			}
 		}

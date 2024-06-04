@@ -2880,15 +2880,20 @@ public abstract class ASTNode {
 	/**
      * Begin lazy initialization of this node.
      * Here is the code pattern found in all AST
-     * node subclasses:
+     * node subclasses. For thread safety it uses a "double-checked locking idiom":
+     *
      * <pre>
-     * if (this.foo == null) {
-	 *    // lazy init must be thread-safe for readers
+     * private volatile ASTNode node; // has to be declared volatile and ASTNode has to be threadsafe!
+     * ...
+     * if (this.node == null) {
      *    synchronized (this) {
-     *       if (this.foo == null) {
+     *       if (this.node == null) { // double check
      *          preLazyInit();
-     *          this.foo = ...; // code to create new node
-     *          postLazyInit(this.foo, FOO_PROPERTY);
+     *          ASTNode node = ...; // code to create new node
+     *          node.xyz = ...; // initialize all fields
+     *          // Finally write the full initialized field:
+     *          this.node = postLazyInit(node, FOO_PROPERTY);
+     *          // Do not modify node after writing it to this.node!
      *       }
      *    }
      * }
@@ -2905,19 +2910,18 @@ public abstract class ASTNode {
 	/**
      * End lazy initialization of this node.
      *
-	 * @param newChild the new child of this node, or <code>null</code> if
-	 *   there is no replacement child
+	 * @param newChild the new child of this node
 	 * @param property the property descriptor of this node describing
      * the relationship between node and child
-     * @since 3.0
      */
-	final void postLazyInit(ASTNode newChild, ChildPropertyDescriptor property) {
+	final <T extends ASTNode> T postLazyInit(T newChild, ChildPropertyDescriptor property) {
 		// IMPORTANT: this method is called by readers
 		// ASTNode.this is locked at this point
 		// newChild is brand new (so no chance of concurrent access)
 		newChild.setParent(this, property);
 		// turn events back on (they were turned off in corresponding preLazyInit)
 		this.ast.reenableEvents();
+		return newChild;
 	}
 
 	/**

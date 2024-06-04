@@ -178,8 +178,7 @@ public class ParameterizedType extends Type {
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type = new SimpleType(this.ast);
-					postLazyInit(this.type, TYPE_PROPERTY);
+					this.type = postLazyInit(new SimpleType(this.ast), TYPE_PROPERTY);
 				}
 			}
 		}

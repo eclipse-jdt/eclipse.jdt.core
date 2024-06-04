@@ -196,8 +196,7 @@ public class IfStatement extends Statement {
 			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
-					this.expression = new SimpleName(this.ast);
-					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+					this.expression = postLazyInit(new SimpleName(this.ast), EXPRESSION_PROPERTY);
 				}
 			}
 		}
@@ -236,8 +235,7 @@ public class IfStatement extends Statement {
 			synchronized (this) {
 				if (this.thenStatement == null) {
 					preLazyInit();
-					this.thenStatement = new Block(this.ast);
-					postLazyInit(this.thenStatement, THEN_STATEMENT_PROPERTY);
+					this.thenStatement = postLazyInit(new Block(this.ast), THEN_STATEMENT_PROPERTY);
 				}
 			}
 		}

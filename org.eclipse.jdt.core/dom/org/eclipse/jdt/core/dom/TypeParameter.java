@@ -219,8 +219,7 @@ public class TypeParameter extends ASTNode {
 			synchronized (this) {
 				if (this.typeVariableName == null) {
 					preLazyInit();
-					this.typeVariableName = new SimpleName(this.ast);
-					postLazyInit(this.typeVariableName, NAME_PROPERTY);
+					this.typeVariableName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

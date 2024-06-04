@@ -171,8 +171,7 @@ public class ModuleQualifiedName extends Name {
 			synchronized (this) {
 				if (this.moduleQualifier == null) {
 					preLazyInit();
-					this.moduleQualifier = new SimpleName(this.ast);
-					postLazyInit(this.moduleQualifier, MODULE_QUALIFIER_PROPERTY);
+					this.moduleQualifier = postLazyInit(new SimpleName(this.ast), MODULE_QUALIFIER_PROPERTY);
 				}
 			}
 		}
