@@ -170,8 +170,7 @@ public class MemberValuePair extends ASTNode {
 			synchronized (this) {
 				if (this.name == null) {
 					preLazyInit();
-					this.name = new SimpleName(this.ast);
-					postLazyInit(this.name, NAME_PROPERTY);
+					this.name = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}
@@ -224,8 +223,7 @@ public class MemberValuePair extends ASTNode {
 			synchronized (this) {
 				if (this.value == null) {
 					preLazyInit();
-					this.value= new SimpleName(this.ast);
-					postLazyInit(this.value, VALUE_PROPERTY);
+					this.value = postLazyInit(new SimpleName(this.ast), VALUE_PROPERTY);
 				}
 			}
 		}

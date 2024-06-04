@@ -171,8 +171,7 @@ public class CatchClause extends ASTNode {
 			synchronized (this) {
 				if (this.exceptionDecl == null) {
 					preLazyInit();
-					this.exceptionDecl = new SingleVariableDeclaration(this.ast);
-					postLazyInit(this.exceptionDecl, EXCEPTION_PROPERTY);
+					this.exceptionDecl = postLazyInit(new SingleVariableDeclaration(this.ast), EXCEPTION_PROPERTY);
 				}
 			}
 		}
@@ -211,8 +210,7 @@ public class CatchClause extends ASTNode {
 			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
-					this.body = new Block(this.ast);
-					postLazyInit(this.body, BODY_PROPERTY);
+					this.body = postLazyInit(new Block(this.ast), BODY_PROPERTY);
 				}
 			}
 		}

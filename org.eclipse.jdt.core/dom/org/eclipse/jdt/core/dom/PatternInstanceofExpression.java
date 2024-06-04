@@ -234,8 +234,7 @@ public class PatternInstanceofExpression extends Expression {
 			synchronized (this) {
 				if (this.leftOperand == null) {
 					preLazyInit();
-					this.leftOperand= new SimpleName(this.ast);
-					postLazyInit(this.leftOperand, LEFT_OPERAND_PROPERTY);
+					this.leftOperand = postLazyInit(new SimpleName(this.ast), LEFT_OPERAND_PROPERTY);
 				}
 			}
 		}
@@ -277,8 +276,7 @@ public class PatternInstanceofExpression extends Expression {
 			synchronized (this) {
 				if (this.rightOperand == null) {
 					preLazyInit();
-					this.rightOperand= new SingleVariableDeclaration(this.ast);
-					postLazyInit(this.rightOperand, RIGHT_OPERAND_PROPERTY);
+					this.rightOperand = postLazyInit(new SingleVariableDeclaration(this.ast), RIGHT_OPERAND_PROPERTY);
 				}
 			}
 		}
@@ -297,8 +295,7 @@ public class PatternInstanceofExpression extends Expression {
 			synchronized (this) {
 				if (this.pattern == null) {
 					preLazyInit();
-					this.pattern = new TypePattern(this.ast);
-					postLazyInit(this.pattern, PATTERN_PROPERTY);
+					this.pattern = postLazyInit(new TypePattern(this.ast), PATTERN_PROPERTY);
 				}
 			}
 		}

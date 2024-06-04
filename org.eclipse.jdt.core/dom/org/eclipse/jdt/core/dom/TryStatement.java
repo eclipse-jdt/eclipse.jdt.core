@@ -289,8 +289,7 @@ public class TryStatement extends Statement {
 			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
-					this.body = new Block(this.ast);
-					postLazyInit(this.body, BODY_PROPERTY);
+					this.body = postLazyInit(new Block(this.ast), BODY_PROPERTY);
 				}
 			}
 		}

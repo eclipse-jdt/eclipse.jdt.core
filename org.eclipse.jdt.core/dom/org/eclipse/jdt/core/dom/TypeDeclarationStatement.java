@@ -214,8 +214,7 @@ public class TypeDeclarationStatement extends Statement {
 			synchronized (this) {
 				if (this.typeDecl == null) {
 					preLazyInit();
-					this.typeDecl = new TypeDeclaration(this.ast);
-					postLazyInit(this.typeDecl, typeDeclProperty());
+					this.typeDecl = postLazyInit(new TypeDeclaration(this.ast), typeDeclProperty());
 				}
 			}
 		}

@@ -149,8 +149,7 @@ public class ExpressionStatement extends Statement {
 			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
-					this.expression = new MethodInvocation(this.ast);
-					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+					this.expression = postLazyInit(new MethodInvocation(this.ast), EXPRESSION_PROPERTY);
 				}
 			}
 		}

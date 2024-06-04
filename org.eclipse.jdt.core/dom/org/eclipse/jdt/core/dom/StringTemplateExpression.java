@@ -120,8 +120,7 @@ public class StringTemplateExpression extends Expression {
 			synchronized (this) {
 				if (this.processor == null) {
 					preLazyInit();
-					this.processor = new SimpleName(this.ast);
-					postLazyInit(this.processor, TEMPLATE_PROCESSOR);
+					this.processor = postLazyInit(new SimpleName(this.ast), TEMPLATE_PROCESSOR);
 				}
 			}
 		}
@@ -152,8 +151,7 @@ public class StringTemplateExpression extends Expression {
 			synchronized (this) {
 				if (this.firstFragment == null) {
 					preLazyInit();
-					this.firstFragment = new StringFragment(this.ast);
-					postLazyInit(this.firstFragment, FIRST_STRING_FRAGMENT);
+					this.firstFragment = postLazyInit(new StringFragment(this.ast), FIRST_STRING_FRAGMENT);
 				}
 			}
 		}

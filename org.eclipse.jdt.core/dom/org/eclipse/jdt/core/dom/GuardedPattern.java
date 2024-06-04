@@ -205,8 +205,7 @@ public class GuardedPattern extends Pattern{
 			synchronized (this) {
 				if (this.conditionalExpression == null) {
 					preLazyInit();
-					this.conditionalExpression = this.ast.newNullLiteral();
-					postLazyInit(this.pattern, EXPRESSION_PROPERTY);
+					this.conditionalExpression = postLazyInit(this.ast.newNullLiteral(), EXPRESSION_PROPERTY);
 				}
 			}
 		}
@@ -229,8 +228,7 @@ public class GuardedPattern extends Pattern{
 			synchronized (this) {
 				if (this.pattern == null) {
 					preLazyInit();
-					this.pattern = this.ast.newNullPattern();
-					postLazyInit(this.pattern, PATTERN_PROPERTY);
+					this.pattern = postLazyInit(this.ast.newNullPattern(), PATTERN_PROPERTY);
 				}
 			}
 		}

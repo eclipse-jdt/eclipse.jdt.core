@@ -182,9 +182,9 @@ public class ImplicitTypeDeclaration extends AbstractTypeDeclaration {
 			synchronized (this) {
 				if (this.typeName == null) {
 					preLazyInit();
-					this.typeName = new EmptyName(this.ast);
-					this.typeName.setSourceRange(this.getStartPosition(), 0);
-					postLazyInit(this.typeName, NAME_PROPERTY);
+					EmptyName e= new EmptyName(this.ast);
+					e.setSourceRange(this.getStartPosition(), 0);
+					this.typeName =postLazyInit(e, NAME_PROPERTY);
 				}
 			}
 		}

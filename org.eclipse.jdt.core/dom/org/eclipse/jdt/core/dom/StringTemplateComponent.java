@@ -149,8 +149,7 @@ public class StringTemplateComponent extends Expression {
 			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
-					this.expression = new SimpleName(this.ast);
-					postLazyInit(this.expression, EMBEDDED_EXPRESSION_PROPERTY);
+					this.expression = postLazyInit(new SimpleName(this.ast), EMBEDDED_EXPRESSION_PROPERTY);
 				}
 			}
 		}
@@ -181,8 +180,7 @@ public class StringTemplateComponent extends Expression {
 			synchronized (this) {
 				if (this.fragment == null) {
 					preLazyInit();
-					this.fragment = new StringFragment(this.ast);
-					postLazyInit(this.fragment, STRING_FRAGMENT_PROPERTY);
+					this.fragment = postLazyInit(new StringFragment(this.ast), STRING_FRAGMENT_PROPERTY);
 				}
 			}
 		}

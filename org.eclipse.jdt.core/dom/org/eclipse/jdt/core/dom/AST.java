@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
@@ -1030,7 +1032,7 @@ public final class AST {
 	 * </p>
 	 * @since 3.0
 	 */
-	private int disableEvents = 0;
+	private final AtomicInteger disableEvents = new AtomicInteger();
 
 	/**
 	 * The event handler for this AST.
@@ -1050,7 +1052,7 @@ public final class AST {
 	 * Internal modification count; initially 0; increases monotonically
 	 * <b>by one or more</b> as the AST is successively modified.
 	 */
-	private long modificationCount = 0;
+	private final AtomicLong modificationCount = new AtomicLong();
 
 	/**
 	 * Internal original modification count; value is equals to <code>
@@ -1058,7 +1060,7 @@ public final class AST {
 	 * </code>). If this ast is not created with a parser then value is 0.
 	 * @since 3.0
 	 */
-	private long originalModificationCount = 0;
+	private volatile long originalModificationCount;
 
 	/**
 	 * The binding resolver for this AST. Initially a binding resolver that
@@ -1383,7 +1385,7 @@ public final class AST {
 	final void disableEvents() {
 		synchronized (this.internalASTLock) {
 			// guard against concurrent access by another reader
-			this.disableEvents++;
+			this.disableEvents.incrementAndGet();
 		}
 		// while disableEvents > 0 no events will be reported, and mod count will stay fixed
 	}
@@ -1493,7 +1495,7 @@ public final class AST {
 	 *    this AST
 	 */
 	public long modificationCount() {
-		return this.modificationCount;
+		return this.modificationCount.get();
 	}
 
 	/**
@@ -1514,11 +1516,11 @@ public final class AST {
 	void modifying() {
 		// when this method is called during lazy init, events are disabled
 		// and the modification count will not be increased
-		if (this.disableEvents > 0) {
+		if (this.disableEvents.get() > 0) {
 			return;
 		}
 		// increase the modification count
-		this.modificationCount++;
+		this.modificationCount.incrementAndGet();
 	}
 
 	/**
@@ -3503,7 +3505,7 @@ public final class AST {
 		// IMPORTANT: this method is called by readers during lazy init
 		synchronized (this.internalASTLock) {
 			// guard against concurrent access by a reader doing lazy init
-			if (this.disableEvents > 0) {
+			if (this.disableEvents.get() > 0) {
 				// doing lazy init OR already processing an event
 				// System.out.println("[BOUNCE ADD]");
 				return;
@@ -3530,7 +3532,7 @@ public final class AST {
 	void postCloneNodeEvent(ASTNode node, ASTNode clone) {
 		synchronized (this.internalASTLock) {
 			// guard against concurrent access by a reader doing lazy init
-			if (this.disableEvents > 0) {
+			if (this.disableEvents.get() > 0) {
 				// doing lazy init OR already processing an event
 				// System.out.println("[BOUNCE CLONE]");
 				return;
@@ -3559,7 +3561,7 @@ public final class AST {
 		// IMPORTANT: this method is called by readers during lazy init
 		synchronized (this.internalASTLock) {
 			// guard against concurrent access by a reader doing lazy init
-			if (this.disableEvents > 0) {
+			if (this.disableEvents.get() > 0) {
 				// doing lazy init OR already processing an event
 				// System.out.println("[BOUNCE DEL]");
 				return;
@@ -3589,7 +3591,7 @@ public final class AST {
 		// IMPORTANT: this method is called by readers during lazy init
 		synchronized (this.internalASTLock) {
 			// guard against concurrent access by a reader doing lazy init
-			if (this.disableEvents > 0) {
+			if (this.disableEvents.get() > 0) {
 				// doing lazy init OR already processing an event
 				// System.out.println("[BOUNCE REP]");
 				return;
@@ -3618,7 +3620,7 @@ public final class AST {
 		// IMPORTANT: this method is called by readers during lazy init
 		synchronized (this.internalASTLock) {
 			// guard against concurrent access by a reader doing lazy init
-			if (this.disableEvents > 0) {
+			if (this.disableEvents.get() > 0) {
 				// doing lazy init OR already processing an event
 				// System.out.println("[BOUNCE CHANGE]");
 				return;
@@ -3647,7 +3649,7 @@ public final class AST {
 		// IMPORTANT: this method is called by readers during lazy init
 		synchronized (this.internalASTLock) {
 			// guard against concurrent access by a reader doing lazy init
-			if (this.disableEvents > 0) {
+			if (this.disableEvents.get() > 0) {
 				// doing lazy init OR already processing an event
 				// System.out.println("[BOUNCE ADD]");
 				return;
@@ -3673,7 +3675,7 @@ public final class AST {
 	void preCloneNodeEvent(ASTNode node) {
 		synchronized (this.internalASTLock) {
 			// guard against concurrent access by a reader doing lazy init
-			if (this.disableEvents > 0) {
+			if (this.disableEvents.get() > 0) {
 				// doing lazy init OR already processing an event
 				// System.out.println("[BOUNCE CLONE]");
 				return;
@@ -3702,7 +3704,7 @@ public final class AST {
 		// IMPORTANT: this method is called by readers during lazy init
 		synchronized (this.internalASTLock) {
 			// guard against concurrent access by a reader doing lazy init
-			if (this.disableEvents > 0) {
+			if (this.disableEvents.get() > 0) {
 				// doing lazy init OR already processing an event
 				// System.out.println("[BOUNCE DEL]");
 				return;
@@ -3732,7 +3734,7 @@ public final class AST {
 		// IMPORTANT: this method is called by readers during lazy init
 		synchronized (this.internalASTLock) {
 			// guard against concurrent access by a reader doing lazy init
-			if (this.disableEvents > 0) {
+			if (this.disableEvents.get() > 0) {
 				// doing lazy init OR already processing an event
 				// System.out.println("[BOUNCE REP]");
 				return;
@@ -3761,7 +3763,7 @@ public final class AST {
 		// IMPORTANT: this method is called by readers during lazy init
 		synchronized (this.internalASTLock) {
 			// guard against concurrent access by a reader doing lazy init
-			if (this.disableEvents > 0) {
+			if (this.disableEvents.get() > 0) {
 				// doing lazy init OR already processing an event
 				// System.out.println("[BOUNCE CHANGE]");
 				return;
@@ -3797,7 +3799,7 @@ public final class AST {
 	 * @since 3.0
 	 */
 	void recordModifications(CompilationUnit root) {
-		if(this.modificationCount != this.originalModificationCount) {
+		if(this.modificationCount.get() != this.originalModificationCount) {
 			throw new IllegalArgumentException("AST is already modified"); //$NON-NLS-1$
 		} else if(this.rewriter  != null) {
 			throw new IllegalArgumentException("AST modifications are already recorded"); //$NON-NLS-1$
@@ -3823,7 +3825,7 @@ public final class AST {
 	final void reenableEvents() {
 		synchronized (this.internalASTLock) {
 			// guard against concurrent access by another reader
-			this.disableEvents--;
+			this.disableEvents.decrementAndGet();
 		}
 	}
 

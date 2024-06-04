@@ -256,8 +256,7 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 			synchronized (this) {
 				if (this.memberType == null) {
 					preLazyInit();
-					this.memberType = this.ast.newPrimitiveType(PrimitiveType.INT);
-					postLazyInit(this.memberType, TYPE_PROPERTY);
+					this.memberType = postLazyInit(this.ast.newPrimitiveType(PrimitiveType.INT), TYPE_PROPERTY);
 				}
 			}
 		}
@@ -296,8 +295,7 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 			synchronized (this) {
 				if (this.memberName == null) {
 					preLazyInit();
-					this.memberName = new SimpleName(this.ast);
-					postLazyInit(this.memberName, NAME_PROPERTY);
+					this.memberName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}
