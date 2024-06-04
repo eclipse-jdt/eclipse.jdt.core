@@ -366,7 +366,8 @@ public class JavacBindingResolver extends BindingResolver {
 		if (javacElement instanceof JCIdent ident && ident.sym instanceof MethodSymbol methodSymbol) {
 			return this.bindings.getMethodBinding(ident.type.asMethodType(), methodSymbol);
 		}
-		if (javacElement instanceof JCFieldAccess fieldAccess && fieldAccess.sym instanceof MethodSymbol methodSymbol) {
+		if (javacElement instanceof JCFieldAccess fieldAccess && fieldAccess.sym instanceof MethodSymbol methodSymbol
+				&& fieldAccess.type != null /* when there are syntax errors */) {
 			return this.bindings.getMethodBinding(fieldAccess.type.asMethodType(), methodSymbol);
 		}
 		return null;

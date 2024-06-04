@@ -1111,6 +1111,10 @@ class JavacConverter {
 			if (fieldAccess.getExpression() instanceof JCIdent qualifier) {
 				Name qualifierName = convertName(qualifier.getName());
 				SimpleName qualifiedName = (SimpleName)convertName(fieldAccess.getIdentifier());
+				if (qualifiedName == null) {
+					// when there are syntax errors where the statement is not completed.
+					qualifiedName = this.ast.newSimpleName(new String(RecoveryScanner.FAKE_IDENTIFIER));
+				}
 				QualifiedName res = this.ast.newQualifiedName(qualifierName, qualifiedName);
 				commonSettings(res, javac);
 				return res;
@@ -2337,8 +2341,9 @@ class JavacConverter {
 			}
 			return res;
 		}
-		if (javac instanceof JCErroneous erroneous) {
-			return null;
+		if (javac instanceof JCErroneous || javac == null /* when there are syntax errors */) {
+			// returning null could result in upstream errors, so return a fake type
+			return this.ast.newSimpleType(this.ast.newSimpleName(new String(RecoveryScanner.FAKE_IDENTIFIER)));
 		}
 		throw new UnsupportedOperationException("Not supported yet, type " + javac + " of class" + javac.getClass());
 	}
