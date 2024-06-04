@@ -373,7 +373,9 @@ private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeB
 
 private void addSecretExpressionValue(BlockScope scope, TypeBinding expressionType) {
 	if ((this.expression.bits & ASTNode.RestrictiveFlagMASK) != Binding.LOCAL) {
-		TypeBinding type1 = this.expression.resolvedType.isBaseType() ?
+
+		TypeBinding type1 = (this.expression.resolvedType != null
+				&& this.expression.resolvedType.isBaseType()) ?
 				this.expression.resolvedType : TypeBinding.wellKnownType(scope, T_JavaLangObject);
 		// reevaluation may double jeopardize as side effects may recur, compute once and cache
 		LocalVariableBinding local =

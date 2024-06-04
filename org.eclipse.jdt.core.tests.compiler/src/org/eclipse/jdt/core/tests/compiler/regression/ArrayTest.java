@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class ArrayTest extends AbstractRegressionTest {
 
 	static {
-//		TESTS_NUMBERS = new int[] { 18 };
+		TESTS_NUMBERS = new int[] { 1 };
 	}
 	public ArrayTest(String name) {
 		super(name);

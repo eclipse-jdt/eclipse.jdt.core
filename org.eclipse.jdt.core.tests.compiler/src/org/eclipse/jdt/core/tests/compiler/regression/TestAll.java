@@ -586,13 +586,6 @@ public static Test suite() {
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
 				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_23), tests_23));
 	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_23) != 0) {
-		ArrayList tests_23 = (ArrayList)standardTests.clone();
-		tests_23.addAll(since_23);
-		TestCase.resetForgottenFilters(tests_23);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
-				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_23), tests_23));
-	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;
 }
