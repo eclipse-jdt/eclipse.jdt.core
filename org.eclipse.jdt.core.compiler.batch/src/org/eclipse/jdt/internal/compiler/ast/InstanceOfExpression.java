@@ -226,10 +226,8 @@ private void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
 			break;
 		case WIDENING_PRIMITIVE_CONVERSION:
 		case NARROWING_PRIMITVE_CONVERSION:
-			generateExactConversions(scope, codeStream);
-			break;
 		case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
-			//TODO
+			generateExactConversions(scope, codeStream);
 			break;
 		case BOXING_CONVERSION:
 			//TODO
@@ -264,10 +262,8 @@ private void generateTestingConversion(BlockScope scope, CodeStream codeStream) 
 			break;
 		case WIDENING_PRIMITIVE_CONVERSION:
 		case NARROWING_PRIMITVE_CONVERSION:
-			conversionCode(scope, codeStream);
-			break;
 		case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
-			//TODO
+			conversionCode(scope, codeStream);
 			break;
 		case BOXING_CONVERSION:
 			//TODO
@@ -362,7 +358,8 @@ private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeB
 	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
 
 	if (route == PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION
-			|| route == PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION) {
+			|| route == PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION
+			|| route == PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION) {
 //				this.expression.computeConversion(scope, expressionType, checkedType);
 	} else if (route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
 		scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);

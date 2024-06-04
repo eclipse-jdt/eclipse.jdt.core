@@ -2129,7 +2129,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	}
 	// Narrowing Primitive Double
 
-	public void testX001() {
+	public void test087() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2195,7 +2195,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"49\n" +
 			"49.0");
 	}
-	public void testX002() {
+	public void test088() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2256,7 +2256,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"49.0");
 	}
 
-	public void testX003() {
+	public void test089() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2324,7 +2324,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"49\n" +
 			"49.0");
 	}
-	public void testX004() {
+	public void test090() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2389,7 +2389,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 
 
 	//Narrowing float
-	public void testF001() {
+	public void test091() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2456,7 +2456,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"49.0");
 	}
-	public void testF002() {
+	public void test092() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2508,7 +2508,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"49");
 	}
-	public void testF003() {
+	public void test093() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2567,7 +2567,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"49");
 	}
-	public void testF004() {
+	public void test094() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2623,7 +2623,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	}
 
 	// Narrowing Long
-	public void testL001() {
+	public void test095() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2672,7 +2672,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"1\n" +
 				"49");
 	}
-	public void testL002() {
+	public void test096() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2716,7 +2716,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"1\n" +
 				"49");
 	}
-	public void testL003() {
+	public void test097() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2766,7 +2766,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"1\n" +
 				"49");
 	}
-	public void testL004() {
+	public void test098() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2813,7 +2813,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49");
 	}
 	// Narrowing int
-	public void testI001() {
+	public void test099() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2853,7 +2853,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"1");
 	}
-	public void testI002() {
+	public void test100() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2889,7 +2889,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"1");
 	}
-	public void testI003() {
+	public void test101() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2930,7 +2930,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"1");
 	}
-	public void testI004() {
+	public void test102() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -2969,7 +2969,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"1");
 	}
 	// Narrowing char
-	public void testC001() {
+	public void test103() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -3000,7 +3000,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"49");
 	}
-	public void testC002() {
+	public void test104() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -3028,7 +3028,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"49");
 	}
-	public void testC003() {
+	public void test105() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -3060,7 +3060,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"49");
 	}
-	public void testC004() {
+	public void test106() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -3092,7 +3092,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	}
 
 	// Narrowing short
-	public void testS001() {
+	public void test107() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -3123,7 +3123,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"1");
 	}
-	public void testS002() {
+	public void test108() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -3151,7 +3151,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"1");
 	}
-	public void testS003() {
+	public void test109() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -3183,7 +3183,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"1");
 	}
-	public void testS004() {
+	public void test110() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -3212,6 +3212,95 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 				"49\n" +
 				"1");
+	}
+
+	// 5.1.4 Widening and Narrowing Primitive Conversion
+	public void test111() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static char b2c(byte b) {
+						if (b instanceof char) {
+							char r = (char) b;
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						byte b = 49;
+						System.out.println(X.b2c(b));
+
+					}
+				}
+				"""
+			},
+				"1");
+	}
+	public void test112() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static char b2c(byte b) {
+						if (b instanceof char r) {
+							return r;
+						}
+						return 0;
+					}
+					public static void main(String[] args) {
+						byte b = 49;
+						System.out.println(X.b2c(b));
+					}
+				}
+     			"""
+			},
+				"1");
+	}
+	public void test113() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static char b2c() {
+						if (getByte() instanceof char) {
+							char r = (char) getByte();
+							return r;
+						}
+						return 0;
+					}
+					private static byte getByte() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.b2c());
+					}
+				}
+     			"""
+			},
+			"1");
+	}
+	public void test114() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public static char b2c() {
+						if (getByte() instanceof char r) {
+							return r;
+						}
+						return 0;
+					}
+					private static byte getByte() {
+						return 49;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.b2c());
+					}
+				}
+     			"""
+			},
+			"1");
 	}
 
 	// test from spec

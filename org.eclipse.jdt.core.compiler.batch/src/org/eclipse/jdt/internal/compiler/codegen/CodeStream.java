@@ -5574,6 +5574,7 @@ public void invokeExactConversionsSupport(int typeFromTo) {
 			break;
 		case TypeIds.Int2Char :
 		case TypeIds.Short2Char :
+		case TypeIds.Byte2Char:
 			methodName = ConstantPool.isIntToCharExact;
 			signature = ConstantPool.isIntToCharExactSignature;
 			typeID = TypeIds.T_char;

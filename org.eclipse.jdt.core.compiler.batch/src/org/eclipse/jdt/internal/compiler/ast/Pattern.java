@@ -154,6 +154,8 @@ public abstract class Pattern extends Expression {
 				return PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION;
 			if (BaseTypeBinding.isNarrowing(left.id, right.id))
 				return PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION;
+			if (BaseTypeBinding.isWideningAndNarrowing(left.id, right.id))
+				return PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION;
 		}
 		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 	}

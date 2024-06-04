@@ -100,6 +100,20 @@ public class BaseTypeBinding extends TypeBinding {
 		return table;
 	}
 	/**
+	 * Predicate telling whether "left" can store a "right" using some widening conversion
+	 *(is left bigger than right)
+	 * @param left - the target type to convert to
+	 * @param right - the actual type
+	 * @return true if legal widening conversion
+	 */
+	public static final boolean isWidening(int left, int right) {
+		int right2left = right + (left<<4);
+		return right2left >= 0
+						&& right2left < MAX_CONVERSIONS
+						&& (CONVERSIONS[right2left] & (IDENTITY|WIDENING)) != 0;
+	}
+
+	/**
 	 * Predicate telling whether "left" can store a "right" using some narrowing conversion
 	 *(is left smaller than right)
 	 * @param left - the target type to convert to
@@ -114,17 +128,14 @@ public class BaseTypeBinding extends TypeBinding {
 	}
 
 	/**
-	 * Predicate telling whether "left" can store a "right" using some widening conversion
-	 *(is left bigger than right)
+	 * Predicate telling whether its a widening followed by narrowing conversion -
+	 * as per section 5.1.4 applicable for byte to char
 	 * @param left - the target type to convert to
 	 * @param right - the actual type
-	 * @return true if legal widening conversion
+	 * @return true if  widening and narrowing conversion
 	 */
-	public static final boolean isWidening(int left, int right) {
-		int right2left = right + (left<<4);
-		return right2left >= 0
-						&& right2left < MAX_CONVERSIONS
-						&& (CONVERSIONS[right2left] & (IDENTITY|WIDENING)) != 0;
+	public static final boolean isWideningAndNarrowing(int left, int right) {
+		return TypeIds.Byte2Char ==  right + (left<<4);
 	}
 
 	/**
