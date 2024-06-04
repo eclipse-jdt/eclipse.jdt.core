@@ -507,21 +507,20 @@ class JavacConverter {
 				}
 			}
 		} else if (res instanceof EnumDeclaration enumDecl) {
-	        List enumStatements= enumDecl.enumConstants();
+			List<EnumConstantDeclaration> enumStatements= enumDecl.enumConstants();
 			if (javacClassDecl.getMembers() != null) {
-		        for( Iterator<JCTree> i = javacClassDecl.getMembers().iterator(); i.hasNext(); ) {
-		        	JCTree iNext = i.next();
-		        	EnumConstantDeclaration dec1 = convertEnumConstantDeclaration(iNext, parent, enumDecl);
-		        	if( dec1 != null ) {
-		        		enumStatements.add(dec1);
-		        	} else {
-		        		// body declaration
-		        		ASTNode bodyDecl = convertBodyDeclaration(iNext, res);
-		        		if( bodyDecl != null ) {
-		        			res.bodyDeclarations().add(bodyDecl);
-		        		}
-		        	}
-		        }
+				for(JCTree member : javacClassDecl.getMembers()) {
+					EnumConstantDeclaration dec1 = convertEnumConstantDeclaration(member, parent, enumDecl);
+					if( dec1 != null ) {
+						enumStatements.add(dec1);
+					} else {
+						// body declaration
+						ASTNode bodyDecl = convertBodyDeclaration(member, res);
+						if( bodyDecl != null ) {
+							res.bodyDeclarations().add(bodyDecl);
+						}
+					}
+				}
 			}
 		} else if (res instanceof AnnotationTypeDeclaration annotDecl) {
 			//setModifiers(annotationTypeMemberDeclaration2, annotationTypeMemberDeclaration);
@@ -2788,7 +2787,7 @@ class JavacConverter {
 	private EnumConstantDeclaration convertEnumConstantDeclaration(JCTree var, ASTNode parent, EnumDeclaration enumDecl) {
 		EnumConstantDeclaration enumConstantDeclaration = null;
 		String enumName = null;
-		if( var instanceof JCVariableDecl enumConstant ) {
+		if( var instanceof JCVariableDecl enumConstant && (enumConstant.getModifiers().flags & Flags.ENUM) != 0 ) {
 			if( enumConstant.getType() instanceof JCIdent jcid) {
 				String o = jcid.getName().toString();
 				String o2 = enumDecl.getName().toString();
