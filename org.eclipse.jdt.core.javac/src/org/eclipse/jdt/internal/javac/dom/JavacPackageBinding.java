@@ -90,7 +90,7 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 				.filter(IPackageFragment::exists)
 				.findFirst()
 				.orElse(null);
-			
+
 			// TODO need to make sure the package is accessible in the module. :|
 			return ret;
 		} catch (JavaModelException e) {
@@ -99,7 +99,7 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 			return null;
 		}
 	}
-	
+
 	public IModuleBinding getModule() {
 		return this.resolver.bindings.getModuleBinding(this.packageSymbol.modle);
 	}
@@ -131,7 +131,7 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 
 	@Override
 	public String[] getNameComponents() {
-		return isUnnamed()? new String[0] : this.packageSymbol.getQualifiedName().toString().split("."); //$NON-NLS-1$
+		return isUnnamed()? new String[0] : this.packageSymbol.getQualifiedName().toString().split("\\."); //$NON-NLS-1$
 	}
 
 	@Override
