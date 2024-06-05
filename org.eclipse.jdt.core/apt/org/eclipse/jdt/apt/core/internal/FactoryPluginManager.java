@@ -15,20 +15,23 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
+import org.eclipse.jdt.core.JavaCore;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
@@ -38,6 +41,8 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
  * @since 3.3
  */
 public class FactoryPluginManager {
+	private static final String EXTENSION_POINT_ID = "annotationProcessorFactory"; //$NON-NLS-1$
+
 	/**
 	 * Map of factory names -> factories.  A single plugin factory container may
 	 * contain multiple annotation processor factories, each with a unique name.
@@ -160,24 +165,19 @@ public class FactoryPluginManager {
 		if (mapsInitialized) {
 			return;
 		}
-		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint(
-				AptPlugin.PLUGIN_ID, // name of plugin that exposes this extension point
-				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
+		var extensionRegistry = Platform.getExtensionRegistry();
+		List<IConfigurationElement> elements = new ArrayList<>();
+		elements.addAll(Arrays.asList(extensionRegistry.getConfigurationElementsFor(AptPlugin.PLUGIN_ID, EXTENSION_POINT_ID))); // legacy
+		elements.addAll(Arrays.asList(extensionRegistry.getConfigurationElementsFor(JavaCore.PLUGIN_ID, EXTENSION_POINT_ID)));
 
 		// Iterate over all declared extensions of this extension point.
 		// A single plugin may extend the extension point more than once, although it's not recommended.
-		for (IExtension extension : extensionPoint.getExtensions())
-		{
-			// Iterate over the children of the extension to find one named "factories".
-			for(IConfigurationElement factories : extension.getConfigurationElements())
-			{
-				if ("factories".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement
-					loadJava5Factories(extension, factories);
-				}
-				else if ("java6processors".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement
-					loadJava6Factories(extension, factories);
-				}
-
+		// Iterate over the children of the extension to find one named "factories".
+		for(IConfigurationElement factories : elements) {
+			if ("factories".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement
+				loadJava5Factories(factories.getDeclaringExtension(), factories);
+			} else if ("java6processors".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement
+				loadJava6Factories(factories.getDeclaringExtension(), factories);
 			}
 		}
 		mapsInitialized = true;

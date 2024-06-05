@@ -34,11 +34,12 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.apt.core.env.Phase;
+import org.eclipse.jdt.apt.core.internal.env.APTProblem;
 import org.eclipse.jdt.apt.core.internal.env.AbstractCompilationEnv;
+import org.eclipse.jdt.apt.core.internal.env.AbstractCompilationEnv.EnvCallback;
 import org.eclipse.jdt.apt.core.internal.env.BuildEnv;
 import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
 import org.eclipse.jdt.apt.core.internal.env.ReconcileEnv;
-import org.eclipse.jdt.apt.core.internal.env.AbstractCompilationEnv.EnvCallback;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -97,8 +98,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			final int numProblems = problemList.size();
 			if (numProblems > 0) {
 				final CategorizedProblem[] aptCatProblems = new CategorizedProblem[numProblems];
-				_context.putProblems(
-				AptPlugin.APT_COMPILATION_PROBLEM_MARKER, problemList
+				_context.putProblems(APTProblem.APT_COMPILATION_PROBLEM_MARKER, problemList
 						.toArray(aptCatProblems));
 			}
 

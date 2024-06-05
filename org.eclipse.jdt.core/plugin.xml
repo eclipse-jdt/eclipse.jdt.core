@@ -300,4 +300,83 @@
    </javaFormatter>
 </extension>
 
+
+<!-- =================================================================================== -->
+<!-- Annotation Processing                                                               -->
+<!-- =================================================================================== -->
+<!-- =================================================================================== -->
+<!-- Extension Point: Annotation Processor Factories                                     -->
+<!-- =================================================================================== -->
+
+<extension-point 
+	id="annotationProcessorFactory" 
+	name="%annotationProcessorFactoriesName" 
+	schema="schema/annotationProcessorFactory.exsd"/>
+
+<!-- =================================================================================== -->
+<!-- Extension Point: .factorypath File Type                                             -->
+<!-- =================================================================================== -->
+
+<extension point="org.eclipse.team.core.fileTypes">
+    <fileTypes extension="factorypath" type="text"/>
+</extension>
+
+<!-- =================================================================================== -->
+<!-- Extension: Compilation Participant                                                  -->
+<!-- =================================================================================== -->
+<extension
+      id="org.eclipse.jdt.apt.core.apt"
+      name="%annotationProcessingName"
+      point="org.eclipse.jdt.core.compilationParticipant">
+   <compilationParticipant
+         class="org.eclipse.jdt.apt.core.internal.AptCompilationParticipantExtensionFactory"
+         id="APT"
+         requiredSourceLevel="1.5">
+      <managedMarker markerType="org.eclipse.jdt.core.apt.compile.problem"/>
+      <managedMarker markerType="org.eclipse.jdt.core.apt.nonreconcile.compile.problem"/>
+   </compilationParticipant>
+</extension>
+
+<!-- =================================================================================== -->
+<!-- Extension: APT Problem                                                             -->
+<!-- =================================================================================== -->
+<extension id="apt.compile.problem" point="org.eclipse.core.resources.markers" name="%aptBatchMarkerName">
+	<super type="org.eclipse.jdt.core.problem"/>
+	<persistent value="true"/>
+</extension>  
+
+<extension id="apt.nonreconcile.compile.problem" point="org.eclipse.core.resources.markers" name="%aptNonreconcileBatchMarkerName">
+	<super type="org.eclipse.core.resources.problemmarker"/>
+	<super type="org.eclipse.core.resources.textmarker"/>
+	<persistent value="true"/>
+</extension>  
+
+<extension id="apt.buildproblem" point="org.eclipse.core.resources.markers" name="%aptBuildMarkerName">
+	<super type="org.eclipse.core.resources.problemmarker"/>
+	<super type="org.eclipse.core.resources.textmarker"/>
+	<persistent value="true"/>
+</extension>  
+
+<extension id="apt.configproblem" point="org.eclipse.core.resources.markers" name="%aptConfigurationMarkerName">
+	<super type="org.eclipse.core.resources.problemmarker"/>
+	<super type="org.eclipse.core.resources.textmarker"/>
+	<persistent value="true"/>
+</extension>
+
+<!-- =================================================================================== -->
+<!-- Extension: Headless Build                                                           -->
+<!-- =================================================================================== -->
+<extension
+      id="aptBuild"
+      point="org.eclipse.core.runtime.applications">
+   <application>
+      <run class="org.eclipse.jdt.apt.core.build.AptBuilder"/>
+   </application>
+</extension>
+
+<extension
+      point="org.eclipse.core.runtime.preferences">
+   <initializer class="org.eclipse.jdt.apt.core.internal.util.AptCorePreferenceInitializer"/>
+</extension>
+
 </plugin>

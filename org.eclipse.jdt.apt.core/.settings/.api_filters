@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.jdt.apt.core" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter comment="API moved to org.eclipse.jdt.core, but reexported here" id="923795461">
+            <message_arguments>
+                <message_argument value="3.9.0"/>
+                <message_argument value="3.8.300"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

@@ -580,7 +580,7 @@ public class BuildEnv extends AbstractCompilationEnv
 	            {
 	                for( MarkerInfo markerInfo : _markerInfos ){
 						try{
-		                    final IMarker marker = _javaProject.getProject().createMarker(AptPlugin.APT_BATCH_PROCESSOR_PROBLEM_MARKER);
+		                    final IMarker marker = _javaProject.getProject().createMarker(APTProblem.APT_BATCH_PROCESSOR_PROBLEM_MARKER);
 		                    markerInfo.copyIntoMarker(marker);
 						}
 						catch(CoreException e){

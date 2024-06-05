@@ -2,11 +2,11 @@
 <!-- Schema file written by PDE -->
 <schema targetNamespace="org.eclipse.jdt.apt.core">
 <annotation>
-      <appinfo>
-         <meta.schema plugin="org.eclipse.jdt.apt.core" id="annotationProcessorFactory" name="Deprecated - use org.eclipse.jdt.core.annotationProcessorFactory"/>
-      </appinfo>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.jdt.apt.core" id="annotationProcessorFactory" name="Annotation Processor Factories"/>
+      </appInfo>
       <documentation>
-         Deprecated - use org.eclipse.jdt.core.annotationProcessorFactory
+         Plug-ins which contribute JSR-175 annotation processors should extend this extension point in order to participate in compilation.
       </documentation>
    </annotation>
 
@@ -21,9 +21,6 @@
                <documentation>
                   
                </documentation>
-               <appinfo>
-                  <meta.attribute deprecated="true"/>
-               </appinfo>
             </annotation>
          </attribute>
          <attribute name="id" type="string">
@@ -125,7 +122,7 @@ present this value defaults to true.
          <meta.section type="since"/>
       </appInfo>
       <documentation>
-         3.2
+         3.39
       </documentation>
    </annotation>
 
@@ -136,7 +133,7 @@ present this value defaults to true.
       <documentation>
          Example of a declaration of an &lt;code&gt;annotationProcessorFactory&lt;/code&gt;:  &lt;pre&gt;                                                                       
      &lt;extension
-         point=&quot;org.eclipse.jdt.apt.core.annotationProcessorFactory&quot;&gt;
+         point=&quot;org.eclipse.jdt.core.annotationProcessorFactory&quot;&gt;
       &lt;factories enableDefault=&quot;true&quot;&gt;
        &lt;factory
           class=&quot;org.xyz.HelloWorldAnnotationProcessorFactory&quot;&gt;

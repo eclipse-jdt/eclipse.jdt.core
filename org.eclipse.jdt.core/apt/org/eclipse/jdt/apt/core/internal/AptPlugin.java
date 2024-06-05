@@ -60,16 +60,6 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 	 */
 	public static final String APT_MARKER_SOURCE_ID = "APT"; //$NON-NLS-1$
 
-	public static final String APT_BATCH_PROCESSOR_PROBLEM_MARKER = PLUGIN_ID + ".marker"; //$NON-NLS-1$
-	/** Marker ID used for build problem, e.g., missing factory jar */
-	public static final String APT_LOADER_PROBLEM_MARKER = PLUGIN_ID + ".buildproblem"; //$NON-NLS-1$
-	/** Marker ID used for configuration problem, e.g generated source folder not on classpath */
-	public static final String APT_CONFIG_PROBLEM_MARKER = PLUGIN_ID + ".configproblem"; //$NON-NLS-1$
-	/** Marker ID used for posting problems during reconcile/build */
-	public static final String APT_COMPILATION_PROBLEM_MARKER = PLUGIN_ID + ".compile.problem"; //$NON-NLS-1$
-	/** Marker ID used for posting problems during build by processors that don't run in reconcile */
-	public static final String APT_NONRECONCILE_COMPILATION_PROBLEM_MARKER = PLUGIN_ID + ".nonreconcile.compile.problem"; //$NON-NLS-1$
-
 	private static final SimpleDateFormat TRACE_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS"); //$NON-NLS-1$
 
 	private static AptPlugin thePlugin = null; // singleton object
@@ -244,7 +234,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 			}
 		}
 	}
-	
+
 	public static void cleanProjectCache() {
 		synchronized(PROJECT_MAP){
 			PROJECT_MAP.clear();

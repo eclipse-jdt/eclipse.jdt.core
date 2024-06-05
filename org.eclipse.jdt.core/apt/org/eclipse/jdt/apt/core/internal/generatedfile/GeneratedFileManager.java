@@ -41,6 +41,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.Messages;
+import org.eclipse.jdt.apt.core.internal.env.APTProblem;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.core.internal.util.ManyToMany;
 import org.eclipse.jdt.core.ElementChangedEvent;
@@ -351,7 +352,7 @@ public class GeneratedFileManager
 		try {
 			// clear out any generated source folder config markers
 			if(!_gsfm.isTestCode()) {
-				IMarker[] markers = _jProject.getProject().findMarkers(AptPlugin.APT_CONFIG_PROBLEM_MARKER, true,
+				IMarker[] markers = _jProject.getProject().findMarkers(APTProblem.APT_CONFIG_PROBLEM_MARKER, true,
 						IResource.DEPTH_INFINITE);
 				if (markers != null) {
 					for (IMarker marker : markers)
@@ -506,7 +507,7 @@ public class GeneratedFileManager
 			// then it doesn't matter that the classpath is wrong.
 			String message = Messages.bind(Messages.GeneratedFileManager_missing_classpath_entry,
 					new String[] { gpfr.name });
-			IMarker marker = _jProject.getProject().createMarker(AptPlugin.APT_CONFIG_PROBLEM_MARKER);
+			IMarker marker = _jProject.getProject().createMarker(APTProblem.APT_CONFIG_PROBLEM_MARKER);
 			marker.setAttributes(new String[] { IMarker.MESSAGE, IMarker.SEVERITY, IMarker.SOURCE_ID },
 					new Object[] { message,	IMarker.SEVERITY_ERROR, AptPlugin.APT_MARKER_SOURCE_ID });
 			// disable any future type generation

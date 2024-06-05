@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.core; singleton:=true
-Bundle-Version: 3.38.100.qualifier
+Bundle-Version: 3.39.0.qualifier
 Bundle-Activator: org.eclipse.jdt.core.JavaCore
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -41,7 +41,22 @@ Export-Package: org.eclipse.jdt.core,
  org.eclipse.jdt.internal.eval;x-friends:="org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests",
  org.eclipse.jdt.internal.formatter;x-friends:="org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests, org.eclipse.jdt.ui.tests",
  org.eclipse.jdt.internal.formatter.linewrap;x-friends:="org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests",
- org.eclipse.jdt.internal.formatter.old;x-friends:="org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests"
+ org.eclipse.jdt.internal.formatter.old;x-friends:="org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests",
+ com.sun.mirror.apt;version="3.8.400",
+ com.sun.mirror.declaration;version="3.8.400",
+ com.sun.mirror.type;version="3.8.400",
+ com.sun.mirror.util;version="3.8.400",
+ org.eclipse.jdt.apt.core.build;version="3.8.400",
+ org.eclipse.jdt.apt.core.env;version="3.8.400",
+ org.eclipse.jdt.apt.core.internal;version="3.8.400";x-friends:="org.eclipse.jdt.apt.pluggable.core,org.eclipse.jdt.apt.tests,org.eclipse.jdt.apt.ui,org.eclipse.jdt.apt.pluggable.tests",
+ org.eclipse.jdt.apt.core.internal.build;version="3.8.400";x-friends:="org.eclipse.jdt.apt.pluggable.core,org.eclipse.jdt.apt.tests,org.eclipse.jdt.apt.ui,org.eclipse.jdt.apt.pluggable.tests",
+ org.eclipse.jdt.apt.core.internal.declaration;version="3.8.400";x-friends:="org.eclipse.jdt.apt.pluggable.core,org.eclipse.jdt.apt.tests,org.eclipse.jdt.apt.ui,org.eclipse.jdt.apt.pluggable.tests",
+ org.eclipse.jdt.apt.core.internal.env;version="3.8.400";x-friends:="org.eclipse.jdt.apt.pluggable.core,org.eclipse.jdt.apt.tests,org.eclipse.jdt.apt.ui,org.eclipse.jdt.apt.pluggable.tests",
+ org.eclipse.jdt.apt.core.internal.generatedfile;version="3.8.400";x-friends:="org.eclipse.jdt.apt.pluggable.core,org.eclipse.jdt.apt.tests,org.eclipse.jdt.apt.ui,org.eclipse.jdt.apt.pluggable.tests",
+ org.eclipse.jdt.apt.core.internal.type;version="3.8.400";x-friends:="org.eclipse.jdt.apt.pluggable.core,org.eclipse.jdt.apt.tests,org.eclipse.jdt.apt.ui,org.eclipse.jdt.apt.pluggable.tests",
+ org.eclipse.jdt.apt.core.internal.util;version="3.8.400";x-friends:="org.eclipse.jdt.apt.pluggable.core,org.eclipse.jdt.apt.tests,org.eclipse.jdt.apt.ui,org.eclipse.jdt.apt.pluggable.tests",
+ org.eclipse.jdt.apt.core.util;version="3.8.400"
+Import-Package: com.sun.mirror.type
 Require-Bundle: org.eclipse.core.resources;bundle-version="[3.18.0,4.0.0)",
  org.eclipse.core.runtime;bundle-version="[3.29.0,4.0.0)",
  org.eclipse.core.filesystem;bundle-version="[1.7.0,2.0.0)",
