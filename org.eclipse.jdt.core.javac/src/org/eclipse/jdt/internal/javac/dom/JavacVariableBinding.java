@@ -187,7 +187,9 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 	public ITypeBinding getDeclaringClass() {
 		Symbol parentSymbol = this.variableSymbol.owner;
 		do {
-			if (parentSymbol instanceof ClassSymbol clazz) {
+			if (parentSymbol instanceof MethodSymbol) {
+				return null;
+			} else if (parentSymbol instanceof ClassSymbol clazz) {
 				return this.resolver.bindings.getTypeBinding(clazz.type);
 			}
 			parentSymbol = parentSymbol.owner;
