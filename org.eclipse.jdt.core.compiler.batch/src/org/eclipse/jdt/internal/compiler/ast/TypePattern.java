@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2023 IBM Corporation and others.
+ * Copyright (c) 2021, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -18,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
@@ -104,7 +109,12 @@ public class TypePattern extends Pattern {
 			} // else we don't value on stack.
 		} else {
 			if (!this.isTotalTypeNode) {
-				codeStream.checkcast(this.local.binding.type);
+				boolean checkCast = ((JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(
+						currentScope.compilerOptions().sourceLevel,
+						currentScope.compilerOptions().enablePreviewFeatures))) ?
+								!this.local.binding.type.isBaseType() : true;
+				if (checkCast)
+					codeStream.checkcast(this.local.binding.type);
 			}
 			this.local.generateCode(currentScope, codeStream);
 		}

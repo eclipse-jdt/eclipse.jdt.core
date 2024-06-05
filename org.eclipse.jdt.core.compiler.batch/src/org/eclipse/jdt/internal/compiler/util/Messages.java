@@ -128,6 +128,7 @@ public final class Messages {
 	public static String implicit_classes_and_instance_main_methods;
 	public static String string_templates;
 	public static String statements_before_super;
+	public static String primitives_in_patterns;
 
 	static {
 		initializeMessages(BUNDLE_NAME, Messages.class);

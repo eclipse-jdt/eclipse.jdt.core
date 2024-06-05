@@ -255,8 +255,9 @@ public static Test suite() {
 	 since_22.add(SwitchPatternTest21.class);
 
 	 ArrayList since_23 = new ArrayList();
-	 since_22.add(SuperAfterStatementsTest.class);
-	 since_22.add(ImplicitlyDeclaredClassesTest.class);
+	 since_23.add(SuperAfterStatementsTest.class);
+	 since_23.add(ImplicitlyDeclaredClassesTest.class);
+	 since_23.add(PrimitiveInPatternsTest.class);
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
@@ -563,6 +564,23 @@ public static Test suite() {
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_23) != 0) {
 		ArrayList tests_23 = (ArrayList)standardTests.clone();
+		tests_23.addAll(since_1_4);
+		tests_23.addAll(since_1_5);
+		tests_23.addAll(since_1_6);
+		tests_23.addAll(since_1_7);
+		tests_23.addAll(since_1_8);
+		tests_23.addAll(since_9);
+		tests_23.addAll(since_10);
+		tests_23.addAll(since_11);
+		tests_23.addAll(since_12);
+		tests_23.addAll(since_13);
+		tests_23.addAll(since_14);
+		tests_23.addAll(since_15);
+		tests_23.addAll(since_16);
+		tests_23.addAll(since_17);
+		tests_23.addAll(since_18);
+		tests_23.addAll(since_21);
+		tests_23.addAll(since_22);
 		tests_23.addAll(since_23);
 		TestCase.resetForgottenFilters(tests_23);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(

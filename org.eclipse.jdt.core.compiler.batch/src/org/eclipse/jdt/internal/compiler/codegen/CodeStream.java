@@ -5455,6 +5455,144 @@ public void invokeStringValueOf(int typeID) {
 			getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
 }
 
+//record PrimitiveConvertorRecord(int t2t, char[] methodName, char[] signature, int typeID, int receiverAndArgsSize, int returnTypeSize) {}
+public void invokeExactConversionsSupport(int typeFromTo) {
+	// invokestatic: java/lang/runtime/ExactConversionsSupport.is{Functions}(argumentType)
+	char[] signature;
+	int typeID = typeFromTo & TypeIds.COMPILE_TYPE_MASK;
+	int receiverAndArgsSize = TypeIds.getCategory(typeID);
+	int returnTypeSize = 1; // boolean always
+	char[] methodName;
+	switch (typeFromTo) { // TODO: put this in an array of records.
+		case TypeIds.Int2Float :
+			methodName = ConstantPool.isIntToFloatExact;
+			signature = ConstantPool.isIntToFloatExactSignature;
+			typeID = TypeIds.T_int;
+			break;
+		case TypeIds.Long2Float :
+			methodName = ConstantPool.isLongToFloatExact;
+			signature = ConstantPool.isLongToFloatExactSignature;
+			typeID = TypeIds.T_long;
+			break;
+		case TypeIds.Long2Double :
+			methodName = ConstantPool.isLongToDoubleExact;
+			signature = ConstantPool.isLongToDoubleExactSignature;
+			typeID = TypeIds.T_long;
+			break;
+		case TypeIds.Float2Double :
+			methodName = ConstantPool.isFloatToDoubleExact;
+			signature = ConstantPool.isFloatToDoubleExactSignature;
+			typeID = TypeIds.T_float;
+			break;
+		case TypeIds.Double2Byte :
+			methodName = ConstantPool.isDoubleToByteExact;
+			signature = ConstantPool.isDoubleToByteExactSignature;
+			typeID = TypeIds.T_byte;
+			break;
+		case TypeIds.Double2Short :
+			methodName = ConstantPool.isDoubleToShortExact;
+			signature = ConstantPool.isDoubleToShortExactSignature;
+			typeID = TypeIds.T_short;
+			break;
+		case TypeIds.Double2Char :
+			methodName = ConstantPool.isDoubleToCharExact;
+			signature = ConstantPool.isDoubleToCharExactSignature;
+			typeID = TypeIds.T_char;
+			break;
+		case TypeIds.Double2Int :
+			methodName = ConstantPool.isDoubleToIntExact;
+			signature = ConstantPool.isDoubleToIntExactSignature;
+			typeID = TypeIds.T_int;
+			break;
+		case TypeIds.Double2Long :
+			methodName = ConstantPool.isDoubleToLongExact;
+			signature = ConstantPool.isDoubleToLongExactSignature;
+			typeID = TypeIds.T_long;
+			break;
+		case TypeIds.Double2Float :
+			methodName = ConstantPool.isDoubleToFloatExact;
+			signature = ConstantPool.isDoubleToFloatExactSignature;
+			typeID = TypeIds.T_float;
+			break;
+		case TypeIds.Float2Byte :
+			methodName = ConstantPool.isFloatToByteExact;
+			signature = ConstantPool.isFloatToByteExactSignature;
+			typeID = TypeIds.T_byte;
+			break;
+		case TypeIds.Float2Short :
+			methodName = ConstantPool.isFloatToShortExact;
+			signature = ConstantPool.isFloatToShortExactSignature;
+			typeID = TypeIds.T_short;
+			break;
+		case TypeIds.Float2Char :
+			methodName = ConstantPool.isFloatToCharExact;
+			signature = ConstantPool.isFloatToCharExactSignature;
+			typeID = TypeIds.T_char;
+			break;
+		case TypeIds.Float2Int :
+			methodName = ConstantPool.isFloatToIntExact;
+			signature = ConstantPool.isFloatToIntExactSignature;
+			typeID = TypeIds.T_int;
+			break;
+		case TypeIds.Float2Long :
+			methodName = ConstantPool.isFloatToLongExact;
+			signature = ConstantPool.isFloatToLongExactSignature;
+			typeID = TypeIds.T_long;
+			break;
+		case TypeIds.Long2Byte :
+			methodName = ConstantPool.isLongToByteExact;
+			signature = ConstantPool.isLongToByteExactSignature;
+			typeID = TypeIds.T_byte;
+			break;
+		case TypeIds.Long2Short :
+			methodName = ConstantPool.isLongToShortExact;
+			signature = ConstantPool.isLongToShortExactSignature;
+			typeID = TypeIds.T_short;
+			break;
+		case TypeIds.Long2Char :
+			methodName = ConstantPool.isLongToCharExact;
+			signature = ConstantPool.isLongToCharExactSignature;
+			typeID = TypeIds.T_char;
+			break;
+		case TypeIds.Long2Int :
+			methodName = ConstantPool.isLongToIntExact;
+			signature = ConstantPool.isLongToIntExactSignature;
+			typeID = TypeIds.T_int;
+			break;
+		case TypeIds.Int2Byte :
+		case TypeIds.Char2Byte :
+		case TypeIds.Short2Byte :
+			methodName = ConstantPool.isIntToByteExact;
+			signature = ConstantPool.isIntToByteExactSignature;
+			typeID = TypeIds.T_byte;
+			break;
+		case TypeIds.Int2Short :
+		case TypeIds.Char2Short :
+			methodName = ConstantPool.isIntToShortExact;
+			signature = ConstantPool.isIntToShortExactSignature;
+			typeID = TypeIds.T_short;
+			break;
+		case TypeIds.Int2Char :
+		case TypeIds.Short2Char :
+		case TypeIds.Byte2Char:
+			methodName = ConstantPool.isIntToCharExact;
+			signature = ConstantPool.isIntToCharExactSignature;
+			typeID = TypeIds.T_char;
+			break;
+		default :
+			return; // should not occur
+	}
+	invoke(
+			Opcodes.OPC_invokestatic,
+			receiverAndArgsSize, // receiverAndArgsSize
+			returnTypeSize, // return type size
+			ConstantPool.ExactConversionsSupport,
+			methodName,
+			signature,
+			typeID,
+			getPopularBinding(ConstantPool.ExactConversionsSupport));
+}
+
 public void invokeThrowableToString() {
 	char[] declaringClass = ConstantPool.JavaLangThrowableConstantPoolName;
 	invoke(
